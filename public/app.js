@@ -7,6 +7,125 @@ let ME = null;
 let cleanups = [];
 let RANGE = 90;
 
+/* ---------- Farbschema & Theme Management ---------- */
+const THEME_KEY = 'aquarium_theme';
+let activeCharts = [];
+
+function getThemeSetting() {
+  return localStorage.getItem(THEME_KEY) || localStorage.getItem('theme') || 'system';
+}
+
+function isSystemDark() {
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function isEffectiveDark() {
+  const t = getThemeSetting();
+  if (t === 'dark') return true;
+  if (t === 'light') return false;
+  return isSystemDark();
+}
+
+function updateThemeUI(setting = getThemeSetting()) {
+  const effectiveDark = isEffectiveDark();
+  const iconSpan = document.getElementById('topbar-theme-icon');
+  const topbarBtn = document.getElementById('btn-theme-topbar');
+
+  const icon = setting === 'system' ? (effectiveDark ? '🌓' : '🌓') : (setting === 'dark' ? '🌙' : '☀️');
+  const label = setting === 'system' ? 'Systemstandard' : (setting === 'dark' ? 'Dunkel' : 'Hell');
+
+  if (iconSpan) iconSpan.textContent = icon;
+  if (topbarBtn) {
+    topbarBtn.title = `Farbschema: ${label} (klicken zum Umschalten)`;
+    topbarBtn.setAttribute('aria-label', topbarBtn.title);
+  }
+
+  const metaTheme = document.getElementById('meta-theme-color');
+  if (metaTheme) {
+    metaTheme.setAttribute('content', effectiveDark ? '#091315' : '#12343b');
+  }
+}
+
+function applyTheme(setting, showNotification = false) {
+  if (setting === 'light' || setting === 'dark') {
+    document.documentElement.setAttribute('data-theme', setting);
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    setting = 'system';
+  }
+  localStorage.setItem(THEME_KEY, setting);
+  updateThemeUI(setting);
+
+  if (showNotification) {
+    const text = setting === 'system'
+      ? `Farbschema: Systemstandard (${isSystemDark() ? 'Dunkel' : 'Hell'})`
+      : (setting === 'dark' ? 'Farbschema: Dunkel' : 'Farbschema: Hell');
+    toast(text);
+  }
+
+  // Aktive Charts dynamisch anpassen
+  if (activeCharts.length > 0) {
+    const isDark = isEffectiveDark();
+    for (const chart of activeCharts) {
+      if (chart && typeof chart.update === 'function') {
+        if (chart.options && chart.options.scales) {
+          if (chart.options.scales.x) {
+            chart.options.scales.x.ticks = chart.options.scales.x.ticks || {};
+            chart.options.scales.x.ticks.color = isDark ? '#8fa9ad' : '#4a6a70';
+            chart.options.scales.x.grid = chart.options.scales.x.grid || {};
+            chart.options.scales.x.grid.color = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+          }
+          if (chart.options.scales.y) {
+            chart.options.scales.y.ticks = chart.options.scales.y.ticks || {};
+            chart.options.scales.y.ticks.color = isDark ? '#8fa9ad' : '#4a6a70';
+            chart.options.scales.y.grid = chart.options.scales.y.grid || {};
+            chart.options.scales.y.grid.color = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+            if (chart.options.scales.y.title) {
+              chart.options.scales.y.title.color = isDark ? '#8fa9ad' : '#4a6a70';
+            }
+          }
+        }
+        if (chart.options && chart.options.plugins && chart.options.plugins.tooltip) {
+          chart.options.plugins.tooltip.backgroundColor = isDark ? '#091315' : '#12343b';
+          chart.options.plugins.tooltip.titleColor = isDark ? '#e2eeed' : '#ffffff';
+          chart.options.plugins.tooltip.bodyColor = isDark ? '#e2eeed' : '#ffffff';
+          chart.options.plugins.tooltip.borderColor = isDark ? '#22383c' : '#bccfcc';
+        }
+        if (chart.data && chart.data.datasets && chart.data.datasets[0]) {
+          chart.data.datasets[0].borderColor = isDark ? '#38bdf8' : '#12343b';
+          chart.data.datasets[0].backgroundColor = isDark ? '#38bdf8' : '#12343b';
+        }
+        chart.update('none');
+      }
+    }
+  }
+}
+
+function toggleTheme() {
+  const current = getThemeSetting();
+  const next = current === 'system' ? 'light' : (current === 'light' ? 'dark' : 'system');
+  applyTheme(next, true);
+  if (location.hash === '#/profile') {
+    route();
+  }
+}
+
+if (window.matchMedia) {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (getThemeSetting() === 'system') {
+      applyTheme('system', false);
+    }
+  });
+}
+
+// Initiales Farbschema anwenden
+applyTheme(getThemeSetting(), false);
+
+const btnThemeTopbar = document.getElementById('btn-theme-topbar');
+if (btnThemeTopbar) {
+  btnThemeTopbar.addEventListener('click', toggleTheme);
+}
+
 /* ---------- Hilfsfunktionen ---------- */
 function h(tag, attrs, ...kids) {
   const el = document.createElement(tag);
@@ -208,8 +327,28 @@ async function showAuth(mode = 'login') {
   const err = h('p', { class: 'error', role: 'alert' }, AUTH_ERROR);
   AUTH_ERROR = '';
   const oidcBtn = info.oidc ? h('a', { class: 'btn', href: 'auth/login' }, `Mit ${info.oidcName} anmelden`) : null;
+
+  const currentTheme = getThemeSetting();
+  const themeAuthIcon = currentTheme === 'system' ? '🌓' : (currentTheme === 'dark' ? '🌙' : '☀️');
+  const themeAuthLabel = currentTheme === 'system' ? 'System' : (currentTheme === 'dark' ? 'Dunkel' : 'Hell');
+  const themeAuthBtn = h('button', {
+    class: 'btn small ghost',
+    type: 'button',
+    title: `Farbschema: ${themeAuthLabel} (klicken zum Umschalten)`,
+    onclick: () => {
+      toggleTheme();
+      const nextTheme = getThemeSetting();
+      themeAuthBtn.textContent = (nextTheme === 'system' ? '🌓 System' : (nextTheme === 'dark' ? '🌙 Dunkel' : '☀️ Hell'));
+    }
+  }, `${themeAuthIcon} ${themeAuthLabel}`);
+
+  const headerRow = h('div', { class: 'row between', style: 'margin-bottom:.5rem; align-items:center;' },
+    h('p', { class: 'muted', style: 'margin:0' }, 'Wasserwerte im Blick behalten.'),
+    themeAuthBtn
+  );
+
   if (!info.localLogin) {
-    mount(h('div', { class: 'auth' }, h('p', { class: 'muted' }, 'Wasserwerte im Blick behalten.'),
+    mount(h('div', { class: 'auth' }, headerRow,
       h('div', { class: 'card stack' }, h('h1', {}, 'Anmelden'), err, oidcBtn)));
     oidcBtn?.focus();
     return;
@@ -234,7 +373,7 @@ async function showAuth(mode = 'login') {
   h('button', { class: 'btn', type: 'submit' }, mode === 'login' ? 'Anmelden' : 'Konto erstellen'),
   mode === 'login' && oidcBtn ? [h('p', { class: 'muted' }, 'oder'), oidcBtn] : null,
   registration && h('button', { class: 'btn ghost', type: 'button', onclick: () => showAuth(mode === 'login' ? 'register' : 'login') }, mode === 'login' ? 'Neues Konto erstellen' : 'Ich habe schon ein Konto'));
-  mount(h('div', { class: 'auth' }, h('p', { class: 'muted' }, 'Wasserwerte im Blick behalten.'), form));
+  mount(h('div', { class: 'auth' }, headerRow, form));
   user.focus();
 }
 
@@ -624,14 +763,15 @@ const bandPlugin = {
     const { ctx, chartArea: a, scales: { y } } = chart;
     if (!o || !a) return;
     const clamp = (px) => Math.min(Math.max(px, a.top), a.bottom);
+    const isDark = isEffectiveDark();
     ctx.save();
     if (o.okMin != null || o.okMax != null) {
       const yTop = o.okMax != null ? clamp(y.getPixelForValue(o.okMax)) : a.top;
       const yBot = o.okMin != null ? clamp(y.getPixelForValue(o.okMin)) : a.bottom;
-      ctx.fillStyle = 'rgba(47,122,88,0.13)';
+      ctx.fillStyle = isDark ? 'rgba(52, 211, 153, 0.16)' : 'rgba(47, 122, 88, 0.13)';
       ctx.fillRect(a.left, yTop, a.right - a.left, Math.max(0, yBot - yTop));
     }
-    ctx.strokeStyle = 'rgba(184,52,31,0.75)';
+    ctx.strokeStyle = isDark ? 'rgba(248, 113, 113, 0.85)' : 'rgba(184, 52, 31, 0.75)';
     ctx.setLineDash([5, 4]); ctx.lineWidth = 1;
     for (const v of [o.critMin, o.critMax]) {
       if (v == null || v < y.min || v > y.max) continue;
@@ -643,6 +783,7 @@ const bandPlugin = {
 };
 
 function makeChart(canvas, p, points, range) {
+  const isDark = isEffectiveDark();
   const ys = points.map((q) => q.y);
   const lo = [Math.min(...ys), range.okMin].filter((v) => v != null);
   const hi = [Math.max(...ys), range.okMax].filter((v) => v != null);
@@ -651,24 +792,78 @@ function makeChart(canvas, p, points, range) {
   const xs = points.map((q) => q.x);
   let xMin = Math.min(...xs), xMax = Math.max(...xs);
   if (xMin === xMax) { xMin -= 12 * 3600e3; xMax += 12 * 3600e3; }
-  return new Chart(canvas, {
+  const chartInstance = new Chart(canvas, {
     type: 'line',
     plugins: [bandPlugin],
-    data: { datasets: [{ data: points, borderColor: '#12343b', backgroundColor: '#12343b', borderWidth: 2, pointRadius: 3.5, pointHoverRadius: 5, tension: 0.2,
-      pointBackgroundColor: points.map((q) => ({ ok: '#2f7a58', warn: '#a86a00', crit: '#b8341f' }[evaluate(range, q.y)] || '#12343b')) }] },
+    data: {
+      datasets: [{
+        data: points,
+        borderColor: isDark ? '#38bdf8' : '#12343b',
+        backgroundColor: isDark ? '#38bdf8' : '#12343b',
+        borderWidth: 2,
+        pointRadius: 3.5,
+        pointHoverRadius: 5,
+        tension: 0.2,
+        pointBackgroundColor: points.map((q) => ({
+          ok: isDark ? '#34d399' : '#2f7a58',
+          warn: isDark ? '#fbbf24' : '#a86a00',
+          crit: isDark ? '#f87171' : '#b8341f',
+        }[evaluate(range, q.y)] || (isDark ? '#38bdf8' : '#12343b'))),
+      }]
+    },
     options: {
-      responsive: true, maintainAspectRatio: false, animation: false,
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
       plugins: {
         legend: { display: false },
         band: range,
-        tooltip: { callbacks: { title: (it) => fmtDate(it[0].parsed.x), label: (it) => `${fmtNum(p, it.parsed.y)}${p.unit ? ' ' + p.unit : ''}` } },
+        tooltip: {
+          backgroundColor: isDark ? '#091315' : '#12343b',
+          titleColor: isDark ? '#e2eeed' : '#ffffff',
+          bodyColor: isDark ? '#e2eeed' : '#ffffff',
+          borderColor: isDark ? '#22383c' : '#bccfcc',
+          borderWidth: 1,
+          callbacks: {
+            title: (it) => fmtDate(it[0].parsed.x),
+            label: (it) => `${fmtNum(p, it.parsed.y)}${p.unit ? ' ' + p.unit : ''}`,
+          },
+        },
       },
       scales: {
-        x: { type: 'linear', min: xMin, max: xMax, ticks: { maxTicksLimit: 5, callback: (v) => new Date(v).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) } },
-        y: { suggestedMin: Math.max(minV - pad, p.min), suggestedMax: Math.min(maxV + pad, p.max), title: { display: !!p.unit, text: p.unit } },
+        x: {
+          type: 'linear',
+          min: xMin,
+          max: xMax,
+          ticks: {
+            color: isDark ? '#8fa9ad' : '#4a6a70',
+            maxTicksLimit: 5,
+            callback: (v) => new Date(v).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }),
+          },
+          grid: {
+            color: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+          },
+        },
+        y: {
+          suggestedMin: Math.max(minV - pad, p.min),
+          suggestedMax: Math.min(maxV + pad, p.max),
+          ticks: {
+            color: isDark ? '#8fa9ad' : '#4a6a70',
+          },
+          grid: {
+            color: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+          },
+          title: {
+            display: !!p.unit,
+            text: p.unit,
+            color: isDark ? '#8fa9ad' : '#4a6a70',
+          },
+        },
       },
     },
   });
+  activeCharts.push(chartInstance);
+  return chartInstance;
 }
 
 async function viewAquarium(id) {
@@ -1084,7 +1279,13 @@ async function viewAquarium(id) {
 
   mount(h('div', { class: 'stack' }, nodes));
   for (const c of chartCards) charts.push(makeChart(c.canvas, c.p, c.points, d.thresholds[c.p.key]));
-  cleanups.push(() => charts.forEach((c) => c.destroy()));
+  cleanups.push(() => {
+    charts.forEach((c) => {
+      c.destroy();
+      const idx = activeCharts.indexOf(c);
+      if (idx !== -1) activeCharts.splice(idx, 1);
+    });
+  });
 }
 
 /* ---------- Artenkatalog View ---------- */
@@ -1802,6 +2003,51 @@ async function viewProfile() {
   );
   renderSuiteTests();
 
+  // Farbschema / Theme Sektion
+  const currentTheme = getThemeSetting();
+  const themeOptions = [
+    { key: 'system', icon: '💻', title: 'Systemstandard', desc: 'Passt sich automatisch deinen Betriebssystem-Einstellungen an.' },
+    { key: 'light', icon: '☀️', title: 'Heller Modus', desc: 'Helles, klares Farbschema für den Tag.' },
+    { key: 'dark', icon: '🌙', title: 'Dunkler Modus', desc: 'Augenschonendes, kontrastreiches dunkles Farbschema.' },
+  ];
+
+  const themeOptionElements = [];
+  const themeOptionsContainer = h('div', { class: 'theme-options' },
+    themeOptions.map((opt) => {
+      const card = h('div', {
+        class: `theme-option ${currentTheme === opt.key ? 'active' : ''}`,
+        role: 'button',
+        tabindex: '0',
+        onclick: () => {
+          applyTheme(opt.key, true);
+          themeOptionElements.forEach(({ el, key }) => {
+            el.classList.toggle('active', key === opt.key);
+          });
+        },
+        onkeydown: (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            card.click();
+          }
+        }
+      },
+        h('div', { class: 'theme-option-head' },
+          h('span', { class: 'theme-option-icon' }, opt.icon),
+          h('span', {}, opt.title)
+        ),
+        h('p', { class: 'theme-option-desc' }, opt.desc)
+      );
+      themeOptionElements.push({ el: card, key: opt.key });
+      return card;
+    })
+  );
+
+  const themeCard = h('div', { class: 'card stack' },
+    h('h2', {}, 'Erscheinungsbild / Farbschema'),
+    h('p', { class: 'muted', style: 'margin:0' }, 'Wähle dein bevorzugtes Design oder nutze den automatischen Modus entsprechend deinen Systemeinstellungen.'),
+    themeOptionsContainer
+  );
+
   mount(h('div', { class: 'stack' },
     h('div', { class: 'row between' },
       h('div', {},
@@ -1811,6 +2057,7 @@ async function viewProfile() {
     ),
     avatarCard,
     profileForm,
+    themeCard,
     testSuiteCard,
     passwordCard,
     oidcCard
