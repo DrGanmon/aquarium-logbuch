@@ -1,6 +1,7 @@
 'use strict';
 const { fork } = require('child_process');
 const path = require('path');
+const os = require('os');
 const logger = require('../utils/logger');
 
 class Supervisor {
@@ -13,11 +14,18 @@ class Supervisor {
     this.maxCrashWindowMs = options.maxCrashWindowMs || 10000;
     this.maxCrashesInWindow = options.maxCrashesInWindow || 5;
 
+    const workersOpt = options.numWorkers || this.env.WORKERS || process.env.WORKERS || process.env.WEB_CONCURRENCY || 1;
+    if (String(workersOpt).toLowerCase() === 'auto') {
+      this.numWorkers = Math.max(1, os.availableParallelism ? os.availableParallelism() : os.cpus().length);
+    } else {
+      this.numWorkers = Math.max(1, Number(workersOpt) || 1);
+    }
+
     if (this.logFile) {
       process.env.LOG_FILE = this.logFile;
     }
 
-    this.child = null;
+    this.children = new Map(); // slotIndex -> childProcess
     this.isRunning = false;
     this.isShuttingDown = false;
     this.restartCount = 0;
@@ -27,8 +35,20 @@ class Supervisor {
     this._boundSignals = false;
   }
 
+  get child() {
+    return this.children.get(0) || this.children.values().next().value || null;
+  }
+
+  set child(val) {
+    if (!val) {
+      this.children.clear();
+    } else {
+      this.children.set(0, val);
+    }
+  }
+
   /**
-   * Startet den Überwachungsprozess und den ersten Child-Prozess.
+   * Startet den Überwachungsprozess und alle Worker-Prozesse.
    */
   start() {
     if (this.isRunning) return this;
@@ -36,24 +56,31 @@ class Supervisor {
     this.isShuttingDown = false;
     this.startTime = Date.now();
 
-    logger.info(`Überwachungsprozess gestartet (Supervisor-PID: ${process.pid}, Ziel: ${this.targetScript})`, 'supervisor');
+    logger.info(
+      `Überwachungsprozess gestartet (Supervisor-PID: ${process.pid}, Ziel: ${this.targetScript}, Worker-Zahl: ${this.numWorkers})`,
+      'supervisor'
+    );
 
     this._bindProcessSignals();
-    this._spawnChild();
+    for (let slot = 0; slot < this.numWorkers; slot++) {
+      this._spawnWorker(slot);
+    }
 
     return this;
   }
 
   /**
-   * Startet den Child-Prozess.
+   * Startet einen Worker-Prozess für den angegebenen Slot.
    */
-  _spawnChild() {
+  _spawnWorker(slot = 0) {
     if (this.isShuttingDown) return;
 
     const childEnv = {
       ...process.env,
       ...this.env,
       IS_SUPERVISED_WORKER: '1',
+      WORKER_ID: String(slot + 1),
+      WORKERS_TOTAL: String(this.numWorkers),
     };
 
     const child = fork(this.targetScript, this.args, {
@@ -61,10 +88,11 @@ class Supervisor {
       stdio: ['inherit', 'pipe', 'pipe', 'ipc'],
     });
 
-    this.child = child;
+    this.children.set(slot, child);
     const childPid = child.pid;
 
-    logger.info(`Anwendungsprozess gestartet (PID: ${childPid})`, 'supervisor');
+    const prefix = this.numWorkers > 1 ? ` (Slot: ${slot + 1}/${this.numWorkers}, PID: ${childPid})` : ` (PID: ${childPid})`;
+    logger.info(`Anwendungsprozess gestartet${prefix}`, 'supervisor');
 
     // Stdout weiterleiten und erfassen
     if (child.stdout) {
@@ -79,26 +107,32 @@ class Supervisor {
       child.stderr.on('data', (chunk) => {
         const text = chunk.toString();
         process.stderr.write(text);
-        logger.writeRaw(text, 'worker-stderr');
+        const tag = this.numWorkers > 1 ? `worker-${slot + 1}-stderr` : 'worker-stderr';
+        logger.writeRaw(text, tag);
       });
     }
 
     // IPC-Nachrichten (falls vorhanden)
     child.on('message', (msg) => {
       if (msg && msg.type === 'ready') {
-        logger.info(`Anwendungsprozess signalisiert Betriebsbereitschaft (PID: ${childPid})`, 'supervisor');
+        const readyPrefix = this.numWorkers > 1 ? ` (Slot: ${slot + 1}, PID: ${childPid})` : ` (PID: ${childPid})`;
+        logger.info(`Anwendungsprozess signalisiert Betriebsbereitschaft${readyPrefix}`, 'supervisor');
       }
     });
 
     child.on('error', (err) => {
-      logger.error(`Fehler im Anwendungsprozess (PID: ${childPid}): ${err.stack || err.message}`, 'supervisor');
+      const errPrefix = this.numWorkers > 1 ? ` (Slot: ${slot + 1}, PID: ${childPid})` : ` (PID: ${childPid})`;
+      logger.error(`Fehler im Anwendungsprozess${errPrefix}: ${err.stack || err.message}`, 'supervisor');
     });
 
     child.on('exit', (code, signal) => {
-      this.child = null;
+      this.children.delete(slot);
 
       if (this.isShuttingDown) {
-        logger.info(`Anwendungsprozess ordnungsgemäß beendet (PID: ${childPid}, Code: ${code}, Signal: ${signal})`, 'supervisor');
+        const exitPrefix = this.numWorkers > 1
+          ? ` (Slot: ${slot + 1}, PID: ${childPid}, Code: ${code}, Signal: ${signal})`
+          : ` (PID: ${childPid}, Code: ${code}, Signal: ${signal})`;
+        logger.info(`Anwendungsprozess ordnungsgemäß beendet${exitPrefix}`, 'supervisor');
         return;
       }
 
@@ -108,9 +142,11 @@ class Supervisor {
       this.crashTimestamps.push(now);
       this.crashTimestamps = this.crashTimestamps.filter((t) => now - t <= this.maxCrashWindowMs);
 
+      const crashPrefix = this.numWorkers > 1 ? ` (Slot: ${slot + 1}, PID: ${childPid})` : ` (PID: ${childPid})`;
+      const restartTarget = this.numWorkers > 1 ? ` für Slot ${slot + 1}` : '';
       logger.error(
-        `Anwendungsprozess (PID: ${childPid}) wurde unerwartet beendet mit Code ${code} (Signal: ${signal || 'none'}). ` +
-          `Automatischer Neustart wird eingeleitet (Gesamt-Neustarts: ${this.restartCount})...`,
+        `Anwendungsprozess${crashPrefix} wurde unerwartet beendet mit Code ${code} (Signal: ${signal || 'none'}). ` +
+          `Automatischer Neustart${restartTarget} wird eingeleitet (Gesamt-Neustarts: ${this.restartCount})...`,
         'supervisor'
       );
 
@@ -129,7 +165,7 @@ class Supervisor {
 
       setTimeout(() => {
         if (!this.isShuttingDown) {
-          this._spawnChild();
+          this._spawnWorker(slot);
         }
       }, delay);
     });
@@ -154,68 +190,62 @@ class Supervisor {
   }
 
   /**
-   * Beendet den überwachten Prozess geordnet.
+   * Beendet alle überwachten Prozesse geordnet.
    */
   async stop() {
     this.isShuttingDown = true;
     this.isRunning = false;
 
-    if (!this.child) {
+    if (this.children.size === 0) {
       return Promise.resolve();
     }
 
-    const currentChild = this.child;
-    return new Promise((resolve) => {
-      let resolved = false;
-      const done = () => {
-        if (!resolved) {
-          resolved = true;
-          this.child = null;
-          resolve();
-        }
-      };
+    const currentChildren = Array.from(this.children.values());
+    this.children.clear();
 
-      currentChild.once('exit', done);
+    const stopPromises = currentChildren.map((child) => {
+      return new Promise((resolve) => {
+        let resolved = false;
+        const done = () => {
+          if (!resolved) {
+            resolved = true;
+            resolve();
+          }
+        };
 
-      // Sende SIGTERM an Child
-      try {
-        currentChild.kill('SIGTERM');
-      } catch (err) {
-        // Child evtl. schon beendet
-      }
+        child.once('exit', done);
 
-      // Fallback nach Timeout: SIGKILL
-      const killTimer = setTimeout(() => {
-        if (!resolved) {
-          logger.warn(`Child-Prozess reagiert nicht auf SIGTERM, erzwinge Beenden (SIGKILL)...`, 'supervisor');
-          try {
-            currentChild.kill('SIGKILL');
-          } catch (e) {}
-          done();
-        }
-      }, this.gracefulTimeout);
+        try {
+          child.kill('SIGTERM');
+        } catch (err) {}
 
-      if (killTimer.unref) killTimer.unref();
+        const killTimer = setTimeout(() => {
+          if (!resolved) {
+            logger.warn(`Child-Prozess (PID: ${child.pid}) reagiert nicht auf SIGTERM, erzwinge Beenden (SIGKILL)...`, 'supervisor');
+            try {
+              child.kill('SIGKILL');
+            } catch (e) {}
+            done();
+          }
+        }, this.gracefulTimeout);
+
+        if (killTimer.unref) killTimer.unref();
+      });
     });
+
+    await Promise.allSettled(stopPromises);
   }
 
   /**
-   * Startet den Child-Prozess geordnet neu.
+   * Startet alle Child-Prozesse geordnet neu.
    */
   async restart() {
-    logger.info(`Manueller Neustart des Anwendungsprozesses angefordert...`, 'supervisor');
-    if (this.child) {
-      const oldChild = this.child;
-      await new Promise((resolve) => {
-        oldChild.once('exit', resolve);
-        try {
-          oldChild.kill('SIGTERM');
-        } catch (e) {
-          resolve();
-        }
-      });
-    } else {
-      this._spawnChild();
+    logger.info(`Manueller Neustart aller Anwendungsprozesse angefordert...`, 'supervisor');
+    await this.stop();
+    this.isShuttingDown = false;
+    this.isRunning = true;
+    for (let slot = 0; slot < this.numWorkers; slot++) {
+      this._spawnWorker(slot);
     }
   }
 
@@ -223,13 +253,18 @@ class Supervisor {
    * Gibt den aktuellen Status des Supervisors zurück.
    */
   getStatus() {
+    const workerPids = Array.from(this.children.values()).map((c) => c.pid);
     return {
       running: this.isRunning,
       supervisorPid: process.pid,
       workerPid: this.child ? this.child.pid : null,
+      workerPids,
+      totalWorkers: this.children.size,
+      targetWorkers: this.numWorkers,
       restarts: this.restartCount,
       recentCrashes: this.crashTimestamps.length,
       uptimeSeconds: this.startTime ? Math.floor((Date.now() - this.startTime) / 1000) : 0,
+      targetScript: this.targetScript,
     };
   }
 }

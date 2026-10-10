@@ -39,9 +39,12 @@ function createTestEnvironment(customEnv = {}) {
   const app = require(serverPath);
   let server = null;
   let baseUrl = '';
+  let startPromise = null;
 
   const start = async () => {
-    return new Promise((resolve, reject) => {
+    if (baseUrl) return baseUrl;
+    if (startPromise) return startPromise;
+    startPromise = new Promise((resolve, reject) => {
       server = http.createServer(app);
       server.listen(0, '127.0.0.1', () => {
         const port = server.address().port;
@@ -50,6 +53,7 @@ function createTestEnvironment(customEnv = {}) {
       });
       server.on('error', reject);
     });
+    return startPromise;
   };
 
   const cleanup = async () => {
@@ -74,7 +78,7 @@ function createTestEnvironment(customEnv = {}) {
    * Führt einen HTTP-Request gegen den Test-Server aus.
    */
   async function request(pathStr, options = {}) {
-    if (!server) await start();
+    if (!baseUrl) await start();
     const url = `${baseUrl}${pathStr.startsWith('/') ? pathStr : '/' + pathStr}`;
     const headers = {
       'X-Requested-With': 'fetch',

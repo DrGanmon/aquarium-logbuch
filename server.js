@@ -1,8 +1,9 @@
 'use strict';
 const app = require('./src/app');
-const { PORT } = require('./src/config/env');
+const { PORT, WORKER_THREADS } = require('./src/config/env');
 const logger = require('./src/utils/logger');
 const { Supervisor } = require('./src/services/supervisor');
+const { workerPool } = require('./src/utils/worker-pool');
 
 if (require.main === module) {
   const isWorker = process.env.IS_SUPERVISED_WORKER === '1';
@@ -28,9 +29,16 @@ if (require.main === module) {
         process.exit(1);
       }
 
+      // Initialisiere Worker Thread Pool für rechenintensive Aufgaben
+      workerPool.init();
+
       const server = app.listen(PORT, () => {
-        const mode = isWorker ? 'überwachten Worker-Modus' : 'Einzelprozess-Modus';
-        logger.info(`Aquarium-Logbuch läuft auf http://localhost:${PORT} (PID: ${process.pid}, ${mode}, DB: ${db.type})`, 'server');
+        const workerId = process.env.WORKER_ID ? `Worker ${process.env.WORKER_ID}/${process.env.WORKERS_TOTAL || '1'}` : 'Einzelprozess';
+        const mode = isWorker ? `überwachten Modus (${workerId})` : 'Einzelprozess-Modus';
+        logger.info(
+          `Aquarium-Logbuch läuft auf http://localhost:${PORT} (PID: ${process.pid}, ${mode}, DB: ${db.type}, Threads: ${WORKER_THREADS})`,
+          'server'
+        );
         if (typeof process.send === 'function') {
           process.send({ type: 'ready', pid: process.pid, port: PORT });
         }
@@ -44,6 +52,9 @@ if (require.main === module) {
       const shutdown = async () => {
         logger.info(`Beende HTTP-Server (PID: ${process.pid})...`, 'server');
         server.close(async () => {
+          try {
+            await workerPool.terminate();
+          } catch (e) {}
           try {
             await db.close();
           } catch (e) {}
@@ -66,5 +77,6 @@ if (require.main === module) {
 
 app.Supervisor = Supervisor;
 app.logger = logger;
+app.workerPool = workerPool;
 
 module.exports = app;

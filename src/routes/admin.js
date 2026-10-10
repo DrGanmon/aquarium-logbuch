@@ -59,7 +59,7 @@ router.post(
     if (oidcSub && (await db.users.findByOidcSub(oidcSub))) {
       return res.status(409).json({ error: 'Diese OIDC-Benutzer-ID (sub) ist bereits vergeben.' });
     }
-    const passHash = password ? hashPassword(password) : '';
+    const passHash = password ? await hashPassword(password) : '';
     const created = await db.users.create({
       username,
       password_hash: passHash,
@@ -111,7 +111,7 @@ router.put(
       oidc_sub: finalOidcSub,
     };
     if (password) {
-      updateFields.password_hash = hashPassword(password);
+      updateFields.password_hash = await hashPassword(password);
     }
     await db.users.update(id, updateFields);
     res.json({ ok: true });

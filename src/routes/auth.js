@@ -75,7 +75,7 @@ router.post(
     }
     const user = await db.users.create({
       username,
-      password_hash: hashPassword(password),
+      password_hash: await hashPassword(password),
       email,
     });
     await startSession(res, db, user.id);
@@ -96,7 +96,7 @@ router.post(
       return res.status(429).json({ error: 'Zu viele Versuche. Bitte in ein paar Minuten erneut probieren.' });
     }
     const user = await db.users.findByUsername(username);
-    const ok = verifyPassword(password, user ? user.password_hash : DUMMY_HASH) && !!user;
+    const ok = (await verifyPassword(password, user ? user.password_hash : DUMMY_HASH)) && !!user;
     if (!ok) {
       noteAttempt(key);
       return res.status(401).json({ error: 'Benutzername oder Passwort stimmt nicht.' });
@@ -279,13 +279,13 @@ router.post(
     if (!String(user.password_hash).includes(':')) {
       return res.status(400).json({ error: 'Dieses Konto hat kein lokales Passwort.' });
     }
-    if (typeof current !== 'string' || !verifyPassword(current, user.password_hash)) {
+    if (typeof current !== 'string' || !(await verifyPassword(current, user.password_hash))) {
       return res.status(400).json({ error: 'Das aktuelle Passwort stimmt nicht.' });
     }
     if (typeof next !== 'string' || next.length < 8) {
       return res.status(400).json({ error: 'Das neue Passwort braucht mindestens 8 Zeichen.' });
     }
-    await db.users.update(req.user.id, { password_hash: hashPassword(next) });
+    await db.users.update(req.user.id, { password_hash: await hashPassword(next) });
     res.json({ ok: true });
   })
 );

@@ -1,11 +1,23 @@
 'use strict';
 const path = require('path');
+const os = require('os');
 const cfg = require('../../config');
 
 const env = process.env;
 const PORT = Number(env.PORT || 3000);
 const DATA_DIR = env.DATA_DIR || path.join(__dirname, '../../data');
 const ALLOW_REGISTRATION = (env.ALLOW_REGISTRATION || 'true') !== 'false';
+
+// Multithreading / Concurrency Konfiguration
+const WORKERS_RAW = (env.WORKERS || env.WEB_CONCURRENCY || '1').toLowerCase();
+const WORKERS = WORKERS_RAW === 'auto'
+  ? Math.max(1, os.availableParallelism ? os.availableParallelism() : os.cpus().length)
+  : Math.max(1, Number(WORKERS_RAW) || 1);
+
+const WORKER_THREADS_RAW = (env.WORKER_THREADS || '').toLowerCase();
+const WORKER_THREADS = WORKER_THREADS_RAW === 'auto'
+  ? Math.max(1, os.availableParallelism ? os.availableParallelism() : os.cpus().length)
+  : (Number(WORKER_THREADS_RAW) || Math.min(4, Math.max(1, os.availableParallelism ? os.availableParallelism() : os.cpus().length)));
 
 // Datenbankkonfiguration: 'sqlite' (Standard) oder 'mongodb'
 const DB_TYPE = (env.DB_TYPE || (env.MONGODB_URI ? 'mongodb' : 'sqlite')).toLowerCase();
@@ -49,6 +61,8 @@ module.exports = {
   PORT,
   DATA_DIR,
   ALLOW_REGISTRATION,
+  WORKERS,
+  WORKER_THREADS,
   DB_TYPE,
   MONGODB_URI,
   MONGODB_DB_NAME,

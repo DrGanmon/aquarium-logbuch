@@ -18,6 +18,8 @@ services:
       LOCAL_LOGIN: "true"
       SUPERVISOR: "true"
       LOG_FILE: "/data/aquarium.log"
+      WORKERS: "auto"
+      WORKER_THREADS: "auto"
     volumes:
       - aquarium-data:/data
 

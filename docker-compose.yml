@@ -27,6 +27,10 @@ services:
       SUPERVISOR: "true"
       LOG_FILE: "/data/aquarium.log"
 
+      # Multithreading & Multi-Core Workers (auto = nutzt alle CPU-Kerne)
+      WORKERS: "auto"
+      WORKER_THREADS: "auto"
+
       # OIDC / Pocket ID (optional aktivieren)
       # OIDC_ISSUER: "https://id.example.com"
       # OIDC_CLIENT_ID: "aquarium-app"

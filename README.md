@@ -6,8 +6,13 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 ## Funktionen
 
 - **Flexibles Dual-Datenbanksystem:**
-  - **SQLite (Standard lokal):** Dateibasierte, performante Zero-Setup-Datenbank (`data/aquarium.db`).
+  - **SQLite (Standard lokal):** Dateibasierte, performante Zero-Setup-Datenbank (`data/aquarium.db`) mit WAL-Modus und `busy_timeout` für nebenläufige Zugriffe.
   - **MongoDB (Produktiv):** Volle Unterstützung für MongoDB-Cluster/Container via `DB_TYPE=mongodb` und `MONGODB_URI`.
+- **Multithreading & Multi-Core Clustering:**
+  - **Nicht-blockierende Kryptografie:** Passwort-Hashing und Verifizierung (Scrypt) werden asynchron über den Threadpool abgewickelt, sodass gleichzeitige Anmeldungen den Event-Loop nicht blockieren.
+  - **Worker-Thread-Pool:** Dedizierter Worker-Pool für rechenintensive Hintergrund- und Inspektionsaufgaben.
+  - **Multi-Worker Clusterbetrieb:** Über `WORKERS=auto` (oder feste Anzahl) verteilt der Supervisor eingehende Anfragen auf mehrere Worker-Prozesse über alle CPU-Kerne hinweg.
+  - **Zustandsloses OIDC:** OIDC-Zustände werden kryptografisch signiert und funktionieren prozess- und instanzübergreifend.
 - Anmeldung über Pocket ID (OIDC) oder lokal mit Registrierung
 - **Light & Dark Mode:** Vollständige Unterstützung für ein helles und augenschonendes dunkles Farbschema:
   - **Systemstandard:** Verwendet standardmäßig die Farbschema-Einstellungen des Betriebssystems (`prefers-color-scheme`).
@@ -88,6 +93,8 @@ docker compose up -d --build
 | `ADMIN_EMAIL` | (leer) | E-Mail-Adresse des Administrators (oder mehrere durch Komma getrennt) für den Admin-Bereich / Benutzerverwaltung |
 | `LOG_FILE` | `./data/aquarium.log` | Pfad zur `.log`-Datei für Fehler- und Systemprotokolle |
 | `SUPERVISOR` | `true` | `false` startet die Anwendung im Einzelprozess ohne Überwachungs-Watchdog |
+| `WORKERS` | `1` (bzw. `auto` in Docker) | Anzahl der Worker-Prozesse (`auto` = alle CPU-Kerne) |
+| `WORKER_THREADS` | `auto` | Anzahl der Worker-Threads für rechenintensive Aufgaben (Scrypt, Datenanalyse) |
 
 ## Benutzerprofil und Kontoverwaltung
 
@@ -179,5 +186,3 @@ Die Testparameter und Standardwerte liegen in `src/config/suites/jbl-pro-aquates
 - E-Mail-Versand für Alarme ist noch nicht angebunden.
 - Kein Passwort-Zurücksetzen per E-Mail bei lokaler Anmeldung. Ein vergessenes Passwort lässt sich nur direkt in der Datenbank oder über einen Administrator ersetzen
   (mit Pocket ID entfällt das).
-- Laufende OIDC-Anmeldungen (die wenigen Sekunden zwischen Weiterleitung und Rücksprung) liegen im Arbeitsspeicher.
-  Die App ist daher für den Betrieb als ein einzelner Prozess gedacht.

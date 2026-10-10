@@ -16,10 +16,37 @@ const PENDING_TTL = 10 * 60 * 1000;
 
 function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'openid profile email' }) {
   const base = issuer.replace(/\/+$/, '');
+  const internalSecret = crypto.createHash('sha256').update(clientSecret || clientId || 'oidc-internal-secret').digest();
   let discovery = null;
   let discoveryAt = 0;
   let jwks = null;
   const pending = new Map(); // state -> { verifier, nonce, created }
+
+  function signState(data) {
+    const json = JSON.stringify(data);
+    const b64 = b64url(Buffer.from(json));
+    const sig = b64url(crypto.createHmac('sha256', internalSecret).update(b64).digest());
+    return `${b64}.${sig}`;
+  }
+
+  function verifyStateToken(stateStr) {
+    if (!stateStr || typeof stateStr !== 'string') return null;
+    const parts = stateStr.split('.');
+    if (parts.length !== 2) return null;
+    const [b64, sig] = parts;
+    const expectedSig = b64url(crypto.createHmac('sha256', internalSecret).update(b64).digest());
+    if (sig.length !== expectedSig.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedSig))) {
+      return null;
+    }
+    try {
+      const data = JSON.parse(fromB64url(b64).toString('utf8'));
+      if (!data || typeof data !== 'object') return null;
+      if (Date.now() - data.t > PENDING_TTL) return null;
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
 
   async function getJson(url, opts = {}) {
     const res = await fetch(url, { ...opts, headers: { Accept: 'application/json', ...(opts.headers || {}) }, signal: AbortSignal.timeout(10000) });
@@ -85,9 +112,10 @@ function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'ope
   async function startLogin() {
     const d = await config();
     cleanup();
-    const state = b64url(crypto.randomBytes(24));
     const nonce = b64url(crypto.randomBytes(24));
     const verifier = b64url(crypto.randomBytes(48));
+    const random = b64url(crypto.randomBytes(16));
+    const state = signState({ s: random, n: nonce, v: verifier, t: Date.now() });
     pending.set(state, { verifier, nonce, created: Date.now() });
     const url = new URL(d.authorization_endpoint);
     url.search = new URLSearchParams({
@@ -111,8 +139,15 @@ function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'ope
     if (!state || !cookieState || state.length !== cookieState.length || !crypto.timingSafeEqual(Buffer.from(state), Buffer.from(cookieState))) {
       throw new Error('Ungültiger Anmeldestatus. Bitte erneut anmelden.');
     }
-    const p = pending.get(state);
-    pending.delete(state);
+    let p = pending.get(state);
+    if (p) {
+      pending.delete(state);
+    } else {
+      const verified = verifyStateToken(state);
+      if (verified) {
+        p = { verifier: verified.v, nonce: verified.n, created: verified.t };
+      }
+    }
     if (!p || Date.now() - p.created > PENDING_TTL) throw new Error('Die Anmeldung hat zu lange gedauert. Bitte erneut anmelden.');
     if (!code) throw new Error('Kein Autorisierungscode erhalten.');
 
