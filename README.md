@@ -6,6 +6,7 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 ## Funktionen
 
 - Anmeldung über Pocket ID (OIDC) oder lokal mit Registrierung, jeder Benutzer sieht nur seine eigenen Aquarien
+- Admin-Bereich mit Benutzerverwaltung für Administratoren (festgelegt anhand der E-Mail-Adresse in der Konfiguration)
 - Aquarien anlegen (Name, Süß- oder Meerwasser, Volumen, Erinnerungsintervall)
 - Besatz pro Becken eintragen. Die Fischarten bestimmen die Grenzwerte
   (Weichwasser, Hartwasser, Garnelen und Wirbellose). Passt der Besatz bei einem Wert nicht zusammen,
@@ -47,6 +48,15 @@ Die Datenbank liegt in `data/aquarium.db` (Docker: Volume `/data`).
 | `OIDC_PROVIDER_NAME` | `Pocket ID` | Beschriftung des Anmelde-Buttons |
 | `LOCAL_LOGIN` | automatisch | Lokale Anmeldung mit Passwort. Standard: aus, wenn OIDC aktiv ist, sonst an |
 | `OIDC_LINK_BY_USERNAME` | false | `true` verknüpft beim ersten OIDC-Login ein vorhandenes lokales Konto mit gleichem Benutzernamen |
+| `ADMIN_EMAIL` | (leer) | E-Mail-Adresse des Administrators (oder mehrere durch Komma getrennt) für den Admin-Bereich / Benutzerverwaltung |
+
+## Admin-Bereich und Benutzerverwaltung
+
+Der Administrator wird anhand der E-Mail-Adresse festgelegt. Dazu entweder in `config.js` oder über die Umgebungsvariable `ADMIN_EMAIL` die gewünschte E-Mail-Adresse hinterlegen (z. B. `ADMIN_EMAIL=admin@example.com` bzw. kommagetrennt für mehrere).
+
+- Benutzer, deren E-Mail-Adresse (aus OIDC/Pocket ID oder lokaler Registrierung) mit `ADMIN_EMAIL` übereinstimmt, erhalten Administrator-Rechte.
+- Im Header erscheint der Button **Benutzerverwaltung** (`#/admin`).
+- Administratoren können alle registrierten Benutzer einsehen, neue Benutzer anlegen, bestehende Benutzer bearbeiten (Benutzername, E-Mail, Passwort ändern) und Benutzer samt deren Daten löschen.
 
 ## Anmeldung mit Pocket ID (OIDC)
 

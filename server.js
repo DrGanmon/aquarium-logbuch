@@ -37,6 +37,11 @@ const oidc = OIDC_ENABLED ? createOidc({
 // Lokale Anmeldung mit Passwort: Standard an ohne OIDC, aus mit OIDC
 const LOCAL_LOGIN = env.LOCAL_LOGIN != null && env.LOCAL_LOGIN !== '' ? env.LOCAL_LOGIN === 'true' : !OIDC_ENABLED;
 
+// Admin-E-Mail(s) aus Umgebung oder config.js (mehrere durch Komma getrennt)
+const ADMIN_EMAIL = (env.ADMIN_EMAIL || cfg.ADMIN_EMAIL || '').trim();
+const ADMIN_EMAILS = ADMIN_EMAIL.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+const isEmailAdmin = (email) => !!email && ADMIN_EMAILS.includes(String(email).trim().toLowerCase());
+
 fs.mkdirSync(DATA_DIR, { recursive: true });
 const db = new Database(path.join(DATA_DIR, 'aquarium.db'));
 db.pragma('journal_mode = WAL');
@@ -99,11 +104,13 @@ CREATE TABLE IF NOT EXISTS alerts (
 CREATE INDEX IF NOT EXISTS idx_alert_aq ON alerts(aquarium_id, acked_at);
 `);
 
-// Migration für OIDC
+// Migration für OIDC & E-Mail
 const hasColumn = (table, col) => db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === col);
 if (!hasColumn('users', 'oidc_sub')) db.exec('ALTER TABLE users ADD COLUMN oidc_sub TEXT');
+if (!hasColumn('users', 'email')) db.exec('ALTER TABLE users ADD COLUMN email TEXT COLLATE NOCASE');
 if (!hasColumn('sessions', 'id_token')) db.exec('ALTER TABLE sessions ADD COLUMN id_token TEXT');
 db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oidc ON users(oidc_sub) WHERE oidc_sub IS NOT NULL');
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email != \'\'');
 
 const app = express();
 app.disable('x-powered-by');
@@ -175,9 +182,14 @@ function noteAttempt(key) { attempts.set(key, [...(attempts.get(key) || []), Dat
 function auth(req, res, next) {
   const token = parseCookies(req).session;
   if (!token) return res.status(401).json({ error: 'Nicht angemeldet.' });
-  const row = db.prepare(`SELECT u.id, u.username, s.expires_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?`).get(sha(token));
+  const row = db.prepare(`SELECT u.id, u.username, u.email, s.expires_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?`).get(sha(token));
   if (!row || row.expires_at < Date.now()) return res.status(401).json({ error: 'Sitzung abgelaufen.' });
-  req.user = { id: row.id, username: row.username };
+  req.user = { id: row.id, username: row.username, email: row.email || null, isAdmin: isEmailAdmin(row.email) };
+  next();
+}
+
+function requireAdmin(req, res, next) {
+  if (!req.user || !req.user.isAdmin) return res.status(403).json({ error: 'Zugriff verweigert. Administrator-Rechte erforderlich.' });
   next();
 }
 
@@ -225,13 +237,16 @@ function buildMessage(p, range, level, value) {
 app.post('/api/register', wrap((req, res) => {
   if (!LOCAL_LOGIN || !ALLOW_REGISTRATION) return res.status(403).json({ error: 'Registrierung ist deaktiviert.' });
   const username = str(req.body.username, 40);
+  const email = req.body.email ? str(req.body.email, 120).toLowerCase() : null;
   const password = typeof req.body.password === 'string' ? req.body.password : '';
   if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) return res.status(400).json({ error: 'Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).' });
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Ungültige E-Mail-Adresse.' });
   if (password.length < 8 || password.length > 200) return res.status(400).json({ error: 'Das Passwort braucht mindestens 8 Zeichen.' });
   if (db.prepare('SELECT 1 FROM users WHERE username = ?').get(username)) return res.status(409).json({ error: 'Dieser Benutzername ist vergeben.' });
-  const info = db.prepare('INSERT INTO users (username, password_hash) VALUES (?, ?)').run(username, hashPassword(password));
+  if (email && db.prepare('SELECT 1 FROM users WHERE email = ?').get(email)) return res.status(409).json({ error: 'Diese E-Mail-Adresse ist bereits vergeben.' });
+  const info = db.prepare('INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)').run(username, hashPassword(password), email);
   startSession(res, info.lastInsertRowid);
-  res.json({ id: info.lastInsertRowid, username });
+  res.json({ id: info.lastInsertRowid, username, email });
 }));
 
 function startSession(res, userId, idToken = null) {
@@ -272,7 +287,12 @@ app.post('/api/logout', async (req, res) => {
 });
 
 const hasLocalPassword = (userId) => !!db.prepare('SELECT password_hash FROM users WHERE id = ?').get(userId)?.password_hash?.includes(':');
-app.get('/api/me', auth, (req, res) => res.json({ ...req.user, registration: ALLOW_REGISTRATION, hasPassword: LOCAL_LOGIN && hasLocalPassword(req.user.id) }));
+app.get('/api/me', auth, (req, res) => res.json({
+  ...req.user,
+  registration: ALLOW_REGISTRATION,
+  hasPassword: LOCAL_LOGIN && hasLocalPassword(req.user.id),
+  isAdmin: req.user.isAdmin,
+}));
 app.get('/api/registration', (req, res) => res.json({
   registration: LOCAL_LOGIN && ALLOW_REGISTRATION,
   localLogin: LOCAL_LOGIN,
@@ -474,21 +494,97 @@ function usernameFromClaims(claims) {
 
 function userForClaims(claims) {
   const sub = String(claims.sub);
-  const existing = db.prepare('SELECT id, username FROM users WHERE oidc_sub = ?').get(sub);
-  if (existing) return existing;
+  const email = claims.email ? String(claims.email).trim().toLowerCase() : null;
+  const existing = db.prepare('SELECT id, username, email FROM users WHERE oidc_sub = ?').get(sub);
+  if (existing) {
+    if (email && existing.email !== email) {
+      db.prepare('UPDATE users SET email = ? WHERE id = ?').run(email, existing.id);
+      existing.email = email;
+    }
+    return existing;
+  }
   // Optional: vorhandenes lokales Konto mit gleichem Benutzernamen übernehmen (Migration)
   if (OIDC_LINK_BY_USERNAME && claims.preferred_username) {
-    const local = db.prepare('SELECT id, username FROM users WHERE username = ? AND oidc_sub IS NULL').get(String(claims.preferred_username));
+    const local = db.prepare('SELECT id, username, email FROM users WHERE username = ? AND oidc_sub IS NULL').get(String(claims.preferred_username));
     if (local) {
-      db.prepare('UPDATE users SET oidc_sub = ? WHERE id = ?').run(sub, local.id);
-      return local;
+      db.prepare('UPDATE users SET oidc_sub = ?, email = COALESCE(?, email) WHERE id = ?').run(sub, email, local.id);
+      return { ...local, email: email || local.email };
     }
   }
   if (!ALLOW_REGISTRATION) return null;
   const username = usernameFromClaims(claims);
-  const info = db.prepare('INSERT INTO users (username, password_hash, oidc_sub) VALUES (?, ?, ?)').run(username, '', sub);
-  return { id: info.lastInsertRowid, username };
+  const info = db.prepare('INSERT INTO users (username, password_hash, oidc_sub, email) VALUES (?, ?, ?, ?)').run(username, '', sub, email);
+  return { id: info.lastInsertRowid, username, email };
 }
+
+// ---------- Admin / Benutzerverwaltung ----------
+app.get('/api/admin/users', auth, requireAdmin, wrap((req, res) => {
+  const rows = db.prepare(`
+    SELECT u.id, u.username, u.email, u.oidc_sub, u.password_hash, u.created_at,
+           COUNT(a.id) AS aquarium_count
+    FROM users u
+    LEFT JOIN aquariums a ON a.user_id = u.id
+    GROUP BY u.id
+    ORDER BY u.created_at ASC, u.id ASC
+  `).all();
+  res.json(rows.map((u) => ({
+    id: u.id,
+    username: u.username,
+    email: u.email || null,
+    hasPassword: !!(u.password_hash && u.password_hash.includes(':')),
+    hasOidc: !!u.oidc_sub,
+    isAdmin: isEmailAdmin(u.email),
+    aquariumCount: u.aquarium_count,
+    createdAt: u.created_at,
+  })));
+}));
+
+app.post('/api/admin/users', auth, requireAdmin, wrap((req, res) => {
+  const username = str(req.body.username, 40);
+  const email = req.body.email ? str(req.body.email, 120).toLowerCase() : null;
+  const password = typeof req.body.password === 'string' && req.body.password.length > 0 ? req.body.password : null;
+  if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) return res.status(400).json({ error: 'Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).' });
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Ungültige E-Mail-Adresse.' });
+  if (password && (password.length < 8 || password.length > 200)) return res.status(400).json({ error: 'Das Passwort braucht mindestens 8 Zeichen.' });
+  if (db.prepare('SELECT 1 FROM users WHERE username = ?').get(username)) return res.status(409).json({ error: 'Dieser Benutzername ist vergeben.' });
+  if (email && db.prepare('SELECT 1 FROM users WHERE email = ?').get(email)) return res.status(409).json({ error: 'Diese E-Mail-Adresse ist bereits vergeben.' });
+  const passHash = password ? hashPassword(password) : '';
+  const info = db.prepare('INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)').run(username, passHash, email);
+  res.json({ id: info.lastInsertRowid, username, email, isAdmin: isEmailAdmin(email) });
+}));
+
+app.put('/api/admin/users/:id', auth, requireAdmin, wrap((req, res) => {
+  const id = Number(req.params.id);
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+  if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+  const username = str(req.body.username, 40);
+  const email = req.body.email ? str(req.body.email, 120).toLowerCase() : null;
+  const password = typeof req.body.password === 'string' && req.body.password.length > 0 ? req.body.password : null;
+  if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) return res.status(400).json({ error: 'Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).' });
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Ungültige E-Mail-Adresse.' });
+  if (password && (password.length < 8 || password.length > 200)) return res.status(400).json({ error: 'Das neue Passwort braucht mindestens 8 Zeichen.' });
+  const existingName = db.prepare('SELECT 1 FROM users WHERE username = ? AND id != ?').get(username, id);
+  if (existingName) return res.status(409).json({ error: 'Dieser Benutzername ist bereits vergeben.' });
+  if (email) {
+    const existingEmail = db.prepare('SELECT 1 FROM users WHERE email = ? AND id != ?').get(email, id);
+    if (existingEmail) return res.status(409).json({ error: 'Diese E-Mail-Adresse ist bereits vergeben.' });
+  }
+  if (password) {
+    db.prepare('UPDATE users SET username = ?, email = ?, password_hash = ? WHERE id = ?').run(username, email, hashPassword(password), id);
+  } else {
+    db.prepare('UPDATE users SET username = ?, email = ? WHERE id = ?').run(username, email, id);
+  }
+  res.json({ ok: true });
+}));
+
+app.delete('/api/admin/users/:id', auth, requireAdmin, wrap((req, res) => {
+  const id = Number(req.params.id);
+  if (req.user.id === id) return res.status(400).json({ error: 'Der eigene Administrator-Account kann nicht gelöscht werden.' });
+  const user = db.prepare('SELECT 1 FROM users WHERE id = ?').get(id);
+  if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+  db.prepare('DELETE FROM users WHERE id = ?').run(id);
+  res.json({ ok: true });
+}));
 
 app.get('/auth/login', async (req, res) => {
   if (!oidc) return res.status(404).end();

@@ -87,6 +87,10 @@ async function route() {
   if (!ME) return showAuth();
   const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
   try {
+    if (parts[0] === 'admin') {
+      if (!ME.isAdmin) { location.hash = '#/'; return; }
+      return await viewAdmin();
+    }
     if (parts[0] === 'a' && parts[1] && parts[2] === 'messen') return await viewMeasure(Number(parts[1]));
     if (parts[0] === 'a' && parts[1]) return await viewAquarium(Number(parts[1]));
     return await viewList();
@@ -116,16 +120,20 @@ async function showAuth(mode = 'login') {
     return;
   }
   const user = h('input', { id: 'u', autocomplete: 'username', required: true });
+  const mail = mode === 'register' ? h('input', { id: 'e', type: 'email', autocomplete: 'email' }) : null;
   const pass = h('input', { id: 'p', type: 'password', autocomplete: mode === 'login' ? 'current-password' : 'new-password', required: true, minlength: mode === 'login' ? null : '8' });
   const form = h('form', { class: 'card stack', onsubmit: async (e) => {
     e.preventDefault(); err.textContent = '';
     try {
-      await api(mode === 'login' ? '/login' : '/register', { method: 'POST', body: { username: user.value, password: pass.value } });
+      const body = { username: user.value, password: pass.value };
+      if (mode === 'register' && mail && mail.value.trim()) body.email = mail.value.trim();
+      await api(mode === 'login' ? '/login' : '/register', { method: 'POST', body });
       await start();
     } catch (ex) { err.textContent = ex.message; }
   } },
   h('h1', {}, mode === 'login' ? 'Anmelden' : 'Konto erstellen'),
   h('div', { class: 'field' }, h('label', { for: 'u' }, 'Benutzername'), user),
+  mail ? h('div', { class: 'field' }, h('label', { for: 'e' }, 'E-Mail-Adresse (optional)'), mail) : null,
   h('div', { class: 'field' }, h('label', { for: 'p' }, mode === 'login' ? 'Passwort' : 'Passwort (mindestens 8 Zeichen)'), pass),
   err,
   h('button', { class: 'btn', type: 'submit' }, mode === 'login' ? 'Anmelden' : 'Konto erstellen'),
@@ -139,8 +147,10 @@ async function start() {
   ME = await api('/me');
   CONFIG = await api('/config');
   $topbar.hidden = false;
-  document.getElementById('whoami').textContent = ME.username;
+  document.getElementById('whoami').textContent = ME.username + (ME.isAdmin ? ' (Admin)' : '');
   document.getElementById('btn-pw').hidden = !ME.hasPassword;
+  const adminBtn = document.getElementById('btn-admin');
+  if (adminBtn) adminBtn.hidden = !ME.isAdmin;
   route();
 }
 
@@ -503,6 +513,128 @@ async function viewMeasure(id) {
   // Erst nach mount() registrieren, denn mount() führt die Aufräumfunktionen der vorherigen Seite aus
   const tick = setInterval(render, 250);
   cleanups.push(() => { clearInterval(tick); if (wakeLock) wakeLock.release().catch(() => {}); });
+}
+
+/* ---------- Admin / Benutzerverwaltung ---------- */
+async function viewAdmin() {
+  const users = await api('/admin/users');
+  const rows = users.map((u) => {
+    const isSelf = u.id === ME.id;
+    const authTypes = [];
+    if (u.hasPassword) authTypes.push('Passwort');
+    if (u.hasOidc) authTypes.push('Pocket ID');
+    if (!authTypes.length) authTypes.push('–');
+
+    return h('tr', {},
+      h('td', {}, h('strong', {}, u.username), isSelf ? h('span', { class: 'muted' }, ' (Du)') : null),
+      h('td', {}, u.email || h('span', { class: 'muted' }, '–')),
+      h('td', {}, authTypes.join(' / ')),
+      h('td', {}, String(u.aquariumCount)),
+      h('td', {}, u.isAdmin ? h('span', { class: 'chip ok' }, 'Admin') : h('span', { class: 'chip none' }, 'Benutzer')),
+      h('td', {}, fmtDate(u.createdAt)),
+      h('td', {},
+        h('div', { class: 'row', style: 'gap:.35rem' },
+          h('button', { class: 'btn small ghost', type: 'button', onclick: () => adminUserDialog(u) }, 'Bearbeiten'),
+          !isSelf ? h('button', { class: 'btn small danger', type: 'button', onclick: async () => {
+            if (!confirm(`Benutzer „${u.username}“ mit allen zugehörigen Aquarien und Messwerten endgültig löschen?`)) return;
+            try {
+              await api(`/admin/users/${u.id}`, { method: 'DELETE' });
+              toast(`Benutzer „${u.username}“ gelöscht.`);
+              await viewAdmin();
+            } catch (ex) { toast(ex.message); }
+          } }, 'Löschen') : null
+        )
+      )
+    );
+  });
+
+  mount(h('div', { class: 'stack' },
+    h('div', { class: 'row between' },
+      h('div', {},
+        h('a', { href: '#/', class: 'muted' }, '‹ Zurück zur Übersicht'),
+        h('h1', { style: 'margin-top:.3rem' }, 'Benutzerverwaltung')
+      ),
+      h('button', { class: 'btn', type: 'button', onclick: () => adminUserDialog() }, 'Benutzer anlegen')
+    ),
+    h('div', { class: 'card stack' },
+      h('div', { class: 'row between' },
+        h('h2', { style: 'margin:0' }, `Registrierte Benutzer (${users.length})`),
+        h('span', { class: 'muted' }, 'Admin-Rechte richten sich nach der konfigurierten E-Mail-Adresse.')
+      ),
+      h('div', { class: 'table-wrap' },
+        h('table', {},
+          h('thead', {},
+            h('tr', {},
+              h('th', {}, 'Benutzername'),
+              h('th', {}, 'E-Mail'),
+              h('th', {}, 'Anmeldung'),
+              h('th', {}, 'Aquarien'),
+              h('th', {}, 'Rolle'),
+              h('th', {}, 'Erstellt am'),
+              h('th', {}, 'Aktionen')
+            )
+          ),
+          h('tbody', {}, rows)
+        )
+      )
+    )
+  ));
+}
+
+function adminUserDialog(user) {
+  const editing = !!user;
+  const err = h('p', { class: 'error', role: 'alert' });
+  const f = {
+    username: h('input', { required: true, maxlength: '40', value: user?.username || '' }),
+    email: h('input', { type: 'email', maxlength: '120', value: user?.email || '', placeholder: 'z. B. max@example.com' }),
+    password: h('input', {
+      type: 'password',
+      autocomplete: 'new-password',
+      minlength: '8',
+      placeholder: editing ? 'Leer lassen für keine Änderung' : 'Mindestens 8 Zeichen',
+    }),
+  };
+
+  const dlg = h('dialog', {}, h('form', { class: 'stack', method: 'dialog', onsubmit: async (e) => {
+    e.preventDefault(); err.textContent = '';
+    const body = {
+      username: f.username.value.trim(),
+      email: f.email.value.trim() || undefined,
+      password: f.password.value || undefined,
+    };
+    try {
+      if (editing) {
+        await api(`/admin/users/${user.id}`, { method: 'PUT', body });
+        dlg.close();
+        toast(`Benutzer „${body.username}“ aktualisiert.`);
+        await viewAdmin();
+      } else {
+        await api('/admin/users', { method: 'POST', body });
+        dlg.close();
+        toast(`Benutzer „${body.username}“ angelegt.`);
+        await viewAdmin();
+      }
+    } catch (ex) {
+      err.textContent = ex.message;
+    }
+  } },
+  h('h2', {}, editing ? `Benutzer „${user.username}“ bearbeiten` : 'Neuen Benutzer anlegen'),
+  h('div', { class: 'field' }, h('label', {}, 'Benutzername'), f.username),
+  h('div', { class: 'field' }, h('label', {}, 'E-Mail-Adresse'), f.email),
+  h('div', { class: 'field' },
+    h('label', {}, editing ? 'Neues Passwort (optional)' : 'Passwort (optional für OIDC, mindestens 8 Zeichen für lokale Anmeldung)'),
+    f.password
+  ),
+  err,
+  h('div', { class: 'row' },
+    h('button', { class: 'btn', type: 'submit' }, editing ? 'Speichern' : 'Anlegen'),
+    h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen')
+  )));
+
+  dlg.addEventListener('close', () => dlg.remove());
+  document.body.append(dlg);
+  dlg.showModal();
+  f.username.focus();
 }
 
 /* ---------- Start ---------- */

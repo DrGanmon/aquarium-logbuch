@@ -184,4 +184,7 @@ function evaluate(range, value) {
   return 'ok';
 }
 
-module.exports = { PARAMETERS, PROFILES, SPECIES, WATER_TYPES, thresholdsFor, evaluate };
+// E-Mail-Adresse(n) des Administrators (mehrere mit Komma trennen)
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
+
+module.exports = { PARAMETERS, PROFILES, SPECIES, WATER_TYPES, ADMIN_EMAIL, thresholdsFor, evaluate };

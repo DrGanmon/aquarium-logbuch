@@ -16,6 +16,8 @@ services:
       # LOCAL_LOGIN: "false"
       # Auf "false" setzen, dann werden keine neuen Konten mehr angelegt (auch nicht beim ersten OIDC-Login)
       ALLOW_REGISTRATION: "true"
+      # E-Mail-Adresse des Administrators (für Admin-Bereich & Benutzerverwaltung; mehrere mit Komma trennen)
+      # ADMIN_EMAIL: "admin@example.com"
       # Auf "1" setzen, wenn ein Reverse Proxy davorsteht
       # TRUST_PROXY: "1"
     volumes:
