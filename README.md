@@ -22,8 +22,9 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 - Admin-Bereich mit Benutzerverwaltung für Administratoren (festgelegt anhand der E-Mail-Adresse in der Konfiguration) sowie integriertem System-Logbuch & Fehlerprotokoll
 - **Überwachungsprozess & Ausfallsicherheit (Supervisor):** Ein übergeordneter Watchdog-Prozess überwacht die Anwendung, fängt ungeplante Abstürze oder Ausnahmen automatisch ab und startet den Worker-Prozess verzögerungsfrei neu
 - **Strukturiertes Fehler- und Ereignis-Logging:** Alle Serverfehler, Uncaught Exceptions, Stderr-Meldungen und Supervisor-Ereignisse werden mit Zeitstempel und Log-Level in eine `.log`-Datei (`data/aquarium.log`) protokolliert
-- Aquarien anlegen (Name, Süß- oder Meerwasser, Volumen, Erinnerungsintervall, Notizen)
-- Bild vom Aquarium hochladen (PNG, JPG, WebP, GIF), das in der Aquarienliste und auf der Detailseite dargestellt wird
+- **Aquarien-Verwaltung mit Motto & Beschreibung:** Aquarien flexibel anlegen und pflegen mit Name, individuellem Motto / Leitspruch, ausführlicher Beschreibung (Scape, Bepflanzung, Philosophie, Technik), Süß- oder Meerwasser, Volumen, Erinnerungsintervall und Notizen
+- **Mehrere Bilder pro Aquarium & Fotogalerie:** Beliebig viele Bilder pro Becken hochladen (PNG, JPG, WebP, GIF bis 5 MB), Bildunterschriften vergeben, Titelbild auswählen und alle Fotos in einer interaktiven Galerie mit Lightbox-Großansicht betrachten
+- **Bewohner benennen & Einzelfotos hochladen:** Aquarienbewohner mit individuellen Namen / Bezeichnungen (z. B. Kampffisch „Bubbles“, Pärchen, Gruppen) versehen und eigene Porträtfotos für jeden Bewohner hochladen und ansehen
 - **Aquarium-Logbuch & Aktivitäten-Timeline:** Lückenloses, chronologisches Protokoll über alle Arbeiten und Ereignisse am Aquarium:
   - **Wasserwechsel:** Erfassung mit prozentualer Angabe (z. B. 30 %, 50 %) und Details zur Wasseraufbereitung.
   - **Filterpflege:** Filterwechsel (mit Angabe der getauschten Medien wie Filtervlies, Aktivkohle, Schwämme) und Filterreinigung.

@@ -6,7 +6,7 @@ const { wrap, str } = require('../utils/helpers');
 const { auth, ownAquarium, writeAquarium, ownerAquarium, getAquariumAccess } = require('../middleware/auth');
 const { aquariumInput, aquariumSummary } = require('../services/aquarium-service');
 const { thresholdsOfAquarium, buildMessage } = require('../services/alert-service');
-const { saveImage, deleteImage, getImagePath, getMimeType } = require('../services/image-service');
+const { saveImage, saveAquariumImage, saveStockImage, deleteImage, getImagePath, getMimeType } = require('../services/image-service');
 const { validateMaintenanceInput, getAquariumTimeline } = require('../services/maintenance-service');
 
 const router = express.Router();
@@ -33,6 +33,8 @@ router.post(
       water_type: value.water_type,
       reminder_days: value.reminder_days,
       notes: value.notes,
+      motto: value.motto,
+      description: value.description,
     });
     res.json({ id: info.id });
   })
@@ -93,6 +95,8 @@ router.put(
       water_type: value.water_type,
       reminder_days: value.reminder_days,
       notes: value.notes,
+      motto: value.motto,
+      description: value.description,
     });
     res.json({ ok: true });
   })
@@ -158,20 +162,122 @@ router.delete(
   })
 );
 
-// ---------- Aquarium-Bild ----------
+// ---------- Aquarium-Bilder (Galerie & Mehrfach-Bilder) ----------
+router.get(
+  '/:id/images',
+  auth,
+  ownAquarium,
+  wrap(async (req, res) => {
+    const list = await db.aquariumImages.listForAquarium(req.aq.id);
+    res.json(list);
+  })
+);
+
+router.get(
+  '/:id/images/:imageId',
+  auth,
+  ownAquarium,
+  wrap(async (req, res) => {
+    const img = await db.aquariumImages.findById(req.params.imageId);
+    if (!img || img.aquarium_id !== req.aq.id) {
+      return res.status(404).json({ error: 'Bild nicht gefunden.' });
+    }
+    const imgPath = getImagePath(img.filename);
+    if (!imgPath) {
+      return res.status(404).json({ error: 'Bilddatei nicht gefunden.' });
+    }
+    const mime = getMimeType(img.filename);
+    res.setHeader('Content-Type', mime);
+    res.setHeader('Cache-Control', 'private, max-age=86400');
+    res.sendFile(imgPath);
+  })
+);
+
+router.post(
+  '/:id/images',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    const { error, value } = saveAquariumImage(req.aq.id, req.body.image);
+    if (error) return res.status(400).json({ error });
+    const caption = str(req.body.caption, 200) || null;
+    const isPrimary = req.body.is_primary ? 1 : 0;
+    const info = await db.aquariumImages.create({
+      aquarium_id: req.aq.id,
+      filename: value.filename,
+      caption,
+      is_primary: isPrimary,
+    });
+    res.json({
+      ok: true,
+      id: info.id,
+      filename: info.filename,
+      caption: info.caption,
+      is_primary: info.is_primary,
+      url: `api/aquariums/${req.aq.id}/images/${info.id}`,
+    });
+  })
+);
+
+router.put(
+  '/:id/images/:imageId/primary',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    const ok = await db.aquariumImages.setPrimary(req.params.imageId, req.aq.id);
+    if (!ok) return res.status(404).json({ error: 'Bild nicht gefunden.' });
+    res.json({ ok: true });
+  })
+);
+
+router.put(
+  '/:id/images/:imageId',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    const caption = str(req.body.caption, 200) || null;
+    const ok = await db.aquariumImages.updateCaption(req.params.imageId, req.aq.id, caption);
+    if (!ok) return res.status(404).json({ error: 'Bild nicht gefunden.' });
+    res.json({ ok: true });
+  })
+);
+
+router.delete(
+  '/:id/images/:imageId',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    const ok = await db.aquariumImages.delete(req.params.imageId, req.aq.id);
+    if (!ok) return res.status(404).json({ error: 'Bild nicht gefunden.' });
+    res.json({ ok: true });
+  })
+);
+
+// Backward-compatible single image endpoints
 router.get(
   '/:id/image',
   auth,
   ownAquarium,
-  wrap((req, res) => {
-    if (!req.aq.image_file) {
+  wrap(async (req, res) => {
+    let filename = req.aq.image_file;
+    if (req.query.imageId) {
+      const img = await db.aquariumImages.findById(req.query.imageId);
+      if (img && img.aquarium_id === req.aq.id) {
+        filename = img.filename;
+      }
+    }
+    if (!filename) {
+      const imgs = await db.aquariumImages.listForAquarium(req.aq.id);
+      if (imgs.length > 0) filename = imgs[0].filename;
+    }
+    if (!filename) {
       return res.status(404).json({ error: 'Kein Bild vorhanden.' });
     }
-    const imgPath = getImagePath(req.aq.image_file);
+    const imgPath = getImagePath(filename);
     if (!imgPath) {
       return res.status(404).json({ error: 'Bilddatei nicht gefunden.' });
     }
-    const mime = getMimeType(req.aq.image_file);
+    const mime = getMimeType(filename);
     res.setHeader('Content-Type', mime);
     res.setHeader('Cache-Control', 'private, max-age=86400');
     res.sendFile(imgPath);
@@ -183,10 +289,15 @@ router.post(
   auth,
   writeAquarium,
   wrap(async (req, res) => {
-    const { error, value } = saveImage(req.aq.id, req.body.image, req.aq.image_file);
+    const { error, value } = saveAquariumImage(req.aq.id, req.body.image);
     if (error) return res.status(400).json({ error });
-    await db.aquariums.updateImage(req.aq.id, value.filename);
-    res.json({ ok: true, image_url: `api/aquariums/${req.aq.id}/image?t=${Date.now()}` });
+    const info = await db.aquariumImages.create({
+      aquarium_id: req.aq.id,
+      filename: value.filename,
+      caption: str(req.body.caption, 200) || null,
+      is_primary: 1,
+    });
+    res.json({ ok: true, id: info.id, image_url: `api/aquariums/${req.aq.id}/image?t=${Date.now()}` });
   })
 );
 
@@ -199,17 +310,19 @@ router.delete(
       deleteImage(req.aq.image_file);
       await db.aquariums.updateImage(req.aq.id, null);
     }
+    await db.aquariumImages.deleteAllForAquarium(req.aq.id);
     res.json({ ok: true });
   })
 );
 
-// ---------- Besatz ----------
+// ---------- Besatz & Bewohner ----------
 router.post(
   '/:id/stock',
   auth,
   writeAquarium,
   wrap(async (req, res) => {
     const species = str(req.body.species, 80);
+    const name = str(req.body.name, 80) || null;
     const count = Math.round(Number(req.body.count ?? 1));
     let profile = req.body.profile;
     if (!profile || !cfg.PROFILES[profile]) {
@@ -220,13 +333,125 @@ router.post(
     if (!Number.isFinite(count) || count < 1 || count > 10000) {
       return res.status(400).json({ error: 'Anzahl: 1–10000.' });
     }
+
+    let imageFile = null;
+    if (req.body.image) {
+      const { error, value } = saveStockImage(Date.now(), req.body.image);
+      if (error) return res.status(400).json({ error });
+      imageFile = value.filename;
+    }
+
     const info = await db.stock.create({
       aquarium_id: req.aq.id,
       species,
+      name,
       count,
       profile,
+      image_file: imageFile,
     });
-    res.json({ id: info.id });
+    res.json({ id: info.id, species, name, count, profile, image_file: imageFile });
+  })
+);
+
+router.put(
+  '/:id/stock/:sid',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    const sid = Number(req.params.sid);
+    const existing = await db.stock.findById(sid);
+    if (!existing || existing.aquarium_id !== req.aq.id) {
+      return res.status(404).json({ error: 'Bewohner nicht gefunden.' });
+    }
+
+    const species = req.body.species !== undefined ? str(req.body.species, 80) : existing.species;
+    const name = req.body.name !== undefined ? (str(req.body.name, 80) || null) : existing.name;
+    const count = req.body.count !== undefined ? Math.round(Number(req.body.count)) : existing.count;
+    let profile = req.body.profile !== undefined ? req.body.profile : existing.profile;
+    if (!profile || !cfg.PROFILES[profile]) {
+      const sp = cfg.speciesService.findSpeciesByName(species);
+      profile = sp?.profile && cfg.PROFILES[sp.profile] ? sp.profile : 'allgemein';
+    }
+
+    if (!species) return res.status(400).json({ error: 'Bitte eine Art eingeben.' });
+    if (!Number.isFinite(count) || count < 1 || count > 10000) {
+      return res.status(400).json({ error: 'Anzahl: 1–10000.' });
+    }
+
+    let imageFile = existing.image_file;
+    if (req.body.image) {
+      const { error, value } = saveStockImage(sid, req.body.image, existing.image_file);
+      if (error) return res.status(400).json({ error });
+      imageFile = value.filename;
+    } else if (req.body.remove_image) {
+      if (existing.image_file) deleteImage(existing.image_file);
+      imageFile = null;
+    }
+
+    await db.stock.update(sid, {
+      species,
+      name,
+      count,
+      profile,
+      image_file: imageFile,
+    });
+
+    res.json({ ok: true, id: sid, species, name, count, profile, image_file: imageFile });
+  })
+);
+
+router.get(
+  '/:id/stock/:sid/image',
+  auth,
+  ownAquarium,
+  wrap(async (req, res) => {
+    const s = await db.stock.findById(req.params.sid);
+    if (!s || s.aquarium_id !== req.aq.id || !s.image_file) {
+      return res.status(404).json({ error: 'Kein Foto für diesen Bewohner vorhanden.' });
+    }
+    const imgPath = getImagePath(s.image_file);
+    if (!imgPath) {
+      return res.status(404).json({ error: 'Bilddatei nicht gefunden.' });
+    }
+    const mime = getMimeType(s.image_file);
+    res.setHeader('Content-Type', mime);
+    res.setHeader('Cache-Control', 'private, max-age=86400');
+    res.sendFile(imgPath);
+  })
+);
+
+router.post(
+  '/:id/stock/:sid/image',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    const sid = Number(req.params.sid);
+    const existing = await db.stock.findById(sid);
+    if (!existing || existing.aquarium_id !== req.aq.id) {
+      return res.status(404).json({ error: 'Bewohner nicht gefunden.' });
+    }
+    const { error, value } = saveStockImage(sid, req.body.image, existing.image_file);
+    if (error) return res.status(400).json({ error });
+    await db.stock.updateImage(sid, value.filename);
+    res.json({ ok: true, image_url: `api/aquariums/${req.aq.id}/stock/${sid}/image?t=${Date.now()}` });
+  })
+);
+
+router.delete(
+  '/:id/stock/:sid/image',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    const sid = Number(req.params.sid);
+    const existing = await db.stock.findById(sid);
+    if (!existing || existing.aquarium_id !== req.aq.id) {
+      return res.status(404).json({ error: 'Bewohner nicht gefunden.' });
+    }
+    if (existing.image_file) {
+      deleteImage(existing.image_file);
+      await db.stock.updateImage(sid, null);
+    }
+    res.json({ ok: true });
   })
 );
 

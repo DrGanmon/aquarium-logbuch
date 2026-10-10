@@ -3,6 +3,7 @@ const { MongoClient } = require('mongodb');
 const { MONGODB_URI, MONGODB_DB_NAME } = require('../config/env');
 const cfg = require('../../config');
 const { isOverdue } = require('../services/aquarium-service');
+const { deleteImage } = require('../services/image-service');
 
 function escapeRegex(string) {
   return String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -94,6 +95,10 @@ class MongoAdapter {
       // Aquariums
       await db.collection('aquariums').createIndex({ id: 1 }, { unique: true });
       await db.collection('aquariums').createIndex({ user_id: 1 });
+
+      // Aquarium Images
+      await db.collection('aquarium_images').createIndex({ id: 1 }, { unique: true });
+      await db.collection('aquarium_images').createIndex({ aquarium_id: 1 });
 
       // Aquarium shares
       await db.collection('aquarium_shares').createIndex({ aquarium_id: 1, user_id: 1 }, { unique: true });
@@ -316,7 +321,7 @@ class MongoAdapter {
           owner_email: owner?.email || null,
         };
       },
-      async create({ user_id, name, volume_l = null, water_type = 'fresh', reminder_days = 7, notes = null }) {
+      async create({ user_id, name, volume_l = null, water_type = 'fresh', reminder_days = 7, notes = null, motto = null, description = null }) {
         const id = await self.getNextSequence('aquariums');
         const doc = {
           _id: id,
@@ -327,6 +332,8 @@ class MongoAdapter {
           water_type: water_type || 'fresh',
           reminder_days: reminder_days != null ? Number(reminder_days) : 7,
           notes: notes || null,
+          motto: motto || null,
+          description: description || null,
           image_file: null,
           created_at: new Date().toISOString(),
         };
@@ -336,7 +343,7 @@ class MongoAdapter {
       async update(id, fields = {}) {
         const numId = Number(id);
         const updateFields = {};
-        const allowed = ['name', 'volume_l', 'water_type', 'reminder_days', 'notes', 'image_file'];
+        const allowed = ['name', 'volume_l', 'water_type', 'reminder_days', 'notes', 'image_file', 'motto', 'description'];
 
         for (const k of allowed) {
           if (fields[k] !== undefined) {
@@ -355,10 +362,19 @@ class MongoAdapter {
       },
       async delete(id) {
         const numId = Number(id);
+        const images = await db.collection('aquarium_images').find({ aquarium_id: numId }).toArray();
+        for (const img of images) {
+          deleteImage(img.filename);
+        }
+        const stocks = await db.collection('stock').find({ aquarium_id: numId }).toArray();
+        for (const st of stocks) {
+          if (st.image_file) deleteImage(st.image_file);
+        }
         const res = await db.collection('aquariums').deleteOne({ id: numId });
         if (res.deletedCount === 0) return false;
 
         // Cascade cleanup
+        await db.collection('aquarium_images').deleteMany({ aquarium_id: numId });
         await db.collection('stock').deleteMany({ aquarium_id: numId });
         await db.collection('measurements').deleteMany({ aquarium_id: numId });
         await db.collection('alerts').deleteMany({ aquarium_id: numId });
@@ -397,13 +413,17 @@ class MongoAdapter {
         const crit = await db.collection('alerts').countDocuments({ aquarium_id: aq.id, acked_at: null, level: 'crit' });
         const warn = await db.collection('alerts').countDocuments({ aquarium_id: aq.id, acked_at: null, level: 'warn' });
         const sharesCount = await db.collection('aquarium_shares').countDocuments({ aquarium_id: aq.id });
+        const imagesCount = await db.collection('aquarium_images').countDocuments({ aquarium_id: aq.id });
 
         return {
           ...aq,
           role: role || aq.role || 'owner',
           owner_username: aq.owner_username || null,
-          has_image: !!aq.image_file,
+          has_image: !!aq.image_file || imagesCount > 0,
           image_url: aq.image_file ? `api/aquariums/${aq.id}/image` : null,
+          images_count: imagesCount,
+          motto: aq.motto || null,
+          description: aq.description || null,
           shares_count: sharesCount,
           last_measured_at: last ? last.measured_at : null,
           last_water_change_at: lastWaterChange ? lastWaterChange.logged_at : null,
@@ -414,6 +434,91 @@ class MongoAdapter {
           open_warn: warn,
           overdue: isOverdue(aq, last),
         };
+      },
+    };
+
+    this.aquariumImages = {
+      async listForAquarium(aquariumId) {
+        const numAqId = Number(aquariumId);
+        const rows = await db.collection('aquarium_images').find({ aquarium_id: numAqId }).sort({ is_primary: -1, id: 1 }).toArray();
+        return rows.map((r) => ({
+          ...r,
+          is_primary: Boolean(r.is_primary),
+          url: `api/aquariums/${numAqId}/images/${r.id}`,
+        }));
+      },
+      async findById(id) {
+        const row = await db.collection('aquarium_images').findOne({ id: Number(id) });
+        if (!row) return null;
+        return {
+          ...row,
+          is_primary: Boolean(row.is_primary),
+          url: `api/aquariums/${row.aquarium_id}/images/${row.id}`,
+        };
+      },
+      async create({ aquarium_id, filename, caption = null, is_primary = 0 }) {
+        const id = await self.getNextSequence('aquarium_images');
+        const numAqId = Number(aquarium_id);
+        const count = await db.collection('aquarium_images').countDocuments({ aquarium_id: numAqId });
+        const makePrimary = is_primary ? 1 : count === 0 ? 1 : 0;
+        if (makePrimary) {
+          await db.collection('aquarium_images').updateMany({ aquarium_id: numAqId }, { $set: { is_primary: 0 } });
+          await db.collection('aquariums').updateOne({ id: numAqId }, { $set: { image_file: filename } });
+        }
+        const doc = {
+          _id: id,
+          id,
+          aquarium_id: numAqId,
+          filename,
+          caption: caption || null,
+          is_primary: makePrimary,
+          created_at: new Date().toISOString(),
+        };
+        await db.collection('aquarium_images').insertOne(doc);
+        return { id, filename, caption, is_primary: Boolean(makePrimary) };
+      },
+      async setPrimary(id, aquariumId) {
+        const numId = Number(id);
+        const numAqId = Number(aquariumId);
+        const img = await db.collection('aquarium_images').findOne({ id: numId, aquarium_id: numAqId });
+        if (!img) return false;
+        await db.collection('aquarium_images').updateMany({ aquarium_id: numAqId }, { $set: { is_primary: 0 } });
+        await db.collection('aquarium_images').updateOne({ id: numId }, { $set: { is_primary: 1 } });
+        await db.collection('aquariums').updateOne({ id: numAqId }, { $set: { image_file: img.filename } });
+        return true;
+      },
+      async updateCaption(id, aquariumId, caption) {
+        const res = await db.collection('aquarium_images').updateOne(
+          { id: Number(id), aquarium_id: Number(aquariumId) },
+          { $set: { caption } }
+        );
+        return res.matchedCount > 0;
+      },
+      async delete(id, aquariumId) {
+        const numId = Number(id);
+        const numAqId = Number(aquariumId);
+        const img = await db.collection('aquarium_images').findOne({ id: numId, aquarium_id: numAqId });
+        if (!img) return false;
+        deleteImage(img.filename);
+        const res = await db.collection('aquarium_images').deleteOne({ id: numId });
+        const nextImg = await db.collection('aquarium_images').findOne({ aquarium_id: numAqId }, { sort: { is_primary: -1, id: 1 } });
+        if (nextImg) {
+          if (!nextImg.is_primary) {
+            await db.collection('aquarium_images').updateOne({ id: nextImg.id }, { $set: { is_primary: 1 } });
+          }
+          await db.collection('aquariums').updateOne({ id: numAqId }, { $set: { image_file: nextImg.filename } });
+        } else {
+          await db.collection('aquariums').updateOne({ id: numAqId }, { $set: { image_file: null } });
+        }
+        return res.deletedCount > 0;
+      },
+      async deleteAllForAquarium(aquariumId) {
+        const numAqId = Number(aquariumId);
+        const rows = await db.collection('aquarium_images').find({ aquarium_id: numAqId }).toArray();
+        for (const r of rows) {
+          deleteImage(r.filename);
+        }
+        await db.collection('aquarium_images').deleteMany({ aquarium_id: numAqId });
       },
     };
 
@@ -462,12 +567,23 @@ class MongoAdapter {
 
     this.stock = {
       async listForAquarium(aquariumId) {
-        return await db.collection('stock').find({ aquarium_id: Number(aquariumId) }).sort({ species: 1 }).toArray();
+        const rows = await db.collection('stock').find({ aquarium_id: Number(aquariumId) }).sort({ species: 1, id: 1 }).toArray();
+        return rows.map((s) => ({
+          ...s,
+          has_image: !!s.image_file,
+          image_url: s.image_file ? `api/aquariums/${s.aquarium_id}/stock/${s.id}/image` : null,
+        }));
       },
       async findById(id) {
-        return (await db.collection('stock').findOne({ id: Number(id) })) || null;
+        const s = await db.collection('stock').findOne({ id: Number(id) });
+        if (!s) return null;
+        return {
+          ...s,
+          has_image: !!s.image_file,
+          image_url: s.image_file ? `api/aquariums/${s.aquarium_id}/stock/${s.id}/image` : null,
+        };
       },
-      async create({ aquarium_id, species, count = 1, profile = 'allgemein' }) {
+      async create({ aquarium_id, species, count = 1, profile = 'allgemein', name = null, image_file = null }) {
         const id = await self.getNextSequence('stock');
         const doc = {
           _id: id,
@@ -476,18 +592,46 @@ class MongoAdapter {
           species,
           count: count != null ? Number(count) : 1,
           profile: profile || 'allgemein',
+          name: name || null,
+          image_file: image_file || null,
         };
         await db.collection('stock').insertOne(doc);
         return { id };
       },
+      async update(id, fields = {}) {
+        const numId = Number(id);
+        const updateFields = {};
+        const allowed = ['species', 'count', 'profile', 'name', 'image_file'];
+        for (const k of allowed) {
+          if (fields[k] !== undefined) {
+            updateFields[k] = fields[k];
+          }
+        }
+        if (Object.keys(updateFields).length === 0) return true;
+        const res = await db.collection('stock').updateOne({ id: numId }, { $set: updateFields });
+        return res.matchedCount > 0;
+      },
+      async updateImage(id, filename) {
+        const res = await db.collection('stock').updateOne({ id: Number(id) }, { $set: { image_file: filename } });
+        return res.matchedCount > 0;
+      },
       async delete(id, aquariumId = null) {
         const filter = { id: Number(id) };
         if (aquariumId != null) filter.aquarium_id = Number(aquariumId);
+        const s = await db.collection('stock').findOne(filter);
+        if (s?.image_file) {
+          deleteImage(s.image_file);
+        }
         const res = await db.collection('stock').deleteOne(filter);
         return res.deletedCount > 0;
       },
       async deleteAllForAquarium(aquariumId) {
-        await db.collection('stock').deleteMany({ aquarium_id: Number(aquariumId) });
+        const numAqId = Number(aquariumId);
+        const rows = await db.collection('stock').find({ aquarium_id: numAqId }).toArray();
+        for (const r of rows) {
+          if (r.image_file) deleteImage(r.image_file);
+        }
+        await db.collection('stock').deleteMany({ aquarium_id: numAqId });
       },
     };
 
@@ -810,6 +954,7 @@ class MongoAdapter {
 
     const users = stripId(await db.collection('users').find({}).sort({ id: 1 }).toArray());
     const aquariums = stripId(await db.collection('aquariums').find({}).sort({ id: 1 }).toArray());
+    const aquarium_images = stripId(await db.collection('aquarium_images').find({}).sort({ id: 1 }).toArray());
     const aquarium_shares = stripId(
       await db.collection('aquarium_shares').find({}).sort({ aquarium_id: 1, user_id: 1 }).toArray()
     );
@@ -821,6 +966,7 @@ class MongoAdapter {
     return {
       users,
       aquariums,
+      aquarium_images,
       aquarium_shares,
       stock,
       measurements,
@@ -835,6 +981,7 @@ class MongoAdapter {
 
     const users = Array.isArray(data.users) ? data.users : [];
     const aquariums = Array.isArray(data.aquariums) ? data.aquariums : [];
+    const aquarium_images = Array.isArray(data.aquarium_images) ? data.aquarium_images : [];
     const shares = Array.isArray(data.aquarium_shares) ? data.aquarium_shares : [];
     const stock = Array.isArray(data.stock) ? data.stock : [];
     const measurements = Array.isArray(data.measurements) ? data.measurements : [];
@@ -849,6 +996,7 @@ class MongoAdapter {
       db.collection('users').deleteMany({}),
       db.collection('sessions').deleteMany({}),
       db.collection('aquariums').deleteMany({}),
+      db.collection('aquarium_images').deleteMany({}),
       db.collection('aquarium_shares').deleteMany({}),
       db.collection('stock').deleteMany({}),
       db.collection('measurements').deleteMany({}),
@@ -860,6 +1008,7 @@ class MongoAdapter {
     // Daten einfügen
     if (users.length > 0) await db.collection('users').insertMany(users);
     if (aquariums.length > 0) await db.collection('aquariums').insertMany(aquariums);
+    if (aquarium_images.length > 0) await db.collection('aquarium_images').insertMany(aquarium_images);
     if (shares.length > 0) await db.collection('aquarium_shares').insertMany(shares);
     if (stock.length > 0) await db.collection('stock').insertMany(stock);
     if (measurements.length > 0) await db.collection('measurements').insertMany(measurements);
@@ -875,6 +1024,7 @@ class MongoAdapter {
     // Zähler (counters) für Sequenzen aktualisieren
     const maxUserId = users.reduce((m, u) => Math.max(m, u.id || 0), 0);
     const maxAqId = aquariums.reduce((m, a) => Math.max(m, a.id || 0), 0);
+    const maxAqImgId = aquarium_images.reduce((m, ai) => Math.max(m, ai.id || 0), 0);
     const maxStockId = stock.reduce((m, s) => Math.max(m, s.id || 0), 0);
     const maxMeasId = measurements.reduce((m, ms) => Math.max(m, ms.id || 0), 0);
     const maxAlertId = alerts.reduce((m, al) => Math.max(m, al.id || 0), 0);
@@ -883,6 +1033,7 @@ class MongoAdapter {
     const counterOps = [
       { _id: 'users', seq: maxUserId },
       { _id: 'aquariums', seq: maxAqId },
+      { _id: 'aquarium_images', seq: maxAqImgId },
       { _id: 'stock', seq: maxStockId },
       { _id: 'measurements', seq: maxMeasId },
       { _id: 'alerts', seq: maxAlertId },

@@ -115,10 +115,61 @@ function saveAvatar(userId, base64Data, oldFilename) {
   return { value: { filename, mime: fmt.mime } };
 }
 
+function saveStockImage(stockId, base64Data, oldFilename) {
+  if (!base64Data || typeof base64Data !== 'string') {
+    return { error: 'Keine Bilddaten übermittelt.' };
+  }
+  const cleanBase64 = base64Data.replace(/^data:image\/[a-zA-Z+.-]+;base64,/, '');
+  const buf = Buffer.from(cleanBase64, 'base64');
+  if (!buf.length) {
+    return { error: 'Ungültige Bilddaten.' };
+  }
+  if (buf.length > MAX_IMAGE_BYTES) {
+    return { error: 'Das Bild ist zu groß (maximal 5 MB erlaubt).' };
+  }
+  const fmt = detectImageFormat(buf);
+  if (!fmt) {
+    return { error: 'Ungültiges Bildformat. Erlaubt sind JPG, PNG, WebP und GIF.' };
+  }
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  const filename = `stock_${stockId}_${Date.now()}_${crypto.randomBytes(4).toString('hex')}.${fmt.ext}`;
+  fs.writeFileSync(path.join(UPLOADS_DIR, filename), buf);
+
+  if (oldFilename) {
+    deleteImage(oldFilename);
+  }
+  return { value: { filename, mime: fmt.mime } };
+}
+
+function saveAquariumImage(aquariumId, base64Data) {
+  if (!base64Data || typeof base64Data !== 'string') {
+    return { error: 'Keine Bilddaten übermittelt.' };
+  }
+  const cleanBase64 = base64Data.replace(/^data:image\/[a-zA-Z+.-]+;base64,/, '');
+  const buf = Buffer.from(cleanBase64, 'base64');
+  if (!buf.length) {
+    return { error: 'Ungültige Bilddaten.' };
+  }
+  if (buf.length > MAX_IMAGE_BYTES) {
+    return { error: 'Das Bild ist zu groß (maximal 5 MB erlaubt).' };
+  }
+  const fmt = detectImageFormat(buf);
+  if (!fmt) {
+    return { error: 'Ungültiges Bildformat. Erlaubt sind JPG, PNG, WebP und GIF.' };
+  }
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  const filename = `aq_${aquariumId}_${Date.now()}_${crypto.randomBytes(4).toString('hex')}.${fmt.ext}`;
+  fs.writeFileSync(path.join(UPLOADS_DIR, filename), buf);
+
+  return { value: { filename, mime: fmt.mime } };
+}
+
 module.exports = {
   UPLOADS_DIR,
   MAX_IMAGE_BYTES,
   saveImage,
+  saveAquariumImage,
+  saveStockImage,
   saveAvatar,
   deleteImage,
   getImagePath,

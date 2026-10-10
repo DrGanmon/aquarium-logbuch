@@ -291,6 +291,27 @@ async function showSpeciesModal(spOrName) {
   d.showModal();
 }
 
+function showImageModal({ src, title = 'Bildvorschau', caption = null }) {
+  const d = h('dialog', { class: 'stack wide', style: 'max-width: 760px; text-align: center;' });
+  const close = () => { d.close(); d.remove(); };
+  d.replaceChildren(
+    h('div', { class: 'row between', style: 'align-items: center;' },
+      h('h3', { style: 'margin:0' }, title),
+      h('button', { class: 'btn small ghost', type: 'button', onclick: close, 'aria-label': 'Schließen' }, '✕')
+    ),
+    h('div', { style: 'margin: .5rem 0' },
+      h('img', { class: 'image-lightbox-img', src, alt: title })
+    ),
+    caption ? h('p', { class: 'muted', style: 'margin: .3rem 0 0; font-size: .95rem;' }, caption) : null,
+    h('div', { class: 'row between', style: 'margin-top: .8rem;' },
+      h('span', {}, ''),
+      h('button', { class: 'btn', type: 'button', onclick: close }, 'Schließen')
+    )
+  );
+  document.body.appendChild(d);
+  d.showModal();
+}
+
 /* ---------- Router ---------- */
 window.addEventListener('hashchange', route);
 
@@ -428,6 +449,7 @@ async function viewList() {
     return h('a', { class: `card aq-card s-${s}`, href: `#/a/${a.id}` },
       a.has_image ? h('img', { class: 'aq-card-img', src: `api/aquariums/${a.id}/image`, alt: a.name, loading: 'lazy' }) : null,
       h('h2', {}, a.name),
+      a.motto ? h('div', { class: 'aq-motto' }, a.motto) : null,
       h('div', { class: 'muted' }, CONFIG.waterTypes[a.water_type], a.volume_l ? ` · ${a.volume_l} l` : ''),
       h('div', { class: 'row', style: 'margin-top:.6rem' },
         a.open_crit ? h('span', { class: 'chip crit' }, `${a.open_crit} kritisch`) : null,
@@ -495,12 +517,14 @@ function aquariumDialog(aq) {
 
   const f = {
     name: h('input', { required: true, maxlength: '80', value: aq?.name || '' }),
+    motto: h('input', { maxlength: '160', placeholder: 'z. B. Mein Amazonas-Biotop / Naturaquarium 120', value: aq?.motto || '' }),
+    description: h('textarea', { maxlength: '4000', rows: '3', placeholder: 'Generelle Beschreibung (z. B. Scape, Bepflanzung, Beleuchtung, Technik & Philosophie)...', value: aq?.description || '' }),
     water_type: h('select', { value: aq?.water_type || 'fresh' }, Object.entries(CONFIG.waterTypes).map(([k, v]) => h('option', { value: k }, v))),
     volume_l: h('input', { type: 'number', min: '1', max: '100000', inputmode: 'numeric', value: aq?.volume_l ?? '' }),
     reminder_days: h('input', { type: 'number', min: '0', max: '365', inputmode: 'numeric', value: aq?.reminder_days ?? 7 }),
-    notes: h('textarea', { maxlength: '1000', value: aq?.notes || '' }),
+    notes: h('textarea', { maxlength: '1000', placeholder: 'Kurze Notizen...', value: aq?.notes || '' }),
   };
-  const dlg = h('dialog', {}, h('form', { class: 'stack', method: 'dialog', onsubmit: async (e) => {
+  const dlg = h('dialog', { class: 'wide stack' }, h('form', { class: 'stack', method: 'dialog', onsubmit: async (e) => {
     e.preventDefault(); err.textContent = '';
     const body = Object.fromEntries(Object.entries(f).map(([k, el]) => [k, el.value]));
     try {
@@ -512,7 +536,7 @@ function aquariumDialog(aq) {
         targetId = r.id;
       }
       if (imageBase64) {
-        await api(`/aquariums/${targetId}/image`, { method: 'POST', body: { image: imageBase64 } });
+        await api(`/aquariums/${targetId}/images`, { method: 'POST', body: { image: imageBase64, is_primary: 1 } });
       } else if (removeExistingImage && editing) {
         await api(`/aquariums/${targetId}/image`, { method: 'DELETE' });
       }
@@ -523,13 +547,15 @@ function aquariumDialog(aq) {
   } },
   h('h2', {}, editing ? 'Aquarium bearbeiten' : 'Aquarium anlegen'),
   h('div', { class: 'field' }, h('label', {}, 'Name'), f.name),
+  h('div', { class: 'field' }, h('label', {}, 'Motto / Leitspruch (optional)'), f.motto),
+  h('div', { class: 'field' }, h('label', {}, 'Generelle Beschreibung des Aquariums (optional)'), f.description),
   h('div', { class: 'grid2' },
     h('div', { class: 'field' }, h('label', {}, 'Wasserart'), f.water_type),
     h('div', { class: 'field' }, h('label', {}, 'Volumen (Liter)'), f.volume_l)),
   h('div', { class: 'field' }, h('label', {}, 'Messung fällig nach (Tagen, 0 = keine Erinnerung)'), f.reminder_days),
-  h('div', { class: 'field' }, h('label', {}, 'Notizen'), f.notes),
+  h('div', { class: 'field' }, h('label', {}, 'Kurze Notizen'), f.notes),
   h('div', { class: 'field' },
-    h('label', {}, 'Bild vom Aquarium (PNG, JPG, WebP, GIF, max. 5 MB)'),
+    h('label', {}, 'Titelbild vom Aquarium (PNG, JPG, WebP, GIF, max. 5 MB)'),
     fileInput,
     previewImg,
     h('div', { style: 'margin-top:.4rem' }, btnRemoveImg)),
@@ -538,11 +564,233 @@ function aquariumDialog(aq) {
     h('button', { class: 'btn', type: 'submit' }, 'Speichern'),
     h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen'),
     editing && isOwner ? h('button', { class: 'btn danger', type: 'button', onclick: async () => {
-      if (!confirm(`„${aq.name}“ mit allen Messwerten und Alarmen endgültig löschen?`)) return;
+      if (!confirm(`„${aq.name}“ mit allen Messwerten, Bildern und Alarmen endgültig löschen?`)) return;
       try { await api(`/aquariums/${aq.id}`, { method: 'DELETE' }); dlg.close(); location.hash = '#/'; toast('Aquarium gelöscht.'); } catch (ex) { err.textContent = ex.message; }
     } }, 'Löschen') : null)));
   dlg.addEventListener('close', () => dlg.remove());
   document.body.append(dlg); dlg.showModal(); f.name.focus();
+}
+
+function uploadImageDialog(aq) {
+  const dlg = h('dialog', { class: 'stack', style: 'max-width: 480px;' });
+  const err = h('p', { class: 'error', role: 'alert' });
+  let imageBase64 = null;
+
+  const fileInput = h('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp,image/gif', required: true });
+  const previewImg = h('img', { class: 'img-preview', style: 'display:none; max-height: 200px; width: 100%; object-fit: cover;' });
+  const captionInput = h('input', { maxlength: '200', placeholder: 'z. B. Gesamtansicht nach dem Rückschnitt...' });
+  const primaryChk = h('input', { type: 'checkbox' });
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      err.textContent = 'Das Bild ist größer als 5 MB.';
+      fileInput.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      imageBase64 = ev.target.result;
+      previewImg.src = imageBase64;
+      previewImg.style.display = 'block';
+      err.textContent = '';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  const form = h('form', { class: 'stack', onsubmit: async (e) => {
+    e.preventDefault(); err.textContent = '';
+    if (!imageBase64) {
+      err.textContent = 'Bitte ein Bild auswählen.';
+      return;
+    }
+    try {
+      await api(`/aquariums/${aq.id}/images`, {
+        method: 'POST',
+        body: {
+          image: imageBase64,
+          caption: captionInput.value.trim() || null,
+          is_primary: primaryChk.checked,
+        },
+      });
+      dlg.close();
+      toast('Foto hochgeladen.');
+      route();
+    } catch (ex) {
+      err.textContent = ex.message;
+    }
+  } },
+  h('div', { class: 'row between' },
+    h('h2', { style: 'margin:0' }, 'Foto hochladen'),
+    h('button', { class: 'btn small ghost', type: 'button', onclick: () => dlg.close() }, '✕')
+  ),
+  h('div', { class: 'field' },
+    h('label', {}, 'Bilddatei auswählen (PNG, JPG, WebP, GIF bis 5 MB)'),
+    fileInput,
+    previewImg
+  ),
+  h('div', { class: 'field' },
+    h('label', {}, 'Bildunterschrift / Notiz (optional)'),
+    captionInput
+  ),
+  h('label', { class: 'row', style: 'gap:.4rem; cursor:pointer;' },
+    primaryChk,
+    h('span', {}, 'Als Titelbild des Aquariums festlegen')
+  ),
+  err,
+  h('div', { class: 'row' },
+    h('button', { class: 'btn', type: 'submit' }, 'Hochladen'),
+    h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen')
+  ));
+
+  dlg.appendChild(form);
+  dlg.addEventListener('close', () => dlg.remove());
+  document.body.appendChild(dlg);
+  dlg.showModal();
+}
+
+function editImageCaptionDialog(aq, img) {
+  const dlg = h('dialog', { class: 'stack', style: 'max-width: 440px;' });
+  const err = h('p', { class: 'error', role: 'alert' });
+  const captionInput = h('input', { maxlength: '200', value: img.caption || '', placeholder: 'z. B. Beckenansicht von links...' });
+
+  const form = h('form', { class: 'stack', onsubmit: async (e) => {
+    e.preventDefault(); err.textContent = '';
+    try {
+      await api(`/aquariums/${aq.id}/images/${img.id}`, {
+        method: 'PUT',
+        body: { caption: captionInput.value.trim() || null },
+      });
+      dlg.close();
+      toast('Bildunterschrift gespeichert.');
+      route();
+    } catch (ex) {
+      err.textContent = ex.message;
+    }
+  } },
+  h('h2', { style: 'margin:0' }, 'Bildunterschrift bearbeiten'),
+  h('div', { class: 'field' },
+    h('label', {}, 'Bildunterschrift'),
+    captionInput
+  ),
+  err,
+  h('div', { class: 'row' },
+    h('button', { class: 'btn', type: 'submit' }, 'Speichern'),
+    h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen')
+  ));
+
+  dlg.appendChild(form);
+  dlg.addEventListener('close', () => dlg.remove());
+  document.body.appendChild(dlg);
+  dlg.showModal();
+  captionInput.focus();
+}
+
+function editStockDialog(aq, s) {
+  const dlg = h('dialog', { class: 'stack', style: 'max-width: 500px;' });
+  const err = h('p', { class: 'error', role: 'alert' });
+  let imageBase64 = null;
+  let removeExistingImage = false;
+
+  const spInput = h('input', { required: true, maxlength: '80', value: s.species, list: 'species' });
+  const nameInput = h('input', { maxlength: '80', placeholder: 'z. B. Bubbles, Nemo, Gruppe 1...', value: s.name || '' });
+  const cntInput = h('input', { type: 'number', min: '1', max: '10000', inputmode: 'numeric', required: true, value: s.count || 1 });
+  const profSelect = h('select', {}, Object.entries(CONFIG.profiles).map(([k, v]) => h('option', { value: k }, v)));
+  profSelect.value = s.profile || 'allgemein';
+
+  const fileInput = h('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp,image/gif' });
+  const previewImg = h('img', { class: 'img-preview', style: 'display:none; max-height: 160px; object-fit: cover;' });
+  const btnRemoveImg = h('button', { class: 'btn small ghost', type: 'button', style: 'display:none' }, 'Foto entfernen');
+
+  if (s.has_image) {
+    previewImg.src = `api/aquariums/${aq.id}/stock/${s.id}/image?t=${Date.now()}`;
+    previewImg.style.display = 'block';
+    btnRemoveImg.style.display = 'inline-flex';
+  }
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      err.textContent = 'Das Bild ist größer als 5 MB.';
+      fileInput.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      imageBase64 = ev.target.result;
+      removeExistingImage = false;
+      previewImg.src = imageBase64;
+      previewImg.style.display = 'block';
+      btnRemoveImg.style.display = 'inline-flex';
+      err.textContent = '';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  btnRemoveImg.addEventListener('click', () => {
+    imageBase64 = null;
+    removeExistingImage = true;
+    fileInput.value = '';
+    previewImg.removeAttribute('src');
+    previewImg.style.display = 'none';
+    btnRemoveImg.style.display = 'none';
+  });
+
+  const form = h('form', { class: 'stack', onsubmit: async (e) => {
+    e.preventDefault(); err.textContent = '';
+    try {
+      await api(`/aquariums/${aq.id}/stock/${s.id}`, {
+        method: 'PUT',
+        body: {
+          species: spInput.value.trim(),
+          name: nameInput.value.trim() || null,
+          count: cntInput.value,
+          profile: profSelect.value,
+          image: imageBase64,
+          remove_image: removeExistingImage,
+        },
+      });
+      dlg.close();
+      toast('Bewohner aktualisiert.');
+      route();
+    } catch (ex) {
+      err.textContent = ex.message;
+    }
+  } },
+  h('div', { class: 'row between' },
+    h('h2', { style: 'margin:0' }, 'Bewohner bearbeiten'),
+    h('button', { class: 'btn small ghost', type: 'button', onclick: () => dlg.close() }, '✕')
+  ),
+  h('div', { class: 'field' },
+    h('label', {}, 'Art / Spezies'),
+    spInput
+  ),
+  h('div', { class: 'field' },
+    h('label', {}, 'Individueller Name / Bezeichnung (optional)'),
+    nameInput
+  ),
+  h('div', { class: 'grid2' },
+    h('div', { class: 'field' }, h('label', {}, 'Anzahl'), cntInput),
+    h('div', { class: 'field' }, h('label', {}, 'Wasser-Ansprüche'), profSelect)
+  ),
+  h('div', { class: 'field' },
+    h('label', {}, 'Foto des Bewohners (PNG, JPG, WebP, GIF bis 5 MB)'),
+    fileInput,
+    previewImg,
+    h('div', { style: 'margin-top:.4rem' }, btnRemoveImg)
+  ),
+  err,
+  h('div', { class: 'row' },
+    h('button', { class: 'btn', type: 'submit' }, 'Speichern'),
+    h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen')
+  ));
+
+  dlg.appendChild(form);
+  dlg.addEventListener('close', () => dlg.remove());
+  document.body.appendChild(dlg);
+  dlg.showModal();
 }
 
 async function shareDialog(aq) {
@@ -868,10 +1116,11 @@ function makeChart(canvas, p, points, range) {
 }
 
 async function viewAquarium(id) {
-  const [d, ms, logs] = await Promise.all([
+  const [d, ms, logs, images] = await Promise.all([
     api(`/aquariums/${id}`),
     api(`/aquariums/${id}/measurements?days=${RANGE}`),
     api(`/aquariums/${id}/logs?days=${RANGE}`),
+    api(`/aquariums/${id}/images`),
   ]);
   const aq = d.aquarium;
   const role = d.role || aq.role || 'owner';
@@ -900,7 +1149,8 @@ async function viewAquarium(id) {
   nodes.push(h('div', { class: 'row between' },
     h('div', {},
       h('a', { href: '#/', class: 'muted' }, '‹ Alle Aquarien'),
-      h('h1', {}, aq.name),
+      h('h1', { style: 'margin-bottom:.2rem' }, aq.name),
+      aq.motto ? h('div', { class: 'aq-motto' }, aq.motto) : null,
       h('div', { class: 'muted' },
         CONFIG.waterTypes[aq.water_type],
         aq.volume_l ? ` · ${aq.volume_l} l` : '',
@@ -910,12 +1160,60 @@ async function viewAquarium(id) {
         h('span', { class: `chip ${isReadOnly ? 'none' : 'ok'}` }, `Geteilt von ${aq.owner_username || 'Besitzer'} · ${isReadOnly ? 'Nur Lesezugriff' : 'Schreibzugriff'}`)) : null),
     h('div', { class: 'row' }, topActions)));
 
-  if (aq.has_image) {
-    nodes.push(h('div', { class: 'aq-hero' },
-      h('img', { class: 'aq-hero-img', src: `api/aquariums/${id}/image?t=${Date.now()}`, alt: aq.name })));
+  if (aq.description) {
+    nodes.push(h('div', { class: 'aq-desc-box stack' },
+      h('strong', { style: 'font-size:.95rem' }, '📖 Über dieses Aquarium'),
+      h('div', {}, aq.description)
+    ));
   }
 
   if (aq.notes) nodes.push(h('p', { class: 'muted' }, aq.notes));
+
+  // Fotogalerie & Beckenbilder
+  const galleryCards = (images || []).map((img) => {
+    return h('div', { class: 'gallery-card' },
+      h('div', { class: 'gallery-img-wrap', onclick: () => showImageModal({ src: `api/aquariums/${id}/images/${img.id}`, title: aq.name, caption: img.caption }) },
+        h('img', { class: 'gallery-img', src: `api/aquariums/${id}/images/${img.id}`, alt: img.caption || aq.name, loading: 'lazy' }),
+        img.is_primary ? h('span', { class: 'gallery-primary-badge' }, '★ Titelbild') : null
+      ),
+      h('div', { class: 'gallery-card-body' },
+        img.caption ? h('div', { class: 'gallery-caption' }, img.caption) : h('div', { class: 'muted', style: 'font-size:.82rem' }, 'Keine Bildunterschrift'),
+        h('div', { class: 'muted', style: 'font-size:.78rem' }, fmtDate(img.created_at)),
+        !isReadOnly ? h('div', { class: 'gallery-actions' },
+          !img.is_primary ? h('button', { class: 'btn small ghost', type: 'button', title: 'Als Titelbild festlegen', onclick: async () => {
+            await api(`/aquariums/${id}/images/${img.id}/primary`, { method: 'PUT' });
+            toast('Titelbild festgelegt.');
+            route();
+          } }, '★ Titelbild') : null,
+          h('button', { class: 'btn small ghost', type: 'button', title: 'Bildunterschrift bearbeiten', onclick: () => editImageCaptionDialog(aq, img) }, '✏️ Text'),
+          h('button', { class: 'btn small ghost danger', type: 'button', title: 'Foto löschen', onclick: async () => {
+            if (!confirm('Dieses Foto wirklich löschen?')) return;
+            await api(`/aquariums/${id}/images/${img.id}`, { method: 'DELETE' });
+            toast('Foto gelöscht.');
+            route();
+          } }, '🗑️ Löschen')
+        ) : null
+      )
+    );
+  });
+
+  const galleryHeader = h('div', { class: 'row between', style: 'align-items: center;' },
+    h('h2', { style: 'margin:0' }, `📸 Fotogalerie (${images?.length || 0})`),
+    !isReadOnly ? h('button', { class: 'btn small', type: 'button', onclick: () => uploadImageDialog(aq) }, '➕ Foto hochladen') : null
+  );
+
+  const gallerySection = h('section', { class: 'card stack' },
+    galleryHeader,
+    galleryCards.length
+      ? h('div', { class: 'gallery-grid' }, galleryCards)
+      : h('div', { class: 'muted', style: 'text-align:center; padding: 1.2rem 0;' },
+          'Noch keine Fotos in der Galerie vorhanden.',
+          !isReadOnly ? h('div', { style: 'margin-top:.6rem' },
+            h('button', { class: 'btn small ghost', type: 'button', onclick: () => uploadImageDialog(aq) }, 'Erstes Foto hochladen')
+          ) : null
+        )
+  );
+  nodes.push(gallerySection);
 
   // Warnungen, Alarme und Besatz-Kompatibilität
   const notices = [];
@@ -995,11 +1293,44 @@ async function viewAquarium(id) {
       chartCards.length ? h('p', { class: 'muted' }, 'Grüner Bereich = Zielbereich, rot gestrichelt = kritische Grenze.') : null));
   }
 
-  // Besatz
+  // Besatz & Bewohner
   const sp = h('input', { list: 'species', maxlength: '80', required: true, placeholder: 'z. B. Siamesischer Kampffisch, Neonsalmler...' });
+  const inhabitantName = h('input', { maxlength: '80', placeholder: 'z. B. Bubbles, Nemo, Rambo, Gruppe 1...' });
   const cnt = h('input', { type: 'number', min: '1', max: '10000', value: '1', inputmode: 'numeric' });
   const prof = h('select', {}, Object.entries(CONFIG.profiles).map(([k, v]) => h('option', { value: k }, v)));
   const previewBox = h('div', { class: 'species-preview', style: 'display:none; margin-top:.4rem' });
+
+  let stockImageBase64 = null;
+  const stockFileInput = h('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp,image/gif' });
+  const stockPreviewImg = h('img', { class: 'img-preview', style: 'display:none; max-height: 120px; object-fit: cover;' });
+  const btnRemoveStockImg = h('button', { class: 'btn small ghost', type: 'button', style: 'display:none' }, 'Foto entfernen');
+
+  stockFileInput.addEventListener('change', () => {
+    const file = stockFileInput.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      stockErr.textContent = 'Das Bild ist größer als 5 MB.';
+      stockFileInput.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      stockImageBase64 = ev.target.result;
+      stockPreviewImg.src = stockImageBase64;
+      stockPreviewImg.style.display = 'block';
+      btnRemoveStockImg.style.display = 'inline-flex';
+      stockErr.textContent = '';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  btnRemoveStockImg.addEventListener('click', () => {
+    stockImageBase64 = null;
+    stockFileInput.value = '';
+    stockPreviewImg.removeAttribute('src');
+    stockPreviewImg.style.display = 'none';
+    btnRemoveStockImg.style.display = 'none';
+  });
 
   const updatePreview = () => {
     const val = sp.value.trim().toLowerCase();
@@ -1035,18 +1366,53 @@ async function viewAquarium(id) {
     else if (s.territorial === 'strong' || spMatch?.territorial === 'strong') chips.push(h('span', { class: 'tag warn' }, 'Stark territorial'));
     else if (s.territorial === 'breeding' || spMatch?.territorial === 'breeding') chips.push(h('span', { class: 'tag info' }, 'Revier bei Brut'));
 
-    return h('li', { style: 'padding:.5rem 0;border-bottom:1px solid var(--line)' },
-      h('div', { class: 'row between' },
+    const avatarNode = s.has_image
+      ? h('img', {
+          class: 'stock-avatar',
+          src: `api/aquariums/${id}/stock/${s.id}/image?t=${Date.now()}`,
+          alt: s.name || s.species,
+          title: 'Klicken für Großansicht',
+          onclick: () => showImageModal({
+            src: `api/aquariums/${id}/stock/${s.id}/image`,
+            title: s.name ? `${s.name} (${s.species})` : s.species,
+            caption: `${s.count} × ${s.species}${s.scientificName ? ' (' + s.scientificName + ')' : ''}`,
+          }),
+        })
+      : h('div', { class: 'stock-avatar-placeholder', title: s.species },
+          (s.category === 'Wirbellose' || spMatch?.category === 'Wirbellose') ? '🦐'
+          : (aq.water_type === 'salt' || spMatch?.waterType === 'salt') ? '🐠'
+          : '🐟'
+        );
+
+    return h('li', { class: 'stock-item' },
+      h('div', { class: 'stock-item-main' },
+        avatarNode,
         h('div', {},
-          h('span', { style: 'font-weight:600' }, `${s.count} × ${s.species}`),
-          s.scientificName ? h('span', { class: 'muted', style: 'font-style:italic;margin-left:.4rem' }, `(${s.scientificName})`) : null,
-          h('span', { class: 'muted', style: 'margin-left:.4rem' }, `(${CONFIG.profiles[s.profile] || s.profile})`),
-          chips.length ? h('div', { style: 'margin-top:.2rem' }, chips) : null
-        ),
-        h('div', { class: 'row' },
-          h('button', { class: 'btn small ghost', type: 'button', onclick: () => showSpeciesModal(spMatch || s.species) }, 'Arten-Info'),
-          !isReadOnly ? h('button', { class: 'btn small ghost', type: 'button', 'aria-label': `${s.species} entfernen`, onclick: async () => { await api(`/aquariums/${id}/stock/${s.id}`, { method: 'DELETE' }); route(); } }, 'Entfernen') : null
+          s.name ? [
+            h('div', { class: 'stock-name-title' }, s.name),
+            h('div', { class: 'stock-species-sub' },
+              `${s.count} × ${s.species}`,
+              s.scientificName ? h('span', { style: 'font-style:italic;margin-left:.3rem' }, `(${s.scientificName})`) : null,
+              h('span', { class: 'muted', style: 'margin-left:.3rem' }, `· ${CONFIG.profiles[s.profile] || s.profile}`)
+            )
+          ] : [
+            h('div', { class: 'stock-name-title' }, `${s.count} × ${s.species}`),
+            h('div', { class: 'stock-species-sub' },
+              s.scientificName ? h('span', { style: 'font-style:italic;margin-right:.3rem' }, `(${s.scientificName}) · `) : null,
+              `${CONFIG.profiles[s.profile] || s.profile}`
+            )
+          ],
+          chips.length ? h('div', { style: 'margin-top:.3rem' }, chips) : null
         )
+      ),
+      h('div', { class: 'row', style: 'gap:.35rem' },
+        h('button', { class: 'btn small ghost', type: 'button', onclick: () => showSpeciesModal(spMatch || s.species) }, 'Arten-Info'),
+        !isReadOnly ? h('button', { class: 'btn small ghost', type: 'button', onclick: () => editStockDialog(aq, s) }, '✏️ Bearbeiten') : null,
+        !isReadOnly ? h('button', { class: 'btn small ghost danger', type: 'button', 'aria-label': `${s.name || s.species} entfernen`, onclick: async () => {
+          if (!confirm(`„${s.name || s.species}“ wirklich entfernen?`)) return;
+          await api(`/aquariums/${id}/stock/${s.id}`, { method: 'DELETE' });
+          route();
+        } }, 'Entfernen') : null
       )
     );
   });
@@ -1057,7 +1423,7 @@ async function viewAquarium(id) {
       h('a', { class: 'btn small ghost', href: '#/species' }, '📖 Artenkatalog')
     ),
     h('p', { class: 'muted' }, 'Die Fisch- und Wirbellosenarten bestimmen die optimalen Grenzwerte und werden auf Verträglichkeit, Gruppengröße sowie Territorialverhalten geprüft.'),
-    d.stock.length ? h('ul', { style: 'list-style:none;padding:0;margin:0' }, stockListItems)
+    d.stock.length ? h('ul', { class: 'stock-list' }, stockListItems)
       : h('p', {}, 'Noch kein Besatz eingetragen. Es gelten die allgemeinen Grenzwerte.')
   ];
 
@@ -1075,14 +1441,40 @@ async function viewAquarium(id) {
   if (!isReadOnly) {
     stockNodes.push(
       h('datalist', { id: 'species' }, CONFIG.species.map((s) => h('option', { value: s.name }, s.scientificName ? `${s.name} (${s.scientificName})` : s.name))),
-      h('form', { class: 'stack', style: 'margin-top:1rem', onsubmit: async (e) => {
+      h('form', { class: 'stack', style: 'margin-top:1.2rem', onsubmit: async (e) => {
         e.preventDefault(); stockErr.textContent = '';
-        try { await api(`/aquariums/${id}/stock`, { method: 'POST', body: { species: sp.value, count: cnt.value, profile: prof.value } }); route(); } catch (ex) { stockErr.textContent = ex.message; }
+        try {
+          await api(`/aquariums/${id}/stock`, {
+            method: 'POST',
+            body: {
+              species: sp.value.trim(),
+              name: inhabitantName.value.trim() || null,
+              count: cnt.value,
+              profile: prof.value,
+              image: stockImageBase64,
+            },
+          });
+          route();
+        } catch (ex) {
+          stockErr.textContent = ex.message;
+        }
       } },
       h('h3', { style: 'margin:0' }, 'Neuen Bewohner hinzufügen'),
-      h('div', { class: 'grid2' }, h('div', { class: 'field' }, h('label', {}, 'Art / Bewohner'), sp), h('div', { class: 'field' }, h('label', {}, 'Anzahl'), cnt)),
+      h('div', { class: 'grid2' },
+        h('div', { class: 'field' }, h('label', {}, 'Art / Spezies'), sp),
+        h('div', { class: 'field' }, h('label', {}, 'Individueller Name / Bezeichnung (optional)'), inhabitantName)
+      ),
+      h('div', { class: 'grid2' },
+        h('div', { class: 'field' }, h('label', {}, 'Anzahl'), cnt),
+        h('div', { class: 'field' }, h('label', {}, 'Ansprüche an das Wasser'), prof)
+      ),
       previewBox,
-      h('div', { class: 'field' }, h('label', {}, 'Ansprüche an das Wasser'), prof),
+      h('div', { class: 'field' },
+        h('label', {}, 'Foto des Bewohners (optional, PNG, JPG, WebP, GIF bis 5 MB)'),
+        stockFileInput,
+        stockPreviewImg,
+        h('div', { style: 'margin-top:.3rem' }, btnRemoveStockImg)
+      ),
       stockErr,
       h('div', {}, h('button', { class: 'btn', type: 'submit' }, 'Besatz hinzufügen'))));
   }

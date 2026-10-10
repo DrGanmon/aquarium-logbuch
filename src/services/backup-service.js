@@ -341,6 +341,7 @@ class BackupService {
     // Standardstrukturen vorbereiten
     const users = Array.isArray(data.users) ? data.users : [];
     const aquariums = Array.isArray(data.aquariums) ? data.aquariums : [];
+    const aquarium_images = Array.isArray(data.aquarium_images) ? data.aquarium_images : [];
     const aquarium_shares = Array.isArray(data.aquarium_shares) ? data.aquarium_shares : [];
     const stock = Array.isArray(data.stock) ? data.stock : [];
     let measurements = Array.isArray(data.measurements) ? data.measurements : [];
@@ -401,11 +402,32 @@ class BackupService {
         reminder_days: Math.max(1, Number(a.reminder_days) || 7),
         notes: a.notes ? String(a.notes) : null,
         image_file: a.image_file ? path.basename(String(a.image_file)) : null,
+        motto: a.motto ? String(a.motto).trim() : null,
+        description: a.description ? String(a.description).trim() : null,
         created_at: a.created_at || new Date().toISOString(),
       };
     }).filter((a) => a && a.id);
 
     const validAquariumIds = new Set(normalizedAquariums.map((a) => a.id));
+
+    // Normalisierung: Aquarium Bilder (aquarium_images)
+    let aqImgIdCounter = 1;
+    const normalizedAquariumImages = aquarium_images.map((ai) => {
+      if (!ai || typeof ai !== 'object') return null;
+      const aqId = Number(ai.aquarium_id);
+      if (!validAquariumIds.has(aqId)) return null;
+      const id = ai.id != null ? Number(ai.id) : aqImgIdCounter++;
+      const filename = ai.filename ? path.basename(String(ai.filename)) : null;
+      if (!filename) return null;
+      return {
+        id,
+        aquarium_id: aqId,
+        filename,
+        caption: ai.caption ? String(ai.caption).trim() : null,
+        is_primary: Boolean(ai.is_primary),
+        created_at: ai.created_at || new Date().toISOString(),
+      };
+    }).filter(Boolean);
 
     // Normalisierung: Freigaben (aquarium_shares)
     const normalizedShares = aquarium_shares.map((s) => {
@@ -435,6 +457,8 @@ class BackupService {
         species: String(st.species || 'Unbekannte Art').trim(),
         count: Math.max(1, Number(st.count) || 1),
         profile: String(st.profile || 'allgemein'),
+        name: st.name ? String(st.name).trim() : null,
+        image_file: st.image_file ? path.basename(String(st.image_file)) : null,
       };
     }).filter(Boolean);
 
@@ -526,6 +550,7 @@ class BackupService {
       data: {
         users: normalizedUsers,
         aquariums: normalizedAquariums,
+        aquarium_images: normalizedAquariumImages,
         aquarium_shares: normalizedShares,
         stock: normalizedStock,
         measurements: normalizedMeasurements,
@@ -583,6 +608,7 @@ class BackupService {
         stats: {
           users: normalized.data.users.length,
           aquariums: normalized.data.aquariums.length,
+          aquariumImages: normalized.data.aquarium_images.length,
           shares: normalized.data.aquarium_shares.length,
           stock: normalized.data.stock.length,
           measurements: normalized.data.measurements.length,

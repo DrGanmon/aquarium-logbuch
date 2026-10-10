@@ -379,7 +379,7 @@ function analyzeStockCompatibility(aquarium, stockItems = []) {
       }
 
       // H: Kaltwasserfisch vs. Wärmebedürftige Tropenfische
-      if (spA.temp.max != null && spB.temp.min != null && spA.temp.max < spB.temp.min) {
+      if (spA.temp?.max != null && spB.temp?.min != null && spA.temp.max < spB.temp.min) {
         issues.push({
           type: 'temperature_range_conflict',
           level: 'crit',
@@ -387,7 +387,7 @@ function analyzeStockCompatibility(aquarium, stockItems = []) {
           message: `„${a.name}“ (max. ${spA.temp.max} °C) und „${b.name}“ (mind. ${spB.temp.min} °C) haben keine überlappenden Temperaturansprüche.`,
           species: [a.name, b.name],
         });
-      } else if (spB.temp.max != null && spA.temp.min != null && spB.temp.max < spA.temp.min) {
+      } else if (spB.temp?.max != null && spA.temp?.min != null && spB.temp.max < spA.temp.min) {
         issues.push({
           type: 'temperature_range_conflict',
           level: 'crit',
@@ -398,7 +398,7 @@ function analyzeStockCompatibility(aquarium, stockItems = []) {
       }
 
       // I: pH-Wert Bereichs-Konflikt
-      if (spA.ph.max != null && spB.ph.min != null && spA.ph.max < spB.ph.min) {
+      if (spA.ph?.max != null && spB.ph?.min != null && spA.ph.max < spB.ph.min) {
         issues.push({
           type: 'ph_range_conflict',
           level: 'crit',
@@ -406,7 +406,7 @@ function analyzeStockCompatibility(aquarium, stockItems = []) {
           message: `„${a.name}“ (pH max. ${spA.ph.max}) und „${b.name}“ (pH mind. ${spB.ph.min}) haben unvereinbare pH-Wert-Anforderungen.`,
           species: [a.name, b.name],
         });
-      } else if (spB.ph.max != null && spA.ph.min != null && spB.ph.max < spA.ph.min) {
+      } else if (spB.ph?.max != null && spA.ph?.min != null && spB.ph.max < spA.ph.min) {
         issues.push({
           type: 'ph_range_conflict',
           level: 'crit',

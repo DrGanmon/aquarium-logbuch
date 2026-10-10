@@ -5,6 +5,7 @@ const Database = require('better-sqlite3');
 const { DATA_DIR } = require('../config/env');
 const cfg = require('../../config');
 const { isOverdue } = require('../services/aquarium-service');
+const { deleteImage } = require('../services/image-service');
 
 class SqliteAdapter {
   constructor(options = {}) {
@@ -100,6 +101,15 @@ class SqliteAdapter {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
       CREATE INDEX IF NOT EXISTS idx_maint_aq ON maintenance_logs(aquarium_id, logged_at);
+      CREATE TABLE IF NOT EXISTS aquarium_images (
+        id INTEGER PRIMARY KEY,
+        aquarium_id INTEGER NOT NULL REFERENCES aquariums(id) ON DELETE CASCADE,
+        filename TEXT NOT NULL,
+        caption TEXT,
+        is_primary INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_aq_images_aq ON aquarium_images(aquarium_id);
     `);
 
     const hasColumn = (table, col) => this.db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === col);
@@ -113,6 +123,10 @@ class SqliteAdapter {
     if (!hasColumn('users', 'selected_tests')) this.db.exec('ALTER TABLE users ADD COLUMN selected_tests TEXT');
     if (!hasColumn('sessions', 'id_token')) this.db.exec('ALTER TABLE sessions ADD COLUMN id_token TEXT');
     if (!hasColumn('aquariums', 'image_file')) this.db.exec('ALTER TABLE aquariums ADD COLUMN image_file TEXT');
+    if (!hasColumn('aquariums', 'motto')) this.db.exec('ALTER TABLE aquariums ADD COLUMN motto TEXT');
+    if (!hasColumn('aquariums', 'description')) this.db.exec('ALTER TABLE aquariums ADD COLUMN description TEXT');
+    if (!hasColumn('stock', 'name')) this.db.exec('ALTER TABLE stock ADD COLUMN name TEXT');
+    if (!hasColumn('stock', 'image_file')) this.db.exec('ALTER TABLE stock ADD COLUMN image_file TEXT');
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oidc ON users(oidc_sub) WHERE oidc_sub IS NOT NULL');
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email != \'\'');
 
@@ -301,16 +315,16 @@ class SqliteAdapter {
             .get(numId) || null
         );
       },
-      async create({ user_id, name, volume_l = null, water_type = 'fresh', reminder_days = 7, notes = null }) {
+      async create({ user_id, name, volume_l = null, water_type = 'fresh', reminder_days = 7, notes = null, motto = null, description = null }) {
         const info = db
-          .prepare('INSERT INTO aquariums (user_id, name, volume_l, water_type, reminder_days, notes) VALUES (?, ?, ?, ?, ?, ?)')
-          .run(user_id, name, volume_l, water_type, reminder_days, notes);
+          .prepare('INSERT INTO aquariums (user_id, name, volume_l, water_type, reminder_days, notes, motto, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+          .run(user_id, name, volume_l, water_type, reminder_days, notes, motto, description);
         return { id: Number(info.lastInsertRowid) };
       },
       async update(id, fields = {}) {
         const setClauses = [];
         const params = [];
-        const allowed = ['name', 'volume_l', 'water_type', 'reminder_days', 'notes', 'image_file'];
+        const allowed = ['name', 'volume_l', 'water_type', 'reminder_days', 'notes', 'image_file', 'motto', 'description'];
 
         for (const k of allowed) {
           if (fields[k] !== undefined) {
@@ -329,7 +343,16 @@ class SqliteAdapter {
         return res.changes > 0;
       },
       async delete(id) {
-        const res = db.prepare('DELETE FROM aquariums WHERE id = ?').run(id);
+        const numId = Number(id);
+        const images = db.prepare('SELECT filename FROM aquarium_images WHERE aquarium_id = ?').all(numId);
+        for (const img of images) {
+          deleteImage(img.filename);
+        }
+        const stocks = db.prepare('SELECT image_file FROM stock WHERE aquarium_id = ?').all(numId);
+        for (const st of stocks) {
+          if (st.image_file) deleteImage(st.image_file);
+        }
+        const res = db.prepare('DELETE FROM aquariums WHERE id = ?').run(numId);
         return res.changes > 0;
       },
       async countForUser(userId) {
@@ -363,13 +386,17 @@ class SqliteAdapter {
         const crit = alerts.find((a) => a.level === 'crit')?.n || 0;
         const warn = alerts.find((a) => a.level === 'warn')?.n || 0;
         const sharesCount = db.prepare('SELECT COUNT(*) as n FROM aquarium_shares WHERE aquarium_id = ?').get(aq.id)?.n || 0;
+        const imagesCount = db.prepare('SELECT COUNT(*) as n FROM aquarium_images WHERE aquarium_id = ?').get(aq.id)?.n || 0;
 
         return {
           ...aq,
           role: role || aq.role || 'owner',
           owner_username: aq.owner_username || null,
-          has_image: !!aq.image_file,
+          has_image: !!aq.image_file || imagesCount > 0,
           image_url: aq.image_file ? `api/aquariums/${aq.id}/image` : null,
+          images_count: imagesCount,
+          motto: aq.motto || null,
+          description: aq.description || null,
           shares_count: sharesCount,
           last_measured_at: last ? last.measured_at : null,
           last_water_change_at: lastWaterChange ? lastWaterChange.logged_at : null,
@@ -380,6 +407,80 @@ class SqliteAdapter {
           open_warn: warn,
           overdue: isOverdue(aq, last),
         };
+      },
+    };
+
+    this.aquariumImages = {
+      async listForAquarium(aquariumId) {
+        const numId = Number(aquariumId);
+        const rows = db.prepare('SELECT * FROM aquarium_images WHERE aquarium_id = ? ORDER BY is_primary DESC, id ASC').all(numId);
+        return rows.map((r) => ({
+          ...r,
+          is_primary: Boolean(r.is_primary),
+          url: `api/aquariums/${numId}/images/${r.id}`,
+        }));
+      },
+      async findById(id) {
+        const row = db.prepare('SELECT * FROM aquarium_images WHERE id = ?').get(Number(id));
+        if (!row) return null;
+        return {
+          ...row,
+          is_primary: Boolean(row.is_primary),
+          url: `api/aquariums/${row.aquarium_id}/images/${row.id}`,
+        };
+      },
+      async create({ aquarium_id, filename, caption = null, is_primary = 0 }) {
+        const numAqId = Number(aquarium_id);
+        const count = db.prepare('SELECT COUNT(*) as n FROM aquarium_images WHERE aquarium_id = ?').get(numAqId).n;
+        const makePrimary = is_primary ? 1 : count === 0 ? 1 : 0;
+        if (makePrimary) {
+          db.prepare('UPDATE aquarium_images SET is_primary = 0 WHERE aquarium_id = ?').run(numAqId);
+          db.prepare('UPDATE aquariums SET image_file = ? WHERE id = ?').run(filename, numAqId);
+        }
+        const info = db
+          .prepare('INSERT INTO aquarium_images (aquarium_id, filename, caption, is_primary) VALUES (?, ?, ?, ?)')
+          .run(numAqId, filename, caption, makePrimary);
+        return { id: Number(info.lastInsertRowid), filename, caption, is_primary: Boolean(makePrimary) };
+      },
+      async setPrimary(id, aquariumId) {
+        const numId = Number(id);
+        const numAqId = Number(aquariumId);
+        const img = db.prepare('SELECT * FROM aquarium_images WHERE id = ? AND aquarium_id = ?').get(numId, numAqId);
+        if (!img) return false;
+        db.prepare('UPDATE aquarium_images SET is_primary = 0 WHERE aquarium_id = ?').run(numAqId);
+        db.prepare('UPDATE aquarium_images SET is_primary = 1 WHERE id = ?').run(numId);
+        db.prepare('UPDATE aquariums SET image_file = ? WHERE id = ?').run(img.filename, numAqId);
+        return true;
+      },
+      async updateCaption(id, aquariumId, caption) {
+        const res = db.prepare('UPDATE aquarium_images SET caption = ? WHERE id = ? AND aquarium_id = ?').run(caption, Number(id), Number(aquariumId));
+        return res.changes > 0;
+      },
+      async delete(id, aquariumId) {
+        const numId = Number(id);
+        const numAqId = Number(aquariumId);
+        const img = db.prepare('SELECT * FROM aquarium_images WHERE id = ? AND aquarium_id = ?').get(numId, numAqId);
+        if (!img) return false;
+        deleteImage(img.filename);
+        const res = db.prepare('DELETE FROM aquarium_images WHERE id = ?').run(numId);
+        const nextImg = db.prepare('SELECT * FROM aquarium_images WHERE aquarium_id = ? ORDER BY is_primary DESC, id ASC LIMIT 1').get(numAqId);
+        if (nextImg) {
+          if (!nextImg.is_primary) {
+            db.prepare('UPDATE aquarium_images SET is_primary = 1 WHERE id = ?').run(nextImg.id);
+          }
+          db.prepare('UPDATE aquariums SET image_file = ? WHERE id = ?').run(nextImg.filename, numAqId);
+        } else {
+          db.prepare('UPDATE aquariums SET image_file = NULL WHERE id = ?').run(numAqId);
+        }
+        return res.changes > 0;
+      },
+      async deleteAllForAquarium(aquariumId) {
+        const numAqId = Number(aquariumId);
+        const rows = db.prepare('SELECT filename FROM aquarium_images WHERE aquarium_id = ?').all(numAqId);
+        for (const r of rows) {
+          deleteImage(r.filename);
+        }
+        db.prepare('DELETE FROM aquarium_images WHERE aquarium_id = ?').run(numAqId);
       },
     };
 
@@ -420,26 +521,66 @@ class SqliteAdapter {
 
     this.stock = {
       async listForAquarium(aquariumId) {
-        return db.prepare('SELECT id, species, count, profile FROM stock WHERE aquarium_id = ? ORDER BY species').all(aquariumId);
+        const rows = db.prepare('SELECT id, aquarium_id, species, count, profile, name, image_file FROM stock WHERE aquarium_id = ? ORDER BY species, id').all(Number(aquariumId));
+        return rows.map((s) => ({
+          ...s,
+          has_image: !!s.image_file,
+          image_url: s.image_file ? `api/aquariums/${s.aquarium_id}/stock/${s.id}/image` : null,
+        }));
       },
       async findById(id) {
-        return db.prepare('SELECT * FROM stock WHERE id = ?').get(id) || null;
+        const s = db.prepare('SELECT id, aquarium_id, species, count, profile, name, image_file FROM stock WHERE id = ?').get(Number(id));
+        if (!s) return null;
+        return {
+          ...s,
+          has_image: !!s.image_file,
+          image_url: s.image_file ? `api/aquariums/${s.aquarium_id}/stock/${s.id}/image` : null,
+        };
       },
-      async create({ aquarium_id, species, count = 1, profile = 'allgemein' }) {
-        const info = db.prepare('INSERT INTO stock (aquarium_id, species, count, profile) VALUES (?, ?, ?, ?)').run(aquarium_id, species, count, profile);
+      async create({ aquarium_id, species, count = 1, profile = 'allgemein', name = null, image_file = null }) {
+        const info = db.prepare('INSERT INTO stock (aquarium_id, species, count, profile, name, image_file) VALUES (?, ?, ?, ?, ?, ?)').run(aquarium_id, species, count, profile, name, image_file);
         return { id: Number(info.lastInsertRowid) };
       },
+      async update(id, fields = {}) {
+        const setClauses = [];
+        const params = [];
+        const allowed = ['species', 'count', 'profile', 'name', 'image_file'];
+        for (const k of allowed) {
+          if (fields[k] !== undefined) {
+            setClauses.push(`${k} = ?`);
+            params.push(fields[k]);
+          }
+        }
+        if (setClauses.length === 0) return true;
+        params.push(Number(id));
+        const res = db.prepare(`UPDATE stock SET ${setClauses.join(', ')} WHERE id = ?`).run(...params);
+        return res.changes > 0;
+      },
+      async updateImage(id, filename) {
+        const res = db.prepare('UPDATE stock SET image_file = ? WHERE id = ?').run(filename, Number(id));
+        return res.changes > 0;
+      },
       async delete(id, aquariumId = null) {
+        const numId = Number(id);
+        const s = db.prepare('SELECT * FROM stock WHERE id = ?').get(numId);
+        if (s?.image_file) {
+          deleteImage(s.image_file);
+        }
         let res;
         if (aquariumId != null) {
-          res = db.prepare('DELETE FROM stock WHERE id = ? AND aquarium_id = ?').run(id, aquariumId);
+          res = db.prepare('DELETE FROM stock WHERE id = ? AND aquarium_id = ?').run(numId, Number(aquariumId));
         } else {
-          res = db.prepare('DELETE FROM stock WHERE id = ?').run(id);
+          res = db.prepare('DELETE FROM stock WHERE id = ?').run(numId);
         }
         return res.changes > 0;
       },
       async deleteAllForAquarium(aquariumId) {
-        db.prepare('DELETE FROM stock WHERE aquarium_id = ?').run(aquariumId);
+        const numAqId = Number(aquariumId);
+        const rows = db.prepare('SELECT image_file FROM stock WHERE aquarium_id = ?').all(numAqId);
+        for (const r of rows) {
+          if (r.image_file) deleteImage(r.image_file);
+        }
+        db.prepare('DELETE FROM stock WHERE aquarium_id = ?').run(numAqId);
       },
     };
 
@@ -747,6 +888,7 @@ class SqliteAdapter {
 
     const users = db.prepare('SELECT * FROM users ORDER BY id ASC').all();
     const aquariums = db.prepare('SELECT * FROM aquariums ORDER BY id ASC').all();
+    const aquarium_images = db.prepare('SELECT * FROM aquarium_images ORDER BY id ASC').all();
     const aquarium_shares = db.prepare('SELECT * FROM aquarium_shares ORDER BY aquarium_id ASC, user_id ASC').all();
     const stock = db.prepare('SELECT * FROM stock ORDER BY id ASC').all();
     const rawMeasurements = db.prepare('SELECT * FROM measurements ORDER BY id ASC').all();
@@ -772,6 +914,7 @@ class SqliteAdapter {
     return {
       users,
       aquariums,
+      aquarium_images,
       aquarium_shares,
       stock,
       measurements,
@@ -786,6 +929,7 @@ class SqliteAdapter {
 
     const users = Array.isArray(data.users) ? data.users : [];
     const aquariums = Array.isArray(data.aquariums) ? data.aquariums : [];
+    const aquarium_images = Array.isArray(data.aquarium_images) ? data.aquarium_images : [];
     const shares = Array.isArray(data.aquarium_shares) ? data.aquarium_shares : [];
     const stock = Array.isArray(data.stock) ? data.stock : [];
     const measurements = Array.isArray(data.measurements) ? data.measurements : [];
@@ -803,6 +947,7 @@ class SqliteAdapter {
       db.exec('DELETE FROM measurements');
       db.exec('DELETE FROM maintenance_logs');
       db.exec('DELETE FROM stock');
+      db.exec('DELETE FROM aquarium_images');
       db.exec('DELETE FROM aquarium_shares');
       db.exec('DELETE FROM aquariums');
       db.exec('DELETE FROM sessions');
@@ -842,8 +987,8 @@ class SqliteAdapter {
 
       // Aquariums
       const insertAq = db.prepare(`
-        INSERT INTO aquariums (id, user_id, name, volume_l, water_type, reminder_days, notes, image_file, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO aquariums (id, user_id, name, volume_l, water_type, reminder_days, notes, image_file, motto, description, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       for (const a of aquariums) {
         insertAq.run(
@@ -855,7 +1000,25 @@ class SqliteAdapter {
           a.reminder_days || 7,
           a.notes || null,
           a.image_file || null,
+          a.motto || null,
+          a.description || null,
           a.created_at || new Date().toISOString()
+        );
+      }
+
+      // Aquarium Images
+      const insertAqImg = db.prepare(`
+        INSERT INTO aquarium_images (id, aquarium_id, filename, caption, is_primary, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+      for (const ai of aquarium_images) {
+        insertAqImg.run(
+          ai.id,
+          ai.aquarium_id,
+          ai.filename,
+          ai.caption || null,
+          ai.is_primary ? 1 : 0,
+          ai.created_at || new Date().toISOString()
         );
       }
 
@@ -870,11 +1033,11 @@ class SqliteAdapter {
 
       // Stock
       const insertStock = db.prepare(`
-        INSERT INTO stock (id, aquarium_id, species, count, profile)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO stock (id, aquarium_id, species, count, profile, name, image_file)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `);
       for (const st of stock) {
-        insertStock.run(st.id, st.aquarium_id, st.species, st.count || 1, st.profile || 'allgemein');
+        insertStock.run(st.id, st.aquarium_id, st.species, st.count || 1, st.profile || 'allgemein', st.name || null, st.image_file || null);
       }
 
       // Measurements & Values

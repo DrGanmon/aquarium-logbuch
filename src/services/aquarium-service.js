@@ -13,7 +13,11 @@ function aquariumInput(body) {
   if (!Number.isFinite(reminder_days) || reminder_days < 0 || reminder_days > 365) {
     return { error: 'Erinnerung: 0–365 Tage (0 = aus).' };
   }
-  return { value: { name, water_type, volume_l, reminder_days, notes: str(body.notes, 1000) } };
+  const motto = str(body.motto, 160) || null;
+  const description = str(body.description, 4000) || null;
+  const notes = str(body.notes, 1000) || null;
+
+  return { value: { name, water_type, volume_l, reminder_days, notes, motto, description } };
 }
 
 function isOverdue(aq, last) {

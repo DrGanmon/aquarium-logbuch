@@ -378,4 +378,179 @@ dialog.wide { max-width: 640px; }
   line-height: 1;
 }
 
+/* Motto, Beschreibung & Galerie */
+.aq-motto {
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+  margin: .25rem 0 .4rem;
+}
+
+.aq-desc-box {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--ink);
+  box-shadow: var(--card-shadow);
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 480px) {
+  .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+}
+
+.gallery-card {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--card-shadow);
+}
+
+.gallery-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: var(--img-placeholder-bg);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.gallery-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .2s ease;
+  display: block;
+}
+
+.gallery-img:hover {
+  transform: scale(1.04);
+}
+
+.gallery-primary-badge {
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  background: var(--topbar-bg);
+  color: var(--topbar-text);
+  font-size: .75rem;
+  font-weight: 650;
+  padding: .2rem .55rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.gallery-card-body {
+  padding: .75rem;
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  justify-content: space-between;
+  flex-grow: 1;
+}
+
+.gallery-caption {
+  font-size: .88rem;
+  color: var(--ink);
+  word-break: break-word;
+}
+
+.gallery-actions {
+  display: flex;
+  gap: .35rem;
+  flex-wrap: wrap;
+  margin-top: .4rem;
+}
+
+/* Bewohner & Besatz Liste */
+.stock-list {
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.stock-item {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: .75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .8rem;
+  flex-wrap: wrap;
+  box-shadow: var(--card-shadow);
+}
+
+.stock-item-main {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+}
+
+.stock-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+  background: var(--img-placeholder-bg);
+  transition: transform .15s ease;
+}
+
+.stock-avatar:hover {
+  transform: scale(1.06);
+}
+
+.stock-avatar-placeholder {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  background: var(--tag-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+}
+
+.stock-name-title {
+  font-weight: 650;
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+
+.stock-species-sub {
+  font-size: .88rem;
+  color: var(--ink-soft);
+  margin-top: .15rem;
+}
+
+.image-lightbox-img {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  display: block;
+  margin: 0 auto;
+}
+
 @media (prefers-reduced-motion: reduce) { .tube .fill { transition: none; } }
