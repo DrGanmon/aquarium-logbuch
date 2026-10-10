@@ -1,3 +1,22 @@
 node_modules/
-data/*
-!data/.gitkeep
+
+# Logs
+*.log
+data/*.log
+
+# SQLite Database files
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/*.sqlite
+data/*.sqlite3
+
+# Uploads (Ordnerstruktur über .gitkeep erhalten)
+data/uploads/**
+!data/uploads/**/
+!data/uploads/**/.gitkeep
+
+# Backups (Ordnerstruktur über .gitkeep erhalten)
+data/backups/**
+!data/backups/**/
+!data/backups/**/.gitkeep
