@@ -63,8 +63,23 @@ router.get(
   ownAquarium,
   wrap((req, res) => {
     const aq = req.aq;
-    const { profiles, thresholds, conflicts } = thresholdsOfAquarium(aq, db);
-    const stock = db.prepare('SELECT id, species, count, profile FROM stock WHERE aquarium_id = ? ORDER BY species').all(aq.id);
+    const { profiles, thresholds, conflicts, compatibility } = thresholdsOfAquarium(aq, db);
+    const stockRows = db.prepare('SELECT id, species, count, profile FROM stock WHERE aquarium_id = ? ORDER BY species').all(aq.id);
+    const stock = stockRows.map((s) => {
+      const sp = cfg.speciesService.findSpeciesByName(s.species);
+      return {
+        ...s,
+        scientificName: sp?.scientificName || null,
+        category: sp?.category || null,
+        minVolumeL: sp?.minVolumeL || null,
+        socialType: sp?.socialType || null,
+        minGroupCount: sp?.minGroupCount || 1,
+        territorial: sp?.territorial || null,
+        tags: sp?.tags || [],
+        decorHints: sp?.decorHints || null,
+        behaviorNotes: sp?.behaviorNotes || null,
+      };
+    });
     const alerts = db
       .prepare(
         `SELECT id, param, level, value, message, created_at FROM alerts WHERE aquarium_id = ? AND acked_at IS NULL ORDER BY (level = 'crit') DESC, created_at DESC`
@@ -85,7 +100,18 @@ router.get(
     for (const r of rows) {
       latest[r.param] = { value: r.value, measured_at: r.measured_at, status: cfg.evaluate(thresholds[r.param], r.value) };
     }
-    res.json({ aquarium: aquariumSummary(aq, db, req.accessRole), stock, profiles, thresholds, conflicts, alerts, latest, role: req.accessRole });
+    const stockCompatibility = compatibility || cfg.speciesService.analyzeStockCompatibility(aq, stockRows);
+    res.json({
+      aquarium: aquariumSummary(aq, db, req.accessRole),
+      stock,
+      profiles,
+      thresholds,
+      conflicts,
+      stockCompatibility,
+      alerts,
+      latest,
+      role: req.accessRole,
+    });
   })
 );
 
@@ -236,7 +262,11 @@ router.post(
   wrap((req, res) => {
     const species = str(req.body.species, 80);
     const count = Math.round(Number(req.body.count ?? 1));
-    const profile = cfg.PROFILES[req.body.profile] ? req.body.profile : 'allgemein';
+    let profile = req.body.profile;
+    if (!profile || !cfg.PROFILES[profile]) {
+      const sp = cfg.speciesService.findSpeciesByName(species);
+      profile = sp?.profile && cfg.PROFILES[sp.profile] ? sp.profile : 'allgemein';
+    }
     if (!species) return res.status(400).json({ error: 'Bitte eine Art eingeben.' });
     if (!Number.isFinite(count) || count < 1 || count > 10000) {
       return res.status(400).json({ error: 'Anzahl: 1–10000.' });

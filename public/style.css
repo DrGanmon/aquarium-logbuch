@@ -159,4 +159,23 @@ dialog::backdrop { background: #12343b99; }
 .topbar-user { display: inline-flex; align-items: center; gap: .4rem; text-decoration: none; }
 .profile-avatar-row { display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap; }
 
+/* Arten & Besatz */
+.species-grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .species-grid { grid-template-columns: 1fr 1fr; } }
+.species-card { display: flex; flex-direction: column; justify-content: space-between; border-left: 5px solid var(--water); }
+.species-card.fresh { border-left-color: var(--kelp); }
+.species-card.salt { border-left-color: var(--water); }
+.tag { display: inline-block; padding: .15rem .45rem; border-radius: 4px; font-size: .78rem; font-weight: 600; background: #e0eae8; color: var(--ink); margin-right: .3rem; margin-bottom: .3rem; }
+.tag.danger { background: var(--coral-bg); color: var(--coral); }
+.tag.warn { background: var(--amber-bg); color: var(--amber); }
+.tag.ok { background: var(--kelp-bg); color: var(--kelp); }
+.tag.info { background: #e0f0f5; color: #166070; }
+.species-preview { background: #f0f6f5; border: 1px dashed var(--line); border-radius: 8px; padding: .6rem .8rem; font-size: .88rem; }
+.compat-box { border-radius: var(--radius); padding: .8rem 1rem; border: 1px solid var(--line); }
+.compat-box.crit { background: var(--coral-bg); border-color: var(--coral); }
+.compat-box.warn { background: var(--amber-bg); border-color: var(--amber); }
+.compat-box.info { background: #eaf3f5; border-color: var(--water); }
+.compat-box.ok { background: var(--kelp-bg); border-color: var(--kelp); }
+dialog.wide { max-width: 640px; }
+
 @media (prefers-reduced-motion: reduce) { .tube .fill { transition: none; } }

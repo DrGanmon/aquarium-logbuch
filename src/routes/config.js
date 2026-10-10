@@ -56,9 +56,61 @@ router.get('/config', auth, (req, res) => {
       selectedTests: userSelectedTests,
     },
     profiles: Object.fromEntries(Object.entries(cfg.PROFILES).map(([k, v]) => [k, v.label])),
-    species: cfg.SPECIES.map(([name, profile]) => ({ name, profile })),
+    species: cfg.speciesService.getAllSpecies().map((s) => ({
+      id: s.id,
+      name: s.name,
+      scientificName: s.scientificName,
+      category: s.category,
+      profile: s.profile,
+      waterType: s.waterType,
+      minVolumeL: s.minVolumeL,
+      socialType: s.socialType,
+      minGroupCount: s.minGroupCount,
+      territorial: s.territorial,
+    })),
+    speciesCategories: cfg.speciesService.getCategories(),
     waterTypes: cfg.WATER_TYPES,
   });
+});
+
+router.get('/species', auth, (req, res) => {
+  let list = cfg.speciesService.getAllSpecies();
+  const waterType = req.query.water_type || req.query.waterType;
+  const category = req.query.category;
+  const q = req.query.q ? String(req.query.q).toLowerCase().trim() : null;
+
+  if (waterType) {
+    list = list.filter((s) => s.waterType === waterType);
+  }
+  if (category) {
+    list = list.filter((s) => s.category.toLowerCase() === String(category).toLowerCase());
+  }
+  if (q) {
+    list = list.filter((s) =>
+      s.name.toLowerCase().includes(q) ||
+      s.scientificName.toLowerCase().includes(q) ||
+      s.category.toLowerCase().includes(q) ||
+      s.tags.some((t) => t.includes(q))
+    );
+  }
+  res.json({
+    species: list,
+    categories: cfg.speciesService.getCategories(),
+  });
+});
+
+router.get('/species/categories', auth, (req, res) => {
+  res.json({
+    categories: cfg.speciesService.getCategories(),
+  });
+});
+
+router.get('/species/:id', auth, (req, res) => {
+  const sp = cfg.speciesService.getSpeciesById(req.params.id) || cfg.speciesService.findSpeciesByName(req.params.id);
+  if (!sp) {
+    return res.status(404).json({ error: 'Art nicht gefunden.' });
+  }
+  res.json({ species: sp });
 });
 
 router.get('/suites', auth, (req, res) => {

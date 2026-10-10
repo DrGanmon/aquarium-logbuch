@@ -24,8 +24,10 @@ function buildMessage(p, range, level, value) {
 }
 
 function thresholdsOfAquarium(aq, db) {
-  const profiles = db.prepare('SELECT DISTINCT profile FROM stock WHERE aquarium_id = ?').all(aq.id).map((r) => r.profile);
-  return { profiles, ...cfg.thresholdsFor(aq.water_type, profiles) };
+  const stock = db.prepare('SELECT id, species, count, profile FROM stock WHERE aquarium_id = ? ORDER BY species').all(aq.id);
+  const profiles = Array.from(new Set(stock.map((r) => r.profile)));
+  const compatibility = cfg.speciesService.analyzeStockCompatibility(aq, stock);
+  return { profiles, compatibility, ...cfg.thresholdsFor(aq.water_type, profiles) };
 }
 
 module.exports = {

@@ -11,6 +11,7 @@
  */
 
 const suiteService = require('./src/services/suite-service');
+const speciesService = require('./src/services/species-service');
 
 const PARAMETERS = suiteService.getAllKnownParameters();
 
@@ -49,15 +50,24 @@ const PROFILES = {
   },
 };
 
-// Vorschläge für die Eingabe im Besatz (frei erweiterbar, freie Eingabe bleibt möglich).
-const SPECIES = [
-  ['Neon-Salmler', 'weichwasser'], ['Roter Neon', 'weichwasser'], ['Kardinalfisch', 'weichwasser'],
-  ['Diskusfisch', 'weichwasser'], ['Skalar', 'weichwasser'], ['Zwergfadenfisch', 'weichwasser'],
-  ['Panzerwels', 'allgemein'], ['Guppy', 'hartwasser'], ['Platy', 'hartwasser'], ['Molly', 'hartwasser'],
-  ['Malawi-Buntbarsch', 'hartwasser'], ['Tanganjika-Buntbarsch', 'hartwasser'],
-  ['Zebrabärbling', 'allgemein'], ['Antennenwels', 'allgemein'],
-  ['Red-Fire-Garnele', 'garnelen'], ['Amano-Garnele', 'garnelen'], ['Posthornschnecke', 'garnelen'],
-];
+// Vorschläge für die Eingabe im Besatz (aus Artenkatalogen generiert, freie Eingabe bleibt möglich).
+function getSpeciesSuggestions() {
+  const loaded = speciesService.getAllSpecies();
+  if (loaded && loaded.length) {
+    return loaded.map((s) => [s.name, s.profile]);
+  }
+  return [
+    ['Siamesischer Kampffisch', 'weichwasser'],
+    ['Neon-Salmler', 'weichwasser'], ['Roter Neon', 'weichwasser'], ['Kardinalfisch', 'allgemein'],
+    ['Diskusfisch', 'weichwasser'], ['Skalar', 'weichwasser'], ['Zwergfadenfisch', 'weichwasser'],
+    ['Panzerwels', 'allgemein'], ['Guppy', 'hartwasser'], ['Platy', 'hartwasser'], ['Molly', 'hartwasser'],
+    ['Malawi-Buntbarsch', 'hartwasser'], ['Tanganjika-Buntbarsch', 'hartwasser'],
+    ['Zebrabärbling', 'allgemein'], ['Antennenwels', 'allgemein'],
+    ['Red-Fire-Garnele', 'garnelen'], ['Amano-Garnele', 'garnelen'], ['Posthornschnecke', 'allgemein'],
+  ];
+}
+
+const SPECIES = getSpeciesSuggestions();
 
 const WATER_TYPES = { fresh: 'Süßwasser', salt: 'Meerwasser' };
 
@@ -119,4 +129,5 @@ module.exports = {
   thresholdsFor,
   evaluate,
   suiteService,
+  speciesService,
 };

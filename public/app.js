@@ -80,6 +80,98 @@ function localInputValue(d = new Date()) {
 }
 function mmss(sec) { sec = Math.max(0, Math.ceil(sec)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; }
 
+function socialLabel(type, minCount) {
+  if (type === 'solitary') return 'Einzelhaltung';
+  if (type === 'pair') return 'Paarhaltung';
+  if (type === 'harem') return 'Haremshaltung';
+  if (type === 'school') return `Schwarmfisch (ab ${minCount || 8})`;
+  if (type === 'group') return `Gruppe (ab ${minCount || 5})`;
+  return 'Gruppenhaltung';
+}
+
+function territorialLabel(t) {
+  if (t === 'solitary_aggressive') return 'Strikt territorial / Einzelgänger';
+  if (t === 'strong') return 'Stark territorial';
+  if (t === 'breeding') return 'Revierbildend bei Brut';
+  if (t === 'territorial_bottom') return 'Bodenrevierbildend';
+  if (t === 'mild') return 'Leicht territorial';
+  return 'Friedlich';
+}
+
+async function showSpeciesModal(spOrName) {
+  let sp = typeof spOrName === 'object' ? spOrName : null;
+  if (!sp || !sp.temp) {
+    try {
+      const res = await api(`/species/${encodeURIComponent(typeof spOrName === 'string' ? spOrName : spOrName?.name || spOrName?.species)}`);
+      sp = res.species;
+    } catch (e) {
+      if (!sp) {
+        toast('Keine detaillierten Arteninformationen gefunden.');
+        return;
+      }
+    }
+  }
+
+  const d = h('dialog', { class: 'wide stack' });
+  const close = () => { d.close(); d.remove(); };
+
+  const tags = Array.isArray(sp.tags) ? sp.tags : [];
+  const tagNodes = [];
+  if (tags.includes('solitary_betta')) tagNodes.push(h('span', { class: 'tag danger' }, 'Kampffisch / Einzelhaltung'));
+  if (tags.includes('fin_nipper')) tagNodes.push(h('span', { class: 'tag danger' }, 'Flossenbeißer'));
+  if (tags.includes('long_fins')) tagNodes.push(h('span', { class: 'tag warn' }, 'Lange Flossen'));
+  if (tags.includes('predator_small_prey')) tagNodes.push(h('span', { class: 'tag warn' }, 'Räuber / Frisst Zwerggarnelen'));
+  if (tags.includes('dwarf_shrimp')) tagNodes.push(h('span', { class: 'tag info' }, 'Zwerggarnele'));
+  if (tags.includes('requires_sand')) tagNodes.push(h('span', { class: 'tag info' }, 'Sandboden Pflicht'));
+  if (tags.includes('requires_wood')) tagNodes.push(h('span', { class: 'tag info' }, 'Wurzelholz Pflicht'));
+  if (tags.includes('requires_caves')) tagNodes.push(h('span', { class: 'tag info' }, 'Höhlenbedarf'));
+  if (tags.includes('coldwater')) tagNodes.push(h('span', { class: 'tag info' }, 'Kaltwasserfisch'));
+  if (tags.includes('high_temp') || tags.includes('high_temp_required')) tagNodes.push(h('span', { class: 'tag warn' }, 'Wärmebedürftig'));
+  if (tags.includes('malawi_cichlid') || tags.includes('tanganjika_cichlid')) tagNodes.push(h('span', { class: 'tag warn' }, 'Ostafrika-Felsenbiotop'));
+
+  d.replaceChildren(
+    h('div', { class: 'row between' },
+      h('div', {},
+        h('h2', { style: 'margin:0' }, sp.name),
+        sp.scientificName ? h('div', { class: 'muted', style: 'font-style:italic' }, sp.scientificName) : null
+      ),
+      h('button', { class: 'btn small ghost', type: 'button', onclick: close, 'aria-label': 'Schließen' }, '✕')
+    ),
+    h('div', { class: 'row', style: 'margin-top:.4rem' },
+      h('span', { class: 'tag ok' }, sp.category || 'Allgemein'),
+      h('span', { class: `tag ${sp.waterType === 'salt' ? 'info' : 'ok'}` }, sp.waterType === 'salt' ? 'Meerwasser' : 'Süßwasser'),
+      sp.profile ? h('span', { class: 'tag' }, `Profil: ${CONFIG.profiles[sp.profile] || sp.profile}`) : null,
+      ...tagNodes
+    ),
+    sp.description ? h('p', { style: 'margin:.4rem 0 0' }, sp.description) : null,
+    h('div', { class: 'grid2', style: 'margin-top:.5rem' },
+      h('div', { class: 'card stack', style: 'gap:.3rem; padding:.8rem' },
+        h('h3', { style: 'margin-bottom:.3rem' }, 'Wasserwerte'),
+        h('div', {}, h('strong', {}, 'Temperatur: '), `${sp.temp?.min ?? '–'}–${sp.temp?.max ?? '–'} °C`, sp.temp?.idealMin != null ? h('span', { class: 'muted' }, ` (Ideal: ${sp.temp.idealMin}–${sp.temp.idealMax} °C)`) : ''),
+        h('div', {}, h('strong', {}, 'pH-Wert: '), `${sp.ph?.min ?? '–'}–${sp.ph?.max ?? '–'}`, sp.ph?.idealMin != null ? h('span', { class: 'muted' }, ` (Ideal: ${sp.ph.idealMin}–${sp.ph.idealMax})`) : ''),
+        sp.gh?.min != null ? h('div', {}, h('strong', {}, 'Gesamthärte (GH): '), `${sp.gh.min}–${sp.gh.max} °dH`) : null,
+        sp.kh?.min != null ? h('div', {}, h('strong', {}, 'Karbonathärte (KH): '), `${sp.kh.min}–${sp.kh.max} °dH`) : null
+      ),
+      h('div', { class: 'card stack', style: 'gap:.3rem; padding:.8rem' },
+        h('h3', { style: 'margin-bottom:.3rem' }, 'Becken & Verhalten'),
+        h('div', {}, h('strong', {}, 'Mindestvolumen: '), sp.minVolumeL ? `${sp.minVolumeL} Liter (${sp.minTankLengthCm || '–'} cm)` : '–'),
+        h('div', {}, h('strong', {}, 'Sozialform: '), socialLabel(sp.socialType, sp.minGroupCount)),
+        h('div', {}, h('strong', {}, 'Territorialität: '), territorialLabel(sp.territorial)),
+        h('div', {}, h('strong', {}, 'Schwimmzone: '), sp.tankRegion === 'top' ? 'Oberfläche' : sp.tankRegion === 'bottom' ? 'Boden' : sp.tankRegion === 'top_middle' ? 'Oben / Mitte' : 'Überall')
+      )
+    ),
+    sp.decorHints ? h('div', { class: 'compat-box info' }, h('strong', {}, 'Einrichtung & Pflege: '), sp.decorHints) : null,
+    sp.behaviorNotes ? h('div', { class: 'compat-box warn' }, h('strong', {}, 'Verhalten & Vergesellschaftung: '), sp.behaviorNotes) : null,
+    h('div', { class: 'row between', style: 'margin-top:.8rem' },
+      h('span', {}, ''),
+      h('button', { class: 'btn', type: 'button', onclick: close }, 'Schließen')
+    )
+  );
+
+  document.body.appendChild(d);
+  d.showModal();
+}
+
 /* ---------- Router ---------- */
 window.addEventListener('hashchange', route);
 
@@ -87,6 +179,7 @@ async function route() {
   if (!ME) return showAuth();
   const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
   try {
+    if (parts[0] === 'species') return await viewSpeciesCatalog(parts[1]);
     if (parts[0] === 'profile') return await viewProfile();
     if (parts[0] === 'admin') {
       if (!ME.isAdmin) { location.hash = '#/'; return; }
@@ -491,11 +584,37 @@ async function viewAquarium(id) {
 
   if (aq.notes) nodes.push(h('p', { class: 'muted' }, aq.notes));
 
-  // Warnungen und Alarme
+  // Warnungen, Alarme und Besatz-Kompatibilität
   const notices = [];
   if (aq.overdue) notices.push(h('div', { class: 'alert warn' }, h('div', {}, h('strong', {}, 'Messung fällig'), `Die letzte Messung ist länger als ${aq.reminder_days} Tage her.`)));
-  if (d.conflicts.length) notices.push(h('div', { class: 'alert info' }, h('div', {}, h('strong', {}, 'Der Besatz passt bei einigen Werten nicht zusammen'),
-    `Für ${d.conflicts.map((k) => param(k).name).join(', ')} haben die Fischarten unterschiedliche Ansprüche. Hier gelten die allgemeinen Grenzwerte.`)));
+  
+  if (d.stockCompatibility) {
+    if (d.stockCompatibility.issues && d.stockCompatibility.issues.length) {
+      for (const issue of d.stockCompatibility.issues) {
+        notices.push(h('div', { class: 'alert crit' },
+          h('div', {}, h('strong', {}, issue.title || 'Besatzkonflikt'), issue.message)
+        ));
+      }
+    }
+    if (d.stockCompatibility.warnings && d.stockCompatibility.warnings.length) {
+      for (const warn of d.stockCompatibility.warnings) {
+        notices.push(h('div', { class: 'alert warn' },
+          h('div', {}, h('strong', {}, warn.title || 'Besatzwarnung'), warn.message)
+        ));
+      }
+    }
+    if (d.stockCompatibility.infos && d.stockCompatibility.infos.length) {
+      for (const info of d.stockCompatibility.infos) {
+        notices.push(h('div', { class: 'alert info' },
+          h('div', {}, h('strong', {}, info.title || 'Besatzhinweis'), info.message)
+        ));
+      }
+    }
+  } else if (d.conflicts && d.conflicts.length) {
+    notices.push(h('div', { class: 'alert info' }, h('div', {}, h('strong', {}, 'Der Besatz passt bei einigen Werten nicht zusammen'),
+      `Für ${d.conflicts.map((k) => param(k).name).join(', ')} haben die Fischarten unterschiedliche Ansprüche. Hier gelten die allgemeinen Grenzwerte.`)));
+  }
+
   for (const a of d.alerts) {
     notices.push(h('div', { class: 'alert ' + a.level },
       h('div', {}, h('strong', {}, a.level === 'crit' ? 'Kritisch' : 'Auffällig'), a.message, h('div', { class: 'muted' }, fmtDate(sqlDate(a.created_at)))),
@@ -541,29 +660,92 @@ async function viewAquarium(id) {
   }
 
   // Besatz
-  const sp = h('input', { list: 'species', maxlength: '80', required: true, placeholder: 'z. B. Neon-Salmler' });
+  const sp = h('input', { list: 'species', maxlength: '80', required: true, placeholder: 'z. B. Siamesischer Kampffisch, Neonsalmler...' });
   const cnt = h('input', { type: 'number', min: '1', max: '10000', value: '1', inputmode: 'numeric' });
   const prof = h('select', {}, Object.entries(CONFIG.profiles).map(([k, v]) => h('option', { value: k }, v)));
-  sp.addEventListener('input', () => { const m = CONFIG.species.find((s) => s.name.toLowerCase() === sp.value.trim().toLowerCase()); if (m) prof.value = m.profile; });
+  const previewBox = h('div', { class: 'species-preview', style: 'display:none; margin-top:.4rem' });
+
+  const updatePreview = () => {
+    const val = sp.value.trim().toLowerCase();
+    const m = CONFIG.species.find((s) => s.name.toLowerCase() === val || (s.scientificName && s.scientificName.toLowerCase() === val));
+    if (m) {
+      if (m.profile && CONFIG.profiles[m.profile]) prof.value = m.profile;
+      previewBox.style.display = 'block';
+      previewBox.replaceChildren(
+        h('div', { class: 'row between' },
+          h('div', {},
+            h('strong', {}, m.name),
+            m.scientificName ? h('span', { class: 'muted', style: 'font-style:italic; margin-left:.3rem' }, `(${m.scientificName})`) : null,
+            h('div', { class: 'muted' }, `${m.category || ''} · ${m.waterType === 'salt' ? 'Meerwasser' : 'Süßwasser'} · ab ${m.minVolumeL || 30} L · ${socialLabel(m.socialType, m.minGroupCount)} · ${territorialLabel(m.territorial)}`)
+          ),
+          h('button', { class: 'btn small ghost', type: 'button', onclick: () => showSpeciesModal(m) }, 'Details anzeigen')
+        )
+      );
+    } else {
+      previewBox.style.display = 'none';
+    }
+  };
+  sp.addEventListener('input', updatePreview);
+
   const stockErr = h('p', { class: 'error', role: 'alert' });
 
+  const stockListItems = d.stock.map((s) => {
+    const spMatch = CONFIG.species.find((spec) => spec.name.toLowerCase() === s.species.toLowerCase() || spec.id === s.species.toLowerCase());
+    const chips = [];
+    if (s.category || spMatch?.category) chips.push(h('span', { class: 'tag ok' }, s.category || spMatch?.category));
+    if (s.minVolumeL || spMatch?.minVolumeL) chips.push(h('span', { class: 'tag' }, `ab ${s.minVolumeL || spMatch?.minVolumeL} L`));
+    if (s.socialType || spMatch?.socialType) chips.push(h('span', { class: 'tag info' }, socialLabel(s.socialType || spMatch?.socialType, s.minGroupCount || spMatch?.minGroupCount)));
+    if (s.territorial === 'solitary_aggressive' || spMatch?.territorial === 'solitary_aggressive') chips.push(h('span', { class: 'tag danger' }, 'Einzelhaltung'));
+    else if (s.territorial === 'strong' || spMatch?.territorial === 'strong') chips.push(h('span', { class: 'tag warn' }, 'Stark territorial'));
+    else if (s.territorial === 'breeding' || spMatch?.territorial === 'breeding') chips.push(h('span', { class: 'tag info' }, 'Revier bei Brut'));
+
+    return h('li', { style: 'padding:.5rem 0;border-bottom:1px solid var(--line)' },
+      h('div', { class: 'row between' },
+        h('div', {},
+          h('span', { style: 'font-weight:600' }, `${s.count} × ${s.species}`),
+          s.scientificName ? h('span', { class: 'muted', style: 'font-style:italic;margin-left:.4rem' }, `(${s.scientificName})`) : null,
+          h('span', { class: 'muted', style: 'margin-left:.4rem' }, `(${CONFIG.profiles[s.profile] || s.profile})`),
+          chips.length ? h('div', { style: 'margin-top:.2rem' }, chips) : null
+        ),
+        h('div', { class: 'row' },
+          h('button', { class: 'btn small ghost', type: 'button', onclick: () => showSpeciesModal(spMatch || s.species) }, 'Arten-Info'),
+          !isReadOnly ? h('button', { class: 'btn small ghost', type: 'button', 'aria-label': `${s.species} entfernen`, onclick: async () => { await api(`/aquariums/${id}/stock/${s.id}`, { method: 'DELETE' }); route(); } }, 'Entfernen') : null
+        )
+      )
+    );
+  });
+
   const stockNodes = [
-    h('h2', {}, 'Besatz'),
-    h('p', { class: 'muted' }, 'Die Fischarten bestimmen die Grenzwerte, zum Beispiel für pH, Härte oder Kupfer.'),
-    d.stock.length ? h('ul', { style: 'list-style:none;padding:0;margin:0' }, d.stock.map((s) => h('li', { class: 'row between', style: 'padding:.3rem 0;border-bottom:1px solid var(--line)' },
-      h('span', {}, `${s.count} × ${s.species}`, h('span', { class: 'muted' }, ` (${CONFIG.profiles[s.profile] || s.profile})`)),
-      !isReadOnly ? h('button', { class: 'btn small ghost', type: 'button', 'aria-label': `${s.species} entfernen`, onclick: async () => { await api(`/aquariums/${id}/stock/${s.id}`, { method: 'DELETE' }); route(); } }, 'Entfernen') : null)))
+    h('div', { class: 'row between' },
+      h('h2', { style: 'margin:0' }, 'Besatz & Tierwohl'),
+      h('a', { class: 'btn small ghost', href: '#/species' }, '📖 Artenkatalog')
+    ),
+    h('p', { class: 'muted' }, 'Die Fisch- und Wirbellosenarten bestimmen die optimalen Grenzwerte und werden auf Verträglichkeit, Gruppengröße sowie Territorialverhalten geprüft.'),
+    d.stock.length ? h('ul', { style: 'list-style:none;padding:0;margin:0' }, stockListItems)
       : h('p', {}, 'Noch kein Besatz eingetragen. Es gelten die allgemeinen Grenzwerte.')
   ];
 
+  if (d.stockCompatibility?.decorHints?.length) {
+    stockNodes.push(
+      h('div', { class: 'compat-box info', style: 'margin-top:.8rem' },
+        h('strong', {}, 'Haltungs- & Einrichtungsempfehlungen für diesen Besatz:'),
+        h('ul', { style: 'margin:.4rem 0 0 1.2rem; padding:0' },
+          d.stockCompatibility.decorHints.map((hint) => h('li', {}, hint))
+        )
+      )
+    );
+  }
+
   if (!isReadOnly) {
     stockNodes.push(
-      h('datalist', { id: 'species' }, CONFIG.species.map((s) => h('option', { value: s.name }))),
-      h('form', { class: 'stack', onsubmit: async (e) => {
+      h('datalist', { id: 'species' }, CONFIG.species.map((s) => h('option', { value: s.name }, s.scientificName ? `${s.name} (${s.scientificName})` : s.name))),
+      h('form', { class: 'stack', style: 'margin-top:1rem', onsubmit: async (e) => {
         e.preventDefault(); stockErr.textContent = '';
         try { await api(`/aquariums/${id}/stock`, { method: 'POST', body: { species: sp.value, count: cnt.value, profile: prof.value } }); route(); } catch (ex) { stockErr.textContent = ex.message; }
       } },
-      h('div', { class: 'grid2' }, h('div', { class: 'field' }, h('label', {}, 'Art'), sp), h('div', { class: 'field' }, h('label', {}, 'Anzahl'), cnt)),
+      h('h3', { style: 'margin:0' }, 'Neuen Bewohner hinzufügen'),
+      h('div', { class: 'grid2' }, h('div', { class: 'field' }, h('label', {}, 'Art / Bewohner'), sp), h('div', { class: 'field' }, h('label', {}, 'Anzahl'), cnt)),
+      previewBox,
       h('div', { class: 'field' }, h('label', {}, 'Ansprüche an das Wasser'), prof),
       stockErr,
       h('div', {}, h('button', { class: 'btn', type: 'submit' }, 'Besatz hinzufügen'))));
@@ -586,6 +768,137 @@ async function viewAquarium(id) {
   mount(h('div', { class: 'stack' }, nodes));
   for (const c of chartCards) charts.push(makeChart(c.canvas, c.p, c.points, d.thresholds[c.p.key]));
   cleanups.push(() => charts.forEach((c) => c.destroy()));
+}
+
+/* ---------- Artenkatalog View ---------- */
+async function viewSpeciesCatalog(selectedId = null) {
+  const data = await api('/species');
+  const all = data.species || [];
+  const categories = ['Alle', ...(data.categories || [])];
+
+  let currentCategory = 'Alle';
+  let currentWaterType = 'all';
+  let searchTerm = '';
+
+  const searchInput = h('input', { type: 'search', placeholder: 'Art, wissenschaftlicher Name oder Verhalten suchen...' });
+  const waterSelect = h('select', { style: 'width:auto' },
+    h('option', { value: 'all' }, 'Alle Wassertypen'),
+    h('option', { value: 'fresh' }, 'Nur Süßwasser'),
+    h('option', { value: 'salt' }, 'Nur Meerwasser')
+  );
+
+  const grid = h('div', { class: 'species-grid' });
+
+  const renderCards = () => {
+    let list = all;
+    if (currentWaterType !== 'all') {
+      list = list.filter((s) => s.waterType === currentWaterType);
+    }
+    if (currentCategory !== 'Alle') {
+      list = list.filter((s) => s.category.toLowerCase() === currentCategory.toLowerCase());
+    }
+    if (searchTerm) {
+      const q = searchTerm.toLowerCase();
+      list = list.filter((s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.scientificName.toLowerCase().includes(q) ||
+        s.category.toLowerCase().includes(q) ||
+        (s.tags && s.tags.some((t) => t.includes(q))) ||
+        (s.description && s.description.toLowerCase().includes(q))
+      );
+    }
+
+    if (!list.length) {
+      grid.replaceChildren(h('p', { class: 'muted', style: 'grid-column: 1 / -1' }, 'Keine passenden Aquarienbewohner gefunden.'));
+      return;
+    }
+
+    grid.replaceChildren(
+      ...list.map((sp) => {
+        const tags = Array.isArray(sp.tags) ? sp.tags : [];
+        const chips = [];
+        chips.push(h('span', { class: 'tag ok' }, sp.category));
+        chips.push(h('span', { class: `tag ${sp.waterType === 'salt' ? 'info' : 'ok'}` }, sp.waterType === 'salt' ? 'Meerwasser' : 'Süßwasser'));
+        if (sp.minVolumeL) chips.push(h('span', { class: 'tag' }, `ab ${sp.minVolumeL} L`));
+        chips.push(h('span', { class: 'tag info' }, socialLabel(sp.socialType, sp.minGroupCount)));
+        if (sp.territorial === 'solitary_aggressive') chips.push(h('span', { class: 'tag danger' }, 'Einzelgänger / Kampffisch'));
+        else if (sp.territorial === 'strong') chips.push(h('span', { class: 'tag warn' }, 'Territorial'));
+        else if (tags.includes('fin_nipper')) chips.push(h('span', { class: 'tag danger' }, 'Flossenbeißer'));
+
+        return h('div', { class: `card species-card ${sp.waterType}` },
+          h('div', { class: 'stack', style: 'gap:.4rem' },
+            h('div', { class: 'row between' },
+              h('div', {},
+                h('h3', { style: 'margin:0; font-size:1.1rem' }, sp.name),
+                sp.scientificName ? h('div', { class: 'muted', style: 'font-style:italic' }, sp.scientificName) : null
+              )
+            ),
+            h('div', { style: 'margin-top:.2rem' }, chips),
+            h('div', { class: 'muted', style: 'font-size:.85rem; line-height:1.4' },
+              `Temp: ${sp.temp?.min ?? '–'}–${sp.temp?.max ?? '–'} °C · pH: ${sp.ph?.min ?? '–'}–${sp.ph?.max ?? '–'} · ${sp.diet === 'herbivore' ? 'Pflanzenfresser' : sp.diet === 'carnivore' ? 'Fleischfresser' : 'Allesfresser'}`
+            ),
+            sp.description ? h('p', { class: 'muted', style: 'margin:0; font-size:.88rem' }, sp.description) : null
+          ),
+          h('div', { style: 'margin-top:.8rem' },
+            h('button', { class: 'btn small ghost', type: 'button', onclick: () => showSpeciesModal(sp) }, 'Vollständiges Profil & Haltungsansprüche')
+          )
+        );
+      })
+    );
+  };
+
+  searchInput.addEventListener('input', (e) => {
+    searchTerm = e.target.value.trim();
+    renderCards();
+  });
+
+  waterSelect.addEventListener('change', (e) => {
+    currentWaterType = e.target.value;
+    renderCards();
+  });
+
+  const catPills = h('div', { class: 'picker', style: 'margin-top:.4rem' },
+    categories.map((c) =>
+      h('button', {
+        class: `btn small ${c === currentCategory ? '' : 'ghost'}`,
+        type: 'button',
+        onclick: (e) => {
+          currentCategory = c;
+          catPills.querySelectorAll('button').forEach((b) => b.className = 'btn small ghost');
+          e.target.className = 'btn small';
+          renderCards();
+        }
+      }, c)
+    )
+  );
+
+  renderCards();
+
+  mount(h('div', { class: 'stack' },
+    h('div', { class: 'row between' },
+      h('div', {},
+        h('a', { href: '#/', class: 'muted' }, '‹ Zurück zur Übersicht'),
+        h('h1', { style: 'margin-top:.3rem' }, 'Artenkatalog & Aquarienbewohner')
+      )
+    ),
+    h('div', { class: 'card stack' },
+      h('p', { class: 'muted', style: 'margin:0' }, 'Recherchiere gängige Fische, Wirbellose und Schnecken samt deren Wasserwerten, Mindestbeckengrößen, Sozialformen und Verhaltensweisen (z. B. Territorialverhalten bei Kampffischen & Buntbarschen).'),
+      h('div', { class: 'grid2' },
+        h('div', { class: 'field' }, h('label', {}, 'Suchbegriff'), searchInput),
+        h('div', { class: 'field' }, h('label', {}, 'Wassertyp'), waterSelect)
+      ),
+      h('div', { class: 'field' },
+        h('label', {}, 'Kategorie'),
+        catPills
+      )
+    ),
+    grid
+  ));
+
+  if (selectedId) {
+    const target = all.find((s) => s.id === selectedId || s.name.toLowerCase() === selectedId.toLowerCase());
+    if (target) showSpeciesModal(target);
+  }
 }
 
 /* ---------- Messmaske mit Timern ---------- */

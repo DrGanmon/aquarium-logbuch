@@ -13,9 +13,10 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 - Aquarien mit anderen registrierten Benutzern teilen mit flexiblen Berechtigungen:
   - **Lesen (view):** Wasserwerte, Verlaufsgraphen, Besatz und Alarme einsehen.
   - **Schreiben (write):** Messwerte erfassen/löschen, Besatz verwalten, Alarme bestätigen und Bilder bearbeiten.
-- Besatz pro Becken eintragen. Die Fischarten bestimmen die Grenzwerte
-  (Weichwasser, Hartwasser, Garnelen und Wirbellose). Passt der Besatz bei einem Wert nicht zusammen,
-  zeigt die App einen Hinweis.
+- Besatz pro Becken eintragen. Die Fischarten bestimmen die optimalen Grenzwerte
+  (Weichwasser, Hartwasser, Garnelen und Wirbellose).
+- **Artenkatalog & Besatzprüfung:** Umfassende Datenbank aller gängigen Aquarienbewohner in Deutschland (Salmler, Lebendgebärende, Labyrinthfische/Kampffische, Buntbarsche, Welse, Bärblinge, Garnelen, Schnecken, Meerwasser) mit Wasserwerten, Mindestbeckenvolumen, Sozialverhalten und Territorialregeln.
+- **Verhaltens- & Territorialitäts-Prüfung:** Automatische Erkennung von Vergesellschaftungs- und Verhaltenskonflikten (z. B. Einzelhaltung bei Siamesischen Kampffischen, Flossenbeißer vs. Langflosser, Räuber vs. Zwerggarnelen, Krebse vs. Bodenfische, Mindestgruppengrößen bei Schwarmfischen und Temperatur-/pH-Inkompatibilitäten).
 - Messmaske für 15 Parameter mit Timer pro Test (mehrere gleichzeitig, Ton und Vibration bei Ablauf,
   Bildschirm bleibt während der Timer an, wenn der Browser das erlaubt)
 - Live-Bewertung beim Tippen, Eingabe mit Komma möglich
@@ -109,6 +110,22 @@ Die Wassertests sind modular als **JSON-Dateien** unter `src/config/suites/` (bz
 - **Konsolidierter pH-Wert:** Statt unübersichtlicher Einzeltests für verschiedene pH-Bereiche existiert ein einheitlicher pH-Test (3,0 bis 10,0), bei dem der Messwert direkt erfasst wird.
 - **Weitere Suiten:** Beliebig erweiterbar (z. B. `jbl-easy-7in1.json` für Teststreifen).
 - **Benutzerauswahl:** Jeder Anwender kann sowohl im Profil (`#/profile`) als auch direkt bei der Messung (`#/a/:id/messen`) auswählen, welche Testsuite er nutzt und welche Tests er besitzt/durchführen möchte. Die Auswahl wird dauerhaft im Benutzerkonto und im Browser gespeichert.
+
+## Artenkatalog und Besatz-Kompatibilitätsprüfung
+
+Der Besatz wird über modulare **JSON-Artenkataloge** unter `src/config/species/` (bzw. für eigene Erweiterungen unter `data/species/`) gesteuert:
+- **Kataloge:**
+  - `freshwater-popular.json`: Gängige Salmler, Lebendgebärende, Labyrinthfische, Bärblinge, Welse und Schmerlen.
+  - `cichlids.json`: Südamerikanische Zwergbuntbarsche, Skalare, Diskusfische sowie ostafrikanische Buntbarsche (Malawi / Tanganjika).
+  - `invertebrates.json`: Zwerggarnelen, Fächergarnelen, Zwergflusskrebse und Zierschnecken.
+  - `saltwater.json`: Meerwasserfische, Anemonenfische, Putzergarnelen und Einsiedlerkrebse.
+- **Artenkatalog-Ansicht (`#/species`):** Durchsuche und filtere alle Bewohner nach Wassertyp oder Kategorie und sieh dir Wasseranforderungen (Temperatur, pH, GH, KH), Mindestbeckenvolumen, Schwimmzone und Wesen an.
+- **Verhaltens- & Territorialitäts-Prüfung:**
+  - **Kampffische (*Betta splendens*):** Prüfung auf strikte Einzelhaltung (mehrere Kampffische in einem Becken lösen kritische Alarme aus), Schutz vor Flossenbeißern (Sumatrabarbe, Blutsalmler) und Rivalitätswarnung bei bunten Schleierfischen (Guppys).
+  - **Mindestbeckengrößen:** Warnung, wenn das Aquarium kleiner ist als das empfohlene Mindestvolumen einer Art (z. B. Skalare ab 200 L, Diskus ab 300 L, Prachtschmerlen ab 400 L).
+  - **Schwarmgrößen:** Warnung bei Schwarmfischen (Neonsalmler, Rotkopfsalmler, Zebrabärblinge), wenn weniger als die empfohlene Mindestanzahl gehalten wird.
+  - **Räuber-Beute & Flossenschutz:** Warnungen vor Zwerggarnelen-Verlusten bei größeren Raubfischen (Skalare/Buntbarsche), Zwickgefahren bei Krebsen und Schneckenfressern (Raubschnecke Helena, Prachtschmerle) bei Zierschnecken.
+  - **Biotop- und Wasserwertkonflikte:** Automatische Erkennung unvereinbarer Ansprüche (z. B. alkalische Malawi-/Tanganjika-Buntbarsche vs. Weichwasser-Südamerikaner oder Kaltwasserfische wie Kardinalfische vs. wärmebedürftige Tropenfische).
 
 ## Wartezeiten und Grenzwerte prüfen
 
