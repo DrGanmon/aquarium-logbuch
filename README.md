@@ -10,9 +10,15 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 - Admin-Bereich mit Benutzerverwaltung für Administratoren (festgelegt anhand der E-Mail-Adresse in der Konfiguration)
 - Aquarien anlegen (Name, Süß- oder Meerwasser, Volumen, Erinnerungsintervall, Notizen)
 - Bild vom Aquarium hochladen (PNG, JPG, WebP, GIF), das in der Aquarienliste und auf der Detailseite dargestellt wird
+- **Aquarium-Logbuch & Aktivitäten-Timeline:** Lückenloses, chronologisches Protokoll über alle Arbeiten und Ereignisse am Aquarium:
+  - **Wasserwechsel:** Erfassung mit prozentualer Angabe (z. B. 30 %, 50 %) und Details zur Wasseraufbereitung.
+  - **Filterpflege:** Filterwechsel (mit Angabe der getauschten Medien wie Filtervlies, Aktivkohle, Schwämme) und Filterreinigung.
+  - **Pflanzen & Gärtnern:** Dokumentation von Pflanzenschnitten/Rückschnitt sowie neu eingesetzten Pflanzenarten.
+  - **Pflege & Düngung:** Erfassung von Scheibenreinigung, Bodengrundpflege, Düngedosierungen und Spezialfütterungen.
+  - **Kombinierte Timeline:** Anzeige aller Pflegemaßnahmen und Wassermessungen in einer gefilterten Übersicht (Alle, Wasserwechsel, Pflege & Filter, Pflanzen, Messungen).
 - Aquarien mit anderen registrierten Benutzern teilen mit flexiblen Berechtigungen:
-  - **Lesen (view):** Wasserwerte, Verlaufsgraphen, Besatz und Alarme einsehen.
-  - **Schreiben (write):** Messwerte erfassen/löschen, Besatz verwalten, Alarme bestätigen und Bilder bearbeiten.
+  - **Lesen (view):** Wasserwerte, Verlaufsgraphen, Besatz, Logbuch und Alarme einsehen.
+  - **Schreiben (write):** Messwerte und Pflegeaktivitäten erfassen/bearbeiten/löschen, Besatz verwalten, Alarme bestätigen und Bilder bearbeiten.
 - Besatz pro Becken eintragen. Die Fischarten bestimmen die optimalen Grenzwerte
   (Weichwasser, Hartwasser, Garnelen und Wirbellose).
 - **Artenkatalog & Besatzprüfung:** Umfassende Datenbank aller gängigen Aquarienbewohner in Deutschland (Salmler, Lebendgebärende, Labyrinthfische/Kampffische, Buntbarsche, Welse, Bärblinge, Garnelen, Schnecken, Meerwasser) mit Wasserwerten, Mindestbeckenvolumen, Sozialverhalten und Territorialregeln.

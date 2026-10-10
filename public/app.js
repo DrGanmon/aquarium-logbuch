@@ -295,6 +295,7 @@ async function viewList() {
         a.overdue ? h('span', { class: 'chip warn' }, 'Messung fällig') : null,
         !a.open_crit && !a.open_warn && !a.overdue && a.last_measured_at ? h('span', { class: 'chip ok' }, 'alles im Bereich') : null,
         !a.last_measured_at ? h('span', { class: 'chip none' }, 'noch keine Messung') : null,
+        a.last_water_change_at ? h('span', { class: 'chip ok' }, `💧 WW: ${fmtDate(a.last_water_change_at)}${a.last_water_change_percent ? ' (' + a.last_water_change_percent + '%)' : ''}`) : null,
         !isOwner && a.role === 'write' ? h('span', { class: 'chip ok' }, `Geteilt: Schreiben (${a.owner_username || 'Besitzer'})`) : null,
         !isOwner && a.role === 'view' ? h('span', { class: 'chip none' }, `Geteilt: Lesen (${a.owner_username || 'Besitzer'})`) : null,
         isOwner && a.shares_count > 0 ? h('span', { class: 'chip none' }, `Geteilt (${a.shares_count})`) : null),
@@ -486,6 +487,136 @@ async function shareDialog(aq) {
   loadShares();
 }
 
+function maintenanceDialog(aq, existing = null) {
+  const editing = !!existing;
+  const dlg = h('dialog', { class: 'wide' });
+  const err = h('p', { class: 'error', role: 'alert' });
+
+  const types = CONFIG.maintenanceTypes || {
+    water_change: { key: 'water_change', label: 'Wasserwechsel', icon: '💧', hasPercentage: true },
+    filter_change: { key: 'filter_change', label: 'Filter wechseln', icon: '🔄', hasPercentage: false },
+    filter_clean: { key: 'filter_clean', label: 'Filter reinigen', icon: '🧹', hasPercentage: false },
+    plants_cut: { key: 'plants_cut', label: 'Pflanzen schneiden', icon: '✂️', hasPercentage: false },
+    plants_new: { key: 'plants_new', label: 'Neue Pflanzen', icon: '🌱', hasPercentage: false },
+    care: { key: 'care', label: 'Pflege & Reinigung', icon: '🧽', hasPercentage: false },
+    fertilize: { key: 'fertilize', label: 'Düngung', icon: '🌿', hasPercentage: false },
+    feeding: { key: 'feeding', label: 'Spezialfütterung', icon: '🦐', hasPercentage: false },
+    other: { key: 'other', label: 'Sonstige Arbeit', icon: '📝', hasPercentage: false },
+  };
+
+  const initialDate = existing ? localInputValue(new Date(existing.timestamp || existing.logged_at)) : localInputValue();
+  const dateInput = h('input', { type: 'datetime-local', required: true, value: initialDate });
+  const typeSelect = h('select', { required: true },
+    Object.entries(types).map(([k, t]) => h('option', { value: k, selected: existing?.type === k }, `${t.icon || ''} ${t.label}`))
+  );
+
+  const percentInput = h('input', { type: 'number', min: '1', max: '100', step: '1', placeholder: 'z. B. 30 oder 50', value: existing?.percentage ?? '30' });
+  const percentField = h('div', { class: 'field' },
+    h('label', {}, 'Wasserwechsel-Anteil (%)'),
+    percentInput
+  );
+
+  const detailsInput = h('input', { maxlength: '500', value: existing?.details || '' });
+  const detailsLabel = h('label', {}, 'Details zur Arbeit');
+  const detailsField = h('div', { class: 'field' },
+    detailsLabel,
+    detailsInput
+  );
+
+  const noteInput = h('textarea', { maxlength: '1000', placeholder: 'Optionale Bemerkungen...', value: existing?.note || '' });
+
+  const updateFormForType = (typeKey) => {
+    if (typeKey === 'water_change') {
+      percentField.style.display = 'block';
+      detailsLabel.textContent = 'Zusatz / Wasseraufbereitung (optional)';
+      detailsInput.placeholder = 'z. B. Osmosewasser 50:50, Wasseraufbereiter zugegeben';
+    } else {
+      percentField.style.display = 'none';
+      if (typeKey === 'filter_change') {
+        detailsLabel.textContent = 'Gewechselte Filtermedien (was wurde getauscht?)';
+        detailsInput.placeholder = 'z. B. Filtervlies und Aktivkohle erneuert, Schwamm getauscht';
+      } else if (typeKey === 'filter_clean') {
+        detailsLabel.textContent = 'Gereinigte Filterteile';
+        detailsInput.placeholder = 'z. B. Vorfilter im Altwasser ausgewaschen, Impeller gereinigt';
+      } else if (typeKey === 'plants_cut') {
+        detailsLabel.textContent = 'Gegärtnerte / geschnittene Pflanzen';
+        detailsInput.placeholder = 'z. B. Stängelpflanzen gekürzt, Schwimmpflanzen ausgedünnt';
+      } else if (typeKey === 'plants_new') {
+        detailsLabel.textContent = 'Neu eingesetzte Pflanzenarten';
+        detailsInput.placeholder = 'z. B. Anubias barteri, Cryptocoryne wendtii, Javafarn';
+      } else if (typeKey === 'care') {
+        detailsLabel.textContent = 'Pflegemaßnahmen';
+        detailsInput.placeholder = 'z. B. Scheiben innen geputzt, Mulm im Vordergrund abgesaugt';
+      } else if (typeKey === 'fertilize') {
+        detailsLabel.textContent = 'Düngemittel & Dosierung';
+        detailsInput.placeholder = 'z. B. 5 ml Eisenvolldünger, 2 ml NPK, CO2-Flasche gewechselt';
+      } else if (typeKey === 'feeding') {
+        detailsLabel.textContent = 'Futter & Spezialfütterung';
+        detailsInput.placeholder = 'z. B. Lebendfutter weiße Mückenlarven, Spirulina-Tabs';
+      } else {
+        detailsLabel.textContent = 'Details / Beschreibung';
+        detailsInput.placeholder = 'z. B. Heizstab neu eingestellt, Lichtzeit angepasst';
+      }
+    }
+  };
+
+  typeSelect.addEventListener('change', () => updateFormForType(typeSelect.value));
+  updateFormForType(existing?.type || 'water_change');
+
+  const form = h('form', { class: 'stack', method: 'dialog', onsubmit: async (e) => {
+    e.preventDefault();
+    err.textContent = '';
+    const selectedType = typeSelect.value;
+    const body = {
+      type: selectedType,
+      logged_at: dateInput.value ? new Date(dateInput.value).toISOString() : new Date().toISOString(),
+      percentage: selectedType === 'water_change' ? (percentInput.value ? Number(percentInput.value) : null) : null,
+      details: detailsInput.value.trim() || null,
+      note: noteInput.value.trim() || null,
+    };
+    try {
+      if (editing) {
+        await api(`/aquariums/${aq.id}/maintenance/${existing.id}`, { method: 'PUT', body });
+        toast('Aktivität aktualisiert.');
+      } else {
+        await api(`/aquariums/${aq.id}/maintenance`, { method: 'POST', body });
+        toast('Aktivität eingetragen.');
+      }
+      dlg.close();
+      route();
+    } catch (ex) {
+      err.textContent = ex.message;
+    }
+  } },
+  h('h2', {}, editing ? 'Aktivität / Pflege bearbeiten' : 'Aktivität / Pflege eintragen'),
+  h('div', { class: 'grid2' },
+    h('div', { class: 'field' }, h('label', {}, 'Kategorie / Arbeit'), typeSelect),
+    h('div', { class: 'field' }, h('label', {}, 'Datum & Uhrzeit'), dateInput)),
+  percentField,
+  detailsField,
+  h('div', { class: 'field' }, h('label', {}, 'Zusätzliche Notizen'), noteInput),
+  err,
+  h('div', { class: 'row' },
+    h('button', { class: 'btn', type: 'submit' }, editing ? 'Änderungen speichern' : 'Eintrag speichern'),
+    h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen'),
+    editing ? h('button', { class: 'btn danger', type: 'button', onclick: async () => {
+      if (!confirm('Diesen Log-Eintrag wirklich löschen?')) return;
+      try {
+        await api(`/aquariums/${aq.id}/maintenance/${existing.id}`, { method: 'DELETE' });
+        dlg.close();
+        toast('Eintrag gelöscht.');
+        route();
+      } catch (ex) {
+        err.textContent = ex.message;
+      }
+    } }, 'Löschen') : null));
+
+  dlg.append(form);
+  dlg.addEventListener('close', () => dlg.remove());
+  document.body.append(dlg);
+  dlg.showModal();
+}
+
 /* ---------- Aquarium-Hauptseite ---------- */
 const bandPlugin = {
   id: 'band',
@@ -541,7 +672,11 @@ function makeChart(canvas, p, points, range) {
 }
 
 async function viewAquarium(id) {
-  const [d, ms] = await Promise.all([api(`/aquariums/${id}`), api(`/aquariums/${id}/measurements?days=${RANGE}`)]);
+  const [d, ms, logs] = await Promise.all([
+    api(`/aquariums/${id}`),
+    api(`/aquariums/${id}/measurements?days=${RANGE}`),
+    api(`/aquariums/${id}/logs?days=${RANGE}`),
+  ]);
   const aq = d.aquarium;
   const role = d.role || aq.role || 'owner';
   const isOwner = role === 'owner';
@@ -550,7 +685,8 @@ async function viewAquarium(id) {
 
   const topActions = [];
   if (!isReadOnly) {
-    topActions.push(h('a', { class: 'btn', href: `#/a/${id}/messen` }, 'Werte eintragen'));
+    topActions.push(h('a', { class: 'btn', href: `#/a/${id}/messen` }, '🧪 Werte eintragen'));
+    topActions.push(h('button', { class: 'btn ghost', type: 'button', onclick: () => maintenanceDialog(aq) }, '🛠️ Arbeit eintragen'));
     if (isOwner) topActions.push(h('button', { class: 'btn ghost', type: 'button', onclick: () => shareDialog(aq) }, 'Teilen'));
     topActions.push(h('button', { class: 'btn ghost', type: 'button', onclick: () => aquariumDialog(aq) }, 'Bearbeiten'));
   }
@@ -572,7 +708,8 @@ async function viewAquarium(id) {
       h('div', { class: 'muted' },
         CONFIG.waterTypes[aq.water_type],
         aq.volume_l ? ` · ${aq.volume_l} l` : '',
-        aq.last_measured_at ? ` · zuletzt gemessen ${fmtDate(aq.last_measured_at)}` : ''),
+        aq.last_measured_at ? ` · zuletzt gemessen ${fmtDate(aq.last_measured_at)}` : '',
+        aq.last_water_change_at ? ` · letzter Wasserwechsel ${fmtDate(aq.last_water_change_at)}${aq.last_water_change_percent ? ' (' + aq.last_water_change_percent + ' %)' : ''}` : ''),
       !isOwner ? h('div', { style: 'margin-top:.35rem' },
         h('span', { class: `chip ${isReadOnly ? 'none' : 'ok'}` }, `Geteilt von ${aq.owner_username || 'Besitzer'} · ${isReadOnly ? 'Nur Lesezugriff' : 'Schreibzugriff'}`)) : null),
     h('div', { class: 'row' }, topActions)));
@@ -639,7 +776,10 @@ async function viewAquarium(id) {
     nodes.push(h('div', { class: 'card stack' },
       h('h2', {}, 'Noch keine Messwerte'),
       h('p', {}, 'Trage deine ersten Wasserwerte ein. Danach erscheinen hier Verlauf und Warnungen.'),
-      !isReadOnly ? h('div', {}, h('a', { class: 'btn', href: `#/a/${id}/messen` }, 'Werte eintragen')) : null));
+      !isReadOnly ? h('div', { class: 'row' },
+        h('a', { class: 'btn', href: `#/a/${id}/messen` }, '🧪 Werte eintragen'),
+        h('button', { class: 'btn ghost', type: 'button', onclick: () => maintenanceDialog(aq) }, '🛠️ Arbeit eintragen')
+      ) : null));
   }
 
   // Graphen
@@ -752,10 +892,187 @@ async function viewAquarium(id) {
   }
   nodes.push(h('section', { class: 'card stack' }, stockNodes));
 
-  // Verlaufstabelle
+  // Aquarium-Logbuch & Aktivitäten Timeline
+  let currentLogFilter = 'all';
+  const logContainer = h('div', { class: 'timeline' });
+
+  const renderTimeline = () => {
+    let items = logs || [];
+    if (currentLogFilter === 'water_change') {
+      items = items.filter((it) => it.type === 'water_change');
+    } else if (currentLogFilter === 'maintenance') {
+      items = items.filter((it) => it.kind === 'maintenance' && it.type !== 'water_change');
+    } else if (currentLogFilter === 'plants') {
+      items = items.filter((it) => it.type === 'plants_cut' || it.type === 'plants_new');
+    } else if (currentLogFilter === 'measurement') {
+      items = items.filter((it) => it.kind === 'measurement');
+    }
+
+    if (!items.length) {
+      logContainer.replaceChildren(
+        h('div', { class: 'card', style: 'text-align:center; padding: 2rem 1rem' },
+          h('p', { class: 'muted', style: 'margin-bottom:.8rem' }, 'In diesem Zeitraum sind keine passenden Log-Einträge vorhanden.'),
+          !isReadOnly ? h('div', { class: 'row', style: 'justify-content:center' },
+            h('button', { class: 'btn small', type: 'button', onclick: () => maintenanceDialog(aq) }, '🛠️ Erste Aktivität eintragen'),
+            h('a', { class: 'btn small ghost', href: `#/a/${id}/messen` }, '🧪 Messung eintragen')
+          ) : null
+        )
+      );
+      return;
+    }
+
+    logContainer.replaceChildren(
+      ...items.map((it) => {
+        const isMeas = it.kind === 'measurement';
+        const typeClass = `t-${it.type || 'other'}`;
+
+        const headerNodes = [
+          h('div', { class: 'log-item-title' },
+            h('span', { class: 'log-item-icon' }, it.icon || (isMeas ? '🧪' : '📝')),
+            h('span', {},
+              it.type === 'water_change' && it.percentage
+                ? `Wasserwechsel (${it.percentage} %)`
+                : (it.typeName || (isMeas ? 'Wassermessung' : 'Aktivität'))
+            )
+          ),
+          h('div', { class: 'log-item-meta' },
+            h('span', {}, fmtDate(it.timestamp)),
+            it.created_by_username ? h('span', { class: 'tag' }, `von ${it.created_by_username}`) : null
+          )
+        ];
+
+        const bodyNodes = [];
+        if (it.type === 'water_change' && it.percentage) {
+          bodyNodes.push(
+            h('div', {},
+              h('span', { class: 'chip ok' }, `💧 ${it.percentage} % Teilwasserwechsel`)
+            )
+          );
+        }
+
+        if (it.details) {
+          let prefix = 'Details: ';
+          if (it.type === 'filter_change') prefix = 'Gewechselte Medien: ';
+          else if (it.type === 'filter_clean') prefix = 'Gereinigte Filterteile: ';
+          else if (it.type === 'plants_new') prefix = 'Eingesetzte Pflanzen: ';
+          else if (it.type === 'plants_cut') prefix = 'Geschnittene Pflanzen: ';
+          else if (it.type === 'fertilize') prefix = 'Düngung: ';
+          else if (it.type === 'feeding') prefix = 'Futter: ';
+
+          bodyNodes.push(
+            h('div', { class: 'log-details-box' },
+              h('strong', {}, prefix),
+              it.details
+            )
+          );
+        }
+
+        if (isMeas && it.values) {
+          const valEntries = Object.entries(it.values);
+          if (valEntries.length) {
+            bodyNodes.push(
+              h('div', { class: 'log-meas-grid' },
+                valEntries.map(([k, val]) => {
+                  const p = param(k);
+                  const st = evaluate(d.thresholds[k], val);
+                  return h('span', { class: `log-meas-pill ${st ? 'v-' + st : ''}` },
+                    `${p.name.replace(/ \(.*\)/, '')}: ${fmtNum(p, val)}${p.unit ? ' ' + p.unit : ''}`
+                  );
+                })
+              )
+            );
+          }
+          if (it.alerts && it.alerts.length) {
+            bodyNodes.push(
+              h('div', { style: 'margin-top:.3rem' },
+                it.alerts.map((al) => h('div', { class: `alert ${al.level}`, style: 'padding:.3rem .6rem; font-size:.85rem; margin-top:.2rem' },
+                  h('strong', {}, al.level === 'crit' ? 'Kritisch' : 'Auffällig'),
+                  al.message
+                ))
+              )
+            );
+          }
+        }
+
+        if (it.note) {
+          bodyNodes.push(h('p', { class: 'muted', style: 'margin:0; font-size:.9rem; font-style:italic' }, it.note));
+        }
+
+        const actions = [];
+        if (!isReadOnly) {
+          if (!isMeas) {
+            actions.push(h('button', { class: 'btn small ghost', type: 'button', onclick: () => maintenanceDialog(aq, it) }, 'Bearbeiten'));
+            actions.push(h('button', { class: 'btn small ghost danger', type: 'button', onclick: async () => {
+              if (!confirm('Diesen Log-Eintrag wirklich löschen?')) return;
+              try {
+                await api(`/aquariums/${id}/maintenance/${it.id}`, { method: 'DELETE' });
+                toast('Eintrag gelöscht.');
+                route();
+              } catch (ex) { toast(ex.message); }
+            } }, 'Löschen'));
+          } else {
+            actions.push(h('button', { class: 'btn small ghost danger', type: 'button', onclick: async () => {
+              if (!confirm('Diese Messung wirklich löschen?')) return;
+              try {
+                await api(`/aquariums/${id}/measurements/${it.id}`, { method: 'DELETE' });
+                toast('Messung gelöscht.');
+                route();
+              } catch (ex) { toast(ex.message); }
+            } }, 'Löschen'));
+          }
+        }
+
+        return h('div', { class: `log-item ${typeClass}` },
+          h('div', { class: 'log-item-header' }, headerNodes),
+          bodyNodes.length ? h('div', { class: 'stack', style: 'gap:.35rem' }, bodyNodes) : null,
+          actions.length ? h('div', { class: 'row', style: 'margin-top:.4rem; justify-content:flex-end' }, actions) : null
+        );
+      })
+    );
+  };
+
+  const logTabs = h('div', { class: 'picker', style: 'margin-top:.4rem' },
+    [
+      ['all', 'Alle Einträge'],
+      ['water_change', '💧 Wasserwechsel'],
+      ['maintenance', '🛠️ Pflege & Filter'],
+      ['plants', '🌱 Pflanzen'],
+      ['measurement', '🧪 Messungen'],
+    ].map(([k, label]) =>
+      h('button', {
+        class: `btn small ${k === currentLogFilter ? '' : 'ghost'}`,
+        type: 'button',
+        onclick: (e) => {
+          currentLogFilter = k;
+          logTabs.querySelectorAll('button').forEach((b) => b.className = 'btn small ghost');
+          e.target.className = 'btn small';
+          renderTimeline();
+        }
+      }, label)
+    )
+  );
+
+  renderTimeline();
+
+  nodes.push(h('section', { class: 'card stack' },
+    h('div', { class: 'row between' },
+      h('div', {},
+        h('h2', { style: 'margin:0' }, '📖 Aquarium-Logbuch & Aktivitäten'),
+        h('div', { class: 'muted' }, 'Chronologisches Protokoll über alle Arbeiten, Wasserwechsel, Filterpflegen, Pflanzen und Messungen.')
+      ),
+      !isReadOnly ? h('div', { class: 'row' },
+        h('button', { class: 'btn small', type: 'button', onclick: () => maintenanceDialog(aq) }, '🛠️ Aktivität eintragen'),
+        h('a', { class: 'btn small ghost', href: `#/a/${id}/messen` }, '🧪 Messung eintragen')
+      ) : null
+    ),
+    logTabs,
+    logContainer
+  ));
+
+  // Verlaufstabelle der Messungen
   if (ms.length) {
     const used = (CONFIG.allParameters || CONFIG.parameters).filter((p) => ms.some((m) => m.values[p.key] != null));
-    nodes.push(h('section', { class: 'card stack' }, h('h2', {}, 'Messungen'),
+    nodes.push(h('section', { class: 'card stack' }, h('h2', {}, 'Messwerte-Tabelle'),
       h('div', { class: 'table-wrap' }, h('table', {},
         h('thead', {}, h('tr', {}, h('th', {}, 'Zeitpunkt'), used.map((p) => h('th', {}, p.name.replace(/ \(.*\)/, ''), p.unit ? ` (${p.unit})` : ''), ), h('th', {}, 'Notiz'), !isReadOnly ? h('th', {}, '') : null)),
         h('tbody', {}, [...ms].reverse().slice(0, 40).map((m) => h('tr', {}, h('td', {}, fmtDate(m.measured_at)),

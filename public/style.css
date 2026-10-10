@@ -176,6 +176,27 @@ dialog::backdrop { background: #12343b99; }
 .compat-box.warn { background: var(--amber-bg); border-color: var(--amber); }
 .compat-box.info { background: #eaf3f5; border-color: var(--water); }
 .compat-box.ok { background: var(--kelp-bg); border-color: var(--kelp); }
+/* Logbuch & Timeline */
+.timeline { display: flex; flex-direction: column; gap: .75rem; }
+.log-item { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: .85rem 1rem; border-left: 5px solid var(--water); display: flex; flex-direction: column; gap: .4rem; }
+.log-item.t-water_change { border-left-color: #2b82c9; }
+.log-item.t-filter_change, .log-item.t-filter_clean { border-left-color: #d97706; }
+.log-item.t-plants_cut, .log-item.t-plants_new { border-left-color: var(--kelp); }
+.log-item.t-care { border-left-color: #0d9488; }
+.log-item.t-fertilize { border-left-color: #84cc16; }
+.log-item.t-measurement { border-left-color: #6366f1; }
+.log-item.t-other { border-left-color: var(--ink-soft); }
+
+.log-item-header { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
+.log-item-title { display: flex; align-items: center; gap: .5rem; font-weight: 650; font-size: 1.05rem; }
+.log-item-icon { font-size: 1.25rem; line-height: 1; flex-shrink: 0; }
+.log-item-meta { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; font-size: .85rem; color: var(--ink-soft); }
+.log-details-box { background: #f0f6f5; border-radius: 6px; padding: .4rem .7rem; font-size: .92rem; border-left: 3px solid var(--line); }
+.log-meas-grid { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .2rem; }
+.log-meas-pill { background: #eaf1f1; border-radius: 4px; padding: .15rem .45rem; font-size: .82rem; font-variant-numeric: tabular-nums; }
+.log-meas-pill.v-warn { background: var(--amber-bg); color: var(--amber); font-weight: 600; }
+.log-meas-pill.v-crit { background: var(--coral-bg); color: var(--coral); font-weight: 600; }
+
 dialog.wide { max-width: 640px; }
 
 @media (prefers-reduced-motion: reduce) { .tube .fill { transition: none; } }

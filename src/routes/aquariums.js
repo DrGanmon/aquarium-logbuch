@@ -7,6 +7,7 @@ const { auth, ownAquarium, writeAquarium, ownerAquarium, getAquariumAccess } = r
 const { aquariumInput, aquariumSummary } = require('../services/aquarium-service');
 const { thresholdsOfAquarium, buildMessage } = require('../services/alert-service');
 const { saveImage, deleteImage, getImagePath, getMimeType } = require('../services/image-service');
+const { validateMaintenanceInput, getAquariumTimeline } = require('../services/maintenance-service');
 
 const router = express.Router();
 
@@ -390,6 +391,95 @@ router.post(
       db.prepare("UPDATE alerts SET acked_at = datetime('now') WHERE aquarium_id = ? AND acked_at IS NULL").run(req.aq.id);
     }
     res.json({ ok: true });
+  })
+);
+
+// ---------- Pflegemaßnahmen & Arbeiten (Maintenance Logs) ----------
+router.get(
+  '/:id/maintenance',
+  auth,
+  ownAquarium,
+  wrap((req, res) => {
+    const rows = db
+      .prepare(
+        `SELECT ml.*, u.username as created_by_username
+         FROM maintenance_logs ml
+         LEFT JOIN users u ON u.id = ml.created_by
+         WHERE ml.aquarium_id = ?
+         ORDER BY ml.logged_at DESC`
+      )
+      .all(req.aq.id);
+    res.json(rows);
+  })
+);
+
+router.post(
+  '/:id/maintenance',
+  auth,
+  writeAquarium,
+  wrap((req, res) => {
+    const { error, value } = validateMaintenanceInput(req.body);
+    if (error) return res.status(400).json({ error });
+
+    const info = db
+      .prepare(
+        `INSERT INTO maintenance_logs (aquarium_id, logged_at, type, percentage, details, note, created_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`
+      )
+      .run(req.aq.id, value.logged_at, value.type, value.percentage, value.details, value.note, req.user.id);
+
+    res.json({ ok: true, id: info.lastInsertRowid });
+  })
+);
+
+router.put(
+  '/:id/maintenance/:logId',
+  auth,
+  writeAquarium,
+  wrap((req, res) => {
+    const logId = Number(req.params.logId);
+    const existing = db.prepare('SELECT id FROM maintenance_logs WHERE id = ? AND aquarium_id = ?').get(logId, req.aq.id);
+    if (!existing) return res.status(404).json({ error: 'Eintrag nicht gefunden.' });
+
+    const { error, value } = validateMaintenanceInput(req.body);
+    if (error) return res.status(400).json({ error });
+
+    db.prepare(
+      `UPDATE maintenance_logs
+       SET logged_at = ?, type = ?, percentage = ?, details = ?, note = ?
+       WHERE id = ? AND aquarium_id = ?`
+    ).run(value.logged_at, value.type, value.percentage, value.details, value.note, logId, req.aq.id);
+
+    res.json({ ok: true });
+  })
+);
+
+router.delete(
+  '/:id/maintenance/:logId',
+  auth,
+  writeAquarium,
+  wrap((req, res) => {
+    const logId = Number(req.params.logId);
+    const existing = db.prepare('SELECT id FROM maintenance_logs WHERE id = ? AND aquarium_id = ?').get(logId, req.aq.id);
+    if (!existing) return res.status(404).json({ error: 'Eintrag nicht gefunden.' });
+
+    db.prepare('DELETE FROM maintenance_logs WHERE id = ? AND aquarium_id = ?').run(logId, req.aq.id);
+    res.json({ ok: true });
+  })
+);
+
+// ---------- Gesamtes Aquarium-Logbuch / Timeline (inkl. Messungen & Arbeiten) ----------
+router.get(
+  '/:id/logs',
+  auth,
+  ownAquarium,
+  wrap((req, res) => {
+    const timeline = getAquariumTimeline(db, req.aq.id, {
+      days: req.query.days,
+      kind: req.query.kind,
+      limit: req.query.limit,
+    });
+    res.json(timeline);
   })
 );
 

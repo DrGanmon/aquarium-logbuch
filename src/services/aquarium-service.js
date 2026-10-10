@@ -24,6 +24,8 @@ function isOverdue(aq, last) {
 
 function aquariumSummary(aq, db, role = null) {
   const last = db.prepare('SELECT measured_at FROM measurements WHERE aquarium_id = ? ORDER BY measured_at DESC LIMIT 1').get(aq.id);
+  const lastWaterChange = db.prepare("SELECT logged_at, percentage FROM maintenance_logs WHERE aquarium_id = ? AND type = 'water_change' ORDER BY logged_at DESC LIMIT 1").get(aq.id);
+  const lastMaintenance = db.prepare('SELECT logged_at, type FROM maintenance_logs WHERE aquarium_id = ? ORDER BY logged_at DESC LIMIT 1').get(aq.id);
   const alerts = db.prepare(`SELECT level, COUNT(*) n FROM alerts WHERE aquarium_id = ? AND acked_at IS NULL GROUP BY level`).all(aq.id);
   const crit = alerts.find((a) => a.level === 'crit')?.n || 0;
   const warn = alerts.find((a) => a.level === 'warn')?.n || 0;
@@ -36,6 +38,10 @@ function aquariumSummary(aq, db, role = null) {
     image_url: aq.image_file ? `api/aquariums/${aq.id}/image` : null,
     shares_count: sharesCount,
     last_measured_at: last ? last.measured_at : null,
+    last_water_change_at: lastWaterChange ? lastWaterChange.logged_at : null,
+    last_water_change_percent: lastWaterChange ? lastWaterChange.percentage : null,
+    last_maintenance_at: lastMaintenance ? lastMaintenance.logged_at : null,
+    last_maintenance_type: lastMaintenance ? lastMaintenance.type : null,
     open_crit: crit,
     open_warn: warn,
     overdue: isOverdue(aq, last),

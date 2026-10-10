@@ -12,6 +12,7 @@
 
 const suiteService = require('./src/services/suite-service');
 const speciesService = require('./src/services/species-service');
+const maintenanceService = require('./src/services/maintenance-service');
 
 const PARAMETERS = suiteService.getAllKnownParameters();
 
@@ -130,4 +131,6 @@ module.exports = {
   evaluate,
   suiteService,
   speciesService,
+  maintenanceService,
+  MAINTENANCE_TYPES: maintenanceService.MAINTENANCE_TYPES,
 };

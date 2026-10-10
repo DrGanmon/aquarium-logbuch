@@ -70,6 +70,7 @@ router.get('/config', auth, (req, res) => {
     })),
     speciesCategories: cfg.speciesService.getCategories(),
     waterTypes: cfg.WATER_TYPES,
+    maintenanceTypes: cfg.maintenanceService.MAINTENANCE_TYPES,
   });
 });
 

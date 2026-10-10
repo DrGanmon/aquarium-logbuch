@@ -72,6 +72,18 @@ CREATE TABLE IF NOT EXISTS aquarium_shares (
   PRIMARY KEY (aquarium_id, user_id)
 );
 CREATE INDEX IF NOT EXISTS idx_aq_shares_user ON aquarium_shares(user_id);
+CREATE TABLE IF NOT EXISTS maintenance_logs (
+  id INTEGER PRIMARY KEY,
+  aquarium_id INTEGER NOT NULL REFERENCES aquariums(id) ON DELETE CASCADE,
+  logged_at TEXT NOT NULL,
+  type TEXT NOT NULL,
+  percentage REAL,
+  details TEXT,
+  note TEXT,
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_maint_aq ON maintenance_logs(aquarium_id, logged_at);
 `);
 
 // Migration für OIDC, E-Mail, Profil, Testsuite & Bilder
