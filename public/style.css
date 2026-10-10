@@ -315,10 +315,12 @@ dialog::backdrop { background: var(--dialog-backdrop); }
 .tag.info { background: var(--water-soft); color: var(--water); }
 .species-preview { background: var(--log-details-bg); border: 1px dashed var(--line); border-radius: 8px; padding: .6rem .8rem; font-size: .88rem; }
 .compat-box { border-radius: var(--radius); padding: .8rem 1rem; border: 1px solid var(--line); }
-.compat-box.crit { background: var(--coral-bg); border-color: var(--coral); }
+.compat-box.crit, .compat-box.danger { background: var(--coral-bg); border-color: var(--coral); }
 .compat-box.warn { background: var(--amber-bg); border-color: var(--amber); }
 .compat-box.info { background: var(--water-soft); border-color: var(--water); color: var(--ink); }
 .compat-box.ok { background: var(--kelp-bg); border-color: var(--kelp); }
+
+.card.danger-zone { border-color: var(--coral); background: var(--coral-bg); }
 
 /* Logbuch & Timeline */
 .timeline { display: flex; flex-direction: column; gap: .75rem; }

@@ -330,6 +330,9 @@ async function route() {
   if (routePath === 'forgot-password') {
     return showAuth('forgot');
   }
+  if (routePath === 'delete-account' || routePath === 'confirm-delete-account') {
+    return await viewDeleteAccount(token);
+  }
 
   if (!ME) return showAuth();
   const parts = routePath.split('/').filter(Boolean);
@@ -617,6 +620,66 @@ async function viewResetPassword(token) {
 
   mount(h('div', { class: 'auth' }, headerRow, form));
   p1.focus();
+}
+
+async function viewDeleteAccount(token) {
+  $topbar.hidden = true;
+  const headerRow = h('div', { class: 'row between', style: 'margin-bottom:.5rem; align-items:center;' },
+    h('p', { class: 'muted', style: 'margin:0' }, 'Wasserwerte im Blick behalten.')
+  );
+
+  if (!token) {
+    mount(h('div', { class: 'auth' }, headerRow,
+      h('div', { class: 'card stack' },
+        h('h1', {}, '❌ Ungültiger Link'),
+        h('p', { class: 'error' }, 'Es wurde kein Bestätigungstoken zum Löschen des Kontos übergeben.'),
+        h('a', { class: 'btn', href: '#/' }, 'Zur Startseite')
+      )
+    ));
+    return;
+  }
+
+  const err = h('p', { class: 'error', role: 'alert' });
+
+  const confirmCard = h('div', { class: 'card stack' },
+    h('h1', { style: 'color: var(--coral);' }, '🗑️ Konto endgültig löschen'),
+    h('div', { class: 'compat-box danger' },
+      h('p', { style: 'margin:0; font-weight:600;' }, '⚠️ Letzte Warnung:'),
+      h('p', { style: 'margin:.4rem 0 0;' }, 'Wenn du jetzt auf „Konto jetzt endgültig löschen“ klickst, werden dein Benutzerkonto sowie alle deine Aquarien, Fotos, Messwerte, Alarme, Pflegemaßnahmen und Freigaben unwiderruflich und sofort gelöscht.')
+    ),
+    err,
+    h('div', { class: 'row between', style: 'margin-top: .5rem;' },
+      h('a', { class: 'btn ghost', href: '#/' }, 'Abbrechen'),
+      h('button', {
+        class: 'btn danger',
+        type: 'button',
+        onclick: async () => {
+          err.textContent = '';
+          try {
+            const res = await api('/confirm-delete-account', {
+              method: 'POST',
+              body: { token },
+            });
+            ME = null;
+            $topbar.hidden = true;
+            mount(h('div', { class: 'auth' }, headerRow,
+              h('div', { class: 'card stack' },
+                h('h1', {}, '👋 Konto erfolgreich gelöscht'),
+                h('div', { class: 'compat-box ok' },
+                  h('p', { style: 'margin:0;' }, res.message || 'Dein Benutzerkonto wurde vollständig gelöscht.')
+                ),
+                h('button', { class: 'btn', type: 'button', onclick: () => { location.hash = '#/'; showAuth('login'); } }, 'Zur Startseite')
+              )
+            ));
+          } catch (ex) {
+            err.textContent = ex.message;
+          }
+        }
+      }, 'Konto jetzt endgültig löschen')
+    )
+  );
+
+  mount(h('div', { class: 'auth' }, headerRow, confirmCard));
 }
 
 function updateTopbarUser() {
@@ -3299,6 +3362,27 @@ async function viewProfile() {
     )
   );
 
+  // Gefahrenbereich: Konto löschen
+  let deleteAccountCard = null;
+  if (!ME.isAdmin) {
+    const btnDeleteAccount = h('button', {
+      class: 'btn danger',
+      type: 'button',
+      onclick: () => confirmDeleteAccountDialog(ME),
+    }, '🗑️ Konto löschen...');
+
+    deleteAccountCard = h('div', { class: 'card stack danger-zone' },
+      h('h2', { style: 'color: var(--coral); margin:0;' }, 'Gefahrenbereich / Konto löschen'),
+      h('p', { style: 'margin:0;' },
+        'Möchtest du dein Benutzerkonto löschen? Dabei werden alle deine Aquarien, Messreihen, Fotos, Alarme, Pflegemaßnahmen und Freigaben unwiderruflich und dauerhaft entfernt.'
+      ),
+      h('p', { class: 'muted', style: 'margin:0; font-size:.9rem;' },
+        'Aus Sicherheitsgründen musst du die Löschung hier bestätigen und erhältst anschließend eine Bestätigungs-E-Mail mit einem Freigabelink.'
+      ),
+      h('div', { class: 'row' }, btnDeleteAccount)
+    );
+  }
+
   mount(h('div', { class: 'stack' },
     h('div', { class: 'row between' },
       h('div', {},
@@ -3312,8 +3396,71 @@ async function viewProfile() {
     notificationsCard,
     testSuiteCard,
     passwordCard,
-    oidcCard
+    oidcCard,
+    deleteAccountCard
   ));
+}
+
+function confirmDeleteAccountDialog(me) {
+  const dlg = h('dialog', { class: 'stack' });
+  const err = h('p', { class: 'error', role: 'alert' });
+  const statusMsg = h('div', { class: 'compat-box ok', style: 'display:none;' });
+
+  let passInput = null;
+  if (me.hasPassword) {
+    passInput = h('input', { type: 'password', required: true, placeholder: 'Aktuelles Passwort eingeben' });
+  }
+
+  const form = h('form', {
+    class: 'stack',
+    onsubmit: async (e) => {
+      e.preventDefault();
+      err.textContent = '';
+      try {
+        const body = {};
+        if (passInput) body.password = passInput.value;
+        const res = await api('/me/delete-request', { method: 'POST', body });
+        form.style.display = 'none';
+        statusMsg.style.display = 'block';
+        statusMsg.replaceChildren(
+          h('h3', { style: 'margin:0 0 .5rem 0;' }, '✉️ Bestätigungs-E-Mail versendet!'),
+          h('p', { style: 'margin:0;' }, res.message),
+          h('div', { class: 'row', style: 'margin-top:1rem;' },
+            h('button', { class: 'btn', type: 'button', onclick: () => { dlg.close(); } }, 'Verstanden')
+          )
+        );
+      } catch (ex) {
+        err.textContent = ex.message;
+      }
+    }
+  },
+    h('h2', { style: 'color: var(--coral); margin:0;' }, 'Konto wirklich löschen?'),
+    h('div', { class: 'compat-box danger' },
+      h('p', { style: 'margin:0; font-weight:600;' }, '⚠️ Diese Aktion kann nicht rückgängig gemacht werden!'),
+      h('ul', { style: 'margin:.5rem 0 0 1.2rem; padding:0; font-size:.9rem; line-height:1.5;' },
+        h('li', {}, 'Dein Benutzerkonto wird dauerhaft gelöscht.'),
+        h('li', {}, 'Alle deine Aquarien, Messwerte, Alarme und Pflegemaßnahmen werden entfernt.'),
+        h('li', {}, 'Alle hochgeladenen Fotos werden von den Servern gelöscht.'),
+        h('li', {}, 'Bestehende Freigaben für andere Benutzer werden aufgelöst.')
+      )
+    ),
+    h('p', {}, `Um die Löschung zu starten, senden wir eine Bestätigungs-E-Mail an `, h('strong', {}, me.email || 'deine E-Mail-Adresse'), `.`),
+    passInput ? h('div', { class: 'field' },
+      h('label', {}, 'Zur Bestätigung bitte dein aktuelles Passwort eingeben:'),
+      passInput
+    ) : null,
+    err,
+    h('div', { class: 'row between', style: 'margin-top:.5rem;' },
+      h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen'),
+      h('button', { class: 'btn danger', type: 'submit' }, 'Bestätigungs-E-Mail anfordern')
+    )
+  );
+
+  dlg.replaceChildren(form, statusMsg);
+  dlg.addEventListener('close', () => dlg.remove());
+  document.body.append(dlg);
+  dlg.showModal();
+  if (passInput) passInput.focus();
 }
 
 /* ---------- Start ---------- */

@@ -20,6 +20,7 @@ function setCookie(res, name, value, maxAgeSec) {
 }
 
 const setSessionCookie = (res, token, maxAgeSec) => setCookie(res, 'session', token, maxAgeSec);
+const clearSessionCookie = (res) => setCookie(res, 'session', '', 0);
 
 async function startSession(res, db, userId, idToken = null) {
   const token = crypto.randomBytes(32).toString('hex');
@@ -38,5 +39,6 @@ module.exports = {
   parseCookies,
   setCookie,
   setSessionCookie,
+  clearSessionCookie,
   startSession,
 };

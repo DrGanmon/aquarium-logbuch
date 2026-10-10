@@ -13,7 +13,7 @@ const {
 const { oidc } = require('../services/oidc-service');
 const { hashPassword, verifyPassword, DUMMY_HASH, hasLocalPassword, sha } = require('../utils/crypto');
 const { tooManyAttempts, noteAttempt, clearAttempts } = require('../utils/rate-limit');
-const { parseCookies, setSessionCookie, startSession } = require('../utils/cookies');
+const { parseCookies, setSessionCookie, clearSessionCookie, startSession } = require('../utils/cookies');
 const { wrap, str } = require('../utils/helpers');
 const { auth } = require('../middleware/auth');
 const { saveAvatar, deleteImage, getImagePath, getMimeType } = require('../services/image-service');
@@ -466,6 +466,102 @@ router.post(
     clearAttempts(key);
 
     res.json({ ok: true, message: 'Dein Passwort wurde erfolgreich geändert. Du kannst dich jetzt damit anmelden.' });
+  })
+);
+
+/* ---------- Konto-Löschung (Zweistufig: App-Bestätigung + E-Mail-Bestätigung) ---------- */
+
+router.post(
+  '/me/delete-request',
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+    }
+
+    if (isEmailAdmin(user.email)) {
+      return res.status(400).json({ error: 'Der Administrator-Account kann nicht über die Profil-Löschung entfernt werden.' });
+    }
+
+    if (!user.email) {
+      return res.status(400).json({
+        error: 'Für die Kontolöschung ist eine hinterlegte E-Mail-Adresse erforderlich. Bitte trage zuerst eine E-Mail-Adresse in deinem Profil ein.',
+      });
+    }
+
+    // Wenn lokales Passwort vorhanden ist, Passwort-Bestätigung verlangen
+    if (hasLocalPassword(user)) {
+      const password = typeof req.body?.password === 'string' ? req.body.password : '';
+      if (!password) {
+        return res.status(400).json({ error: 'Bitte gib zur Bestätigung dein aktuelles Passwort ein.' });
+      }
+      const ok = await verifyPassword(password, user.password_hash);
+      if (!ok) {
+        return res.status(400).json({ error: 'Das eingegebene Passwort ist nicht korrekt.' });
+      }
+    }
+
+    const key = `delete-account-req|${req.user.id}|${req.ip}`;
+    if (tooManyAttempts(key)) {
+      return res.status(429).json({ error: 'Zu viele Löschanfragen. Bitte in ein paar Minuten erneut probieren.' });
+    }
+    noteAttempt(key);
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = Date.now() + 3600 * 1000; // 1 Stunde
+
+    await db.users.update(user.id, {
+      account_delete_token: token,
+      account_delete_expires: expires,
+    });
+
+    mailService.sendAccountDeletionEmail(user, token);
+
+    res.json({
+      ok: true,
+      message: `Eine Bestätigungs-E-Mail wurde an ${user.email} versendet. Bitte öffne den Link in der E-Mail, um die Löschung endgültig zu bestätigen.`,
+    });
+  })
+);
+
+router.all(
+  ['/confirm-delete-account', '/delete-account'],
+  wrap(async (req, res) => {
+    const token = str(req.body?.token || req.query?.token, 128);
+    const key = `delete-account-confirm|${req.ip}`;
+    if (tooManyAttempts(key)) {
+      return res.status(429).json({ error: 'Zu viele Versuche. Bitte in ein paar Minuten erneut probieren.' });
+    }
+
+    if (!token) {
+      return res.status(400).json({ error: 'Kein Bestätigungstoken angegeben.' });
+    }
+
+    const user = await db.users.findByDeleteToken(token);
+    if (!user) {
+      noteAttempt(key);
+      return res.status(400).json({ error: 'Dieser Bestätigungslink ist ungültig oder wurde bereits verwendet.' });
+    }
+
+    if (user.account_delete_expires && user.account_delete_expires < Date.now()) {
+      noteAttempt(key);
+      return res.status(400).json({ error: 'Dieser Bestätigungslink ist abgelaufen. Bitte fordere einen neuen an.' });
+    }
+
+    if (isEmailAdmin(user.email)) {
+      return res.status(400).json({ error: 'Der Administrator-Account kann nicht gelöscht werden.' });
+    }
+
+    // Benutzer und alle zugehörigen Daten (Aquarien, Fotos, Messwerte, Alarme, Pflegen, Freigaben, Sessions) löschen
+    await db.users.delete(user.id);
+    clearSessionCookie(res);
+    clearAttempts(key);
+
+    res.json({
+      ok: true,
+      message: 'Dein Benutzerkonto sowie alle deine Aquarien, Fotos, Messwerte und Daten wurden endgültig und unwiderruflich gelöscht.',
+    });
   })
 );
 

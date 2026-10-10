@@ -117,6 +117,10 @@ Jeder angemeldete Benutzer kann über die Kopfzeile auf sein **Benutzerprofil** 
 - **Persönliche Angaben:** Pflege von Vorname, Nachname, Benutzername, „Über mich“-Bio und E-Mail-Adresse.
 - **Passwortverwaltung:** Ändern des aktuellen Passworts (bei lokaler Anmeldung).
 - **OIDC-Verknüpfung:** Direktes Verknüpfen oder Entkoppeln des Kontos mit Pocket ID / OpenID Connect.
+- **Konto löschen (Zweistufige Bestätigung):**
+  - **1. Schritt (In der Anwendung):** Bestätigung im Profilbereich (bei lokaler Anmeldung inklusive Passworteingabe) zur Auslösung der Löschanforderung.
+  - **2. Schritt (Per E-Mail):** Aus Sicherheitsgründen wird eine Bestätigungs-E-Mail mit einem zeitlich begrenzten Bestätigungslink versendet. Erst durch Klick auf diesen Link wird die Löschung endgültig vollzogen.
+  - **Kaskadierende Datenbereinigung:** Bei der Bestätigung werden das Benutzerkonto, alle eigenen Aquarien samt Fotos (auf dem Server und in der Datenbank), Bewohner, Besatzbilder, Messwerte, Alarme, Pflegemaßnahmen, Freigaben und aktive Sitzungen restlos und konsistent entfernt. Der Administrator-Account ist vor versehentlicher Profil-Löschung geschützt.
 
 ## Admin-Bereich und Benutzerverwaltung
 

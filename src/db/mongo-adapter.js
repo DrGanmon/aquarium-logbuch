@@ -88,6 +88,7 @@ class MongoAdapter {
       );
       await db.collection('users').createIndex({ email_verify_token: 1 }, { sparse: true });
       await db.collection('users').createIndex({ password_reset_token: 1 }, { sparse: true });
+      await db.collection('users').createIndex({ account_delete_token: 1 }, { sparse: true });
       await db.collection('users').createIndex({ id: 1 }, { unique: true });
 
       // Sessions
@@ -163,6 +164,10 @@ class MongoAdapter {
         if (!token) return null;
         return (await db.collection('users').findOne({ password_reset_token: String(token) })) || null;
       },
+      async findByDeleteToken(token) {
+        if (!token) return null;
+        return (await db.collection('users').findOne({ account_delete_token: String(token) })) || null;
+      },
       async create({
         username,
         password_hash = '',
@@ -217,6 +222,8 @@ class MongoAdapter {
           'email_verify_expires',
           'password_reset_token',
           'password_reset_expires',
+          'account_delete_token',
+          'account_delete_expires',
         ];
 
         for (const k of allowed) {
@@ -233,6 +240,10 @@ class MongoAdapter {
       },
       async delete(id) {
         const numId = Number(id);
+        const user = await db.collection('users').findOne({ id: numId });
+        if (user && user.avatar_file) {
+          deleteImage(user.avatar_file);
+        }
         const res = await db.collection('users').deleteOne({ id: numId });
         if (res.deletedCount === 0) return false;
 

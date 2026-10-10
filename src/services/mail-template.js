@@ -398,6 +398,47 @@ Dein Aquarium-Logbuch System`;
   return { subject, html, text };
 }
 
+/**
+ * Template für die Bestätigung der Konto-Löschung.
+ * Nutzt 'delete-account.tpl'.
+ */
+function createAccountDeletionMail({ username, deleteUrl, expiresMinutes = 60 }) {
+  const subject = '⚠️ Bestätigung zur Löschung deines Benutzerkontos';
+  const preheader = `Hallo ${username}, bitte bestätige die endgültige Löschung deines Kontos beim Aquarium-Logbuch.`;
+  const headline = 'Konto unwiderruflich löschen';
+  const ctaText = 'Konto jetzt endgültig löschen';
+
+  const html = renderTemplate('delete-account', {
+    title: subject,
+    subject,
+    preheader,
+    headline,
+    username,
+    deleteUrl,
+    expiresMinutes,
+    ctaText,
+    ctaUrl: deleteUrl,
+  });
+
+  const text = `Hallo ${username},
+
+du hast in den Profileinstellungen die endgültige Löschung deines Benutzerkontos beim Aquarium-Logbuch angefordert.
+
+WICHTIGER HINWEIS:
+Wenn du die Löschung bestätigst, werden dein Benutzerkonto sowie alle deine Aquarien, Messwerte, Alarme, Pflegemaßnahmen, hochgeladenen Fotos und Freigaben unwiderruflich und dauerhaft gelöscht!
+
+Um die Löschung deines Kontos endgültig zu bestätigen, öffne bitte folgenden Link in deinem Browser:
+${deleteUrl}
+
+Dieser Link ist ${expiresMinutes} Minuten gültig.
+
+Falls du dein Konto NICHT löschen möchtest, ignoriere diese E-Mail einfach. Dein Konto bleibt unverändert erhalten.
+
+Dein Aquarium-Logbuch Team`;
+
+  return { subject, html, text };
+}
+
 module.exports = {
   getTemplatePath,
   loadTemplate,
@@ -407,4 +448,5 @@ module.exports = {
   createEmailVerificationMail,
   createPasswordResetMail,
   createTestEmailMail,
+  createAccountDeletionMail,
 };

@@ -132,10 +132,13 @@ class SqliteAdapter {
     if (!hasColumn('users', 'email_verify_expires')) this.db.exec('ALTER TABLE users ADD COLUMN email_verify_expires INTEGER');
     if (!hasColumn('users', 'password_reset_token')) this.db.exec('ALTER TABLE users ADD COLUMN password_reset_token TEXT');
     if (!hasColumn('users', 'password_reset_expires')) this.db.exec('ALTER TABLE users ADD COLUMN password_reset_expires INTEGER');
+    if (!hasColumn('users', 'account_delete_token')) this.db.exec('ALTER TABLE users ADD COLUMN account_delete_token TEXT');
+    if (!hasColumn('users', 'account_delete_expires')) this.db.exec('ALTER TABLE users ADD COLUMN account_delete_expires INTEGER');
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oidc ON users(oidc_sub) WHERE oidc_sub IS NOT NULL');
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email != \'\'');
     this.db.exec('CREATE INDEX IF NOT EXISTS idx_users_verify_token ON users(email_verify_token) WHERE email_verify_token IS NOT NULL');
     this.db.exec('CREATE INDEX IF NOT EXISTS idx_users_reset_token ON users(password_reset_token) WHERE password_reset_token IS NOT NULL');
+    this.db.exec('CREATE INDEX IF NOT EXISTS idx_users_delete_token ON users(account_delete_token) WHERE account_delete_token IS NOT NULL');
 
     this._setupRepositories();
     this._initialized = true;
@@ -195,6 +198,10 @@ class SqliteAdapter {
         if (!token) return null;
         return db.prepare('SELECT * FROM users WHERE password_reset_token = ?').get(token) || null;
       },
+      async findByDeleteToken(token) {
+        if (!token) return null;
+        return db.prepare('SELECT * FROM users WHERE account_delete_token = ?').get(token) || null;
+      },
       async create({
         username,
         password_hash = '',
@@ -251,6 +258,8 @@ class SqliteAdapter {
           'email_verify_expires',
           'password_reset_token',
           'password_reset_expires',
+          'account_delete_token',
+          'account_delete_expires',
         ];
 
         for (const k of allowed) {
@@ -268,7 +277,20 @@ class SqliteAdapter {
         return res.changes > 0;
       },
       async delete(id) {
-        const res = db.prepare('DELETE FROM users WHERE id = ?').run(id);
+        const numId = Number(id);
+        const user = db.prepare('SELECT * FROM users WHERE id = ?').get(numId);
+        if (user && user.avatar_file) {
+          deleteImage(user.avatar_file);
+        }
+        const userAqs = db.prepare('SELECT id FROM aquariums WHERE user_id = ?').all(numId);
+        for (const aq of userAqs) {
+          await self.aquariums.delete(aq.id);
+        }
+        db.prepare('DELETE FROM aquarium_shares WHERE user_id = ?').run(numId);
+        db.prepare('DELETE FROM sessions WHERE user_id = ?').run(numId);
+        db.prepare('UPDATE maintenance_logs SET created_by = NULL WHERE created_by = ?').run(numId);
+        db.prepare('UPDATE measurements SET created_by = NULL WHERE created_by = ?').run(numId);
+        const res = db.prepare('DELETE FROM users WHERE id = ?').run(numId);
         return res.changes > 0;
       },
       async listForAdmin() {

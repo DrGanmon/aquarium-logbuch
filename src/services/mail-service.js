@@ -7,6 +7,7 @@ const {
   createEmailVerificationMail,
   createPasswordResetMail,
   createTestEmailMail,
+  createAccountDeletionMail,
 } = require('./mail-template');
 const logger = require('../utils/logger');
 
@@ -265,6 +266,26 @@ class MailService {
     const { subject, html, text } = createPasswordResetMail({
       username: user.username,
       resetUrl,
+      expiresMinutes: 60,
+    });
+
+    return this.enqueueMail({
+      to: user.email,
+      subject,
+      html,
+      text,
+    });
+  }
+
+  /**
+   * Sendet eine E-Mail zur Bestätigung der Konto-Löschung.
+   */
+  sendAccountDeletionEmail(user, token) {
+    const baseUrl = APP_URL || 'http://localhost:3000';
+    const deleteUrl = `${baseUrl}/#/delete-account?token=${encodeURIComponent(token)}`;
+    const { subject, html, text } = createAccountDeletionMail({
+      username: user.username,
+      deleteUrl,
       expiresMinutes: 60,
     });
 
