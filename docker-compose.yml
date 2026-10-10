@@ -1,0 +1,17 @@
+services:
+  aquarium:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Nach dem Anlegen aller Konten auf "false" setzen, dann ist die Registrierung gesperrt
+      ALLOW_REGISTRATION: "true"
+      # Auf "true" setzen, sobald die App hinter HTTPS (Reverse Proxy) läuft
+      COOKIE_SECURE: "false"
+      # Auf "1" setzen, wenn ein Reverse Proxy davorsteht
+      # TRUST_PROXY: "1"
+    volumes:
+      - aquarium-data:/data
+volumes:
+  aquarium-data:

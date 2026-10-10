@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#12343b">
+  <title>Aquarium-Logbuch</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%A0%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="topbar" id="topbar" hidden>
+    <a class="brand" href="#/">Aquarium-Logbuch</a>
+    <div class="topbar-right">
+      <span id="whoami"></span>
+      <button class="btn small ghost" id="btn-pw" type="button">Passwort</button>
+      <button class="btn small ghost" id="btn-logout" type="button">Abmelden</button>
+    </div>
+  </header>
+  <main id="app" tabindex="-1"></main>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="/vendor/chart.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
