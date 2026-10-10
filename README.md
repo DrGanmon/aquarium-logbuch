@@ -22,6 +22,7 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 
 ```bash
 npm ci --omit=dev    # braucht Node 22 oder neuer, es wird nichts kompiliert
+npm test             # führt alle automatisierten Tests aus
 npm start            # http://localhost:3000
 ```
 

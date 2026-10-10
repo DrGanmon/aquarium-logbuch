@@ -4,7 +4,8 @@
   "description": "Mehrbenutzer-Webanwendung für Aquarien-Wasserwerte mit Graphen, Timern und Alarmen (SQLite)",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test 'test/**/*.test.js'"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
