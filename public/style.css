@@ -230,10 +230,13 @@ textarea { min-height: 80px; resize: vertical; }
 @media (min-width: 760px) { .charts { grid-template-columns: 1fr 1fr; } }
 .chart-card h3 { display: flex; justify-content: space-between; gap: .5rem; }
 .chart-wrap { position: relative; height: 210px; }
-.range-tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-.range-tabs button { font: inherit; border: 0; background: var(--paper); padding: .35rem .75rem; min-height: 36px; cursor: pointer; color: var(--ink); }
-.range-tabs button + button { border-left: 1px solid var(--line); }
-.range-tabs button[aria-pressed="true"] { background: var(--btn-primary-bg); color: var(--btn-primary-text); }
+.range-tabs { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--paper); }
+.range-tabs button { font: inherit; border: 0; background: var(--paper); padding: .35rem .75rem; min-height: 36px; cursor: pointer; color: var(--ink); border-right: 1px solid var(--line); font-size: .88rem; }
+.range-tabs button:last-child { border-right: 0; }
+.range-tabs button[aria-pressed="true"] { background: var(--btn-primary-bg); color: var(--btn-primary-text); font-weight: 600; }
+.custom-range-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; background: var(--log-details-bg); padding: .6rem .8rem; border-radius: var(--radius); border: 1px dashed var(--line); margin-top: .4rem; }
+.custom-range-bar label { display: inline-flex; align-items: center; gap: .4rem; font-size: .88rem; font-weight: 500; margin: 0; }
+.custom-range-bar input[type="date"] { padding: .3rem .5rem; min-height: 34px; font: inherit; font-size: .88rem; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); }
 
 /* Tabellen */
 .table-wrap { overflow-x: auto; }

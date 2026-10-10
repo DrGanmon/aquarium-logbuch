@@ -51,7 +51,11 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **Präzises Timing:** Verhindert das Überziehen von Reaktionszeiten und schützt vor Fehlinterpretationen bei Farbvergleichstests.
   - **Status & Testen:** Aktivierungsbanner in der Messmaske sowie Konfigurationskarte und 3-Sekunden-Test-Benachrichtigung im Benutzerprofil.
 - Live-Bewertung beim Tippen, Eingabe mit Komma möglich
-- Graphen pro Parameter (7 Tage bis alles) mit Zielbereich und kritischen Grenzen
+- **Flexible Verlaufsgraphen mit Zeitraumauswahl:**
+  - **Standard-Zeitraum 3 Monate (90 Tage):** Beim Öffnen eines Aquariums wird standardmäßig der Verlauf der letzten 3 Monate dargestellt.
+  - **Schnellfilter:** Umschaltbar zwischen 7 Tage, 14 Tage, 30 Tage, 3 Monate (Standard), 6 Monate, 1 Jahr und Alles.
+  - **Benutzerdefinierter Zeitraum:** Freie Auswahl von Start- und Enddatum per Datumswähler.
+  - **Persönliche Voreinstellung:** Im Benutzerprofil kann der gewünschte Standard-Zeitraum für das eigene Konto dauerhaft festgelegt werden.
 - Warnungen (auffällig) und Alarme (kritisch) mit Handlungshinweis, zum Abhaken
 - Erinnerung, wenn die letzte Messung länger her ist als eingestellt
 
@@ -115,6 +119,7 @@ docker compose up -d --build
 Jeder angemeldete Benutzer kann über die Kopfzeile auf sein **Benutzerprofil** (`#/profile`) zugreifen:
 - **Profilbild (Avatar):** Hochladen (JPG, PNG, WebP, GIF bis 5 MB) oder Löschen des eigenen Profilbilds.
 - **Persönliche Angaben:** Pflege von Vorname, Nachname, Benutzername, „Über mich“-Bio und E-Mail-Adresse.
+- **Standard-Zeitraum für Graphen:** Festlegung des bevorzugten Zeitraums (z. B. 3 Monate, 6 Monate, 1 Jahr) für die Verlaufsgraphen.
 - **Passwortverwaltung:** Ändern des aktuellen Passworts (bei lokaler Anmeldung).
 - **OIDC-Verknüpfung:** Direktes Verknüpfen oder Entkoppeln des Kontos mit Pocket ID / OpenID Connect.
 - **Konto löschen (Zweistufige Bestätigung):**

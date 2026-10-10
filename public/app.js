@@ -5,7 +5,21 @@ const $topbar = document.getElementById('topbar');
 let CONFIG = null;
 let ME = null;
 let cleanups = [];
-let RANGE = 90;
+
+const GRAPH_RANGE_STORAGE_KEY = 'aquarium_graph_range';
+const GRAPH_CUSTOM_FROM_KEY = 'aquarium_graph_custom_from';
+const GRAPH_CUSTOM_TO_KEY = 'aquarium_graph_custom_to';
+
+function getInitialGraphRange() {
+  const saved = localStorage.getItem(GRAPH_RANGE_STORAGE_KEY);
+  if (saved) return saved;
+  if (ME?.defaultGraphRange) return String(ME.defaultGraphRange);
+  return '90'; // 3 Monate Standard
+}
+
+let RANGE = getInitialGraphRange();
+let CUSTOM_FROM = localStorage.getItem(GRAPH_CUSTOM_FROM_KEY) || '';
+let CUSTOM_TO = localStorage.getItem(GRAPH_CUSTOM_TO_KEY) || '';
 
 /* ---------- Farbschema & Theme Management ---------- */
 const THEME_KEY = 'aquarium_theme';
@@ -1400,10 +1414,24 @@ function makeChart(canvas, p, points, range) {
 }
 
 async function viewAquarium(id) {
+  let measUrl = `/aquariums/${id}/measurements`;
+  let logsUrl = `/aquariums/${id}/logs`;
+  if (RANGE === 'custom' && (CUSTOM_FROM || CUSTOM_TO)) {
+    const params = new URLSearchParams();
+    if (CUSTOM_FROM) params.append('from', CUSTOM_FROM);
+    if (CUSTOM_TO) params.append('to', CUSTOM_TO);
+    measUrl += `?${params.toString()}`;
+    logsUrl += `?${params.toString()}`;
+  } else {
+    const days = Number(RANGE) || 90;
+    measUrl += `?days=${days}`;
+    logsUrl += `?days=${days}`;
+  }
+
   const [d, ms, logs, images] = await Promise.all([
     api(`/aquariums/${id}`),
-    api(`/aquariums/${id}/measurements?days=${RANGE}`),
-    api(`/aquariums/${id}/logs?days=${RANGE}`),
+    api(measUrl),
+    api(logsUrl),
     api(`/aquariums/${id}/images`),
   ]);
   const aq = d.aquarium;
@@ -1570,11 +1598,92 @@ async function viewAquarium(id) {
     chartCards.push({ p, points, canvas, card: h('div', { class: 'card chart-card' }, h('h3', {}, h('span', {}, p.name), h('span', { class: 'muted' }, p.unit)), h('div', { class: 'chart-wrap' }, canvas)) });
   }
   if (keys.length) {
-    const tabs = h('div', { class: 'range-tabs', role: 'group', 'aria-label': 'Zeitraum' }, [[7, '7 Tage'], [30, '30 Tage'], [90, '90 Tage'], [365, '1 Jahr'], [3650, 'Alles']].map(([days, label]) =>
-      h('button', { type: 'button', 'aria-pressed': String(RANGE === days), onclick: () => { RANGE = days; route(); } }, label)));
-    nodes.push(h('section', { class: 'stack' }, h('div', { class: 'row between' }, h('h2', { style: 'margin:0' }, 'Verlauf'), tabs),
+    const rangePresets = [
+      ['7', '7 Tage'],
+      ['14', '14 Tage'],
+      ['30', '30 Tage'],
+      ['90', '3 Monate (Standard)'],
+      ['180', '6 Monate'],
+      ['365', '1 Jahr'],
+      ['3650', 'Alles'],
+      ['custom', '📅 Eigener Zeitraum'],
+    ];
+
+    const rangeButtons = rangePresets.map(([val, label]) =>
+      h('button', {
+        type: 'button',
+        'aria-pressed': String(String(RANGE) === String(val)),
+        onclick: () => {
+          RANGE = val;
+          localStorage.setItem(GRAPH_RANGE_STORAGE_KEY, val);
+          route();
+        }
+      }, label)
+    );
+
+    const tabs = h('div', { class: 'range-tabs', role: 'group', 'aria-label': 'Zeitraum' }, rangeButtons);
+
+    let customBar = null;
+    if (RANGE === 'custom') {
+      const fromInput = h('input', { type: 'date', value: CUSTOM_FROM, 'aria-label': 'Startdatum' });
+      const toInput = h('input', { type: 'date', value: CUSTOM_TO, 'aria-label': 'Enddatum' });
+      const btnApply = h('button', {
+        class: 'btn small',
+        type: 'button',
+        onclick: () => {
+          CUSTOM_FROM = fromInput.value;
+          CUSTOM_TO = toInput.value;
+          localStorage.setItem(GRAPH_CUSTOM_FROM_KEY, CUSTOM_FROM);
+          localStorage.setItem(GRAPH_CUSTOM_TO_KEY, CUSTOM_TO);
+          route();
+        }
+      }, 'Filter anwenden');
+
+      const btnReset = h('button', {
+        class: 'btn small ghost',
+        type: 'button',
+        onclick: () => {
+          RANGE = '90';
+          CUSTOM_FROM = '';
+          CUSTOM_TO = '';
+          localStorage.setItem(GRAPH_RANGE_STORAGE_KEY, '90');
+          localStorage.removeItem(GRAPH_CUSTOM_FROM_KEY);
+          localStorage.removeItem(GRAPH_CUSTOM_TO_KEY);
+          route();
+        }
+      }, 'Zurücksetzen (3 Monate)');
+
+      customBar = h('div', { class: 'custom-range-bar' },
+        h('label', {}, 'Von:', fromInput),
+        h('label', {}, 'Bis:', toInput),
+        btnApply,
+        btnReset
+      );
+    }
+
+    let rangeDesc = '';
+    if (RANGE === 'custom') {
+      if (CUSTOM_FROM && CUSTOM_TO) rangeDesc = `Benutzerdefinierter Zeitraum: ${CUSTOM_FROM} bis ${CUSTOM_TO}`;
+      else if (CUSTOM_FROM) rangeDesc = `Ab ${CUSTOM_FROM}`;
+      else if (CUSTOM_TO) rangeDesc = `Bis ${CUSTOM_TO}`;
+      else rangeDesc = 'Benutzerdefinierter Zeitraum (Bitte Start- und/oder Enddatum wählen)';
+    } else {
+      const match = rangePresets.find(([v]) => v === String(RANGE));
+      rangeDesc = match ? `Zeitraum: ${match[1]}` : `Zeitraum: ${RANGE} Tage`;
+    }
+
+    nodes.push(h('section', { class: 'stack' },
+      h('div', { class: 'row between', style: 'align-items:flex-start; flex-wrap:wrap; gap:.6rem;' },
+        h('div', {},
+          h('h2', { style: 'margin:0' }, 'Verlauf'),
+          h('div', { class: 'muted', style: 'font-size:.85rem; margin-top:.2rem;' }, rangeDesc)
+        ),
+        tabs
+      ),
+      customBar,
       chartCards.length ? h('div', { class: 'charts' }, chartCards.map((c) => c.card)) : h('p', { class: 'muted' }, 'In diesem Zeitraum gibt es keine Messungen.'),
-      chartCards.length ? h('p', { class: 'muted' }, 'Grüner Bereich = Zielbereich, rot gestrichelt = kritische Grenze.') : null));
+      chartCards.length ? h('p', { class: 'muted' }, 'Grüner Bereich = Zielbereich, rot gestrichelt = kritische Grenze.') : null
+    ));
   }
 
   // Besatz & Bewohner
@@ -3303,6 +3412,54 @@ async function viewProfile() {
     themeOptionsContainer
   );
 
+  // Standard-Zeitraum für Graphen & Messverlauf
+  const defaultRangeOptions = [
+    { key: '7', label: '7 Tage (1 Woche)' },
+    { key: '14', label: '14 Tage (2 Wochen)' },
+    { key: '30', label: '30 Tage (1 Monat)' },
+    { key: '90', label: '90 Tage (3 Monate – Standard)' },
+    { key: '180', label: '180 Tage (6 Monate)' },
+    { key: '365', label: '365 Tage (1 Jahr)' },
+    { key: '3650', label: 'Alles (Gesamte Historie)' },
+  ];
+
+  const currentDefaultRange = String(ME.defaultGraphRange || '90');
+  const graphRangeSelect = h('select', {},
+    defaultRangeOptions.map((opt) =>
+      h('option', { value: opt.key, selected: opt.key === currentDefaultRange }, opt.label)
+    )
+  );
+  const graphRangeSaveErr = h('p', { class: 'error', role: 'alert' });
+
+  const graphRangeCard = h('form', {
+    class: 'card stack',
+    onsubmit: async (e) => {
+      e.preventDefault();
+      graphRangeSaveErr.textContent = '';
+      try {
+        const selectedRange = graphRangeSelect.value;
+        const res = await api('/me', { method: 'PUT', body: { defaultGraphRange: selectedRange } });
+        ME = res.user;
+        RANGE = selectedRange;
+        localStorage.setItem(GRAPH_RANGE_STORAGE_KEY, selectedRange);
+        toast('Standard-Zeitraum für Graphen gespeichert.');
+      } catch (ex) {
+        graphRangeSaveErr.textContent = ex.message;
+      }
+    }
+  },
+    h('h2', {}, 'Standard-Zeitraum für Graphen & Messverlauf'),
+    h('p', { class: 'muted', style: 'margin:0' }, 'Lege fest, welcher Zeitraum beim Öffnen eines Aquariums standardmäßig in den Verlaufsgraphen und Messwert-Tabellen angezeigt werden soll (Standard: 3 Monate).'),
+    h('div', { class: 'field' },
+      h('label', {}, 'Bevorzugter Standard-Zeitraum'),
+      graphRangeSelect
+    ),
+    graphRangeSaveErr,
+    h('div', { class: 'row' },
+      h('button', { class: 'btn', type: 'submit' }, 'Standard-Zeitraum speichern')
+    )
+  );
+
   // Push-Benachrichtigungen & Timer
   const perm = pushNotificationManager.getPermission();
   const permStatusMap = {
@@ -3393,6 +3550,7 @@ async function viewProfile() {
     avatarCard,
     profileForm,
     themeCard,
+    graphRangeCard,
     notificationsCard,
     testSuiteCard,
     passwordCard,

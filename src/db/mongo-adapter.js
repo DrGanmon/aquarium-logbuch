@@ -192,6 +192,7 @@ class MongoAdapter {
           avatar_file: null,
           selected_suite: null,
           selected_tests: null,
+          default_graph_range: null,
           oidc_sub: oidc_sub || null,
           email_verified: email_verified ? 1 : 0,
           email_verify_token: email_verify_token || null,
@@ -217,6 +218,7 @@ class MongoAdapter {
           'avatar_file',
           'selected_suite',
           'selected_tests',
+          'default_graph_range',
           'email_verified',
           'email_verify_token',
           'email_verify_expires',
@@ -685,12 +687,33 @@ class MongoAdapter {
 
     this.measurements = {
       async listForAquarium(aquariumId, options = {}) {
-        const days = Math.min(Math.max(Number(options.days) || 365, 1), 3650);
-        const since = new Date(Date.now() - days * 86400000).toISOString();
+        let since;
+        let until = null;
+        if (options.from || options.since) {
+          const fromStr = String(options.from || options.since).trim();
+          const fromDate = fromStr.length === 10 ? new Date(`${fromStr}T00:00:00.000Z`) : new Date(fromStr);
+          since = !Number.isNaN(fromDate.getTime()) ? fromDate.toISOString() : new Date(Date.now() - 90 * 86400000).toISOString();
+        } else {
+          const days = Math.min(Math.max(Number(options.days) || 90, 1), 3650);
+          since = new Date(Date.now() - days * 86400000).toISOString();
+        }
+
+        if (options.to || options.until) {
+          const toStr = String(options.to || options.until).trim();
+          const toDate = toStr.length === 10 ? new Date(`${toStr}T23:59:59.999Z`) : new Date(toStr);
+          if (!Number.isNaN(toDate.getTime())) {
+            until = toDate.toISOString();
+          }
+        }
+
+        const dateFilter = { $gte: since };
+        if (until) {
+          dateFilter.$lte = until;
+        }
 
         let query = db.collection('measurements').find({
           aquarium_id: Number(aquariumId),
-          measured_at: { $gte: since },
+          measured_at: dateFilter,
         }).sort({ measured_at: -1 });
 
         if (options.limit && Number.isFinite(Number(options.limit))) {

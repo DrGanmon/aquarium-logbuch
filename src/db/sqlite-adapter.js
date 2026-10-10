@@ -121,6 +121,7 @@ class SqliteAdapter {
     if (!hasColumn('users', 'avatar_file')) this.db.exec('ALTER TABLE users ADD COLUMN avatar_file TEXT');
     if (!hasColumn('users', 'selected_suite')) this.db.exec('ALTER TABLE users ADD COLUMN selected_suite TEXT');
     if (!hasColumn('users', 'selected_tests')) this.db.exec('ALTER TABLE users ADD COLUMN selected_tests TEXT');
+    if (!hasColumn('users', 'default_graph_range')) this.db.exec('ALTER TABLE users ADD COLUMN default_graph_range TEXT');
     if (!hasColumn('sessions', 'id_token')) this.db.exec('ALTER TABLE sessions ADD COLUMN id_token TEXT');
     if (!hasColumn('aquariums', 'image_file')) this.db.exec('ALTER TABLE aquariums ADD COLUMN image_file TEXT');
     if (!hasColumn('aquariums', 'motto')) this.db.exec('ALTER TABLE aquariums ADD COLUMN motto TEXT');
@@ -253,6 +254,7 @@ class SqliteAdapter {
           'avatar_file',
           'selected_suite',
           'selected_tests',
+          'default_graph_range',
           'email_verified',
           'email_verify_token',
           'email_verify_expires',
@@ -664,29 +666,50 @@ class SqliteAdapter {
 
     this.measurements = {
       async listForAquarium(aquariumId, options = {}) {
-        const days = Math.min(Math.max(Number(options.days) || 365, 1), 3650);
-        const since = new Date(Date.now() - days * 86400000).toISOString();
+        let since;
+        let until = null;
+        if (options.from || options.since) {
+          const fromStr = String(options.from || options.since).trim();
+          const fromDate = fromStr.length === 10 ? new Date(`${fromStr}T00:00:00.000Z`) : new Date(fromStr);
+          since = !Number.isNaN(fromDate.getTime()) ? fromDate.toISOString() : new Date(Date.now() - 90 * 86400000).toISOString();
+        } else {
+          const days = Math.min(Math.max(Number(options.days) || 90, 1), 3650);
+          since = new Date(Date.now() - days * 86400000).toISOString();
+        }
 
-        const ms = db
-          .prepare(
-            `SELECT m.id, m.measured_at, m.note, m.created_by, u.username as created_by_username
+        if (options.to || options.until) {
+          const toStr = String(options.to || options.until).trim();
+          const toDate = toStr.length === 10 ? new Date(`${toStr}T23:59:59.999Z`) : new Date(toStr);
+          if (!Number.isNaN(toDate.getTime())) {
+            until = toDate.toISOString();
+          }
+        }
+
+        let sql = `SELECT m.id, m.measured_at, m.note, m.created_by, u.username as created_by_username
              FROM measurements m
              LEFT JOIN users u ON u.id = m.created_by
-             WHERE m.aquarium_id = ? AND m.measured_at >= ?
-             ORDER BY m.measured_at DESC`
-          )
-          .all(aquariumId, since);
+             WHERE m.aquarium_id = ? AND m.measured_at >= ?`;
+        const sqlParams = [aquariumId, since];
+        if (until) {
+          sql += ` AND m.measured_at <= ?`;
+          sqlParams.push(until);
+        }
+        sql += ` ORDER BY m.measured_at DESC`;
+
+        const ms = db.prepare(sql).all(...sqlParams);
 
         if (ms.length === 0) return [];
 
-        const vals = db
-          .prepare(
-            `SELECT mv.measurement_id, mv.param, mv.value
+        let valSql = `SELECT mv.measurement_id, mv.param, mv.value
              FROM measurement_values mv
              JOIN measurements m ON m.id = mv.measurement_id
-             WHERE m.aquarium_id = ? AND m.measured_at >= ?`
-          )
-          .all(aquariumId, since);
+             WHERE m.aquarium_id = ? AND m.measured_at >= ?`;
+        const valParams = [aquariumId, since];
+        if (until) {
+          valSql += ` AND m.measured_at <= ?`;
+          valParams.push(until);
+        }
+        const vals = db.prepare(valSql).all(...valParams);
 
         const alerts = db
           .prepare(
@@ -1033,8 +1056,8 @@ class SqliteAdapter {
 
       // Users
       const insertUser = db.prepare(`
-        INSERT INTO users (id, username, password_hash, email, oidc_sub, first_name, last_name, bio, avatar_file, selected_suite, selected_tests, email_verified, email_verify_token, email_verify_expires, password_reset_token, password_reset_expires, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO users (id, username, password_hash, email, oidc_sub, first_name, last_name, bio, avatar_file, selected_suite, selected_tests, default_graph_range, email_verified, email_verify_token, email_verify_expires, password_reset_token, password_reset_expires, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       for (const u of users) {
         insertUser.run(
@@ -1049,6 +1072,7 @@ class SqliteAdapter {
           u.avatar_file || null,
           u.selected_suite || null,
           u.selected_tests || null,
+          u.default_graph_range || null,
           u.email_verified !== undefined ? (u.email_verified ? 1 : 0) : 1,
           u.email_verify_token || null,
           u.email_verify_expires || null,

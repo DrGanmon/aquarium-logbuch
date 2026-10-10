@@ -524,8 +524,13 @@ router.get(
   auth,
   ownAquarium,
   wrap(async (req, res) => {
-    const days = Math.min(Math.max(Number(req.query.days) || 90, 1), 3650);
-    const ms = await db.measurements.listForAquarium(req.aq.id, { days });
+    let days = req.query.days !== undefined && req.query.days !== '' ? Math.min(Math.max(Number(req.query.days) || 90, 1), 3650) : null;
+    let from = req.query.from ? String(req.query.from).trim() : null;
+    let to = req.query.to ? String(req.query.to).trim() : null;
+    if (!from && days == null) {
+      days = 90; // Standard 3 Monate
+    }
+    const ms = await db.measurements.listForAquarium(req.aq.id, { days, from, to });
     // Chronologisch aufsteigend für Graphen
     const sorted = [...ms].sort((a, b) => new Date(a.measured_at).getTime() - new Date(b.measured_at).getTime());
     res.json(sorted);

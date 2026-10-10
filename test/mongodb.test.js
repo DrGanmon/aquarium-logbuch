@@ -154,7 +154,7 @@ test('MongoDB: Vollständiger Lebenszyklus, Authentifizierung, Aquarien, Freigab
 
   // 4. Profil und Testsuite-Präferenzen
   await t.test('MongoDB: Profil- und Testsuite-Verwaltung', async () => {
-    // Profil aktualisieren
+    // Profil aktualisieren (inkl. Standard-Graph-Zeitraum)
     const profileRes = await env.request('/api/me', {
       method: 'PUT',
       headers: { Cookie: normalUser.cookie },
@@ -162,11 +162,13 @@ test('MongoDB: Vollständiger Lebenszyklus, Authentifizierung, Aquarien, Freigab
         firstName: 'Max',
         lastName: 'Mustermann',
         bio: 'Leidenschaftlicher Aquarianer seit 10 Jahren.',
+        defaultGraphRange: '180',
       },
     });
     assert.equal(profileRes.status, 200);
     assert.equal(profileRes.data.user.firstName, 'Max');
     assert.equal(profileRes.data.user.bio, 'Leidenschaftlicher Aquarianer seit 10 Jahren.');
+    assert.equal(profileRes.data.user.defaultGraphRange, '180');
 
     // Testsuite-Präferenzen speichern
     const suiteRes = await env.request('/api/me/tests', {
