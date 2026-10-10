@@ -31,6 +31,10 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 - **Verhaltens- & Territorialitäts-Prüfung:** Automatische Erkennung von Vergesellschaftungs- und Verhaltenskonflikten (z. B. Einzelhaltung bei Siamesischen Kampffischen, Flossenbeißer vs. Langflosser, Räuber vs. Zwerggarnelen, Krebse vs. Bodenfische, Mindestgruppengrößen bei Schwarmfischen und Temperatur-/pH-Inkompatibilitäten).
 - Messmaske für 15 Parameter mit Timer pro Test (mehrere gleichzeitig, Ton und Vibration bei Ablauf,
   Bildschirm bleibt während der Timer an, wenn der Browser das erlaubt)
+- **Push-Benachrichtigungen für Timer:** Automatische System- und Push-Benachrichtigungen bei Ablauf der Reaktionszeiten:
+  - **Hintergrund-Timer:** Service Worker stellt sicher, dass Alarme auch dann pünktlich ankommen, wenn der Tab minimiert ist oder im Hintergrund liegt.
+  - **Präzises Timing:** Verhindert das Überziehen von Reaktionszeiten und schützt vor Fehlinterpretationen bei Farbvergleichstests.
+  - **Status & Testen:** Aktivierungsbanner in der Messmaske sowie Konfigurationskarte und 3-Sekunden-Test-Benachrichtigung im Benutzerprofil.
 - Live-Bewertung beim Tippen, Eingabe mit Komma möglich
 - Graphen pro Parameter (7 Tage bis alles) mit Zielbereich und kritischen Grenzen
 - Warnungen (auffällig) und Alarme (kritisch) mit Handlungshinweis, zum Abhaken
@@ -158,8 +162,8 @@ Die Testparameter und Standardwerte liegen in `src/config/suites/jbl-pro-aquates
 
 ## Bekannte Grenzen
 
-- Alarme erscheinen in der App. E-Mail oder Push-Benachrichtigungen gibt es noch nicht.
-- Kein Passwort-Zurücksetzen per E-Mail bei lokaler Anmeldung. Ein vergessenes Passwort lässt sich nur direkt in der Datenbank ersetzen
+- E-Mail-Versand für Alarme ist noch nicht angebunden.
+- Kein Passwort-Zurücksetzen per E-Mail bei lokaler Anmeldung. Ein vergessenes Passwort lässt sich nur direkt in der Datenbank oder über einen Administrator ersetzen
   (mit Pocket ID entfällt das).
 - Laufende OIDC-Anmeldungen (die wenigen Sekunden zwischen Weiterleitung und Rücksprung) liegen im Arbeitsspeicher.
   Die App ist daher für den Betrieb als ein einzelner Prozess gedacht.

@@ -399,6 +399,7 @@ function updateTopbarUser() {
 }
 
 async function start() {
+  await initServiceWorker();
   ME = await api('/me');
   CONFIG = await api('/config');
   $topbar.hidden = false;
@@ -1419,6 +1420,102 @@ async function viewSpeciesCatalog(selectedId = null) {
   }
 }
 
+/* ---------- Push- & Timer-Benachrichtigungen ---------- */
+let swRegistration = null;
+
+async function initServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    try {
+      swRegistration = await navigator.serviceWorker.register('sw.js');
+    } catch (e) {
+      /* Service Worker nicht registrierbar */
+    }
+  }
+}
+
+const pushNotificationManager = {
+  isSupported() {
+    return 'Notification' in window;
+  },
+  getPermission() {
+    if (!this.isSupported()) return 'unsupported';
+    return Notification.permission;
+  },
+  async requestPermission() {
+    if (!this.isSupported()) return 'unsupported';
+    try {
+      const p = await Notification.requestPermission();
+      return p;
+    } catch (e) {
+      return Notification.permission;
+    }
+  },
+  scheduleTimer(data) {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SCHEDULE_TIMER',
+        ...data,
+      });
+    }
+  },
+  cancelTimer(data) {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'CANCEL_TIMER',
+        ...data,
+      });
+    }
+  },
+  clearAllTimers() {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'CLEAR_ALL_TIMERS',
+      });
+    }
+  },
+  async notify({ title, body, tag, waitSec, url }) {
+    beep();
+    if (!this.isSupported() || Notification.permission !== 'granted') return;
+
+    const mins = waitSec ? Math.max(1, Math.round(waitSec / 60)) : null;
+    const desc = body || (mins ? `Die Wartezeit (${mins} Min.) ist abgelaufen. Bitte Farbwert ablesen!` : 'Wartezeit abgelaufen!');
+
+    try {
+      if (swRegistration && swRegistration.showNotification) {
+        await swRegistration.showNotification(title, {
+          body: desc,
+          icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%8F%B1%EF%B8%8F%3C/text%3E%3C/svg%3E",
+          badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%A0%3C/text%3E%3C/svg%3E",
+          tag: tag || 'aquarium-timer',
+          renotify: true,
+          requireInteraction: true,
+          vibrate: [250, 100, 250, 100, 350],
+          data: { url: url || location.href },
+        });
+        return;
+      }
+    } catch (e) {
+      /* Fallback */
+    }
+
+    try {
+      const n = new Notification(title, {
+        body: desc,
+        icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%8F%B1%EF%B8%8F%3C/text%3E%3C/svg%3E",
+        tag: tag || 'aquarium-timer',
+        renotify: true,
+        requireInteraction: true,
+      });
+      n.onclick = () => {
+        window.focus();
+        n.close();
+      };
+    } catch (e) {
+      /* Benachrichtigung nicht darstellbar */
+    }
+  }
+};
+
 /* ---------- Messmaske mit Timern ---------- */
 let audioCtx = null;
 function beep() {
@@ -1572,9 +1669,27 @@ async function viewMeasure(id) {
         if (!Number.isFinite(v) || v < p.min || v > p.max) { status.append(h('span', { class: 'chip warn' }, `erlaubt: ${p.min} bis ${p.max}`)); return; }
         status.append(chip(evaluate(range, v)));
       });
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume(); } catch (e) { /* ohne Ton */ }
-        if (timers[p.key] && timers[p.key] > Date.now()) { delete timers[p.key]; } else { timers[p.key] = Date.now() + p.wait * 1000; }
+        if (pushNotificationManager.getPermission() === 'default') {
+          pushNotificationManager.requestPermission().then(() => updateNotificationBanner());
+        }
+        if (timers[p.key] && timers[p.key] > Date.now()) {
+          delete timers[p.key];
+          pushNotificationManager.cancelTimer({ timerId: `${id}:${p.key}`, testKey: p.key, aquariumId: id });
+        } else {
+          timers[p.key] = Date.now() + p.wait * 1000;
+          pushNotificationManager.scheduleTimer({
+            timerId: `${id}:${p.key}`,
+            testKey: p.key,
+            testName: p.name,
+            aquariumId: id,
+            aquariumName: aq.name,
+            waitSec: p.wait,
+            endTime: timers[p.key],
+            url: location.href,
+          });
+        }
         finished.delete(p.key); saveTimers(); render(); updateWake();
       });
       rows.set(p.key, { p, el, fill, clock, btn, input });
@@ -1585,6 +1700,65 @@ async function viewMeasure(id) {
   function applyVisibility() {
     for (const [k, r] of rows) r.el.hidden = !selected.includes(k);
   }
+
+  const notificationBanner = h('div');
+  const updateNotificationBanner = () => {
+    notificationBanner.replaceChildren();
+    if (!pushNotificationManager.isSupported()) return;
+    const perm = pushNotificationManager.getPermission();
+    if (perm === 'default') {
+      const btnEnable = h('button', {
+        class: 'btn small',
+        type: 'button',
+        onclick: async () => {
+          const res = await pushNotificationManager.requestPermission();
+          updateNotificationBanner();
+          if (res === 'granted') toast('Push-Benachrichtigungen aktiviert!');
+        }
+      }, '🔔 Aktivieren');
+
+      notificationBanner.className = 'notification-banner info';
+      notificationBanner.append(
+        h('div', { class: 'notification-banner-content' },
+          h('span', { class: 'notification-banner-icon' }, '🔔'),
+          h('div', {},
+            h('strong', {}, 'Push-Benachrichtigungen für Timer'),
+            h('p', { style: 'margin:0; font-size:.84rem; color:var(--ink-soft)' },
+              'Erhalte automatische Benachrichtigungen bei Timer-Ablauf – auch wenn der Tab im Hintergrund liegt.'
+            )
+          )
+        ),
+        btnEnable
+      );
+    } else if (perm === 'granted') {
+      notificationBanner.className = 'notification-banner active';
+      notificationBanner.append(
+        h('div', { class: 'notification-banner-content' },
+          h('span', { class: 'notification-banner-icon' }, '🔔'),
+          h('div', {},
+            h('strong', {}, 'Push-Benachrichtigungen aktiv'),
+            h('p', { style: 'margin:0; font-size:.84rem; color:var(--ink-soft)' },
+              'Du wirst zuverlässig benachrichtigt, sobald ein Test bereit zur Auswertung ist.'
+            )
+          )
+        )
+      );
+    } else if (perm === 'denied') {
+      notificationBanner.className = 'notification-banner warn';
+      notificationBanner.append(
+        h('div', { class: 'notification-banner-content' },
+          h('span', { class: 'notification-banner-icon' }, '🔕'),
+          h('div', {},
+            h('strong', {}, 'Push-Benachrichtigungen im Browser blockiert'),
+            h('p', { style: 'margin:0; font-size:.84rem; color:var(--ink-soft)' },
+              'Für Hintergrund-Alarme bitte Benachrichtigungen in den Website-Einstellungen deines Browsers erlauben.'
+            )
+          )
+        )
+      );
+    }
+  };
+  updateNotificationBanner();
 
   function render() {
     const now = Date.now();
@@ -1598,7 +1772,18 @@ async function viewMeasure(id) {
         r.clock.textContent = mmss(left); r.btn.textContent = 'Abbrechen'; r.el.classList.remove('done');
       } else {
         r.fill.style.setProperty('--p', 100); r.clock.textContent = 'Fertig'; r.btn.textContent = 'Neu starten'; r.el.classList.add('done');
-        if (!finished.has(k)) { finished.add(k); beep(); toast(`${r.p.name}: Zeit abgelaufen, jetzt ablesen.`); updateWake(); }
+        if (!finished.has(k)) {
+          finished.add(k);
+          pushNotificationManager.notify({
+            title: `⏱️ ${r.p.name}: Wartezeit abgelaufen!`,
+            body: `Die Wartezeit (${Math.max(1, Math.round(r.p.wait / 60))} Min.) für „${aq.name}“ ist vorbei. Bitte jetzt Farbwert ablesen!`,
+            tag: `timer-${id}-${k}`,
+            waitSec: r.p.wait,
+            url: location.href,
+          });
+          toast(`${r.p.name}: Zeit abgelaufen, jetzt ablesen.`);
+          updateWake();
+        }
       }
     }
   }
@@ -1629,6 +1814,7 @@ async function viewMeasure(id) {
   mount(h('div', { class: 'stack' },
     h('div', {}, h('a', { href: `#/a/${id}`, class: 'muted' }, `‹ ${aq.name}`), h('h1', {}, 'Werte eintragen'),
       h('p', { class: 'muted' }, 'Starte bei jedem Test den Timer, sobald das Reagenz im Wasser ist. Mehrere Timer können gleichzeitig laufen. Ausgefüllt wird nur, was du gemessen hast.')),
+    notificationBanner,
     form));
 
   const tick = setInterval(render, 250);
@@ -2088,6 +2274,65 @@ async function viewProfile() {
     themeOptionsContainer
   );
 
+  // Push-Benachrichtigungen & Timer
+  const perm = pushNotificationManager.getPermission();
+  const permStatusMap = {
+    granted: { text: 'Aktiviert (Benachrichtigungen erlaubt)', cls: 'tag ok', icon: '🔔' },
+    denied: { text: 'Blockiert (im Browser abgelehnt)', cls: 'tag danger', icon: '🔕' },
+    default: { text: 'Nicht aktiviert (Erlaubnis ausstehend)', cls: 'tag warn', icon: '⚠️' },
+    unsupported: { text: 'Vom Browser nicht unterstützt', cls: 'tag', icon: 'ℹ️' }
+  };
+  const permInfo = permStatusMap[perm] || permStatusMap.default;
+
+  const btnRequestPerm = h('button', {
+    class: 'btn small',
+    type: 'button',
+    style: perm === 'granted' || perm === 'unsupported' ? 'display:none' : '',
+    onclick: async () => {
+      const res = await pushNotificationManager.requestPermission();
+      toast(res === 'granted' ? 'Push-Benachrichtigungen aktiviert!' : 'Status: ' + res);
+      viewProfile();
+    }
+  }, '🔔 Benachrichtigungen aktivieren');
+
+  const btnTestNotification = h('button', {
+    class: 'btn small ghost',
+    type: 'button',
+    onclick: async () => {
+      if (pushNotificationManager.getPermission() !== 'granted') {
+        const res = await pushNotificationManager.requestPermission();
+        if (res !== 'granted') {
+          toast('Bitte erlaube Benachrichtigungen im Browser, um den Test durchzuführen.');
+          viewProfile();
+          return;
+        }
+      }
+      toast('Test-Benachrichtigung wird in 3 Sekunden gesendet...');
+      setTimeout(() => {
+        pushNotificationManager.notify({
+          title: '⏱️ Test: Nitrit (NO2) – Wartezeit abgelaufen!',
+          body: 'Push-Benachrichtigungen funktionieren einwandfrei! Du verpasst keinen Timer mehr.',
+          tag: 'test-notification',
+          waitSec: 300,
+        });
+      }, 3000);
+    }
+  }, '🧪 Test-Benachrichtigung senden (3s)');
+
+  const notificationsCard = h('div', { class: 'card stack' },
+    h('h2', {}, 'Push-Benachrichtigungen & Timer'),
+    h('p', { class: 'muted', style: 'margin:0' },
+      'Erhalte Push- und System-Benachrichtigungen bei ablaufenden Reagenz-Timern, damit Farbtests stets zum exakten Zeitpunkt abgelesen werden und keine Messfehler entstehen.'
+    ),
+    h('div', { class: 'row between', style: 'align-items:center; flex-wrap:wrap; gap:.6rem;' },
+      h('div', { class: 'row', style: 'align-items:center; gap:.5rem;' },
+        h('span', { style: 'font-size:1.2rem;' }, permInfo.icon),
+        h('span', { class: permInfo.cls }, permInfo.text)
+      ),
+      h('div', { class: 'row', style: 'gap:.5rem;' }, btnRequestPerm, btnTestNotification)
+    )
+  );
+
   mount(h('div', { class: 'stack' },
     h('div', { class: 'row between' },
       h('div', {},
@@ -2098,6 +2343,7 @@ async function viewProfile() {
     avatarCard,
     profileForm,
     themeCard,
+    notificationsCard,
     testSuiteCard,
     passwordCard,
     oidcCard

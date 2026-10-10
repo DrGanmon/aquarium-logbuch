@@ -343,4 +343,39 @@ dialog::backdrop { background: var(--dialog-backdrop); }
 
 dialog.wide { max-width: 640px; }
 
+/* Push- & Timer-Benachrichtigungen */
+.notification-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .8rem;
+  padding: .75rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  flex-wrap: wrap;
+}
+.notification-banner.info {
+  background: var(--water-soft);
+  border-color: var(--water);
+}
+.notification-banner.active {
+  background: var(--kelp-bg);
+  border-color: var(--kelp);
+}
+.notification-banner.warn {
+  background: var(--amber-bg);
+  border-color: var(--amber);
+}
+.notification-banner-content {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: .9rem;
+}
+.notification-banner-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
 @media (prefers-reduced-motion: reduce) { .tube .fill { transition: none; } }
