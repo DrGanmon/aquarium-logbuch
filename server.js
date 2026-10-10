@@ -5,12 +5,37 @@ const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
 const cfg = require('./config');
+const { createOidc } = require('./oidc');
 
-const PORT = Number(process.env.PORT || 3000);
-const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
-const ALLOW_REGISTRATION = (process.env.ALLOW_REGISTRATION || 'true') !== 'false';
-const COOKIE_SECURE = process.env.COOKIE_SECURE === 'true'; // true, wenn hinter HTTPS-Proxy
+const env = process.env;
+const PORT = Number(env.PORT || 3000);
+const DATA_DIR = env.DATA_DIR || path.join(__dirname, 'data');
+const ALLOW_REGISTRATION = (env.ALLOW_REGISTRATION || 'true') !== 'false';
+// Öffentliche Adresse der App, z. B. https://aquarium.example.com oder https://example.com/aquarium
+const APP_URL = (env.APP_URL || '').trim().replace(/\/+$/, '');
+if (APP_URL && !/^https?:\/\/[^/]+/i.test(APP_URL)) { console.error('APP_URL muss mit http:// oder https:// beginnen.'); process.exit(1); }
+const APP_PATH = APP_URL ? new URL(APP_URL).pathname.replace(/\/+$/, '') : '';
+const COOKIE_SECURE = env.COOKIE_SECURE != null && env.COOKIE_SECURE !== '' ? env.COOKIE_SECURE === 'true' : APP_URL.startsWith('https://');
+const COOKIE_PATH = APP_PATH || '/';
 const SESSION_DAYS = 30;
+
+// OIDC (z. B. Pocket ID)
+const OIDC_ENABLED = !!env.OIDC_ISSUER;
+const OIDC_PROVIDER_NAME = env.OIDC_PROVIDER_NAME || 'Pocket ID';
+const OIDC_LINK_BY_USERNAME = env.OIDC_LINK_BY_USERNAME === 'true';
+if (OIDC_ENABLED && (!APP_URL || !env.OIDC_CLIENT_ID)) {
+  console.error('Für OIDC müssen APP_URL, OIDC_ISSUER und OIDC_CLIENT_ID gesetzt sein.');
+  process.exit(1);
+}
+const oidc = OIDC_ENABLED ? createOidc({
+  issuer: env.OIDC_ISSUER,
+  clientId: env.OIDC_CLIENT_ID,
+  clientSecret: env.OIDC_CLIENT_SECRET || '',
+  redirectUri: `${APP_URL}/auth/callback`,
+  scopes: env.OIDC_SCOPES || 'openid profile email',
+}) : null;
+// Lokale Anmeldung mit Passwort: Standard an ohne OIDC, aus mit OIDC
+const LOCAL_LOGIN = env.LOCAL_LOGIN != null && env.LOCAL_LOGIN !== '' ? env.LOCAL_LOGIN === 'true' : !OIDC_ENABLED;
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
 const db = new Database(path.join(DATA_DIR, 'aquarium.db'));
@@ -74,6 +99,12 @@ CREATE TABLE IF NOT EXISTS alerts (
 CREATE INDEX IF NOT EXISTS idx_alert_aq ON alerts(aquarium_id, acked_at);
 `);
 
+// Migration für OIDC
+const hasColumn = (table, col) => db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === col);
+if (!hasColumn('users', 'oidc_sub')) db.exec('ALTER TABLE users ADD COLUMN oidc_sub TEXT');
+if (!hasColumn('sessions', 'id_token')) db.exec('ALTER TABLE sessions ADD COLUMN id_token TEXT');
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oidc ON users(oidc_sub) WHERE oidc_sub IS NOT NULL');
+
 const app = express();
 app.disable('x-powered-by');
 // Hinter einem Reverse Proxy: TRUST_PROXY=1 setzen, damit die echte Client-IP für die Login-Begrenzung genutzt wird
@@ -108,7 +139,8 @@ function hashPassword(pw) {
   return `${salt.toString('hex')}:${hash.toString('hex')}`;
 }
 function verifyPassword(pw, stored) {
-  const [saltHex, hashHex] = stored.split(':');
+  const [saltHex, hashHex] = String(stored || '').split(':');
+  if (!saltHex || !hashHex) return false; // Konto ohne lokales Passwort (nur OIDC)
   const hash = crypto.scryptSync(pw, Buffer.from(saltHex, 'hex'), 64);
   return crypto.timingSafeEqual(hash, Buffer.from(hashHex, 'hex'));
 }
@@ -122,11 +154,13 @@ function parseCookies(req) {
   });
   return out;
 }
-function setSessionCookie(res, token, maxAgeSec) {
-  const parts = [`session=${token}`, 'Path=/', 'HttpOnly', 'SameSite=Lax', `Max-Age=${maxAgeSec}`];
+function setCookie(res, name, value, maxAgeSec) {
+  const parts = [`${name}=${encodeURIComponent(value)}`, `Path=${COOKIE_PATH}`, 'HttpOnly', 'SameSite=Lax', `Max-Age=${maxAgeSec}`];
   if (COOKIE_SECURE) parts.push('Secure');
-  res.setHeader('Set-Cookie', parts.join('; '));
+  const prev = res.getHeader('Set-Cookie');
+  res.setHeader('Set-Cookie', [...(prev ? [].concat(prev) : []), parts.join('; ')]);
 }
+const setSessionCookie = (res, token, maxAgeSec) => setCookie(res, 'session', token, maxAgeSec);
 
 // Einfache Begrenzung gegen Passwort-Raten
 const attempts = new Map();
@@ -189,7 +223,7 @@ function buildMessage(p, range, level, value) {
 
 // ---------- Auth ----------
 app.post('/api/register', wrap((req, res) => {
-  if (!ALLOW_REGISTRATION) return res.status(403).json({ error: 'Registrierung ist deaktiviert.' });
+  if (!LOCAL_LOGIN || !ALLOW_REGISTRATION) return res.status(403).json({ error: 'Registrierung ist deaktiviert.' });
   const username = str(req.body.username, 40);
   const password = typeof req.body.password === 'string' ? req.body.password : '';
   if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) return res.status(400).json({ error: 'Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).' });
@@ -200,15 +234,16 @@ app.post('/api/register', wrap((req, res) => {
   res.json({ id: info.lastInsertRowid, username });
 }));
 
-function startSession(res, userId) {
+function startSession(res, userId, idToken = null) {
   const token = crypto.randomBytes(32).toString('hex');
   const maxAge = SESSION_DAYS * 86400;
-  db.prepare('INSERT INTO sessions (token_hash, user_id, expires_at) VALUES (?, ?, ?)').run(sha(token), userId, Date.now() + maxAge * 1000);
+  db.prepare('INSERT INTO sessions (token_hash, user_id, expires_at, id_token) VALUES (?, ?, ?, ?)').run(sha(token), userId, Date.now() + maxAge * 1000, idToken);
   db.prepare('DELETE FROM sessions WHERE expires_at < ?').run(Date.now());
   setSessionCookie(res, token, maxAge);
 }
 
 app.post('/api/login', wrap((req, res) => {
+  if (!LOCAL_LOGIN) return res.status(403).json({ error: `Bitte über ${OIDC_PROVIDER_NAME} anmelden.` });
   const username = str(req.body.username, 40);
   const password = typeof req.body.password === 'string' ? req.body.password : '';
   const key = `${req.ip}|${username.toLowerCase()}`;
@@ -221,19 +256,35 @@ app.post('/api/login', wrap((req, res) => {
   res.json({ id: user.id, username: user.username });
 }));
 
-app.post('/api/logout', wrap((req, res) => {
-  const token = parseCookies(req).session;
-  if (token) db.prepare('DELETE FROM sessions WHERE token_hash = ?').run(sha(token));
-  setSessionCookie(res, '', 0);
-  res.json({ ok: true });
+app.post('/api/logout', async (req, res) => {
+  try {
+    const token = parseCookies(req).session;
+    let idToken = null;
+    if (token) {
+      idToken = db.prepare('SELECT id_token FROM sessions WHERE token_hash = ?').get(sha(token))?.id_token || null;
+      db.prepare('DELETE FROM sessions WHERE token_hash = ?').run(sha(token));
+    }
+    setSessionCookie(res, '', 0);
+    // Bei OIDC-Sitzungen auch beim Anbieter abmelden
+    const redirect = idToken && oidc ? await oidc.logoutUrl(idToken, `${APP_URL}/`) : null;
+    res.json({ ok: true, redirect });
+  } catch (e) { console.error(e); res.status(500).json({ error: 'Interner Fehler.' }); }
+});
+
+const hasLocalPassword = (userId) => !!db.prepare('SELECT password_hash FROM users WHERE id = ?').get(userId)?.password_hash?.includes(':');
+app.get('/api/me', auth, (req, res) => res.json({ ...req.user, registration: ALLOW_REGISTRATION, hasPassword: LOCAL_LOGIN && hasLocalPassword(req.user.id) }));
+app.get('/api/registration', (req, res) => res.json({
+  registration: LOCAL_LOGIN && ALLOW_REGISTRATION,
+  localLogin: LOCAL_LOGIN,
+  oidc: OIDC_ENABLED,
+  oidcName: OIDC_PROVIDER_NAME,
 }));
 
-app.get('/api/me', auth, (req, res) => res.json({ ...req.user, registration: ALLOW_REGISTRATION }));
-app.get('/api/registration', (req, res) => res.json({ registration: ALLOW_REGISTRATION }));
-
 app.post('/api/password', auth, wrap((req, res) => {
+  if (!LOCAL_LOGIN) return res.status(403).json({ error: 'Passwörter werden über den Anmeldedienst verwaltet.' });
   const { current, next } = req.body;
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
+  if (!String(user.password_hash).includes(':')) return res.status(400).json({ error: 'Dieses Konto hat kein lokales Passwort.' });
   if (typeof current !== 'string' || !verifyPassword(current, user.password_hash)) return res.status(400).json({ error: 'Das aktuelle Passwort stimmt nicht.' });
   if (typeof next !== 'string' || next.length < 8) return res.status(400).json({ error: 'Das neue Passwort braucht mindestens 8 Zeichen.' });
   db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(next), req.user.id);
@@ -406,11 +457,77 @@ app.post('/api/aquariums/:id/alerts/ack', auth, ownAquarium, wrap((req, res) => 
   res.json({ ok: true });
 }));
 
+// ---------- OIDC-Anmeldung ----------
+function appRedirect(res, error) {
+  res.redirect(302, `${APP_URL}/${error ? '?auth_error=' + encodeURIComponent(error) : ''}`);
+}
+
+// Freien, gültigen Benutzernamen aus den OIDC-Claims ableiten
+function usernameFromClaims(claims) {
+  const raw = claims.preferred_username || (claims.email ? String(claims.email).split('@')[0] : '') || claims.name || 'benutzer';
+  let base = String(raw).normalize('NFC').replace(/[^\p{L}\p{N}_.-]+/gu, '_').slice(0, 36);
+  if (base.length < 3) base = (base + '_user').slice(0, 36);
+  let name = base;
+  for (let i = 2; db.prepare('SELECT 1 FROM users WHERE username = ?').get(name); i++) name = `${base}-${i}`;
+  return name;
+}
+
+function userForClaims(claims) {
+  const sub = String(claims.sub);
+  const existing = db.prepare('SELECT id, username FROM users WHERE oidc_sub = ?').get(sub);
+  if (existing) return existing;
+  // Optional: vorhandenes lokales Konto mit gleichem Benutzernamen übernehmen (Migration)
+  if (OIDC_LINK_BY_USERNAME && claims.preferred_username) {
+    const local = db.prepare('SELECT id, username FROM users WHERE username = ? AND oidc_sub IS NULL').get(String(claims.preferred_username));
+    if (local) {
+      db.prepare('UPDATE users SET oidc_sub = ? WHERE id = ?').run(sub, local.id);
+      return local;
+    }
+  }
+  if (!ALLOW_REGISTRATION) return null;
+  const username = usernameFromClaims(claims);
+  const info = db.prepare('INSERT INTO users (username, password_hash, oidc_sub) VALUES (?, ?, ?)').run(username, '', sub);
+  return { id: info.lastInsertRowid, username };
+}
+
+app.get('/auth/login', async (req, res) => {
+  if (!oidc) return res.status(404).end();
+  try {
+    const { url, state } = await oidc.startLogin();
+    setCookie(res, 'oidc_state', state, 600);
+    res.redirect(302, url);
+  } catch (e) {
+    console.error('OIDC-Login fehlgeschlagen:', e.message);
+    appRedirect(res, `${OIDC_PROVIDER_NAME} ist nicht erreichbar.`);
+  }
+});
+
+app.get('/auth/callback', async (req, res) => {
+  if (!oidc) return res.status(404).end();
+  const cookieState = parseCookies(req).oidc_state;
+  setCookie(res, 'oidc_state', '', 0);
+  try {
+    const { claims, idToken } = await oidc.finishLogin(req.query, cookieState);
+    const user = userForClaims(claims);
+    if (!user) return appRedirect(res, 'Für dieses Konto ist kein Zugang eingerichtet (Registrierung ist deaktiviert).');
+    startSession(res, user.id, idToken);
+    appRedirect(res);
+  } catch (e) {
+    console.error('OIDC-Callback fehlgeschlagen:', e.message);
+    appRedirect(res, e.message.startsWith('Anmeldung abgebrochen') ? e.message : 'Die Anmeldung ist fehlgeschlagen. Bitte erneut versuchen.');
+  }
+});
+
 // ---------- Frontend ----------
+// index.html mit <base href>, damit die App auch unter einem Unterpfad (APP_URL mit Pfad) läuft
+const INDEX_HTML = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8')
+  .replace('<head>', `<head>\n  <base href="${APP_PATH.replace(/["<>&]/g, '')}/">`);
+const sendIndex = (req, res) => res.type('html').setHeader('Cache-Control', 'no-cache').send(INDEX_HTML);
+app.get(['/', '/index.html'], sendIndex);
 app.get('/vendor/chart.js', (req, res) => res.sendFile(path.join(__dirname, 'node_modules/chart.js/dist/chart.umd.js')));
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 0 }));
 app.use('/api', (req, res) => res.status(404).json({ error: 'Nicht gefunden.' }));
-app.use((req, res) => (req.method === 'GET' ? res.sendFile(path.join(__dirname, 'public', 'index.html')) : res.status(404).end()));
+app.use((req, res) => (req.method === 'GET' ? sendIndex(req, res) : res.status(404).end()));
 
 if (require.main === module) {
   app.listen(PORT, () => console.log(`Aquarium-Logbuch läuft auf http://localhost:${PORT}`));

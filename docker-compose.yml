@@ -5,10 +5,17 @@ services:
     ports:
       - "3000:3000"
     environment:
-      # Nach dem Anlegen aller Konten auf "false" setzen, dann ist die Registrierung gesperrt
+      # Öffentliche Adresse der App (bei https:// werden Cookies automatisch als Secure gesetzt)
+      APP_URL: "http://localhost:3000"
+      # Anmeldung über Pocket ID (OIDC). In Pocket ID als Callback URL "<APP_URL>/auth/callback"
+      # und als Logout Callback URL "<APP_URL>/" eintragen.
+      # OIDC_ISSUER: "https://id.example.com"
+      # OIDC_CLIENT_ID: ""
+      # OIDC_CLIENT_SECRET: ""
+      # Lokale Anmeldung mit Passwort zusätzlich erlauben (Standard: aus, sobald OIDC aktiv ist)
+      # LOCAL_LOGIN: "false"
+      # Auf "false" setzen, dann werden keine neuen Konten mehr angelegt (auch nicht beim ersten OIDC-Login)
       ALLOW_REGISTRATION: "true"
-      # Auf "true" setzen, sobald die App hinter HTTPS (Reverse Proxy) läuft
-      COOKIE_SECURE: "false"
       # Auf "1" setzen, wenn ein Reverse Proxy davorsteht
       # TRUST_PROXY: "1"
     volumes:

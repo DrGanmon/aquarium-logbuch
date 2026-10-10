@@ -44,7 +44,8 @@ function toast(msg) {
 }
 
 async function api(path, { method = 'GET', body } = {}) {
-  const res = await fetch('/api' + path, {
+  // relativ zu <base href>, damit die App auch unter einem Unterpfad läuft
+  const res = await fetch('api' + path, {
     method,
     headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
     body: body ? JSON.stringify(body) : undefined,
@@ -96,11 +97,24 @@ async function route() {
 }
 
 /* ---------- Anmeldung ---------- */
+// Fehlermeldung vom OIDC-Rücksprung (?auth_error=...) einmalig übernehmen und aus der Adresse entfernen
+let AUTH_ERROR = new URLSearchParams(location.search).get('auth_error') || '';
+if (location.search) history.replaceState(null, '', location.pathname + location.hash);
+
 async function showAuth(mode = 'login') {
   $topbar.hidden = true;
-  let registration = true;
-  try { registration = (await (await fetch('/api/registration')).json()).registration; } catch (e) { /* Standard */ }
-  const err = h('p', { class: 'error', role: 'alert' });
+  let info = { registration: true, localLogin: true, oidc: false, oidcName: '' };
+  try { info = await (await fetch('api/registration')).json(); } catch (e) { /* Standard */ }
+  const registration = info.registration;
+  const err = h('p', { class: 'error', role: 'alert' }, AUTH_ERROR);
+  AUTH_ERROR = '';
+  const oidcBtn = info.oidc ? h('a', { class: 'btn', href: 'auth/login' }, `Mit ${info.oidcName} anmelden`) : null;
+  if (!info.localLogin) {
+    mount(h('div', { class: 'auth' }, h('p', { class: 'muted' }, 'Wasserwerte im Blick behalten.'),
+      h('div', { class: 'card stack' }, h('h1', {}, 'Anmelden'), err, oidcBtn)));
+    oidcBtn?.focus();
+    return;
+  }
   const user = h('input', { id: 'u', autocomplete: 'username', required: true });
   const pass = h('input', { id: 'p', type: 'password', autocomplete: mode === 'login' ? 'current-password' : 'new-password', required: true, minlength: mode === 'login' ? null : '8' });
   const form = h('form', { class: 'card stack', onsubmit: async (e) => {
@@ -115,6 +129,7 @@ async function showAuth(mode = 'login') {
   h('div', { class: 'field' }, h('label', { for: 'p' }, mode === 'login' ? 'Passwort' : 'Passwort (mindestens 8 Zeichen)'), pass),
   err,
   h('button', { class: 'btn', type: 'submit' }, mode === 'login' ? 'Anmelden' : 'Konto erstellen'),
+  mode === 'login' && oidcBtn ? [h('p', { class: 'muted' }, 'oder'), oidcBtn] : null,
   registration && h('button', { class: 'btn ghost', type: 'button', onclick: () => showAuth(mode === 'login' ? 'register' : 'login') }, mode === 'login' ? 'Neues Konto erstellen' : 'Ich habe schon ein Konto'));
   mount(h('div', { class: 'auth' }, h('p', { class: 'muted' }, 'Wasserwerte im Blick behalten.'), form));
   user.focus();
@@ -125,12 +140,16 @@ async function start() {
   CONFIG = await api('/config');
   $topbar.hidden = false;
   document.getElementById('whoami').textContent = ME.username;
+  document.getElementById('btn-pw').hidden = !ME.hasPassword;
   route();
 }
 
 document.getElementById('btn-logout').addEventListener('click', async () => {
-  try { await api('/logout', { method: 'POST' }); } catch (e) { /* egal */ }
-  ME = null; location.hash = '#/'; showAuth();
+  let r = {};
+  try { r = await api('/logout', { method: 'POST' }); } catch (e) { /* egal */ }
+  ME = null;
+  if (r.redirect) { location.href = r.redirect; return; } // auch beim Anmeldedienst abmelden
+  location.hash = '#/'; showAuth();
 });
 document.getElementById('btn-pw').addEventListener('click', () => {
   const err = h('p', { class: 'error', role: 'alert' });
