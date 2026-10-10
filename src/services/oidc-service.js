@@ -52,16 +52,16 @@ async function userForClaims(claims, db) {
   if (email) {
     const localByEmail = await db.users.findByEmail(email);
     if (localByEmail && !localByEmail.oidc_sub) {
-      await db.users.update(localByEmail.id, { oidc_sub: sub });
-      return { ...localByEmail, oidc_sub: sub };
+      await db.users.update(localByEmail.id, { oidc_sub: sub, email_verified: 1 });
+      return { ...localByEmail, oidc_sub: sub, email_verified: 1 };
     }
   }
   // Optional: vorhandenes lokales Konto mit gleichem Benutzernamen übernehmen (Migration)
   if (OIDC_LINK_BY_USERNAME && claims.preferred_username) {
     const local = await db.users.findByUsername(String(claims.preferred_username));
     if (local && !local.oidc_sub) {
-      await db.users.update(local.id, { oidc_sub: sub, email: email || local.email });
-      return { ...local, oidc_sub: sub, email: email || local.email };
+      await db.users.update(local.id, { oidc_sub: sub, email: email || local.email, email_verified: 1 });
+      return { ...local, oidc_sub: sub, email: email || local.email, email_verified: 1 };
     }
   }
   if (!ALLOW_REGISTRATION) return null;
@@ -71,6 +71,7 @@ async function userForClaims(claims, db) {
     password_hash: '',
     oidc_sub: sub,
     email,
+    email_verified: 1,
   });
   return { id: user.id, username, email };
 }

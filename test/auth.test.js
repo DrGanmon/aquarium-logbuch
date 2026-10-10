@@ -4,10 +4,10 @@ const assert = require('node:assert/strict');
 const { createTestEnvironment } = require('./helpers/env');
 
 test('Auth: Registrierung, Validierung und Duplikate', async (t) => {
-  const env = createTestEnvironment();
+  const env = createTestEnvironment({ ADMIN_EMAIL: 'admin@example.com' });
   t.after(async () => await env.cleanup());
 
-  // 1. Erfolgreiche Registrierung
+  // 1. Erfolgreiche Registrierung für regulären Benutzer (benötigt Verifizierung)
   const res1 = await env.request('/api/register', {
     method: 'POST',
     body: { username: 'testuser1', password: 'password123', email: 'test1@example.com' },
@@ -15,34 +15,43 @@ test('Auth: Registrierung, Validierung und Duplikate', async (t) => {
   assert.strictEqual(res1.status, 200);
   assert.strictEqual(res1.data.username, 'testuser1');
   assert.strictEqual(res1.data.email, 'test1@example.com');
+  assert.strictEqual(res1.data.needsVerification, true);
   assert.ok(res1.data.id > 0);
-  assert.ok(res1.cookies.session, 'Session-Cookie muss gesetzt sein');
+
+  // 1b. Erfolgreiche Registrierung für Admin-E-Mail (wird sofort verifiziert & eingeloggt)
+  const resAdmin = await env.request('/api/register', {
+    method: 'POST',
+    body: { username: 'adminuser', password: 'password123', email: 'admin@example.com' },
+  });
+  assert.strictEqual(resAdmin.status, 200);
+  assert.strictEqual(resAdmin.data.needsVerification, false);
+  assert.ok(resAdmin.cookies.session, 'Session-Cookie muss für Admin direkt gesetzt sein');
 
   // 2. Ungültiger Benutzername (zu kurz)
   const resShort = await env.request('/api/register', {
     method: 'POST',
-    body: { username: 'ab', password: 'password123' },
+    body: { username: 'ab', password: 'password123', email: 'short@example.com' },
   });
   assert.strictEqual(resShort.status, 400);
 
   // 3. Ungültige Zeichen im Benutzernamen
   const resInvalid = await env.request('/api/register', {
     method: 'POST',
-    body: { username: 'user@bad!', password: 'password123' },
+    body: { username: 'user@bad!', password: 'password123', email: 'bad@example.com' },
   });
   assert.strictEqual(resInvalid.status, 400);
 
   // 4. Zu kurzes Passwort (< 8 Zeichen)
   const resPw = await env.request('/api/register', {
     method: 'POST',
-    body: { username: 'testuser2', password: 'short' },
+    body: { username: 'testuser2', password: 'short', email: 'shortpw@example.com' },
   });
   assert.strictEqual(resPw.status, 400);
 
   // 5. Duplizierter Benutzername (409 Conflict)
   const resDupUser = await env.request('/api/register', {
     method: 'POST',
-    body: { username: 'testuser1', password: 'password123' },
+    body: { username: 'testuser1', password: 'password123', email: 'another@example.com' },
   });
   assert.strictEqual(resDupUser.status, 409);
 
@@ -77,10 +86,18 @@ test('Auth: Login und Brute-Force Rate Limiting', async (t) => {
   t.after(async () => await env.cleanup());
 
   // Benutzer anlegen
-  await env.request('/api/register', {
+  const regRes = await env.request('/api/register', {
     method: 'POST',
-    body: { username: 'logintest', password: 'correctpassword' },
+    body: { username: 'logintest', password: 'correctpassword', email: 'logintest@example.com' },
   });
+  const db = require('../src/db');
+  const u = await db.users.findByUsername('logintest');
+  if (u && u.email_verify_token) {
+    await env.request('/api/verify-email', {
+      method: 'POST',
+      body: { token: u.email_verify_token },
+    });
+  }
 
   // Falsches Passwort
   const failRes = await env.request('/api/login', {

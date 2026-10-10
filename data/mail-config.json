@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "host": "127.0.0.1",
+  "port": 37031,
+  "secure": false,
+  "requireTls": false,
+  "ignoreTls": true,
+  "rejectUnauthorized": true,
+  "user": "",
+  "pass": "",
+  "from": "Aquarium-Logbuch <noreply@aquarium.local>",
+  "rateLimitMs": 100
+}

@@ -134,17 +134,41 @@ function createTestEnvironment(customEnv = {}) {
    * Hilfsfunktion zum Erstellen und Einloggen eines Benutzers.
    */
   async function createUserAndLogin(username, password = 'password123', email = null) {
+    const userEmail = email || `${username}@example.com`;
     const regRes = await request('/api/register', {
       method: 'POST',
-      body: { username, password, email },
+      body: { username, password, email: userEmail },
     });
+
+    let cookie = regRes.cookieHeader;
+    let cookies = regRes.cookies;
+    let sessionToken = regRes.cookies?.session;
+
+    if (regRes.data?.needsVerification) {
+      const db = require('../../src/db');
+      const u = await db.users.findByUsername(username);
+      if (u && u.email_verify_token) {
+        await request('/api/verify-email', {
+          method: 'POST',
+          body: { token: u.email_verify_token },
+        });
+      }
+      const loginRes = await request('/api/login', {
+        method: 'POST',
+        body: { username, password },
+      });
+      cookie = loginRes.cookieHeader;
+      cookies = loginRes.cookies;
+      sessionToken = loginRes.cookies?.session;
+    }
+
     return {
       id: regRes.data?.id,
       username,
-      email,
-      cookie: regRes.cookieHeader,
-      cookies: regRes.cookies,
-      sessionToken: regRes.cookies.session,
+      email: userEmail,
+      cookie,
+      cookies,
+      sessionToken,
     };
   }
 

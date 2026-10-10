@@ -316,8 +316,23 @@ function showImageModal({ src, title = 'Bildvorschau', caption = null }) {
 window.addEventListener('hashchange', route);
 
 async function route() {
+  const hash = location.hash.replace(/^#\/?/, '');
+  const [routePath, queryString] = hash.split('?');
+  const params = new URLSearchParams(queryString || location.search);
+  const token = params.get('token') || '';
+
+  if (routePath === 'verify-email') {
+    return await viewVerifyEmail(token);
+  }
+  if (routePath === 'reset-password') {
+    return await viewResetPassword(token);
+  }
+  if (routePath === 'forgot-password') {
+    return showAuth('forgot');
+  }
+
   if (!ME) return showAuth();
-  const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
+  const parts = routePath.split('/').filter(Boolean);
   try {
     if (parts[0] === 'species') return await viewSpeciesCatalog(parts[1]);
     if (parts[0] === 'profile') return await viewProfile();
@@ -368,34 +383,240 @@ async function showAuth(mode = 'login') {
     themeAuthBtn
   );
 
-  if (!info.localLogin) {
+  if (!info.localLogin && mode !== 'forgot') {
     mount(h('div', { class: 'auth' }, headerRow,
       h('div', { class: 'card stack' }, h('h1', {}, 'Anmelden'), err, oidcBtn)));
     oidcBtn?.focus();
     return;
   }
+
+  // Modus: Passwort vergessen
+  if (mode === 'forgot') {
+    const identInput = h('input', { id: 'ident', placeholder: 'E-Mail-Adresse oder Benutzername', required: true });
+    const successMsg = h('div', { class: 'compat-box info', style: 'display:none' });
+    const form = h('form', { class: 'card stack', onsubmit: async (e) => {
+      e.preventDefault(); err.textContent = '';
+      try {
+        const res = await api('/forgot-password', {
+          method: 'POST',
+          body: { identifier: identInput.value.trim() },
+        });
+        successMsg.textContent = res.message || 'E-Mail zum Zurücksetzen wurde versendet.';
+        successMsg.style.display = 'block';
+        identInput.value = '';
+      } catch (ex) {
+        err.textContent = ex.message;
+      }
+    } },
+    h('h1', {}, 'Passwort zurücksetzen'),
+    h('p', { class: 'muted', style: 'margin:0 0 .5rem;' }, 'Gib deine E-Mail-Adresse oder deinen Benutzernamen ein. Wir senden dir einen Link, mit dem du ein neues Passwort festlegen kannst.'),
+    h('div', { class: 'field' }, h('label', { for: 'ident' }, 'E-Mail oder Benutzername'), identInput),
+    err,
+    successMsg,
+    h('button', { class: 'btn', type: 'submit' }, 'Link anfordern'),
+    h('button', { class: 'btn ghost', type: 'button', onclick: () => { location.hash = '#/'; showAuth('login'); } }, 'Zurück zur Anmeldung')
+    );
+    mount(h('div', { class: 'auth' }, headerRow, form));
+    identInput.focus();
+    return;
+  }
+
+  // Modus: Login oder Register
   const user = h('input', { id: 'u', autocomplete: 'username', required: true });
-  const mail = mode === 'register' ? h('input', { id: 'e', type: 'email', autocomplete: 'email' }) : null;
+  const mail = mode === 'register' ? h('input', { id: 'e', type: 'email', autocomplete: 'email', required: true }) : null;
   const pass = h('input', { id: 'p', type: 'password', autocomplete: mode === 'login' ? 'current-password' : 'new-password', required: true, minlength: mode === 'login' ? null : '8' });
+  const resendBox = h('div', { style: 'display:none; margin-top:.5rem;' });
+
   const form = h('form', { class: 'card stack', onsubmit: async (e) => {
-    e.preventDefault(); err.textContent = '';
+    e.preventDefault(); err.textContent = ''; resendBox.style.display = 'none';
     try {
       const body = { username: user.value, password: pass.value };
       if (mode === 'register' && mail && mail.value.trim()) body.email = mail.value.trim();
-      await api(mode === 'login' ? '/login' : '/register', { method: 'POST', body });
+      const res = await api(mode === 'login' ? '/login' : '/register', { method: 'POST', body });
+      if (mode === 'register' && res.needsVerification) {
+        mount(h('div', { class: 'auth' }, headerRow,
+          h('div', { class: 'card stack' },
+            h('h1', {}, '🎉 Fast geschafft!'),
+            h('div', { class: 'compat-box info' },
+              h('p', { style: 'margin:0 0 .5rem;' }, h('strong', {}, 'Bestätigungs-E-Mail versendet!')),
+              h('p', { style: 'margin:0;' }, `Wir haben einen Aktivierungslink an `, h('strong', {}, res.email || mail.value), ` gesendet. Bitte öffne den Link in der E-Mail, um dein Konto zu bestätigen.`)
+            ),
+            h('p', { class: 'muted' }, 'Prüfe bitte auch deinen Spam-Ordner, falls die Nachricht nicht innerhalb weniger Minuten ankommt.'),
+            h('button', { class: 'btn', type: 'button', onclick: () => { location.hash = '#/'; showAuth('login'); } }, 'Zur Anmeldung')
+          )
+        ));
+        return;
+      }
       await start();
-    } catch (ex) { err.textContent = ex.message; }
+    } catch (ex) {
+      err.textContent = ex.message;
+      if (ex.message && ex.message.includes('bestätige zuerst deine E-Mail')) {
+        const usernameVal = user.value.trim();
+        resendBox.replaceChildren(
+          h('button', {
+            class: 'btn small ghost',
+            type: 'button',
+            onclick: async () => {
+              try {
+                const r = await api('/resend-verification', { method: 'POST', body: { identifier: usernameVal } });
+                toast(r.message || 'Bestätigungs-E-Mail versendet.');
+              } catch (errResend) {
+                toast(errResend.message);
+              }
+            }
+          }, '📨 Bestätigungs-Link erneut senden')
+        );
+        resendBox.style.display = 'block';
+      }
+    }
   } },
   h('h1', {}, mode === 'login' ? 'Anmelden' : 'Konto erstellen'),
   h('div', { class: 'field' }, h('label', { for: 'u' }, 'Benutzername'), user),
-  mail ? h('div', { class: 'field' }, h('label', { for: 'e' }, 'E-Mail-Adresse (optional)'), mail) : null,
-  h('div', { class: 'field' }, h('label', { for: 'p' }, mode === 'login' ? 'Passwort' : 'Passwort (mindestens 8 Zeichen)'), pass),
+  mail ? h('div', { class: 'field' }, h('label', { for: 'e' }, 'E-Mail-Adresse (für Verifizierung & Passwort-Reset)'), mail) : null,
+  h('div', { class: 'field' },
+    h('div', { class: 'row between', style: 'align-items:baseline;' },
+      h('label', { for: 'p' }, mode === 'login' ? 'Passwort' : 'Passwort (mindestens 8 Zeichen)'),
+      mode === 'login' ? h('a', {
+        href: '#/forgot-password',
+        style: 'font-size:.85rem; color:var(--primary);',
+        onclick: (e) => { e.preventDefault(); location.hash = '#/forgot-password'; showAuth('forgot'); }
+      }, 'Passwort vergessen?') : null
+    ),
+    pass
+  ),
   err,
+  resendBox,
   h('button', { class: 'btn', type: 'submit' }, mode === 'login' ? 'Anmelden' : 'Konto erstellen'),
   mode === 'login' && oidcBtn ? [h('p', { class: 'muted' }, 'oder'), oidcBtn] : null,
   registration && h('button', { class: 'btn ghost', type: 'button', onclick: () => showAuth(mode === 'login' ? 'register' : 'login') }, mode === 'login' ? 'Neues Konto erstellen' : 'Ich habe schon ein Konto'));
   mount(h('div', { class: 'auth' }, headerRow, form));
   user.focus();
+}
+
+async function viewVerifyEmail(token) {
+  $topbar.hidden = true;
+  const headerRow = h('div', { class: 'row between', style: 'margin-bottom:.5rem; align-items:center;' },
+    h('p', { class: 'muted', style: 'margin:0' }, 'Wasserwerte im Blick behalten.')
+  );
+
+  if (!token) {
+    mount(h('div', { class: 'auth' }, headerRow,
+      h('div', { class: 'card stack' },
+        h('h1', {}, '❌ Ungültiger Link'),
+        h('p', { class: 'error' }, 'Es wurde kein Bestätigungstoken übergeben.'),
+        h('a', { class: 'btn', href: '#/' }, 'Zur Startseite')
+      )
+    ));
+    return;
+  }
+
+  mount(h('div', { class: 'auth' }, headerRow,
+    h('div', { class: 'card stack' },
+      h('h1', {}, 'E-Mail-Adresse bestätigen'),
+      h('p', { class: 'muted' }, 'Einen Moment bitte, deine E-Mail-Adresse wird überprüft...')
+    )
+  ));
+
+  try {
+    const res = await api('/verify-email', { method: 'POST', body: { token } });
+    mount(h('div', { class: 'auth' }, headerRow,
+      h('div', { class: 'card stack' },
+        h('h1', {}, '✅ Erfolgreich bestätigt!'),
+        h('div', { class: 'compat-box ok' },
+          h('p', { style: 'margin:0;' }, res.message || 'Deine E-Mail-Adresse wurde erfolgreich bestätigt. Dein Konto ist nun aktiv.')
+        ),
+        h('button', { class: 'btn', type: 'button', onclick: () => { location.hash = '#/'; showAuth('login'); } }, 'Jetzt anmelden')
+      )
+    ));
+  } catch (err) {
+    const resendIdent = h('input', { placeholder: 'E-Mail oder Benutzername' });
+    const resendStatus = h('p', { class: 'muted', style: 'display:none;' });
+    mount(h('div', { class: 'auth' }, headerRow,
+      h('div', { class: 'card stack' },
+        h('h1', {}, '❌ Bestätigung fehlgeschlagen'),
+        h('p', { class: 'error' }, err.message),
+        h('div', { class: 'stack', style: 'margin-top:1rem; gap:.5rem;' },
+          h('strong', {}, 'Neuen Bestätigungslink anfordern:'),
+          resendIdent,
+          resendStatus,
+          h('button', {
+            class: 'btn small',
+            type: 'button',
+            onclick: async () => {
+              if (!resendIdent.value.trim()) return;
+              try {
+                const r = await api('/resend-verification', { method: 'POST', body: { identifier: resendIdent.value.trim() } });
+                resendStatus.textContent = r.message || 'E-Mail versendet.';
+                resendStatus.style.display = 'block';
+              } catch (ex) {
+                resendStatus.textContent = ex.message;
+                resendStatus.style.display = 'block';
+              }
+            }
+          }, 'Link erneut anfordern')
+        ),
+        h('button', { class: 'btn ghost', type: 'button', style: 'margin-top:.5rem;', onclick: () => { location.hash = '#/'; showAuth('login'); } }, 'Zurück zur Anmeldung')
+      )
+    ));
+  }
+}
+
+async function viewResetPassword(token) {
+  $topbar.hidden = true;
+  const headerRow = h('div', { class: 'row between', style: 'margin-bottom:.5rem; align-items:center;' },
+    h('p', { class: 'muted', style: 'margin:0' }, 'Wasserwerte im Blick behalten.')
+  );
+
+  if (!token) {
+    mount(h('div', { class: 'auth' }, headerRow,
+      h('div', { class: 'card stack' },
+        h('h1', {}, '❌ Ungültiger Link'),
+        h('p', { class: 'error' }, 'Es wurde kein Token zum Zurücksetzen des Passworts übergeben.'),
+        h('a', { class: 'btn', href: '#/' }, 'Zur Startseite')
+      )
+    ));
+    return;
+  }
+
+  const p1 = h('input', { type: 'password', required: true, minlength: '8', placeholder: 'Mindestens 8 Zeichen' });
+  const p2 = h('input', { type: 'password', required: true, minlength: '8', placeholder: 'Passwort wiederholen' });
+  const err = h('p', { class: 'error', role: 'alert' });
+
+  const form = h('form', { class: 'card stack', onsubmit: async (e) => {
+    e.preventDefault(); err.textContent = '';
+    if (p1.value !== p2.value) {
+      err.textContent = 'Die eingegebenen Passwörter stimmen nicht überein.';
+      return;
+    }
+    try {
+      const res = await api('/reset-password', {
+        method: 'POST',
+        body: { token, password: p1.value },
+      });
+      mount(h('div', { class: 'auth' }, headerRow,
+        h('div', { class: 'card stack' },
+          h('h1', {}, '🎉 Passwort geändert!'),
+          h('div', { class: 'compat-box ok' },
+            h('p', { style: 'margin:0;' }, res.message || 'Dein Passwort wurde erfolgreich aktualisiert. Du kannst dich jetzt damit anmelden.')
+          ),
+          h('button', { class: 'btn', type: 'button', onclick: () => { location.hash = '#/'; showAuth('login'); } }, 'Jetzt anmelden')
+        )
+      ));
+    } catch (ex) {
+      err.textContent = ex.message;
+    }
+  } },
+  h('h1', {}, 'Neues Passwort festlegen'),
+  h('p', { class: 'muted', style: 'margin:0 0 .5rem;' }, 'Gib bitte dein neues Passwort ein.'),
+  h('div', { class: 'field' }, h('label', {}, 'Neues Passwort'), p1),
+  h('div', { class: 'field' }, h('label', {}, 'Passwort wiederholen'), p2),
+  err,
+  h('button', { class: 'btn', type: 'submit' }, 'Passwort speichern'),
+  h('button', { class: 'btn ghost', type: 'button', onclick: () => { location.hash = '#/'; showAuth('login'); } }, 'Abbrechen')
+  );
+
+  mount(h('div', { class: 'auth' }, headerRow, form));
+  p1.focus();
 }
 
 function updateTopbarUser() {
@@ -2215,14 +2436,17 @@ async function viewMeasure(id) {
 
 /* ---------- Admin / Benutzerverwaltung ---------- */
 async function viewAdmin() {
-  const [users, logData, backupData] = await Promise.all([
+  const [users, logData, backupData, mailData] = await Promise.all([
     api('/admin/users'),
     api('/admin/logs').catch(() => ({ logs: [], logPath: 'data/aquarium.log' })),
     api('/admin/backups').catch(() => ({ backups: [], config: { enabled: false, intervalHours: 24, retentionCount: 10, includeFiles: true } })),
+    api('/admin/mail').catch(() => ({ config: { enabled: false, host: '', port: 587, secure: false, requireTls: false, from: '', user: '', rateLimitMs: 500, hasPassword: false }, queue: { queueLength: 0, sentCount: 0, failedCount: 0 } })),
   ]);
 
   const backups = backupData.backups || [];
   const backupConfig = backupData.config || { enabled: false, intervalHours: 24, retentionCount: 10, includeFiles: true };
+  const mailConfig = mailData.config || { enabled: false, host: '', port: 587, secure: false, requireTls: false, from: '', user: '', rateLimitMs: 500, hasPassword: false };
+  const mailQueue = mailData.queue || { queueLength: 0, sentCount: 0, failedCount: 0, lastSentAt: null, lastError: null };
 
   const rows = users.map((u) => {
     const isSelf = u.id === ME.id;
@@ -2234,6 +2458,7 @@ async function viewAdmin() {
     return h('tr', {},
       h('td', {}, h('strong', {}, u.username), isSelf ? h('span', { class: 'muted' }, ' (Du)') : null),
       h('td', {}, u.email || h('span', { class: 'muted' }, '–')),
+      h('td', {}, u.emailVerified ? h('span', { class: 'chip ok' }, '✓ Verifiziert') : h('span', { class: 'chip warn' }, 'Unbestätigt')),
       h('td', {}, authTypes.join(' / ')),
       h('td', {}, String(u.aquariumCount)),
       h('td', {}, u.isAdmin ? h('span', { class: 'chip ok' }, 'Admin') : h('span', { class: 'chip none' }, 'Benutzer')),
@@ -2245,7 +2470,7 @@ async function viewAdmin() {
             if (!confirm(`Benutzer „${u.username}“ mit allen zugehörigen Aquarien und Messwerten endgültig löschen?`)) return;
             try {
               await api(`/admin/users/${u.id}`, { method: 'DELETE' });
-              toast(`Benutzer „${u.username}“ gelöscht.`);
+              toast(`Benutzer „${u.username}�� gelöscht.`);
               await viewAdmin();
             } catch (ex) { toast(ex.message); }
           } }, 'Löschen') : null
@@ -2253,6 +2478,100 @@ async function viewAdmin() {
       )
     );
   });
+
+  /* ---------- Mail / SMTP UI Komponenten ---------- */
+  const chkMailEnabled = h('input', { type: 'checkbox', checked: !!mailConfig.enabled, id: 'chk-mail-enabled' });
+  const inpMailHost = h('input', { value: mailConfig.host || '', placeholder: 'z. B. smtp.example.com', style: 'max-width:240px;' });
+  const inpMailPort = h('input', { type: 'number', value: String(mailConfig.port || 587), style: 'max-width:90px;' });
+  
+  const encInitial = mailConfig.secure ? 'ssl' : (mailConfig.ignoreTls ? 'none' : 'starttls');
+  const selMailEnc = h('select', { style: 'max-width:180px;' },
+    h('option', { value: 'starttls', selected: encInitial === 'starttls' }, 'STARTTLS (Standard / 587)'),
+    h('option', { value: 'ssl', selected: encInitial === 'ssl' }, 'SSL / TLS direkt (465)'),
+    h('option', { value: 'none', selected: encInitial === 'none' }, 'Keine / Unverschlüsselt (25/1025)')
+  );
+
+  const inpMailUser = h('input', { value: mailConfig.user || '', placeholder: 'SMTP-Benutzername', style: 'max-width:200px;' });
+  const inpMailPass = h('input', {
+    type: 'password',
+    autocomplete: 'new-password',
+    placeholder: mailConfig.hasPassword ? '•••••••• (unverändert)' : 'SMTP-Passwort',
+    style: 'max-width:200px;'
+  });
+  const inpMailFrom = h('input', {
+    value: mailConfig.from || 'Aquarium-Logbuch <noreply@aquarium.local>',
+    placeholder: 'Absenderadresse',
+    style: 'max-width:280px;'
+  });
+  const inpMailRateLimit = h('input', {
+    type: 'number',
+    min: '100',
+    max: '60000',
+    step: '100',
+    value: String(mailConfig.rateLimitMs || 500),
+    style: 'max-width:100px;'
+  });
+
+  const mailErr = h('p', { class: 'error', role: 'alert' });
+
+  const btnSaveMailConfig = h('button', {
+    class: 'btn small',
+    type: 'button',
+    onclick: async () => {
+      mailErr.textContent = '';
+      try {
+        const encVal = selMailEnc.value;
+        const body = {
+          enabled: chkMailEnabled.checked,
+          host: inpMailHost.value.trim(),
+          port: Number(inpMailPort.value) || 587,
+          secure: encVal === 'ssl',
+          requireTls: encVal === 'starttls',
+          ignoreTls: encVal === 'none',
+          user: inpMailUser.value.trim(),
+          from: inpMailFrom.value.trim(),
+          rateLimitMs: Number(inpMailRateLimit.value) || 500,
+        };
+        if (inpMailPass.value) {
+          body.pass = inpMailPass.value;
+        }
+        await api('/admin/mail', { method: 'PUT', body });
+        toast('SMTP-Einstellungen erfolgreich gespeichert.');
+        await viewAdmin();
+      } catch (err) {
+        mailErr.textContent = err.message;
+      }
+    }
+  }, 'SMTP-Einstellungen speichern');
+
+  const inpTestMailTo = h('input', {
+    type: 'email',
+    placeholder: 'Empfänger-E-Mail',
+    value: ME.email || '',
+    style: 'max-width: 240px;'
+  });
+  const testMailStatus = h('span', { class: 'muted', style: 'font-size:.85rem;' });
+
+  const btnSendTestMail = h('button', {
+    class: 'btn small ghost',
+    type: 'button',
+    onclick: async () => {
+      const target = inpTestMailTo.value.trim();
+      if (!target) {
+        toast('Bitte gib eine gültige Empfänger-E-Mail ein.');
+        return;
+      }
+      testMailStatus.textContent = 'Sende Test-E-Mail...';
+      try {
+        const res = await api('/admin/mail/test', { method: 'POST', body: { to: target } });
+        testMailStatus.textContent = '✅ ' + (res.message || 'Test-E-Mail erfolgreich versendet.');
+        toast('Test-E-Mail versendet!');
+      } catch (err) {
+        testMailStatus.textContent = '❌ ' + err.message;
+        toast(`Fehler beim Senden: ${err.message}`);
+      }
+    }
+  }, '✉️ Test-E-Mail senden');
 
   /* Backup & Restore UI Komponenten */
   const fileInput = h('input', {
@@ -2465,6 +2784,7 @@ async function viewAdmin() {
             h('tr', {},
               h('th', {}, 'Benutzername'),
               h('th', {}, 'E-Mail'),
+              h('th', {}, 'Status'),
               h('th', {}, 'Anmeldung'),
               h('th', {}, 'Aquarien'),
               h('th', {}, 'Rolle'),
@@ -2473,6 +2793,45 @@ async function viewAdmin() {
             )
           ),
           h('tbody', {}, rows)
+        )
+      )
+    ),
+    h('div', { class: 'card stack' },
+      h('div', { class: 'row between', style: 'align-items:center;' },
+        h('div', {},
+          h('h2', { style: 'margin:0' }, '📧 E-Mail- & SMTP-Server-Konfiguration'),
+          h('span', { class: 'muted' }, 'Konfiguriere den SMTP-Ausgangsserver für E-Mail-Verifizierungen und Passwort-Reset.')
+        ),
+        mailConfig.enabled ? h('span', { class: 'chip ok' }, 'Aktiviert') : h('span', { class: 'chip none' }, 'Deaktiviert')
+      ),
+      mailErr,
+      h('div', { class: 'card stack', style: 'background: var(--paper); border: 1px solid var(--line); padding: 1rem; gap: .75rem;' },
+        h('div', { class: 'row', style: 'gap: 1rem; flex-wrap: wrap; align-items: center;' },
+          h('label', { class: 'row', style: 'gap:.4rem; cursor:pointer;' }, chkMailEnabled, h('strong', {}, 'E-Mail-Versand via SMTP aktivieren')),
+          h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'SMTP-Host:'), inpMailHost),
+          h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'Port:'), inpMailPort),
+          h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'Verschlüsselung:'), selMailEnc)
+        ),
+        h('div', { class: 'row', style: 'gap: 1rem; flex-wrap: wrap; align-items: center;' },
+          h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'Benutzer:'), inpMailUser),
+          h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'Passwort:'), inpMailPass),
+          h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'Absender (From):'), inpMailFrom),
+          h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'Warteschlangen-Pause (ms):'), inpMailRateLimit)
+        ),
+        h('div', { class: 'row', style: 'margin-top:.4rem;' }, btnSaveMailConfig)
+      ),
+      h('div', { class: 'row between', style: 'align-items: center; flex-wrap: wrap; gap: .75rem; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: .75rem 1rem;' },
+        h('div', { class: 'row', style: 'align-items: center; gap: .5rem; flex-wrap: wrap;' },
+          h('strong', {}, '🧪 Test-E-Mail:'),
+          inpTestMailTo,
+          btnSendTestMail,
+          testMailStatus
+        ),
+        h('div', { class: 'row', style: 'gap: .5rem; font-size: .85rem;' },
+          h('span', { class: 'chip none' }, `Queue: ${mailQueue.queueLength || 0}`),
+          h('span', { class: 'chip ok' }, `Gesendet: ${mailQueue.sentCount || 0}`),
+          mailQueue.failedCount > 0 ? h('span', { class: 'chip crit' }, `Fehler: ${mailQueue.failedCount}`) : null,
+          mailQueue.lastSentAt ? h('span', { class: 'muted' }, `Letzte: ${fmtDate(mailQueue.lastSentAt)}`) : null
         )
       )
     ),
@@ -2535,6 +2894,7 @@ function adminUserDialog(user) {
   const f = {
     username: h('input', { required: true, maxlength: '40', value: user?.username || '' }),
     email: h('input', { type: 'email', maxlength: '120', value: user?.email || '', placeholder: 'z. B. max@example.com' }),
+    emailVerified: h('input', { type: 'checkbox', checked: user ? Boolean(user.emailVerified) : true }),
     oidcSub: h('input', { maxlength: '255', value: user?.oidcSub || '', placeholder: 'z. B. Sub-ID aus Pocket ID (optional)' }),
     password: h('input', {
       type: 'password',
@@ -2549,6 +2909,7 @@ function adminUserDialog(user) {
     const body = {
       username: f.username.value.trim(),
       email: f.email.value.trim() || undefined,
+      emailVerified: f.emailVerified.checked,
       oidcSub: f.oidcSub.value.trim() || (editing ? null : undefined),
       password: f.password.value || undefined,
     };
@@ -2571,6 +2932,9 @@ function adminUserDialog(user) {
   h('h2', {}, editing ? `Benutzer „${user.username}“ bearbeiten` : 'Neuen Benutzer anlegen'),
   h('div', { class: 'field' }, h('label', {}, 'Benutzername'), f.username),
   h('div', { class: 'field' }, h('label', {}, 'E-Mail-Adresse'), f.email),
+  h('div', { class: 'field' },
+    h('label', { class: 'row', style: 'gap:.4rem; cursor:pointer;' }, f.emailVerified, 'E-Mail-Adresse als verifiziert markieren')
+  ),
   h('div', { class: 'field' }, h('label', {}, 'OIDC-Benutzer-ID (sub / Pocket ID)'), f.oidcSub),
   h('div', { class: 'field' },
     h('label', {}, editing ? 'Neues Passwort (optional)' : 'Passwort (optional für OIDC, mindestens 8 Zeichen für lokale Anmeldung)'),

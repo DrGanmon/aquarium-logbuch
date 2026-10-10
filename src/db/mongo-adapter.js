@@ -86,6 +86,8 @@ class MongoAdapter {
         { oidc_sub: 1 },
         { unique: true, partialFilterExpression: { oidc_sub: { $type: 'string' } } }
       );
+      await db.collection('users').createIndex({ email_verify_token: 1 }, { sparse: true });
+      await db.collection('users').createIndex({ password_reset_token: 1 }, { sparse: true });
       await db.collection('users').createIndex({ id: 1 }, { unique: true });
 
       // Sessions
@@ -153,7 +155,25 @@ class MongoAdapter {
         if (excludeId != null) filter.id = { $ne: Number(excludeId) };
         return (await db.collection('users').findOne(filter)) || null;
       },
-      async create({ username, password_hash = '', email = null, oidc_sub = null }) {
+      async findByEmailVerifyToken(token) {
+        if (!token) return null;
+        return (await db.collection('users').findOne({ email_verify_token: String(token) })) || null;
+      },
+      async findByPasswordResetToken(token) {
+        if (!token) return null;
+        return (await db.collection('users').findOne({ password_reset_token: String(token) })) || null;
+      },
+      async create({
+        username,
+        password_hash = '',
+        email = null,
+        oidc_sub = null,
+        email_verified = 0,
+        email_verify_token = null,
+        email_verify_expires = null,
+        password_reset_token = null,
+        password_reset_expires = null,
+      }) {
         const id = await self.getNextSequence('users');
         const doc = {
           _id: id,
@@ -168,10 +188,15 @@ class MongoAdapter {
           selected_suite: null,
           selected_tests: null,
           oidc_sub: oidc_sub || null,
+          email_verified: email_verified ? 1 : 0,
+          email_verify_token: email_verify_token || null,
+          email_verify_expires: email_verify_expires || null,
+          password_reset_token: password_reset_token || null,
+          password_reset_expires: password_reset_expires || null,
           created_at: new Date().toISOString(),
         };
         await db.collection('users').insertOne(doc);
-        return { id, username, email, oidc_sub };
+        return { id, username, email, oidc_sub, email_verified: email_verified ? 1 : 0 };
       },
       async update(id, fields = {}) {
         const numId = Number(id);
@@ -187,11 +212,18 @@ class MongoAdapter {
           'avatar_file',
           'selected_suite',
           'selected_tests',
+          'email_verified',
+          'email_verify_token',
+          'email_verify_expires',
+          'password_reset_token',
+          'password_reset_expires',
         ];
 
         for (const k of allowed) {
           if (fields[k] !== undefined) {
-            updateFields[k] = fields[k];
+            let val = fields[k];
+            if (k === 'email_verified') val = val ? 1 : 0;
+            updateFields[k] = val;
           }
         }
 
@@ -229,6 +261,7 @@ class MongoAdapter {
           email: u.email || null,
           oidc_sub: u.oidc_sub || null,
           password_hash: u.password_hash || '',
+          email_verified: u.email_verified !== undefined ? u.email_verified : 1,
           created_at: u.created_at,
           aquarium_count: countMap.get(u.id) || 0,
         }));
@@ -270,6 +303,10 @@ class MongoAdapter {
       },
       async delete(tokenHash) {
         await db.collection('sessions').deleteOne({ token_hash: tokenHash });
+      },
+      async deleteForUser(userId) {
+        if (!userId) return;
+        await db.collection('sessions').deleteMany({ user_id: Number(userId) });
       },
       async cleanExpired() {
         await db.collection('sessions').deleteMany({ expires_at: { $lt: Date.now() } });

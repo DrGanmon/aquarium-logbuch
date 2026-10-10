@@ -127,8 +127,15 @@ class SqliteAdapter {
     if (!hasColumn('aquariums', 'description')) this.db.exec('ALTER TABLE aquariums ADD COLUMN description TEXT');
     if (!hasColumn('stock', 'name')) this.db.exec('ALTER TABLE stock ADD COLUMN name TEXT');
     if (!hasColumn('stock', 'image_file')) this.db.exec('ALTER TABLE stock ADD COLUMN image_file TEXT');
+    if (!hasColumn('users', 'email_verified')) this.db.exec('ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 1');
+    if (!hasColumn('users', 'email_verify_token')) this.db.exec('ALTER TABLE users ADD COLUMN email_verify_token TEXT');
+    if (!hasColumn('users', 'email_verify_expires')) this.db.exec('ALTER TABLE users ADD COLUMN email_verify_expires INTEGER');
+    if (!hasColumn('users', 'password_reset_token')) this.db.exec('ALTER TABLE users ADD COLUMN password_reset_token TEXT');
+    if (!hasColumn('users', 'password_reset_expires')) this.db.exec('ALTER TABLE users ADD COLUMN password_reset_expires INTEGER');
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oidc ON users(oidc_sub) WHERE oidc_sub IS NOT NULL');
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email != \'\'');
+    this.db.exec('CREATE INDEX IF NOT EXISTS idx_users_verify_token ON users(email_verify_token) WHERE email_verify_token IS NOT NULL');
+    this.db.exec('CREATE INDEX IF NOT EXISTS idx_users_reset_token ON users(password_reset_token) WHERE password_reset_token IS NOT NULL');
 
     this._setupRepositories();
     this._initialized = true;
@@ -180,12 +187,50 @@ class SqliteAdapter {
         }
         return db.prepare('SELECT * FROM users WHERE oidc_sub = ?').get(oidcSub) || null;
       },
-      async create({ username, password_hash = '', email = null, oidc_sub = null }) {
+      async findByEmailVerifyToken(token) {
+        if (!token) return null;
+        return db.prepare('SELECT * FROM users WHERE email_verify_token = ?').get(token) || null;
+      },
+      async findByPasswordResetToken(token) {
+        if (!token) return null;
+        return db.prepare('SELECT * FROM users WHERE password_reset_token = ?').get(token) || null;
+      },
+      async create({
+        username,
+        password_hash = '',
+        email = null,
+        oidc_sub = null,
+        email_verified = 0,
+        email_verify_token = null,
+        email_verify_expires = null,
+        password_reset_token = null,
+        password_reset_expires = null,
+      }) {
         const info = db
-          .prepare('INSERT INTO users (username, password_hash, email, oidc_sub) VALUES (?, ?, ?, ?)')
-          .run(username, password_hash, email, oidc_sub);
+          .prepare(
+            'INSERT INTO users (username, password_hash, email, oidc_sub, email_verified, email_verify_token, email_verify_expires, password_reset_token, password_reset_expires) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+          )
+          .run(
+            username,
+            password_hash,
+            email,
+            oidc_sub,
+            email_verified ? 1 : 0,
+            email_verify_token,
+            email_verify_expires,
+            password_reset_token,
+            password_reset_expires
+          );
         const id = Number(info.lastInsertRowid);
-        return { id, username, email, oidc_sub };
+        return {
+          id,
+          username,
+          email,
+          oidc_sub,
+          email_verified: email_verified ? 1 : 0,
+          email_verify_token,
+          email_verify_expires,
+        };
       },
       async update(id, fields = {}) {
         const setClauses = [];
@@ -201,12 +246,19 @@ class SqliteAdapter {
           'avatar_file',
           'selected_suite',
           'selected_tests',
+          'email_verified',
+          'email_verify_token',
+          'email_verify_expires',
+          'password_reset_token',
+          'password_reset_expires',
         ];
 
         for (const k of allowed) {
           if (fields[k] !== undefined) {
             setClauses.push(`${k} = ?`);
-            params.push(fields[k]);
+            let val = fields[k];
+            if (k === 'email_verified') val = val ? 1 : 0;
+            params.push(val);
           }
         }
 
@@ -223,7 +275,7 @@ class SqliteAdapter {
         return db
           .prepare(
             `
-          SELECT u.id, u.username, u.email, u.oidc_sub, u.password_hash, u.created_at,
+          SELECT u.id, u.username, u.email, u.oidc_sub, u.password_hash, u.created_at, u.email_verified,
                  COUNT(a.id) AS aquarium_count
           FROM users u
           LEFT JOIN aquariums a ON a.user_id = u.id
@@ -261,6 +313,10 @@ class SqliteAdapter {
       },
       async delete(tokenHash) {
         db.prepare('DELETE FROM sessions WHERE token_hash = ?').run(tokenHash);
+      },
+      async deleteForUser(userId) {
+        if (!userId) return;
+        db.prepare('DELETE FROM sessions WHERE user_id = ?').run(userId);
       },
       async cleanExpired() {
         db.prepare('DELETE FROM sessions WHERE expires_at < ?').run(Date.now());
@@ -955,8 +1011,8 @@ class SqliteAdapter {
 
       // Users
       const insertUser = db.prepare(`
-        INSERT INTO users (id, username, password_hash, email, oidc_sub, first_name, last_name, bio, avatar_file, selected_suite, selected_tests, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO users (id, username, password_hash, email, oidc_sub, first_name, last_name, bio, avatar_file, selected_suite, selected_tests, email_verified, email_verify_token, email_verify_expires, password_reset_token, password_reset_expires, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       for (const u of users) {
         insertUser.run(
@@ -971,6 +1027,11 @@ class SqliteAdapter {
           u.avatar_file || null,
           u.selected_suite || null,
           u.selected_tests || null,
+          u.email_verified !== undefined ? (u.email_verified ? 1 : 0) : 1,
+          u.email_verify_token || null,
+          u.email_verify_expires || null,
+          u.password_reset_token || null,
+          u.password_reset_expires || null,
           u.created_at || new Date().toISOString()
         );
       }

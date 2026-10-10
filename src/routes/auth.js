@@ -1,5 +1,6 @@
 'use strict';
 const express = require('express');
+const crypto = require('crypto');
 const db = require('../db');
 const {
   LOCAL_LOGIN,
@@ -16,6 +17,7 @@ const { parseCookies, setSessionCookie, startSession } = require('../utils/cooki
 const { wrap, str } = require('../utils/helpers');
 const { auth } = require('../middleware/auth');
 const { saveAvatar, deleteImage, getImagePath, getMimeType } = require('../services/image-service');
+const { mailService } = require('../services/mail-service');
 
 const router = express.Router();
 
@@ -39,6 +41,7 @@ function serializeMe(u) {
     selectedSuite: u.selected_suite || 'jbl-pro',
     selectedTests: selectedTests,
     email: u.email || null,
+    emailVerified: Boolean(u.email_verified),
     registration: ALLOW_REGISTRATION,
     hasPassword: LOCAL_LOGIN && hasLocalPassword(u),
     hasOidc: !!u.oidc_sub,
@@ -61,8 +64,8 @@ router.post(
     if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) {
       return res.status(400).json({ error: 'Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).' });
     }
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({ error: 'Ungültige E-Mail-Adresse.' });
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Gültige E-Mail-Adresse ist erforderlich.' });
     }
     if (password.length < 8 || password.length > 200) {
       return res.status(400).json({ error: 'Das Passwort braucht mindestens 8 Zeichen.' });
@@ -70,16 +73,44 @@ router.post(
     if (await db.users.findByUsername(username)) {
       return res.status(409).json({ error: 'Dieser Benutzername ist vergeben.' });
     }
-    if (email && (await db.users.findByEmail(email))) {
+    if (await db.users.findByEmail(email)) {
       return res.status(409).json({ error: 'Diese E-Mail-Adresse ist bereits vergeben.' });
     }
+
+    const isAdmin = isEmailAdmin(email);
+    let emailVerified = isAdmin ? 1 : 0;
+    let verifyToken = null;
+    let verifyExpires = null;
+
+    if (!isAdmin) {
+      verifyToken = crypto.randomBytes(32).toString('hex');
+      verifyExpires = Date.now() + 24 * 3600 * 1000; // 24 Stunden
+    }
+
     const user = await db.users.create({
       username,
       password_hash: await hashPassword(password),
       email,
+      email_verified: emailVerified,
+      email_verify_token: verifyToken,
+      email_verify_expires: verifyExpires,
     });
-    await startSession(res, db, user.id);
-    res.json({ id: user.id, username, email });
+
+    if (isAdmin) {
+      await startSession(res, db, user.id);
+      return res.json({ id: user.id, username, email, needsVerification: false });
+    }
+
+    // Bestätigungs-E-Mail versenden
+    mailService.sendVerificationEmail(user, verifyToken);
+
+    res.json({
+      id: user.id,
+      username,
+      email,
+      needsVerification: true,
+      message: 'Konto erfolgreich erstellt! Wir haben dir einen Bestätigungslink per E-Mail gesendet. Bitte bestätige deine E-Mail-Adresse vor der ersten Anmeldung.',
+    });
   })
 );
 
@@ -95,12 +126,24 @@ router.post(
     if (tooManyAttempts(key)) {
       return res.status(429).json({ error: 'Zu viele Versuche. Bitte in ein paar Minuten erneut probieren.' });
     }
-    const user = await db.users.findByUsername(username);
+    const user = (await db.users.findByUsername(username)) || (await db.users.findByEmail(username));
     const ok = (await verifyPassword(password, user ? user.password_hash : DUMMY_HASH)) && !!user;
     if (!ok) {
       noteAttempt(key);
       return res.status(401).json({ error: 'Benutzername oder Passwort stimmt nicht.' });
     }
+
+    // E-Mail-Verifizierung prüfen (außer für Admins)
+    const isAdmin = isEmailAdmin(user.email);
+    if (!user.email_verified && !isAdmin) {
+      noteAttempt(key);
+      return res.status(403).json({
+        error: 'Bitte bestätige zuerst deine E-Mail-Adresse über den Link in deiner E-Mail.',
+        unverified: true,
+        email: user.email,
+      });
+    }
+
     clearAttempts(key);
     await startSession(res, db, user.id);
     res.json({ id: user.id, username: user.username });
@@ -287,6 +330,142 @@ router.post(
     }
     await db.users.update(req.user.id, { password_hash: await hashPassword(next) });
     res.json({ ok: true });
+  })
+);
+
+/* ---------- E-Mail-Verifizierung & Passwort-Reset Endpunkte ---------- */
+
+router.all(
+  '/verify-email',
+  wrap(async (req, res) => {
+    const token = str(req.body?.token || req.query?.token, 128);
+    if (!token) {
+      return res.status(400).json({ error: 'Kein Bestätigungstoken angegeben.' });
+    }
+    const user = await db.users.findByEmailVerifyToken(token);
+    if (!user) {
+      return res.status(400).json({ error: 'Ungültiger oder bereits verwendeter Bestätigungslink.' });
+    }
+    if (user.email_verify_expires && user.email_verify_expires < Date.now()) {
+      return res.status(400).json({ error: 'Dieser Bestätigungslink ist abgelaufen. Bitte fordere einen neuen an.' });
+    }
+    await db.users.update(user.id, {
+      email_verified: 1,
+      email_verify_token: null,
+      email_verify_expires: null,
+    });
+    res.json({
+      ok: true,
+      message: 'Deine E-Mail-Adresse wurde erfolgreich bestätigt! Du kannst dich jetzt anmelden.',
+      user: { id: user.id, username: user.username, email: user.email },
+    });
+  })
+);
+
+router.post(
+  '/resend-verification',
+  wrap(async (req, res) => {
+    const identifier = str(req.body?.identifier || req.body?.email || req.body?.username, 120);
+    const key = `resend-verify|${req.ip}|${identifier.toLowerCase()}`;
+    if (tooManyAttempts(key)) {
+      return res.status(429).json({ error: 'Zu viele Anfragen. Bitte warte einige Minuten.' });
+    }
+    noteAttempt(key);
+
+    if (identifier) {
+      const user = (await db.users.findByEmail(identifier)) || (await db.users.findByUsername(identifier));
+      if (user && !user.email_verified && !isEmailAdmin(user.email) && user.email) {
+        const token = crypto.randomBytes(32).toString('hex');
+        const expires = Date.now() + 24 * 3600 * 1000;
+        await db.users.update(user.id, {
+          email_verify_token: token,
+          email_verify_expires: expires,
+        });
+        mailService.sendVerificationEmail(user, token);
+      }
+    }
+    res.json({
+      ok: true,
+      message: 'Falls ein unbestätigtes Konto existiert, wurde eine neue Bestätigungs-E-Mail versendet.',
+    });
+  })
+);
+
+router.post(
+  '/forgot-password',
+  wrap(async (req, res) => {
+    if (!LOCAL_LOGIN) {
+      return res.status(403).json({ error: 'Passwörter werden über den Anmeldedienst verwaltet.' });
+    }
+    const identifier = str(req.body?.identifier || req.body?.email || req.body?.username, 120);
+    const key = `forgot-pw|${req.ip}`;
+    if (tooManyAttempts(key)) {
+      return res.status(429).json({ error: 'Zu viele Anfragen. Bitte in ein paar Minuten erneut probieren.' });
+    }
+    noteAttempt(key);
+
+    if (identifier) {
+      const user = (await db.users.findByEmail(identifier)) || (await db.users.findByUsername(identifier));
+      if (user && user.email && hasLocalPassword(user)) {
+        const token = crypto.randomBytes(32).toString('hex');
+        const expires = Date.now() + 3600 * 1000; // 1 Stunde
+        await db.users.update(user.id, {
+          password_reset_token: token,
+          password_reset_expires: expires,
+        });
+        mailService.sendPasswordResetEmail(user, token);
+      }
+    }
+
+    res.json({
+      ok: true,
+      message: 'Falls ein passendes Konto mit lokaler Anmeldung existiert, wurde ein Link zum Zurücksetzen des Passworts versendet.',
+    });
+  })
+);
+
+router.post(
+  '/reset-password',
+  wrap(async (req, res) => {
+    if (!LOCAL_LOGIN) {
+      return res.status(403).json({ error: 'Passwörter werden über den Anmeldedienst verwaltet.' });
+    }
+    const token = str(req.body?.token, 128);
+    const password = typeof req.body?.password === 'string' ? req.body.password : '';
+    const key = `reset-pw|${req.ip}`;
+    if (tooManyAttempts(key)) {
+      return res.status(429).json({ error: 'Zu viele Versuche. Bitte in ein paar Minuten erneut probieren.' });
+    }
+
+    if (!token) {
+      return res.status(400).json({ error: 'Kein Token zum Zurücksetzen angegeben.' });
+    }
+    if (password.length < 8 || password.length > 200) {
+      return res.status(400).json({ error: 'Das Passwort braucht mindestens 8 Zeichen.' });
+    }
+
+    const user = await db.users.findByPasswordResetToken(token);
+    if (!user) {
+      noteAttempt(key);
+      return res.status(400).json({ error: 'Dieser Link zum Zurücksetzen ist ungültig oder wurde bereits verwendet.' });
+    }
+    if (user.password_reset_expires && user.password_reset_expires < Date.now()) {
+      noteAttempt(key);
+      return res.status(400).json({ error: 'Dieser Link zum Zurücksetzen ist abgelaufen. Bitte fordere einen neuen an.' });
+    }
+
+    const passwordHash = await hashPassword(password);
+    await db.users.update(user.id, {
+      password_hash: passwordHash,
+      password_reset_token: null,
+      password_reset_expires: null,
+    });
+
+    // Alle bestehenden Sitzungen des Benutzers beenden
+    await db.sessions.deleteForUser(user.id);
+    clearAttempts(key);
+
+    res.json({ ok: true, message: 'Dein Passwort wurde erfolgreich geändert. Du kannst dich jetzt damit anmelden.' });
   })
 );
 

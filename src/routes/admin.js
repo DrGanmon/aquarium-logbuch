@@ -7,6 +7,7 @@ const { wrap, str } = require('../utils/helpers');
 const { auth, requireAdmin } = require('../middleware/auth');
 const { deleteImage } = require('../services/image-service');
 const { backupService } = require('../services/backup-service');
+const { mailService } = require('../services/mail-service');
 const path = require('path');
 const logger = require('../utils/logger');
 
@@ -23,6 +24,7 @@ router.get(
         id: u.id,
         username: u.username,
         email: u.email || null,
+        emailVerified: Boolean(u.email_verified),
         oidcSub: u.oidc_sub || null,
         hasPassword: !!(u.password_hash && u.password_hash.includes(':')),
         hasOidc: !!u.oidc_sub,
@@ -43,6 +45,7 @@ router.post(
     const email = req.body.email ? str(req.body.email, 120).toLowerCase() : null;
     const oidcSub = req.body.oidcSub ? str(req.body.oidcSub, 255) : null;
     const password = typeof req.body.password === 'string' && req.body.password.length > 0 ? req.body.password : null;
+    const emailVerified = req.body.emailVerified !== undefined ? Boolean(req.body.emailVerified) : true;
     if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) {
       return res.status(400).json({ error: 'Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).' });
     }
@@ -67,8 +70,9 @@ router.post(
       password_hash: passHash,
       oidc_sub: oidcSub,
       email,
+      email_verified: emailVerified ? 1 : 0,
     });
-    res.json({ id: created.id, username, email, oidcSub, isAdmin: isEmailAdmin(email) });
+    res.json({ id: created.id, username, email, oidcSub, emailVerified: Boolean(created.email_verified), isAdmin: isEmailAdmin(email) });
   })
 );
 
@@ -84,6 +88,7 @@ router.put(
     const email = req.body.email ? str(req.body.email, 120).toLowerCase() : null;
     const oidcSub = req.body.oidcSub !== undefined ? (req.body.oidcSub ? str(req.body.oidcSub, 255) : null) : undefined;
     const password = typeof req.body.password === 'string' && req.body.password.length > 0 ? req.body.password : null;
+    const emailVerified = req.body.emailVerified !== undefined ? Boolean(req.body.emailVerified) : undefined;
     if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) {
       return res.status(400).json({ error: 'Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).' });
     }
@@ -112,6 +117,9 @@ router.put(
       email,
       oidc_sub: finalOidcSub,
     };
+    if (emailVerified !== undefined) {
+      updateFields.email_verified = emailVerified ? 1 : 0;
+    }
     if (password) {
       updateFields.password_hash = await hashPassword(password);
     }
@@ -272,6 +280,48 @@ router.put(
   wrap((req, res) => {
     const updated = backupService.saveConfig(req.body || {});
     res.json({ ok: true, config: updated });
+  })
+);
+
+/* ---------- E-Mail / SMTP Konfigurations-Endpunkte ---------- */
+
+router.get(
+  '/mail',
+  auth,
+  requireAdmin,
+  wrap((req, res) => {
+    res.json({
+      config: mailService.getConfig(),
+      queue: mailService.getQueueStatus(),
+    });
+  })
+);
+
+router.put(
+  '/mail',
+  auth,
+  requireAdmin,
+  wrap((req, res) => {
+    const updated = mailService.saveConfig(req.body || {});
+    res.json({ ok: true, config: updated, queue: mailService.getQueueStatus() });
+  })
+);
+
+router.post(
+  '/mail/test',
+  auth,
+  requireAdmin,
+  wrap(async (req, res) => {
+    const toEmail = str(req.body?.to || req.user.email, 120);
+    if (!toEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toEmail)) {
+      return res.status(400).json({ error: 'Bitte gib eine gültige Empfänger-E-Mail-Adresse für den Test an.' });
+    }
+    try {
+      const result = await mailService.sendTestEmail(toEmail, req.user.username);
+      res.json({ ok: true, message: `Test-E-Mail erfolgreich an ${toEmail} gesendet.`, result });
+    } catch (err) {
+      res.status(500).json({ error: `SMTP-Fehler: ${err.message}` });
+    }
   })
 );
 

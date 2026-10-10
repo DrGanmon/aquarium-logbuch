@@ -18,6 +18,12 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **Systemstandard:** Verwendet standardmäßig die Farbschema-Einstellungen des Betriebssystems (`prefers-color-scheme`).
   - **Umschaltbar:** Schnell-Umschalter in der Kopfzeile und auf der Anmeldeseite sowie feste Auswahlmöglichkeit im Benutzerprofil.
   - **Chart-Anpassung:** Verlaufsdiagramme und Tooltips passen ihre Farbpalette dynamisch an das aktive Farbschema an.
+- **E-Mail-Verifizierung & Passwort-Reset via SMTP:**
+  - **E-Mail-Verifizierung für neue Benutzer:** Neue Registrierungen (außer der Admin-E-Mail-Adresse) erhalten automatisch eine Bestätigungs-E-Mail mit Aktivierungslink. Nicht verifizierte Benutzer werden beim Login geschützt und können sich neue Bestätigungslinks anfordern.
+  - **Passwort vergessen & Reset per E-Mail:** Über die Anmeldeseite kann ein zeitlich begrenzter Link zum sicheren Zurücksetzen des Passworts angefordert werden. Beim Zurücksetzen werden alle bestehenden Benutzersitzungen automatisch invalidiert.
+  - **Ansprechende HTML-E-Mail-Templates:** Modernes, responsives Aquaristik-Design mit Logo, klaren Call-to-Action-Buttons und Plain-Text-Fallback.
+  - **Rate-Limited Mail-Warteschlange (Queue):** E-Mails werden über eine FIFO-Warteschlange mit konfigurierbarer Verzögerung versendet, um SMTP-Server nicht zu überlasten und Spam-Filter-Trigger zu vermeiden.
+  - **SMTP-Konfiguration im Admin-Bereich:** Konfigurierbar über die Admin-Oberfläche (`#/admin`) oder via Umgebungsvariablen (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`) inklusive Versand von Test-E-Mails und Einsicht in den Warteschlangen-Status.
 - Benutzerprofil zur Pflege von Profilbild (Avatar), Vorname, Nachname, Benutzername und „Über mich“-Bio sowie Passwortverwaltung, Erscheinungsbild und OIDC-Verknüpfung
 - Admin-Bereich mit Benutzerverwaltung für Administratoren (festgelegt anhand der E-Mail-Adresse in der Konfiguration) sowie integriertem System-Logbuch & Fehlerprotokoll
 - **Überwachungsprozess & Ausfallsicherheit (Supervisor):** Ein übergeordneter Watchdog-Prozess überwacht die Anwendung, fängt ungeplante Abstürze oder Ausnahmen automatisch ab und startet den Worker-Prozess verzögerungsfrei neu
@@ -92,6 +98,13 @@ docker compose up -d --build
 | `LOCAL_LOGIN` | automatisch | Lokale Anmeldung mit Passwort. Standard: aus, wenn OIDC aktiv ist, sonst an |
 | `OIDC_LINK_BY_USERNAME` | false | `true` verknüpft beim ersten OIDC-Login ein vorhandenes lokales Konto mit gleichem Benutzernamen |
 | `ADMIN_EMAIL` | (leer) | E-Mail-Adresse des Administrators (oder mehrere durch Komma getrennt) für den Admin-Bereich / Benutzerverwaltung |
+| `SMTP_HOST` | (leer) | SMTP-Server-Host für E-Mail-Versand (auch über Admin-Interface konfigurierbar) |
+| `SMTP_PORT` | `587` | SMTP-Port (z. B. `587` für STARTTLS, `465` für SSL/TLS, `25` unverschlüsselt) |
+| `SMTP_SECURE` | `false` | `true` für direkte SSL/TLS-Verschlüsselung (Port 465) |
+| `SMTP_USER` | (leer) | SMTP-Benutzername |
+| `SMTP_PASS` | (leer) | SMTP-Passwort |
+| `SMTP_FROM` | `Aquarium-Logbuch <noreply@...>` | Absenderadresse für ausgehende E-Mails |
+| `SMTP_RATE_LIMIT_MS` | `500` | Verzögerung zwischen E-Mails in der Queue (Millisekunden) |
 | `LOG_FILE` | `./data/aquarium.log` | Pfad zur `.log`-Datei für Fehler- und Systemprotokolle |
 | `SUPERVISOR` | `true` | `false` startet die Anwendung im Einzelprozess ohne Überwachungs-Watchdog |
 | `WORKERS` | `1` (bzw. `auto` in Docker) | Anzahl der Worker-Prozesse (`auto` = alle CPU-Kerne) |
@@ -191,6 +204,4 @@ Die Testparameter und Standardwerte liegen in `src/config/suites/jbl-pro-aquates
 
 ## Bekannte Grenzen
 
-- E-Mail-Versand für Alarme ist noch nicht angebunden.
-- Kein Passwort-Zurücksetzen per E-Mail bei lokaler Anmeldung. Ein vergessenes Passwort lässt sich nur direkt in der Datenbank oder über einen Administrator ersetzen
-  (mit Pocket ID entfällt das).
+- Automatischer E-Mail-Versand bei Grenzwert-Alarmen ist für ein zukünftiges Release vorgesehen.
