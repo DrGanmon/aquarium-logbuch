@@ -29,13 +29,13 @@ function createTestEnvironment(customEnv = {}) {
   }
 
   // Clear module cache to ensure fresh server instance with updated env
-  const serverPath = path.resolve(__dirname, '../../server.js');
-  const oidcPath = path.resolve(__dirname, '../../oidc.js');
-  const configPath = path.resolve(__dirname, '../../config.js');
-  delete require.cache[serverPath];
-  delete require.cache[oidcPath];
-  delete require.cache[configPath];
+  for (const modPath of Object.keys(require.cache)) {
+    if (!modPath.includes('node_modules')) {
+      delete require.cache[modPath];
+    }
+  }
 
+  const serverPath = path.resolve(__dirname, '../../server.js');
   const app = require(serverPath);
   let server = null;
   let baseUrl = '';
