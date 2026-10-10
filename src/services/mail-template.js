@@ -1,7 +1,108 @@
 'use strict';
+const fs = require('fs');
+const path = require('path');
+const { DATA_DIR } = require('../config/env');
+
+const TEMPLATE_DIR = path.join(__dirname, '../templates/mail');
+const USER_TEMPLATE_DIR = path.join(DATA_DIR, 'mail-templates');
+
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 /**
- * Erzeugt das einheitliche, ansprechende HTML- und Text-Layout für alle Aquarium-Logbuch-E-Mails.
+ * Ermittelt den Pfad zur .tpl Datei.
+ * Sucht zuerst im Benutzerverzeichnis (data/mail-templates/), dann im Standardverzeichnis (src/templates/mail/).
+ */
+function getTemplatePath(templateName) {
+  const cleanName = templateName.endsWith('.tpl') ? templateName : `${templateName}.tpl`;
+  const userPath = path.join(USER_TEMPLATE_DIR, cleanName);
+  if (fs.existsSync(userPath)) {
+    return userPath;
+  }
+  const defaultPath = path.join(TEMPLATE_DIR, cleanName);
+  if (fs.existsSync(defaultPath)) {
+    return defaultPath;
+  }
+  return defaultPath;
+}
+
+/**
+ * Lädt den Inhalt einer .tpl Datei.
+ */
+function loadTemplate(templateName) {
+  const filePath = getTemplatePath(templateName);
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Mail-Template '${templateName}' (.tpl) wurde nicht gefunden: ${filePath}`);
+  }
+  return fs.readFileSync(filePath, 'utf8');
+}
+
+/**
+ * Ersetzt Tokens der Form {{tokenName}} oder {{ tokenName }} im Template-String.
+ */
+function replaceTokens(templateContent, tokens = {}, options = { escape: true }) {
+  if (typeof templateContent !== 'string') return '';
+
+  return templateContent.replace(/\{\{\s*([a-zA-Z0-9_:]+)\s*\}\}/g, (match, rawKey) => {
+    let key = rawKey;
+    let shouldEscape = options.escape !== false;
+
+    if (key.startsWith('raw:')) {
+      key = key.slice(4);
+      shouldEscape = false;
+    }
+
+    let val = undefined;
+    if (Object.prototype.hasOwnProperty.call(tokens, key)) {
+      val = tokens[key];
+    } else {
+      // Case-Insensitive und Camel/Snake Match
+      const normalizedKey = key.toLowerCase().replace(/_/g, '');
+      for (const [k, v] of Object.entries(tokens)) {
+        if (k.toLowerCase().replace(/_/g, '') === normalizedKey) {
+          val = v;
+          break;
+        }
+      }
+    }
+
+    if (val === undefined) {
+      return match;
+    }
+
+    const strVal = val != null ? String(val) : '';
+    return shouldEscape ? escapeHtml(strVal) : strVal;
+  });
+}
+
+/**
+ * Rendert ein benanntes .tpl Template mit übergebenen Tokens.
+ */
+function renderTemplate(templateName, tokens = {}) {
+  const tpl = loadTemplate(templateName);
+  const brandTitle = tokens.brandTitle || '🐠 Aquarium-Logbuch';
+  const currentYear = tokens.currentYear || new Date().getFullYear();
+  const footerNote = tokens.footerNote || 'Aquarium-Logbuch – Deine Wasserwerte und Aquarien stets im Blick.';
+
+  const fullTokens = {
+    brandTitle,
+    currentYear,
+    footerNote,
+    ...tokens,
+  };
+
+  return replaceTokens(tpl, fullTokens);
+}
+
+/**
+ * Erzeugt das einheitliche, ansprechende HTML- und Text-Layout für alle Aquarium-Logbuch-E-Mails (Fallback/Hilfsfunktion).
  */
 function renderBaseTemplate({ title, preheader, headline, contentHtml, ctaText, ctaUrl, hintHtml, footerNote }) {
   const brandTitle = '🐠 Aquarium-Logbuch';
@@ -189,44 +290,26 @@ function renderBaseTemplate({ title, preheader, headline, contentHtml, ctaText, 
   return html;
 }
 
-function escapeHtml(str) {
-  if (str == null) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 /**
  * Template für die E-Mail-Adressen-Bestätigung (Verifizierung).
+ * Nutzt 'verify-email.tpl'.
  */
 function createEmailVerificationMail({ username, verifyUrl, expiresHours = 24 }) {
   const subject = '🐠 Bitte bestätige deine E-Mail-Adresse für Aquarium-Logbuch';
   const preheader = `Hallo ${username}, bitte bestätige deine E-Mail-Adresse, um dein Konto zu aktivieren.`;
   const headline = 'E-Mail-Adresse bestätigen';
+  const ctaText = 'E-Mail-Adresse jetzt bestätigen';
 
-  const contentHtml = `
-    <p class="paragraph">Hallo <strong>${escapeHtml(username)}</strong>,</p>
-    <p class="paragraph">
-      vielen Dank für deine Registrierung beim <strong>Aquarium-Logbuch</strong>! Um dein Konto zu aktivieren und die Verwaltung deiner Aquarien und Wasserwerte zu starten, bestätige bitte kurz deine E-Mail-Adresse:
-    </p>
-  `;
-
-  const hintHtml = `
-    Dieser Bestätigungslink ist <strong>${expiresHours} Stunden</strong> gültig.<br>
-    Falls du kein Konto beim Aquarium-Logbuch angelegt hast, kannst du diese Nachricht einfach ignorieren.
-  `;
-
-  const html = renderBaseTemplate({
+  const html = renderTemplate('verify-email', {
     title: subject,
+    subject,
     preheader,
     headline,
-    contentHtml,
-    ctaText: 'E-Mail-Adresse jetzt bestätigen',
+    username,
+    verifyUrl,
+    expiresHours,
+    ctaText,
     ctaUrl: verifyUrl,
-    hintHtml,
   });
 
   const text = `Hallo ${username},
@@ -247,35 +330,24 @@ Dein Aquarium-Logbuch Team`;
 
 /**
  * Template für das Zurücksetzen des Passworts.
+ * Nutzt 'password-reset.tpl'.
  */
 function createPasswordResetMail({ username, resetUrl, expiresMinutes = 60 }) {
   const subject = '🔐 Passwort zurücksetzen für Aquarium-Logbuch';
   const preheader = `Hallo ${username}, du hast eine Anfrage zum Zurücksetzen deines Passworts gestellt.`;
   const headline = 'Passwort zurücksetzen';
+  const ctaText = 'Neues Passwort festlegen';
 
-  const contentHtml = `
-    <p class="paragraph">Hallo <strong>${escapeHtml(username)}</strong>,</p>
-    <p class="paragraph">
-      wir haben eine Anfrage erhalten, das Passwort für dein Konto <strong>${escapeHtml(username)}</strong> beim Aquarium-Logbuch zurückzusetzen.
-    </p>
-    <p class="paragraph">
-      Klicke auf die folgende Schaltfläche, um ein neues, sicheres Passwort zu vergeben:
-    </p>
-  `;
-
-  const hintHtml = `
-    Dieser Link ist aus Sicherheitsgründen <strong>${expiresMinutes} Minuten</strong> gültig.<br>
-    Wenn du diese Anfrage nicht gestellt hast, musst du nichts weiter tun. Dein bisheriges Passwort bleibt weiterhin unverändert und sicher.
-  `;
-
-  const html = renderBaseTemplate({
+  const html = renderTemplate('password-reset', {
     title: subject,
+    subject,
     preheader,
     headline,
-    contentHtml,
-    ctaText: 'Neues Passwort festlegen',
+    username,
+    resetUrl,
+    expiresMinutes,
+    ctaText,
     ctaUrl: resetUrl,
-    hintHtml,
   });
 
   const text = `Hallo ${username},
@@ -296,6 +368,7 @@ Dein Aquarium-Logbuch Team`;
 
 /**
  * Template für Test-E-Mails aus dem Admin-Bereich.
+ * Nutzt 'test-email.tpl'.
  */
 function createTestEmailMail({ adminUsername, serverInfo }) {
   const subject = '✅ Test-E-Mail von Aquarium-Logbuch';
@@ -303,31 +376,14 @@ function createTestEmailMail({ adminUsername, serverInfo }) {
   const headline = 'SMTP-Konfiguration erfolgreich!';
   const dateStr = new Date().toLocaleString('de-DE');
 
-  const contentHtml = `
-    <p class="paragraph">Hallo <strong>${escapeHtml(adminUsername || 'Administrator')}</strong>,</p>
-    <p class="paragraph">
-      herzlichen Glückwunsch! Die E-Mail- und SMTP-Server-Konfiguration deines <strong>Aquarium-Logbuchs</strong> wurde erfolgreich getestet und ist betriebsbereit.
-    </p>
-    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 18px; margin: 16px 0;">
-      <p style="margin: 0 0 6px; color: #166534; font-weight: 600;">Systemstatus:</p>
-      <p style="margin: 0; font-size: 13px; color: #15803d;">
-        • Zeitpunkt: ${dateStr}<br>
-        • SMTP-Server: ${escapeHtml(serverInfo || 'Lokal konfiguriert')}<br>
-        • Mail-Warteschlange: Aktiviert
-      </p>
-    </div>
-  `;
-
-  const hintHtml = `
-    Diese Nachricht wurde über die Admin-Oberfläche zur Überprüfung der Mail-Zustellung versendet.
-  `;
-
-  const html = renderBaseTemplate({
+  const html = renderTemplate('test-email', {
     title: subject,
+    subject,
     preheader,
     headline,
-    contentHtml,
-    hintHtml,
+    adminUsername: adminUsername || 'Administrator',
+    serverInfo: serverInfo || 'Lokal konfiguriert',
+    dateStr,
   });
 
   const text = `Hallo ${adminUsername || 'Administrator'},
@@ -343,6 +399,10 @@ Dein Aquarium-Logbuch System`;
 }
 
 module.exports = {
+  getTemplatePath,
+  loadTemplate,
+  replaceTokens,
+  renderTemplate,
   renderBaseTemplate,
   createEmailVerificationMail,
   createPasswordResetMail,

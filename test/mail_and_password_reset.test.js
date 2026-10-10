@@ -5,6 +5,10 @@ const net = require('net');
 const { createTestEnvironment, createMongoTestEnvironment } = require('./helpers/env');
 const { sendSmtpMail, createMimeMessage, extractEmail } = require('../src/utils/smtp');
 const {
+  getTemplatePath,
+  loadTemplate,
+  replaceTokens,
+  renderTemplate,
   renderBaseTemplate,
   createEmailVerificationMail,
   createPasswordResetMail,
@@ -130,8 +134,34 @@ test('Mail: SMTP Client, MIME Formatierung und Socket-Versand', async (t) => {
   assert.ok(received[0].includes('To: target@example.com'));
 });
 
-test('Mail: HTML- und Plain-Text Templates', async () => {
-  // 1. Base Template
+test('Mail: HTML- und Plain-Text Templates mit .tpl-Dateien und Tokens', async () => {
+  // 1. .tpl Dateien existieren und lassen sich laden
+  const verifyTpl = loadTemplate('verify-email');
+  assert.ok(verifyTpl.includes('{{username}}'));
+  assert.ok(verifyTpl.includes('{{verifyUrl}}'));
+  assert.ok(verifyTpl.includes('{{expiresHours}}'));
+
+  const resetTpl = loadTemplate('password-reset');
+  assert.ok(resetTpl.includes('{{username}}'));
+  assert.ok(resetTpl.includes('{{resetUrl}}'));
+  assert.ok(resetTpl.includes('{{expiresMinutes}}'));
+
+  const testTpl = loadTemplate('test-email');
+  assert.ok(testTpl.includes('{{adminUsername}}'));
+  assert.ok(testTpl.includes('{{serverInfo}}'));
+
+  // 2. Token-Ersetzung, Escaping und Fallback
+  const rawHtml = '<p>Hallo {{ username }}, klicke <a href="{{ link }}">hier</a> & {{ script }}</p>';
+  const rendered = replaceTokens(rawHtml, {
+    username: 'Fischfan & Co',
+    link: 'https://example.com/test?a=1&b=2',
+    script: '<script>alert(1)</script>',
+  });
+  assert.ok(rendered.includes('Fischfan &amp; Co'));
+  assert.ok(rendered.includes('https://example.com/test?a=1&amp;b=2'));
+  assert.ok(rendered.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
+
+  // 3. Base Template (Kompatibilität)
   const baseHtml = renderBaseTemplate({
     title: 'Test Titel',
     headline: 'Wichtige Mitteilung',
@@ -143,7 +173,7 @@ test('Mail: HTML- und Plain-Text Templates', async () => {
   assert.ok(baseHtml.includes('Aktion ausführen'));
   assert.ok(baseHtml.includes('https://example.com/action'));
 
-  // 2. Verification Mail Template
+  // 4. Verification Mail Template Rendering
   const verifyMail = createEmailVerificationMail({
     username: 'Aquarist123',
     verifyUrl: 'https://aquarium.local/#/verify-email?token=xyz123',
@@ -152,9 +182,12 @@ test('Mail: HTML- und Plain-Text Templates', async () => {
   assert.ok(verifyMail.subject.includes('E-Mail-Adresse für Aquarium-Logbuch'));
   assert.ok(verifyMail.html.includes('Aquarist123'));
   assert.ok(verifyMail.html.includes('https://aquarium.local/#/verify-email?token=xyz123'));
+  assert.ok(verifyMail.html.includes('24 Stunden'));
+  assert.ok(!verifyMail.html.includes('{{username}}'), 'Keine unersetzten Tokens im HTML');
+  assert.ok(!verifyMail.html.includes('{{verifyUrl}}'), 'Keine unersetzten Tokens im HTML');
   assert.ok(verifyMail.text.includes('24 Stunden'));
 
-  // 3. Password Reset Template
+  // 5. Password Reset Template Rendering
   const resetMail = createPasswordResetMail({
     username: 'Aquarist123',
     resetUrl: 'https://aquarium.local/#/reset-password?token=secret456',
@@ -163,9 +196,12 @@ test('Mail: HTML- und Plain-Text Templates', async () => {
   assert.ok(resetMail.subject.includes('Passwort zurücksetzen'));
   assert.ok(resetMail.html.includes('Aquarist123'));
   assert.ok(resetMail.html.includes('https://aquarium.local/#/reset-password?token=secret456'));
+  assert.ok(resetMail.html.includes('60 Minuten'));
+  assert.ok(!resetMail.html.includes('{{username}}'), 'Keine unersetzten Tokens im HTML');
+  assert.ok(!resetMail.html.includes('{{resetUrl}}'), 'Keine unersetzten Tokens im HTML');
   assert.ok(resetMail.text.includes('60 Minuten'));
 
-  // 4. Test Email Template
+  // 6. Test Email Template Rendering
   const testMail = createTestEmailMail({
     adminUsername: 'SuperAdmin',
     serverInfo: 'mail.host.de:587 (STARTTLS)',
@@ -173,6 +209,8 @@ test('Mail: HTML- und Plain-Text Templates', async () => {
   assert.ok(testMail.subject.includes('Test-E-Mail'));
   assert.ok(testMail.html.includes('SuperAdmin'));
   assert.ok(testMail.html.includes('mail.host.de:587'));
+  assert.ok(!testMail.html.includes('{{adminUsername}}'), 'Keine unersetzten Tokens im HTML');
+  assert.ok(!testMail.html.includes('{{serverInfo}}'), 'Keine unersetzten Tokens im HTML');
 });
 
 test('Mail: MailService Warteschlange und Rate-Limiting', async (t) => {
