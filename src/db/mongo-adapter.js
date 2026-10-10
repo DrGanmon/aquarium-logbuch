@@ -796,6 +796,107 @@ class MongoAdapter {
       },
     };
   }
+
+  async exportAllData() {
+    if (!this._initialized) await this.init();
+    const db = this.db;
+
+    const stripId = (docs) =>
+      docs.map((d) => {
+        const copy = { ...d };
+        delete copy._id;
+        return copy;
+      });
+
+    const users = stripId(await db.collection('users').find({}).sort({ id: 1 }).toArray());
+    const aquariums = stripId(await db.collection('aquariums').find({}).sort({ id: 1 }).toArray());
+    const aquarium_shares = stripId(
+      await db.collection('aquarium_shares').find({}).sort({ aquarium_id: 1, user_id: 1 }).toArray()
+    );
+    const stock = stripId(await db.collection('stock').find({}).sort({ id: 1 }).toArray());
+    const measurements = stripId(await db.collection('measurements').find({}).sort({ id: 1 }).toArray());
+    const alerts = stripId(await db.collection('alerts').find({}).sort({ id: 1 }).toArray());
+    const maintenance_logs = stripId(await db.collection('maintenance_logs').find({}).sort({ id: 1 }).toArray());
+
+    return {
+      users,
+      aquariums,
+      aquarium_shares,
+      stock,
+      measurements,
+      alerts,
+      maintenance_logs,
+    };
+  }
+
+  async importAllData(data = {}) {
+    if (!this._initialized) await this.init();
+    const db = this.db;
+
+    const users = Array.isArray(data.users) ? data.users : [];
+    const aquariums = Array.isArray(data.aquariums) ? data.aquariums : [];
+    const shares = Array.isArray(data.aquarium_shares) ? data.aquarium_shares : [];
+    const stock = Array.isArray(data.stock) ? data.stock : [];
+    const measurements = Array.isArray(data.measurements) ? data.measurements : [];
+    const alerts = Array.isArray(data.alerts) ? data.alerts : [];
+    const maintenance = Array.isArray(data.maintenance_logs) ? data.maintenance_logs : [];
+
+    const userIds = users.map((u) => u.id);
+    const currentSessions = await db.collection('sessions').find({ expires_at: { $gt: Date.now() } }).toArray();
+
+    // Collections leeren
+    await Promise.all([
+      db.collection('users').deleteMany({}),
+      db.collection('sessions').deleteMany({}),
+      db.collection('aquariums').deleteMany({}),
+      db.collection('aquarium_shares').deleteMany({}),
+      db.collection('stock').deleteMany({}),
+      db.collection('measurements').deleteMany({}),
+      db.collection('alerts').deleteMany({}),
+      db.collection('maintenance_logs').deleteMany({}),
+      db.collection('counters').deleteMany({}),
+    ]);
+
+    // Daten einfügen
+    if (users.length > 0) await db.collection('users').insertMany(users);
+    if (aquariums.length > 0) await db.collection('aquariums').insertMany(aquariums);
+    if (shares.length > 0) await db.collection('aquarium_shares').insertMany(shares);
+    if (stock.length > 0) await db.collection('stock').insertMany(stock);
+    if (measurements.length > 0) await db.collection('measurements').insertMany(measurements);
+    if (alerts.length > 0) await db.collection('alerts').insertMany(alerts);
+    if (maintenance.length > 0) await db.collection('maintenance_logs').insertMany(maintenance);
+
+    // Aktive Sessions für bestehende Benutzer wiederherstellen
+    const validSessions = currentSessions.filter((s) => userIds.includes(s.user_id));
+    if (validSessions.length > 0) {
+      await db.collection('sessions').insertMany(validSessions);
+    }
+
+    // Zähler (counters) für Sequenzen aktualisieren
+    const maxUserId = users.reduce((m, u) => Math.max(m, u.id || 0), 0);
+    const maxAqId = aquariums.reduce((m, a) => Math.max(m, a.id || 0), 0);
+    const maxStockId = stock.reduce((m, s) => Math.max(m, s.id || 0), 0);
+    const maxMeasId = measurements.reduce((m, ms) => Math.max(m, ms.id || 0), 0);
+    const maxAlertId = alerts.reduce((m, al) => Math.max(m, al.id || 0), 0);
+    const maxMaintId = maintenance.reduce((m, ml) => Math.max(m, ml.id || 0), 0);
+
+    const counterOps = [
+      { _id: 'users', seq: maxUserId },
+      { _id: 'aquariums', seq: maxAqId },
+      { _id: 'stock', seq: maxStockId },
+      { _id: 'measurements', seq: maxMeasId },
+      { _id: 'alerts', seq: maxAlertId },
+      { _id: 'maintenance_logs', seq: maxMaintId },
+    ];
+
+    for (const c of counterOps) {
+      if (c.seq > 0) {
+        await db.collection('counters').updateOne({ _id: c._id }, { $set: { seq: c.seq } }, { upsert: true });
+      }
+    }
+
+    return true;
+  }
 }
 
 module.exports = MongoAdapter;

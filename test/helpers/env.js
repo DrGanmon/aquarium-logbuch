@@ -44,15 +44,19 @@ function createTestEnvironment(customEnv = {}) {
   const start = async () => {
     if (baseUrl) return baseUrl;
     if (startPromise) return startPromise;
-    startPromise = new Promise((resolve, reject) => {
-      server = http.createServer(app);
-      server.listen(0, '127.0.0.1', () => {
-        const port = server.address().port;
-        baseUrl = `http://127.0.0.1:${port}`;
-        resolve(baseUrl);
+    startPromise = (async () => {
+      const db = require('../../src/db');
+      await db.init();
+      return new Promise((resolve, reject) => {
+        server = http.createServer(app);
+        server.listen(0, '127.0.0.1', () => {
+          const port = server.address().port;
+          baseUrl = `http://127.0.0.1:${port}`;
+          resolve(baseUrl);
+        });
+        server.on('error', reject);
       });
-      server.on('error', reject);
-    });
+    })();
     return startPromise;
   };
 

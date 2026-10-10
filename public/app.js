@@ -1823,7 +1823,15 @@ async function viewMeasure(id) {
 
 /* ---------- Admin / Benutzerverwaltung ---------- */
 async function viewAdmin() {
-  const users = await api('/admin/users');
+  const [users, logData, backupData] = await Promise.all([
+    api('/admin/users'),
+    api('/admin/logs').catch(() => ({ logs: [], logPath: 'data/aquarium.log' })),
+    api('/admin/backups').catch(() => ({ backups: [], config: { enabled: false, intervalHours: 24, retentionCount: 10, includeFiles: true } })),
+  ]);
+
+  const backups = backupData.backups || [];
+  const backupConfig = backupData.config || { enabled: false, intervalHours: 24, retentionCount: 10, includeFiles: true };
+
   const rows = users.map((u) => {
     const isSelf = u.id === ME.id;
     const authTypes = [];
@@ -1854,7 +1862,172 @@ async function viewAdmin() {
     );
   });
 
-  const logData = await api('/admin/logs').catch(() => ({ logs: [], logPath: 'data/aquarium.log' }));
+  /* Backup & Restore UI Komponenten */
+  const fileInput = h('input', {
+    type: 'file',
+    accept: '.json,.gz,.json.gz',
+    style: 'display:none',
+    onchange: async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (!confirm(`⚠️ WARNUNG: Beim Wiederherstellen von „${file.name}“ werden alle vorhandenen Benutzer, Aquarien, Messwerte und Fotos überschrieben.\n\nMöchtest du fortfahren?`)) {
+        fileInput.value = '';
+        return;
+      }
+      try {
+        toast('Lese und spiele Backup ein...');
+        const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const arrayBuffer = reader.result;
+            const bytes = new Uint8Array(arrayBuffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+              binary += String.fromCharCode(bytes[i]);
+            }
+            const base64 = btoa(binary);
+            const res = await api('/admin/backups/restore-upload', {
+              method: 'POST',
+              body: { backupBase64: base64 },
+            });
+            toast(`Backup erfolgreich wiederhergestellt! (${res.stats?.users || 0} Benutzer, ${res.stats?.aquariums || 0} Aquarien, ${res.stats?.measurements || 0} Messungen)`);
+            fileInput.value = '';
+            await viewAdmin();
+          } catch (err) {
+            toast(`Fehler beim Wiederherstellen: ${err.message}`);
+            fileInput.value = '';
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      } catch (err) {
+        toast(`Fehler beim Lesen der Datei: ${err.message}`);
+        fileInput.value = '';
+      }
+    },
+  });
+
+  const btnDownloadNow = h('button', {
+    class: 'btn small',
+    type: 'button',
+    onclick: () => {
+      window.location.href = 'api/admin/backups/create?download=1';
+      toast('Backup-Download gestartet.');
+    },
+  }, '📥 Jetzt herunterladen');
+
+  const btnCreateLocal = h('button', {
+    class: 'btn small ghost',
+    type: 'button',
+    onclick: async () => {
+      try {
+        toast('Erstelle lokales Backup...');
+        const res = await api('/admin/backups/create', { method: 'POST', body: { includeFiles: backupConfig.includeFiles } });
+        toast(`Lokales Backup „${res.filename}“ gespeichert.`);
+        await viewAdmin();
+      } catch (e) {
+        toast(e.message);
+      }
+    },
+  }, '💾 Lokal sichern');
+
+  const btnUploadRestore = h('button', {
+    class: 'btn small ghost danger',
+    type: 'button',
+    onclick: () => fileInput.click(),
+  }, '📤 Datei einspielen');
+
+  // Konfiguration automatische Backups
+  const chkAutoEnabled = h('input', { type: 'checkbox', checked: !!backupConfig.enabled, id: 'chk-auto-backup' });
+  const selAutoInterval = h('select', { style: 'max-width: 180px;' },
+    h('option', { value: '1', selected: backupConfig.intervalHours === 1 }, 'Jede Stunde (1h)'),
+    h('option', { value: '6', selected: backupConfig.intervalHours === 6 }, 'Alle 6 Stunden'),
+    h('option', { value: '12', selected: backupConfig.intervalHours === 12 }, 'Alle 12 Stunden'),
+    h('option', { value: '24', selected: backupConfig.intervalHours === 24 }, 'Täglich (24h)'),
+    h('option', { value: '48', selected: backupConfig.intervalHours === 48 }, 'Alle 2 Tage (48h)'),
+    h('option', { value: '168', selected: backupConfig.intervalHours === 168 }, 'Wöchentlich (7 Tage)')
+  );
+  const inpAutoRetention = h('input', {
+    type: 'number',
+    min: '1',
+    max: '100',
+    value: String(backupConfig.retentionCount || 10),
+    style: 'max-width: 90px;',
+  });
+  const chkIncludeFiles = h('input', { type: 'checkbox', checked: backupConfig.includeFiles !== false, id: 'chk-include-files' });
+
+  const btnSaveConfig = h('button', {
+    class: 'btn small',
+    type: 'button',
+    onclick: async () => {
+      try {
+        const body = {
+          enabled: chkAutoEnabled.checked,
+          intervalHours: Number(selAutoInterval.value) || 24,
+          retentionCount: Number(inpAutoRetention.value) || 10,
+          includeFiles: chkIncludeFiles.checked,
+        };
+        await api('/admin/backups/config', { method: 'PUT', body });
+        toast('Backup-Einstellungen gespeichert.');
+        await viewAdmin();
+      } catch (e) {
+        toast(e.message);
+      }
+    },
+  }, 'Einstellungen speichern');
+
+  const backupRows = backups.length > 0 ? backups.map((b) => {
+    return h('tr', {},
+      h('td', {},
+        h('strong', {}, b.filename),
+        b.isAuto ? h('span', { class: 'chip ok', style: 'margin-left:.5rem; font-size:.7rem;' }, 'Auto') : h('span', { class: 'chip none', style: 'margin-left:.5rem; font-size:.7rem;' }, 'Manuell')
+      ),
+      h('td', {}, b.sizeFormatted || '–'),
+      h('td', {}, fmtDate(b.createdAt)),
+      h('td', {},
+        h('div', { class: 'row', style: 'gap:.35rem' },
+          h('button', {
+            class: 'btn small ghost',
+            type: 'button',
+            onclick: () => {
+              window.location.href = `api/admin/backups/${encodeURIComponent(b.filename)}/download`;
+            },
+          }, 'Download'),
+          h('button', {
+            class: 'btn small ghost danger',
+            type: 'button',
+            onclick: async () => {
+              if (!confirm(`Sicherung „${b.filename}“ wirklich wiederherstellen? Alle aktuellen Daten werden überschrieben.`)) return;
+              try {
+                toast('Stelle Backup wieder her...');
+                const res = await api(`/admin/backups/${encodeURIComponent(b.filename)}/restore`, { method: 'POST' });
+                toast(`Backup erfolgreich wiederhergestellt! (${res.stats?.users || 0} Benutzer, ${res.stats?.aquariums || 0} Becken)`);
+                await viewAdmin();
+              } catch (e) {
+                toast(e.message);
+              }
+            },
+          }, 'Wiederherstellen'),
+          h('button', {
+            class: 'btn small danger',
+            type: 'button',
+            onclick: async () => {
+              if (!confirm(`Backup-Datei „${b.filename}“ wirklich löschen?`)) return;
+              try {
+                await api(`/admin/backups/${encodeURIComponent(b.filename)}`, { method: 'DELETE' });
+                toast(`Backup „${b.filename}“ gelöscht.`);
+                await viewAdmin();
+              } catch (e) {
+                toast(e.message);
+              }
+            },
+          }, 'Löschen')
+        )
+      )
+    );
+  }) : [
+    h('tr', {}, h('td', { colspan: '4', class: 'muted', style: 'text-align:center; padding:1.2rem;' }, '(Noch keine lokalen Sicherungen vorhanden)'))
+  ];
+
   const logBox = h('pre', {
     class: 'log-viewer-box',
     style: 'max-height: 320px; overflow-y: auto; background: var(--tube-bg); padding: .75rem; border: 1px solid var(--line); border-radius: 6px; font-family: monospace; font-size: .82rem; white-space: pre-wrap; word-break: break-all; line-height: 1.4;'
@@ -1885,7 +2058,7 @@ async function viewAdmin() {
     h('div', { class: 'row between' },
       h('div', {},
         h('a', { href: '#/', class: 'muted' }, '‹ Zurück zur Übersicht'),
-        h('h1', { style: 'margin-top:.3rem' }, 'Benutzerverwaltung & System')
+        h('h1', { style: 'margin-top:.3rem' }, 'Benutzerverwaltung & Administration')
       ),
       h('button', { class: 'btn', type: 'button', onclick: () => adminUserDialog() }, 'Benutzer anlegen')
     ),
@@ -1908,6 +2081,42 @@ async function viewAdmin() {
             )
           ),
           h('tbody', {}, rows)
+        )
+      )
+    ),
+    h('div', { class: 'card stack' },
+      fileInput,
+      h('div', { class: 'row between' },
+        h('div', {},
+          h('h2', { style: 'margin:0' }, '📦 Datensicherung & Wiederherstellung (Backup & Restore)'),
+          h('span', { class: 'muted' }, 'Sichere die gesamte Datenbank samt Fotos oder spiele Backups ein (auch aus älteren Versionen).')
+        ),
+        h('div', { class: 'row', style: 'gap:.5rem' }, btnDownloadNow, btnCreateLocal, btnUploadRestore)
+      ),
+      h('div', { class: 'card stack', style: 'background: var(--paper); border: 1px solid var(--line); padding: 1rem; gap: .75rem;' },
+        h('h3', { style: 'margin:0' }, '⚙️ Automatische lokale Sicherungen'),
+        h('div', { class: 'row', style: 'gap: 1.25rem; flex-wrap: wrap; align-items: center;' },
+          h('label', { class: 'row', style: 'gap:.4rem; cursor:pointer;' }, chkAutoEnabled, h('span', {}, 'Automatisch aktivieren')),
+          h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'Intervall:'), selAutoInterval),
+          h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'Vorhalteanzahl:'), inpAutoRetention),
+          h('label', { class: 'row', style: 'gap:.4rem; cursor:pointer;' }, chkIncludeFiles, h('span', {}, 'Upload-Fotos einschließen')),
+          btnSaveConfig
+        ),
+        backupConfig.lastBackupAt ? h('div', { class: 'muted', style: 'font-size:.82rem;' },
+          `Letzte automatische Sicherung: ${fmtDate(backupConfig.lastBackupAt)} (${backupConfig.lastBackupFile || '–'})`
+        ) : null
+      ),
+      h('div', { class: 'table-wrap' },
+        h('table', {},
+          h('thead', {},
+            h('tr', {},
+              h('th', {}, 'Gespeicherte Sicherung'),
+              h('th', {}, 'Größe'),
+              h('th', {}, 'Erstellt am'),
+              h('th', {}, 'Aktionen')
+            )
+          ),
+          h('tbody', {}, backupRows)
         )
       )
     ),

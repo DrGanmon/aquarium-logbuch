@@ -4,6 +4,7 @@ const { PORT, WORKER_THREADS } = require('./src/config/env');
 const logger = require('./src/utils/logger');
 const { Supervisor } = require('./src/services/supervisor');
 const { workerPool } = require('./src/utils/worker-pool');
+const { backupService } = require('./src/services/backup-service');
 
 if (require.main === module) {
   const isWorker = process.env.IS_SUPERVISED_WORKER === '1';
@@ -32,6 +33,11 @@ if (require.main === module) {
       // Initialisiere Worker Thread Pool für rechenintensive Aufgaben
       workerPool.init();
 
+      // Starte automatischen Backup-Scheduler (nur in Worker #1 oder Einzelprozess)
+      if (!process.env.WORKER_ID || process.env.WORKER_ID === '1') {
+        backupService.startScheduler();
+      }
+
       const server = app.listen(PORT, () => {
         const workerId = process.env.WORKER_ID ? `Worker ${process.env.WORKER_ID}/${process.env.WORKERS_TOTAL || '1'}` : 'Einzelprozess';
         const mode = isWorker ? `überwachten Modus (${workerId})` : 'Einzelprozess-Modus';
@@ -51,6 +57,7 @@ if (require.main === module) {
 
       const shutdown = async () => {
         logger.info(`Beende HTTP-Server (PID: ${process.pid})...`, 'server');
+        backupService.stopScheduler();
         server.close(async () => {
           try {
             await workerPool.terminate();
@@ -78,5 +85,6 @@ if (require.main === module) {
 app.Supervisor = Supervisor;
 app.logger = logger;
 app.workerPool = workerPool;
+app.backupService = backupService;
 
 module.exports = app;

@@ -6,6 +6,8 @@ const { hashPassword } = require('../utils/crypto');
 const { wrap, str } = require('../utils/helpers');
 const { auth, requireAdmin } = require('../middleware/auth');
 const { deleteImage } = require('../services/image-service');
+const { backupService } = require('../services/backup-service');
+const path = require('path');
 const logger = require('../utils/logger');
 
 const router = express.Router();
@@ -169,6 +171,107 @@ router.delete(
     } else {
       res.status(500).json({ error: 'Log-Datei konnte nicht bereinigt werden.' });
     }
+  })
+);
+
+/* ---------- Backup & Restore Endpunkte ---------- */
+
+router.get(
+  '/backups',
+  auth,
+  requireAdmin,
+  wrap(async (req, res) => {
+    const backups = backupService.listBackups();
+    const config = backupService.getConfig();
+    res.json({ backups, config });
+  })
+);
+
+router.post(
+  '/backups/create',
+  auth,
+  requireAdmin,
+  wrap(async (req, res) => {
+    const isDownload = req.query.download === '1' || req.body?.download === true;
+    const includeFiles = req.body?.includeFiles !== undefined ? Boolean(req.body.includeFiles) : null;
+    const result = await backupService.createBackup({ includeFiles });
+
+    if (isDownload) {
+      res.setHeader('Content-Type', 'application/gzip');
+      res.setHeader('Content-Disposition', `attachment; filename="${result.filename}"`);
+      return res.send(result.gzippedBuffer);
+    }
+
+    res.json({
+      ok: true,
+      filename: result.filename,
+      size: result.size,
+      createdAt: result.createdAt,
+    });
+  })
+);
+
+router.get(
+  '/backups/:filename/download',
+  auth,
+  requireAdmin,
+  wrap((req, res) => {
+    const filename = path.basename(req.params.filename);
+    const buf = backupService.getBackupBuffer(filename);
+    const isGzip = filename.endsWith('.json.gz') || (buf.length >= 2 && buf[0] === 0x1f && buf[1] === 0x8b);
+    res.setHeader('Content-Type', isGzip ? 'application/gzip' : 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(buf);
+  })
+);
+
+router.post(
+  '/backups/:filename/restore',
+  auth,
+  requireAdmin,
+  wrap(async (req, res) => {
+    const filename = path.basename(req.params.filename);
+    const result = await backupService.restoreFromLocalFile(filename);
+    res.json({ ok: true, stats: result.stats });
+  })
+);
+
+router.delete(
+  '/backups/:filename',
+  auth,
+  requireAdmin,
+  wrap((req, res) => {
+    const filename = path.basename(req.params.filename);
+    backupService.deleteBackup(filename);
+    res.json({ ok: true });
+  })
+);
+
+router.post(
+  '/backups/restore-upload',
+  auth,
+  requireAdmin,
+  wrap(async (req, res) => {
+    let input = req.body;
+    if (req.body && typeof req.body === 'object') {
+      if (req.body.backupBase64) {
+        input = Buffer.from(req.body.backupBase64, 'base64');
+      } else if (req.body.backupData) {
+        input = req.body.backupData;
+      }
+    }
+    const result = await backupService.restoreBackup(input);
+    res.json({ ok: true, stats: result.stats });
+  })
+);
+
+router.put(
+  '/backups/config',
+  auth,
+  requireAdmin,
+  wrap((req, res) => {
+    const updated = backupService.saveConfig(req.body || {});
+    res.json({ ok: true, config: updated });
   })
 );
 

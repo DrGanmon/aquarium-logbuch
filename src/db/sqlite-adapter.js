@@ -740,6 +740,208 @@ class SqliteAdapter {
       },
     };
   }
+
+  async exportAllData() {
+    if (!this._initialized) await this.init();
+    const db = this.db;
+
+    const users = db.prepare('SELECT * FROM users ORDER BY id ASC').all();
+    const aquariums = db.prepare('SELECT * FROM aquariums ORDER BY id ASC').all();
+    const aquarium_shares = db.prepare('SELECT * FROM aquarium_shares ORDER BY aquarium_id ASC, user_id ASC').all();
+    const stock = db.prepare('SELECT * FROM stock ORDER BY id ASC').all();
+    const rawMeasurements = db.prepare('SELECT * FROM measurements ORDER BY id ASC').all();
+    const rawValues = db.prepare('SELECT * FROM measurement_values ORDER BY measurement_id ASC, param ASC').all();
+    const alerts = db.prepare('SELECT * FROM alerts ORDER BY id ASC').all();
+    const maintenance_logs = db.prepare('SELECT * FROM maintenance_logs ORDER BY id ASC').all();
+
+    const valuesByMId = new Map();
+    for (const row of rawValues) {
+      if (!valuesByMId.has(row.measurement_id)) valuesByMId.set(row.measurement_id, {});
+      valuesByMId.get(row.measurement_id)[row.param] = row.value;
+    }
+
+    const measurements = rawMeasurements.map((m) => ({
+      id: m.id,
+      aquarium_id: m.aquarium_id,
+      measured_at: m.measured_at,
+      note: m.note,
+      created_by: m.created_by,
+      values: valuesByMId.get(m.id) || {},
+    }));
+
+    return {
+      users,
+      aquariums,
+      aquarium_shares,
+      stock,
+      measurements,
+      alerts,
+      maintenance_logs,
+    };
+  }
+
+  async importAllData(data = {}) {
+    if (!this._initialized) await this.init();
+    const db = this.db;
+
+    const users = Array.isArray(data.users) ? data.users : [];
+    const aquariums = Array.isArray(data.aquariums) ? data.aquariums : [];
+    const shares = Array.isArray(data.aquarium_shares) ? data.aquarium_shares : [];
+    const stock = Array.isArray(data.stock) ? data.stock : [];
+    const measurements = Array.isArray(data.measurements) ? data.measurements : [];
+    const alerts = Array.isArray(data.alerts) ? data.alerts : [];
+    const maintenance = Array.isArray(data.maintenance_logs) ? data.maintenance_logs : [];
+
+    const validUserIds = new Set(users.map((u) => u.id));
+    const currentSessions = db.prepare('SELECT * FROM sessions WHERE expires_at > ?').all(Date.now());
+
+    const runImport = db.transaction(() => {
+      db.pragma('foreign_keys = OFF');
+
+      db.exec('DELETE FROM alerts');
+      db.exec('DELETE FROM measurement_values');
+      db.exec('DELETE FROM measurements');
+      db.exec('DELETE FROM maintenance_logs');
+      db.exec('DELETE FROM stock');
+      db.exec('DELETE FROM aquarium_shares');
+      db.exec('DELETE FROM aquariums');
+      db.exec('DELETE FROM sessions');
+      db.exec('DELETE FROM users');
+
+      // Users
+      const insertUser = db.prepare(`
+        INSERT INTO users (id, username, password_hash, email, oidc_sub, first_name, last_name, bio, avatar_file, selected_suite, selected_tests, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const u of users) {
+        insertUser.run(
+          u.id,
+          u.username,
+          u.password_hash || '',
+          u.email || null,
+          u.oidc_sub || null,
+          u.first_name || null,
+          u.last_name || null,
+          u.bio || null,
+          u.avatar_file || null,
+          u.selected_suite || null,
+          u.selected_tests || null,
+          u.created_at || new Date().toISOString()
+        );
+      }
+
+      // Aktive Sessions für vorhandene Benutzer wiederherstellen
+      const insertSession = db.prepare(
+        'INSERT OR IGNORE INTO sessions (token_hash, user_id, expires_at, id_token) VALUES (?, ?, ?, ?)'
+      );
+      for (const s of currentSessions) {
+        if (validUserIds.has(s.user_id)) {
+          insertSession.run(s.token_hash, s.user_id, s.expires_at, s.id_token || null);
+        }
+      }
+
+      // Aquariums
+      const insertAq = db.prepare(`
+        INSERT INTO aquariums (id, user_id, name, volume_l, water_type, reminder_days, notes, image_file, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const a of aquariums) {
+        insertAq.run(
+          a.id,
+          a.user_id,
+          a.name,
+          a.volume_l != null ? a.volume_l : null,
+          a.water_type || 'fresh',
+          a.reminder_days || 7,
+          a.notes || null,
+          a.image_file || null,
+          a.created_at || new Date().toISOString()
+        );
+      }
+
+      // Shares
+      const insertShare = db.prepare(`
+        INSERT INTO aquarium_shares (aquarium_id, user_id, role, created_at)
+        VALUES (?, ?, ?, ?)
+      `);
+      for (const s of shares) {
+        insertShare.run(s.aquarium_id, s.user_id, s.role || 'view', s.created_at || new Date().toISOString());
+      }
+
+      // Stock
+      const insertStock = db.prepare(`
+        INSERT INTO stock (id, aquarium_id, species, count, profile)
+        VALUES (?, ?, ?, ?, ?)
+      `);
+      for (const st of stock) {
+        insertStock.run(st.id, st.aquarium_id, st.species, st.count || 1, st.profile || 'allgemein');
+      }
+
+      // Measurements & Values
+      const insertMeas = db.prepare(`
+        INSERT INTO measurements (id, aquarium_id, measured_at, note, created_by)
+        VALUES (?, ?, ?, ?, ?)
+      `);
+      const insertVal = db.prepare(`
+        INSERT INTO measurement_values (measurement_id, param, value)
+        VALUES (?, ?, ?)
+      `);
+
+      for (const m of measurements) {
+        insertMeas.run(m.id, m.aquarium_id, m.measured_at, m.note || null, m.created_by || null);
+        if (m.values && typeof m.values === 'object') {
+          for (const [p, v] of Object.entries(m.values)) {
+            if (v !== null && v !== undefined && !Number.isNaN(Number(v))) {
+              insertVal.run(m.id, p, Number(v));
+            }
+          }
+        }
+      }
+
+      // Alerts
+      const insertAlert = db.prepare(`
+        INSERT INTO alerts (id, aquarium_id, measurement_id, param, level, value, message, created_at, acked_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const al of alerts) {
+        insertAlert.run(
+          al.id,
+          al.aquarium_id,
+          al.measurement_id || null,
+          al.param,
+          al.level || 'warn',
+          al.value || 0,
+          al.message || '',
+          al.created_at || new Date().toISOString(),
+          al.acked_at || null
+        );
+      }
+
+      // Maintenance Logs
+      const insertMaint = db.prepare(`
+        INSERT INTO maintenance_logs (id, aquarium_id, logged_at, type, percentage, details, note, created_by, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const ml of maintenance) {
+        insertMaint.run(
+          ml.id,
+          ml.aquarium_id,
+          ml.logged_at,
+          ml.type,
+          ml.percentage != null ? ml.percentage : null,
+          ml.details || null,
+          ml.note || null,
+          ml.created_by || null,
+          ml.created_at || new Date().toISOString()
+        );
+      }
+
+      db.pragma('foreign_keys = ON');
+    });
+
+    runImport();
+    return true;
+  }
 }
 
 module.exports = SqliteAdapter;

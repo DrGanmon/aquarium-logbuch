@@ -111,6 +111,13 @@ Der Administrator wird anhand der E-Mail-Adresse festgelegt. Dazu entweder in `c
 - Benutzer, deren E-Mail-Adresse (aus OIDC/Pocket ID oder lokaler Registrierung) mit `ADMIN_EMAIL` übereinstimmt, erhalten Administrator-Rechte.
 - Im Header erscheint der Button **Benutzerverwaltung** (`#/admin`).
 - Administratoren können alle registrierten Benutzer einsehen, neue Benutzer anlegen, bestehende Benutzer bearbeiten (Benutzername, E-Mail, Passwort ändern) und Benutzer samt deren Daten löschen.
+- **Backup & Restore (Datensicherung & Wiederherstellung):**
+  - **Manuelle Backups:** Vollständige Sicherung der gesamten Datenbank (Benutzer, Aquarien, Messwerte, Alarme, Logbuch) inklusive aller hochgeladenen Fotos als komprimierte Datei (`.json.gz`).
+  - **Wiederherstellung (Restore):** Einspielen von Sicherungsdateien über die Weboberfläche oder aus der lokalen Backup-Liste.
+  - **Abwärtskompatibilität & Migration:** Backups älterer Versionen (z. B. v1 ohne neue Tabellen/Felder oder mit separater Messwerttabelle) werden beim Einspielen automatisch auf das aktuelle Datenbankschema migriert und normalisiert.
+  - **Automatische lokale Sicherungen:** Im Admin-Bereich konfigurierbar (Aktivieren/Deaktivieren, Intervall in Stunden z. B. alle 6h, 12h, 24h, Vorhalteanzahl/Retention z. B. max. 10 Backups und automatisches Pruning alter Dateien).
+  - **Sicherheit & Zugriffsschutz:** Alle Backup- und Restore-Funktionen sind strikt auf Administratoren beschränkt.
+- **System-Logbuch:** Live-Einsicht und Bereinigung der Server- und Fehlerprotokolle (`data/aquarium.log`).
 
 ## Anmeldung mit Pocket ID (OIDC)
 
