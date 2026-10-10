@@ -11,7 +11,9 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **Umschaltbar:** Schnell-Umschalter in der Kopfzeile und auf der Anmeldeseite sowie feste Auswahlmöglichkeit im Benutzerprofil.
   - **Chart-Anpassung:** Verlaufsdiagramme und Tooltips passen ihre Farbpalette dynamisch an das aktive Farbschema an.
 - Benutzerprofil zur Pflege von Profilbild (Avatar), Vorname, Nachname, Benutzername und „Über mich“-Bio sowie Passwortverwaltung, Erscheinungsbild und OIDC-Verknüpfung
-- Admin-Bereich mit Benutzerverwaltung für Administratoren (festgelegt anhand der E-Mail-Adresse in der Konfiguration)
+- Admin-Bereich mit Benutzerverwaltung für Administratoren (festgelegt anhand der E-Mail-Adresse in der Konfiguration) sowie integriertem System-Logbuch & Fehlerprotokoll
+- **Überwachungsprozess & Ausfallsicherheit (Supervisor):** Ein übergeordneter Watchdog-Prozess überwacht die Anwendung, fängt ungeplante Abstürze oder Ausnahmen automatisch ab und startet den Worker-Prozess verzögerungsfrei neu
+- **Strukturiertes Fehler- und Ereignis-Logging:** Alle Serverfehler, Uncaught Exceptions, Stderr-Meldungen und Supervisor-Ereignisse werden mit Zeitstempel und Log-Level in eine `.log`-Datei (`data/aquarium.log`) protokolliert
 - Aquarien anlegen (Name, Süß- oder Meerwasser, Volumen, Erinnerungsintervall, Notizen)
 - Bild vom Aquarium hochladen (PNG, JPG, WebP, GIF), das in der Aquarienliste und auf der Detailseite dargestellt wird
 - **Aquarium-Logbuch & Aktivitäten-Timeline:** Lückenloses, chronologisches Protokoll über alle Arbeiten und Ereignisse am Aquarium:
@@ -66,6 +68,8 @@ Die Datenbank liegt in `data/aquarium.db` (Docker: Volume `/data`).
 | `LOCAL_LOGIN` | automatisch | Lokale Anmeldung mit Passwort. Standard: aus, wenn OIDC aktiv ist, sonst an |
 | `OIDC_LINK_BY_USERNAME` | false | `true` verknüpft beim ersten OIDC-Login ein vorhandenes lokales Konto mit gleichem Benutzernamen |
 | `ADMIN_EMAIL` | (leer) | E-Mail-Adresse des Administrators (oder mehrere durch Komma getrennt) für den Admin-Bereich / Benutzerverwaltung |
+| `LOG_FILE` | `./data/aquarium.log` | Pfad zur `.log`-Datei für Fehler- und Systemprotokolle |
+| `SUPERVISOR` | `true` | `false` startet die Anwendung im Einzelprozess ohne Überwachungs-Watchdog |
 
 ## Benutzerprofil und Kontoverwaltung
 

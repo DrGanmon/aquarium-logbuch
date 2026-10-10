@@ -5,6 +5,7 @@ const fs = require('fs');
 
 const { APP_PATH } = require('./config/env');
 const { securityHeaders, csrfProtection } = require('./middleware/security');
+const logger = require('./utils/logger');
 
 const authRoutes = require('./routes/auth');
 const configRoutes = require('./routes/config');
@@ -48,5 +49,14 @@ app.use(express.static(publicDir, { maxAge: 0 }));
 // 404 Handler
 app.use('/api', (req, res) => res.status(404).json({ error: 'Nicht gefunden.' }));
 app.use((req, res) => (req.method === 'GET' ? sendIndex(req, res) : res.status(404).end()));
+
+// Globaler Express-Fehlerbehandler: Protokolliert Fehler in die .log-Datei und sendet 500
+app.use((err, req, res, next) => {
+  logger.error(`Express-Fehler bei ${req.method} ${req.originalUrl || req.url}: ${err.stack || err.message}`, 'express');
+  if (res.headersSent) {
+    return next(err);
+  }
+  res.status(err.status || 500).json({ error: err.userMessage || 'Ein interner Serverfehler ist aufgetreten.' });
+});
 
 module.exports = app;

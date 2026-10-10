@@ -6,6 +6,7 @@ const { hashPassword } = require('../utils/crypto');
 const { wrap, str } = require('../utils/helpers');
 const { auth, requireAdmin } = require('../middleware/auth');
 const { deleteImage } = require('../services/image-service');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -152,6 +153,35 @@ router.delete(
     }
     db.prepare('DELETE FROM users WHERE id = ?').run(id);
     res.json({ ok: true });
+  })
+);
+
+router.get(
+  '/logs',
+  auth,
+  requireAdmin,
+  wrap((req, res) => {
+    const limit = Math.min(Math.max(Number(req.query.lines) || 200, 10), 1000);
+    const logs = logger.readRecentLogs(limit);
+    res.json({
+      logPath: logger.getLogPath(),
+      count: logs.length,
+      logs,
+    });
+  })
+);
+
+router.delete(
+  '/logs',
+  auth,
+  requireAdmin,
+  wrap((req, res) => {
+    const success = logger.clearLogs();
+    if (success) {
+      res.json({ ok: true, message: 'Log-Datei erfolgreich bereinigt.' });
+    } else {
+      res.status(500).json({ error: 'Log-Datei konnte nicht bereinigt werden.' });
+    }
   })
 );
 

@@ -1668,11 +1668,38 @@ async function viewAdmin() {
     );
   });
 
+  const logData = await api('/admin/logs').catch(() => ({ logs: [], logPath: 'data/aquarium.log' }));
+  const logBox = h('pre', {
+    class: 'log-viewer-box',
+    style: 'max-height: 320px; overflow-y: auto; background: var(--tube-bg); padding: .75rem; border: 1px solid var(--line); border-radius: 6px; font-family: monospace; font-size: .82rem; white-space: pre-wrap; word-break: break-all; line-height: 1.4;'
+  }, logData.logs && logData.logs.length ? logData.logs.join('\n') : '(Keine Log-Einträge vorhanden)');
+
+  // Automatischer Scroll nach unten
+  setTimeout(() => { logBox.scrollTop = logBox.scrollHeight; }, 50);
+
+  const btnRefreshLogs = h('button', { class: 'btn small ghost', type: 'button', onclick: async () => {
+    try {
+      const refreshed = await api('/admin/logs');
+      logBox.textContent = refreshed.logs && refreshed.logs.length ? refreshed.logs.join('\n') : '(Keine Log-Einträge vorhanden)';
+      logBox.scrollTop = logBox.scrollHeight;
+      toast('Logs aktualisiert.');
+    } catch (e) { toast(e.message); }
+  } }, '🔄 Aktualisieren');
+
+  const btnClearLogs = h('button', { class: 'btn small ghost danger', type: 'button', onclick: async () => {
+    if (!confirm('Möchtest du die Log-Datei wirklich leeren?')) return;
+    try {
+      await api('/admin/logs', { method: 'DELETE' });
+      logBox.textContent = '(Keine Log-Einträge vorhanden)';
+      toast('Log-Datei geleert.');
+    } catch (e) { toast(e.message); }
+  } }, '🗑️ Log leeren');
+
   mount(h('div', { class: 'stack' },
     h('div', { class: 'row between' },
       h('div', {},
         h('a', { href: '#/', class: 'muted' }, '‹ Zurück zur Übersicht'),
-        h('h1', { style: 'margin-top:.3rem' }, 'Benutzerverwaltung')
+        h('h1', { style: 'margin-top:.3rem' }, 'Benutzerverwaltung & System')
       ),
       h('button', { class: 'btn', type: 'button', onclick: () => adminUserDialog() }, 'Benutzer anlegen')
     ),
@@ -1697,6 +1724,19 @@ async function viewAdmin() {
           h('tbody', {}, rows)
         )
       )
+    ),
+    h('div', { class: 'card stack' },
+      h('div', { class: 'row between' },
+        h('div', {},
+          h('h2', { style: 'margin:0' }, 'System-Logbuch & Fehlerprotokoll'),
+          h('span', { class: 'muted' }, `Logdatei: ${logData.logPath || 'data/aquarium.log'}`)
+        ),
+        h('div', { class: 'row', style: 'gap:.5rem' }, btnRefreshLogs, btnClearLogs)
+      ),
+      h('p', { class: 'muted', style: 'margin:0; font-size:.85rem;' },
+        'Protokolliert Systemmeldungen, Express-Fehler sowie Ereignisse des Überwachungsprozesses (Neustarts, Abstürze).'
+      ),
+      logBox
     )
   ));
 }

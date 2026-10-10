@@ -1,17 +1,22 @@
 'use strict';
+const logger = require('./logger');
 
 const wrap = (fn) => (req, res, next) => {
   try {
     const result = fn(req, res, next);
     if (result && typeof result.catch === 'function') {
       result.catch((e) => {
-        console.error(e);
-        res.status(500).json({ error: 'Interner Fehler.' });
+        logger.error(`Fehler bei ${req.method} ${req.originalUrl || req.url}: ${e.stack || e.message}`, 'api');
+        if (!res.headersSent) {
+          res.status(500).json({ error: 'Interner Fehler.' });
+        }
       });
     }
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Interner Fehler.' });
+    logger.error(`Fehler bei ${req.method} ${req.originalUrl || req.url}: ${e.stack || e.message}`, 'api');
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Interner Fehler.' });
+    }
   }
 };
 
