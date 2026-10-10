@@ -19,29 +19,42 @@ if (require.main === module) {
       logger.error(reason instanceof Error ? reason : new Error(String(reason)), 'worker-unhandled');
     });
 
-    const server = app.listen(PORT, () => {
-      const mode = isWorker ? 'überwachten Worker-Modus' : 'Einzelprozess-Modus';
-      logger.info(`Aquarium-Logbuch läuft auf http://localhost:${PORT} (PID: ${process.pid}, ${mode})`, 'server');
-      if (typeof process.send === 'function') {
-        process.send({ type: 'ready', pid: process.pid, port: PORT });
+    (async () => {
+      const db = require('./src/db');
+      try {
+        await db.init();
+      } catch (err) {
+        logger.fatal(`Datenbank-Initialisierung fehlgeschlagen: ${err.stack || err.message}`, 'db');
+        process.exit(1);
       }
-    });
 
-    server.on('error', (err) => {
-      logger.fatal(`Server-Fehler: ${err.stack || err.message}`, 'server');
-      process.exit(1);
-    });
-
-    const shutdown = () => {
-      logger.info(`Beende HTTP-Server (PID: ${process.pid})...`, 'server');
-      server.close(() => {
-        process.exit(0);
+      const server = app.listen(PORT, () => {
+        const mode = isWorker ? 'überwachten Worker-Modus' : 'Einzelprozess-Modus';
+        logger.info(`Aquarium-Logbuch läuft auf http://localhost:${PORT} (PID: ${process.pid}, ${mode}, DB: ${db.type})`, 'server');
+        if (typeof process.send === 'function') {
+          process.send({ type: 'ready', pid: process.pid, port: PORT });
+        }
       });
-      setTimeout(() => process.exit(0), 2500).unref();
-    };
 
-    process.once('SIGTERM', shutdown);
-    process.once('SIGINT', shutdown);
+      server.on('error', (err) => {
+        logger.fatal(`Server-Fehler: ${err.stack || err.message}`, 'server');
+        process.exit(1);
+      });
+
+      const shutdown = async () => {
+        logger.info(`Beende HTTP-Server (PID: ${process.pid})...`, 'server');
+        server.close(async () => {
+          try {
+            await db.close();
+          } catch (e) {}
+          process.exit(0);
+        });
+        setTimeout(() => process.exit(0), 2500).unref();
+      };
+
+      process.once('SIGTERM', shutdown);
+      process.once('SIGINT', shutdown);
+    })();
   } else {
     // Standard: Starte den Überwachungsprozess
     const supervisor = new Supervisor({

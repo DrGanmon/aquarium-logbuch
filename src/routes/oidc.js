@@ -46,22 +46,22 @@ router.get('/callback', async (req, res) => {
     const email = claims.email ? String(claims.email).trim().toLowerCase() : null;
 
     if (linkUserId) {
-      const targetUser = db.prepare('SELECT id, username, email FROM users WHERE id = ?').get(linkUserId);
+      const targetUser = await db.users.findById(linkUserId);
       if (!targetUser) return appRedirect(res, 'Benutzerkonto nicht gefunden.');
-      const conflict = db.prepare('SELECT id, username FROM users WHERE oidc_sub = ? AND id != ?').get(sub, linkUserId);
+      const conflict = await db.users.findByOidcSub(sub, linkUserId);
       if (conflict) {
         return appRedirect(res, `Diese ${OIDC_PROVIDER_NAME}-Kennung ist bereits mit dem Konto „${conflict.username}“ verknüpft.`);
       }
-      db.prepare('UPDATE users SET oidc_sub = ?, email = COALESCE(?, email) WHERE id = ?').run(sub, email, linkUserId);
-      startSession(res, db, linkUserId, idToken);
+      await db.users.update(linkUserId, { oidc_sub: sub, email: email || targetUser.email });
+      await startSession(res, db, linkUserId, idToken);
       return res.redirect(302, `${APP_URL}/?oidc_linked=1`);
     }
 
-    const user = userForClaims(claims, db);
+    const user = await userForClaims(claims, db);
     if (!user) {
       return appRedirect(res, 'Für dieses Konto ist kein Zugang eingerichtet (Registrierung ist deaktiviert).');
     }
-    startSession(res, db, user.id, idToken);
+    await startSession(res, db, user.id, idToken);
     appRedirect(res);
   } catch (e) {
     console.error('OIDC-Callback fehlgeschlagen:', e.message);

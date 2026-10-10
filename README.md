@@ -1,10 +1,13 @@
 # Aquarium-Logbuch
 
-Mehrbenutzer-Webanwendung für Aquarien-Wasserwerte. Node.js (ab Version 22), Express und SQLite.
+Mehrbenutzer-Webanwendung für Aquarien-Wasserwerte. Node.js (ab Version 22), Express sowie wahlweise **SQLite** (lokal/leichtgewichtig) oder **MongoDB** (produktiv/skalierbar).
 Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen [Pocket ID](https://pocket-id.org).
 
 ## Funktionen
 
+- **Flexibles Dual-Datenbanksystem:**
+  - **SQLite (Standard lokal):** Dateibasierte, performante Zero-Setup-Datenbank (`data/aquarium.db`).
+  - **MongoDB (Produktiv):** Volle Unterstützung für MongoDB-Cluster/Container via `DB_TYPE=mongodb` und `MONGODB_URI`.
 - Anmeldung über Pocket ID (OIDC) oder lokal mit Registrierung
 - **Light & Dark Mode:** Vollständige Unterstützung für ein helles und augenschonendes dunkles Farbschema:
   - **Systemstandard:** Verwendet standardmäßig die Farbschema-Einstellungen des Betriebssystems (`prefers-color-scheme`).
@@ -42,24 +45,35 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 
 ## Starten
 
+### 1. Lokale Entwicklung (SQLite)
+
 ```bash
-npm ci --omit=dev    # braucht Node 22 oder neuer, es wird nichts kompiliert
-npm test             # führt alle automatisierten Tests aus
-npm start            # http://localhost:3000
+npm ci               # Abhängigkeiten installieren (Node >= 22)
+npm test             # führt alle automatisierten Tests aus (SQLite & MongoDB)
+npm start            # startet die App (Standard: SQLite unter http://localhost:3000)
 ```
 
-Oder mit Docker:
+### 2. Betrieb mit MongoDB (Docker Compose)
+
+Eine Vorlage für alle Umgebungsvariablen befindet sich in `example.env`.
 
 ```bash
+# Umgebungsvariablen kopieren und anpassen
+cp example.env .env
+
+# App samt MongoDB-Container starten
 docker compose up -d --build
 ```
 
-Die Datenbank liegt in `data/aquarium.db` (Docker: Volume `/data`).
+### 3. Konfigurationsvariablen
 
 | Variable | Standard | Bedeutung |
 |---|---|---|
+| `DB_TYPE` | `sqlite` (oder `mongodb` falls `MONGODB_URI` gesetzt ist) | Datenbank-Typ (`sqlite` oder `mongodb`) |
+| `MONGODB_URI` | `mongodb://localhost:27017/aquarium` | Verbindungszeichenfolge für MongoDB |
+| `MONGODB_DB_NAME` | `aquarium` | Optionaler Name der MongoDB-Datenbank |
 | `PORT` | 3000 | Port |
-| `DATA_DIR` | `./data` | Ordner der SQLite-Datei |
+| `DATA_DIR` | `./data` | Ordner für Uploads, SQLite-Datenbank & Logdateien |
 | `APP_URL` | (leer) | Öffentliche Adresse der App, z. B. `https://aquarium.example.com` oder `https://example.com/aquarium`. Pflicht für OIDC |
 | `ALLOW_REGISTRATION` | true | `false` sperrt neue Konten (lokal und beim ersten OIDC-Login) |
 | `COOKIE_SECURE` | automatisch | `true`, wenn die App hinter HTTPS läuft. Standard: `true`, wenn `APP_URL` mit `https://` beginnt |

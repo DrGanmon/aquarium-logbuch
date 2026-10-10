@@ -4,23 +4,55 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    depends_on:
+      mongo:
+        condition: service_healthy
     environment:
+      # Datenbank-Umschaltung: 'mongodb' oder 'sqlite'
+      DB_TYPE: "mongodb"
+      MONGODB_URI: "mongodb://root:aquarium_secret_password@mongo:27017/aquarium?authSource=admin"
+      MONGODB_DB_NAME: "aquarium"
+      
       # Öffentliche Adresse der App (bei https:// werden Cookies automatisch als Secure gesetzt)
       APP_URL: "http://localhost:3000"
-      # Anmeldung über Pocket ID (OIDC). In Pocket ID als Callback URL "<APP_URL>/auth/callback"
-      # und als Logout Callback URL "<APP_URL>/" eintragen.
-      # OIDC_ISSUER: "https://id.example.com"
-      # OIDC_CLIENT_ID: ""
-      # OIDC_CLIENT_SECRET: ""
-      # Lokale Anmeldung mit Passwort zusätzlich erlauben (Standard: aus, sobald OIDC aktiv ist)
-      # LOCAL_LOGIN: "false"
-      # Auf "false" setzen, dann werden keine neuen Konten mehr angelegt (auch nicht beim ersten OIDC-Login)
+      
+      # E-Mail-Adresse des Administrators (für Admin-Bereich & Benutzerverwaltung)
+      ADMIN_EMAIL: "admin@example.com"
+      
+      # Registrierung und lokale Anmeldung
       ALLOW_REGISTRATION: "true"
-      # E-Mail-Adresse des Administrators (für Admin-Bereich & Benutzerverwaltung; mehrere mit Komma trennen)
-      # ADMIN_EMAIL: "admin@example.com"
+      LOCAL_LOGIN: "true"
+      
+      # Überwachungsprozess (Watchdog / Neustart bei Fehlern)
+      SUPERVISOR: "true"
+      LOG_FILE: "/data/aquarium.log"
+
+      # OIDC / Pocket ID (optional aktivieren)
+      # OIDC_ISSUER: "https://id.example.com"
+      # OIDC_CLIENT_ID: "aquarium-app"
+      # OIDC_CLIENT_SECRET: ""
+      
       # Auf "1" setzen, wenn ein Reverse Proxy davorsteht
       # TRUST_PROXY: "1"
     volumes:
       - aquarium-data:/data
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: aquarium_secret_password
+      MONGO_INITDB_DATABASE: aquarium
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --eval 'db.adminCommand(\"ping\")' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 volumes:
   aquarium-data:
+  mongo-data:

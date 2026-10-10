@@ -26,48 +26,53 @@ function appRedirect(res, error) {
 }
 
 // Freien, gültigen Benutzernamen aus den OIDC-Claims ableiten
-function usernameFromClaims(claims, db) {
+async function usernameFromClaims(claims, db) {
   const raw = claims.preferred_username || (claims.email ? String(claims.email).split('@')[0] : '') || claims.name || 'benutzer';
   let base = String(raw).normalize('NFC').replace(/[^\p{L}\p{N}_.-]+/gu, '_').slice(0, 36);
   if (base.length < 3) base = (base + '_user').slice(0, 36);
   let name = base;
-  for (let i = 2; db.prepare('SELECT 1 FROM users WHERE username = ?').get(name); i++) {
+  for (let i = 2; await db.users.findByUsername(name); i++) {
     name = `${base}-${i}`;
   }
   return name;
 }
 
-function userForClaims(claims, db) {
+async function userForClaims(claims, db) {
   const sub = String(claims.sub);
   const email = claims.email ? String(claims.email).trim().toLowerCase() : null;
-  const existing = db.prepare('SELECT id, username, email FROM users WHERE oidc_sub = ?').get(sub);
+  const existing = await db.users.findByOidcSub(sub);
   if (existing) {
     if (email && existing.email !== email) {
-      db.prepare('UPDATE users SET email = ? WHERE id = ?').run(email, existing.id);
+      await db.users.update(existing.id, { email });
       existing.email = email;
     }
     return existing;
   }
   // Lokales Konto mit gleicher E-Mail-Adresse automatisch zuordnen
   if (email) {
-    const localByEmail = db.prepare('SELECT id, username, email FROM users WHERE email = ? AND oidc_sub IS NULL').get(email);
-    if (localByEmail) {
-      db.prepare('UPDATE users SET oidc_sub = ? WHERE id = ?').run(sub, localByEmail.id);
-      return localByEmail;
+    const localByEmail = await db.users.findByEmail(email);
+    if (localByEmail && !localByEmail.oidc_sub) {
+      await db.users.update(localByEmail.id, { oidc_sub: sub });
+      return { ...localByEmail, oidc_sub: sub };
     }
   }
   // Optional: vorhandenes lokales Konto mit gleichem Benutzernamen übernehmen (Migration)
   if (OIDC_LINK_BY_USERNAME && claims.preferred_username) {
-    const local = db.prepare('SELECT id, username, email FROM users WHERE username = ? AND oidc_sub IS NULL').get(String(claims.preferred_username));
-    if (local) {
-      db.prepare('UPDATE users SET oidc_sub = ?, email = COALESCE(?, email) WHERE id = ?').run(sub, email, local.id);
-      return { ...local, email: email || local.email };
+    const local = await db.users.findByUsername(String(claims.preferred_username));
+    if (local && !local.oidc_sub) {
+      await db.users.update(local.id, { oidc_sub: sub, email: email || local.email });
+      return { ...local, oidc_sub: sub, email: email || local.email };
     }
   }
   if (!ALLOW_REGISTRATION) return null;
-  const username = usernameFromClaims(claims, db);
-  const info = db.prepare('INSERT INTO users (username, password_hash, oidc_sub, email) VALUES (?, ?, ?, ?)').run(username, '', sub, email);
-  return { id: info.lastInsertRowid, username, email };
+  const username = await usernameFromClaims(claims, db);
+  const user = await db.users.create({
+    username,
+    password_hash: '',
+    oidc_sub: sub,
+    email,
+  });
+  return { id: user.id, username, email };
 }
 
 module.exports = {

@@ -7,6 +7,11 @@ const PORT = Number(env.PORT || 3000);
 const DATA_DIR = env.DATA_DIR || path.join(__dirname, '../../data');
 const ALLOW_REGISTRATION = (env.ALLOW_REGISTRATION || 'true') !== 'false';
 
+// Datenbankkonfiguration: 'sqlite' (Standard) oder 'mongodb'
+const DB_TYPE = (env.DB_TYPE || (env.MONGODB_URI ? 'mongodb' : 'sqlite')).toLowerCase();
+const MONGODB_URI = env.MONGODB_URI || 'mongodb://localhost:27017/aquarium';
+const MONGODB_DB_NAME = env.MONGODB_DB_NAME || '';
+
 // Öffentliche Adresse der App, z. B. https://aquarium.example.com oder https://example.com/aquarium
 const APP_URL = (env.APP_URL || '').trim().replace(/\/+$/, '');
 if (APP_URL && !/^https?:\/\/[^/]+/i.test(APP_URL)) {
@@ -44,6 +49,9 @@ module.exports = {
   PORT,
   DATA_DIR,
   ALLOW_REGISTRATION,
+  DB_TYPE,
+  MONGODB_URI,
+  MONGODB_DB_NAME,
   APP_URL,
   APP_PATH,
   COOKIE_SECURE,

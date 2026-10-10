@@ -21,17 +21,17 @@ function setCookie(res, name, value, maxAgeSec) {
 
 const setSessionCookie = (res, token, maxAgeSec) => setCookie(res, 'session', token, maxAgeSec);
 
-function startSession(res, db, userId, idToken = null) {
+async function startSession(res, db, userId, idToken = null) {
   const token = crypto.randomBytes(32).toString('hex');
   const maxAge = SESSION_DAYS * 86400;
-  db.prepare('INSERT INTO sessions (token_hash, user_id, expires_at, id_token) VALUES (?, ?, ?, ?)').run(
-    sha(token),
-    userId,
-    Date.now() + maxAge * 1000,
-    idToken
-  );
-  db.prepare('DELETE FROM sessions WHERE expires_at < ?').run(Date.now());
+  await db.sessions.create(sha(token), userId, Date.now() + maxAge * 1000, idToken);
+  try {
+    db.sessions.cleanExpired().catch(() => {});
+  } catch (e) {
+    // Ignore async cleanup error
+  }
   setSessionCookie(res, token, maxAge);
+  return token;
 }
 
 module.exports = {

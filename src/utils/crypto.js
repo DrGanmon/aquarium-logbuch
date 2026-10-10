@@ -18,9 +18,14 @@ function verifyPassword(pw, stored) {
 
 const DUMMY_HASH = hashPassword('dummy-password-for-timing');
 
-function hasLocalPassword(userId, db) {
-  const user = db.prepare('SELECT password_hash FROM users WHERE id = ?').get(userId);
-  return !!user?.password_hash?.includes(':');
+function hasLocalPassword(userOrId, db = null) {
+  if (userOrId && typeof userOrId === 'object') {
+    return !!(userOrId.password_hash && userOrId.password_hash.includes(':'));
+  }
+  if (typeof userOrId === 'string' && userOrId.includes(':')) {
+    return true;
+  }
+  return false;
 }
 
 module.exports = {

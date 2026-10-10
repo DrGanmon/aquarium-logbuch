@@ -1,0 +1,25 @@
+services:
+  aquarium:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Lokale SQLite-Datenbank (Standard)
+      DB_TYPE: "sqlite"
+      
+      # Öffentliche Adresse der App
+      APP_URL: "http://localhost:3000"
+      
+      # Administrator
+      ADMIN_EMAIL: "admin@example.com"
+      
+      ALLOW_REGISTRATION: "true"
+      LOCAL_LOGIN: "true"
+      SUPERVISOR: "true"
+      LOG_FILE: "/data/aquarium.log"
+    volumes:
+      - aquarium-data:/data
+
+volumes:
+  aquarium-data:

@@ -14,47 +14,27 @@ const router = express.Router();
 router.get(
   '/',
   auth,
-  wrap((req, res) => {
-    const ownRows = db
-      .prepare(
-        `
-      SELECT a.*, u.username as owner_username, 'owner' as role
-      FROM aquariums a
-      JOIN users u ON u.id = a.user_id
-      WHERE a.user_id = ?
-      ORDER BY a.name
-    `
-      )
-      .all(req.user.id);
-
-    const sharedRows = db
-      .prepare(
-        `
-      SELECT a.*, u.username as owner_username, s.role as role
-      FROM aquarium_shares s
-      JOIN aquariums a ON a.id = s.aquarium_id
-      JOIN users u ON u.id = a.user_id
-      WHERE s.user_id = ?
-      ORDER BY a.name
-    `
-      )
-      .all(req.user.id);
-
-    const all = [...ownRows, ...sharedRows];
-    res.json(all.map((aq) => aquariumSummary(aq, db, aq.role)));
+  wrap(async (req, res) => {
+    const list = await db.aquariums.listForUser(req.user.id);
+    res.json(list);
   })
 );
 
 router.post(
   '/',
   auth,
-  wrap((req, res) => {
+  wrap(async (req, res) => {
     const { error, value } = aquariumInput(req.body);
     if (error) return res.status(400).json({ error });
-    const info = db
-      .prepare('INSERT INTO aquariums (user_id, name, volume_l, water_type, reminder_days, notes) VALUES (?, ?, ?, ?, ?, ?)')
-      .run(req.user.id, value.name, value.volume_l, value.water_type, value.reminder_days, value.notes);
-    res.json({ id: info.lastInsertRowid });
+    const info = await db.aquariums.create({
+      user_id: req.user.id,
+      name: value.name,
+      volume_l: value.volume_l,
+      water_type: value.water_type,
+      reminder_days: value.reminder_days,
+      notes: value.notes,
+    });
+    res.json({ id: info.id });
   })
 );
 
@@ -62,10 +42,9 @@ router.get(
   '/:id',
   auth,
   ownAquarium,
-  wrap((req, res) => {
+  wrap(async (req, res) => {
     const aq = req.aq;
-    const { profiles, thresholds, conflicts, compatibility } = thresholdsOfAquarium(aq, db);
-    const stockRows = db.prepare('SELECT id, species, count, profile FROM stock WHERE aquarium_id = ? ORDER BY species').all(aq.id);
+    const stockRows = await db.stock.listForAquarium(aq.id);
     const stock = stockRows.map((s) => {
       const sp = cfg.speciesService.findSpeciesByName(s.species);
       return {
@@ -81,29 +60,14 @@ router.get(
         behaviorNotes: sp?.behaviorNotes || null,
       };
     });
-    const alerts = db
-      .prepare(
-        `SELECT id, param, level, value, message, created_at FROM alerts WHERE aquarium_id = ? AND acked_at IS NULL ORDER BY (level = 'crit') DESC, created_at DESC`
-      )
-      .all(aq.id);
-    // aktuellster Wert je Parameter mit Bewertung nach heutigen Grenzwerten
-    const latest = {};
-    const rows = db
-      .prepare(
-        `
-    SELECT mv.param, mv.value, m.measured_at FROM measurement_values mv
-    JOIN measurements m ON m.id = mv.measurement_id
-    WHERE m.aquarium_id = ? AND m.measured_at = (
-      SELECT MAX(m2.measured_at) FROM measurements m2 JOIN measurement_values v2 ON v2.measurement_id = m2.id
-      WHERE m2.aquarium_id = m.aquarium_id AND v2.param = mv.param)`
-      )
-      .all(aq.id);
-    for (const r of rows) {
-      latest[r.param] = { value: r.value, measured_at: r.measured_at, status: cfg.evaluate(thresholds[r.param], r.value) };
-    }
+    const { profiles, thresholds, conflicts, compatibility } = await thresholdsOfAquarium(aq, db, stockRows);
+    const alerts = await db.alerts.listOpenForAquarium(aq.id);
+    const latest = await db.measurements.getLatestValues(aq.id, thresholds);
     const stockCompatibility = compatibility || cfg.speciesService.analyzeStockCompatibility(aq, stockRows);
+    const summary = await db.aquariums.getSummary(aq, req.accessRole);
+
     res.json({
-      aquarium: aquariumSummary(aq, db, req.accessRole),
+      aquarium: summary,
       stock,
       profiles,
       thresholds,
@@ -120,17 +84,16 @@ router.put(
   '/:id',
   auth,
   writeAquarium,
-  wrap((req, res) => {
+  wrap(async (req, res) => {
     const { error, value } = aquariumInput(req.body);
     if (error) return res.status(400).json({ error });
-    db.prepare('UPDATE aquariums SET name = ?, volume_l = ?, water_type = ?, reminder_days = ?, notes = ? WHERE id = ?').run(
-      value.name,
-      value.volume_l,
-      value.water_type,
-      value.reminder_days,
-      value.notes,
-      req.aq.id
-    );
+    await db.aquariums.update(req.aq.id, {
+      name: value.name,
+      volume_l: value.volume_l,
+      water_type: value.water_type,
+      reminder_days: value.reminder_days,
+      notes: value.notes,
+    });
     res.json({ ok: true });
   })
 );
@@ -139,11 +102,11 @@ router.delete(
   '/:id',
   auth,
   ownerAquarium,
-  wrap((req, res) => {
+  wrap(async (req, res) => {
     if (req.aq.image_file) {
       deleteImage(req.aq.image_file);
     }
-    db.prepare('DELETE FROM aquariums WHERE id = ?').run(req.aq.id);
+    await db.aquariums.delete(req.aq.id);
     res.json({ ok: true });
   })
 );
@@ -153,18 +116,8 @@ router.get(
   '/:id/shares',
   auth,
   ownerAquarium,
-  wrap((req, res) => {
-    const rows = db
-      .prepare(
-        `
-      SELECT s.user_id, u.username, u.email, s.role, s.created_at
-      FROM aquarium_shares s
-      JOIN users u ON u.id = s.user_id
-      WHERE s.aquarium_id = ?
-      ORDER BY u.username ASC
-    `
-      )
-      .all(req.aq.id);
+  wrap(async (req, res) => {
+    const rows = await db.shares.listForAquarium(req.aq.id);
     res.json(rows);
   })
 );
@@ -173,24 +126,19 @@ router.post(
   '/:id/shares',
   auth,
   ownerAquarium,
-  wrap((req, res) => {
+  wrap(async (req, res) => {
     const query = str(req.body.username || req.body.email || req.body.usernameOrEmail, 120);
     const role = req.body.role === 'write' ? 'write' : req.body.role === 'view' ? 'view' : null;
     if (!query) return res.status(400).json({ error: 'Bitte Benutzername oder E-Mail angeben.' });
     if (!role) return res.status(400).json({ error: 'Rolle muss „view“ (Lesen) oder „write“ (Schreiben) sein.' });
 
-    const targetUser = db
-      .prepare('SELECT id, username, email FROM users WHERE username = ? COLLATE NOCASE OR (email IS NOT NULL AND email = ? COLLATE NOCASE)')
-      .get(query, query);
+    const targetUser = (await db.users.findByUsername(query)) || (await db.users.findByEmail(query));
     if (!targetUser) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
     if (targetUser.id === req.aq.user_id) {
       return res.status(400).json({ error: 'Das Aquarium gehört diesem Benutzer bereits.' });
     }
 
-    db.prepare(
-      'INSERT INTO aquarium_shares (aquarium_id, user_id, role) VALUES (?, ?, ?) ON CONFLICT(aquarium_id, user_id) DO UPDATE SET role = excluded.role'
-    ).run(req.aq.id, targetUser.id, role);
-
+    await db.shares.upsert(req.aq.id, targetUser.id, role);
     res.json({ ok: true, user_id: targetUser.id, username: targetUser.username, email: targetUser.email, role });
   })
 );
@@ -198,14 +146,14 @@ router.post(
 router.delete(
   '/:id/shares/:userId',
   auth,
-  wrap((req, res) => {
-    const access = getAquariumAccess(req.params.id, req.user);
+  wrap(async (req, res) => {
+    const access = await getAquariumAccess(req.params.id, req.user);
     if (!access) return res.status(404).json({ error: 'Aquarium nicht gefunden.' });
     const targetUserId = Number(req.params.userId);
     if (access.role !== 'owner' && req.user.id !== targetUserId) {
       return res.status(403).json({ error: 'Keine Berechtigung zum Entfernen dieser Freigabe.' });
     }
-    db.prepare('DELETE FROM aquarium_shares WHERE aquarium_id = ? AND user_id = ?').run(access.aq.id, targetUserId);
+    await db.shares.delete(access.aq.id, targetUserId);
     res.json({ ok: true });
   })
 );
@@ -234,10 +182,10 @@ router.post(
   '/:id/image',
   auth,
   writeAquarium,
-  wrap((req, res) => {
+  wrap(async (req, res) => {
     const { error, value } = saveImage(req.aq.id, req.body.image, req.aq.image_file);
     if (error) return res.status(400).json({ error });
-    db.prepare('UPDATE aquariums SET image_file = ? WHERE id = ?').run(value.filename, req.aq.id);
+    await db.aquariums.updateImage(req.aq.id, value.filename);
     res.json({ ok: true, image_url: `api/aquariums/${req.aq.id}/image?t=${Date.now()}` });
   })
 );
@@ -246,10 +194,10 @@ router.delete(
   '/:id/image',
   auth,
   writeAquarium,
-  wrap((req, res) => {
+  wrap(async (req, res) => {
     if (req.aq.image_file) {
       deleteImage(req.aq.image_file);
-      db.prepare('UPDATE aquariums SET image_file = NULL WHERE id = ?').run(req.aq.id);
+      await db.aquariums.updateImage(req.aq.id, null);
     }
     res.json({ ok: true });
   })
@@ -260,7 +208,7 @@ router.post(
   '/:id/stock',
   auth,
   writeAquarium,
-  wrap((req, res) => {
+  wrap(async (req, res) => {
     const species = str(req.body.species, 80);
     const count = Math.round(Number(req.body.count ?? 1));
     let profile = req.body.profile;
@@ -272,10 +220,13 @@ router.post(
     if (!Number.isFinite(count) || count < 1 || count > 10000) {
       return res.status(400).json({ error: 'Anzahl: 1–10000.' });
     }
-    const info = db
-      .prepare('INSERT INTO stock (aquarium_id, species, count, profile) VALUES (?, ?, ?, ?)')
-      .run(req.aq.id, species, count, profile);
-    res.json({ id: info.lastInsertRowid });
+    const info = await db.stock.create({
+      aquarium_id: req.aq.id,
+      species,
+      count,
+      profile,
+    });
+    res.json({ id: info.id });
   })
 );
 
@@ -283,8 +234,8 @@ router.delete(
   '/:id/stock/:sid',
   auth,
   writeAquarium,
-  wrap((req, res) => {
-    db.prepare('DELETE FROM stock WHERE id = ? AND aquarium_id = ?').run(Number(req.params.sid), req.aq.id);
+  wrap(async (req, res) => {
+    await db.stock.delete(Number(req.params.sid), req.aq.id);
     res.json({ ok: true });
   })
 );
@@ -294,10 +245,10 @@ router.post(
   '/:id/measurements',
   auth,
   writeAquarium,
-  wrap((req, res) => {
+  wrap(async (req, res) => {
     const values = req.body.values && typeof req.body.values === 'object' ? req.body.values : {};
     const params = new Map(cfg.PARAMETERS.map((p) => [p.key, p]));
-    const clean = [];
+    const cleanValues = {};
     for (const [key, raw] of Object.entries(values)) {
       if (raw === '' || raw == null) continue;
       const p = params.get(key);
@@ -306,9 +257,9 @@ router.post(
       if (!Number.isFinite(v) || v < p.min || v > p.max) {
         return res.status(400).json({ error: `${p.name}: Bitte einen Wert zwischen ${p.min} und ${p.max} eingeben.` });
       }
-      clean.push([p, v]);
+      cleanValues[p.key] = v;
     }
-    if (!clean.length) return res.status(400).json({ error: 'Bitte mindestens einen Wert eintragen.' });
+    if (Object.keys(cleanValues).length === 0) return res.status(400).json({ error: 'Bitte mindestens einen Wert eintragen.' });
 
     let measuredAt = new Date();
     if (req.body.measured_at) {
@@ -318,31 +269,28 @@ router.post(
       }
     }
     const iso = measuredAt.toISOString();
-    const { thresholds } = thresholdsOfAquarium(req.aq, db);
-    const created = [];
-
-    db.transaction(() => {
-      const info = db
-        .prepare('INSERT INTO measurements (aquarium_id, measured_at, note, created_by) VALUES (?, ?, ?, ?)')
-        .run(req.aq.id, iso, str(req.body.note, 500), req.user.id);
-      const mid = info.lastInsertRowid;
-      const insV = db.prepare('INSERT INTO measurement_values (measurement_id, param, value) VALUES (?, ?, ?)');
-      const insA = db.prepare(
-        'INSERT INTO alerts (aquarium_id, measurement_id, param, level, value, message) VALUES (?, ?, ?, ?, ?, ?)'
-      );
-      for (const [p, v] of clean) {
-        insV.run(mid, p.key, v);
-        const range = thresholds[p.key];
-        const level = cfg.evaluate(range, v);
-        if (level === 'warn' || level === 'crit') {
-          const message = buildMessage(p, range, level, v);
-          insA.run(req.aq.id, mid, p.key, level, v, message);
-          created.push({ param: p.key, level, message });
-        }
+    const { thresholds } = await thresholdsOfAquarium(req.aq, db);
+    const alertsToCreate = [];
+    for (const [key, v] of Object.entries(cleanValues)) {
+      const p = params.get(key);
+      const range = thresholds[key];
+      const level = cfg.evaluate(range, v);
+      if (level === 'warn' || level === 'crit') {
+        const message = buildMessage(p, range, level, v);
+        alertsToCreate.push({ param: key, level, value: v, message });
       }
-      created.mid = mid;
-    })();
-    res.json({ id: created.mid, alerts: created });
+    }
+
+    const info = await db.measurements.create({
+      aquarium_id: req.aq.id,
+      measured_at: iso,
+      note: str(req.body.note, 500),
+      created_by: req.user.id,
+      values: cleanValues,
+      alerts: alertsToCreate,
+    });
+
+    res.json({ id: info.id, alerts: alertsToCreate });
   })
 );
 
@@ -350,20 +298,12 @@ router.get(
   '/:id/measurements',
   auth,
   ownAquarium,
-  wrap((req, res) => {
+  wrap(async (req, res) => {
     const days = Math.min(Math.max(Number(req.query.days) || 90, 1), 3650);
-    const since = new Date(Date.now() - days * 86400000).toISOString();
-    const ms = db
-      .prepare('SELECT id, measured_at, note FROM measurements WHERE aquarium_id = ? AND measured_at >= ? ORDER BY measured_at')
-      .all(req.aq.id, since);
-    const vals = db
-      .prepare(
-        `SELECT mv.measurement_id, mv.param, mv.value FROM measurement_values mv JOIN measurements m ON m.id = mv.measurement_id WHERE m.aquarium_id = ? AND m.measured_at >= ?`
-      )
-      .all(req.aq.id, since);
-    const byId = new Map(ms.map((m) => [m.id, { ...m, values: {} }]));
-    for (const v of vals) byId.get(v.measurement_id).values[v.param] = v.value;
-    res.json([...byId.values()]);
+    const ms = await db.measurements.listForAquarium(req.aq.id, { days });
+    // Chronologisch aufsteigend für Graphen
+    const sorted = [...ms].sort((a, b) => new Date(a.measured_at).getTime() - new Date(b.measured_at).getTime());
+    res.json(sorted);
   })
 );
 
@@ -371,8 +311,8 @@ router.delete(
   '/:id/measurements/:mid',
   auth,
   writeAquarium,
-  wrap((req, res) => {
-    db.prepare('DELETE FROM measurements WHERE id = ? AND aquarium_id = ?').run(Number(req.params.mid), req.aq.id);
+  wrap(async (req, res) => {
+    await db.measurements.delete(Number(req.params.mid), req.aq.id);
     res.json({ ok: true });
   })
 );
@@ -382,13 +322,14 @@ router.post(
   '/:id/alerts/ack',
   auth,
   writeAquarium,
-  wrap((req, res) => {
-    const ids = Array.isArray(req.body.ids) ? req.body.ids.map(Number).filter(Number.isInteger) : null;
+  wrap(async (req, res) => {
+    const ids = Array.isArray(req.body?.ids) ? req.body.ids.map(Number).filter(Number.isInteger) : null;
     if (ids) {
-      const stmt = db.prepare("UPDATE alerts SET acked_at = datetime('now') WHERE id = ? AND aquarium_id = ? AND acked_at IS NULL");
-      db.transaction(() => ids.forEach((id) => stmt.run(id, req.aq.id)))();
+      for (const alertId of ids) {
+        await db.alerts.ack(alertId, req.aq.id);
+      }
     } else {
-      db.prepare("UPDATE alerts SET acked_at = datetime('now') WHERE aquarium_id = ? AND acked_at IS NULL").run(req.aq.id);
+      await db.alerts.ackAll(req.aq.id);
     }
     res.json({ ok: true });
   })
@@ -399,16 +340,8 @@ router.get(
   '/:id/maintenance',
   auth,
   ownAquarium,
-  wrap((req, res) => {
-    const rows = db
-      .prepare(
-        `SELECT ml.*, u.username as created_by_username
-         FROM maintenance_logs ml
-         LEFT JOIN users u ON u.id = ml.created_by
-         WHERE ml.aquarium_id = ?
-         ORDER BY ml.logged_at DESC`
-      )
-      .all(req.aq.id);
+  wrap(async (req, res) => {
+    const rows = await db.maintenance.listForAquarium(req.aq.id);
     res.json(rows);
   })
 );
@@ -417,18 +350,21 @@ router.post(
   '/:id/maintenance',
   auth,
   writeAquarium,
-  wrap((req, res) => {
+  wrap(async (req, res) => {
     const { error, value } = validateMaintenanceInput(req.body);
     if (error) return res.status(400).json({ error });
 
-    const info = db
-      .prepare(
-        `INSERT INTO maintenance_logs (aquarium_id, logged_at, type, percentage, details, note, created_by)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`
-      )
-      .run(req.aq.id, value.logged_at, value.type, value.percentage, value.details, value.note, req.user.id);
+    const info = await db.maintenance.create({
+      aquarium_id: req.aq.id,
+      logged_at: value.logged_at,
+      type: value.type,
+      percentage: value.percentage,
+      details: value.details,
+      note: value.note,
+      created_by: req.user.id,
+    });
 
-    res.json({ ok: true, id: info.lastInsertRowid });
+    res.json({ ok: true, id: info.id });
   })
 );
 
@@ -436,19 +372,21 @@ router.put(
   '/:id/maintenance/:logId',
   auth,
   writeAquarium,
-  wrap((req, res) => {
+  wrap(async (req, res) => {
     const logId = Number(req.params.logId);
-    const existing = db.prepare('SELECT id FROM maintenance_logs WHERE id = ? AND aquarium_id = ?').get(logId, req.aq.id);
-    if (!existing) return res.status(404).json({ error: 'Eintrag nicht gefunden.' });
+    const existing = await db.maintenance.findById(logId);
+    if (!existing || existing.aquarium_id !== req.aq.id) return res.status(404).json({ error: 'Eintrag nicht gefunden.' });
 
     const { error, value } = validateMaintenanceInput(req.body);
     if (error) return res.status(400).json({ error });
 
-    db.prepare(
-      `UPDATE maintenance_logs
-       SET logged_at = ?, type = ?, percentage = ?, details = ?, note = ?
-       WHERE id = ? AND aquarium_id = ?`
-    ).run(value.logged_at, value.type, value.percentage, value.details, value.note, logId, req.aq.id);
+    await db.maintenance.update(logId, req.aq.id, {
+      logged_at: value.logged_at,
+      type: value.type,
+      percentage: value.percentage,
+      details: value.details,
+      note: value.note,
+    });
 
     res.json({ ok: true });
   })
@@ -458,12 +396,12 @@ router.delete(
   '/:id/maintenance/:logId',
   auth,
   writeAquarium,
-  wrap((req, res) => {
+  wrap(async (req, res) => {
     const logId = Number(req.params.logId);
-    const existing = db.prepare('SELECT id FROM maintenance_logs WHERE id = ? AND aquarium_id = ?').get(logId, req.aq.id);
-    if (!existing) return res.status(404).json({ error: 'Eintrag nicht gefunden.' });
+    const existing = await db.maintenance.findById(logId);
+    if (!existing || existing.aquarium_id !== req.aq.id) return res.status(404).json({ error: 'Eintrag nicht gefunden.' });
 
-    db.prepare('DELETE FROM maintenance_logs WHERE id = ? AND aquarium_id = ?').run(logId, req.aq.id);
+    await db.maintenance.delete(logId, req.aq.id);
     res.json({ ok: true });
   })
 );
@@ -473,8 +411,8 @@ router.get(
   '/:id/logs',
   auth,
   ownAquarium,
-  wrap((req, res) => {
-    const timeline = getAquariumTimeline(db, req.aq.id, {
+  wrap(async (req, res) => {
+    const timeline = await getAquariumTimeline(db, req.aq.id, {
       days: req.query.days,
       kind: req.query.kind,
       limit: req.query.limit,

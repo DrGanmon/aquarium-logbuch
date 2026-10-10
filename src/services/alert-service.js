@@ -23,8 +23,8 @@ function buildMessage(p, range, level, value) {
   return msg;
 }
 
-function thresholdsOfAquarium(aq, db) {
-  const stock = db.prepare('SELECT id, species, count, profile FROM stock WHERE aquarium_id = ? ORDER BY species').all(aq.id);
+async function thresholdsOfAquarium(aq, db, stockRows = null) {
+  const stock = stockRows || (await db.stock.listForAquarium(aq.id));
   const profiles = Array.from(new Set(stock.map((r) => r.profile)));
   const compatibility = cfg.speciesService.analyzeStockCompatibility(aq, stock);
   return { profiles, compatibility, ...cfg.thresholdsFor(aq.water_type, profiles) };

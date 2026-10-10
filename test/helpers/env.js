@@ -151,6 +151,37 @@ function createTestEnvironment(customEnv = {}) {
   };
 }
 
+/**
+ * Erstellt eine isolierte MongoDB-Testumgebung mit In-Memory-Server.
+ */
+async function createMongoTestEnvironment(customEnv = {}) {
+  const { MongoMemoryServer } = require('mongodb-memory-server');
+  const mongod = await MongoMemoryServer.create();
+  const uri = mongod.getUri();
+
+  const env = createTestEnvironment({
+    DB_TYPE: 'mongodb',
+    MONGODB_URI: uri,
+    ...customEnv,
+  });
+
+  const originalCleanup = env.cleanup;
+  env.cleanup = async () => {
+    try {
+      const db = require('../../src/db');
+      await db.close();
+    } catch (e) {}
+    await originalCleanup();
+    try {
+      await mongod.stop();
+    } catch (e) {}
+  };
+
+  env.getMongoUri = () => uri;
+  return env;
+}
+
 module.exports = {
   createTestEnvironment,
+  createMongoTestEnvironment,
 };
