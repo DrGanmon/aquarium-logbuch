@@ -287,11 +287,27 @@ app.post('/api/logout', async (req, res) => {
 });
 
 const hasLocalPassword = (userId) => !!db.prepare('SELECT password_hash FROM users WHERE id = ?').get(userId)?.password_hash?.includes(':');
-app.get('/api/me', auth, (req, res) => res.json({
-  ...req.user,
-  registration: ALLOW_REGISTRATION,
-  hasPassword: LOCAL_LOGIN && hasLocalPassword(req.user.id),
-  isAdmin: req.user.isAdmin,
+
+app.get('/api/me', auth, (req, res) => {
+  const u = db.prepare('SELECT id, username, email, oidc_sub FROM users WHERE id = ?').get(req.user.id);
+  res.json({
+    id: u.id,
+    username: u.username,
+    email: u.email || null,
+    registration: ALLOW_REGISTRATION,
+    hasPassword: LOCAL_LOGIN && hasLocalPassword(u.id),
+    hasOidc: !!u.oidc_sub,
+    oidcEnabled: OIDC_ENABLED,
+    oidcProviderName: OIDC_PROVIDER_NAME,
+    isAdmin: isEmailAdmin(u.email),
+  });
+});
+
+app.post('/api/me/unlink-oidc', auth, wrap((req, res) => {
+  const hasPw = hasLocalPassword(req.user.id);
+  if (!hasPw) return res.status(400).json({ error: 'Ohne lokales Passwort kann die OIDC-Verknüpfung nicht getrennt werden.' });
+  db.prepare('UPDATE users SET oidc_sub = NULL WHERE id = ?').run(req.user.id);
+  res.json({ ok: true });
 }));
 app.get('/api/registration', (req, res) => res.json({
   registration: LOCAL_LOGIN && ALLOW_REGISTRATION,
@@ -503,6 +519,14 @@ function userForClaims(claims) {
     }
     return existing;
   }
+  // Lokales Konto mit gleicher E-Mail-Adresse automatisch zuordnen
+  if (email) {
+    const localByEmail = db.prepare('SELECT id, username, email FROM users WHERE email = ? AND oidc_sub IS NULL').get(email);
+    if (localByEmail) {
+      db.prepare('UPDATE users SET oidc_sub = ? WHERE id = ?').run(sub, localByEmail.id);
+      return localByEmail;
+    }
+  }
   // Optional: vorhandenes lokales Konto mit gleichem Benutzernamen übernehmen (Migration)
   if (OIDC_LINK_BY_USERNAME && claims.preferred_username) {
     const local = db.prepare('SELECT id, username, email FROM users WHERE username = ? AND oidc_sub IS NULL').get(String(claims.preferred_username));
@@ -531,6 +555,7 @@ app.get('/api/admin/users', auth, requireAdmin, wrap((req, res) => {
     id: u.id,
     username: u.username,
     email: u.email || null,
+    oidcSub: u.oidc_sub || null,
     hasPassword: !!(u.password_hash && u.password_hash.includes(':')),
     hasOidc: !!u.oidc_sub,
     isAdmin: isEmailAdmin(u.email),
@@ -542,15 +567,17 @@ app.get('/api/admin/users', auth, requireAdmin, wrap((req, res) => {
 app.post('/api/admin/users', auth, requireAdmin, wrap((req, res) => {
   const username = str(req.body.username, 40);
   const email = req.body.email ? str(req.body.email, 120).toLowerCase() : null;
+  const oidcSub = req.body.oidcSub ? str(req.body.oidcSub, 255) : null;
   const password = typeof req.body.password === 'string' && req.body.password.length > 0 ? req.body.password : null;
   if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) return res.status(400).json({ error: 'Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).' });
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Ungültige E-Mail-Adresse.' });
   if (password && (password.length < 8 || password.length > 200)) return res.status(400).json({ error: 'Das Passwort braucht mindestens 8 Zeichen.' });
   if (db.prepare('SELECT 1 FROM users WHERE username = ?').get(username)) return res.status(409).json({ error: 'Dieser Benutzername ist vergeben.' });
   if (email && db.prepare('SELECT 1 FROM users WHERE email = ?').get(email)) return res.status(409).json({ error: 'Diese E-Mail-Adresse ist bereits vergeben.' });
+  if (oidcSub && db.prepare('SELECT 1 FROM users WHERE oidc_sub = ?').get(oidcSub)) return res.status(409).json({ error: 'Diese OIDC-Benutzer-ID (sub) ist bereits vergeben.' });
   const passHash = password ? hashPassword(password) : '';
-  const info = db.prepare('INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)').run(username, passHash, email);
-  res.json({ id: info.lastInsertRowid, username, email, isAdmin: isEmailAdmin(email) });
+  const info = db.prepare('INSERT INTO users (username, password_hash, oidc_sub, email) VALUES (?, ?, ?, ?)').run(username, passHash, oidcSub, email);
+  res.json({ id: info.lastInsertRowid, username, email, oidcSub, isAdmin: isEmailAdmin(email) });
 }));
 
 app.put('/api/admin/users/:id', auth, requireAdmin, wrap((req, res) => {
@@ -559,6 +586,7 @@ app.put('/api/admin/users/:id', auth, requireAdmin, wrap((req, res) => {
   if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
   const username = str(req.body.username, 40);
   const email = req.body.email ? str(req.body.email, 120).toLowerCase() : null;
+  const oidcSub = req.body.oidcSub !== undefined ? (req.body.oidcSub ? str(req.body.oidcSub, 255) : null) : undefined;
   const password = typeof req.body.password === 'string' && req.body.password.length > 0 ? req.body.password : null;
   if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) return res.status(400).json({ error: 'Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).' });
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Ungültige E-Mail-Adresse.' });
@@ -569,10 +597,16 @@ app.put('/api/admin/users/:id', auth, requireAdmin, wrap((req, res) => {
     const existingEmail = db.prepare('SELECT 1 FROM users WHERE email = ? AND id != ?').get(email, id);
     if (existingEmail) return res.status(409).json({ error: 'Diese E-Mail-Adresse ist bereits vergeben.' });
   }
+  if (oidcSub) {
+    const existingSub = db.prepare('SELECT 1 FROM users WHERE oidc_sub = ? AND id != ?').get(oidcSub, id);
+    if (existingSub) return res.status(409).json({ error: 'Diese OIDC-Benutzer-ID (sub) ist bereits einem anderen Benutzer zugeordnet.' });
+  }
+
+  const finalOidcSub = oidcSub !== undefined ? oidcSub : user.oidc_sub;
   if (password) {
-    db.prepare('UPDATE users SET username = ?, email = ?, password_hash = ? WHERE id = ?').run(username, email, hashPassword(password), id);
+    db.prepare('UPDATE users SET username = ?, email = ?, oidc_sub = ?, password_hash = ? WHERE id = ?').run(username, email, finalOidcSub, hashPassword(password), id);
   } else {
-    db.prepare('UPDATE users SET username = ?, email = ? WHERE id = ?').run(username, email, id);
+    db.prepare('UPDATE users SET username = ?, email = ?, oidc_sub = ? WHERE id = ?').run(username, email, finalOidcSub, id);
   }
   res.json({ ok: true });
 }));
@@ -598,12 +632,43 @@ app.get('/auth/login', async (req, res) => {
   }
 });
 
+app.get('/auth/link', auth, async (req, res) => {
+  if (!oidc) return res.status(404).end();
+  try {
+    const { url, state } = await oidc.startLogin();
+    setCookie(res, 'oidc_state', state, 600);
+    setCookie(res, 'oidc_link_user', String(req.user.id), 600);
+    res.redirect(302, url);
+  } catch (e) {
+    console.error('OIDC-Link fehlgeschlagen:', e.message);
+    appRedirect(res, `${OIDC_PROVIDER_NAME} ist nicht erreichbar.`);
+  }
+});
+
 app.get('/auth/callback', async (req, res) => {
   if (!oidc) return res.status(404).end();
-  const cookieState = parseCookies(req).oidc_state;
+  const cookies = parseCookies(req);
+  const cookieState = cookies.oidc_state;
+  const linkUserId = cookies.oidc_link_user ? Number(cookies.oidc_link_user) : null;
   setCookie(res, 'oidc_state', '', 0);
+  setCookie(res, 'oidc_link_user', '', 0);
   try {
     const { claims, idToken } = await oidc.finishLogin(req.query, cookieState);
+    const sub = String(claims.sub);
+    const email = claims.email ? String(claims.email).trim().toLowerCase() : null;
+
+    if (linkUserId) {
+      const targetUser = db.prepare('SELECT id, username, email FROM users WHERE id = ?').get(linkUserId);
+      if (!targetUser) return appRedirect(res, 'Benutzerkonto nicht gefunden.');
+      const conflict = db.prepare('SELECT id, username FROM users WHERE oidc_sub = ? AND id != ?').get(sub, linkUserId);
+      if (conflict) {
+        return appRedirect(res, `Diese ${OIDC_PROVIDER_NAME}-Kennung ist bereits mit dem Konto „${conflict.username}“ verknüpft.`);
+      }
+      db.prepare('UPDATE users SET oidc_sub = ?, email = COALESCE(?, email) WHERE id = ?').run(sub, email, linkUserId);
+      startSession(res, linkUserId, idToken);
+      return res.redirect(302, `${APP_URL}/?oidc_linked=1`);
+    }
+
     const user = userForClaims(claims);
     if (!user) return appRedirect(res, 'Für dieses Konto ist kein Zugang eingerichtet (Registrierung ist deaktiviert).');
     startSession(res, user.id, idToken);

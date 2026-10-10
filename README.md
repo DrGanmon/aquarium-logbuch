@@ -78,9 +78,11 @@ sowie `iss`, `aud`, `exp` und `nonce`. Beim ersten Login wird automatisch ein Ko
 (Benutzername aus `preferred_username`), die Zuordnung erfolgt dauerhaft über die `sub` des Benutzers.
 "Abmelden" beendet auch die Sitzung bei Pocket ID.
 
-**Umstieg von lokalen Konten:** Mit `OIDC_LINK_BY_USERNAME=true` wird ein vorhandenes Konto beim ersten Pocket-ID-Login
-übernommen, wenn der Pocket-ID-Benutzername gleich ist. Nur aktivieren, wenn sich in Pocket ID niemand selbst einen
-beliebigen Benutzernamen geben kann, und nach dem Umstieg wieder abschalten.
+**Umstieg und nachträgliche Zuordnung von lokalen Konten:**
+- **Selbstverknüpfung:** Angemeldete Benutzer können ihr Konto in der Kopfzeile über „Mit Pocket ID verknüpfen“ direkt mit Pocket ID verbinden.
+- **Automatisch per E-Mail:** Stimmt die im lokalen Konto hinterlegte E-Mail-Adresse mit der E-Mail-Adresse aus Pocket ID überein, wird das Konto beim OIDC-Login automatisch zugeordnet.
+- **Admin-Benutzerverwaltung:** Administratoren können in der Benutzerverwaltung die OIDC-Benutzer-ID (`sub`) für jedes Konto direkt eintragen, ändern oder löschen.
+- **Per Benutzername:** Mit `OIDC_LINK_BY_USERNAME=true` wird ein vorhandenes Konto beim ersten Pocket-ID-Login übernommen, wenn der Pocket-ID-Benutzername übereinstimmt (nur aktivieren, wenn Benutzer sich in Pocket ID keine beliebigen Namen vergeben können).
 
 **App unter einem Unterpfad:** `APP_URL` darf einen Pfad enthalten (z. B. `https://example.com/aquarium`).
 Der Reverse Proxy muss diesen Präfix dann entfernen, bevor er an die App weiterleitet

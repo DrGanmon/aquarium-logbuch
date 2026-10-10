@@ -103,6 +103,7 @@ async function route() {
 /* ---------- Anmeldung ---------- */
 // Fehlermeldung vom OIDC-Rücksprung (?auth_error=...) einmalig übernehmen und aus der Adresse entfernen
 let AUTH_ERROR = new URLSearchParams(location.search).get('auth_error') || '';
+let OIDC_LINKED = new URLSearchParams(location.search).get('oidc_linked') === '1';
 if (location.search) history.replaceState(null, '', location.pathname + location.hash);
 
 async function showAuth(mode = 'login') {
@@ -151,6 +152,15 @@ async function start() {
   document.getElementById('btn-pw').hidden = !ME.hasPassword;
   const adminBtn = document.getElementById('btn-admin');
   if (adminBtn) adminBtn.hidden = !ME.isAdmin;
+  const linkOidcBtn = document.getElementById('btn-link-oidc');
+  if (linkOidcBtn) {
+    linkOidcBtn.hidden = !ME.oidcEnabled || ME.hasOidc;
+    linkOidcBtn.textContent = `Mit ${ME.oidcProviderName || 'Pocket ID'} verknüpfen`;
+  }
+  if (OIDC_LINKED) {
+    toast(`Erfolgreich mit ${ME.oidcProviderName || 'Pocket ID'} verknüpft.`);
+    OIDC_LINKED = false;
+  }
   route();
 }
 
@@ -522,7 +532,7 @@ async function viewAdmin() {
     const isSelf = u.id === ME.id;
     const authTypes = [];
     if (u.hasPassword) authTypes.push('Passwort');
-    if (u.hasOidc) authTypes.push('Pocket ID');
+    if (u.hasOidc) authTypes.push(`Pocket ID${u.oidcSub ? ` (${u.oidcSub})` : ''}`);
     if (!authTypes.length) authTypes.push('–');
 
     return h('tr', {},
@@ -587,6 +597,7 @@ function adminUserDialog(user) {
   const f = {
     username: h('input', { required: true, maxlength: '40', value: user?.username || '' }),
     email: h('input', { type: 'email', maxlength: '120', value: user?.email || '', placeholder: 'z. B. max@example.com' }),
+    oidcSub: h('input', { maxlength: '255', value: user?.oidcSub || '', placeholder: 'z. B. Sub-ID aus Pocket ID (optional)' }),
     password: h('input', {
       type: 'password',
       autocomplete: 'new-password',
@@ -600,6 +611,7 @@ function adminUserDialog(user) {
     const body = {
       username: f.username.value.trim(),
       email: f.email.value.trim() || undefined,
+      oidcSub: f.oidcSub.value.trim() || (editing ? null : undefined),
       password: f.password.value || undefined,
     };
     try {
@@ -621,6 +633,7 @@ function adminUserDialog(user) {
   h('h2', {}, editing ? `Benutzer „${user.username}“ bearbeiten` : 'Neuen Benutzer anlegen'),
   h('div', { class: 'field' }, h('label', {}, 'Benutzername'), f.username),
   h('div', { class: 'field' }, h('label', {}, 'E-Mail-Adresse'), f.email),
+  h('div', { class: 'field' }, h('label', {}, 'OIDC-Benutzer-ID (sub / Pocket ID)'), f.oidcSub),
   h('div', { class: 'field' },
     h('label', {}, editing ? 'Neues Passwort (optional)' : 'Passwort (optional für OIDC, mindestens 8 Zeichen für lokale Anmeldung)'),
     f.password
