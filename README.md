@@ -6,6 +6,7 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 ## Funktionen
 
 - Anmeldung über Pocket ID (OIDC) oder lokal mit Registrierung
+- Benutzerprofil zur Pflege von Profilbild (Avatar), Vorname, Nachname, Benutzername und „Über mich“-Bio sowie Passwortverwaltung und OIDC-Verknüpfung
 - Admin-Bereich mit Benutzerverwaltung für Administratoren (festgelegt anhand der E-Mail-Adresse in der Konfiguration)
 - Aquarien anlegen (Name, Süß- oder Meerwasser, Volumen, Erinnerungsintervall, Notizen)
 - Bild vom Aquarium hochladen (PNG, JPG, WebP, GIF), das in der Aquarienliste und auf der Detailseite dargestellt wird
@@ -54,6 +55,14 @@ Die Datenbank liegt in `data/aquarium.db` (Docker: Volume `/data`).
 | `LOCAL_LOGIN` | automatisch | Lokale Anmeldung mit Passwort. Standard: aus, wenn OIDC aktiv ist, sonst an |
 | `OIDC_LINK_BY_USERNAME` | false | `true` verknüpft beim ersten OIDC-Login ein vorhandenes lokales Konto mit gleichem Benutzernamen |
 | `ADMIN_EMAIL` | (leer) | E-Mail-Adresse des Administrators (oder mehrere durch Komma getrennt) für den Admin-Bereich / Benutzerverwaltung |
+
+## Benutzerprofil und Kontoverwaltung
+
+Jeder angemeldete Benutzer kann über die Kopfzeile auf sein **Benutzerprofil** (`#/profile`) zugreifen:
+- **Profilbild (Avatar):** Hochladen (JPG, PNG, WebP, GIF bis 5 MB) oder Löschen des eigenen Profilbilds.
+- **Persönliche Angaben:** Pflege von Vorname, Nachname, Benutzername, „Über mich“-Bio und E-Mail-Adresse.
+- **Passwortverwaltung:** Ändern des aktuellen Passworts (bei lokaler Anmeldung).
+- **OIDC-Verknüpfung:** Direktes Verknüpfen oder Entkoppeln des Kontos mit Pocket ID / OpenID Connect.
 
 ## Admin-Bereich und Benutzerverwaltung
 

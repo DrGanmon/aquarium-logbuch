@@ -141,8 +141,11 @@ router.delete(
     if (req.user.id === id) {
       return res.status(400).json({ error: 'Der eigene Administrator-Account kann nicht gelöscht werden.' });
     }
-    const user = db.prepare('SELECT 1 FROM users WHERE id = ?').get(id);
+    const user = db.prepare('SELECT avatar_file FROM users WHERE id = ?').get(id);
     if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+    if (user.avatar_file) {
+      deleteImage(user.avatar_file);
+    }
     const aqs = db.prepare('SELECT image_file FROM aquariums WHERE user_id = ? AND image_file IS NOT NULL').all(id);
     for (const a of aqs) {
       deleteImage(a.image_file);

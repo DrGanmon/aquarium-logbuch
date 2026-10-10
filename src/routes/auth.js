@@ -15,8 +15,29 @@ const { tooManyAttempts, noteAttempt, clearAttempts } = require('../utils/rate-l
 const { parseCookies, setSessionCookie, startSession } = require('../utils/cookies');
 const { wrap, str } = require('../utils/helpers');
 const { auth } = require('../middleware/auth');
+const { saveAvatar, deleteImage, getImagePath, getMimeType } = require('../services/image-service');
 
 const router = express.Router();
+
+function serializeMe(u) {
+  return {
+    id: u.id,
+    username: u.username,
+    firstName: u.first_name || '',
+    lastName: u.last_name || '',
+    bio: u.bio || '',
+    hasAvatar: !!u.avatar_file,
+    avatarUrl: u.avatar_file ? `api/me/avatar` : null,
+    email: u.email || null,
+    registration: ALLOW_REGISTRATION,
+    hasPassword: LOCAL_LOGIN && hasLocalPassword(u.id, db),
+    hasOidc: !!u.oidc_sub,
+    oidcSub: u.oidc_sub || null,
+    oidcEnabled: OIDC_ENABLED,
+    oidcProviderName: OIDC_PROVIDER_NAME,
+    isAdmin: isEmailAdmin(u.email),
+  };
+}
 
 router.post(
   '/register',
@@ -91,19 +112,121 @@ router.post(
 );
 
 router.get('/me', auth, (req, res) => {
-  const u = db.prepare('SELECT id, username, email, oidc_sub FROM users WHERE id = ?').get(req.user.id);
-  res.json({
-    id: u.id,
-    username: u.username,
-    email: u.email || null,
-    registration: ALLOW_REGISTRATION,
-    hasPassword: LOCAL_LOGIN && hasLocalPassword(u.id, db),
-    hasOidc: !!u.oidc_sub,
-    oidcEnabled: OIDC_ENABLED,
-    oidcProviderName: OIDC_PROVIDER_NAME,
-    isAdmin: isEmailAdmin(u.email),
-  });
+  const u = db.prepare('SELECT id, username, first_name, last_name, bio, avatar_file, email, oidc_sub FROM users WHERE id = ?').get(req.user.id);
+  if (!u) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+  res.json(serializeMe(u));
 });
+
+router.put(
+  ['/me', '/me/profile'],
+  auth,
+  wrap((req, res) => {
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+
+    const username = req.body.username !== undefined ? str(req.body.username, 40) : user.username;
+    const firstName = req.body.firstName !== undefined ? (req.body.firstName ? str(req.body.firstName, 100) : null) : user.first_name;
+    const lastName = req.body.lastName !== undefined ? (req.body.lastName ? str(req.body.lastName, 100) : null) : user.last_name;
+    const bio = req.body.bio !== undefined ? (req.body.bio ? str(req.body.bio, 1000) : null) : user.bio;
+    const email = req.body.email !== undefined ? (req.body.email ? str(req.body.email, 120).toLowerCase() : null) : user.email;
+
+    if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) {
+      return res.status(400).json({ error: 'Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).' });
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Ungültige E-Mail-Adresse.' });
+    }
+
+    const dupName = db.prepare('SELECT 1 FROM users WHERE username = ? AND id != ?').get(username, req.user.id);
+    if (dupName) {
+      return res.status(409).json({ error: 'Dieser Benutzername ist bereits vergeben.' });
+    }
+
+    if (email) {
+      const dupEmail = db.prepare('SELECT 1 FROM users WHERE email = ? AND id != ?').get(email, req.user.id);
+      if (dupEmail) {
+        return res.status(409).json({ error: 'Diese E-Mail-Adresse ist bereits vergeben.' });
+      }
+    }
+
+    db.prepare('UPDATE users SET username = ?, first_name = ?, last_name = ?, bio = ?, email = ? WHERE id = ?').run(
+      username,
+      firstName,
+      lastName,
+      bio,
+      email,
+      req.user.id
+    );
+
+    const updated = db.prepare('SELECT id, username, first_name, last_name, bio, avatar_file, email, oidc_sub FROM users WHERE id = ?').get(req.user.id);
+    res.json({ ok: true, user: serializeMe(updated) });
+  })
+);
+
+router.get(
+  '/me/avatar',
+  auth,
+  wrap((req, res) => {
+    const user = db.prepare('SELECT avatar_file FROM users WHERE id = ?').get(req.user.id);
+    if (!user || !user.avatar_file) {
+      return res.status(404).json({ error: 'Kein Profilbild vorhanden.' });
+    }
+    const imgPath = getImagePath(user.avatar_file);
+    if (!imgPath) {
+      return res.status(404).json({ error: 'Bilddatei nicht gefunden.' });
+    }
+    const mime = getMimeType(user.avatar_file);
+    res.setHeader('Content-Type', mime);
+    res.setHeader('Cache-Control', 'private, max-age=86400');
+    res.sendFile(imgPath);
+  })
+);
+
+router.get(
+  '/users/:id/avatar',
+  auth,
+  wrap((req, res) => {
+    const userId = Number(req.params.id);
+    if (!Number.isInteger(userId)) return res.status(400).json({ error: 'Ungültige Benutzer-ID.' });
+    const user = db.prepare('SELECT avatar_file FROM users WHERE id = ?').get(userId);
+    if (!user || !user.avatar_file) {
+      return res.status(404).json({ error: 'Kein Profilbild vorhanden.' });
+    }
+    const imgPath = getImagePath(user.avatar_file);
+    if (!imgPath) {
+      return res.status(404).json({ error: 'Bilddatei nicht gefunden.' });
+    }
+    const mime = getMimeType(user.avatar_file);
+    res.setHeader('Content-Type', mime);
+    res.setHeader('Cache-Control', 'private, max-age=86400');
+    res.sendFile(imgPath);
+  })
+);
+
+router.post(
+  '/me/avatar',
+  auth,
+  wrap((req, res) => {
+    const user = db.prepare('SELECT avatar_file FROM users WHERE id = ?').get(req.user.id);
+    const { error, value } = saveAvatar(req.user.id, req.body.image, user ? user.avatar_file : null);
+    if (error) return res.status(400).json({ error });
+    db.prepare('UPDATE users SET avatar_file = ? WHERE id = ?').run(value.filename, req.user.id);
+    res.json({ ok: true, avatarUrl: `api/me/avatar?t=${Date.now()}` });
+  })
+);
+
+router.delete(
+  '/me/avatar',
+  auth,
+  wrap((req, res) => {
+    const user = db.prepare('SELECT avatar_file FROM users WHERE id = ?').get(req.user.id);
+    if (user && user.avatar_file) {
+      deleteImage(user.avatar_file);
+      db.prepare('UPDATE users SET avatar_file = NULL WHERE id = ?').run(req.user.id);
+    }
+    res.json({ ok: true });
+  })
+);
 
 router.post(
   '/me/unlink-oidc',

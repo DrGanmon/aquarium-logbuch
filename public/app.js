@@ -87,6 +87,7 @@ async function route() {
   if (!ME) return showAuth();
   const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
   try {
+    if (parts[0] === 'profile') return await viewProfile();
     if (parts[0] === 'admin') {
       if (!ME.isAdmin) { location.hash = '#/'; return; }
       return await viewAdmin();
@@ -144,19 +145,32 @@ async function showAuth(mode = 'login') {
   user.focus();
 }
 
+function updateTopbarUser() {
+  if (!ME) return;
+  const whoami = document.getElementById('whoami');
+  if (whoami) {
+    const fullName = [ME.firstName, ME.lastName].filter(Boolean).join(' ');
+    whoami.textContent = (fullName ? `${fullName} (@${ME.username})` : ME.username) + (ME.isAdmin ? ' (Admin)' : '');
+  }
+  const avatarImg = document.getElementById('topbar-avatar');
+  if (avatarImg) {
+    if (ME.hasAvatar) {
+      avatarImg.src = `api/me/avatar?t=${Date.now()}`;
+      avatarImg.style.display = 'inline-block';
+    } else {
+      avatarImg.removeAttribute('src');
+      avatarImg.style.display = 'none';
+    }
+  }
+  const adminBtn = document.getElementById('btn-admin');
+  if (adminBtn) adminBtn.hidden = !ME.isAdmin;
+}
+
 async function start() {
   ME = await api('/me');
   CONFIG = await api('/config');
   $topbar.hidden = false;
-  document.getElementById('whoami').textContent = ME.username + (ME.isAdmin ? ' (Admin)' : '');
-  document.getElementById('btn-pw').hidden = !ME.hasPassword;
-  const adminBtn = document.getElementById('btn-admin');
-  if (adminBtn) adminBtn.hidden = !ME.isAdmin;
-  const linkOidcBtn = document.getElementById('btn-link-oidc');
-  if (linkOidcBtn) {
-    linkOidcBtn.hidden = !ME.oidcEnabled || ME.hasOidc;
-    linkOidcBtn.textContent = `Mit ${ME.oidcProviderName || 'Pocket ID'} verknüpfen`;
-  }
+  updateTopbarUser();
   if (OIDC_LINKED) {
     toast(`Erfolgreich mit ${ME.oidcProviderName || 'Pocket ID'} verknüpft.`);
     OIDC_LINKED = false;
@@ -170,22 +184,6 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
   ME = null;
   if (r.redirect) { location.href = r.redirect; return; } // auch beim Anmeldedienst abmelden
   location.hash = '#/'; showAuth();
-});
-document.getElementById('btn-pw').addEventListener('click', () => {
-  const err = h('p', { class: 'error', role: 'alert' });
-  const cur = h('input', { type: 'password', autocomplete: 'current-password', required: true });
-  const nxt = h('input', { type: 'password', autocomplete: 'new-password', required: true, minlength: '8' });
-  const dlg = h('dialog', {}, h('form', { class: 'stack', method: 'dialog', onsubmit: async (e) => {
-    e.preventDefault(); err.textContent = '';
-    try { await api('/password', { method: 'POST', body: { current: cur.value, next: nxt.value } }); dlg.close(); toast('Passwort geändert.'); } catch (ex) { err.textContent = ex.message; }
-  } },
-  h('h2', {}, 'Passwort ändern'),
-  h('div', { class: 'field' }, h('label', {}, 'Aktuelles Passwort'), cur),
-  h('div', { class: 'field' }, h('label', {}, 'Neues Passwort (mindestens 8 Zeichen)'), nxt),
-  err,
-  h('div', { class: 'row' }, h('button', { class: 'btn', type: 'submit' }, 'Passwort ändern'), h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen'))));
-  dlg.addEventListener('close', () => dlg.remove());
-  document.body.append(dlg); dlg.showModal();
 });
 
 /* ---------- Aquarienliste ---------- */
@@ -845,6 +843,188 @@ function adminUserDialog(user) {
   document.body.append(dlg);
   dlg.showModal();
   f.username.focus();
+}
+
+/* ---------- Benutzerprofil ---------- */
+async function viewProfile() {
+  ME = await api('/me');
+  updateTopbarUser();
+
+  const initials = (ME.firstName ? ME.firstName[0] : (ME.username ? ME.username[0] : '?')).toUpperCase();
+
+  // Avatar-Sektion
+  const avatarErr = h('p', { class: 'error', role: 'alert' });
+  const avatarImg = ME.hasAvatar
+    ? h('img', { class: 'avatar-large', src: `api/me/avatar?t=${Date.now()}`, alt: ME.username })
+    : h('div', { class: 'avatar-placeholder' }, initials);
+
+  const fileInput = h('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp,image/gif', style: 'display:none' });
+  const btnSelectImg = h('button', { class: 'btn small', type: 'button', onclick: () => fileInput.click() }, 'Neues Bild hochladen');
+  const btnDeleteImg = ME.hasAvatar
+    ? h('button', { class: 'btn small ghost danger', type: 'button', onclick: async () => {
+        if (!confirm('Möchtest du dein Profilbild wirklich entfernen?')) return;
+        try {
+          await api('/me/avatar', { method: 'DELETE' });
+          toast('Profilbild entfernt.');
+          await viewProfile();
+        } catch (ex) {
+          avatarErr.textContent = ex.message;
+        }
+      } }, 'Bild entfernen')
+    : null;
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      avatarErr.textContent = 'Das ausgewählte Bild ist größer als 5 MB.';
+      fileInput.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      avatarErr.textContent = '';
+      try {
+        await api('/me/avatar', { method: 'POST', body: { image: ev.target.result } });
+        toast('Profilbild aktualisiert.');
+        await viewProfile();
+      } catch (ex) {
+        avatarErr.textContent = ex.message;
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  const avatarCard = h('div', { class: 'card stack' },
+    h('h2', {}, 'Profilbild'),
+    h('div', { class: 'profile-avatar-row' },
+      avatarImg,
+      h('div', { class: 'stack', style: 'gap:.5rem' },
+        h('div', { class: 'row' }, btnSelectImg, btnDeleteImg),
+        h('p', { class: 'muted', style: 'margin:0' }, 'Erlaubt sind JPG, PNG, WebP und GIF bis max. 5 MB.'),
+        fileInput,
+        avatarErr
+      )
+    )
+  );
+
+  // Formular: Persönliche Daten
+  const profileErr = h('p', { class: 'error', role: 'alert' });
+  const fUsername = h('input', { required: true, maxlength: '40', value: ME.username });
+  const fFirstName = h('input', { maxlength: '100', value: ME.firstName || '', placeholder: 'z. B. Max' });
+  const fLastName = h('input', { maxlength: '100', value: ME.lastName || '', placeholder: 'z. B. Mustermann' });
+  const fBio = h('textarea', { maxlength: '1000', placeholder: 'Erzähle etwas über deine Aquarien oder dein Hobby...' }, ME.bio || '');
+  const fEmail = h('input', { type: 'email', maxlength: '120', value: ME.email || '', placeholder: 'z. B. max@example.com' });
+
+  const profileForm = h('form', { class: 'card stack', onsubmit: async (e) => {
+    e.preventDefault();
+    profileErr.textContent = '';
+    const body = {
+      username: fUsername.value.trim(),
+      firstName: fFirstName.value.trim() || '',
+      lastName: fLastName.value.trim() || '',
+      bio: fBio.value.trim() || '',
+      email: fEmail.value.trim() || null,
+    };
+    try {
+      const res = await api('/me', { method: 'PUT', body });
+      ME = res.user;
+      updateTopbarUser();
+      toast('Profil erfolgreich gespeichert.');
+      await viewProfile();
+    } catch (ex) {
+      profileErr.textContent = ex.message;
+    }
+  } },
+    h('h2', {}, 'Persönliche Daten'),
+    h('div', { class: 'field' }, h('label', {}, 'Benutzername'), fUsername),
+    h('div', { class: 'grid2' },
+      h('div', { class: 'field' }, h('label', {}, 'Vorname'), fFirstName),
+      h('div', { class: 'field' }, h('label', {}, 'Nachname'), fLastName)
+    ),
+    h('div', { class: 'field' }, h('label', {}, 'Über mich'), fBio),
+    h('div', { class: 'field' }, h('label', {}, 'E-Mail-Adresse'), fEmail),
+    profileErr,
+    h('div', {}, h('button', { class: 'btn', type: 'submit' }, 'Profil speichern'))
+  );
+
+  // Passwort-Sektion
+  let passwordCard = null;
+  if (ME.hasPassword) {
+    const pwErr = h('p', { class: 'error', role: 'alert' });
+    const fCurPw = h('input', { type: 'password', autocomplete: 'current-password', required: true });
+    const fNewPw = h('input', { type: 'password', autocomplete: 'new-password', required: true, minlength: '8' });
+    const pwForm = h('form', { class: 'card stack', onsubmit: async (e) => {
+      e.preventDefault();
+      pwErr.textContent = '';
+      try {
+        await api('/password', { method: 'POST', body: { current: fCurPw.value, next: fNewPw.value } });
+        fCurPw.value = '';
+        fNewPw.value = '';
+        toast('Passwort erfolgreich geändert.');
+      } catch (ex) {
+        pwErr.textContent = ex.message;
+      }
+    } },
+      h('h2', {}, 'Passwort ändern'),
+      h('div', { class: 'field' }, h('label', {}, 'Aktuelles Passwort'), fCurPw),
+      h('div', { class: 'field' }, h('label', {}, 'Neues Passwort (mindestens 8 Zeichen)'), fNewPw),
+      pwErr,
+      h('div', {}, h('button', { class: 'btn', type: 'submit' }, 'Passwort ändern'))
+    );
+    passwordCard = pwForm;
+  }
+
+  // OIDC-Sektion
+  let oidcCard = null;
+  if (ME.oidcEnabled) {
+    const oidcErr = h('p', { class: 'error', role: 'alert' });
+    const providerName = ME.oidcProviderName || 'Pocket ID';
+    let oidcBody;
+    if (ME.hasOidc) {
+      oidcBody = h('div', { class: 'stack', style: 'gap:.75rem' },
+        h('p', {}, `Dieses Konto ist erfolgreich mit `, h('strong', {}, providerName), ` verknüpft.`),
+        ME.hasPassword
+          ? h('div', {},
+              h('button', { class: 'btn small ghost danger', type: 'button', onclick: async () => {
+                if (!confirm(`Möchtest du die Verknüpfung mit ${providerName} wirklich aufheben?`)) return;
+                try {
+                  await api('/me/unlink-oidc', { method: 'POST' });
+                  toast(`Verknüpfung mit ${providerName} aufgehoben.`);
+                  await viewProfile();
+                } catch (ex) {
+                  oidcErr.textContent = ex.message;
+                }
+              } }, 'Verknüpfung trennen')
+            )
+          : h('p', { class: 'muted' }, 'Da für dieses Konto kein lokales Passwort existiert, kann die Verknüpfung nicht getrennt werden.')
+      );
+    } else {
+      oidcBody = h('div', { class: 'stack', style: 'gap:.75rem' },
+        h('p', {}, `Dieses Konto ist noch nicht mit `, h('strong', {}, providerName), ` verknüpft. Du kannst es jetzt verbinden, um dich künftig per Single Sign-On anzumelden.`),
+        h('div', {}, h('a', { class: 'btn', href: 'auth/link' }, `Mit ${providerName} verknüpfen`))
+      );
+    }
+
+    oidcCard = h('div', { class: 'card stack' },
+      h('h2', {}, `${providerName} / OIDC-Verknüpfung`),
+      oidcBody,
+      oidcErr
+    );
+  }
+
+  mount(h('div', { class: 'stack' },
+    h('div', { class: 'row between' },
+      h('div', {},
+        h('a', { href: '#/', class: 'muted' }, '‹ Zurück zur Übersicht'),
+        h('h1', { style: 'margin-top:.3rem' }, 'Mein Profil')
+      )
+    ),
+    avatarCard,
+    profileForm,
+    passwordCard,
+    oidcCard
+  ));
 }
 
 /* ---------- Start ---------- */

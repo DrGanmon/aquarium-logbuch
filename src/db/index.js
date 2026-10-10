@@ -74,10 +74,14 @@ CREATE TABLE IF NOT EXISTS aquarium_shares (
 CREATE INDEX IF NOT EXISTS idx_aq_shares_user ON aquarium_shares(user_id);
 `);
 
-// Migration für OIDC, E-Mail & Bilder
+// Migration für OIDC, E-Mail, Profil & Bilder
 const hasColumn = (table, col) => db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === col);
 if (!hasColumn('users', 'oidc_sub')) db.exec('ALTER TABLE users ADD COLUMN oidc_sub TEXT');
 if (!hasColumn('users', 'email')) db.exec('ALTER TABLE users ADD COLUMN email TEXT COLLATE NOCASE');
+if (!hasColumn('users', 'first_name')) db.exec('ALTER TABLE users ADD COLUMN first_name TEXT');
+if (!hasColumn('users', 'last_name')) db.exec('ALTER TABLE users ADD COLUMN last_name TEXT');
+if (!hasColumn('users', 'bio')) db.exec('ALTER TABLE users ADD COLUMN bio TEXT');
+if (!hasColumn('users', 'avatar_file')) db.exec('ALTER TABLE users ADD COLUMN avatar_file TEXT');
 if (!hasColumn('sessions', 'id_token')) db.exec('ALTER TABLE sessions ADD COLUMN id_token TEXT');
 if (!hasColumn('aquariums', 'image_file')) db.exec('ALTER TABLE aquariums ADD COLUMN image_file TEXT');
 db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oidc ON users(oidc_sub) WHERE oidc_sub IS NOT NULL');
