@@ -2094,17 +2094,18 @@ async function viewAdmin() {
         h('div', { class: 'row', style: 'gap:.5rem' }, btnDownloadNow, btnCreateLocal, btnUploadRestore)
       ),
       h('div', { class: 'card stack', style: 'background: var(--paper); border: 1px solid var(--line); padding: 1rem; gap: .75rem;' },
-        h('h3', { style: 'margin:0' }, '⚙️ Automatische lokale Sicherungen'),
+        h('h3', { style: 'margin:0' }, '⚙️ Automatische lokale Sicherungen & Backup-Limit'),
         h('div', { class: 'row', style: 'gap: 1.25rem; flex-wrap: wrap; align-items: center;' },
           h('label', { class: 'row', style: 'gap:.4rem; cursor:pointer;' }, chkAutoEnabled, h('span', {}, 'Automatisch aktivieren')),
           h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'Intervall:'), selAutoInterval),
-          h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'Vorhalteanzahl:'), inpAutoRetention),
+          h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'Max. Backups (Limit):'), inpAutoRetention),
           h('label', { class: 'row', style: 'gap:.4rem; cursor:pointer;' }, chkIncludeFiles, h('span', {}, 'Upload-Fotos einschließen')),
           btnSaveConfig
         ),
-        backupConfig.lastBackupAt ? h('div', { class: 'muted', style: 'font-size:.82rem;' },
-          `Letzte automatische Sicherung: ${fmtDate(backupConfig.lastBackupAt)} (${backupConfig.lastBackupFile || '–'})`
-        ) : null
+        h('div', { class: 'muted', style: 'font-size:.82rem;' },
+          'Sobald das Limit erreicht ist, wird beim Erstellen neuer Sicherungen automatisch das jeweils älteste Backup gelöscht.',
+          backupConfig.lastBackupAt ? ` Letzte automatische Sicherung: ${fmtDate(backupConfig.lastBackupAt)} (${backupConfig.lastBackupFile || '–'})` : ''
+        )
       ),
       h('div', { class: 'table-wrap' },
         h('table', {},
