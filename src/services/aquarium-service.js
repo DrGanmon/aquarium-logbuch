@@ -22,13 +22,19 @@ function isOverdue(aq, last) {
   return Date.now() - new Date(last.measured_at).getTime() > aq.reminder_days * 86400000;
 }
 
-function aquariumSummary(aq, db) {
+function aquariumSummary(aq, db, role = null) {
   const last = db.prepare('SELECT measured_at FROM measurements WHERE aquarium_id = ? ORDER BY measured_at DESC LIMIT 1').get(aq.id);
   const alerts = db.prepare(`SELECT level, COUNT(*) n FROM alerts WHERE aquarium_id = ? AND acked_at IS NULL GROUP BY level`).all(aq.id);
   const crit = alerts.find((a) => a.level === 'crit')?.n || 0;
   const warn = alerts.find((a) => a.level === 'warn')?.n || 0;
+  const sharesCount = db.prepare('SELECT COUNT(*) as n FROM aquarium_shares WHERE aquarium_id = ?').get(aq.id)?.n || 0;
   return {
     ...aq,
+    role: role || aq.role || 'owner',
+    owner_username: aq.owner_username || null,
+    has_image: !!aq.image_file,
+    image_url: aq.image_file ? `api/aquariums/${aq.id}/image` : null,
+    shares_count: sharesCount,
     last_measured_at: last ? last.measured_at : null,
     open_crit: crit,
     open_warn: warn,

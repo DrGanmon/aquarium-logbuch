@@ -193,7 +193,9 @@ async function viewList() {
   const list = await api('/aquariums');
   const cards = list.map((a) => {
     const s = a.open_crit ? 'crit' : (a.open_warn || a.overdue) ? 'warn' : a.last_measured_at ? 'ok' : 'none';
+    const isOwner = a.role === 'owner';
     return h('a', { class: `card aq-card s-${s}`, href: `#/a/${a.id}` },
+      a.has_image ? h('img', { class: 'aq-card-img', src: `api/aquariums/${a.id}/image`, alt: a.name, loading: 'lazy' }) : null,
       h('h2', {}, a.name),
       h('div', { class: 'muted' }, CONFIG.waterTypes[a.water_type], a.volume_l ? ` · ${a.volume_l} l` : ''),
       h('div', { class: 'row', style: 'margin-top:.6rem' },
@@ -201,7 +203,10 @@ async function viewList() {
         a.open_warn ? h('span', { class: 'chip warn' }, `${a.open_warn} auffällig`) : null,
         a.overdue ? h('span', { class: 'chip warn' }, 'Messung fällig') : null,
         !a.open_crit && !a.open_warn && !a.overdue && a.last_measured_at ? h('span', { class: 'chip ok' }, 'alles im Bereich') : null,
-        !a.last_measured_at ? h('span', { class: 'chip none' }, 'noch keine Messung') : null),
+        !a.last_measured_at ? h('span', { class: 'chip none' }, 'noch keine Messung') : null,
+        !isOwner && a.role === 'write' ? h('span', { class: 'chip ok' }, `Geteilt: Schreiben (${a.owner_username || 'Besitzer'})`) : null,
+        !isOwner && a.role === 'view' ? h('span', { class: 'chip none' }, `Geteilt: Lesen (${a.owner_username || 'Besitzer'})`) : null,
+        isOwner && a.shares_count > 0 ? h('span', { class: 'chip none' }, `Geteilt (${a.shares_count})`) : null),
       a.last_measured_at ? h('div', { class: 'muted', style: 'margin-top:.4rem' }, 'Zuletzt gemessen: ', fmtDate(a.last_measured_at)) : null);
   });
   mount(h('div', { class: 'stack' },
@@ -212,7 +217,50 @@ async function viewList() {
 
 function aquariumDialog(aq) {
   const editing = !!aq;
+  const isOwner = !editing || aq.role === 'owner';
   const err = h('p', { class: 'error', role: 'alert' });
+  let imageBase64 = null;
+  let removeExistingImage = false;
+
+  const fileInput = h('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp,image/gif' });
+  const previewImg = h('img', { class: 'img-preview', style: 'display:none' });
+  const btnRemoveImg = h('button', { class: 'btn small ghost', type: 'button', style: 'display:none' }, 'Bild entfernen');
+
+  if (aq?.has_image) {
+    previewImg.src = `api/aquariums/${aq.id}/image?t=${Date.now()}`;
+    previewImg.style.display = 'block';
+    btnRemoveImg.style.display = 'inline-flex';
+  }
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      err.textContent = 'Das ausgewählte Bild ist größer als 5 MB.';
+      fileInput.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      imageBase64 = ev.target.result;
+      removeExistingImage = false;
+      previewImg.src = imageBase64;
+      previewImg.style.display = 'block';
+      btnRemoveImg.style.display = 'inline-flex';
+      err.textContent = '';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  btnRemoveImg.addEventListener('click', () => {
+    imageBase64 = null;
+    removeExistingImage = true;
+    fileInput.value = '';
+    previewImg.removeAttribute('src');
+    previewImg.style.display = 'none';
+    btnRemoveImg.style.display = 'none';
+  });
+
   const f = {
     name: h('input', { required: true, maxlength: '80', value: aq?.name || '' }),
     water_type: h('select', { value: aq?.water_type || 'fresh' }, Object.entries(CONFIG.waterTypes).map(([k, v]) => h('option', { value: k }, v))),
@@ -224,9 +272,21 @@ function aquariumDialog(aq) {
     e.preventDefault(); err.textContent = '';
     const body = Object.fromEntries(Object.entries(f).map(([k, el]) => [k, el.value]));
     try {
-      if (editing) { await api(`/aquariums/${aq.id}`, { method: 'PUT', body }); dlg.close(); toast('Gespeichert.'); route(); } else {
-        const r = await api('/aquariums', { method: 'POST', body }); dlg.close(); location.hash = `#/a/${r.id}`;
+      let targetId = aq?.id;
+      if (editing) {
+        await api(`/aquariums/${aq.id}`, { method: 'PUT', body });
+      } else {
+        const r = await api('/aquariums', { method: 'POST', body });
+        targetId = r.id;
       }
+      if (imageBase64) {
+        await api(`/aquariums/${targetId}/image`, { method: 'POST', body: { image: imageBase64 } });
+      } else if (removeExistingImage && editing) {
+        await api(`/aquariums/${targetId}/image`, { method: 'DELETE' });
+      }
+      dlg.close();
+      toast('Gespeichert.');
+      if (editing) route(); else location.hash = `#/a/${targetId}`;
     } catch (ex) { err.textContent = ex.message; }
   } },
   h('h2', {}, editing ? 'Aquarium bearbeiten' : 'Aquarium anlegen'),
@@ -236,16 +296,103 @@ function aquariumDialog(aq) {
     h('div', { class: 'field' }, h('label', {}, 'Volumen (Liter)'), f.volume_l)),
   h('div', { class: 'field' }, h('label', {}, 'Messung fällig nach (Tagen, 0 = keine Erinnerung)'), f.reminder_days),
   h('div', { class: 'field' }, h('label', {}, 'Notizen'), f.notes),
+  h('div', { class: 'field' },
+    h('label', {}, 'Bild vom Aquarium (PNG, JPG, WebP, GIF, max. 5 MB)'),
+    fileInput,
+    previewImg,
+    h('div', { style: 'margin-top:.4rem' }, btnRemoveImg)),
   err,
   h('div', { class: 'row' },
     h('button', { class: 'btn', type: 'submit' }, 'Speichern'),
     h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen'),
-    editing ? h('button', { class: 'btn danger', type: 'button', onclick: async () => {
+    editing && isOwner ? h('button', { class: 'btn danger', type: 'button', onclick: async () => {
       if (!confirm(`„${aq.name}“ mit allen Messwerten und Alarmen endgültig löschen?`)) return;
       try { await api(`/aquariums/${aq.id}`, { method: 'DELETE' }); dlg.close(); location.hash = '#/'; toast('Aquarium gelöscht.'); } catch (ex) { err.textContent = ex.message; }
     } }, 'Löschen') : null)));
   dlg.addEventListener('close', () => dlg.remove());
   document.body.append(dlg); dlg.showModal(); f.name.focus();
+}
+
+async function shareDialog(aq) {
+  const dlg = h('dialog', { style: 'max-width:540px' });
+  const err = h('p', { class: 'error', role: 'alert' });
+  const listWrap = h('div', { class: 'stack', style: 'margin: 1rem 0' });
+
+  const queryInput = h('input', { required: true, maxlength: '120', placeholder: 'Benutzername oder E-Mail-Adresse' });
+  const roleSelect = h('select', {},
+    h('option', { value: 'view' }, 'Nur Lesen (view)'),
+    h('option', { value: 'write' }, 'Lesen & Schreiben (write)'));
+  const addBtn = h('button', { class: 'btn', type: 'submit' }, 'Freigeben');
+
+  async function loadShares() {
+    listWrap.replaceChildren(h('p', { class: 'muted' }, 'Lade Freigaben...'));
+    try {
+      const shares = await api(`/aquariums/${aq.id}/shares`);
+      if (!shares.length) {
+        listWrap.replaceChildren(h('p', { class: 'muted' }, 'Dieses Aquarium ist aktuell mit niemandem geteilt.'));
+        return;
+      }
+      const table = h('table', {},
+        h('thead', {}, h('tr', {}, h('th', {}, 'Benutzer'), h('th', {}, 'Berechtigung'), h('th', {}, ''))),
+        h('tbody', {}, shares.map((s) => {
+          const sel = h('select', { style: 'min-height:34px;padding:.2rem .4rem' },
+            h('option', { value: 'view', selected: s.role === 'view' }, 'Lesen'),
+            h('option', { value: 'write', selected: s.role === 'write' }, 'Schreiben'));
+          sel.addEventListener('change', async () => {
+            try {
+              await api(`/aquariums/${aq.id}/shares`, { method: 'POST', body: { username: s.username, role: sel.value } });
+              toast(`Berechtigung für ${s.username} aktualisiert.`);
+              loadShares();
+            } catch (ex) { err.textContent = ex.message; }
+          });
+          return h('tr', {},
+            h('td', {}, h('strong', {}, s.username), s.email ? h('div', { class: 'muted', style: 'font-size:.8rem' }, s.email) : null),
+            h('td', {}, sel),
+            h('td', {}, h('button', { class: 'btn small danger', type: 'button', onclick: async () => {
+              if (!confirm(`Freigabe für „${s.username}“ wirklich entfernen?`)) return;
+              try {
+                await api(`/aquariums/${aq.id}/shares/${s.user_id}`, { method: 'DELETE' });
+                toast(`Freigabe für ${s.username} entfernt.`);
+                loadShares();
+              } catch (ex) { err.textContent = ex.message; }
+            } }, 'Entfernen')));
+        })));
+      listWrap.replaceChildren(h('div', { class: 'table-wrap' }, table));
+    } catch (ex) {
+      listWrap.replaceChildren(h('p', { class: 'error' }, ex.message));
+    }
+  }
+
+  const addForm = h('form', { class: 'stack', onsubmit: async (e) => {
+    e.preventDefault(); err.textContent = '';
+    try {
+      await api(`/aquariums/${aq.id}/shares`, { method: 'POST', body: { usernameOrEmail: queryInput.value.trim(), role: roleSelect.value } });
+      toast('Aquarium erfolgreich freigegeben.');
+      queryInput.value = '';
+      loadShares();
+    } catch (ex) { err.textContent = ex.message; }
+  } },
+  h('h3', {}, 'Neuen Benutzer hinzufügen'),
+  h('div', { class: 'grid2' },
+    h('div', { class: 'field' }, h('label', {}, 'Benutzername / E-Mail'), queryInput),
+    h('div', { class: 'field' }, h('label', {}, 'Berechtigung'), roleSelect)),
+  h('div', {}, addBtn));
+
+  dlg.append(
+    h('div', { class: 'stack' },
+      h('h2', {}, `Aquarium teilen: „${aq.name}“`),
+      h('p', { class: 'muted' }, 'Gib anderen registrierten Benutzern Lese- oder Schreibrechte für dieses Aquarium.'),
+      err,
+      h('h3', {}, 'Bestehende Freigaben'),
+      listWrap,
+      addForm,
+      h('div', { class: 'row', style: 'margin-top:1rem' },
+        h('button', { class: 'btn ghost', type: 'button', onclick: () => { dlg.close(); route(); } }, 'Schließen'))));
+
+  dlg.addEventListener('close', () => dlg.remove());
+  document.body.append(dlg);
+  dlg.showModal();
+  loadShares();
 }
 
 /* ---------- Aquarium-Hauptseite ---------- */
@@ -305,14 +452,45 @@ function makeChart(canvas, p, points, range) {
 async function viewAquarium(id) {
   const [d, ms] = await Promise.all([api(`/aquariums/${id}`), api(`/aquariums/${id}/measurements?days=${RANGE}`)]);
   const aq = d.aquarium;
+  const role = d.role || aq.role || 'owner';
+  const isOwner = role === 'owner';
+  const isReadOnly = role === 'view';
   const nodes = [];
 
+  const topActions = [];
+  if (!isReadOnly) {
+    topActions.push(h('a', { class: 'btn', href: `#/a/${id}/messen` }, 'Werte eintragen'));
+    if (isOwner) topActions.push(h('button', { class: 'btn ghost', type: 'button', onclick: () => shareDialog(aq) }, 'Teilen'));
+    topActions.push(h('button', { class: 'btn ghost', type: 'button', onclick: () => aquariumDialog(aq) }, 'Bearbeiten'));
+  }
+  if (!isOwner) {
+    topActions.push(h('button', { class: 'btn small ghost danger', type: 'button', onclick: async () => {
+      if (!confirm(`Möchtest du die Freigabe für „${aq.name}“ wirklich verlassen?`)) return;
+      try {
+        await api(`/aquariums/${id}/shares/${ME.id}`, { method: 'DELETE' });
+        toast('Freigabe verlassen.');
+        location.hash = '#/';
+      } catch (ex) { toast(ex.message); }
+    } }, 'Freigabe verlassen'));
+  }
+
   nodes.push(h('div', { class: 'row between' },
-    h('div', {}, h('a', { href: '#/', class: 'muted' }, '‹ Alle Aquarien'), h('h1', {}, aq.name),
-      h('div', { class: 'muted' }, CONFIG.waterTypes[aq.water_type], aq.volume_l ? ` · ${aq.volume_l} l` : '', aq.last_measured_at ? ` · zuletzt gemessen ${fmtDate(aq.last_measured_at)}` : '')),
-    h('div', { class: 'row' },
-      h('a', { class: 'btn', href: `#/a/${id}/messen` }, 'Werte eintragen'),
-      h('button', { class: 'btn ghost', type: 'button', onclick: () => aquariumDialog(aq) }, 'Bearbeiten'))));
+    h('div', {},
+      h('a', { href: '#/', class: 'muted' }, '‹ Alle Aquarien'),
+      h('h1', {}, aq.name),
+      h('div', { class: 'muted' },
+        CONFIG.waterTypes[aq.water_type],
+        aq.volume_l ? ` · ${aq.volume_l} l` : '',
+        aq.last_measured_at ? ` · zuletzt gemessen ${fmtDate(aq.last_measured_at)}` : ''),
+      !isOwner ? h('div', { style: 'margin-top:.35rem' },
+        h('span', { class: `chip ${isReadOnly ? 'none' : 'ok'}` }, `Geteilt von ${aq.owner_username || 'Besitzer'} · ${isReadOnly ? 'Nur Lesezugriff' : 'Schreibzugriff'}`)) : null),
+    h('div', { class: 'row' }, topActions)));
+
+  if (aq.has_image) {
+    nodes.push(h('div', { class: 'aq-hero' },
+      h('img', { class: 'aq-hero-img', src: `api/aquariums/${id}/image?t=${Date.now()}`, alt: aq.name })));
+  }
+
   if (aq.notes) nodes.push(h('p', { class: 'muted' }, aq.notes));
 
   // Warnungen und Alarme
@@ -321,10 +499,13 @@ async function viewAquarium(id) {
   if (d.conflicts.length) notices.push(h('div', { class: 'alert info' }, h('div', {}, h('strong', {}, 'Der Besatz passt bei einigen Werten nicht zusammen'),
     `Für ${d.conflicts.map((k) => param(k).name).join(', ')} haben die Fischarten unterschiedliche Ansprüche. Hier gelten die allgemeinen Grenzwerte.`)));
   for (const a of d.alerts) {
-    notices.push(h('div', { class: 'alert ' + a.level }, h('div', {}, h('strong', {}, a.level === 'crit' ? 'Kritisch' : 'Auffällig'), a.message, h('div', { class: 'muted' }, fmtDate(sqlDate(a.created_at)))),
-      h('button', { class: 'btn small ghost', type: 'button', onclick: async () => { await api(`/aquariums/${id}/alerts/ack`, { method: 'POST', body: { ids: [a.id] } }); route(); } }, 'Erledigt')));
+    notices.push(h('div', { class: 'alert ' + a.level },
+      h('div', {}, h('strong', {}, a.level === 'crit' ? 'Kritisch' : 'Auffällig'), a.message, h('div', { class: 'muted' }, fmtDate(sqlDate(a.created_at)))),
+      !isReadOnly ? h('button', { class: 'btn small ghost', type: 'button', onclick: async () => { await api(`/aquariums/${id}/alerts/ack`, { method: 'POST', body: { ids: [a.id] } }); route(); } }, 'Erledigt') : null));
   }
-  if (d.alerts.length > 1) notices.push(h('div', {}, h('button', { class: 'btn small ghost', type: 'button', onclick: async () => { await api(`/aquariums/${id}/alerts/ack`, { method: 'POST', body: {} }); route(); } }, 'Alle als erledigt markieren')));
+  if (!isReadOnly && d.alerts.length > 1) {
+    notices.push(h('div', {}, h('button', { class: 'btn small ghost', type: 'button', onclick: async () => { await api(`/aquariums/${id}/alerts/ack`, { method: 'POST', body: {} }); route(); } }, 'Alle als erledigt markieren')));
+  }
   if (notices.length) nodes.push(h('section', { class: 'stack', 'aria-label': 'Warnungen' }, notices));
 
   // Aktuelle Werte
@@ -337,7 +518,10 @@ async function viewAquarium(id) {
         chip(l.status), h('div', { class: 'muted', style: 'font-size:.8rem;margin-top:.2rem' }, fmtDate(l.measured_at)));
     }))));
   } else {
-    nodes.push(h('div', { class: 'card stack' }, h('h2', {}, 'Noch keine Messwerte'), h('p', {}, 'Trage deine ersten Wasserwerte ein. Danach erscheinen hier Verlauf und Warnungen.'), h('div', {}, h('a', { class: 'btn', href: `#/a/${id}/messen` }, 'Werte eintragen'))));
+    nodes.push(h('div', { class: 'card stack' },
+      h('h2', {}, 'Noch keine Messwerte'),
+      h('p', {}, 'Trage deine ersten Wasserwerte ein. Danach erscheinen hier Verlauf und Warnungen.'),
+      !isReadOnly ? h('div', {}, h('a', { class: 'btn', href: `#/a/${id}/messen` }, 'Werte eintragen')) : null));
   }
 
   // Graphen
@@ -363,33 +547,40 @@ async function viewAquarium(id) {
   const prof = h('select', {}, Object.entries(CONFIG.profiles).map(([k, v]) => h('option', { value: k }, v)));
   sp.addEventListener('input', () => { const m = CONFIG.species.find((s) => s.name.toLowerCase() === sp.value.trim().toLowerCase()); if (m) prof.value = m.profile; });
   const stockErr = h('p', { class: 'error', role: 'alert' });
-  nodes.push(h('section', { class: 'card stack' },
+
+  const stockNodes = [
     h('h2', {}, 'Besatz'),
     h('p', { class: 'muted' }, 'Die Fischarten bestimmen die Grenzwerte, zum Beispiel für pH, Härte oder Kupfer.'),
     d.stock.length ? h('ul', { style: 'list-style:none;padding:0;margin:0' }, d.stock.map((s) => h('li', { class: 'row between', style: 'padding:.3rem 0;border-bottom:1px solid var(--line)' },
       h('span', {}, `${s.count} × ${s.species}`, h('span', { class: 'muted' }, ` (${CONFIG.profiles[s.profile] || s.profile})`)),
-      h('button', { class: 'btn small ghost', type: 'button', 'aria-label': `${s.species} entfernen`, onclick: async () => { await api(`/aquariums/${id}/stock/${s.id}`, { method: 'DELETE' }); route(); } }, 'Entfernen'))))
-      : h('p', {}, 'Noch kein Besatz eingetragen. Es gelten die allgemeinen Grenzwerte.'),
-    h('datalist', { id: 'species' }, CONFIG.species.map((s) => h('option', { value: s.name }))),
-    h('form', { class: 'stack', onsubmit: async (e) => {
-      e.preventDefault(); stockErr.textContent = '';
-      try { await api(`/aquariums/${id}/stock`, { method: 'POST', body: { species: sp.value, count: cnt.value, profile: prof.value } }); route(); } catch (ex) { stockErr.textContent = ex.message; }
-    } },
-    h('div', { class: 'grid2' }, h('div', { class: 'field' }, h('label', {}, 'Art'), sp), h('div', { class: 'field' }, h('label', {}, 'Anzahl'), cnt)),
-    h('div', { class: 'field' }, h('label', {}, 'Ansprüche an das Wasser'), prof),
-    stockErr,
-    h('div', {}, h('button', { class: 'btn', type: 'submit' }, 'Besatz hinzufügen')))));
+      !isReadOnly ? h('button', { class: 'btn small ghost', type: 'button', 'aria-label': `${s.species} entfernen`, onclick: async () => { await api(`/aquariums/${id}/stock/${s.id}`, { method: 'DELETE' }); route(); } }, 'Entfernen') : null)))
+      : h('p', {}, 'Noch kein Besatz eingetragen. Es gelten die allgemeinen Grenzwerte.')
+  ];
+
+  if (!isReadOnly) {
+    stockNodes.push(
+      h('datalist', { id: 'species' }, CONFIG.species.map((s) => h('option', { value: s.name }))),
+      h('form', { class: 'stack', onsubmit: async (e) => {
+        e.preventDefault(); stockErr.textContent = '';
+        try { await api(`/aquariums/${id}/stock`, { method: 'POST', body: { species: sp.value, count: cnt.value, profile: prof.value } }); route(); } catch (ex) { stockErr.textContent = ex.message; }
+      } },
+      h('div', { class: 'grid2' }, h('div', { class: 'field' }, h('label', {}, 'Art'), sp), h('div', { class: 'field' }, h('label', {}, 'Anzahl'), cnt)),
+      h('div', { class: 'field' }, h('label', {}, 'Ansprüche an das Wasser'), prof),
+      stockErr,
+      h('div', {}, h('button', { class: 'btn', type: 'submit' }, 'Besatz hinzufügen'))));
+  }
+  nodes.push(h('section', { class: 'card stack' }, stockNodes));
 
   // Verlaufstabelle
   if (ms.length) {
     const used = CONFIG.parameters.filter((p) => ms.some((m) => m.values[p.key] != null));
     nodes.push(h('section', { class: 'card stack' }, h('h2', {}, 'Messungen'),
       h('div', { class: 'table-wrap' }, h('table', {},
-        h('thead', {}, h('tr', {}, h('th', {}, 'Zeitpunkt'), used.map((p) => h('th', {}, p.name.replace(/ \(.*\)/, ''), p.unit ? ` (${p.unit})` : ''), ), h('th', {}, 'Notiz'), h('th', {}, ''))),
+        h('thead', {}, h('tr', {}, h('th', {}, 'Zeitpunkt'), used.map((p) => h('th', {}, p.name.replace(/ \(.*\)/, ''), p.unit ? ` (${p.unit})` : ''), ), h('th', {}, 'Notiz'), !isReadOnly ? h('th', {}, '') : null)),
         h('tbody', {}, [...ms].reverse().slice(0, 40).map((m) => h('tr', {}, h('td', {}, fmtDate(m.measured_at)),
           used.map((p) => { const v = m.values[p.key]; const st = v == null ? null : evaluate(d.thresholds[p.key], v); return h('td', { class: st === 'crit' ? 'v-crit' : st === 'warn' ? 'v-warn' : '' }, v == null ? '–' : fmtNum(p, v)); }),
           h('td', {}, m.note || ''),
-          h('td', {}, h('button', { class: 'btn small ghost', type: 'button', onclick: async () => { if (!confirm('Diese Messung löschen?')) return; await api(`/aquariums/${id}/measurements/${m.id}`, { method: 'DELETE' }); route(); } }, 'Löschen'))))))),
+          !isReadOnly ? h('td', {}, h('button', { class: 'btn small ghost', type: 'button', onclick: async () => { if (!confirm('Diese Messung löschen?')) return; await api(`/aquariums/${id}/measurements/${m.id}`, { method: 'DELETE' }); route(); } }, 'Löschen')) : null))))),
       ms.length > 40 ? h('p', { class: 'muted' }, 'Es werden die letzten 40 Messungen des Zeitraums angezeigt.') : null));
   }
 
@@ -418,6 +609,12 @@ function beep() {
 async function viewMeasure(id) {
   const d = await api(`/aquariums/${id}`);
   const aq = d.aquarium;
+  const role = d.role || aq.role || 'owner';
+  if (role === 'view') {
+    toast('Keine Schreibrechte für dieses Aquarium.');
+    location.hash = `#/a/${id}`;
+    return;
+  }
   const selKey = `tests:${ME.id}`;
   let selected = null;
   try { selected = JSON.parse(localStorage.getItem(selKey)); } catch (e) { /* Standard */ }

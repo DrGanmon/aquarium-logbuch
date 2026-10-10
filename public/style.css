@@ -72,12 +72,15 @@ textarea { min-height: 80px; resize: vertical; }
 /* Aquarienliste */
 .aq-list { display: grid; gap: .85rem; grid-template-columns: 1fr; }
 @media (min-width: 640px) { .aq-list { grid-template-columns: 1fr 1fr; } }
-.aq-card { display: block; text-decoration: none; position: relative; border-left-width: 6px; }
+.aq-card { display: flex; flex-direction: column; text-decoration: none; position: relative; border-left-width: 6px; overflow: hidden; }
 .aq-card.s-ok { border-left-color: var(--kelp); }
 .aq-card.s-warn { border-left-color: var(--amber); }
 .aq-card.s-crit { border-left-color: var(--coral); }
 .aq-card.s-none { border-left-color: var(--line); }
 .aq-card h2 { margin-bottom: .2rem; }
+.aq-card-img { width: calc(100% + 2rem); height: 140px; object-fit: cover; margin: -1rem -1rem .75rem -1rem; display: block; background: #e0eae8; }
+.aq-hero-img { width: 100%; max-height: 320px; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--line); display: block; }
+.img-preview { max-width: 100%; max-height: 160px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); display: block; margin-top: .4rem; }
 
 /* Alarme */
 .alert { border-radius: var(--radius); padding: .7rem .9rem; border: 1px solid; display: flex; gap: .75rem; justify-content: space-between; align-items: flex-start; }

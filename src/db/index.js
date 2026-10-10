@@ -64,13 +64,22 @@ CREATE TABLE IF NOT EXISTS alerts (
   acked_at TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_alert_aq ON alerts(aquarium_id, acked_at);
+CREATE TABLE IF NOT EXISTS aquarium_shares (
+  aquarium_id INTEGER NOT NULL REFERENCES aquariums(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK(role IN ('view', 'write')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (aquarium_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_aq_shares_user ON aquarium_shares(user_id);
 `);
 
-// Migration für OIDC & E-Mail
+// Migration für OIDC, E-Mail & Bilder
 const hasColumn = (table, col) => db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === col);
 if (!hasColumn('users', 'oidc_sub')) db.exec('ALTER TABLE users ADD COLUMN oidc_sub TEXT');
 if (!hasColumn('users', 'email')) db.exec('ALTER TABLE users ADD COLUMN email TEXT COLLATE NOCASE');
 if (!hasColumn('sessions', 'id_token')) db.exec('ALTER TABLE sessions ADD COLUMN id_token TEXT');
+if (!hasColumn('aquariums', 'image_file')) db.exec('ALTER TABLE aquariums ADD COLUMN image_file TEXT');
 db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oidc ON users(oidc_sub) WHERE oidc_sub IS NOT NULL');
 db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email != \'\'');
 

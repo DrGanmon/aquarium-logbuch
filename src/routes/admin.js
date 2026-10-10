@@ -5,6 +5,7 @@ const { isEmailAdmin } = require('../config/env');
 const { hashPassword } = require('../utils/crypto');
 const { wrap, str } = require('../utils/helpers');
 const { auth, requireAdmin } = require('../middleware/auth');
+const { deleteImage } = require('../services/image-service');
 
 const router = express.Router();
 
@@ -142,6 +143,10 @@ router.delete(
     }
     const user = db.prepare('SELECT 1 FROM users WHERE id = ?').get(id);
     if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+    const aqs = db.prepare('SELECT image_file FROM aquariums WHERE user_id = ? AND image_file IS NOT NULL').all(id);
+    for (const a of aqs) {
+      deleteImage(a.image_file);
+    }
     db.prepare('DELETE FROM users WHERE id = ?').run(id);
     res.json({ ok: true });
   })

@@ -5,9 +5,13 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 
 ## Funktionen
 
-- Anmeldung über Pocket ID (OIDC) oder lokal mit Registrierung, jeder Benutzer sieht nur seine eigenen Aquarien
+- Anmeldung über Pocket ID (OIDC) oder lokal mit Registrierung
 - Admin-Bereich mit Benutzerverwaltung für Administratoren (festgelegt anhand der E-Mail-Adresse in der Konfiguration)
-- Aquarien anlegen (Name, Süß- oder Meerwasser, Volumen, Erinnerungsintervall)
+- Aquarien anlegen (Name, Süß- oder Meerwasser, Volumen, Erinnerungsintervall, Notizen)
+- Bild vom Aquarium hochladen (PNG, JPG, WebP, GIF), das in der Aquarienliste und auf der Detailseite dargestellt wird
+- Aquarien mit anderen registrierten Benutzern teilen mit flexiblen Berechtigungen:
+  - **Lesen (view):** Wasserwerte, Verlaufsgraphen, Besatz und Alarme einsehen.
+  - **Schreiben (write):** Messwerte erfassen/löschen, Besatz verwalten, Alarme bestätigen und Bilder bearbeiten.
 - Besatz pro Becken eintragen. Die Fischarten bestimmen die Grenzwerte
   (Weichwasser, Hartwasser, Garnelen und Wirbellose). Passt der Besatz bei einem Wert nicht zusammen,
   zeigt die App einen Hinweis.

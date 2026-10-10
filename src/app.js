@@ -20,7 +20,7 @@ if (process.env.TRUST_PROXY) {
   app.set('trust proxy', Number(process.env.TRUST_PROXY));
 }
 
-app.use(express.json({ limit: '50kb' }));
+app.use(express.json({ limit: '10mb' }));
 app.use(securityHeaders);
 app.use('/api', csrfProtection);
 

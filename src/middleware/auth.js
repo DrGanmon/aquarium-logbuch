@@ -29,16 +29,66 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-function ownAquarium(req, res, next) {
-  const id = Number(req.params.id);
-  const aq = db.prepare('SELECT * FROM aquariums WHERE id = ? AND user_id = ?').get(id, req.user.id);
-  if (!aq) return res.status(404).json({ error: 'Aquarium nicht gefunden.' });
-  req.aq = aq;
-  next();
+function getAquariumAccess(aquariumId, user) {
+  const id = Number(aquariumId);
+  if (!Number.isInteger(id)) return null;
+  const aq = db
+    .prepare(
+      `
+    SELECT a.*, u.username AS owner_username, u.email AS owner_email
+    FROM aquariums a
+    JOIN users u ON u.id = a.user_id
+    WHERE a.id = ?
+  `
+    )
+    .get(id);
+  if (!aq) return null;
+
+  if (aq.user_id === user.id) {
+    return { aq, role: 'owner' };
+  }
+  const share = db
+    .prepare('SELECT role FROM aquarium_shares WHERE aquarium_id = ? AND user_id = ?')
+    .get(id, user.id);
+  if (share) {
+    return { aq, role: share.role };
+  }
+  if (user.isAdmin) {
+    return { aq, role: 'owner' };
+  }
+  return null;
 }
+
+function requireAquariumAccess(minRole = 'view') {
+  const roleHierarchy = { view: 1, write: 2, owner: 3 };
+  const requiredLevel = roleHierarchy[minRole] || 1;
+
+  return (req, res, next) => {
+    const id = Number(req.params.id);
+    const access = getAquariumAccess(id, req.user);
+    if (!access) {
+      return res.status(404).json({ error: 'Aquarium nicht gefunden.' });
+    }
+    const userLevel = roleHierarchy[access.role] || 0;
+    if (userLevel < requiredLevel) {
+      return res.status(403).json({ error: 'Keine ausreichenden Berechtigungen für diese Aktion.' });
+    }
+    req.aq = access.aq;
+    req.accessRole = access.role;
+    next();
+  };
+}
+
+const ownAquarium = requireAquariumAccess('view');
+const writeAquarium = requireAquariumAccess('write');
+const ownerAquarium = requireAquariumAccess('owner');
 
 module.exports = {
   auth,
   requireAdmin,
+  getAquariumAccess,
+  requireAquariumAccess,
   ownAquarium,
+  writeAquarium,
+  ownerAquarium,
 };
