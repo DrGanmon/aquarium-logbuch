@@ -102,14 +102,19 @@ sowie `iss`, `aud`, `exp` und `nonce`. Beim ersten Login wird automatisch ein Ko
 Der Reverse Proxy muss diesen Präfix dann entfernen, bevor er an die App weiterleitet
 (Caddy: `handle_path /aquarium/* { reverse_proxy localhost:3000 }`).
 
+## Wassertests und Testsuiten (JSON-konfigurierbar)
+
+Die Wassertests sind modular als **JSON-Dateien** unter `src/config/suites/` (bzw. für eigene Erweiterungen unter `data/suites/`) abgelegt:
+- **Standard-Suite (`jbl-pro-aquatest.json`):** JBL PRO AQUATEST Testlab Tropfentests nach offizieller Gebrauchsanweisung mit verifizierten Reaktionszeiten (z. B. Kalium 90 s, Nitrit 5 min, Nitrat 10 min, Ammonium 10 min, Phosphat 10 min, Eisen 10 min, Kupfer 15 min, Silikat 3 min).
+- **Konsolidierter pH-Wert:** Statt unübersichtlicher Einzeltests für verschiedene pH-Bereiche existiert ein einheitlicher pH-Test (3,0 bis 10,0), bei dem der Messwert direkt erfasst wird.
+- **Weitere Suiten:** Beliebig erweiterbar (z. B. `jbl-easy-7in1.json` für Teststreifen).
+- **Benutzerauswahl:** Jeder Anwender kann sowohl im Profil (`#/profile`) als auch direkt bei der Messung (`#/a/:id/messen`) auswählen, welche Testsuite er nutzt und welche Tests er besitzt/durchführen möchte. Die Auswahl wird dauerhaft im Benutzerkonto und im Browser gespeichert.
+
 ## Wartezeiten und Grenzwerte prüfen
 
-Alles steht in `config.js`.
+Die Testparameter und Standardwerte liegen in `src/config/suites/jbl-pro-aquatest.json` und `config.js`.
 
-- **Wartezeiten:** Nur Kalium (30 s schwenken + 1 min stehen lassen = 90 s) wurde gegen die JBL-Anleitung
-  geprüft. Alle anderen Zeiten sind Startwerte und in der App mit einem Hinweis markiert.
-  Bitte mit der Packungsbeilage deiner Tests abgleichen und `wait` (Sekunden) anpassen,
-  danach `verified: true` setzen.
+- **Wartezeiten:** Alle Zeiten im Standard-Set basieren auf der JBL Testlab-Gebrauchsanweisung (`verified: true`). Eigene Testsuiten können jederzeit als JSON ergänzt werden.
 - **Grenzwerte:** Richtwerte für Süß- und Meerwasser. Prüfe sie für dein Becken und passe sie an.
   Die App ersetzt keine Beratung durch Fachleute.
 

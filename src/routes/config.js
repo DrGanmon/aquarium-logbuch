@@ -2,12 +2,32 @@
 const express = require('express');
 const cfg = require('../../config');
 const { auth } = require('../middleware/auth');
+const db = require('../db');
+const { wrap, str } = require('../utils/helpers');
 
 const router = express.Router();
 
 router.get('/config', auth, (req, res) => {
+  const user = req.user?.id ? db.prepare('SELECT selected_suite, selected_tests FROM users WHERE id = ?').get(req.user.id) : null;
+  const suites = cfg.suiteService.getSuites();
+  const defaultSuite = cfg.suiteService.getDefaultSuite();
+  const selectedSuiteId = user?.selected_suite || defaultSuite?.id || 'jbl-pro';
+  const suite = cfg.suiteService.getSuite(selectedSuiteId) || defaultSuite;
+
+  let userSelectedTests = null;
+  if (user?.selected_tests) {
+    try {
+      userSelectedTests = JSON.parse(user.selected_tests);
+    } catch (e) {
+      userSelectedTests = null;
+    }
+  }
+
   res.json({
-    parameters: cfg.PARAMETERS.map(({ key, name, unit, decimals, step, min, max, wait, verified, hint }) => ({
+    suites,
+    defaultSuiteId: defaultSuite?.id || 'jbl-pro',
+    currentSuite: suite,
+    parameters: suite.tests.map(({ key, name, unit, decimals, step, min, max, wait, verified, hint }) => ({
       key,
       name,
       unit,
@@ -19,10 +39,78 @@ router.get('/config', auth, (req, res) => {
       verified,
       hint,
     })),
+    allParameters: cfg.suiteService.getAllKnownParameters().map(({ key, name, unit, decimals, step, min, max, wait, verified, hint }) => ({
+      key,
+      name,
+      unit,
+      decimals,
+      step,
+      min,
+      max,
+      wait,
+      verified,
+      hint,
+    })),
+    userPreferences: {
+      selectedSuite: selectedSuiteId,
+      selectedTests: userSelectedTests,
+    },
     profiles: Object.fromEntries(Object.entries(cfg.PROFILES).map(([k, v]) => [k, v.label])),
     species: cfg.SPECIES.map(([name, profile]) => ({ name, profile })),
     waterTypes: cfg.WATER_TYPES,
   });
 });
+
+router.get('/suites', auth, (req, res) => {
+  res.json({
+    suites: cfg.suiteService.getSuites(),
+    defaultSuite: cfg.suiteService.getDefaultSuite(),
+  });
+});
+
+router.get('/suites/:id', auth, (req, res) => {
+  const suite = cfg.suiteService.getSuite(req.params.id);
+  if (!suite) {
+    return res.status(404).json({ error: 'Testsuite nicht gefunden.' });
+  }
+  res.json({ suite });
+});
+
+router.put(
+  '/me/tests',
+  auth,
+  wrap((req, res) => {
+    const user = db.prepare('SELECT id FROM users WHERE id = ?').get(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+
+    let selectedSuite = req.body.suiteId || req.body.selectedSuite || null;
+    let selectedTests = req.body.tests || req.body.selectedTests;
+
+    if (selectedSuite != null) selectedSuite = str(selectedSuite, 50);
+    let testsJson = null;
+    if (Array.isArray(selectedTests)) {
+      testsJson = JSON.stringify(selectedTests.map((t) => str(t, 40).toLowerCase()).filter(Boolean));
+    } else if (selectedTests === null) {
+      testsJson = null;
+    }
+
+    db.prepare('UPDATE users SET selected_suite = coalesce(?, selected_suite), selected_tests = ? WHERE id = ?').run(
+      selectedSuite,
+      testsJson,
+      req.user.id
+    );
+
+    const updated = db.prepare('SELECT selected_suite, selected_tests FROM users WHERE id = ?').get(req.user.id);
+    let parsed = null;
+    if (updated.selected_tests) {
+      try {
+        parsed = JSON.parse(updated.selected_tests);
+      } catch (e) {
+        parsed = null;
+      }
+    }
+    res.json({ ok: true, selectedSuite: updated.selected_suite, selectedTests: parsed });
+  })
+);
 
 module.exports = router;

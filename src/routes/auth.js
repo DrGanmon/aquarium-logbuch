@@ -20,6 +20,14 @@ const { saveAvatar, deleteImage, getImagePath, getMimeType } = require('../servi
 const router = express.Router();
 
 function serializeMe(u) {
+  let selectedTests = null;
+  if (u.selected_tests) {
+    try {
+      selectedTests = JSON.parse(u.selected_tests);
+    } catch (e) {
+      selectedTests = null;
+    }
+  }
   return {
     id: u.id,
     username: u.username,
@@ -28,6 +36,8 @@ function serializeMe(u) {
     bio: u.bio || '',
     hasAvatar: !!u.avatar_file,
     avatarUrl: u.avatar_file ? `api/me/avatar` : null,
+    selectedSuite: u.selected_suite || 'jbl-pro',
+    selectedTests: selectedTests,
     email: u.email || null,
     registration: ALLOW_REGISTRATION,
     hasPassword: LOCAL_LOGIN && hasLocalPassword(u.id, db),
@@ -112,7 +122,7 @@ router.post(
 );
 
 router.get('/me', auth, (req, res) => {
-  const u = db.prepare('SELECT id, username, first_name, last_name, bio, avatar_file, email, oidc_sub FROM users WHERE id = ?').get(req.user.id);
+  const u = db.prepare('SELECT id, username, first_name, last_name, bio, avatar_file, selected_suite, selected_tests, email, oidc_sub FROM users WHERE id = ?').get(req.user.id);
   if (!u) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
   res.json(serializeMe(u));
 });
@@ -158,7 +168,7 @@ router.put(
       req.user.id
     );
 
-    const updated = db.prepare('SELECT id, username, first_name, last_name, bio, avatar_file, email, oidc_sub FROM users WHERE id = ?').get(req.user.id);
+    const updated = db.prepare('SELECT id, username, first_name, last_name, bio, avatar_file, selected_suite, selected_tests, email, oidc_sub FROM users WHERE id = ?').get(req.user.id);
     res.json({ ok: true, user: serializeMe(updated) });
   })
 );
