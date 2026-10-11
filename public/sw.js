@@ -35,8 +35,8 @@ self.addEventListener('message', (event) => {
       try {
         await self.registration.showNotification(title, {
           body,
-          icon: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ctext y=\'.9em\' font-size=\'90\'%3E%E2%8F%B1%EF%B8%8F%3C/text%3E%3C/svg%3E',
-          badge: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ctext y=\'.9em\' font-size=\'90\'%3E%F0%9F%90%A0%3C/text%3E%3C/svg%3E',
+          icon: '/icon-192.png',
+          badge: '/favicon-32x32.png',
           tag: `aquarium-timer-${key}`,
           renotify: true,
           requireInteraction: true,

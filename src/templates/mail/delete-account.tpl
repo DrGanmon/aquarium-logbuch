@@ -165,6 +165,9 @@
   <div class="wrapper">
     <div class="main-card">
       <div class="header-bar">
+        <div style="margin-bottom: 12px; text-align: center;">
+          <img src="{{logoUrl}}" alt="Logo" width="48" height="48" style="width: 48px; height: 48px; border-radius: 10px; display: inline-block; vertical-align: middle; border: 0; outline: none; text-decoration: none; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);">
+        </div>
         <h1 class="header-title">{{brandTitle}}</h1>
         <p class="header-subtitle">Benutzerkonto & Datenverwaltung</p>
       </div>

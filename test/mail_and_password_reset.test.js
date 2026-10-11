@@ -140,15 +140,18 @@ test('Mail: HTML- und Plain-Text Templates mit .tpl-Dateien und Tokens', async (
   assert.ok(verifyTpl.includes('{{username}}'));
   assert.ok(verifyTpl.includes('{{verifyUrl}}'));
   assert.ok(verifyTpl.includes('{{expiresHours}}'));
+  assert.ok(verifyTpl.includes('{{logoUrl}}'));
 
   const resetTpl = loadTemplate('password-reset');
   assert.ok(resetTpl.includes('{{username}}'));
   assert.ok(resetTpl.includes('{{resetUrl}}'));
   assert.ok(resetTpl.includes('{{expiresMinutes}}'));
+  assert.ok(resetTpl.includes('{{logoUrl}}'));
 
   const testTpl = loadTemplate('test-email');
   assert.ok(testTpl.includes('{{adminUsername}}'));
   assert.ok(testTpl.includes('{{serverInfo}}'));
+  assert.ok(testTpl.includes('{{logoUrl}}'));
 
   // 2. Token-Ersetzung, Escaping und Fallback
   const rawHtml = '<p>Hallo {{ username }}, klicke <a href="{{ link }}">hier</a> & {{ script }}</p>';

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/icon-192.png" alt="Aquarium-Logbuch Logo" width="128" height="128" style="border-radius: 24px;">
+</p>
+
 # Aquarium-Logbuch
 
 Mehrbenutzer-Webanwendung für Aquarien-Wasserwerte. Node.js (ab Version 22), Express sowie wahlweise **SQLite** (lokal/leichtgewichtig) oder **MongoDB** (produktiv/skalierbar).
@@ -52,6 +56,11 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 - **Verhaltens- & Territorialitäts-Prüfung:** Automatische Erkennung von Vergesellschaftungs- und Verhaltenskonflikten (z. B. Einzelhaltung bei Siamesischen Kampffischen, Flossenbeißer vs. Langflosser, Räuber vs. Zwerggarnelen, Krebse vs. Bodenfische, Mindestgruppengrößen bei Schwarmfischen und Temperatur-/pH-Inkompatibilitäten).
 - Messmaske für 15 Parameter mit Timer pro Test (mehrere gleichzeitig, Ton und Vibration bei Ablauf,
   Bildschirm bleibt während der Timer an, wenn der Browser das erlaubt)
+- **PWA & Mobile App Icons (Home-Bildschirm Shortcut):**
+  - **Optimiert für Mobilgeräte (iOS & Android):** Vollständige Unterstützung für Homescreen-Shortcuts und Web-App-Installation mit gestochen scharfem App-Icon (lila Fisch mit Blasen auf tiefviolettem Hintergrund).
+  - **iOS Apple Touch Icon:** 180×180 px Vollflächen-Icon ohne transparente Ecken für nahtloses, kantenfreies Rendern der Apple-typischen Squircle-Maske.
+  - **Android Adaptive & Maskable Icons:** Bereitstellung von 192×192 px und 512×512 px Icons im Standard- (`any`) sowie im adaptiven Maskable-Format (`maskable`), bei dem das Motiv sicher innerhalb der 80%-Safe-Zone liegt und von Android-Launchern (z. B. Kreis, Tropfen, Squircle) ohne abgeschnittene Ränder maskiert wird.
+  - **Multi-Resolution Favicons:** Favicons in 16×16, 32×32 sowie Standard `favicon.ico` für Browser-Tabs und Lesezeichen.
 - **Push-Benachrichtigungen für Timer:** Automatische System- und Push-Benachrichtigungen bei Ablauf der Reaktionszeiten:
   - **Hintergrund-Timer:** Service Worker stellt sicher, dass Alarme auch dann pünktlich ankommen, wenn der Tab minimiert ist oder im Hintergrund liegt.
   - **Präzises Timing:** Verhindert das Überziehen von Reaktionszeiten und schützt vor Fehlinterpretationen bei Farbvergleichstests.

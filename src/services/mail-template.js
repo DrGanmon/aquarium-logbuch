@@ -1,10 +1,28 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { DATA_DIR } = require('../config/env');
+const { DATA_DIR, APP_URL } = require('../config/env');
 
 const TEMPLATE_DIR = path.join(__dirname, '../templates/mail');
 const USER_TEMPLATE_DIR = path.join(DATA_DIR, 'mail-templates');
+const LOGO_PNG_PATH = path.join(__dirname, '../../public/icon-192.png');
+
+let DEFAULT_LOGO_DATA_URI = '';
+try {
+  if (fs.existsSync(LOGO_PNG_PATH)) {
+    const logoBuf = fs.readFileSync(LOGO_PNG_PATH);
+    DEFAULT_LOGO_DATA_URI = `data:image/png;base64,${logoBuf.toString('base64')}`;
+  }
+} catch (e) {
+  // ignore
+}
+
+function getLogoUrl() {
+  if (APP_URL) {
+    return `${APP_URL}/icon-192.png`;
+  }
+  return DEFAULT_LOGO_DATA_URI || 'icon-192.png';
+}
 
 function escapeHtml(str) {
   if (str == null) return '';
@@ -90,9 +108,11 @@ function renderTemplate(templateName, tokens = {}) {
   const brandTitle = tokens.brandTitle || '🐠 Aquarium-Logbuch';
   const currentYear = tokens.currentYear || new Date().getFullYear();
   const footerNote = tokens.footerNote || 'Aquarium-Logbuch – Deine Wasserwerte und Aquarien stets im Blick.';
+  const logoUrl = tokens.logoUrl || getLogoUrl();
 
   const fullTokens = {
     brandTitle,
+    logoUrl,
     currentYear,
     footerNote,
     ...tokens,
@@ -104,9 +124,10 @@ function renderTemplate(templateName, tokens = {}) {
 /**
  * Erzeugt das einheitliche, ansprechende HTML- und Text-Layout für alle Aquarium-Logbuch-E-Mails (Fallback/Hilfsfunktion).
  */
-function renderBaseTemplate({ title, preheader, headline, contentHtml, ctaText, ctaUrl, hintHtml, footerNote }) {
+function renderBaseTemplate({ title, preheader, headline, contentHtml, ctaText, ctaUrl, hintHtml, footerNote, logoUrl }) {
   const brandTitle = '🐠 Aquarium-Logbuch';
   const currentYear = new Date().getFullYear();
+  const actualLogoUrl = logoUrl || getLogoUrl();
 
   const html = `<!DOCTYPE html>
 <html lang="de">
@@ -255,6 +276,9 @@ function renderBaseTemplate({ title, preheader, headline, contentHtml, ctaText, 
   <div class="wrapper">
     <div class="main-card">
       <div class="header-bar">
+        <div style="margin-bottom: 12px; text-align: center;">
+          <img src="${escapeHtml(actualLogoUrl)}" alt="Logo" width="48" height="48" style="width: 48px; height: 48px; border-radius: 10px; display: inline-block; vertical-align: middle; border: 0; outline: none; text-decoration: none; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);">
+        </div>
         <h1 class="header-title">${brandTitle}</h1>
         <p class="header-subtitle">Wasserwerte · Aquarien · Pflege</p>
       </div>

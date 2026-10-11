@@ -404,7 +404,10 @@ async function showAuth(mode = 'login', options = {}) {
   }, `${themeAuthIcon} ${themeAuthLabel}`);
 
   const headerRow = h('div', { class: 'row between', style: 'margin-bottom:.5rem; align-items:center;' },
-    h('p', { class: 'muted', style: 'margin:0' }, 'Wasserwerte im Blick behalten.'),
+    h('div', { style: 'display:flex; align-items:center; gap:.5rem;' },
+      h('img', { src: 'favicon-32x32.png', alt: 'Logo', style: 'width:28px; height:28px; border-radius:6px;' }),
+      h('p', { class: 'muted', style: 'margin:0; font-weight:600;' }, 'Aquarium-Logbuch')
+    ),
     themeAuthBtn
   );
 
@@ -2320,8 +2323,8 @@ const pushNotificationManager = {
       if (swRegistration && swRegistration.showNotification) {
         await swRegistration.showNotification(title, {
           body: desc,
-          icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%8F%B1%EF%B8%8F%3C/text%3E%3C/svg%3E",
-          badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%A0%3C/text%3E%3C/svg%3E",
+          icon: 'icon-192.png',
+          badge: 'favicon-32x32.png',
           tag: tag || 'aquarium-timer',
           renotify: true,
           requireInteraction: true,
@@ -2337,7 +2340,8 @@ const pushNotificationManager = {
     try {
       const n = new Notification(title, {
         body: desc,
-        icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%8F%B1%EF%B8%8F%3C/text%3E%3C/svg%3E",
+        icon: 'icon-192.png',
+        badge: 'favicon-32x32.png',
         tag: tag || 'aquarium-timer',
         renotify: true,
         requireInteraction: true,
