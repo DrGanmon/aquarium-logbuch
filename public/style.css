@@ -182,12 +182,44 @@ main { max-width: 960px; margin: 0 auto; padding: 1rem; width: 100%; flex: 1 0 a
 .btn.small { min-height: 34px; padding: .25rem .7rem; font-size: .9rem; }
 
 label { display: block; font-weight: 600; margin-bottom: .25rem; }
-input, select, textarea {
+label.row, label.inline, label:has(input[type="checkbox"]), label:has(input[type="radio"]) {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  font-weight: 500;
+  margin: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+input:not([type="checkbox"]):not([type="radio"]), select, textarea {
   font: inherit; color: var(--ink); width: 100%; padding: .55rem .65rem; min-height: 44px;
   border: 1px solid var(--line); border-radius: 8px; background: var(--input-bg);
 }
-input:focus, select:focus, textarea:focus {
+input:not([type="checkbox"]):not([type="radio"]):focus, select:focus, textarea:focus {
   border-color: var(--water); outline: none;
+}
+
+/* Checkboxen & Radio-Buttons */
+input[type="checkbox"], input[type="radio"] {
+  appearance: auto;
+  -webkit-appearance: auto;
+  width: 1.15rem;
+  height: 1.15rem;
+  min-height: 0;
+  min-width: 0;
+  max-width: 1.15rem;
+  max-height: 1.15rem;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  accent-color: var(--water);
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+input[type="checkbox"]:focus-visible, input[type="radio"]:focus-visible {
+  outline: 2px solid var(--water);
+  outline-offset: 2px;
 }
 textarea { min-height: 80px; resize: vertical; }
 .field + .field { margin-top: .85rem; }
@@ -362,8 +394,37 @@ td.v-warn { color: var(--amber); font-weight: 650; } td.v-crit { color: var(--co
 .hint { font-size: .85rem; color: var(--ink-soft); grid-column: 2; margin: 0; }
 .unverified { color: var(--amber); font-size: .8rem; }
 .picker { display: flex; flex-wrap: wrap; gap: .4rem; }
-.picker label { font-weight: 500; display: inline-flex; gap: .35rem; align-items: center; background: var(--paper); border: 1px solid var(--line); border-radius: 99px; padding: .2rem .7rem; margin: 0; min-height: 36px; }
-.picker input { width: auto; min-height: 0; }
+.picker label {
+  font-weight: 500;
+  display: inline-flex;
+  gap: .4rem;
+  align-items: center;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: .25rem .75rem;
+  margin: 0;
+  min-height: 32px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .12s ease, border-color .12s ease;
+}
+.picker label:hover {
+  border-color: var(--water);
+  background: var(--table-hover);
+}
+.picker label:has(input:checked) {
+  background: var(--water-soft);
+  border-color: var(--water);
+  font-weight: 600;
+}
+.picker input {
+  width: 1rem;
+  height: 1rem;
+  min-height: 0;
+  margin: 0;
+  cursor: pointer;
+}
 .sticky-save { position: sticky; bottom: 0; background: linear-gradient(transparent, var(--glass) 30%); padding: 1rem 0 .5rem; }
 
 dialog { border: 1px solid var(--line); border-radius: var(--radius); padding: 1.2rem; max-width: 420px; width: calc(100% - 2rem); background: var(--paper); color: var(--ink); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); }
