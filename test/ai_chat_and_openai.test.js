@@ -330,6 +330,8 @@ test('Anthropic Claude Chat Service: Nachrichten-Normalisierung, System-Prompt u
     assert.strictEqual(interceptedRequest.options.headers['x-api-key'], 'sk-ant-test-key-1234567890');
     assert.strictEqual(interceptedRequest.options.headers['anthropic-version'], '2023-06-01');
     assert.strictEqual(interceptedRequest.body.model, 'claude-3-7-sonnet-20250219');
+    assert.strictEqual(interceptedRequest.body.temperature, undefined, 'Claude Payload darf kein deprecated temperature enthalten');
+    assert.strictEqual(interceptedRequest.body.max_tokens, 1500);
     assert.ok(interceptedRequest.body.system.includes('Claude Testbecken'));
 
     // Anthropic-Validierung: Erste Nachricht muss Rolle 'user' sein

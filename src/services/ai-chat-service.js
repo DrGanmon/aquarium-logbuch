@@ -438,7 +438,6 @@ async function callClaude({ apiKey, model, systemPrompt, messages = [], message 
     model: chosenModel,
     messages: chatMessages,
     max_tokens: 1500,
-    temperature: 0.7,
   };
 
   if (systemPrompt && typeof systemPrompt === 'string' && systemPrompt.trim()) {
