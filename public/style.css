@@ -687,4 +687,49 @@ dialog.wide { max-width: 640px; }
   background: var(--water-soft);
 }
 
+/* CSV Import & Export */
+.csv-drop-zone {
+  border: 2px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  background: var(--paper);
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.csv-drop-zone:hover, .csv-drop-zone.dragover {
+  border-color: var(--water);
+  background: var(--water-soft);
+}
+
+.csv-mapping-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9rem;
+}
+
+.csv-mapping-table th, .csv-mapping-table td {
+  padding: .5rem .6rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.csv-mapping-table select {
+  width: 100%;
+  min-width: 190px;
+  padding: .35rem .5rem;
+}
+
+.csv-sample-preview {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: .82rem;
+  color: var(--ink-soft);
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (prefers-reduced-motion: reduce) { .tube .fill { transition: none; } }

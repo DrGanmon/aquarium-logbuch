@@ -10,6 +10,13 @@ const { thresholdsOfAquarium, buildMessage } = require('../services/alert-servic
 const { saveImage, saveAquariumImage, saveStockImage, deleteImage, getImagePath, getMimeType } = require('../services/image-service');
 const { validateMaintenanceInput, getAquariumTimeline } = require('../services/maintenance-service');
 const { mailService } = require('../services/mail-service');
+const {
+  detectDelimiter,
+  parseCsv,
+  autoDetectMapping,
+  generateCsv,
+  importMeasurementsFromRows,
+} = require('../services/measurement-csv-service');
 
 const router = express.Router();
 
@@ -622,13 +629,16 @@ router.get(
   auth,
   ownAquarium,
   wrap(async (req, res) => {
-    let days = req.query.days !== undefined && req.query.days !== '' ? Math.min(Math.max(Number(req.query.days) || 90, 1), 3650) : null;
+    let days = req.query.days !== undefined && req.query.days !== '' && req.query.days !== 'all'
+      ? Math.min(Math.max(Number(req.query.days) || 90, 1), 3650)
+      : null;
     let from = req.query.from ? String(req.query.from).trim() : null;
     let to = req.query.to ? String(req.query.to).trim() : null;
-    if (!from && days == null) {
+    const all = req.query.all === 'true' || req.query.days === 'all';
+    if (!from && days == null && !all) {
       days = 90; // Standard 3 Monate
     }
-    const ms = await db.measurements.listForAquarium(req.aq.id, { days, from, to });
+    const ms = await db.measurements.listForAquarium(req.aq.id, { days, from, to, all });
     // Chronologisch aufsteigend für Graphen
     const sorted = [...ms].sort((a, b) => new Date(a.measured_at).getTime() - new Date(b.measured_at).getTime());
     res.json(sorted);
@@ -642,6 +652,95 @@ router.delete(
   wrap(async (req, res) => {
     await db.measurements.delete(Number(req.params.mid), req.aq.id);
     res.json({ ok: true });
+  })
+);
+
+// ---------- CSV / Excel Export & Import ----------
+router.get(
+  '/:id/measurements/export',
+  auth,
+  ownAquarium,
+  wrap(async (req, res) => {
+    let days = req.query.days !== undefined && req.query.days !== '' && req.query.days !== 'all'
+      ? Math.min(Math.max(Number(req.query.days) || 90, 1), 3650)
+      : null;
+    let from = req.query.from ? String(req.query.from).trim() : null;
+    let to = req.query.to ? String(req.query.to).trim() : null;
+    const all = req.query.all === 'true' || req.query.days === 'all' || (!days && !from && !to);
+
+    const ms = await db.measurements.listForAquarium(req.aq.id, { days, from, to, all });
+    const delimiter = req.query.delimiter === ',' ? ',' : ';';
+    const csvData = generateCsv(ms, { delimiter, includeBOM: true });
+
+    const safeName = (req.aq.name || 'aquarium').replace(/[^a-zA-Z0-9_\u00C0-\u017F-]/g, '_');
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const filename = `messwerte_${safeName}_${dateStr}.csv`;
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"; filename*=UTF-8''${encodeURIComponent(filename)}`);
+    res.send(csvData);
+  })
+);
+
+router.post(
+  '/:id/measurements/parse-csv-header',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    const csvText = typeof req.body?.csvText === 'string' ? req.body.csvText : '';
+    if (!csvText.trim()) {
+      return res.status(400).json({ error: 'Kein CSV-Inhalt übergeben.' });
+    }
+    const delimiter = req.body?.delimiter || detectDelimiter(csvText);
+    const rows = parseCsv(csvText, { delimiter });
+    if (rows.length === 0) {
+      return res.status(400).json({ error: 'Die Datei enthält keine lesbaren Zeilen.' });
+    }
+    const headers = rows[0] || [];
+    const sampleRows = rows.slice(1, 4);
+    const autoMapping = autoDetectMapping(headers, cfg.suiteService.getAllKnownParameters());
+    const totalDataRows = Math.max(0, rows.length - 1);
+
+    res.json({
+      delimiter,
+      headers,
+      sampleRows,
+      autoMapping,
+      totalRows: rows.length,
+      totalDataRows,
+    });
+  })
+);
+
+router.post(
+  '/:id/measurements/import-csv',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    const csvText = typeof req.body?.csvText === 'string' ? req.body.csvText : '';
+    const mapping = req.body?.mapping && typeof req.body.mapping === 'object' ? req.body.mapping : {};
+    const hasHeader = req.body?.hasHeader !== false;
+    const delimiter = req.body?.delimiter || detectDelimiter(csvText);
+
+    if (!csvText.trim()) {
+      return res.status(400).json({ error: 'Bitte lade eine CSV-Datei hoch oder füge CSV-Text ein.' });
+    }
+
+    const rows = parseCsv(csvText, { delimiter });
+    if (rows.length === 0) {
+      return res.status(400).json({ error: 'Die CSV-Datei enthält keine Daten.' });
+    }
+
+    const result = await importMeasurementsFromRows({
+      aquarium: req.aq,
+      userId: req.user.id,
+      rows,
+      mapping,
+      hasHeader,
+      db,
+    });
+
+    res.json(result);
   })
 );
 

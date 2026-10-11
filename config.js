@@ -119,7 +119,7 @@ function evaluate(range, value) {
 }
 
 // E-Mail-Adresse(n) des Administrators (mehrere mit Komma trennen)
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'dr@ganmon.org';
 
 module.exports = {
   PARAMETERS,

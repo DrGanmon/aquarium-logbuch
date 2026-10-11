@@ -75,6 +75,12 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **Hintergrund-Timer:** Service Worker stellt sicher, dass Alarme auch dann pünktlich ankommen, wenn der Tab minimiert ist oder im Hintergrund liegt.
   - **Präzises Timing:** Verhindert das Überziehen von Reaktionszeiten und schützt vor Fehlinterpretationen bei Farbvergleichstests.
   - **Status & Testen:** Aktivierungsbanner in der Messmaske sowie Konfigurationskarte und 3-Sekunden-Test-Benachrichtigung im Benutzerprofil.
+- **CSV & Excel Export & Import mit Spaltenzuordnung:**
+  - **📤 Exportieren (CSV / Excel):** Messwerte für beliebige Zeiträume (oder den gesamten Verlauf) als CSV mit UTF-8-BOM und Semikolon (für Microsoft Excel) oder Komma (Standard-CSV) herunterladen.
+  - **📥 Importieren mit interaktiver Spaltenmaske (CSV):** CSV-Dateien per Drag & Drop oder Dateiauswahl hochladen. Die Kopfzeile und Beispielwerte werden automatisch eingelesen.
+  - **Intelligente Spaltenzuordnung:** Erkennt automatisch Datum, Uhrzeit, Notiz sowie Wasserparameter (pH, KH, GH, NO2, NO3, PO4, Fe, K, Mg, Ca, Temperatur, Salinität etc.) und ordnet diese vor.
+  - **Flexible Datenkonvertierung:** Unterstützt deutsche Datumsformate (`TT.MM.JJJJ`), ISO-Standards, separate Datums-/Uhrzeitspalten und Zahlen mit Komma oder Punkt als Dezimaltrenner.
+  - **Integrierte Grenzwertprüfung:** Bei importierten Werten werden Alarme und Warnungen automatisch anhand der Becken-Grenzwerte generiert.
 - Live-Bewertung beim Tippen, Eingabe mit Komma möglich
 - **Flexible Verlaufsgraphen mit Zeitraumauswahl:**
   - **Standard-Zeitraum 3 Monate (90 Tage):** Beim Öffnen eines Aquariums wird standardmäßig der Verlauf der letzten 3 Monate dargestellt.
@@ -248,5 +254,4 @@ Die Testparameter und Standardwerte liegen in `src/config/suites/jbl-pro-aquates
 
 ## TODS
 
-- Export aller Messwerte eines Aquariums via CSV oder Exel
 - AI anbindung um die becken zu bewerten und ai fragen zu den becken zu stellen. Eigener account muss dazu verknüpft werden.

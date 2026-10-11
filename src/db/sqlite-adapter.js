@@ -892,7 +892,9 @@ class SqliteAdapter {
       async listForAquarium(aquariumId, options = {}) {
         let since;
         let until = null;
-        if (options.from || options.since) {
+        if (options.all || options.days === 'all' || options.days === 0) {
+          since = '1970-01-01T00:00:00.000Z';
+        } else if (options.from || options.since) {
           const fromStr = String(options.from || options.since).trim();
           const fromDate = fromStr.length === 10 ? new Date(`${fromStr}T00:00:00.000Z`) : new Date(fromStr);
           since = !Number.isNaN(fromDate.getTime()) ? fromDate.toISOString() : new Date(Date.now() - 90 * 86400000).toISOString();
