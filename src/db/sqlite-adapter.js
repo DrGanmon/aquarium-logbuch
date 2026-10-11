@@ -186,6 +186,8 @@ class SqliteAdapter {
     if (!hasColumn('users', 'password_reset_expires')) this.db.exec('ALTER TABLE users ADD COLUMN password_reset_expires INTEGER');
     if (!hasColumn('users', 'account_delete_token')) this.db.exec('ALTER TABLE users ADD COLUMN account_delete_token TEXT');
     if (!hasColumn('users', 'account_delete_expires')) this.db.exec('ALTER TABLE users ADD COLUMN account_delete_expires INTEGER');
+    if (!hasColumn('users', 'openai_api_key')) this.db.exec('ALTER TABLE users ADD COLUMN openai_api_key TEXT');
+    if (!hasColumn('users', 'openai_model')) this.db.exec('ALTER TABLE users ADD COLUMN openai_model TEXT');
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oidc ON users(oidc_sub) WHERE oidc_sub IS NOT NULL');
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email != \'\'');
     this.db.exec('CREATE INDEX IF NOT EXISTS idx_users_verify_token ON users(email_verify_token) WHERE email_verify_token IS NOT NULL');
@@ -313,6 +315,8 @@ class SqliteAdapter {
           'password_reset_expires',
           'account_delete_token',
           'account_delete_expires',
+          'openai_api_key',
+          'openai_model',
         ];
 
         for (const k of allowed) {

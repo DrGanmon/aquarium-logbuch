@@ -207,6 +207,8 @@ class MongoAdapter {
           email_verify_expires: email_verify_expires || null,
           password_reset_token: password_reset_token || null,
           password_reset_expires: password_reset_expires || null,
+          openai_api_key: null,
+          openai_model: null,
           created_at: new Date().toISOString(),
         };
         await db.collection('users').insertOne(doc);
@@ -234,6 +236,8 @@ class MongoAdapter {
           'password_reset_expires',
           'account_delete_token',
           'account_delete_expires',
+          'openai_api_key',
+          'openai_model',
         ];
 
         for (const k of allowed) {

@@ -17,6 +17,7 @@ const {
   generateCsv,
   importMeasurementsFromRows,
 } = require('../services/measurement-csv-service');
+const { buildAquariumSystemPrompt, chatWithAquarium } = require('../services/ai-chat-service');
 
 const router = express.Router();
 
@@ -845,6 +846,65 @@ router.get(
       limit: req.query.limit,
     });
     res.json(timeline);
+  })
+);
+
+// ---------- Aquarium KI-Chat & Kontext ----------
+router.get(
+  '/:id/chat/context',
+  auth,
+  ownAquarium,
+  wrap(async (req, res) => {
+    const data = await buildAquariumSystemPrompt(req.aq.id, db);
+    res.json({
+      ok: true,
+      systemPrompt: data.systemPrompt,
+      aquariumName: data.aquarium?.name,
+      stockCount: data.stockCount,
+      measurementsCount: data.measurementsCount,
+    });
+  })
+);
+
+router.post(
+  '/:id/chat',
+  auth,
+  ownAquarium,
+  wrap(async (req, res) => {
+    const { messages, message, stream } = req.body || {};
+    try {
+      const result = await chatWithAquarium({
+        aquariumId: req.aq.id,
+        user: req.user,
+        messages,
+        message,
+        stream: Boolean(stream),
+        customDb: db,
+      });
+
+      if (stream && result.stream) {
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        // Node fetch ReadableStream weiterleiten
+        result.stream.pipe(res);
+        return;
+      }
+
+      res.json({
+        ok: true,
+        reply: result.reply,
+        model: result.model,
+        usage: result.usage,
+      });
+    } catch (err) {
+      const status = err.status || (err.code === 'NO_API_KEY' ? 400 : 500);
+      res.status(status).json({
+        error: err.message,
+        code: err.code || 'CHAT_ERROR',
+        status,
+      });
+    }
   })
 );
 

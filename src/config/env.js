@@ -61,6 +61,11 @@ const isEmailAdmin = (email) => !!email && ADMIN_EMAILS.includes(String(email).t
 const CONTACT_EMAIL = (env.CONTACT_EMAIL || cfg.CONTACT_EMAIL || ADMIN_EMAIL || 'dr@ganmon.org').trim();
 const IMPRINT_EMAIL = (env.IMPRINT_EMAIL || env.IMPRESSUM_EMAIL || cfg.IMPRINT_EMAIL || CONTACT_EMAIL || 'dr@ganmon.org').trim();
 
+// OpenAI / ChatGPT Konfiguration
+const OPENAI_API_KEY = (env.OPENAI_API_KEY || '').trim();
+const OPENAI_MODEL = (env.OPENAI_MODEL || 'gpt-4o-mini').trim();
+const OPENAI_BASE_URL = (env.OPENAI_BASE_URL || 'https://api.openai.com/v1').trim();
+
 module.exports = {
   PORT,
   DATA_DIR,
@@ -88,4 +93,7 @@ module.exports = {
   isEmailAdmin,
   CONTACT_EMAIL,
   IMPRINT_EMAIL,
+  OPENAI_API_KEY,
+  OPENAI_MODEL,
+  OPENAI_BASE_URL,
 };

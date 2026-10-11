@@ -1,0 +1,205 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { createTestEnvironment } = require('./helpers/env');
+const { buildAquariumSystemPrompt, testOpenAiConnection } = require('../src/services/ai-chat-service');
+
+test('KI-Chat Service: System-Prompt Generierung mit Beckendaten, Besatz und 10 Messwerten', async (t) => {
+  const env = createTestEnvironment();
+  t.after(async () => await env.cleanup());
+
+  const user = await env.createUserAndLogin('ai_tester', 'password123', 'ai@example.com');
+
+  // Aquarium anlegen
+  const aqRes = await env.request('/api/aquariums', {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: {
+      name: 'Amazonas Biotop 240',
+      volume_l: 240,
+      water_type: 'fresh',
+      motto: 'Schwarzwasser Südamerika',
+      description: 'Dicht bepflanzt mit Wurzeln und Sandboden.',
+      notes: 'CO2-Anlage aktiv mit 20 Blasen/min.',
+    },
+  });
+  assert.strictEqual(aqRes.status, 200);
+  const aqId = aqRes.data.id;
+
+  // Besatz hinzufügen
+  await env.request(`/api/aquariums/${aqId}/stock`, {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: {
+      species: 'Roter Neon',
+      count: 15,
+      profile: 'amazonas',
+    },
+  });
+
+  await env.request(`/api/aquariums/${aqId}/stock`, {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: {
+      species: 'Marmorierter Panzerwels',
+      count: 6,
+      profile: 'allgemein',
+    },
+  });
+
+  // 12 Messungen hinzufügen (es sollen genau die letzten 10 im Prompt auftauchen)
+  for (let i = 1; i <= 12; i++) {
+    const d = new Date(Date.now() - (12 - i) * 86400000).toISOString();
+    await env.request(`/api/aquariums/${aqId}/measurements`, {
+      method: 'POST',
+      headers: { Cookie: user.cookie },
+      body: {
+        measured_at: d,
+        values: {
+          ph: 6.8 + (i % 2 === 0 ? 0.2 : 0.0),
+          temp: 25.5,
+          no2: i === 12 ? 0.02 : 0.0,
+          no3: 15 + i,
+        },
+        note: `Messung Tag ${i}`,
+      },
+    });
+  }
+
+  // Wartungsarbeit hinzufügen
+  await env.request(`/api/aquariums/${aqId}/maintenance`, {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: {
+      logged_at: new Date().toISOString(),
+      type: 'water_change',
+      percentage: 30,
+      details: 'Wasserwechsel mit temperiertem Osmosewasser',
+    },
+  });
+
+  // System-Prompt bauen und prüfen
+  const db = require('../src/db');
+  const promptData = await buildAquariumSystemPrompt(aqId, db);
+  assert.ok(promptData.systemPrompt);
+  assert.strictEqual(promptData.aquarium.name, 'Amazonas Biotop 240');
+  assert.strictEqual(promptData.stockCount, 2);
+  assert.strictEqual(promptData.measurementsCount, 10);
+
+  const prompt = promptData.systemPrompt;
+  // Beckendaten
+  assert.ok(prompt.includes('Amazonas Biotop 240'));
+  assert.ok(prompt.includes('240 Liter'));
+  assert.ok(prompt.includes('Süßwasser'));
+  assert.ok(prompt.includes('Schwarzwasser Südamerika'));
+  assert.ok(prompt.includes('Dicht bepflanzt mit Wurzeln'));
+  assert.ok(prompt.includes('CO2-Anlage aktiv'));
+
+  // Besatz
+  assert.ok(prompt.includes('Roter Neon'));
+  assert.ok(prompt.includes('15x'));
+  assert.ok(prompt.includes('Marmorierter Panzerwels'));
+  assert.ok(prompt.includes('6x'));
+
+  // Letzte 10 Messwerte
+  assert.ok(prompt.includes('DIE LETZTEN 10 MESSUNGEN'));
+  assert.ok(prompt.includes('Messung #1'));
+  assert.ok(prompt.includes('Messung #10'));
+  assert.ok(!prompt.includes('Messung #11')); // Max 10 Messungen
+  assert.ok(prompt.includes('pH-Wert:'));
+  assert.ok(prompt.includes('Temperatur:'));
+  assert.ok(prompt.includes('Nitrit (NO2):'));
+
+  // Wartung
+  assert.ok(prompt.includes('Wasserwechsel'));
+  assert.ok(prompt.includes('30 %'));
+});
+
+test('OpenAI API-Key Profilverwaltung: Speichern, Maskieren, Testen und Löschen', async (t) => {
+  const env = createTestEnvironment();
+  t.after(async () => await env.cleanup());
+
+  const user = await env.createUserAndLogin('key_user', 'password123', 'key@example.com');
+
+  // 1. Initialer Zustand
+  const meInit = await env.request('/api/me', { headers: { Cookie: user.cookie } });
+  assert.strictEqual(meInit.status, 200);
+  assert.strictEqual(meInit.data.openaiKeySet, false);
+  assert.strictEqual(meInit.data.openaiKeyMasked, null);
+  assert.strictEqual(meInit.data.openaiModel, 'gpt-4o-mini');
+
+  // 2. Key und Modell speichern
+  const saveRes = await env.request('/api/me/openai', {
+    method: 'PUT',
+    headers: { Cookie: user.cookie },
+    body: {
+      apiKey: 'sk-proj-1234567890abcdefghijklmnopqr',
+      model: 'gpt-4o',
+    },
+  });
+  assert.strictEqual(saveRes.status, 200);
+  assert.strictEqual(saveRes.data.ok, true);
+  assert.strictEqual(saveRes.data.user.openaiKeySet, true);
+  assert.strictEqual(saveRes.data.user.hasOpenaiKey, true);
+  assert.ok(saveRes.data.user.openaiKeyMasked.startsWith('sk-'));
+  assert.ok(saveRes.data.user.openaiKeyMasked.endsWith('opqr'));
+  assert.strictEqual(saveRes.data.user.openaiModel, 'gpt-4o');
+
+  // 3. GET /api/me prüft Persistenz
+  const meSaved = await env.request('/api/me', { headers: { Cookie: user.cookie } });
+  assert.strictEqual(meSaved.status, 200);
+  assert.strictEqual(meSaved.data.openaiKeySet, true);
+  assert.strictEqual(meSaved.data.openaiModel, 'gpt-4o');
+
+  // 4. Key löschen
+  const delRes = await env.request('/api/me/openai', {
+    method: 'DELETE',
+    headers: { Cookie: user.cookie },
+  });
+  assert.strictEqual(delRes.status, 200);
+  assert.strictEqual(delRes.data.user.openaiKeySet, false);
+
+  const meDeleted = await env.request('/api/me', { headers: { Cookie: user.cookie } });
+  assert.strictEqual(meDeleted.status, 200);
+  assert.strictEqual(meDeleted.data.openaiKeySet, false);
+  assert.strictEqual(meDeleted.data.openaiKeyMasked, null);
+});
+
+test('Aquarium Chat API Endpunkte: Kontext-Abruf und Fehler ohne API-Key', async (t) => {
+  const env = createTestEnvironment();
+  t.after(async () => await env.cleanup());
+
+  const user = await env.createUserAndLogin('chat_user', 'password123', 'chat@example.com');
+
+  const aqRes = await env.request('/api/aquariums', {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: {
+      name: 'Nano Cube 30',
+      volume_l: 30,
+      water_type: 'fresh',
+    },
+  });
+  const aqId = aqRes.data.id;
+
+  // 1. Kontext-Endpunkt abrufen
+  const ctxRes = await env.request(`/api/aquariums/${aqId}/chat/context`, {
+    headers: { Cookie: user.cookie },
+  });
+  assert.strictEqual(ctxRes.status, 200);
+  assert.strictEqual(ctxRes.data.ok, true);
+  assert.strictEqual(ctxRes.data.aquariumName, 'Nano Cube 30');
+  assert.ok(ctxRes.data.systemPrompt.includes('Nano Cube 30'));
+
+  // 2. Chat-Anfrage ohne hinterlegten API-Key schlägt mit 400 fehl
+  const chatNoKeyRes = await env.request(`/api/aquariums/${aqId}/chat`, {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: {
+      message: 'Wie geht es meinem Becken?',
+    },
+  });
+  assert.strictEqual(chatNoKeyRes.status, 400);
+  assert.strictEqual(chatNoKeyRes.data.code, 'NO_API_KEY');
+  assert.ok(chatNoKeyRes.data.error.includes('API-Schlüssel'));
+});

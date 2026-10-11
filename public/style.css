@@ -962,3 +962,259 @@ dialog.wide { max-width: 640px; }
   max-height: 240px;
   overflow-y: auto;
 }
+
+/* ---------- KI-Assistent & Aquarium-Chat ---------- */
+.ai-quick-card {
+  background: linear-gradient(135deg, var(--paper) 0%, var(--water-soft) 100%);
+  border: 1px solid var(--water);
+}
+
+.chat-dialog {
+  padding: 1.25rem;
+}
+
+.chat-context-details {
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  padding: .5rem .75rem;
+  background: var(--paper);
+}
+
+.chat-context-details summary:hover {
+  color: var(--ink);
+}
+
+.chat-messages-container {
+  min-height: 240px;
+}
+
+.chat-message {
+  display: flex;
+  gap: .6rem;
+  max-width: 88%;
+}
+
+.chat-message.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.chat-message.assistant {
+  align-self: flex-start;
+}
+
+.chat-avatar {
+  font-size: 1.3rem;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.chat-message.user .chat-avatar {
+  background: var(--water-soft);
+  border-color: var(--water);
+}
+
+.chat-bubble-content {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  min-width: 0;
+}
+
+.chat-bubble-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .78rem;
+}
+
+.chat-message.user .chat-bubble-header {
+  justify-content: flex-end;
+}
+
+.chat-author {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.chat-time {
+  color: var(--ink-soft);
+}
+
+.chat-text {
+  padding: .65rem .85rem;
+  border-radius: 12px;
+  font-size: .92rem;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.chat-message.user .chat-text {
+  background: var(--primary, #12343b);
+  color: #ffffff;
+  border-bottom-right-radius: 2px;
+}
+
+.chat-message.assistant .chat-text {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-bottom-left-radius: 2px;
+}
+
+/* Markdown Styling im Chat */
+.chat-text.markdown-body h3,
+.chat-text.markdown-body h4 {
+  margin: .6rem 0 .25rem 0;
+  color: var(--ink);
+}
+
+.chat-text.markdown-body h3:first-child,
+.chat-text.markdown-body h4:first-child {
+  margin-top: 0;
+}
+
+.chat-text.markdown-body ul,
+.chat-text.markdown-body ol {
+  margin: .3rem 0 .4rem 1.2rem;
+  padding: 0;
+}
+
+.chat-text.markdown-body li {
+  margin-bottom: .2rem;
+}
+
+.chat-text.markdown-body code {
+  background: var(--table-hover);
+  padding: .15rem .35rem;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: .85em;
+}
+
+.chat-text.markdown-body pre {
+  background: var(--table-hover);
+  border: 1px solid var(--line);
+  padding: .5rem .75rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: .85em;
+  margin: .4rem 0;
+}
+
+.chat-prompt-chip {
+  white-space: nowrap;
+  font-size: .8rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: .25rem .65rem;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.chat-prompt-chip:hover {
+  background: var(--water-soft);
+  border-color: var(--water);
+  color: var(--ink);
+}
+
+/* Typing Indicator Animation */
+.chat-typing-dots {
+  display: inline-flex;
+  gap: .3rem;
+  padding: .4rem .7rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  border-bottom-left-radius: 2px;
+}
+
+.chat-typing-dots span {
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  animation: typingDot 1.4s infinite ease-in-out;
+}
+
+.chat-typing-dots span:nth-child(1) { animation-delay: 0s; }
+.chat-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.chat-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingDot {
+  0%, 80%, 100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Floating Action Button (FAB) für Aquarium KI-Chat */
+.chat-fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--btn-primary-bg, #12343b);
+  color: var(--btn-primary-text, #ffffff);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  cursor: pointer;
+  z-index: 990;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background-color 0.2s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chat-fab:hover {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 3px 8px rgba(0, 0, 0, 0.25);
+  background: var(--btn-primary-hover, #0b2429);
+}
+
+.chat-fab:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.chat-fab .chat-fab-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  background: var(--water, #38bdf8);
+  color: #0b1517;
+  font-size: 0.65rem;
+  font-weight: 800;
+  border-radius: 99px;
+  padding: 1px 5px;
+  border: 2px solid var(--paper, #ffffff);
+  line-height: 1.2;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 600px) {
+  .chat-fab {
+    bottom: 1.2rem;
+    right: 1.2rem;
+    width: 52px;
+    height: 52px;
+    font-size: 1.5rem;
+  }
+}

@@ -9,6 +9,8 @@ const {
   OIDC_PROVIDER_NAME,
   isEmailAdmin,
   APP_URL,
+  OPENAI_API_KEY,
+  OPENAI_MODEL,
 } = require('../config/env');
 const { oidc } = require('../services/oidc-service');
 const { hashPassword, verifyPassword, DUMMY_HASH, hasLocalPassword, sha } = require('../utils/crypto');
@@ -19,6 +21,7 @@ const { auth } = require('../middleware/auth');
 const { saveAvatar, deleteImage, getImagePath, getMimeType } = require('../services/image-service');
 const { mailService } = require('../services/mail-service');
 const { registrationService } = require('../services/registration-service');
+const { testOpenAiConnection } = require('../services/ai-chat-service');
 
 const router = express.Router();
 
@@ -33,6 +36,11 @@ function serializeMe(u) {
   }
   const regConfig = registrationService.getConfig();
   const isAdmin = isEmailAdmin(u.email);
+
+  const rawKey = (u.openai_api_key || '').trim();
+  const maskedKey = rawKey
+    ? (rawKey.length > 8 ? rawKey.slice(0, 3) + '...' + rawKey.slice(-4) : '***')
+    : (OPENAI_API_KEY ? 'Über Server konfiguriert' : null);
 
   return {
     id: u.id,
@@ -56,6 +64,11 @@ function serializeMe(u) {
     oidcSub: u.oidc_sub || null,
     oidcEnabled: OIDC_ENABLED,
     oidcProviderName: OIDC_PROVIDER_NAME,
+    hasOpenaiKey: Boolean(rawKey || OPENAI_API_KEY),
+    openaiKeySet: Boolean(rawKey),
+    openaiKeyMasked: maskedKey,
+    openaiModel: u.openai_model || OPENAI_MODEL || 'gpt-4o-mini',
+    serverHasOpenaiKey: Boolean(OPENAI_API_KEY),
     isAdmin,
   };
 }
@@ -353,6 +366,86 @@ router.post(
     }
     await db.users.update(req.user.id, { oidc_sub: null });
     res.json({ ok: true });
+  })
+);
+
+/* ---------- OpenAI / ChatGPT API-Schlüssel & Modellverwaltung ---------- */
+
+router.put(
+  ['/me/openai', '/me/openai-key'],
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+
+    let rawKey = req.body.apiKey !== undefined ? req.body.apiKey : req.body.key;
+    let apiKey = undefined;
+    if (rawKey !== undefined) {
+      apiKey = rawKey === null || rawKey === '' ? null : str(rawKey, 500).trim();
+    }
+
+    let rawModel = req.body.model;
+    let model = undefined;
+    if (rawModel !== undefined) {
+      model = rawModel === null || rawModel === '' ? null : str(rawModel, 100).trim();
+    }
+
+    const updates = {};
+    if (apiKey !== undefined) updates.openai_api_key = apiKey;
+    if (model !== undefined) updates.openai_model = model;
+
+    if (Object.keys(updates).length > 0) {
+      await db.users.update(req.user.id, updates);
+    }
+
+    const updated = await db.users.findById(req.user.id);
+    res.json({
+      ok: true,
+      message: 'ChatGPT-Einstellungen erfolgreich gespeichert.',
+      user: serializeMe(updated),
+    });
+  })
+);
+
+router.delete(
+  ['/me/openai', '/me/openai-key'],
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+
+    await db.users.update(req.user.id, {
+      openai_api_key: null,
+      openai_model: null,
+    });
+
+    const updated = await db.users.findById(req.user.id);
+    res.json({
+      ok: true,
+      message: 'ChatGPT API-Schlüssel entfernt.',
+      user: serializeMe(updated),
+    });
+  })
+);
+
+router.post(
+  '/me/openai/test',
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    const keyToTest = (req.body.apiKey || user?.openai_api_key || OPENAI_API_KEY || '').trim();
+    const modelToTest = (req.body.model || user?.openai_model || OPENAI_MODEL || 'gpt-4o-mini').trim();
+
+    if (!keyToTest) {
+      return res.status(400).json({ error: 'Kein API-Schlüssel zum Testen übergeben oder hinterlegt.' });
+    }
+
+    try {
+      const result = await testOpenAiConnection(keyToTest, modelToTest);
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
   })
 );
 
