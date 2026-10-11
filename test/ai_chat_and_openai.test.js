@@ -2,7 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createTestEnvironment } = require('./helpers/env');
-const { buildAquariumSystemPrompt, testOpenAiConnection } = require('../src/services/ai-chat-service');
+const { buildAquariumSystemPrompt, testOpenAiConnection, compressChatHistory } = require('../src/services/ai-chat-service');
 
 test('KI-Chat Service: System-Prompt Generierung mit Beckendaten, Besatz und 10 Messwerten', async (t) => {
   const env = createTestEnvironment();
@@ -535,6 +535,163 @@ test('Dynamische Modellabfrage: Endpunkte für OpenAI, Gemini, Claude und /me/ai
     assert.strictEqual(aiUnifiedRes.data.ok, true);
     assert.strictEqual(aiUnifiedRes.data.provider, 'claude');
     assert.strictEqual(aiUnifiedRes.data.models.length, 3);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test('KI-Chat Service: Kontext-Komprimierung (compressChatHistory)', async () => {
+  // 1. Kurze Historie (<= 10 Turns) wird unverändert übernommen
+  const shortHistory = [
+    { role: 'user', content: 'Wie viel Wasser soll ich wechseln?' },
+    { role: 'assistant', content: 'Bei deinen Nitratwerten empfehle ich 30% wöchentlich.' },
+    { role: 'user', content: 'Welche Temperatur ist ideal?' },
+    { role: 'assistant', content: 'Für Rote Neons sind 25 bis 27 Grad optimal.' },
+  ];
+  const shortResult = compressChatHistory(shortHistory, { maxRecent: 10 });
+  assert.strictEqual(shortResult.length, 4);
+  assert.strictEqual(shortResult[0].content, 'Wie viel Wasser soll ich wechseln?');
+  assert.strictEqual(shortResult[3].content, 'Für Rote Neons sind 25 bis 27 Grad optimal.');
+
+  // 2. Lange Historie (> 10 Turns) komprimiert ältere Turns in eine Zusammenfassung
+  const longHistory = [];
+  for (let i = 1; i <= 20; i++) {
+    longHistory.push({ role: 'user', content: `Frage #${i}: Was tun bei Algen?` });
+    longHistory.push({ role: 'assistant', content: `Antwort #${i}: Beleuchtungszeit reduzieren.` });
+  }
+  assert.strictEqual(longHistory.length, 40);
+
+  const compressed = compressChatHistory(longHistory, { maxRecent: 6, maxOldTurnChars: 50 });
+  // Sollte 2 Zusammenfassungs-Nachrichten + 6 recente Nachrichten haben = 8 Nachrichten
+  assert.strictEqual(compressed.length, 8);
+  assert.strictEqual(compressed[0].role, 'user');
+  assert.ok(compressed[0].content.includes('KOMPRIMIERTER VERLAUF FRÜHERER GESPRÄCHE'));
+  assert.ok(compressed[0].content.includes('Frage #1'));
+  assert.ok(compressed[0].content.includes('Frage #17'));
+  assert.strictEqual(compressed[1].role, 'assistant');
+  // Die letzten 6 Nachrichten sind exakt die letzten Turns
+  assert.strictEqual(compressed[7].content, 'Antwort #20: Beleuchtungszeit reduzieren.');
+});
+
+test('KI-Chat: Persistenz in Datenbank, automatische Kontext-Historie und Verlauf-Löschen', async (t) => {
+  const env = createTestEnvironment();
+  t.after(async () => await env.cleanup());
+
+  const user = await env.createUserAndLogin('chat_persist_user', 'password123', 'persist@example.com');
+
+  // OpenAI Key für Benutzer setzen
+  await env.request('/api/me/openai', {
+    method: 'PUT',
+    headers: { Cookie: user.cookie },
+    body: { apiKey: 'sk-proj-chat-persist-key-12345', model: 'gpt-4o-mini', setAsActive: true },
+  });
+
+  // Aquarium anlegen
+  const aqRes = await env.request('/api/aquariums', {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: {
+      name: 'Persistenz Becken',
+      volume_l: 180,
+      water_type: 'fresh',
+    },
+  });
+  assert.strictEqual(aqRes.status, 200);
+  const aqId = aqRes.data.id;
+
+  // Mock fetch für OpenAI Chat Completions
+  const originalFetch = global.fetch;
+  const requestsMade = [];
+
+  global.fetch = async (url, options) => {
+    const sUrl = String(url);
+    if (sUrl.includes('/chat/completions')) {
+      const parsedBody = JSON.parse(options.body);
+      requestsMade.push(parsedBody);
+      const lastUserMsg = parsedBody.messages.filter((m) => m.role === 'user').pop();
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          model: parsedBody.model || 'gpt-4o-mini',
+          choices: [
+            {
+              message: {
+                role: 'assistant',
+                content: `Antwort auf: "${lastUserMsg?.content?.slice(0, 50)}" - Nitrit ist sicher bei 0.0 mg/l.`,
+              },
+            },
+          ],
+          usage: { prompt_tokens: 150, completion_tokens: 30, total_tokens: 180 },
+        }),
+      };
+    }
+    return originalFetch(url, options);
+  };
+
+  try {
+    // 1. Erste Frage absenden
+    const chat1 = await env.request(`/api/aquariums/${aqId}/chat`, {
+      method: 'POST',
+      headers: { Cookie: user.cookie },
+      body: { message: 'Hallo, wie geht es meinen Wasserwerten?' },
+    });
+    assert.strictEqual(chat1.status, 200);
+    assert.strictEqual(chat1.data.ok, true);
+    assert.ok(chat1.data.reply.includes('Nitrit ist sicher'));
+
+    // 2. Chat-History abrufen und Persistenz prüfen
+    const hist1 = await env.request(`/api/aquariums/${aqId}/chat/history`, {
+      method: 'GET',
+      headers: { Cookie: user.cookie },
+    });
+    assert.strictEqual(hist1.status, 200);
+    assert.strictEqual(hist1.data.ok, true);
+    assert.strictEqual(hist1.data.count, 2);
+    assert.strictEqual(hist1.data.messages[0].role, 'user');
+    assert.strictEqual(hist1.data.messages[0].content, 'Hallo, wie geht es meinen Wasserwerten?');
+    assert.strictEqual(hist1.data.messages[1].role, 'assistant');
+    assert.ok(hist1.data.messages[1].content.includes('Nitrit ist sicher'));
+
+    // 3. Zweite Frage absenden -> sollte vorherige Historie als Kontext an das Modell mitsenden
+    const chat2 = await env.request(`/api/aquariums/${aqId}/chat`, {
+      method: 'POST',
+      headers: { Cookie: user.cookie },
+      body: { message: 'Und wie oft soll ich füttern?' },
+    });
+    assert.strictEqual(chat2.status, 200);
+    assert.strictEqual(chat2.data.ok, true);
+
+    // Prüfen, ob der zweite API-Aufruf die erste Frage & Antwort im Kontext hatte
+    assert.strictEqual(requestsMade.length, 2);
+    const secondReqMessages = requestsMade[1].messages;
+    const userPromptsInSecondReq = secondReqMessages.filter((m) => m.role === 'user').map((m) => m.content);
+    assert.ok(userPromptsInSecondReq.some((c) => c.includes('Hallo, wie geht es meinen Wasserwerten?')));
+    assert.ok(userPromptsInSecondReq.some((c) => c.includes('Und wie oft soll ich füttern?')));
+
+    // 4. Chat-History erneut prüfen -> nun 4 Nachrichten (2x User, 2x Assistent)
+    const hist2 = await env.request(`/api/aquariums/${aqId}/chat/history`, {
+      method: 'GET',
+      headers: { Cookie: user.cookie },
+    });
+    assert.strictEqual(hist2.status, 200);
+    assert.strictEqual(hist2.data.count, 4);
+
+    // 5. Chat-History leeren
+    const delRes = await env.request(`/api/aquariums/${aqId}/chat/history`, {
+      method: 'DELETE',
+      headers: { Cookie: user.cookie },
+    });
+    assert.strictEqual(delRes.status, 200);
+    assert.strictEqual(delRes.data.ok, true);
+
+    // History muss nun 0 sein
+    const hist3 = await env.request(`/api/aquariums/${aqId}/chat/history`, {
+      method: 'GET',
+      headers: { Cookie: user.cookie },
+    });
+    assert.strictEqual(hist3.status, 200);
+    assert.strictEqual(hist3.data.count, 0);
   } finally {
     global.fetch = originalFetch;
   }

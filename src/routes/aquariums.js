@@ -871,12 +871,41 @@ router.get(
   })
 );
 
+router.get(
+  '/:id/chat/history',
+  auth,
+  ownAquarium,
+  wrap(async (req, res) => {
+    const list = await db.aquariumChats.listForAquarium(req.aq.id, {
+      limit: req.query.limit ? Number(req.query.limit) : 100,
+    });
+    res.json({
+      ok: true,
+      messages: list,
+      count: list.length,
+    });
+  })
+);
+
+router.delete(
+  '/:id/chat/history',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    await db.aquariumChats.clearForAquarium(req.aq.id);
+    res.json({
+      ok: true,
+      message: 'Chat-Verlauf erfolgreich gelöscht.',
+    });
+  })
+);
+
 router.post(
   '/:id/chat',
   auth,
   ownAquarium,
   wrap(async (req, res) => {
-    const { messages, message, provider, stream } = req.body || {};
+    const { messages, message, provider, stream, saveHistory } = req.body || {};
     try {
       const result = await chatWithAquarium({
         aquariumId: req.aq.id,
@@ -886,6 +915,7 @@ router.post(
         provider,
         stream: Boolean(stream),
         customDb: db,
+        saveHistory: saveHistory !== false,
       });
 
       if (stream && result.stream) {

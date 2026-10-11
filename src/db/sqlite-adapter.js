@@ -145,6 +145,17 @@ class SqliteAdapter {
       CREATE INDEX IF NOT EXISTS idx_invitations_code ON invitations(code);
       CREATE INDEX IF NOT EXISTS idx_invitations_created_by ON invitations(created_by);
       CREATE INDEX IF NOT EXISTS idx_invitations_expires ON invitations(expires_at);
+      CREATE TABLE IF NOT EXISTS aquarium_chats (
+        id INTEGER PRIMARY KEY,
+        aquarium_id INTEGER NOT NULL REFERENCES aquariums(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        role TEXT NOT NULL CHECK(role IN ('user', 'assistant', 'system')),
+        content TEXT NOT NULL,
+        provider TEXT,
+        model TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_aq_chats_aq ON aquarium_chats(aquarium_id, created_at);
     `);
 
     const hasColumn = (table, col) => this.db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === col);
@@ -1331,6 +1342,53 @@ class SqliteAdapter {
         return res.changes > 0;
       },
     };
+
+    this.aquariumChats = {
+      async listForAquarium(aquariumId, options = {}) {
+        const limit = Math.min(Math.max(Number(options.limit) || 100, 1), 500);
+        const rows = db.prepare(`
+          SELECT id, aquarium_id, user_id, role, content, provider, model, created_at
+          FROM aquarium_chats
+          WHERE aquarium_id = ?
+          ORDER BY id ASC
+          LIMIT ?
+        `).all(Number(aquariumId), limit);
+        return rows;
+      },
+      async create({ aquariumId, userId = null, role, content, provider = null, model = null, createdAt = null }) {
+        const ts = createdAt || new Date().toISOString();
+        const info = db.prepare(`
+          INSERT INTO aquarium_chats (aquarium_id, user_id, role, content, provider, model, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          Number(aquariumId),
+          userId ? Number(userId) : null,
+          String(role || 'user'),
+          String(content || ''),
+          provider ? String(provider) : null,
+          model ? String(model) : null,
+          ts
+        );
+        return {
+          id: info.lastInsertRowid,
+          aquarium_id: Number(aquariumId),
+          user_id: userId ? Number(userId) : null,
+          role: String(role || 'user'),
+          content: String(content || ''),
+          provider: provider ? String(provider) : null,
+          model: model ? String(model) : null,
+          created_at: ts,
+        };
+      },
+      async clearForAquarium(aquariumId) {
+        const res = db.prepare('DELETE FROM aquarium_chats WHERE aquarium_id = ?').run(Number(aquariumId));
+        return res.changes > 0;
+      },
+      async countForAquarium(aquariumId) {
+        const row = db.prepare('SELECT COUNT(*) AS count FROM aquarium_chats WHERE aquarium_id = ?').get(Number(aquariumId));
+        return row ? row.count : 0;
+      },
+    };
   }
 
   async exportAllData() {
@@ -1347,6 +1405,7 @@ class SqliteAdapter {
     const alerts = db.prepare('SELECT * FROM alerts ORDER BY id ASC').all();
     const maintenance_logs = db.prepare('SELECT * FROM maintenance_logs ORDER BY id ASC').all();
     const invitations = db.prepare('SELECT * FROM invitations ORDER BY id ASC').all();
+    const aquarium_chats = db.prepare('SELECT * FROM aquarium_chats ORDER BY id ASC').all();
 
     const valuesByMId = new Map();
     for (const row of rawValues) {
@@ -1373,6 +1432,7 @@ class SqliteAdapter {
       alerts,
       maintenance_logs,
       invitations,
+      aquarium_chats,
     };
   }
 
@@ -1389,6 +1449,7 @@ class SqliteAdapter {
     const alerts = Array.isArray(data.alerts) ? data.alerts : [];
     const maintenance = Array.isArray(data.maintenance_logs) ? data.maintenance_logs : [];
     const invitations = Array.isArray(data.invitations) ? data.invitations : [];
+    const chats = Array.isArray(data.aquarium_chats) ? data.aquarium_chats : [];
 
     const validUserIds = new Set(users.map((u) => u.id));
     const currentSessions = db.prepare('SELECT * FROM sessions WHERE expires_at > ?').all(Date.now());
@@ -1396,6 +1457,7 @@ class SqliteAdapter {
     const runImport = db.transaction(() => {
       db.pragma('foreign_keys = OFF');
 
+      db.exec('DELETE FROM aquarium_chats');
       db.exec('DELETE FROM invitations');
       db.exec('DELETE FROM alerts');
       db.exec('DELETE FROM measurement_values');
@@ -1601,6 +1663,26 @@ class SqliteAdapter {
           inv.note || null,
           inv.created_at || new Date().toISOString()
         );
+      }
+
+      // Aquarium Chats
+      const insertChat = db.prepare(`
+        INSERT INTO aquarium_chats (id, aquarium_id, user_id, role, content, provider, model, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const c of chats) {
+        if (c && c.aquarium_id) {
+          insertChat.run(
+            c.id,
+            c.aquarium_id,
+            c.user_id || null,
+            c.role || 'user',
+            c.content || '',
+            c.provider || null,
+            c.model || null,
+            c.created_at || new Date().toISOString()
+          );
+        }
       }
 
       db.pragma('foreign_keys = ON');

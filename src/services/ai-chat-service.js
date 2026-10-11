@@ -538,6 +538,77 @@ function resolveProviderAndConfig(user, requestedProvider = null) {
 }
 
 /**
+ * Komprimiert und optimiert den Chat-Verlauf für den KI-Kontext.
+ * - Behält die letzten N Turns (Standard: 10) in voller Detailtiefe.
+ * - Fasst ältere Gesprächsrunden zu einer kompakten, strukturierten Zusammenfassung zusammen,
+ *   damit der Assistent weiß, was bereits besprochen/empfohlen wurde, ohne das Token-Limit zu sprengen.
+ */
+function compressChatHistory(messages = [], options = {}) {
+  const maxRecent = options.maxRecent || 10;
+  const maxTotalChars = options.maxTotalChars || 12000;
+  const maxOldTurnChars = options.maxOldTurnChars || 220;
+
+  if (!Array.isArray(messages) || messages.length === 0) return [];
+
+  // Bereinigen & filtern
+  const valid = messages
+    .filter(
+      (m) =>
+        m &&
+        (m.role === 'user' || m.role === 'assistant') &&
+        typeof m.content === 'string' &&
+        m.content.trim()
+    )
+    .map((m) => ({ role: m.role, content: m.content.trim() }));
+
+  if (valid.length === 0) return [];
+
+  // Wenn Historie klein genug ist, direkt zurückgeben
+  const totalLength = valid.reduce((sum, m) => sum + m.content.length, 0);
+  if (valid.length <= maxRecent && totalLength <= maxTotalChars) {
+    return valid;
+  }
+
+  // Aufteilen in ältere und neuere Nachrichten
+  const recentCount = Math.min(maxRecent, valid.length);
+  const older = valid.slice(0, valid.length - recentCount);
+  const recent = valid.slice(valid.length - recentCount);
+
+  if (older.length === 0) {
+    return recent;
+  }
+
+  // Ältere Nachrichten komprimieren zu einer kompakten Historien-Zusammenfassung
+  const summaryLines = [];
+  for (let i = 0; i < older.length; i++) {
+    const msg = older[i];
+    const roleLabel = msg.role === 'user' ? 'Nutzer' : 'Assistent';
+    let text = msg.content.replace(/\s+/g, ' ').trim();
+    if (text.length > maxOldTurnChars) {
+      text = text.slice(0, maxOldTurnChars) + '…';
+    }
+    summaryLines.push(`- ${roleLabel}: "${text}"`);
+  }
+
+  const compressedSummary = [
+    `[KOMPRIMIERTER VERLAUF FRÜHERER GESPRÄCHE ZU DIESEM AQUARIUM (Chronologisch ältere Einträge):`,
+    summaryLines.join('\n'),
+    `Beziehe dich bei Bedarf nahtlos auf diese früheren Diagnosen und Ratschläge.]`,
+  ].join('\n');
+
+  // Als initialen Kontext einbinden
+  return [
+    { role: 'user', content: compressedSummary },
+    {
+      role: 'assistant',
+      content:
+        'Verstanden. Ich kenne den bisherigen Verlauf und die besprochenen Themen unseres Aquariums und beziehe dieses Vorwissen in meine Antworten ein.',
+    },
+    ...recent,
+  ];
+}
+
+/**
  * Führt einen Chat-Request gegen den konfigurierten KI-Anbieter (OpenAI, Gemini, Claude) aus.
  */
 async function chatWithAquarium({
@@ -548,6 +619,8 @@ async function chatWithAquarium({
   provider = null,
   stream = false,
   customDb = null,
+  saveHistory = true,
+  includeHistory = true,
 }) {
   const database = customDb || db;
   const dbUser = user?.id ? await database.users.findById(user.id) : null;
@@ -564,7 +637,9 @@ async function chatWithAquarium({
       claude: 'Anthropic Claude',
     };
     const pName = providerNames[activeProvider] || activeProvider;
-    const err = new Error(`Kein API-Schlüssel für ${pName} hinterlegt. Bitte hinterlege deinen persönlichen API-Key im Benutzerprofil unter „Mein Profil -> KI-Assistent & Sprachmodelle“.`);
+    const err = new Error(
+      `Kein API-Schlüssel für ${pName} hinterlegt. Bitte hinterlege deinen persönlichen API-Key im Benutzerprofil unter „Mein Profil -> KI-Assistent & Sprachmodelle“.`
+    );
     err.code = 'NO_API_KEY';
     err.provider = activeProvider;
     err.status = 400;
@@ -574,21 +649,102 @@ async function chatWithAquarium({
   // System-Prompt und Beckenkontext generieren
   const { systemPrompt } = await buildAquariumSystemPrompt(aquariumId, database);
 
-  // Sicherstellen, dass mindestens eine User-Nachricht existiert
-  const hasUserMsg = (message && typeof message === 'string' && message.trim()) ||
-    (Array.isArray(messages) && messages.some((m) => m && m.role === 'user' && m.content && m.content.trim()));
+  // Bestimme die aktuelle Benutzereingabe
+  let userMessageText = '';
+  if (message && typeof message === 'string' && message.trim()) {
+    userMessageText = message.trim();
+  }
 
+  let inputMessages = Array.isArray(messages) ? [...messages] : [];
+  if (!userMessageText && inputMessages.length > 0) {
+    const last = inputMessages[inputMessages.length - 1];
+    if (last && last.role === 'user' && last.content) {
+      userMessageText = String(last.content).trim();
+    }
+  }
+
+  // Wenn keine oder wenige Nachrichten übergeben wurden und includeHistory aktiv ist,
+  // laden wir den bisherigen persistenten Verlauf aus der Datenbank
+  if (includeHistory && database.aquariumChats) {
+    try {
+      const dbChats = await database.aquariumChats.listForAquarium(aquariumId, { limit: 100 });
+      if (Array.isArray(dbChats) && dbChats.length > 0) {
+        if (inputMessages.length === 0) {
+          inputMessages = dbChats.map((c) => ({ role: c.role, content: c.content }));
+        } else {
+          // Prüfen, ob inputMessages nur die aktuelle Nachricht ist
+          const isOnlyCurrentMsg =
+            inputMessages.length === 1 &&
+            inputMessages[0].role === 'user' &&
+            inputMessages[0].content === userMessageText;
+          if (isOnlyCurrentMsg) {
+            inputMessages = [
+              ...dbChats.map((c) => ({ role: c.role, content: c.content })),
+              { role: 'user', content: userMessageText },
+            ];
+          }
+        }
+      }
+    } catch (e) {
+      // Ignoriere DB-Fehler beim Laden der Historie
+    }
+  }
+
+  // Sicherstellen, dass die aktuelle Nachricht am Ende steht
+  if (userMessageText) {
+    const lastMsg = inputMessages[inputMessages.length - 1];
+    if (!lastMsg || lastMsg.role !== 'user' || lastMsg.content !== userMessageText) {
+      inputMessages.push({ role: 'user', content: userMessageText });
+    }
+  }
+
+  // Mindestens eine User-Nachricht muss vorhanden sein
+  const hasUserMsg = inputMessages.some(
+    (m) => m && m.role === 'user' && m.content && String(m.content).trim()
+  );
   if (!hasUserMsg) {
     throw new Error('Keine Benutzernachricht übergeben.');
   }
 
+  // Kontext-Komprimierung anwenden
+  const optimizedMessages = compressChatHistory(inputMessages);
+
+  let result;
   if (activeProvider === 'gemini') {
-    return await callGemini({ apiKey, model, systemPrompt, messages, message });
+    result = await callGemini({ apiKey, model, systemPrompt, messages: optimizedMessages });
   } else if (activeProvider === 'claude') {
-    return await callClaude({ apiKey, model, systemPrompt, messages, message });
+    result = await callClaude({ apiKey, model, systemPrompt, messages: optimizedMessages });
   } else {
-    return await callOpenAi({ apiKey, model, systemPrompt, messages, message, stream });
+    result = await callOpenAi({ apiKey, model, systemPrompt, messages: optimizedMessages, stream });
   }
+
+  // Wenn die Antwort erfolgreich war und Historie gespeichert werden soll
+  if (saveHistory && result && result.reply && database.aquariumChats) {
+    try {
+      if (userMessageText) {
+        await database.aquariumChats.create({
+          aquariumId,
+          userId: user?.id || null,
+          role: 'user',
+          content: userMessageText,
+          provider: activeProvider,
+          model,
+        });
+      }
+      await database.aquariumChats.create({
+        aquariumId,
+        userId: user?.id || null,
+        role: 'assistant',
+        content: result.reply,
+        provider: activeProvider,
+        model: result.model || model,
+      });
+    } catch (dbErr) {
+      // Speichern ignorieren falls Fehler
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -992,6 +1148,7 @@ async function testAiConnection({ provider, apiKey, model }) {
 
 module.exports = {
   buildAquariumSystemPrompt,
+  compressChatHistory,
   chatWithAquarium,
   fetchOpenAiModels,
   fetchGeminiModels,

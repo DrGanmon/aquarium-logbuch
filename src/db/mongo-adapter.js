@@ -131,6 +131,11 @@ class MongoAdapter {
       await db.collection('invitations').createIndex({ code: 1 }, { unique: true, collation: { locale: 'en', strength: 2 } });
       await db.collection('invitations').createIndex({ created_by: 1 });
       await db.collection('invitations').createIndex({ expires_at: 1 });
+
+      // Aquarium Chats
+      await db.collection('aquarium_chats').createIndex({ id: 1 }, { unique: true });
+      await db.collection('aquarium_chats').createIndex({ aquarium_id: 1, created_at: 1 });
+      await db.collection('aquarium_chats').createIndex({ aquarium_id: 1, id: 1 });
     } catch (e) {
       // Index creation warnings in mock/memory environments ignored
     }
@@ -514,6 +519,7 @@ class MongoAdapter {
         await db.collection('alerts').deleteMany({ aquarium_id: numId });
         await db.collection('aquarium_shares').deleteMany({ aquarium_id: numId });
         await db.collection('maintenance_logs').deleteMany({ aquarium_id: numId });
+        await db.collection('aquarium_chats').deleteMany({ aquarium_id: numId });
         return true;
       },
       async countForUser(userId) {
@@ -1337,6 +1343,62 @@ class MongoAdapter {
         return res.deletedCount > 0;
       },
     };
+
+    this.aquariumChats = {
+      async listForAquarium(aquariumId, options = {}) {
+        const limit = Math.min(Math.max(Number(options.limit) || 100, 1), 500);
+        const docs = await db
+          .collection('aquarium_chats')
+          .find({ aquarium_id: Number(aquariumId) })
+          .sort({ id: 1 })
+          .limit(limit)
+          .toArray();
+
+        return docs.map((d) => ({
+          id: d.id,
+          aquarium_id: d.aquarium_id,
+          user_id: d.user_id != null ? d.user_id : null,
+          role: d.role,
+          content: d.content,
+          provider: d.provider || null,
+          model: d.model || null,
+          created_at: d.created_at,
+        }));
+      },
+      async create({ aquariumId, userId = null, role, content, provider = null, model = null, createdAt = null }) {
+        const id = await self.getNextSequence('aquarium_chats');
+        const ts = createdAt || new Date().toISOString();
+        const doc = {
+          _id: id,
+          id,
+          aquarium_id: Number(aquariumId),
+          user_id: userId != null ? Number(userId) : null,
+          role: String(role || 'user'),
+          content: String(content || ''),
+          provider: provider ? String(provider) : null,
+          model: model ? String(model) : null,
+          created_at: ts,
+        };
+        await db.collection('aquarium_chats').insertOne(doc);
+        return {
+          id: doc.id,
+          aquarium_id: doc.aquarium_id,
+          user_id: doc.user_id,
+          role: doc.role,
+          content: doc.content,
+          provider: doc.provider,
+          model: doc.model,
+          created_at: doc.created_at,
+        };
+      },
+      async clearForAquarium(aquariumId) {
+        const res = await db.collection('aquarium_chats').deleteMany({ aquarium_id: Number(aquariumId) });
+        return res.deletedCount > 0;
+      },
+      async countForAquarium(aquariumId) {
+        return await db.collection('aquarium_chats').countDocuments({ aquarium_id: Number(aquariumId) });
+      },
+    };
   }
 
   async exportAllData() {
@@ -1361,6 +1423,7 @@ class MongoAdapter {
     const alerts = stripId(await db.collection('alerts').find({}).sort({ id: 1 }).toArray());
     const maintenance_logs = stripId(await db.collection('maintenance_logs').find({}).sort({ id: 1 }).toArray());
     const invitations = stripId(await db.collection('invitations').find({}).sort({ id: 1 }).toArray());
+    const aquarium_chats = stripId(await db.collection('aquarium_chats').find({}).sort({ id: 1 }).toArray());
 
     return {
       users,
@@ -1372,6 +1435,7 @@ class MongoAdapter {
       alerts,
       maintenance_logs,
       invitations,
+      aquarium_chats,
     };
   }
 
@@ -1388,6 +1452,7 @@ class MongoAdapter {
     const alerts = Array.isArray(data.alerts) ? data.alerts : [];
     const maintenance = Array.isArray(data.maintenance_logs) ? data.maintenance_logs : [];
     const invitations = Array.isArray(data.invitations) ? data.invitations : [];
+    const chats = Array.isArray(data.aquarium_chats) ? data.aquarium_chats : [];
 
     const userIds = users.map((u) => u.id);
     const currentSessions = await db.collection('sessions').find({ expires_at: { $gt: Date.now() } }).toArray();
@@ -1404,6 +1469,7 @@ class MongoAdapter {
       db.collection('alerts').deleteMany({}),
       db.collection('maintenance_logs').deleteMany({}),
       db.collection('invitations').deleteMany({}),
+      db.collection('aquarium_chats').deleteMany({}),
       db.collection('counters').deleteMany({}),
     ]);
 
@@ -1417,6 +1483,7 @@ class MongoAdapter {
     if (alerts.length > 0) await db.collection('alerts').insertMany(alerts);
     if (maintenance.length > 0) await db.collection('maintenance_logs').insertMany(maintenance);
     if (invitations.length > 0) await db.collection('invitations').insertMany(invitations);
+    if (chats.length > 0) await db.collection('aquarium_chats').insertMany(chats);
 
     // Aktive Sessions für bestehende Benutzer wiederherstellen
     const validSessions = currentSessions.filter((s) => userIds.includes(s.user_id));
@@ -1433,6 +1500,7 @@ class MongoAdapter {
     const maxAlertId = alerts.reduce((m, al) => Math.max(m, al.id || 0), 0);
     const maxMaintId = maintenance.reduce((m, ml) => Math.max(m, ml.id || 0), 0);
     const maxInvId = invitations.reduce((m, iv) => Math.max(m, iv.id || 0), 0);
+    const maxChatId = chats.reduce((m, c) => Math.max(m, c.id || 0), 0);
 
     const counterOps = [
       { _id: 'users', seq: maxUserId },
@@ -1443,6 +1511,7 @@ class MongoAdapter {
       { _id: 'alerts', seq: maxAlertId },
       { _id: 'maintenance_logs', seq: maxMaintId },
       { _id: 'invitations', seq: maxInvId },
+      { _id: 'aquarium_chats', seq: maxChatId },
     ];
 
     for (const c of counterOps) {

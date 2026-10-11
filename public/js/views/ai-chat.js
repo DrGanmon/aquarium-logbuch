@@ -251,11 +251,37 @@ export async function showAquariumChatModal(aq) {
         new Date()
       );
     } else {
-      chatHistory.forEach((m) => appendMessageUI(m.role, m.content, m.time));
+      chatHistory.forEach((m) => appendMessageUI(m.role, m.content, m.time || m.created_at));
     }
   }
 
   renderHistory();
+
+  // Chat-Historie vom Server laden (persistent über Sitzungen und Geräte hinweg)
+  async function loadHistoryFromServer() {
+    try {
+      const res = await api(`/aquariums/${aq.id}/chat/history`);
+      if (res && Array.isArray(res.messages)) {
+        if (res.messages.length > 0) {
+          chatHistory = res.messages.map((m) => ({
+            role: m.role,
+            content: m.content,
+            time: m.created_at,
+            provider: m.provider,
+            model: m.model,
+          }));
+          try {
+            sessionStorage.setItem(storageKey, JSON.stringify(chatHistory));
+          } catch (e) {}
+          renderHistory();
+        }
+      }
+    } catch (e) {
+      // Ignoriere Netzwerkfehler beim Laden der Historie
+    }
+  }
+
+  loadHistoryFromServer();
 
   // Schnellstart-Fragen
   const quickPrompts = [
@@ -306,11 +332,18 @@ export async function showAquariumChatModal(aq) {
       class: 'btn small ghost',
       type: 'button',
       title: t('aiChat.clearChat'),
-      onclick: () => {
+      onclick: async () => {
         if (chatHistory.length === 0) return;
         if (!confirm(t('aiChat.clearChat') + '?')) return;
+        try {
+          await api(`/aquariums/${aq.id}/chat/history`, { method: 'DELETE' });
+        } catch (e) {
+          // Ignorieren falls Serverfehler
+        }
         chatHistory = [];
-        sessionStorage.removeItem(storageKey);
+        try {
+          sessionStorage.removeItem(storageKey);
+        } catch (e) {}
         renderHistory();
         toast('Chat-Verlauf geleert.');
       },
@@ -359,7 +392,7 @@ export async function showAquariumChatModal(aq) {
       const apiMessages = chatHistory.map((m) => ({ role: m.role, content: m.content }));
       const res = await api(`/aquariums/${aq.id}/chat`, {
         method: 'POST',
-        body: { messages: apiMessages, provider: activeProvider },
+        body: { messages: apiMessages, message: text, provider: activeProvider },
       });
 
       typingIndicator.remove();
