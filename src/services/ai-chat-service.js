@@ -207,6 +207,19 @@ async function buildAquariumSystemPrompt(aquariumId, customDb = null) {
   };
 }
 
+function isOpenAiReasoningModel(modelName) {
+  if (!modelName || typeof modelName !== 'string') return false;
+  const m = modelName.trim().toLowerCase();
+  return (
+    /^(o[1-9]|chatgpt-reasoning|gpt-5|gpt-o)/i.test(m) ||
+    /\bo[1-9](-|$)/i.test(m) ||
+    m.includes('reasoning') ||
+    m.startsWith('o1') ||
+    m.startsWith('o3') ||
+    m.startsWith('o4')
+  );
+}
+
 /**
  * OpenAI / ChatGPT Aufruf
  */
@@ -232,7 +245,7 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
   }
 
   const chosenModel = model || DEFAULT_OPENAI_MODEL;
-  const isReasoning = /^(o[1-9]|chatgpt-reasoning)/i.test(chosenModel) || /\bo[1-9]-/i.test(chosenModel);
+  const isReasoning = isOpenAiReasoningModel(chosenModel);
   const payload = {
     model: chosenModel,
     messages: chatMessages,
@@ -255,26 +268,84 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
     signal: AbortSignal.timeout(60000),
   });
 
-  // Fallback für ältere Drittanbieter-Proxies, falls max_completion_tokens nicht unterstützt wird
+  // Fallback für modell- und proxy-spezifische Parameterinkompatibilitäten (z. B. temperature, max_completion_tokens)
   if (!response.ok && response.status === 400) {
     let errorData = null;
     try {
       errorData = await response.clone().json();
     } catch (e) {}
-    const errMsg = String(errorData?.error?.message || '');
-    if (errMsg.includes('max_completion_tokens') && (errMsg.includes('unsupported') || errMsg.includes('unknown') || errMsg.includes('extra fields'))) {
-      const fallbackPayload = { ...payload };
-      delete fallbackPayload.max_completion_tokens;
-      fallbackPayload.max_tokens = 1500;
+    const errMsg = String(errorData?.error?.message || '').toLowerCase();
+
+    let retryPayload = { ...payload };
+    let shouldRetry = false;
+
+    if (
+      errMsg.includes('temperature') &&
+      (errMsg.includes('support') || errMsg.includes('unsupported') || errMsg.includes('default') || errMsg.includes('invalid') || errMsg.includes('parameter') || errMsg.includes('value'))
+    ) {
+      delete retryPayload.temperature;
+      shouldRetry = true;
+    }
+
+    if (
+      errMsg.includes('max_completion_tokens') &&
+      (errMsg.includes('unsupported') || errMsg.includes('unknown') || errMsg.includes('extra fields') || errMsg.includes('parameter'))
+    ) {
+      delete retryPayload.max_completion_tokens;
+      retryPayload.max_tokens = 1500;
+      shouldRetry = true;
+    }
+
+    if (shouldRetry) {
       response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`,
         },
-        body: JSON.stringify(fallbackPayload),
+        body: JSON.stringify(retryPayload),
         signal: AbortSignal.timeout(60000),
       });
+
+      // Zweiter Fallback-Schritt bei kombinierten Inkompatibilitäten
+      if (!response.ok && response.status === 400) {
+        let secondErrorData = null;
+        try {
+          secondErrorData = await response.clone().json();
+        } catch (e) {}
+        const secondErrMsg = String(secondErrorData?.error?.message || '').toLowerCase();
+        let secondRetry = false;
+
+        if (
+          secondErrMsg.includes('temperature') &&
+          retryPayload.temperature !== undefined &&
+          (secondErrMsg.includes('support') || secondErrMsg.includes('unsupported') || secondErrMsg.includes('default') || secondErrMsg.includes('invalid') || secondErrMsg.includes('parameter') || secondErrMsg.includes('value'))
+        ) {
+          delete retryPayload.temperature;
+          secondRetry = true;
+        }
+        if (
+          secondErrMsg.includes('max_completion_tokens') &&
+          retryPayload.max_completion_tokens !== undefined &&
+          (secondErrMsg.includes('unsupported') || secondErrMsg.includes('unknown') || secondErrMsg.includes('extra fields') || secondErrMsg.includes('parameter'))
+        ) {
+          delete retryPayload.max_completion_tokens;
+          retryPayload.max_tokens = 1500;
+          secondRetry = true;
+        }
+
+        if (secondRetry) {
+          response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify(retryPayload),
+            signal: AbortSignal.timeout(60000),
+          });
+        }
+      }
     }
   }
 
@@ -998,7 +1069,7 @@ async function testOpenAiConnection(apiKey, model = DEFAULT_OPENAI_MODEL) {
   }
 
   const chosenModel = model || DEFAULT_OPENAI_MODEL;
-  const isReasoning = /^(o[1-9]|chatgpt-reasoning)/i.test(chosenModel) || /\bo[1-9]-/i.test(chosenModel);
+  const isReasoning = isOpenAiReasoningModel(chosenModel);
   const testPayload = {
     model: chosenModel,
     messages: [{ role: 'user', content: 'Antworte nur mit dem Wort OK.' }],
@@ -1019,26 +1090,84 @@ async function testOpenAiConnection(apiKey, model = DEFAULT_OPENAI_MODEL) {
     signal: AbortSignal.timeout(15000),
   });
 
-  // Fallback für ältere OpenAI-kompatible Proxies
+  // Fallback für modell- und proxy-spezifische Parameterinkompatibilitäten
   if (!response.ok && response.status === 400) {
     let errorData = null;
     try {
       errorData = await response.clone().json();
     } catch (e) {}
-    const errMsg = String(errorData?.error?.message || '');
-    if (errMsg.includes('max_completion_tokens') && (errMsg.includes('unsupported') || errMsg.includes('unknown') || errMsg.includes('extra fields'))) {
-      const fallbackPayload = { ...testPayload };
-      delete fallbackPayload.max_completion_tokens;
-      fallbackPayload.max_tokens = 25;
+    const errMsg = String(errorData?.error?.message || '').toLowerCase();
+
+    let retryPayload = { ...testPayload };
+    let shouldRetry = false;
+
+    if (
+      errMsg.includes('temperature') &&
+      (errMsg.includes('support') || errMsg.includes('unsupported') || errMsg.includes('default') || errMsg.includes('invalid') || errMsg.includes('parameter') || errMsg.includes('value'))
+    ) {
+      delete retryPayload.temperature;
+      shouldRetry = true;
+    }
+
+    if (
+      errMsg.includes('max_completion_tokens') &&
+      (errMsg.includes('unsupported') || errMsg.includes('unknown') || errMsg.includes('extra fields') || errMsg.includes('parameter'))
+    ) {
+      delete retryPayload.max_completion_tokens;
+      retryPayload.max_tokens = 25;
+      shouldRetry = true;
+    }
+
+    if (shouldRetry) {
       response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${key}`,
         },
-        body: JSON.stringify(fallbackPayload),
+        body: JSON.stringify(retryPayload),
         signal: AbortSignal.timeout(15000),
       });
+
+      // Zweiter Fallback-Schritt
+      if (!response.ok && response.status === 400) {
+        let secondErrorData = null;
+        try {
+          secondErrorData = await response.clone().json();
+        } catch (e) {}
+        const secondErrMsg = String(secondErrorData?.error?.message || '').toLowerCase();
+        let secondRetry = false;
+
+        if (
+          secondErrMsg.includes('temperature') &&
+          retryPayload.temperature !== undefined &&
+          (secondErrMsg.includes('support') || secondErrMsg.includes('unsupported') || secondErrMsg.includes('default') || secondErrMsg.includes('invalid') || secondErrMsg.includes('parameter') || secondErrMsg.includes('value'))
+        ) {
+          delete retryPayload.temperature;
+          secondRetry = true;
+        }
+        if (
+          secondErrMsg.includes('max_completion_tokens') &&
+          retryPayload.max_completion_tokens !== undefined &&
+          (secondErrMsg.includes('unsupported') || secondErrMsg.includes('unknown') || secondErrMsg.includes('extra fields') || secondErrMsg.includes('parameter'))
+        ) {
+          delete retryPayload.max_completion_tokens;
+          retryPayload.max_tokens = 25;
+          secondRetry = true;
+        }
+
+        if (secondRetry) {
+          response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${key}`,
+            },
+            body: JSON.stringify(retryPayload),
+            signal: AbortSignal.timeout(15000),
+          });
+        }
+      }
     }
   }
 

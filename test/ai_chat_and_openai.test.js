@@ -810,3 +810,97 @@ test('OpenAI Chat Service: Parameter-Kompatibilität mit max_completion_tokens u
     global.fetch = originalFetch;
   }
 });
+
+test('OpenAI Chat Service: Automatischer Fallback bei 400 Fehler wegen unsupported temperature', async (t) => {
+  const env = createTestEnvironment();
+  t.after(async () => await env.cleanup());
+
+  const user = await env.createUserAndLogin('openai_temp_tester', 'password123', 'temp@example.com');
+
+  const aqRes = await env.request('/api/aquariums', {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: {
+      name: 'Temperature Testbecken',
+      volume_l: 120,
+      water_type: 'fresh',
+    },
+  });
+  const aqId = aqRes.data.id;
+
+  const originalFetch = global.fetch;
+  const calls = [];
+
+  global.fetch = async (url, options) => {
+    const sUrl = String(url);
+    if (sUrl.includes('/chat/completions')) {
+      const parsedBody = JSON.parse(options.body);
+      calls.push(parsedBody);
+      // Wenn temperature vorhanden ist, simuliere die OpenAI Fehlermeldung
+      if (parsedBody.temperature !== undefined) {
+        return {
+          ok: false,
+          status: 400,
+          statusText: 'Bad Request',
+          clone: () => ({
+            json: async () => ({
+              error: {
+                message: "Unsupported value: 'temperature' does not support 0.7 with this model. Only the default (1) value is supported.",
+                type: 'invalid_request_error',
+              },
+            }),
+          }),
+          json: async () => ({
+            error: {
+              message: "Unsupported value: 'temperature' does not support 0.7 with this model. Only the default (1) value is supported.",
+              type: 'invalid_request_error',
+            },
+          }),
+        };
+      }
+
+      // Erfolgreiche Antwort wenn temperature entfernt wurde
+      return {
+        ok: true,
+        status: 200,
+        clone: () => ({ json: async () => ({}) }),
+        json: async () => ({
+          model: parsedBody.model,
+          choices: [
+            {
+              message: {
+                role: 'assistant',
+                content: 'Erfolgreich nach Fallback geantwortet.',
+              },
+            },
+          ],
+        }),
+      };
+    }
+    return originalFetch(url, options);
+  };
+
+  try {
+    // Unbekanntes Modell, das nicht vorab als Reasoning erkannt wurde
+    await env.request('/api/me/openai', {
+      method: 'PUT',
+      headers: { Cookie: user.cookie },
+      body: { apiKey: 'sk-proj-test-temp-fallback', model: 'custom-gpt-reasoning-model', setAsActive: true },
+    });
+
+    // 1. Chat-Anfrage
+    const chatRes = await env.request(`/api/aquariums/${aqId}/chat`, {
+      method: 'POST',
+      headers: { Cookie: user.cookie },
+      body: { message: 'Hallo KI' },
+    });
+    assert.strictEqual(chatRes.status, 200);
+    assert.strictEqual(chatRes.data.reply, 'Erfolgreich nach Fallback geantwortet.');
+
+    // 2. Verbindungstest
+    const testConn = await testOpenAiConnection('sk-proj-test-temp-fallback', 'custom-preview-model');
+    assert.strictEqual(testConn.ok, true);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
