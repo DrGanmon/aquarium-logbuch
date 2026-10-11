@@ -29,6 +29,11 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **Systemstandard:** Verwendet standardmäßig die Farbschema-Einstellungen des Betriebssystems (`prefers-color-scheme`).
   - **Umschaltbar:** Schnell-Umschalter in der Kopfzeile und auf der Anmeldeseite sowie feste Auswahlmöglichkeit im Benutzerprofil.
   - **Chart-Anpassung:** Verlaufsdiagramme und Tooltips passen ihre Farbpalette dynamisch an das aktive Farbschema an.
+- **🌐 App-weiter modularer i18n & Mehrsprachigkeits-Support (Deutsch & Englisch):**
+  - **Standardisiertes JSON-Format:** Vollständig modulare Sprachdateien unter `public/locales/de.json` und `public/locales/en.json` mit strukturierter Verschachtelung und Token-Interpolation (`{count}`, `{name}`, `{days}` etc.).
+  - **Umschaltbar & Persistiert:** Direkter 1-Klick-Schnellumschalter (`🌐 DE` / `🌐 EN`) in der Kopfzeile und im Anmeldebereich sowie dauerhafte Sprachauswahl im Benutzerprofil (`#/profile`).
+  - **Nahtlose Lokalisierung:** Vollständige Lokalisierung aller Ansichten (Login/Registrierung, Beckenübersicht, Detailansicht, Messmaske, Logbuch, CSV-Import/Export, Artenkatalog, KI-Chat, Admin-Bereich und Rechtsseiten) inklusive sprachspezifischer Datums- und Zahlenformatierung (`Intl.DateTimeFormat` / `Intl.NumberFormat`).
+  - **Vollständig im Dist-Bundle integriert:** Automatische Bündelung und Minifizierung im esbuild-Dist-Prozess für minimale Ladezeiten und sofortige Verfügbarkeit ohne zusätzliche Netzwerk-Roundtrips.
 - **E-Mail-Verifizierung & Passwort-Reset via SMTP:**
   - **E-Mail-Verifizierung für neue Benutzer:** Neue Registrierungen (außer der Admin-E-Mail-Adresse) erhalten automatisch eine Bestätigungs-E-Mail mit Aktivierungslink. Nicht verifizierte Benutzer werden beim Login geschützt und können sich neue Bestätigungslinks anfordern.
   - **Passwort vergessen & Reset per E-Mail:** Über die Anmeldeseite kann ein zeitlich begrenzter Link zum sicheren Zurücksetzen des Passworts angefordert werden. Beim Zurücksetzen werden alle bestehenden Benutzersitzungen automatisch invalidiert.

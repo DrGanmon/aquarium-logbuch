@@ -5,20 +5,21 @@ import { api } from '../api.js';
 import { CONFIG, RANGE, CUSTOM_FROM, CUSTOM_TO } from '../state.js';
 import { route } from '../router.js';
 import { parseCsvInWorker } from '../worker-client.js';
+import { t } from '../i18n.js';
 
 export function exportMeasurementsDialog(aq) {
   const dlg = h('dialog', { class: 'stack', style: 'max-width: 500px;' });
   const formatSelect = h(
     'select',
     {},
-    h('option', { value: 'excel_csv' }, 'Excel-kompatibles CSV (Semikolon „;“, UTF-8 mit BOM)'),
-    h('option', { value: 'standard_csv' }, 'Standard-CSV (Komma „,“, UTF-8)')
+    h('option', { value: 'excel_csv' }, t('exportImport.semicolon')),
+    h('option', { value: 'standard_csv' }, t('exportImport.comma'))
   );
   const rangeSelect = h(
     'select',
     {},
-    h('option', { value: 'all' }, 'Alle Messungen (gesamter Verlauf)'),
-    h('option', { value: 'current' }, 'Aktuell gefilterter Zeitraum')
+    h('option', { value: 'all' }, t('common.rangeAll')),
+    h('option', { value: 'current' }, 'Aktuell gefilterter Zeitraum / Current Range')
   );
 
   const form = h(
@@ -50,27 +51,27 @@ export function exportMeasurementsDialog(aq) {
         a.click();
         a.remove();
         dlg.close();
-        toast('Export gestartet.');
+        toast(t('common.success'));
       },
     },
     h(
       'div',
       { class: 'row between' },
-      h('h2', { style: 'margin:0' }, '📤 Messwerte exportieren'),
+      h('h2', { style: 'margin:0' }, t('exportImport.exportHeading')),
       h('button', { class: 'btn small ghost', type: 'button', onclick: () => dlg.close() }, '✕')
     ),
     h(
       'p',
       { class: 'muted' },
-      `Exportiere alle Wasserwerte und Notizen von „${aq.name}“ als CSV-Datei zur Weiterverarbeitung in Excel, Numbers oder Google Sheets.`
+      t('exportImport.exportDesc')
     ),
-    h('div', { class: 'field' }, h('label', {}, 'Dateiformat & Trennzeichen'), formatSelect),
-    h('div', { class: 'field' }, h('label', {}, 'Export-Zeitraum'), rangeSelect),
+    h('div', { class: 'field' }, h('label', {}, t('exportImport.delimiterLabel')), formatSelect),
+    h('div', { class: 'field' }, h('label', {}, t('common.filter')), rangeSelect),
     h(
       'div',
       { class: 'row', style: 'margin-top:.5rem' },
-      h('button', { class: 'btn', type: 'submit' }, '📥 Datei herunterladen'),
-      h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen')
+      h('button', { class: 'btn', type: 'submit' }, t('exportImport.exportBtn')),
+      h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, t('common.cancel'))
     )
   );
 

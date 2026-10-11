@@ -3,6 +3,7 @@
 import { h, toast, renderSimpleMarkdown } from '../dom.js';
 import { api } from '../api.js';
 import { ME, setMe } from '../state.js';
+import { t } from '../i18n.js';
 
 export function renderAiChatFab(aq) {
   if (
@@ -17,8 +18,8 @@ export function renderAiChatFab(aq) {
       {
         class: 'chat-fab',
         type: 'button',
-        title: `KI-Assistent für „${aq.name}“ öffnen`,
-        'aria-label': `KI-Assistent für „${aq.name}“ öffnen`,
+        title: t('aiChat.fabTooltip'),
+        'aria-label': t('aiChat.fabTooltip'),
         onclick: () => showAquariumChatModal(aq),
       },
       '🤖',
@@ -258,10 +259,10 @@ export async function showAquariumChatModal(aq) {
 
   // Schnellstart-Fragen
   const quickPrompts = [
-    '📊 Wie stehen meine aktuellen Wasserwerte?',
-    '🐟 Passt mein Besatz gut zusammen?',
-    '🌿 Wie kann ich Pflanzenwuchs & Düngung optimieren?',
-    '⚠️ Was sollte ich bei der nächsten Pflege beachten?',
+    t('aiChat.qWater'),
+    t('aiChat.qStock'),
+    t('aiChat.qAlgae'),
+    t('aiChat.qCare'),
   ];
 
   const quickPromptsRow = h(
@@ -288,8 +289,7 @@ export async function showAquariumChatModal(aq) {
 
   // Eingabebereich
   const inputField = h('textarea', {
-    placeholder:
-      'Frage an dein Aquarium stellen... (Enter zum Senden, Umschalt+Enter für neue Zeile)',
+    placeholder: t('aiChat.inputPlaceholder'),
     rows: '2',
     style:
       'flex: 1; resize: none; font-size: .95rem; border-radius: 8px; padding: .5rem .75rem;',
@@ -298,24 +298,24 @@ export async function showAquariumChatModal(aq) {
   const sendBtn = h(
     'button',
     { class: 'btn', type: 'button', style: 'align-self: flex-end;' },
-    '➤ Senden'
+    `➤ ${t('aiChat.send')}`
   );
   const clearBtn = h(
     'button',
     {
       class: 'btn small ghost',
       type: 'button',
-      title: 'Chat-Verlauf für dieses Becken leeren',
+      title: t('aiChat.clearChat'),
       onclick: () => {
         if (chatHistory.length === 0) return;
-        if (!confirm('Möchtest du den aktuellen Chat-Verlauf leeren?')) return;
+        if (!confirm(t('aiChat.clearChat') + '?')) return;
         chatHistory = [];
         sessionStorage.removeItem(storageKey);
         renderHistory();
         toast('Chat-Verlauf geleert.');
       },
     },
-    '🗑️ Verlauf leeren'
+    `🗑️ ${t('aiChat.clearChat')}`
   );
 
   let isSending = false;

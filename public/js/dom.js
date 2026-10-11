@@ -1,6 +1,7 @@
 'use strict';
 
 import { $app, runCleanups } from './state.js';
+import { t } from './i18n.js';
 
 export function h(tag, attrs, ...kids) {
   const el = document.createElement(tag);
@@ -39,21 +40,22 @@ export function toast(msg) {
   toast.t = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-export function showImageModal({ src, title = 'Bildvorschau', caption = null }) {
+export function showImageModal({ src, title = null, caption = null }) {
+  const displayTitle = title || t('common.imageLightboxTitle');
   const d = h('dialog', { class: 'stack wide', style: 'max-width: 760px; text-align: center;' });
   const close = () => { d.close(); d.remove(); };
   d.replaceChildren(
     h('div', { class: 'row between', style: 'align-items: center;' },
-      h('h3', { style: 'margin:0' }, title),
-      h('button', { class: 'btn small ghost', type: 'button', onclick: close, 'aria-label': 'Schließen' }, '✕')
+      h('h3', { style: 'margin:0' }, displayTitle),
+      h('button', { class: 'btn small ghost', type: 'button', onclick: close, 'aria-label': t('common.close') }, '✕')
     ),
     h('div', { style: 'margin: .5rem 0' },
-      h('img', { class: 'image-lightbox-img', src, alt: title })
+      h('img', { class: 'image-lightbox-img', src, alt: displayTitle })
     ),
     caption ? h('p', { class: 'muted', style: 'margin: .3rem 0 0; font-size: .95rem;' }, caption) : null,
     h('div', { class: 'row between', style: 'margin-top: .8rem;' },
       h('span', {}, ''),
-      h('button', { class: 'btn', type: 'button', onclick: close }, 'Schließen')
+      h('button', { class: 'btn', type: 'button', onclick: close }, t('common.close'))
     )
   );
   document.body.appendChild(d);

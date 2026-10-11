@@ -6,14 +6,19 @@ import {
   setMe,
   setConfig,
   $topbar,
+  $topbarBrandName,
   $whoami,
   $topbarAvatar,
   $btnProfile,
   $btnAdmin,
   $btnSpecies,
+  $btnLangTopbar,
+  $topbarLangText,
+  $btnThemeTopbar,
   $btnLogout,
 } from './state.js';
 import { api, setOnUnauthorized } from './api.js';
+import { initI18n, setLanguage, getLanguage, t } from './i18n.js';
 import {
   showAuth,
   viewVerifyEmail,
@@ -32,7 +37,46 @@ import { initTheme } from './theme.js';
 import { initServiceWorker } from './notifications.js';
 import { toast } from './dom.js';
 
+export function updateFooter() {
+  const footer = document.getElementById('site-footer');
+  if (!footer) return;
+  const copyEl = footer.querySelector('.footer-copy');
+  if (copyEl) copyEl.textContent = t('footer.copyright');
+  const aiBadge = footer.querySelector('.footer-ai-badge');
+  if (aiBadge) {
+    aiBadge.textContent = t('footer.aiBadge');
+    aiBadge.title = t('footer.aiBadgeTitle');
+  }
+  const links = footer.querySelectorAll('.footer-link');
+  if (links.length >= 4) {
+    links[0].textContent = t('footer.imprint');
+    links[1].textContent = t('footer.privacy');
+    links[2].textContent = t('footer.licenses');
+    links[3].textContent = t('footer.contact');
+  }
+}
+
 export function updateTopbarUser() {
+  const currentLang = getLanguage();
+  if ($topbarBrandName) $topbarBrandName.textContent = t('common.appName');
+  if ($btnSpecies) $btnSpecies.textContent = t('nav.species');
+  if ($btnAdmin) $btnAdmin.textContent = t('nav.admin');
+  if ($btnLogout) $btnLogout.textContent = t('nav.logout');
+  if ($btnProfile) $btnProfile.title = t('nav.profile');
+  if ($btnThemeTopbar) {
+    $btnThemeTopbar.title = t('nav.themeToggle');
+    $btnThemeTopbar.setAttribute('aria-label', t('nav.themeToggle'));
+  }
+  if ($btnLangTopbar) {
+    $btnLangTopbar.title = t('nav.langToggle');
+    $btnLangTopbar.setAttribute('aria-label', t('nav.langToggle'));
+  }
+  if ($topbarLangText) {
+    $topbarLangText.textContent = currentLang === 'de' ? '🌐 DE' : '🌐 EN';
+  }
+
+  updateFooter();
+
   if (!ME) {
     $topbar.hidden = true;
     return;
@@ -100,7 +144,7 @@ export async function route() {
   if (hash === '#/') return viewList();
   if (hash === '#/admin') {
     if (!ME.isAdmin) {
-      toast('Zugriff verweigert.');
+      toast(t('common.accessDenied'));
       location.hash = '#/';
       return;
     }
@@ -137,6 +181,9 @@ export async function start() {
     ]);
     setConfig(cfg);
     setMe(meData);
+    if (meData?.language) {
+      initI18n(meData.language);
+    }
   } catch (e) {
     /* Nicht eingeloggt oder Setup */
   }
@@ -146,10 +193,28 @@ export async function start() {
 }
 
 export function initApp() {
+  initI18n();
   initTheme();
   initServiceWorker();
 
   window.addEventListener('hashchange', () => route());
+  window.addEventListener('languagechange', () => {
+    updateTopbarUser();
+    route();
+  });
+
+  $btnLangTopbar?.addEventListener('click', async () => {
+    const nextLang = getLanguage() === 'de' ? 'en' : 'de';
+    setLanguage(nextLang);
+    if (ME) {
+      try {
+        await api('/me', { method: 'PUT', body: { language: nextLang } });
+        ME.language = nextLang;
+      } catch (e) {
+        /* ignore */
+      }
+    }
+  });
 
   $btnLogout?.addEventListener('click', async () => {
     try {

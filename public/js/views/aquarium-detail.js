@@ -35,6 +35,7 @@ import { exportMeasurementsDialog, importMeasurementsDialog } from './export-imp
 import { showAquariumChatModal } from './ai-chat.js';
 import { route } from '../router.js';
 import { processImageInWorker } from '../worker-client.js';
+import { t } from '../i18n.js';
 
 export function uploadImageDialog(aq) {
   const dlg = h('dialog', { class: 'stack', style: 'max-width: 480px;' });
@@ -594,7 +595,7 @@ export async function viewAquarium(id) {
 
   const topActions = [];
   if (!isReadOnly) {
-    topActions.push(h('a', { class: 'btn ghost', href: `#/a/${id}/messen` }, '🧪 Werte eintragen'));
+    topActions.push(h('a', { class: 'btn ghost', href: `#/a/${id}/messen` }, t('detail.btnMeasure')));
     topActions.push(
       h(
         'button',
@@ -603,7 +604,7 @@ export async function viewAquarium(id) {
           type: 'button',
           onclick: () => maintenanceDialog(aq),
         },
-        '🛠️ Arbeit eintragen'
+        t('detail.btnLog')
       )
     );
     topActions.push(
@@ -626,7 +627,7 @@ export async function viewAquarium(id) {
             type: 'button',
             onclick: () => shareDialog(aq),
           },
-          'Teilen'
+          t('detail.btnShare')
         )
       );
     topActions.push(
@@ -637,7 +638,7 @@ export async function viewAquarium(id) {
           type: 'button',
           onclick: () => aquariumDialog(aq),
         },
-        'Bearbeiten'
+        t('detail.btnEdit')
       )
     );
   }
@@ -649,7 +650,7 @@ export async function viewAquarium(id) {
         type: 'button',
         onclick: () => exportMeasurementsDialog(aq),
       },
-      '📤 Exportieren'
+      '📤 CSV-Export'
     )
   );
   if (!isOwner) {

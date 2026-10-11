@@ -76,6 +76,7 @@ function serializeMe(u) {
     selectedSuite: u.selected_suite || 'jbl-pro',
     selectedTests: selectedTests,
     defaultGraphRange: u.default_graph_range || '90',
+    language: u.language || 'de',
     email: u.email || null,
     emailVerified: Boolean(u.email_verified),
     registration: ALLOW_REGISTRATION && !regConfig.isClosed,
@@ -301,6 +302,7 @@ router.put(
     const bio = req.body.bio !== undefined ? (req.body.bio ? str(req.body.bio, 1000) : null) : user.bio;
     const email = req.body.email !== undefined ? (req.body.email ? str(req.body.email, 120).toLowerCase() : null) : user.email;
     const defaultGraphRange = req.body.defaultGraphRange !== undefined ? (req.body.defaultGraphRange ? str(req.body.defaultGraphRange, 10) : '90') : user.default_graph_range;
+    const language = req.body.language !== undefined ? (req.body.language === 'en' ? 'en' : 'de') : user.language;
 
     if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) {
       return res.status(400).json({ error: 'Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).' });
@@ -328,6 +330,7 @@ router.put(
       bio,
       email,
       default_graph_range: defaultGraphRange,
+      language,
     });
 
     const updated = await db.users.findById(req.user.id);

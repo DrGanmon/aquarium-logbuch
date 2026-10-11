@@ -2,6 +2,7 @@
 
 import { CONFIG } from './state.js';
 import { h } from './dom.js';
+import { t, formatDate, formatNumber } from './i18n.js';
 
 export const param = (key) =>
   (CONFIG?.allParameters || CONFIG?.parameters || []).find((p) => p.key === key) || {
@@ -11,18 +12,27 @@ export const param = (key) =>
     decimals: 1,
   };
 
-export const fmtNum = (p, v) =>
-  Number(v).toLocaleString('de-DE', {
-    minimumFractionDigits: p.decimals,
-    maximumFractionDigits: p.decimals,
-  });
+export const fmtNum = (p, v) => formatNumber(v, p?.decimals ?? 1);
 
-export const fmtDate = (iso) =>
-  new Date(iso).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' });
+export const fmtDate = (iso) => formatDate(iso);
 
 export const sqlDate = (s) => new Date(s.replace(' ', 'T') + 'Z').toISOString();
 
-export const STATUS_LABEL = { ok: 'im Bereich', warn: 'auffällig', crit: 'kritisch' };
+export const getStatusLabel = (status) => {
+  if (status === 'ok') return t('common.statusOk');
+  if (status === 'warn') return t('common.statusWarn');
+  if (status === 'crit') return t('common.statusCrit');
+  return t('common.noLimits');
+};
+
+export const STATUS_LABEL = new Proxy({}, {
+  get(target, prop) {
+    if (prop === 'ok') return t('common.statusOk');
+    if (prop === 'warn') return t('common.statusWarn');
+    if (prop === 'crit') return t('common.statusCrit');
+    return t('common.noLimits');
+  }
+});
 
 export function evaluate(range, v) {
   if (
@@ -41,7 +51,7 @@ export function evaluate(range, v) {
 }
 
 export const chip = (status) =>
-  h('span', { class: 'chip ' + (status || 'none') }, status ? STATUS_LABEL[status] : 'keine Grenzwerte');
+  h('span', { class: 'chip ' + (status || 'none') }, status ? getStatusLabel(status) : t('common.noLimits'));
 
 export function localInputValue(d = new Date()) {
   const pad = (n) => String(n).padStart(2, '0');
@@ -54,19 +64,19 @@ export function mmss(sec) {
 }
 
 export function socialLabel(type, minCount) {
-  if (type === 'solitary') return 'Einzelhaltung';
-  if (type === 'pair') return 'Paarhaltung';
-  if (type === 'harem') return 'Haremshaltung';
-  if (type === 'school') return `Schwarmfisch (ab ${minCount || 8})`;
-  if (type === 'group') return `Gruppe (ab ${minCount || 5})`;
-  return 'Gruppenhaltung';
+  if (type === 'solitary') return t('species.socialSolitary');
+  if (type === 'pair') return t('species.socialPair');
+  if (type === 'harem') return t('species.socialHarem');
+  if (type === 'school') return t('species.socialSchool', { count: minCount || 8 });
+  if (type === 'group') return t('species.socialGroup', { count: minCount || 5 });
+  return t('species.socialGroup', { count: minCount || 5 });
 }
 
-export function territorialLabel(t) {
-  if (t === 'solitary_aggressive') return 'Strikt territorial / Einzelgänger';
-  if (t === 'strong') return 'Stark territorial';
-  if (t === 'breeding') return 'Revierbildend bei Brut';
-  if (t === 'territorial_bottom') return 'Bodenrevierbildend';
-  if (t === 'mild') return 'Leicht territorial';
-  return 'Friedlich';
+export function territorialLabel(tKey) {
+  if (tKey === 'solitary_aggressive') return t('species.terrAggressive');
+  if (tKey === 'strong') return t('species.terrStrong');
+  if (tKey === 'breeding') return t('species.terrBreeding');
+  if (tKey === 'territorial_bottom') return t('species.terrBottom');
+  if (tKey === 'mild') return t('species.terrMild');
+  return t('species.terrPeaceful');
 }

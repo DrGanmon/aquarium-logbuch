@@ -5,6 +5,7 @@ import { api } from '../api.js';
 import { CONFIG, ME, cleanups } from '../state.js';
 import { param, fmtNum, evaluate, chip, localInputValue, mmss } from '../utils.js';
 import { pushNotificationManager, beep } from '../notifications.js';
+import { t } from '../i18n.js';
 
 export async function viewMeasure(id) {
   const d = await api(`/aquariums/${id}`);
@@ -451,10 +452,10 @@ export async function viewMeasure(id) {
         }
       },
     },
-    h('div', { class: 'field' }, h('label', { for: 'when' }, 'Gemessen am'), ((when.id = 'when'), when)),
+    h('div', { class: 'field' }, h('label', { for: 'when' }, t('measure.dateTimeLabel')), ((when.id = 'when'), when)),
     picker,
     list,
-    h('div', { class: 'field' }, h('label', {}, 'Notiz (optional)'), note),
+    h('div', { class: 'field' }, h('label', {}, t('common.notesOptional')), note),
     h(
       'div',
       { class: 'sticky-save' },
@@ -462,8 +463,8 @@ export async function viewMeasure(id) {
       h(
         'div',
         { class: 'row' },
-        h('button', { class: 'btn', type: 'submit' }, 'Messung speichern'),
-        h('a', { class: 'btn ghost', href: `#/a/${id}` }, 'Abbrechen')
+        h('button', { class: 'btn', type: 'submit' }, t('measure.saveBtn')),
+        h('a', { class: 'btn ghost', href: `#/a/${id}` }, t('common.cancel'))
       )
     )
   );
@@ -476,11 +477,11 @@ export async function viewMeasure(id) {
         'div',
         {},
         h('a', { href: `#/a/${id}`, class: 'muted' }, `‹ ${aq.name}`),
-        h('h1', {}, 'Werte eintragen'),
+        h('h1', {}, t('measure.title')),
         h(
           'p',
           { class: 'muted' },
-          'Starte bei jedem Test den Timer, sobald das Reagenz im Wasser ist. Mehrere Timer können gleichzeitig laufen. Ausgefüllt wird nur, was du gemessen hast.'
+          t('measure.subtitle')
         )
       ),
       notificationBanner,

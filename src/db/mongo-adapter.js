@@ -214,6 +214,7 @@ class MongoAdapter {
           claude_api_key: null,
           claude_model: null,
           ai_provider: null,
+          language: 'de',
           created_at: new Date().toISOString(),
         };
         await db.collection('users').insertOne(doc);
@@ -248,6 +249,7 @@ class MongoAdapter {
           'claude_api_key',
           'claude_model',
           'ai_provider',
+          'language',
         ];
 
         for (const k of allowed) {

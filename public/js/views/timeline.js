@@ -5,6 +5,7 @@ import { api } from '../api.js';
 import { CONFIG } from '../state.js';
 import { localInputValue } from '../utils.js';
 import { route } from '../router.js';
+import { t } from '../i18n.js';
 
 export function maintenanceDialog(aq, existing = null) {
   const isObj = existing && typeof existing === 'object';
@@ -147,23 +148,23 @@ export function maintenanceDialog(aq, existing = null) {
     h(
       'h2',
       { style: 'margin:0' },
-      editing ? 'Logbuch-Eintrag bearbeiten' : '🛠️ Aktivität eintragen'
+      editing ? t('timeline.modalTitle') : '🛠️ ' + t('timeline.newEntryBtn').replace('+ ', '')
     ),
     h(
       'div',
       { class: 'grid2' },
-      h('div', { class: 'field' }, h('label', {}, 'Art der Arbeit'), typeSelect),
-      h('div', { class: 'field' }, h('label', {}, 'Datum & Uhrzeit'), dateInput)
+      h('div', { class: 'field' }, h('label', {}, t('timeline.typeLabel')), typeSelect),
+      h('div', { class: 'field' }, h('label', {}, t('timeline.dateLabel')), dateInput)
     ),
     percentField,
     detailsField,
-    h('div', { class: 'field' }, h('label', {}, 'Bemerkungen / Notiz (optional)'), noteInput),
+    h('div', { class: 'field' }, h('label', {}, t('common.notesOptional')), noteInput),
     err,
     h(
       'div',
       { class: 'row' },
-      h('button', { class: 'btn', type: 'submit' }, 'Speichern'),
-      h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen'),
+      h('button', { class: 'btn', type: 'submit' }, t('common.save')),
+      h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, t('common.cancel')),
       editing
         ? h(
             'button',
@@ -171,7 +172,7 @@ export function maintenanceDialog(aq, existing = null) {
               class: 'btn danger',
               type: 'button',
               onclick: async () => {
-                if (!confirm('Diesen Logbuch-Eintrag wirklich löschen?')) return;
+                if (!confirm(t('timeline.deleteConfirm'))) return;
                 try {
                   await api(`/aquariums/${aq.id}/maintenance/${existing.id}`, {
                     method: 'DELETE',
@@ -184,7 +185,7 @@ export function maintenanceDialog(aq, existing = null) {
                 }
               },
             },
-            'Löschen'
+            t('common.delete')
           )
         : null
     )

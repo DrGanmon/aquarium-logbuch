@@ -5,6 +5,7 @@ import { showAuth } from './js/views/auth.js';
 
 // Re-export core modules and views for modular extensibility
 export * from './js/state.js';
+export * from './js/i18n.js';
 export * from './js/dom.js';
 export * from './js/api.js';
 export * from './js/utils.js';

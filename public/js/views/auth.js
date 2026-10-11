@@ -5,6 +5,7 @@ import { api } from '../api.js';
 import { $topbar, setMe } from '../state.js';
 import { getThemeSetting, toggleTheme } from '../theme.js';
 import { start } from '../router.js';
+import { t, getLanguage, setLanguage } from '../i18n.js';
 
 export let AUTH_ERROR = new URLSearchParams(location.search).get('auth_error') || '';
 export let OIDC_LINKED = new URLSearchParams(location.search).get('oidc_linked') === '1';
@@ -36,26 +37,53 @@ export async function showAuth(mode = 'login', options = {}) {
   const err = h('p', { class: 'error', role: 'alert' }, AUTH_ERROR);
   AUTH_ERROR = '';
   const oidcBtn = info.oidc
-    ? h('a', { class: 'btn', href: 'auth/login' }, `Mit ${info.oidcName} anmelden`)
+    ? h('a', { class: 'btn', href: 'auth/login' }, t('auth.oidcButton', { provider: info.oidcName || 'Pocket ID' }))
     : null;
 
   const currentTheme = getThemeSetting();
   const themeAuthIcon = currentTheme === 'system' ? '🌓' : currentTheme === 'dark' ? '🌙' : '☀️';
-  const themeAuthLabel = currentTheme === 'system' ? 'System' : currentTheme === 'dark' ? 'Dunkel' : 'Hell';
+  const themeAuthLabel =
+    currentTheme === 'system'
+      ? t('common.themeSystem')
+      : currentTheme === 'dark'
+      ? t('common.themeDark')
+      : t('common.themeLight');
+
   const themeAuthBtn = h(
     'button',
     {
       class: 'btn small ghost',
       type: 'button',
-      title: `Farbschema: ${themeAuthLabel} (klicken zum Umschalten)`,
+      title: `${t('common.theme')}: ${themeAuthLabel}`,
       onclick: () => {
         toggleTheme();
         const nextTheme = getThemeSetting();
-        themeAuthBtn.textContent =
-          nextTheme === 'system' ? '🌓 System' : nextTheme === 'dark' ? '🌙 Dunkel' : '☀️ Hell';
+        const nextLabel =
+          nextTheme === 'system'
+            ? t('common.themeSystem')
+            : nextTheme === 'dark'
+            ? t('common.themeDark')
+            : t('common.themeLight');
+        const nextIcon = nextTheme === 'system' ? '🌓' : nextTheme === 'dark' ? '🌙' : '☀️';
+        themeAuthBtn.textContent = `${nextIcon} ${nextLabel}`;
       },
     },
     `${themeAuthIcon} ${themeAuthLabel}`
+  );
+
+  const langAuthBtn = h(
+    'button',
+    {
+      class: 'btn small ghost',
+      type: 'button',
+      title: t('nav.langToggle'),
+      onclick: () => {
+        const nextLang = getLanguage() === 'de' ? 'en' : 'de';
+        setLanguage(nextLang);
+        showAuth(mode, options);
+      },
+    },
+    getLanguage() === 'de' ? '🌐 DE' : '🌐 EN'
   );
 
   const headerRow = h(
@@ -69,9 +97,9 @@ export async function showAuth(mode = 'login', options = {}) {
         alt: 'Logo',
         style: 'width:28px; height:28px; border-radius:6px;',
       }),
-      h('p', { class: 'muted', style: 'margin:0; font-weight:600;' }, 'Aquarium-Logbuch')
+      h('p', { class: 'muted', style: 'margin:0; font-weight:600;' }, t('common.appName'))
     ),
-    themeAuthBtn
+    h('div', { class: 'row', style: 'gap:.3rem;' }, langAuthBtn, themeAuthBtn)
   );
 
   if (!info.localLogin && mode !== 'forgot') {
@@ -80,7 +108,7 @@ export async function showAuth(mode = 'login', options = {}) {
         'div',
         { class: 'auth' },
         headerRow,
-        h('div', { class: 'card stack' }, h('h1', {}, 'Anmelden'), err, oidcBtn)
+        h('div', { class: 'card stack' }, h('h1', {}, t('auth.loginTitle')), err, oidcBtn)
       )
     );
     oidcBtn?.focus();
@@ -97,7 +125,7 @@ export async function showAuth(mode = 'login', options = {}) {
         h(
           'div',
           { class: 'card stack' },
-          h('h1', {}, '⛔ Registrierung geschlossen'),
+          h('h1', {}, `⛔ ${t('admin.modeClosed')}`),
           h(
             'div',
             { class: 'compat-box warn' },
@@ -117,7 +145,7 @@ export async function showAuth(mode = 'login', options = {}) {
                 showAuth('login');
               },
             },
-            'Zurück zur Anmeldung'
+            t('auth.backToLogin')
           )
         )
       )
@@ -129,7 +157,7 @@ export async function showAuth(mode = 'login', options = {}) {
   if (mode === 'forgot') {
     const identInput = h('input', {
       id: 'ident',
-      placeholder: 'E-Mail-Adresse oder Benutzername',
+      placeholder: `${t('auth.email')} / ${t('auth.username')}`,
       required: true,
     });
     const successMsg = h('div', { class: 'compat-box info', style: 'display:none' });
@@ -145,7 +173,7 @@ export async function showAuth(mode = 'login', options = {}) {
               method: 'POST',
               body: { identifier: identInput.value.trim() },
             });
-            successMsg.textContent = res.message || 'E-Mail zum Zurücksetzen wurde versendet.';
+            successMsg.textContent = res.message || t('auth.emailSent');
             successMsg.style.display = 'block';
             identInput.value = '';
           } catch (ex) {
@@ -153,16 +181,12 @@ export async function showAuth(mode = 'login', options = {}) {
           }
         },
       },
-      h('h1', {}, 'Passwort zurücksetzen'),
-      h(
-        'p',
-        { class: 'muted', style: 'margin:0 0 .5rem;' },
-        'Gib deine E-Mail-Adresse oder deinen Benutzernamen ein. Wir senden dir einen Link, mit dem du ein neues Passwort festlegen kannst.'
-      ),
-      h('div', { class: 'field' }, h('label', { for: 'ident' }, 'E-Mail oder Benutzername'), identInput),
+      h('h1', {}, t('auth.forgotPasswordTitle')),
+      h('p', { class: 'muted', style: 'margin:0 0 .5rem;' }, t('auth.forgotPasswordDesc')),
+      h('div', { class: 'field' }, h('label', { for: 'ident' }, `${t('auth.email')} / ${t('auth.username')}`), identInput),
       err,
       successMsg,
-      h('button', { class: 'btn', type: 'submit' }, 'Link anfordern'),
+      h('button', { class: 'btn', type: 'submit' }, t('auth.sendResetLink')),
       h(
         'button',
         {
@@ -173,7 +197,7 @@ export async function showAuth(mode = 'login', options = {}) {
             showAuth('login');
           },
         },
-        'Zurück zur Anmeldung'
+        t('auth.backToLogin')
       )
     );
     mount(h('div', { class: 'auth' }, headerRow, form));
@@ -182,7 +206,12 @@ export async function showAuth(mode = 'login', options = {}) {
   }
 
   // Modus: Login oder Register
-  const user = h('input', { id: 'u', autocomplete: 'username', required: true });
+  const user = h('input', {
+    id: 'u',
+    autocomplete: 'username',
+    required: true,
+    placeholder: t('auth.usernamePlaceholder'),
+  });
   const mail =
     mode === 'register'
       ? h('input', {
@@ -191,6 +220,7 @@ export async function showAuth(mode = 'login', options = {}) {
           autocomplete: 'email',
           required: true,
           value: options.email || '',
+          placeholder: t('auth.emailPlaceholder'),
         })
       : null;
   const pass = h('input', {
@@ -199,13 +229,14 @@ export async function showAuth(mode = 'login', options = {}) {
     autocomplete: mode === 'login' ? 'current-password' : 'new-password',
     required: true,
     minlength: mode === 'login' ? null : '8',
+    placeholder: mode === 'login' ? '' : t('auth.passwordPlaceholder'),
   });
   const inviteInput =
     mode === 'register'
       ? h('input', {
           id: 'inv',
           value: options.inviteCode || '',
-          placeholder: isInviteOnly ? 'z. B. AQU-9F2A-88CD' : 'Einladungscode (optional)',
+          placeholder: isInviteOnly ? t('auth.inviteCodePlaceholder') : `${t('auth.inviteCode')} (${t('common.notesOptional')})`,
           required: isInviteOnly,
         })
       : null;
@@ -236,23 +267,17 @@ export async function showAuth(mode = 'login', options = {}) {
                 h(
                   'div',
                   { class: 'card stack' },
-                  h('h1', {}, '🎉 Fast geschafft!'),
+                  h('h1', {}, '🎉 ' + t('auth.verifyEmailTitle')),
                   h(
                     'div',
                     { class: 'compat-box info' },
-                    h('p', { style: 'margin:0 0 .5rem;' }, h('strong', {}, 'Bestätigungs-E-Mail versendet!')),
+                    h('p', { style: 'margin:0 0 .5rem;' }, h('strong', {}, t('auth.verifyEmailTitle'))),
                     h(
                       'p',
                       { style: 'margin:0;' },
-                      `Wir haben einen Aktivierungslink an `,
-                      h('strong', {}, res.email || mail.value),
-                      ` gesendet. Bitte öffne den Link in der E-Mail, um dein Konto zu bestätigen.`
+                      `${t('auth.emailSent')} `,
+                      h('strong', {}, res.email || mail.value)
                     )
-                  ),
-                  h(
-                    'p',
-                    { class: 'muted' },
-                    'Prüfe bitte auch deinen Spam-Ordner, falls die Nachricht nicht innerhalb weniger Minuten ankommt.'
                   ),
                   h(
                     'button',
@@ -264,7 +289,7 @@ export async function showAuth(mode = 'login', options = {}) {
                         showAuth('login');
                       },
                     },
-                    'Zur Anmeldung'
+                    t('auth.backToLogin')
                   )
                 )
               )
@@ -274,7 +299,7 @@ export async function showAuth(mode = 'login', options = {}) {
           await start();
         } catch (ex) {
           err.textContent = ex.message;
-          if (ex.message && ex.message.includes('bestätige zuerst deine E-Mail')) {
+          if (ex.message && (ex.message.includes('bestätige zuerst deine E-Mail') || ex.message.includes('confirm your email'))) {
             const usernameVal = user.value.trim();
             resendBox.replaceChildren(
               h(
@@ -288,13 +313,13 @@ export async function showAuth(mode = 'login', options = {}) {
                         method: 'POST',
                         body: { identifier: usernameVal },
                       });
-                      toast(r.message || 'Bestätigungs-E-Mail versendet.');
+                      toast(r.message || t('auth.emailSent'));
                     } catch (errResend) {
                       toast(errResend.message);
                     }
                   },
                 },
-                '📨 Bestätigungs-Link erneut senden'
+                `📨 ${t('auth.resendVerifyEmail')}`
               )
             );
             resendBox.style.display = 'block';
@@ -306,10 +331,8 @@ export async function showAuth(mode = 'login', options = {}) {
       'h1',
       {},
       mode === 'login'
-        ? 'Anmelden'
-        : isInviteOnly
-        ? 'Einladung einlösen & Konto erstellen'
-        : 'Konto erstellen'
+        ? t('auth.loginTitle')
+        : t('auth.registerTitle')
     ),
     isInviteOnly && mode === 'register'
       ? h(
@@ -318,16 +341,16 @@ export async function showAuth(mode = 'login', options = {}) {
           h(
             'p',
             { style: 'margin:0; font-size:.9rem;' },
-            '🔑 Für die Registrierung ist ein gültiger Einladungscode erforderlich.'
+            `🔑 ${t('auth.inviteCodeHint')}`
           )
         )
       : null,
-    h('div', { class: 'field' }, h('label', { for: 'u' }, 'Benutzername'), user),
+    h('div', { class: 'field' }, h('label', { for: 'u' }, t('auth.username')), user),
     mail
       ? h(
           'div',
           { class: 'field' },
-          h('label', { for: 'e' }, 'E-Mail-Adresse (für Verifizierung & Passwort-Reset)'),
+          h('label', { for: 'e' }, t('auth.email')),
           mail
         )
       : null,
@@ -338,7 +361,7 @@ export async function showAuth(mode = 'login', options = {}) {
           h(
             'label',
             { for: 'inv' },
-            isInviteOnly ? 'Einladungscode / Registrierungscode' : 'Einladungscode (optional)'
+            isInviteOnly ? t('auth.inviteCode') : `${t('auth.inviteCode')} (${t('common.notesOptional')})`
           ),
           inviteInput
         )
@@ -349,7 +372,7 @@ export async function showAuth(mode = 'login', options = {}) {
       h(
         'div',
         { class: 'row between', style: 'align-items:baseline;' },
-        h('label', { for: 'p' }, mode === 'login' ? 'Passwort' : 'Passwort (mindestens 8 Zeichen)'),
+        h('label', { for: 'p' }, mode === 'login' ? t('auth.password') : `${t('auth.password')} (${t('auth.passwordPlaceholder')})`),
         mode === 'login'
           ? h(
               'a',
@@ -362,7 +385,7 @@ export async function showAuth(mode = 'login', options = {}) {
                   showAuth('forgot');
                 },
               },
-              'Passwort vergessen?'
+              t('auth.forgotPasswordLink')
             )
           : null
       ),
@@ -370,7 +393,7 @@ export async function showAuth(mode = 'login', options = {}) {
     ),
     err,
     resendBox,
-    h('button', { class: 'btn', type: 'submit' }, mode === 'login' ? 'Anmelden' : 'Konto erstellen'),
+    h('button', { class: 'btn', type: 'submit' }, mode === 'login' ? t('auth.loginBtn') : t('auth.registerBtn')),
     mode === 'login' && oidcBtn ? [h('p', { class: 'muted' }, 'oder'), oidcBtn] : null,
     registration &&
       h(
@@ -389,10 +412,8 @@ export async function showAuth(mode = 'login', options = {}) {
           },
         },
         mode === 'login'
-          ? isInviteOnly
-            ? 'Einladung einlösen / Registrieren'
-            : 'Neues Konto erstellen'
-          : 'Ich habe schon ein Konto'
+          ? t('auth.registerTitle')
+          : t('auth.alreadyHaveAccount') + ' - ' + t('auth.loginBtn')
       )
   );
   mount(h('div', { class: 'auth' }, headerRow, form));
@@ -404,7 +425,7 @@ export async function viewVerifyEmail(token) {
   const headerRow = h(
     'div',
     { class: 'row between', style: 'margin-bottom:.5rem; align-items:center;' },
-    h('p', { class: 'muted', style: 'margin:0' }, 'Wasserwerte im Blick behalten.')
+    h('p', { class: 'muted', style: 'margin:0' }, t('common.appName'))
   );
 
   if (!token) {
@@ -416,9 +437,9 @@ export async function viewVerifyEmail(token) {
         h(
           'div',
           { class: 'card stack' },
-          h('h1', {}, '❌ Ungültiger Link'),
-          h('p', { class: 'error' }, 'Es wurde kein Bestätigungstoken übergeben.'),
-          h('a', { class: 'btn', href: '#/' }, 'Zur Startseite')
+          h('h1', {}, '❌ ' + t('common.error')),
+          h('p', { class: 'error' }, 'Ungültiger Token.'),
+          h('a', { class: 'btn', href: '#/' }, t('auth.backToLogin'))
         )
       )
     );
@@ -433,8 +454,8 @@ export async function viewVerifyEmail(token) {
       h(
         'div',
         { class: 'card stack' },
-        h('h1', {}, 'E-Mail-Adresse bestätigen'),
-        h('p', { class: 'muted' }, 'Einen Moment bitte, deine E-Mail-Adresse wird überprüft...')
+        h('h1', {}, t('auth.verifyEmailTitle')),
+        h('p', { class: 'muted' }, t('common.loading'))
       )
     )
   );
@@ -449,14 +470,14 @@ export async function viewVerifyEmail(token) {
         h(
           'div',
           { class: 'card stack' },
-          h('h1', {}, '✅ Erfolgreich bestätigt!'),
+          h('h1', {}, '✅ ' + t('auth.verifyEmailSuccess')),
           h(
             'div',
             { class: 'compat-box ok' },
             h(
               'p',
               { style: 'margin:0;' },
-              res.message || 'Deine E-Mail-Adresse wurde erfolgreich bestätigt. Dein Konto ist nun aktiv.'
+              res.message || t('auth.verifyEmailSuccess')
             )
           ),
           h(
@@ -469,13 +490,13 @@ export async function viewVerifyEmail(token) {
                 showAuth('login');
               },
             },
-            'Jetzt anmelden'
+            t('auth.loginBtn')
           )
         )
       )
     );
   } catch (err) {
-    const resendIdent = h('input', { placeholder: 'E-Mail oder Benutzername' });
+    const resendIdent = h('input', { placeholder: `${t('auth.email')} / ${t('auth.username')}` });
     const resendStatus = h('p', { class: 'muted', style: 'display:none;' });
     mount(
       h(
@@ -485,12 +506,12 @@ export async function viewVerifyEmail(token) {
         h(
           'div',
           { class: 'card stack' },
-          h('h1', {}, '❌ Bestätigung fehlgeschlagen'),
+          h('h1', {}, '❌ ' + t('common.error')),
           h('p', { class: 'error' }, err.message),
           h(
             'div',
             { class: 'stack', style: 'margin-top:1rem; gap:.5rem;' },
-            h('strong', {}, 'Neuen Bestätigungslink anfordern:'),
+            h('strong', {}, t('auth.resendVerifyEmail')),
             resendIdent,
             resendStatus,
             h(
@@ -505,7 +526,7 @@ export async function viewVerifyEmail(token) {
                       method: 'POST',
                       body: { identifier: resendIdent.value.trim() },
                     });
-                    resendStatus.textContent = r.message || 'E-Mail versendet.';
+                    resendStatus.textContent = r.message || t('auth.emailSent');
                     resendStatus.style.display = 'block';
                   } catch (ex) {
                     resendStatus.textContent = ex.message;
@@ -513,7 +534,7 @@ export async function viewVerifyEmail(token) {
                   }
                 },
               },
-              'Link erneut anfordern'
+              t('auth.sendResetLink')
             )
           ),
           h(
@@ -527,7 +548,7 @@ export async function viewVerifyEmail(token) {
                 showAuth('login');
               },
             },
-            'Zurück zur Anmeldung'
+            t('auth.backToLogin')
           )
         )
       )
@@ -540,7 +561,7 @@ export async function viewResetPassword(token) {
   const headerRow = h(
     'div',
     { class: 'row between', style: 'margin-bottom:.5rem; align-items:center;' },
-    h('p', { class: 'muted', style: 'margin:0' }, 'Wasserwerte im Blick behalten.')
+    h('p', { class: 'muted', style: 'margin:0' }, t('common.appName'))
   );
 
   if (!token) {
@@ -552,9 +573,9 @@ export async function viewResetPassword(token) {
         h(
           'div',
           { class: 'card stack' },
-          h('h1', {}, '❌ Ungültiger Link'),
-          h('p', { class: 'error' }, 'Es wurde kein Token zum Zurücksetzen des Passworts übergeben.'),
-          h('a', { class: 'btn', href: '#/' }, 'Zur Startseite')
+          h('h1', {}, '❌ ' + t('common.error')),
+          h('p', { class: 'error' }, 'Ungültiger Reset-Token.'),
+          h('a', { class: 'btn', href: '#/' }, t('auth.backToLogin'))
         )
       )
     );
@@ -565,13 +586,13 @@ export async function viewResetPassword(token) {
     type: 'password',
     required: true,
     minlength: '8',
-    placeholder: 'Mindestens 8 Zeichen',
+    placeholder: t('auth.passwordPlaceholder'),
   });
   const p2 = h('input', {
     type: 'password',
     required: true,
     minlength: '8',
-    placeholder: 'Passwort wiederholen',
+    placeholder: t('auth.passwordRepeat'),
   });
   const err = h('p', { class: 'error', role: 'alert' });
 
@@ -583,7 +604,7 @@ export async function viewResetPassword(token) {
         e.preventDefault();
         err.textContent = '';
         if (p1.value !== p2.value) {
-          err.textContent = 'Die eingegebenen Passwörter stimmen nicht überein.';
+          err.textContent = 'Die Passwörter stimmen nicht überein.';
           return;
         }
         try {
@@ -599,15 +620,14 @@ export async function viewResetPassword(token) {
               h(
                 'div',
                 { class: 'card stack' },
-                h('h1', {}, '🎉 Passwort geändert!'),
+                h('h1', {}, '🎉 ' + t('auth.passwordChanged')),
                 h(
                   'div',
                   { class: 'compat-box ok' },
                   h(
                     'p',
                     { style: 'margin:0;' },
-                    res.message ||
-                      'Dein Passwort wurde erfolgreich aktualisiert. Du kannst dich jetzt damit anmelden.'
+                    res.message || t('auth.passwordChanged')
                   )
                 ),
                 h(
@@ -620,7 +640,7 @@ export async function viewResetPassword(token) {
                       showAuth('login');
                     },
                   },
-                  'Jetzt anmelden'
+                  t('auth.loginBtn')
                 )
               )
             )
@@ -630,12 +650,12 @@ export async function viewResetPassword(token) {
         }
       },
     },
-    h('h1', {}, 'Neues Passwort festlegen'),
-    h('p', { class: 'muted', style: 'margin:0 0 .5rem;' }, 'Gib bitte dein neues Passwort ein.'),
-    h('div', { class: 'field' }, h('label', {}, 'Neues Passwort'), p1),
-    h('div', { class: 'field' }, h('label', {}, 'Passwort wiederholen'), p2),
+    h('h1', {}, t('auth.resetPasswordTitle')),
+    h('p', { class: 'muted', style: 'margin:0 0 .5rem;' }, t('auth.resetPasswordDesc')),
+    h('div', { class: 'field' }, h('label', {}, t('auth.newPassword')), p1),
+    h('div', { class: 'field' }, h('label', {}, t('auth.passwordRepeat')), p2),
     err,
-    h('button', { class: 'btn', type: 'submit' }, 'Passwort speichern'),
+    h('button', { class: 'btn', type: 'submit' }, t('auth.resetPasswordBtn')),
     h(
       'button',
       {
@@ -646,7 +666,7 @@ export async function viewResetPassword(token) {
           showAuth('login');
         },
       },
-      'Abbrechen'
+      t('common.cancel')
     )
   );
 
@@ -659,7 +679,7 @@ export async function viewDeleteAccount(token) {
   const headerRow = h(
     'div',
     { class: 'row between', style: 'margin-bottom:.5rem; align-items:center;' },
-    h('p', { class: 'muted', style: 'margin:0' }, 'Wasserwerte im Blick behalten.')
+    h('p', { class: 'muted', style: 'margin:0' }, t('common.appName'))
   );
 
   if (!token) {
@@ -671,13 +691,9 @@ export async function viewDeleteAccount(token) {
         h(
           'div',
           { class: 'card stack' },
-          h('h1', {}, '❌ Ungültiger Link'),
-          h(
-            'p',
-            { class: 'error' },
-            'Es wurde kein Bestätigungstoken zum Löschen des Kontos übergeben.'
-          ),
-          h('a', { class: 'btn', href: '#/' }, 'Zur Startseite')
+          h('h1', {}, '❌ ' + t('common.error')),
+          h('p', { class: 'error' }, 'Ungültiger Löschtoken.'),
+          h('a', { class: 'btn', href: '#/' }, t('auth.backToLogin'))
         )
       )
     );
@@ -689,22 +705,22 @@ export async function viewDeleteAccount(token) {
   const confirmCard = h(
     'div',
     { class: 'card stack' },
-    h('h1', { style: 'color: var(--coral);' }, '🗑️ Konto endgültig löschen'),
+    h('h1', { style: 'color: var(--coral);' }, `🗑️ ${t('auth.deleteAccountTitle')}`),
     h(
       'div',
       { class: 'compat-box danger' },
-      h('p', { style: 'margin:0; font-weight:600;' }, '⚠️ Letzte Warnung:'),
+      h('p', { style: 'margin:0; font-weight:600;' }, '⚠️ Letzte Warnung / Final Warning:'),
       h(
         'p',
         { style: 'margin:.4rem 0 0;' },
-        'Wenn du jetzt auf „Konto jetzt endgültig löschen“ klickst, werden dein Benutzerkonto sowie alle deine Aquarien, Fotos, Messwerte, Alarme, Pflegemaßnahmen und Freigaben unwiderruflich und sofort gelöscht.'
+        t('auth.deleteAccountConfirm')
       )
     ),
     err,
     h(
       'div',
       { class: 'row between', style: 'margin-top: .5rem;' },
-      h('a', { class: 'btn ghost', href: '#/' }, 'Abbrechen'),
+      h('a', { class: 'btn ghost', href: '#/' }, t('common.cancel')),
       h(
         'button',
         {
@@ -727,14 +743,14 @@ export async function viewDeleteAccount(token) {
                   h(
                     'div',
                     { class: 'card stack' },
-                    h('h1', {}, '👋 Konto erfolgreich gelöscht'),
+                    h('h1', {}, `👋 ${t('auth.accountDeleted')}`),
                     h(
                       'div',
                       { class: 'compat-box ok' },
                       h(
                         'p',
                         { style: 'margin:0;' },
-                        res.message || 'Dein Benutzerkonto wurde vollständig gelöscht.'
+                        res.message || t('auth.accountDeleted')
                       )
                     ),
                     h(
@@ -747,7 +763,7 @@ export async function viewDeleteAccount(token) {
                           showAuth('login');
                         },
                       },
-                      'Zur Startseite'
+                      t('auth.backToLogin')
                     )
                   )
                 )
@@ -757,7 +773,7 @@ export async function viewDeleteAccount(token) {
             }
           },
         },
-        'Konto jetzt endgültig löschen'
+        t('auth.deleteAccountBtn')
       )
     )
   );

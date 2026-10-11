@@ -16,6 +16,7 @@ import { pushNotificationManager, notificationsCard } from '../notifications.js'
 import { fmtDate, mmss } from '../utils.js';
 import { updateTopbarUser, route } from '../router.js';
 import { processImageInWorker } from '../worker-client.js';
+import { t, getLanguage, setLanguage } from '../i18n.js';
 
 export async function viewProfile() {
   const meData = await api('/me');
@@ -820,16 +821,86 @@ export async function viewProfile() {
     })
   );
 
+  // Erscheinungsbild / Farbschema
   const themeCard = h(
     'div',
     { class: 'card stack' },
-    h('h2', {}, 'Erscheinungsbild / Farbschema'),
+    h('h2', {}, t('profile.themeTitle') || 'Erscheinungsbild / Farbschema'),
     h(
       'p',
       { class: 'muted', style: 'margin:0' },
       'Wähle dein bevorzugtes Design oder nutze den automatischen Modus entsprechend deinen Systemeinstellungen.'
     ),
     themeOptionsContainer
+  );
+
+  // Sprache / Language Sektion
+  const currentLang = getLanguage();
+  const langOptions = [
+    {
+      key: 'de',
+      flag: '🇩🇪',
+      title: 'Deutsch',
+      desc: 'Deutsche Benutzeroberfläche und Zahlen-/Datumsformate.',
+    },
+    {
+      key: 'en',
+      flag: '🇬🇧',
+      title: 'English',
+      desc: 'English user interface and formatting.',
+    },
+  ];
+
+  const langOptionElements = [];
+  const langOptionsContainer = h(
+    'div',
+    { class: 'theme-options' },
+    langOptions.map((opt) => {
+      const card = h(
+        'div',
+        {
+          class: `theme-option ${currentLang === opt.key ? 'active' : ''}`,
+          role: 'button',
+          tabindex: '0',
+          onclick: async () => {
+            setLanguage(opt.key);
+            langOptionElements.forEach(({ el, key }) => {
+              el.classList.toggle('active', key === opt.key);
+            });
+            try {
+              await api('/me', { method: 'PUT', body: { language: opt.key } });
+              currentMe.language = opt.key;
+            } catch (e) {
+              /* ignore */
+            }
+            viewProfile();
+          },
+          onkeydown: (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              card.click();
+            }
+          },
+        },
+        h(
+          'div',
+          { class: 'theme-option-head' },
+          h('span', { class: 'theme-option-icon' }, opt.flag),
+          h('span', {}, opt.title)
+        ),
+        h('p', { class: 'theme-option-desc' }, opt.desc)
+      );
+      langOptionElements.push({ el: card, key: opt.key });
+      return card;
+    })
+  );
+
+  const languageCard = h(
+    'div',
+    { class: 'card stack' },
+    h('h2', {}, t('profile.languageTitle')),
+    h('p', { class: 'muted', style: 'margin:0' }, t('profile.languageDesc')),
+    langOptionsContainer
   );
 
   // Standard-Zeitraum für Graphen & Messverlauf
@@ -1197,8 +1268,9 @@ export async function viewProfile() {
       ),
       avatarCard,
       profileForm,
-      aiCard,
+      languageCard,
       themeCard,
+      aiCard,
       graphRangeCard,
       invitationCard,
       pushCard,

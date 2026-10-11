@@ -5,6 +5,7 @@ import { api } from '../api.js';
 import { CONFIG } from '../state.js';
 import { socialLabel, territorialLabel } from '../utils.js';
 import { searchSpeciesInWorker } from '../worker-client.js';
+import { t } from '../i18n.js';
 
 export async function showSpeciesModal(spOrName) {
   let sp = typeof spOrName === 'object' ? spOrName : null;
@@ -309,8 +310,8 @@ export async function viewSpeciesCatalog(selectedId = null) {
         h(
           'div',
           {},
-          h('a', { href: '#/', class: 'muted' }, '‹ Zurück zur Übersicht'),
-          h('h1', { style: 'margin-top:.3rem' }, 'Artenkatalog & Aquarienbewohner')
+          h('a', { href: '#/', class: 'muted' }, '‹ ' + t('common.back')),
+          h('h1', { style: 'margin-top:.3rem' }, t('species.title'))
         )
       ),
       h(
@@ -319,15 +320,15 @@ export async function viewSpeciesCatalog(selectedId = null) {
         h(
           'p',
           { class: 'muted', style: 'margin:0' },
-          'Recherchiere gängige Fische, Wirbellose und Schnecken samt deren Wasserwerten, Mindestbeckengrößen, Sozialformen und Verhaltensweisen (z. B. Territorialverhalten bei Kampffischen & Buntbarschen).'
+          t('species.subtitle')
         ),
         h(
           'div',
           { class: 'grid2' },
-          h('div', { class: 'field' }, h('label', {}, 'Suchbegriff'), searchInput),
-          h('div', { class: 'field' }, h('label', {}, 'Wassertyp'), waterSelect)
+          h('div', { class: 'field' }, h('label', {}, t('common.searchPlaceholder')), searchInput),
+          h('div', { class: 'field' }, h('label', {}, t('species.waterType')), waterSelect)
         ),
-        h('div', { class: 'field' }, h('label', {}, 'Kategorie'), catPills)
+        h('div', { class: 'field' }, h('label', {}, t('species.category')), catPills)
       ),
       grid
     )

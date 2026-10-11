@@ -6,6 +6,7 @@ import { CONFIG, ME, setMe, $topbar } from '../state.js';
 import { fmtDate } from '../utils.js';
 import { updateTopbarUser, route } from '../router.js';
 import { showAuth } from './auth.js';
+import { t } from '../i18n.js';
 
 export let CURRENT_AQ_TAB = localStorage.getItem('aquarium_list_tab') || 'own';
 
@@ -248,14 +249,14 @@ export function aquariumDialog(aq) {
   });
 
   const weekdaysList = [
-    { val: '', label: 'Beliebiger Wochentag / Flexibel' },
-    { val: '1', label: 'Montag' },
-    { val: '2', label: 'Dienstag' },
-    { val: '3', label: 'Mittwoch' },
-    { val: '4', label: 'Donnerstag' },
-    { val: '5', label: 'Freitag' },
-    { val: '6', label: 'Samstag' },
-    { val: '7', label: 'Sonntag' },
+    { val: '', label: t('aquariums.noDay') },
+    { val: '1', label: t('common.monday') },
+    { val: '2', label: t('common.tuesday') },
+    { val: '3', label: t('common.wednesday') },
+    { val: '4', label: t('common.thursday') },
+    { val: '5', label: t('common.friday') },
+    { val: '6', label: t('common.saturday') },
+    { val: '7', label: t('common.sunday') },
   ];
 
   const mInterval =
@@ -405,20 +406,20 @@ export function aquariumDialog(aq) {
           }
         },
       },
-      h('h2', {}, editing ? 'Aquarium bearbeiten' : 'Aquarium anlegen'),
-      h('div', { class: 'field' }, h('label', {}, 'Name'), f.name),
-      h('div', { class: 'field' }, h('label', {}, 'Motto / Leitspruch (optional)'), f.motto),
+      h('h2', {}, editing ? t('aquariums.modalEditTitle') : t('aquariums.modalNewTitle')),
+      h('div', { class: 'field' }, h('label', {}, t('aquariums.nameLabel')), f.name),
+      h('div', { class: 'field' }, h('label', {}, t('aquariums.mottoLabel')), f.motto),
       h(
         'div',
         { class: 'field' },
-        h('label', {}, 'Generelle Beschreibung des Aquariums (optional)'),
+        h('label', {}, t('aquariums.descriptionLabel')),
         f.description
       ),
       h(
         'div',
         { class: 'grid2' },
-        h('div', { class: 'field' }, h('label', {}, 'Wasserart'), f.water_type),
-        h('div', { class: 'field' }, h('label', {}, 'Volumen (Liter)'), f.volume_l)
+        h('div', { class: 'field' }, h('label', {}, t('aquariums.waterTypeLabel')), f.water_type),
+        h('div', { class: 'field' }, h('label', {}, t('aquariums.volumeLabel')), f.volume_l)
       ),
 
       // Messzyklus
@@ -431,17 +432,17 @@ export function aquariumDialog(aq) {
             style:
               'display:flex; align-items:center; gap:.4rem; color: var(--accent);',
           },
-          '🧪 Messzyklus (Wasserwerte)'
+          t('aquariums.measureCycleLabel')
         ),
         h(
           'div',
           { class: 'grid3' },
           h('div', { class: 'field' }, h('label', {}, 'Intervall'), f.measure_cycle_interval),
-          h('div', { class: 'field' }, h('label', {}, 'Einheit'), f.measure_cycle_unit),
+          h('div', { class: 'field' }, h('label', {}, t('common.unit')), f.measure_cycle_unit),
           h(
             'div',
             { class: 'field' },
-            h('label', {}, 'Wochentag'),
+            h('label', {}, t('aquariums.cycleDayLabel')),
             f.measure_cycle_day_of_week
           )
         ),
@@ -453,7 +454,7 @@ export function aquariumDialog(aq) {
               'gap:.5rem; align-items:center; font-size:.9rem; cursor:pointer; margin-top:.2rem;',
           },
           f.measure_reminder_mail,
-          '📧 Erinnerungs-E-Mail senden, wenn Messung fällig ist'
+          t('aquariums.measureReminderMail')
         )
       ),
 
@@ -464,17 +465,17 @@ export function aquariumDialog(aq) {
         h(
           'strong',
           { style: 'display:flex; align-items:center; gap:.4rem; color: #10b981;' },
-          '🌿 Düngzyklus (Pflanzendünger)'
+          t('aquariums.fertilizeCycleLabel')
         ),
         h(
           'div',
           { class: 'grid3' },
           h('div', { class: 'field' }, h('label', {}, 'Intervall'), f.fertilize_cycle_interval),
-          h('div', { class: 'field' }, h('label', {}, 'Einheit'), f.fertilize_cycle_unit),
+          h('div', { class: 'field' }, h('label', {}, t('common.unit')), f.fertilize_cycle_unit),
           h(
             'div',
             { class: 'field' },
-            h('label', {}, 'Wochentag'),
+            h('label', {}, t('aquariums.cycleDayLabel')),
             f.fertilize_cycle_day_of_week
           )
         ),
@@ -486,15 +487,15 @@ export function aquariumDialog(aq) {
               'gap:.5rem; align-items:center; font-size:.9rem; cursor:pointer; margin-top:.2rem;',
           },
           f.fertilize_reminder_mail,
-          '📧 Erinnerungs-E-Mail senden, wenn Düngung fällig ist'
+          t('aquariums.fertilizeReminderMail')
         )
       ),
 
-      h('div', { class: 'field' }, h('label', {}, 'Kurze Notizen'), f.notes),
+      h('div', { class: 'field' }, h('label', {}, t('common.notesOptional')), f.notes),
       h(
         'div',
         { class: 'field' },
-        h('label', {}, 'Titelbild vom Aquarium (PNG, JPG, WebP, GIF, max. 5 MB)'),
+        h('label', {}, t('aquariums.imageLabel')),
         fileInput,
         previewImg,
         h('div', { style: 'margin-top:.4rem' }, btnRemoveImg)
@@ -503,8 +504,8 @@ export function aquariumDialog(aq) {
       h(
         'div',
         { class: 'row' },
-        h('button', { class: 'btn', type: 'submit' }, 'Speichern'),
-        h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen'),
+        h('button', { class: 'btn', type: 'submit' }, t('common.save')),
+        h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, t('common.cancel')),
         editing && isOwner
           ? h(
               'button',
@@ -514,7 +515,7 @@ export function aquariumDialog(aq) {
                 onclick: async () => {
                   if (
                     !confirm(
-                      `„${aq.name}“ mit allen Messwerten, Bildern und Alarmen endgültig löschen?`
+                      t('aquariums.deleteConfirm', { name: aq.name })
                     )
                   )
                     return;
@@ -528,7 +529,7 @@ export function aquariumDialog(aq) {
                   }
                 },
               },
-              'Löschen'
+              t('common.delete')
             )
           : null
       )
@@ -634,7 +635,7 @@ export async function viewList() {
         viewList();
       },
     },
-    '🐠 Eigene Aquarien',
+    t('aquariums.tabMine'),
     h('span', { class: 'tab-badge' }, ownList.length)
   );
 
@@ -648,7 +649,7 @@ export async function viewList() {
         viewList();
       },
     },
-    '👥 Mit mir geteilte Aquarien',
+    t('aquariums.tabShared'),
     h(
       'span',
       { class: 'tab-badge' },
@@ -666,16 +667,16 @@ export async function viewList() {
       : h(
           'div',
           { class: 'card stack' },
-          h('h2', {}, 'Noch kein eigenes Aquarium'),
+          h('h2', {}, t('aquariums.emptyMine')),
           h(
             'p',
             {},
-            'Lege dein erstes Becken an, dann kannst du Wasserwerte eintragen, Fotos hochladen und den Verlauf sehen.'
+            t('aquariums.emptyMineDesc')
           ),
           h(
             'div',
             {},
-            h('button', { class: 'btn', type: 'button', onclick: () => aquariumDialog() }, 'Aquarium anlegen')
+            h('button', { class: 'btn', type: 'button', onclick: () => aquariumDialog() }, t('aquariums.newAquariumBtn'))
           )
         );
   } else {
@@ -688,7 +689,7 @@ export async function viewList() {
             h(
               'h3',
               { style: 'margin:0; display:flex; align-items:center; gap:.5rem;' },
-              '✉️ Offene Freigabe-Einladungen',
+              '✉️ ' + t('aquariums.sharedPendingBadge'),
               h('span', { class: 'chip warn' }, `${pendingShares.length} ausstehend`)
             ),
             h(
@@ -734,7 +735,7 @@ export async function viewList() {
                               method: 'POST',
                               body: { aquarium_id: ps.aquarium_id },
                             });
-                            toast(`Einladung für „${ps.aquarium_name}“ angenommen!`);
+                            toast(t('aquariums.inviteAccepted'));
                             viewList();
                           } catch (err) {
                             toast(err.message);
@@ -742,7 +743,7 @@ export async function viewList() {
                           }
                         },
                       },
-                      'Annehmen'
+                      t('aquariums.acceptInvite')
                     ),
                     h(
                       'button',
@@ -758,7 +759,7 @@ export async function viewList() {
                               method: 'POST',
                               body: { aquarium_id: ps.aquarium_id },
                             });
-                            toast('Einladung abgelehnt.');
+                            toast(t('aquariums.inviteDeclined'));
                             viewList();
                           } catch (err) {
                             toast(err.message);
@@ -766,7 +767,7 @@ export async function viewList() {
                           }
                         },
                       },
-                      'Ablehnen'
+                      t('aquariums.declineInvite')
                     )
                   )
                 );
@@ -781,8 +782,8 @@ export async function viewList() {
       : h(
           'div',
           { class: 'card stack' },
-          h('h2', {}, 'Keine geteilten Aquarien'),
-          h('p', {}, 'Aktuell wurden keine Aquarien mit dir geteilt.'),
+          h('h2', {}, t('aquariums.emptyShared')),
+          h('p', {}, t('aquariums.emptySharedDesc')),
           h(
             'p',
             { class: 'muted', style: 'margin:0;' },
@@ -800,8 +801,8 @@ export async function viewList() {
       h(
         'div',
         { class: 'row between', style: 'align-items:center;' },
-        h('h1', { style: 'margin:0;' }, 'Meine Aquarien'),
-        h('button', { class: 'btn', type: 'button', onclick: () => aquariumDialog() }, 'Aquarium anlegen')
+        h('h1', { style: 'margin:0;' }, t('aquariums.title')),
+        h('button', { class: 'btn', type: 'button', onclick: () => aquariumDialog() }, t('aquariums.newAquariumBtn'))
       ),
       navTabs,
       tabContent

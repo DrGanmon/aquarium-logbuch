@@ -23,6 +23,10 @@
         if (t === 'light' || t === 'dark') {
           document.documentElement.setAttribute('data-theme', t);
         }
+        var l = localStorage.getItem('aquarium_lang');
+        if (l === 'de' || l === 'en') {
+          document.documentElement.setAttribute('lang', l);
+        }
       } catch (e) {}
     })();
   </script>
@@ -31,7 +35,7 @@
   <header class="topbar" id="topbar" hidden>
     <a class="brand" href="#/">
       <img src="favicon-32x32.png" alt="Logo" class="brand-logo" width="24" height="24">
-      <span>Aquarium-Logbuch</span>
+      <span id="topbar-brand-name">Aquarium-Logbuch</span>
     </a>
     <div class="topbar-right">
       <a class="btn small ghost" id="btn-species" href="#/species">Artenkatalog</a>
@@ -40,6 +44,9 @@
         <span id="whoami"></span>
       </a>
       <a class="btn small ghost" id="btn-admin" href="#/admin" hidden>Benutzerverwaltung</a>
+      <button class="btn small ghost" id="btn-lang-topbar" type="button" title="Sprache wechseln" aria-label="Sprache wechseln">
+        <span id="topbar-lang-text">🌐 DE</span>
+      </button>
       <button class="btn small ghost" id="btn-theme-topbar" type="button" title="Farbschema wechseln" aria-label="Farbschema wechseln">
         <span id="topbar-theme-icon">🌓</span>
       </button>

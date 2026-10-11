@@ -2,11 +2,14 @@
 
 export const $app = document.getElementById('app');
 export const $topbar = document.getElementById('topbar');
+export const $topbarBrandName = document.getElementById('topbar-brand-name');
 export const $whoami = document.getElementById('whoami');
 export const $topbarAvatar = document.getElementById('topbar-avatar');
 export const $btnProfile = document.getElementById('btn-profile');
 export const $btnAdmin = document.getElementById('btn-admin');
 export const $btnSpecies = document.getElementById('btn-species');
+export const $btnLangTopbar = document.getElementById('btn-lang-topbar');
+export const $topbarLangText = document.getElementById('topbar-lang-text');
 export const $btnThemeTopbar = document.getElementById('btn-theme-topbar');
 export const $topbarThemeIcon = document.getElementById('topbar-theme-icon');
 export const $btnLogout = document.getElementById('btn-logout');

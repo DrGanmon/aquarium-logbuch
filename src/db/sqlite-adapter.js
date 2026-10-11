@@ -193,6 +193,7 @@ class SqliteAdapter {
     if (!hasColumn('users', 'claude_api_key')) this.db.exec('ALTER TABLE users ADD COLUMN claude_api_key TEXT');
     if (!hasColumn('users', 'claude_model')) this.db.exec('ALTER TABLE users ADD COLUMN claude_model TEXT');
     if (!hasColumn('users', 'ai_provider')) this.db.exec('ALTER TABLE users ADD COLUMN ai_provider TEXT');
+    if (!hasColumn('users', 'language')) this.db.exec("ALTER TABLE users ADD COLUMN language TEXT DEFAULT 'de'");
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oidc ON users(oidc_sub) WHERE oidc_sub IS NOT NULL');
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email != \'\'');
     this.db.exec('CREATE INDEX IF NOT EXISTS idx_users_verify_token ON users(email_verify_token) WHERE email_verify_token IS NOT NULL');
@@ -327,6 +328,7 @@ class SqliteAdapter {
           'claude_api_key',
           'claude_model',
           'ai_provider',
+          'language',
         ];
 
         for (const k of allowed) {
