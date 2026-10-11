@@ -47,14 +47,14 @@ test('Push-Benachrichtigungen & Timer-Service-Worker', async (t) => {
   });
 
   await t.test('app.js integriert pushNotificationManager und Timer-Kopplung', async () => {
-    const res = await env.request('/app.js');
+    const res = await env.request('/js/notifications.js');
     assert.equal(res.status, 200);
     const code = res.text;
 
-    assert.ok(code.includes('pushNotificationManager'), 'app.js muss pushNotificationManager definieren');
-    assert.ok(code.includes('scheduleTimer'), 'app.js muss Timer beim Start einplanen');
-    assert.ok(code.includes('cancelTimer'), 'app.js muss Timer beim Abbrechen stornieren');
-    assert.ok(code.includes('notificationBanner'), 'app.js muss Benachrichtigungs-Banner in der Messmaske rendern');
-    assert.ok(code.includes('notificationsCard'), 'app.js muss Benachrichtigungs-Einstellungen im Profil bereitstellen');
+    assert.ok(code.includes('pushNotificationManager'), 'notifications.js muss pushNotificationManager definieren');
+    assert.ok(code.includes('scheduleTimer'), 'notifications.js muss Timer beim Start einplanen');
+    assert.ok(code.includes('cancelTimer'), 'notifications.js muss Timer beim Abbrechen stornieren');
+    assert.ok(code.includes('notificationBanner'), 'notifications.js muss Benachrichtigungs-Banner in der Messmaske rendern');
+    assert.ok(code.includes('notificationsCard'), 'notifications.js muss Benachrichtigungs-Einstellungen im Profil bereitstellen');
   });
 });

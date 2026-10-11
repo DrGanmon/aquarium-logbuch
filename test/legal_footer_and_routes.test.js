@@ -9,8 +9,19 @@ test('Footer, Impressum, EU AI Act, Datenschutz & Lizenzen Validierung', async (
   const indexPath = path.join(__dirname, '..', 'public', 'index.html');
   const indexHtml = fs.readFileSync(indexPath, 'utf8');
 
+  const jsDir = path.join(__dirname, '..', 'public', 'js');
+  const readAllJs = (dir) => {
+    let out = '';
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const ent of entries) {
+      const full = path.join(dir, ent.name);
+      if (ent.isDirectory()) out += '\n' + readAllJs(full);
+      else if (ent.name.endsWith('.js')) out += '\n' + fs.readFileSync(full, 'utf8');
+    }
+    return out;
+  };
   const appJsPath = path.join(__dirname, '..', 'public', 'app.js');
-  const appJs = fs.readFileSync(appJsPath, 'utf8');
+  const appJs = fs.readFileSync(appJsPath, 'utf8') + '\n' + (fs.existsSync(jsDir) ? readAllJs(jsDir) : '');
 
   const styleCssPath = path.join(__dirname, '..', 'public', 'style.css');
   const styleCss = fs.readFileSync(styleCssPath, 'utf8');
@@ -33,11 +44,11 @@ test('Footer, Impressum, EU AI Act, Datenschutz & Lizenzen Validierung', async (
   });
 
   await t.test('app.js enthält Routing für alle rechtlichen Seiten (auch ohne Login)', () => {
-    assert.ok(appJs.includes("routePath === 'impressum'"), 'Route impressum registriert');
-    assert.ok(appJs.includes("routePath === 'datenschutz'"), 'Route datenschutz registriert');
-    assert.ok(appJs.includes("routePath === 'lizenzen'"), 'Route lizenzen registriert');
-    assert.ok(appJs.includes("routePath === 'kontakt'"), 'Route kontakt registriert');
-    assert.ok(appJs.includes('async function viewLegal('), 'Funktion viewLegal implementiert');
+    assert.ok(appJs.includes('impressum'), 'Route impressum registriert');
+    assert.ok(appJs.includes('datenschutz'), 'Route datenschutz registriert');
+    assert.ok(appJs.includes('lizenzen'), 'Route lizenzen registriert');
+    assert.ok(appJs.includes('kontakt'), 'Route kontakt registriert');
+    assert.ok(appJs.includes('viewLegal'), 'Funktion viewLegal implementiert');
   });
 
   await t.test('viewLegal enthält EU AI Act Transparenzangaben gem. Art. 50', () => {

@@ -41,15 +41,21 @@ test('Theme: Light, Dark und System-Modus Konfiguration & Frontend-Assets', asyn
   });
 
   await t.test('JavaScript: Theme-Logik und Umschaltfunktionen vorhanden', async () => {
-    const res = await env.request('/app.js');
-    assert.equal(res.status, 200);
-    const js = res.text;
+    const resTheme = await env.request('/js/theme.js');
+    assert.equal(resTheme.status, 200);
+    const jsTheme = resTheme.text;
 
-    assert.ok(js.includes('applyTheme'), 'app.js definiert applyTheme');
-    assert.ok(js.includes('toggleTheme'), 'app.js definiert toggleTheme');
-    assert.ok(js.includes('getThemeSetting'), 'app.js definiert getThemeSetting');
-    assert.ok(js.includes('isEffectiveDark'), 'app.js definiert isEffectiveDark');
-    assert.ok(js.includes('prefers-color-scheme: dark'), 'app.js reagiert auf Media-Query Event Listener');
-    assert.ok(js.includes('Erscheinungsbild / Farbschema'), 'app.js enthält Theme-Sektion im Profil');
+    const resProfile = await env.request('/js/views/profile.js');
+    assert.equal(resProfile.status, 200);
+    const jsProfile = resProfile.text;
+
+    const js = jsTheme + '\n' + jsProfile;
+
+    assert.ok(js.includes('applyTheme'), 'theme.js definiert applyTheme');
+    assert.ok(js.includes('toggleTheme'), 'theme.js definiert toggleTheme');
+    assert.ok(js.includes('getThemeSetting'), 'theme.js definiert getThemeSetting');
+    assert.ok(js.includes('isEffectiveDark'), 'theme.js definiert isEffectiveDark');
+    assert.ok(js.includes('prefers-color-scheme: dark'), 'theme.js reagiert auf Media-Query Event Listener');
+    assert.ok(js.includes('Erscheinungsbild / Farbschema'), 'profile.js enthält Theme-Sektion im Profil');
   });
 });
