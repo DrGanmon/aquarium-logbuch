@@ -4,6 +4,7 @@ import { h, mount, toast } from '../dom.js';
 import { api } from '../api.js';
 import { CONFIG } from '../state.js';
 import { socialLabel, territorialLabel } from '../utils.js';
+import { searchSpeciesInWorker } from '../worker-client.js';
 
 export async function showSpeciesModal(spOrName) {
   let sp = typeof spOrName === 'object' ? spOrName : null;
@@ -182,25 +183,11 @@ export async function viewSpeciesCatalog(selectedId = null) {
 
   const grid = h('div', { class: 'species-grid' });
 
-  const renderCards = () => {
-    let list = all;
-    if (currentWaterType !== 'all') {
-      list = list.filter((s) => s.waterType === currentWaterType);
-    }
-    if (currentCategory !== 'Alle') {
-      list = list.filter((s) => s.category.toLowerCase() === currentCategory.toLowerCase());
-    }
-    if (searchTerm) {
-      const q = searchTerm.toLowerCase();
-      list = list.filter(
-        (s) =>
-          s.name.toLowerCase().includes(q) ||
-          s.scientificName.toLowerCase().includes(q) ||
-          s.category.toLowerCase().includes(q) ||
-          (s.tags && s.tags.some((t) => t.includes(q))) ||
-          (s.description && s.description.toLowerCase().includes(q))
-      );
-    }
+  let renderSeq = 0;
+  const renderCards = async () => {
+    const seq = ++renderSeq;
+    const list = await searchSpeciesInWorker(all, searchTerm, currentWaterType, currentCategory);
+    if (seq !== renderSeq) return; // Veraltete Suche ignorieren
 
     if (!list.length) {
       grid.replaceChildren(

@@ -11,6 +11,7 @@ export * from './js/utils.js';
 export * from './js/theme.js';
 export * from './js/notifications.js';
 export * from './js/charts.js';
+export * from './js/worker-client.js';
 export * from './js/views/auth.js';
 export * from './js/views/legal.js';
 export * from './js/views/species.js';

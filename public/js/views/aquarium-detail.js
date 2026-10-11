@@ -34,6 +34,7 @@ import { maintenanceDialog } from './timeline.js';
 import { exportMeasurementsDialog, importMeasurementsDialog } from './export-import.js';
 import { showAquariumChatModal } from './ai-chat.js';
 import { route } from '../router.js';
+import { processImageInWorker } from '../worker-client.js';
 
 export function uploadImageDialog(aq) {
   const dlg = h('dialog', { class: 'stack', style: 'max-width: 480px;' });
@@ -55,7 +56,7 @@ export function uploadImageDialog(aq) {
   });
   const primaryChk = h('input', { type: 'checkbox' });
 
-  fileInput.addEventListener('change', () => {
+  fileInput.addEventListener('change', async () => {
     const file = fileInput.files[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
@@ -63,14 +64,20 @@ export function uploadImageDialog(aq) {
       fileInput.value = '';
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      imageBase64 = ev.target.result;
+    err.textContent = '';
+    try {
+      const processed = await processImageInWorker(file, {
+        maxWidth: 1600,
+        maxHeight: 1200,
+        quality: 0.85,
+        mimeType: file.type === 'image/png' ? 'image/png' : 'image/jpeg',
+      });
+      imageBase64 = processed.dataUrl;
       previewImg.src = imageBase64;
       previewImg.style.display = 'block';
-      err.textContent = '';
-    };
-    reader.readAsDataURL(file);
+    } catch (e) {
+      err.textContent = 'Fehler bei der Bildverarbeitung: ' + e.message;
+    }
   });
 
   const form = h(
@@ -240,7 +247,7 @@ export function editStockDialog(aq, s) {
     btnRemoveImg.style.display = 'inline-flex';
   }
 
-  fileInput.addEventListener('change', () => {
+  fileInput.addEventListener('change', async () => {
     const file = fileInput.files[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
@@ -248,16 +255,22 @@ export function editStockDialog(aq, s) {
       fileInput.value = '';
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      imageBase64 = ev.target.result;
+    err.textContent = '';
+    try {
+      const processed = await processImageInWorker(file, {
+        maxWidth: 800,
+        maxHeight: 800,
+        quality: 0.85,
+        mimeType: file.type === 'image/png' ? 'image/png' : 'image/jpeg',
+      });
+      imageBase64 = processed.dataUrl;
       removeExistingImage = false;
       previewImg.src = imageBase64;
       previewImg.style.display = 'block';
       btnRemoveImg.style.display = 'inline-flex';
-      err.textContent = '';
-    };
-    reader.readAsDataURL(file);
+    } catch (e) {
+      err.textContent = 'Fehler bei der Bildverarbeitung: ' + e.message;
+    }
   });
 
   btnRemoveImg.addEventListener('click', () => {
@@ -1427,7 +1440,7 @@ export async function viewAquarium(id) {
     'Foto entfernen'
   );
 
-  stockFileInput.addEventListener('change', () => {
+  stockFileInput.addEventListener('change', async () => {
     const file = stockFileInput.files[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
@@ -1435,15 +1448,21 @@ export async function viewAquarium(id) {
       stockFileInput.value = '';
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      stockImageBase64 = ev.target.result;
+    stockErr.textContent = '';
+    try {
+      const processed = await processImageInWorker(file, {
+        maxWidth: 800,
+        maxHeight: 800,
+        quality: 0.85,
+        mimeType: file.type === 'image/png' ? 'image/png' : 'image/jpeg',
+      });
+      stockImageBase64 = processed.dataUrl;
       stockPreviewImg.src = stockImageBase64;
       stockPreviewImg.style.display = 'block';
       btnRemoveStockImg.style.display = 'inline-flex';
-      stockErr.textContent = '';
-    };
-    reader.readAsDataURL(file);
+    } catch (e) {
+      stockErr.textContent = 'Fehler bei der Bildverarbeitung: ' + e.message;
+    }
   });
 
   btnRemoveStockImg.addEventListener('click', () => {

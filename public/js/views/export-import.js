@@ -4,6 +4,7 @@ import { h, toast } from '../dom.js';
 import { api } from '../api.js';
 import { CONFIG, RANGE, CUSTOM_FROM, CUSTOM_TO } from '../state.js';
 import { route } from '../router.js';
+import { parseCsvInWorker } from '../worker-client.js';
 
 export function exportMeasurementsDialog(aq) {
   const dlg = h('dialog', { class: 'stack', style: 'max-width: 500px;' });
@@ -199,10 +200,17 @@ export function importMeasurementsDialog(aq) {
     infoMsg.textContent = 'Lese Spalten ein...';
 
     try {
-      const res = await api(`/aquariums/${aq.id}/measurements/parse-csv-header`, {
-        method: 'POST',
-        body: { csvText: text, delimiter: explicitDelimiter },
-      });
+      // 1. Zuerst Multithreaded-Web-Worker für verzögerungsfreies Einlesen im Hintergrund
+      let res;
+      try {
+        res = await parseCsvInWorker(text, explicitDelimiter);
+      } catch (workerErr) {
+        // Fallback über Backend-API
+        res = await api(`/aquariums/${aq.id}/measurements/parse-csv-header`, {
+          method: 'POST',
+          body: { csvText: text, delimiter: explicitDelimiter },
+        });
+      }
 
       parsedHeaders = res.headers || [];
       parsedSampleRows = res.sampleRows || [];

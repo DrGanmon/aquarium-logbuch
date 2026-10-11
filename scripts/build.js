@@ -23,23 +23,30 @@ async function buildFrontend(options = {}) {
 
   const jsEntryPoint = path.join(publicDir, 'app.js');
   const cssEntryPoint = path.join(publicDir, 'style.css');
+  const workerEntryPoint = path.join(publicDir, 'worker.js');
 
   const jsFileName = isMinify ? 'app.min.js' : 'app.js';
   const cssFileName = isMinify ? 'style.min.css' : 'style.css';
+  const workerFileName = isMinify ? 'worker.min.js' : 'worker.js';
 
   const jsOutputFile = path.join(distDir, jsFileName);
   const cssOutputFile = path.join(distDir, cssFileName);
+  const workerOutputFile = path.join(distDir, workerFileName);
 
   // Veraltete Bundles des jeweils anderen Modus bereinigen
   const oppositeJs = path.join(distDir, isMinify ? 'app.js' : 'app.min.js');
   const oppositeJsMap = path.join(distDir, isMinify ? 'app.js.map' : 'app.min.js.map');
   const oppositeCss = path.join(distDir, isMinify ? 'style.css' : 'style.min.css');
   const oppositeCssMap = path.join(distDir, isMinify ? 'style.css.map' : 'style.min.css.map');
+  const oppositeWorker = path.join(distDir, isMinify ? 'worker.js' : 'worker.min.js');
+  const oppositeWorkerMap = path.join(distDir, isMinify ? 'worker.js.map' : 'worker.min.js.map');
 
   if (fs.existsSync(oppositeJs)) fs.unlinkSync(oppositeJs);
   if (fs.existsSync(oppositeJsMap)) fs.unlinkSync(oppositeJsMap);
   if (fs.existsSync(oppositeCss)) fs.unlinkSync(oppositeCss);
   if (fs.existsSync(oppositeCssMap)) fs.unlinkSync(oppositeCssMap);
+  if (fs.existsSync(oppositeWorker)) fs.unlinkSync(oppositeWorker);
+  if (fs.existsSync(oppositeWorkerMap)) fs.unlinkSync(oppositeWorkerMap);
 
   console.log(`🚀 Starte Frontend-${isMinify ? 'Dist (Minified)' : 'Build (Unminified)'}...`);
 
@@ -56,6 +63,19 @@ async function buildFrontend(options = {}) {
     legalComments: isMinify ? 'inline' : 'eof',
   };
 
+  // Web Worker Build Config
+  const workerConfig = {
+    entryPoints: [workerEntryPoint],
+    bundle: true,
+    minify: isMinify,
+    sourcemap: true,
+    target: ['es2022'],
+    format: 'iife',
+    outfile: workerOutputFile,
+    logLevel: 'info',
+    legalComments: isMinify ? 'inline' : 'eof',
+  };
+
   // CSS Minification Build Config
   const cssConfig = {
     entryPoints: [cssEntryPoint],
@@ -68,31 +88,37 @@ async function buildFrontend(options = {}) {
 
   if (isWatch) {
     const jsCtx = await esbuild.context(jsConfig);
+    const workerCtx = await esbuild.context(workerConfig);
     const cssCtx = await esbuild.context(cssConfig);
-    await Promise.all([jsCtx.watch(), cssCtx.watch()]);
+    await Promise.all([jsCtx.watch(), workerCtx.watch(), cssCtx.watch()]);
     console.log(`👀 Watch-Modus aktiv (${isMinify ? 'minified' : 'unminified'}). Überwache Änderungen...`);
-    return { jsCtx, cssCtx, isMinify };
+    return { jsCtx, workerCtx, cssCtx, isMinify };
   }
 
   // Einmaliger Build
   await Promise.all([
     esbuild.build(jsConfig),
+    esbuild.build(workerConfig),
     esbuild.build(cssConfig),
   ]);
 
   const jsStat = fs.statSync(jsOutputFile);
+  const workerStat = fs.statSync(workerOutputFile);
   const cssStat = fs.statSync(cssOutputFile);
   const duration = Date.now() - startTime;
 
   console.log(`✅ ${isMinify ? 'Dist-Build (Minified)' : 'Build (Unminified)'} erfolgreich abgeschlossen in ${duration}ms!`);
-  console.log(`📦 JS Bundle:  dist/${jsFileName}   (${(jsStat.size / 1024).toFixed(1)} KB)`);
-  console.log(`🎨 CSS Bundle: dist/${cssFileName} (${(cssStat.size / 1024).toFixed(1)} KB)`);
+  console.log(`📦 JS Bundle:     dist/${jsFileName}      (${(jsStat.size / 1024).toFixed(1)} KB)`);
+  console.log(`⚡ Worker Bundle: dist/${workerFileName}  (${(workerStat.size / 1024).toFixed(1)} KB)`);
+  console.log(`🎨 CSS Bundle:    dist/${cssFileName}    (${(cssStat.size / 1024).toFixed(1)} KB)`);
 
   return {
     isMinify,
     jsFile: jsFileName,
+    workerFile: workerFileName,
     cssFile: cssFileName,
     jsSize: jsStat.size,
+    workerSize: workerStat.size,
     cssSize: cssStat.size,
     duration,
   };

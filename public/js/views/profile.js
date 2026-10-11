@@ -15,6 +15,7 @@ import { getThemeSetting, applyTheme } from '../theme.js';
 import { pushNotificationManager, notificationsCard } from '../notifications.js';
 import { fmtDate, mmss } from '../utils.js';
 import { updateTopbarUser, route } from '../router.js';
+import { processImageInWorker } from '../worker-client.js';
 
 export async function viewProfile() {
   const meData = await api('/me');
@@ -71,7 +72,7 @@ export async function viewProfile() {
       )
     : null;
 
-  fileInput.addEventListener('change', () => {
+  fileInput.addEventListener('change', async () => {
     const file = fileInput.files[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
@@ -79,18 +80,21 @@ export async function viewProfile() {
       fileInput.value = '';
       return;
     }
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      avatarErr.textContent = '';
-      try {
-        await api('/me/avatar', { method: 'POST', body: { image: ev.target.result } });
-        toast('Profilbild aktualisiert.');
-        await viewProfile();
-      } catch (ex) {
-        avatarErr.textContent = ex.message;
-      }
-    };
-    reader.readAsDataURL(file);
+    avatarErr.textContent = '';
+    try {
+      // Bildkomprimierung und Skalierung im Web Worker (Multithreading)
+      const processed = await processImageInWorker(file, {
+        maxWidth: 400,
+        maxHeight: 400,
+        quality: 0.88,
+        mimeType: file.type === 'image/png' ? 'image/png' : 'image/jpeg',
+      });
+      await api('/me/avatar', { method: 'POST', body: { image: processed.dataUrl } });
+      toast('Profilbild aktualisiert.');
+      await viewProfile();
+    } catch (ex) {
+      avatarErr.textContent = ex.message;
+    }
   });
 
   const avatarCard = h(

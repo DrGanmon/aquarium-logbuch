@@ -12,11 +12,15 @@ const distDir = path.join(publicDir, 'dist');
 
 const jsUnminPath = path.join(distDir, 'app.js');
 const jsUnminMapPath = path.join(distDir, 'app.js.map');
+const workerUnminPath = path.join(distDir, 'worker.js');
+const workerUnminMapPath = path.join(distDir, 'worker.js.map');
 const cssUnminPath = path.join(distDir, 'style.css');
 const cssUnminMapPath = path.join(distDir, 'style.css.map');
 
 const jsMinPath = path.join(distDir, 'app.min.js');
 const jsMinMapPath = path.join(distDir, 'app.min.js.map');
+const workerMinPath = path.join(distDir, 'worker.min.js');
+const workerMinMapPath = path.join(distDir, 'worker.min.js.map');
 const cssMinPath = path.join(distDir, 'style.min.css');
 const cssMinMapPath = path.join(distDir, 'style.min.css.map');
 
@@ -35,23 +39,28 @@ function cleanDist() {
 }
 
 test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
-  await t.test('buildFrontend({ minify: false }) erstellt unminifiziertes Entwicklungs-Bundle (app.js & style.css)', async () => {
+  await t.test('buildFrontend({ minify: false }) erstellt unminifiziertes Entwicklungs-Bundle (app.js, worker.js & style.css)', async () => {
     cleanDist();
 
     const result = await buildFrontend({ minify: false });
     assert.equal(result.isMinify, false);
     assert.equal(result.jsFile, 'app.js');
+    assert.equal(result.workerFile, 'worker.js');
     assert.equal(result.cssFile, 'style.css');
     assert.ok(result.jsSize > 0, 'JS-Größe > 0');
+    assert.ok(result.workerSize > 0, 'Worker-Größe > 0');
     assert.ok(result.cssSize > 0, 'CSS-Größe > 0');
 
     assert.ok(fs.existsSync(jsUnminPath), 'dist/app.js existiert');
     assert.ok(fs.existsSync(jsUnminMapPath), 'dist/app.js.map existiert');
+    assert.ok(fs.existsSync(workerUnminPath), 'dist/worker.js existiert');
+    assert.ok(fs.existsSync(workerUnminMapPath), 'dist/worker.js.map existiert');
     assert.ok(fs.existsSync(cssUnminPath), 'dist/style.css existiert');
     assert.ok(fs.existsSync(cssUnminMapPath), 'dist/style.css.map existiert');
 
     // Minified-Dateien dürfen nicht existieren
     assert.ok(!fs.existsSync(jsMinPath), 'dist/app.min.js existiert nicht nach unminifiziertem Build');
+    assert.ok(!fs.existsSync(workerMinPath), 'dist/worker.min.js existiert nicht nach unminifiziertem Build');
     assert.ok(!fs.existsSync(cssMinPath), 'dist/style.min.css existiert nicht nach unminifiziertem Build');
 
     const jsContent = fs.readFileSync(jsUnminPath, 'utf8');
@@ -94,23 +103,28 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
     }
   });
 
-  await t.test('buildFrontend({ minify: true }) erstellt minifiziertes Produktions-Bundle (app.min.js & style.min.css)', async () => {
+  await t.test('buildFrontend({ minify: true }) erstellt minifiziertes Produktions-Bundle (app.min.js, worker.min.js & style.min.css)', async () => {
     cleanDist();
 
     const result = await buildFrontend({ minify: true });
     assert.equal(result.isMinify, true);
     assert.equal(result.jsFile, 'app.min.js');
+    assert.equal(result.workerFile, 'worker.min.js');
     assert.equal(result.cssFile, 'style.min.css');
     assert.ok(result.jsSize > 0, 'JS-Größe > 0');
+    assert.ok(result.workerSize > 0, 'Worker-Größe > 0');
     assert.ok(result.cssSize > 0, 'CSS-Größe > 0');
 
     assert.ok(fs.existsSync(jsMinPath), 'dist/app.min.js existiert');
     assert.ok(fs.existsSync(jsMinMapPath), 'dist/app.min.js.map existiert');
+    assert.ok(fs.existsSync(workerMinPath), 'dist/worker.min.js existiert');
+    assert.ok(fs.existsSync(workerMinMapPath), 'dist/worker.min.js.map existiert');
     assert.ok(fs.existsSync(cssMinPath), 'dist/style.min.css existiert');
     assert.ok(fs.existsSync(cssMinMapPath), 'dist/style.min.css.map existiert');
 
     // Unminifizierte Dateien wurden bereinigt
     assert.ok(!fs.existsSync(jsUnminPath), 'dist/app.js existiert nicht nach minifiziertem Build');
+    assert.ok(!fs.existsSync(workerUnminPath), 'dist/worker.js existiert nicht nach minifiziertem Build');
     assert.ok(!fs.existsSync(cssUnminPath), 'dist/style.css existiert nicht nach minifiziertem Build');
 
     const jsContent = fs.readFileSync(jsMinPath, 'utf8');

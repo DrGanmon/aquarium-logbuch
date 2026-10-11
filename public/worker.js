@@ -1,0 +1,702 @@
+/**
+ * Aquarium-Logbuch - Frontend Web Worker
+ * Dedizierter Multithreading-Worker für rechenintensive Hintergrundaufgaben im Browser:
+ * 1. CSV-Parsing, Trennzeichenerkennung, Spaltenzuordnung & Datenvalidierung
+ * 2. Artenkatalog-Volltextsuche, Filterung & Scoring
+ * 3. Besatz- und Verhaltenskompatibilitätsprüfung
+ * 4. Messwertstatistiken, Trendanalysen & Zeitreihenberechnung
+ * 5. Bildskalierung & Kompression (OffscreenCanvas)
+ */
+'use strict';
+
+// -------------------------------------------------------------
+// 1. CSV-Parsing & Auto-Mapping Engine
+// -------------------------------------------------------------
+
+function detectDelimiter(text) {
+  const firstLines = text.split(/\r?\n/).slice(0, 10).join('\n');
+  const counts = {
+    ';': (firstLines.match(/;/g) || []).length,
+    ',': (firstLines.match(/,/g) || []).length,
+    '\t': (firstLines.match(/\t/g) || []).length,
+    '|': (firstLines.match(/\|/g) || []).length,
+  };
+  let best = ';';
+  let max = -1;
+  for (const [delim, count] of Object.entries(counts)) {
+    if (count > max) {
+      max = count;
+      best = delim;
+    }
+  }
+  return max > 0 ? best : ';';
+}
+
+function parseCsvRows(text, delimiter = ';') {
+  const rows = [];
+  let currentRow = [];
+  let currentVal = '';
+  let inQuotes = false;
+  const len = text.length;
+
+  for (let i = 0; i < len; i++) {
+    const char = text[i];
+    const nextChar = text[i + 1];
+
+    if (inQuotes) {
+      if (char === '"') {
+        if (nextChar === '"') {
+          currentVal += '"';
+          i++; // Skip escaped quote
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        currentVal += char;
+      }
+    } else {
+      if (char === '"') {
+        inQuotes = true;
+      } else if (char === delimiter) {
+        currentRow.push(currentVal.trim());
+        currentVal = '';
+      } else if (char === '\r') {
+        if (nextChar === '\n') {
+          i++;
+        }
+        currentRow.push(currentVal.trim());
+        if (currentRow.some((c) => c !== '')) {
+          rows.push(currentRow);
+        }
+        currentRow = [];
+        currentVal = '';
+      } else if (char === '\n') {
+        currentRow.push(currentVal.trim());
+        if (currentRow.some((c) => c !== '')) {
+          rows.push(currentRow);
+        }
+        currentRow = [];
+        currentVal = '';
+      } else {
+        currentVal += char;
+      }
+    }
+  }
+
+  if (currentVal || currentRow.length) {
+    currentRow.push(currentVal.trim());
+    if (currentRow.some((c) => c !== '')) {
+      rows.push(currentRow);
+    }
+  }
+
+  return rows;
+}
+
+const PARAM_KEYWORDS = {
+  date: ['datum', 'date', 'tag', 'messdatum', 'zeitpunkt', 'timestamp', 'zeitstempel'],
+  time: ['uhrzeit', 'time', 'zeit', 'stunde', 'uhr'],
+  note: ['notiz', 'note', 'bemerkung', 'kommentar', 'hinweis', 'beschreibung'],
+  temp: ['temp', 'temperatur', 'temperature', 'celsius', '°c', 'grad'],
+  ph: ['ph', 'ph-wert', 'ph wert', 'phwert', 'acidity'],
+  kh: ['kh', 'karbonathärte', 'karbonat', 'carbonathärte', 'dkh', 'alcalinity', 'alkalinität'],
+  gh: ['gh', 'gesamthärte', 'gesamthaerte', 'general hardness', 'dgh'],
+  no2: ['no2', 'nitrit', 'nitrite', 'no2-n'],
+  no3: ['no3', 'nitrat', 'nitrate', 'no3-n'],
+  nh4: ['nh4', 'ammonium', 'ammonia', 'nh3', 'ammoniak'],
+  po4: ['po4', 'phosphat', 'phosphate'],
+  fe: ['fe', 'eisen', 'iron'],
+  k: ['k', 'kalium', 'potassium'],
+  mg: ['mg', 'magnesium'],
+  ca: ['ca', 'calcium', 'kalzium'],
+  cu: ['cu', 'kupfer', 'copper'],
+  sio2: ['sio2', 'silikat', 'silicate', 'kieselsäure'],
+  o2: ['o2', 'sauerstoff', 'oxygen'],
+  co2: ['co2', 'kohlendioxid', 'carbon dioxide'],
+  salinity: ['salinität', 'salinity', 'dichte', 'leitwert', 'tds', 'ec', 'salzgehalt'],
+};
+
+function autoMapHeaders(headers) {
+  const mapping = {};
+  const usedKeys = new Set();
+
+  headers.forEach((header, colIdx) => {
+    const cleanHeader = header.toLowerCase().replace(/[^a-z0-9äöüß]/gi, '');
+    for (const [targetKey, synonyms] of Object.entries(PARAM_KEYWORDS)) {
+      if (usedKeys.has(targetKey)) continue;
+      const match = synonyms.some(
+        (syn) => cleanHeader === syn || cleanHeader.includes(syn) || syn.includes(cleanHeader)
+      );
+      if (match) {
+        mapping[colIdx] = targetKey;
+        usedKeys.add(targetKey);
+        break;
+      }
+    }
+  });
+
+  return mapping;
+}
+
+function parseGermanOrIsoDate(dateStr, timeStr = null) {
+  if (!dateStr) return null;
+  const cleanDate = dateStr.trim();
+  const cleanTime = (timeStr || '').trim();
+
+  // 1. Deutsches Format DD.MM.YYYY oder DD.MM.YY
+  const deMatch = cleanDate.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})(?:[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?$/);
+  if (deMatch) {
+    const day = parseInt(deMatch[1], 10);
+    const month = parseInt(deMatch[2], 10) - 1;
+    let year = parseInt(deMatch[3], 10);
+    if (year < 100) year += year < 50 ? 2000 : 1900;
+    let hour = deMatch[4] ? parseInt(deMatch[4], 10) : 12;
+    let min = deMatch[5] ? parseInt(deMatch[5], 10) : 0;
+    let sec = deMatch[6] ? parseInt(deMatch[6], 10) : 0;
+
+    if (cleanTime) {
+      const tMatch = cleanTime.match(/^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/);
+      if (tMatch) {
+        hour = parseInt(tMatch[1], 10);
+        min = parseInt(tMatch[2], 10);
+        sec = tMatch[3] ? parseInt(tMatch[3], 10) : 0;
+      }
+    }
+
+    const d = new Date(year, month, day, hour, min, sec);
+    if (!isNaN(d.getTime())) return d.toISOString();
+  }
+
+  // 2. ISO Format YYYY-MM-DD
+  const isoMatch = cleanDate.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+  if (isoMatch) {
+    const year = parseInt(isoMatch[1], 10);
+    const month = parseInt(isoMatch[2], 10) - 1;
+    const day = parseInt(isoMatch[3], 10);
+    let hour = isoMatch[4] ? parseInt(isoMatch[4], 10) : 12;
+    let min = isoMatch[5] ? parseInt(isoMatch[5], 10) : 0;
+    let sec = isoMatch[6] ? parseInt(isoMatch[6], 10) : 0;
+
+    if (cleanTime) {
+      const tMatch = cleanTime.match(/^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/);
+      if (tMatch) {
+        hour = parseInt(tMatch[1], 10);
+        min = parseInt(tMatch[2], 10);
+        sec = tMatch[3] ? parseInt(tMatch[3], 10) : 0;
+      }
+    }
+
+    const d = new Date(year, month, day, hour, min, sec);
+    if (!isNaN(d.getTime())) return d.toISOString();
+  }
+
+  // 3. Fallback Standard Date Parse
+  const fallbackDate = new Date(cleanDate + (cleanTime ? ' ' + cleanTime : ''));
+  if (!isNaN(fallbackDate.getTime())) return fallbackDate.toISOString();
+
+  return null;
+}
+
+function parseNumberValue(val) {
+  if (val == null || val === '') return null;
+  if (typeof val === 'number') return isNaN(val) ? null : val;
+  const str = String(val).trim().replace(',', '.').replace(/[^0-9.-]/g, '');
+  if (!str) return null;
+  const num = parseFloat(str);
+  return isNaN(num) ? null : num;
+}
+
+function handleParseCsv(data) {
+  const { csvText, explicitDelimiter } = data;
+  if (!csvText || !csvText.trim()) {
+    return { headers: [], sampleRows: [], delimiter: ';', totalDataRows: 0, autoMapping: {} };
+  }
+
+  const delimiter = explicitDelimiter || detectDelimiter(csvText);
+  const rows = parseCsvRows(csvText, delimiter);
+
+  if (!rows.length) {
+    return { headers: [], sampleRows: [], delimiter, totalDataRows: 0, autoMapping: {} };
+  }
+
+  const headers = rows[0];
+  const dataRows = rows.slice(1);
+  const sampleRows = dataRows.slice(0, 5);
+  const autoMapping = autoMapHeaders(headers);
+
+  return {
+    headers,
+    sampleRows,
+    delimiter,
+    totalDataRows: dataRows.length,
+    autoMapping,
+  };
+}
+
+function handleParseFullCsv(data) {
+  const { csvText, delimiter, mapping } = data;
+  const rows = parseCsvRows(csvText, delimiter || ';');
+  if (rows.length < 2) {
+    return { measurements: [], count: 0 };
+  }
+
+  const dataRows = rows.slice(1);
+  const measurements = [];
+
+  for (const row of dataRows) {
+    let dateStr = null;
+    let timeStr = null;
+    let noteStr = '';
+    const values = {};
+
+    for (const [colIdxStr, fieldKey] of Object.entries(mapping)) {
+      const colIdx = parseInt(colIdxStr, 10);
+      const cellVal = row[colIdx];
+      if (cellVal == null || cellVal === '') continue;
+
+      if (fieldKey === 'date') {
+        dateStr = cellVal;
+      } else if (fieldKey === 'time') {
+        timeStr = cellVal;
+      } else if (fieldKey === 'note') {
+        noteStr = cellVal;
+      } else if (fieldKey && fieldKey !== 'ignore') {
+        const num = parseNumberValue(cellVal);
+        if (num != null) {
+          values[fieldKey] = num;
+        }
+      }
+    }
+
+    const measuredAt = parseGermanOrIsoDate(dateStr, timeStr) || new Date().toISOString();
+    if (Object.keys(values).length > 0 || noteStr) {
+      measurements.push({
+        measured_at: measuredAt,
+        values,
+        note: noteStr || null,
+      });
+    }
+  }
+
+  return { measurements, count: measurements.length };
+}
+
+// -------------------------------------------------------------
+// 2. Species Filter, Fuzzy Search & Scoring
+// -------------------------------------------------------------
+
+function handleSearchSpecies(data) {
+  const { speciesList, searchTerm, waterType, category } = data;
+  if (!Array.isArray(speciesList)) {
+    return { results: [] };
+  }
+
+  let list = speciesList;
+
+  // Filter Wassertyp
+  if (waterType && waterType !== 'all') {
+    list = list.filter((s) => s.waterType === waterType);
+  }
+
+  // Filter Kategorie
+  if (category && category !== 'Alle') {
+    const catLower = category.toLowerCase();
+    list = list.filter((s) => s.category && s.category.toLowerCase() === catLower);
+  }
+
+  // Suche & Scoring
+  if (searchTerm && searchTerm.trim()) {
+    const query = searchTerm.trim().toLowerCase();
+    const queryParts = query.split(/\s+/).filter(Boolean);
+
+    const scored = [];
+    for (const sp of list) {
+      const name = (sp.name || '').toLowerCase();
+      const sci = (sp.scientificName || '').toLowerCase();
+      const cat = (sp.category || '').toLowerCase();
+      const desc = (sp.description || '').toLowerCase();
+      const beh = (sp.behaviorNotes || '').toLowerCase();
+      const tags = Array.isArray(sp.tags) ? sp.tags.map((t) => t.toLowerCase()) : [];
+
+      let score = 0;
+      let matchedAll = true;
+
+      for (const part of queryParts) {
+        let partMatched = false;
+
+        if (name === part) {
+          score += 100;
+          partMatched = true;
+        } else if (name.startsWith(part)) {
+          score += 50;
+          partMatched = true;
+        } else if (name.includes(part)) {
+          score += 30;
+          partMatched = true;
+        }
+
+        if (sci.startsWith(part)) {
+          score += 40;
+          partMatched = true;
+        } else if (sci.includes(part)) {
+          score += 20;
+          partMatched = true;
+        }
+
+        if (cat.includes(part)) {
+          score += 15;
+          partMatched = true;
+        }
+
+        if (tags.some((t) => t.includes(part))) {
+          score += 25;
+          partMatched = true;
+        }
+
+        if (beh.includes(part)) {
+          score += 10;
+          partMatched = true;
+        }
+
+        if (desc.includes(part)) {
+          score += 5;
+          partMatched = true;
+        }
+
+        if (!partMatched) {
+          matchedAll = false;
+          break;
+        }
+      }
+
+      if (matchedAll && score > 0) {
+        scored.push({ species: sp, score });
+      }
+    }
+
+    scored.sort((a, b) => b.score - a.score);
+    return { results: scored.map((s) => s.species) };
+  }
+
+  return { results: list };
+}
+
+// -------------------------------------------------------------
+// 3. Stocking & Compatibility Engine
+// -------------------------------------------------------------
+
+function handleCheckCompatibility(data) {
+  const { aquarium, speciesCatalog, stocking } = data;
+  const issues = [];
+  const warnings = [];
+  const infos = [];
+
+  if (!stocking || !stocking.length) {
+    return { issues, warnings, infos, overlaps: {} };
+  }
+
+  const vol = aquarium?.volume_liters || 0;
+  const catalogMap = new Map();
+  if (Array.isArray(speciesCatalog)) {
+    for (const sp of speciesCatalog) {
+      if (sp.id) catalogMap.set(String(sp.id), sp);
+      if (sp.name) catalogMap.set(sp.name.toLowerCase(), sp);
+    }
+  }
+
+  const populated = stocking.map((st) => {
+    const sp =
+      (st.speciesId && catalogMap.get(String(st.speciesId))) ||
+      (st.species && catalogMap.get(st.species.toLowerCase())) ||
+      null;
+    return { ...st, meta: sp, count: parseInt(st.count, 10) || 1 };
+  });
+
+  // 1. Beckenvolumen Prüfung
+  for (const st of populated) {
+    if (st.meta && st.meta.minVolumeL && vol > 0 && vol < st.meta.minVolumeL) {
+      warnings.push({
+        type: 'min_volume',
+        title: `Mindestbeckengröße unterschritten: ${st.meta.name}`,
+        message: `„${st.meta.name}“ benötigt mindestens ${st.meta.minVolumeL} Liter (Becken hat ${vol} L).`,
+        species: st.meta.name,
+      });
+    }
+  }
+
+  // 2. Schwarmgröße Prüfung
+  for (const st of populated) {
+    if (st.meta && st.meta.socialType === 'school' && st.meta.minGroupCount) {
+      if (st.count < st.meta.minGroupCount) {
+        warnings.push({
+          type: 'school_size',
+          title: `Schwarmgröße zu klein: ${st.meta.name}`,
+          message: `„${st.meta.name}“ ist ein Schwarmfisch und sollte ab ${st.meta.minGroupCount} Tieren gehalten werden (aktuell: ${st.count}).`,
+          species: st.meta.name,
+        });
+      }
+    }
+  }
+
+  // 3. Kampffisch / Betta Einzelhaltung
+  const bettas = populated.filter((st) => st.meta?.tags?.includes('solitary_betta'));
+  const totalBettas = bettas.reduce((sum, b) => sum + b.count, 0);
+  if (totalBettas > 1) {
+    issues.push({
+      type: 'betta_solitary',
+      title: 'Kritischer Konflikt: Mehrere Kampffische',
+      message: 'Siamesische Kampffische (Betta splendens) müssen strikt einzeln gehalten werden!',
+    });
+  }
+
+  // 4. Flossenbeißer vs. Langflosser
+  const nippers = populated.filter((st) => st.meta?.tags?.includes('fin_nipper'));
+  const longFins = populated.filter((st) => st.meta?.tags?.includes('long_fins') || st.meta?.tags?.includes('solitary_betta'));
+  if (nippers.length && longFins.length) {
+    for (const nip of nippers) {
+      for (const lf of longFins) {
+        warnings.push({
+          type: 'fin_nipping',
+          title: `Flossenbeißer-Gefahr: ${nip.meta.name} vs. ${lf.meta.name}`,
+          message: `„${nip.meta.name}“ neigt zum Flossenbeißen bei langflossigen Arten wie „${lf.meta.name}“.`,
+        });
+      }
+    }
+  }
+
+  // 5. Räuber vs. Zwerggarnelen
+  const predators = populated.filter((st) => st.meta?.tags?.includes('predator_small_prey'));
+  const shrimps = populated.filter((st) => st.meta?.tags?.includes('dwarf_shrimp'));
+  if (predators.length && shrimps.length) {
+    for (const pred of predators) {
+      for (const sh of shrimps) {
+        warnings.push({
+          type: 'predator_prey',
+          title: `Fressfeind-Warnung: ${pred.meta.name} vs. ${sh.meta.name}`,
+          message: `„${pred.meta.name}“ betrachtet kleine Zwerggarnelen („${sh.meta.name}“) als Lebendfutter.`,
+        });
+      }
+    }
+  }
+
+  // 6. Wasserwert-Schnittmengen
+  let tMin = -Infinity, tMax = Infinity;
+  let phMin = -Infinity, phMax = Infinity;
+  let hasValidMeta = false;
+
+  for (const st of populated) {
+    if (!st.meta) continue;
+    hasValidMeta = true;
+    if (st.meta.temp) {
+      if (st.meta.temp.min != null) tMin = Math.max(tMin, st.meta.temp.min);
+      if (st.meta.temp.max != null) tMax = Math.min(tMax, st.meta.temp.max);
+    }
+    if (st.meta.ph) {
+      if (st.meta.ph.min != null) phMin = Math.max(phMin, st.meta.ph.min);
+      if (st.meta.ph.max != null) phMax = Math.min(phMax, st.meta.ph.max);
+    }
+  }
+
+  const overlaps = {};
+  if (hasValidMeta) {
+    if (tMin !== -Infinity && tMax !== Infinity) {
+      overlaps.temp = { min: tMin, max: tMax, valid: tMin <= tMax };
+      if (tMin > tMax) {
+        issues.push({
+          type: 'temp_mismatch',
+          title: 'Temperatur-Inkompatibilität',
+          message: `Kein gemeinsamer Temperaturbereich vorhanden (benötigt mindestens ${tMin} °C, aber maximal ${tMax} °C).`,
+        });
+      }
+    }
+    if (phMin !== -Infinity && phMax !== Infinity) {
+      overlaps.ph = { min: phMin, max: phMax, valid: phMin <= phMax };
+      if (phMin > phMax) {
+        issues.push({
+          type: 'ph_mismatch',
+          title: 'pH-Wert-Inkompatibilität',
+          message: `Kein gemeinsamer pH-Bereich vorhanden (benötigt mindestens ${phMin}, aber maximal ${phMax}).`,
+        });
+      }
+    }
+  }
+
+  return { issues, warnings, infos, overlaps };
+}
+
+// -------------------------------------------------------------
+// 4. Measurement Statistics & Trend Calculations
+// -------------------------------------------------------------
+
+function handleComputeStats(data) {
+  const { measurements, parameters, thresholds } = data;
+  if (!Array.isArray(measurements) || !measurements.length) {
+    return { stats: {}, series: {} };
+  }
+
+  const sortedMeas = [...measurements].sort(
+    (a, b) => new Date(a.measured_at).getTime() - new Date(b.measured_at).getTime()
+  );
+
+  const stats = {};
+  const series = {};
+
+  const paramList = Array.isArray(parameters) ? parameters : [];
+
+  for (const p of paramList) {
+    const key = p.key;
+    const points = [];
+    const vals = [];
+
+    for (const m of sortedMeas) {
+      const v = m.values?.[key];
+      if (v != null && !isNaN(v)) {
+        const time = new Date(m.measured_at).getTime();
+        points.push({ x: time, y: v });
+        vals.push(v);
+      }
+    }
+
+    if (!vals.length) continue;
+
+    series[key] = points;
+
+    // Grundstatistiken
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const sum = vals.reduce((a, b) => a + b, 0);
+    const avg = sum / vals.length;
+
+    // Median
+    const sortedVals = [...vals].sort((a, b) => a - b);
+    const mid = Math.floor(sortedVals.length / 2);
+    const median = sortedVals.length % 2 !== 0 ? sortedVals[mid] : (sortedVals[mid - 1] + sortedVals[mid]) / 2;
+
+    // Standardabweichung
+    const variance = vals.reduce((acc, v) => acc + Math.pow(v - avg, 2), 0) / vals.length;
+    const stdDev = Math.sqrt(variance);
+
+    // Trend (Differenz letzte vs. vorletzte Messung)
+    let trend = 'stable';
+    let delta = 0;
+    if (vals.length >= 2) {
+      delta = vals[vals.length - 1] - vals[vals.length - 2];
+      const thresholdEpsilon = (p.step || 0.1) * 0.5;
+      if (delta > thresholdEpsilon) trend = 'rising';
+      else if (delta < -thresholdEpsilon) trend = 'falling';
+    }
+
+    // Grenzwerteinstufungen (ok / warn / crit)
+    const th = thresholds?.[key] || {};
+    let okCount = 0, warnCount = 0, critCount = 0;
+    for (const v of vals) {
+      if ((th.critMin != null && v < th.critMin) || (th.critMax != null && v > th.critMax)) {
+        critCount++;
+      } else if ((th.warnMin != null && v < th.warnMin) || (th.warnMax != null && v > th.warnMax)) {
+        warnCount++;
+      } else {
+        okCount++;
+      }
+    }
+
+    stats[key] = {
+      count: vals.length,
+      latest: vals[vals.length - 1],
+      min,
+      max,
+      avg: Math.round(avg * 100) / 100,
+      median: Math.round(median * 100) / 100,
+      stdDev: Math.round(stdDev * 100) / 100,
+      trend,
+      delta: Math.round(delta * 100) / 100,
+      critCount,
+      warnCount,
+      okCount,
+    };
+  }
+
+  return { stats, series };
+}
+
+// -------------------------------------------------------------
+// 5. Image Resizing & Compression (OffscreenCanvas)
+// -------------------------------------------------------------
+
+async function handleProcessImage(data) {
+  const { imageBitmap, maxWidth = 1600, maxHeight = 1200, quality = 0.82, mimeType = 'image/jpeg' } = data;
+
+  if (typeof OffscreenCanvas === 'undefined' || !imageBitmap) {
+    return { error: 'OffscreenCanvas_NOT_SUPPORTED' };
+  }
+
+  let width = imageBitmap.width;
+  let height = imageBitmap.height;
+
+  if (width > maxWidth || height > maxHeight) {
+    const ratio = Math.min(maxWidth / width, maxHeight / height);
+    width = Math.round(width * ratio);
+    height = Math.round(height * ratio);
+  }
+
+  const canvas = new OffscreenCanvas(width, height);
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(imageBitmap, 0, 0, width, height);
+
+  const blob = await canvas.convertToBlob({ type: mimeType, quality });
+  const arrayBuffer = await blob.arrayBuffer();
+
+  return {
+    width,
+    height,
+    mimeType,
+    arrayBuffer,
+    size: blob.size,
+  };
+}
+
+// -------------------------------------------------------------
+// Message Dispatcher
+// -------------------------------------------------------------
+
+self.onmessage = async (event) => {
+  const { id, type, payload } = event.data || {};
+  if (!id || !type) return;
+
+  try {
+    let result = null;
+    let transfer = [];
+
+    switch (type) {
+      case 'PARSE_CSV':
+        result = handleParseCsv(payload);
+        break;
+      case 'PARSE_FULL_CSV':
+        result = handleParseFullCsv(payload);
+        break;
+      case 'SEARCH_SPECIES':
+        result = handleSearchSpecies(payload);
+        break;
+      case 'CHECK_COMPATIBILITY':
+        result = handleCheckCompatibility(payload);
+        break;
+      case 'COMPUTE_STATS':
+        result = handleComputeStats(payload);
+        break;
+      case 'PROCESS_IMAGE':
+        result = await handleProcessImage(payload);
+        if (result && result.arrayBuffer) {
+          transfer.push(result.arrayBuffer);
+        }
+        break;
+      case 'PING':
+        result = { status: 'ok', timestamp: Date.now() };
+        break;
+      default:
+        throw new Error(`Unbekannter Worker-Task: ${type}`);
+    }
+
+    self.postMessage({ id, success: true, result }, transfer);
+  } catch (error) {
+    self.postMessage({ id, success: false, error: error.message || String(error) });
+  }
+};

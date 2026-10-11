@@ -13,8 +13,9 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **SQLite (Standard lokal):** Dateibasierte, performante Zero-Setup-Datenbank (`data/aquarium.db`) mit WAL-Modus und `busy_timeout` für nebenläufige Zugriffe.
   - **MongoDB (Produktiv):** Volle Unterstützung für MongoDB-Cluster/Container via `DB_TYPE=mongodb` und `MONGODB_URI`.
 - **Multithreading & Multi-Core Clustering:**
-  - **Nicht-blockierende Kryptografie:** Passwort-Hashing und Verifizierung (Scrypt) werden asynchron über den Threadpool abgewickelt, sodass gleichzeitige Anmeldungen den Event-Loop nicht blockieren.
-  - **Worker-Thread-Pool:** Dedizierter Worker-Pool für rechenintensive Hintergrund- und Inspektionsaufgaben.
+  - **Frontend Web-Worker-Multithreading:** Dedizierter Web-Worker (`public/worker.js` / `dist/worker.min.js`) für rechenintensive clientseitige Operationen (CSV-Parsing & Trennzeichenerkennung großer Importdateien, Artenkatalog-Volltextsuche mit Fuzzy-Scoring, Besatzkompatibilitätsprüfung, statistische Zeitreihenberechnung sowie asynchrone Bildskalierung & -kompression via `OffscreenCanvas`), um den UI-Thread vollkommen flüssig (60/120 fps) und ruckelfrei zu halten.
+  - **Nicht-blockierende Kryptografie (Backend):** Passwort-Hashing und Verifizierung (Scrypt) werden asynchron über den Threadpool abgewickelt, sodass gleichzeitige Anmeldungen den Event-Loop nicht blockieren.
+  - **Backend Worker-Thread-Pool:** Dedizierter Worker-Pool für rechenintensive Hintergrund- und Inspektionsaufgaben.
   - **Multi-Worker Clusterbetrieb:** Über `WORKERS=auto` (oder feste Anzahl) verteilt der Supervisor eingehende Anfragen auf mehrere Worker-Prozesse über alle CPU-Kerne hinweg.
   - **Zustandsloses OIDC:** OIDC-Zustände werden kryptografisch signiert und funktionieren prozess- und instanzübergreifend.
 - Anmeldung über Pocket ID (OIDC) oder lokal mit Registrierung
