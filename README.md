@@ -325,7 +325,7 @@ Vollständiger Lizenztext: Siehe [LICENSE](LICENSE) sowie in der App unter `#/li
 ## Geplante Erweiterungen & Roadmap
 
 - [x] KI-Chat-Assistent für Aquarien mit Multi-Provider-Unterstützung (OpenAI, Google Gemini, Anthropic Claude) und automatischem Beckenkontext (Maße, Besatz, Grenzwerte, die letzten 10 Messungen).
+- [x] Dünger-Dosierung & Dosierpumpen (beliebige Dünger, Dosiermengen in ml, frei konfigurierbare Intervalle, Protokollierung im Logbuch und Lazy Loading)
 - [ ] Automatischer E-Mail-Versand bei kritischen Grenzwert-Alarmen.
 - [ ] Social Bereich
-- [ ] Dünger Dosierung mit Pumpe (eintragen wann wie viel)
 - [ ] Test verbrauch und erinnerung an neu Beschafung

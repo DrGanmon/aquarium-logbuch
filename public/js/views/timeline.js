@@ -26,6 +26,7 @@ export function maintenanceDialog(aq, existing = null) {
     plants_new: { key: 'plants_new', label: 'Neue Pflanzen', icon: '🌱', hasPercentage: false },
     care: { key: 'care', label: 'Pflege & Reinigung', icon: '🧽', hasPercentage: false },
     fertilize: { key: 'fertilize', label: 'Düngung', icon: '🌿', hasPercentage: false },
+    dosing_pump: { key: 'dosing_pump', label: 'Dosierpumpe / Düngung', icon: '⚙️', hasPercentage: false },
     feeding: { key: 'feeding', label: 'Spezialfütterung', icon: '🦐', hasPercentage: false },
     other: { key: 'other', label: 'Sonstige Arbeit', icon: '📝', hasPercentage: false },
   };
@@ -100,6 +101,9 @@ export function maintenanceDialog(aq, existing = null) {
       } else if (typeKey === 'fertilize') {
         detailsLabel.textContent = 'Dünger & Dosierung';
         detailsInput.placeholder = 'z. B. 5 ml Eisen-Volldünger, 2 ml NPK Tagesdünger';
+      } else if (typeKey === 'dosing_pump') {
+        detailsLabel.textContent = 'Dosierpumpe & Dünger';
+        detailsInput.placeholder = 'z. B. Kanal 1: 2.5 ml NPK Makro Basic';
       } else if (typeKey === 'feeding') {
         detailsLabel.textContent = 'Futtersorte / Spezialnahrung';
         detailsInput.placeholder = 'z. B. Artemia-Nauplien, Futtertablette für Welse';

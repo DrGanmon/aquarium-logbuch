@@ -21,6 +21,7 @@ export * from './js/views/aquarium-list.js';
 export * from './js/views/aquarium-detail.js';
 export * from './js/views/measure.js';
 export * from './js/views/timeline.js';
+export * from './js/views/dosing-pumps.js';
 export * from './js/views/export-import.js';
 export * from './js/views/profile.js';
 export * from './js/views/admin.js';

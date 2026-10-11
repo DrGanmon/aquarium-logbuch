@@ -9,6 +9,7 @@ const MAINTENANCE_TYPES = {
   plants_new: { key: 'plants_new', label: 'Neue Pflanzen', icon: '🌱', hasPercentage: false },
   care: { key: 'care', label: 'Pflege & Reinigung', icon: '🧽', hasPercentage: false },
   fertilize: { key: 'fertilize', label: 'Düngung', icon: '🌿', hasPercentage: false },
+  dosing_pump: { key: 'dosing_pump', label: 'Dosierpumpe & Düngung', icon: '⚙️', hasPercentage: false },
   feeding: { key: 'feeding', label: 'Spezialfütterung', icon: '🦐', hasPercentage: false },
   other: { key: 'other', label: 'Sonstige Arbeit', icon: '📝', hasPercentage: false },
 };

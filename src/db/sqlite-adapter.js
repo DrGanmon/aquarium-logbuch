@@ -156,9 +156,25 @@ class SqliteAdapter {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
       CREATE INDEX IF NOT EXISTS idx_aq_chats_aq ON aquarium_chats(aquarium_id, created_at);
+      CREATE TABLE IF NOT EXISTS dosing_pumps (
+        id INTEGER PRIMARY KEY,
+        aquarium_id INTEGER NOT NULL REFERENCES aquariums(id) ON DELETE CASCADE,
+        name TEXT NOT NULL,
+        fertilizer_name TEXT NOT NULL,
+        amount_ml REAL NOT NULL,
+        interval_days INTEGER NOT NULL DEFAULT 1,
+        time_of_day TEXT,
+        last_dosed_at TEXT,
+        is_active INTEGER NOT NULL DEFAULT 1,
+        note TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_dosing_pumps_aq ON dosing_pumps(aquarium_id);
     `);
 
-    const hasColumn = (table, col) => this.db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === col);
+    const hasTable = (table) => Boolean(this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?").get(table));
+    const hasColumn = (table, col) => hasTable(table) && this.db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === col);
+
     if (!hasColumn('users', 'oidc_sub')) this.db.exec('ALTER TABLE users ADD COLUMN oidc_sub TEXT');
     if (!hasColumn('users', 'email')) this.db.exec('ALTER TABLE users ADD COLUMN email TEXT COLLATE NOCASE');
     if (!hasColumn('users', 'first_name')) this.db.exec('ALTER TABLE users ADD COLUMN first_name TEXT');
@@ -168,28 +184,6 @@ class SqliteAdapter {
     if (!hasColumn('users', 'selected_suite')) this.db.exec('ALTER TABLE users ADD COLUMN selected_suite TEXT');
     if (!hasColumn('users', 'selected_tests')) this.db.exec('ALTER TABLE users ADD COLUMN selected_tests TEXT');
     if (!hasColumn('users', 'default_graph_range')) this.db.exec('ALTER TABLE users ADD COLUMN default_graph_range TEXT');
-    if (!hasColumn('sessions', 'id_token')) this.db.exec('ALTER TABLE sessions ADD COLUMN id_token TEXT');
-    if (!hasColumn('aquariums', 'image_file')) this.db.exec('ALTER TABLE aquariums ADD COLUMN image_file TEXT');
-    if (!hasColumn('aquariums', 'motto')) this.db.exec('ALTER TABLE aquariums ADD COLUMN motto TEXT');
-    if (!hasColumn('aquariums', 'description')) this.db.exec('ALTER TABLE aquariums ADD COLUMN description TEXT');
-    if (!hasColumn('aquariums', 'measure_cycle_interval')) this.db.exec('ALTER TABLE aquariums ADD COLUMN measure_cycle_interval INTEGER');
-    if (!hasColumn('aquariums', 'measure_cycle_unit')) this.db.exec("ALTER TABLE aquariums ADD COLUMN measure_cycle_unit TEXT DEFAULT 'days'");
-    if (!hasColumn('aquariums', 'measure_cycle_day_of_week')) this.db.exec('ALTER TABLE aquariums ADD COLUMN measure_cycle_day_of_week INTEGER');
-    if (!hasColumn('aquariums', 'measure_reminder_mail')) this.db.exec('ALTER TABLE aquariums ADD COLUMN measure_reminder_mail INTEGER NOT NULL DEFAULT 0');
-    if (!hasColumn('aquariums', 'last_measure_reminder_sent_at')) this.db.exec('ALTER TABLE aquariums ADD COLUMN last_measure_reminder_sent_at TEXT');
-    if (!hasColumn('aquariums', 'fertilize_cycle_interval')) this.db.exec('ALTER TABLE aquariums ADD COLUMN fertilize_cycle_interval INTEGER');
-    if (!hasColumn('aquariums', 'fertilize_cycle_unit')) this.db.exec("ALTER TABLE aquariums ADD COLUMN fertilize_cycle_unit TEXT DEFAULT 'days'");
-    if (!hasColumn('aquariums', 'fertilize_cycle_day_of_week')) this.db.exec('ALTER TABLE aquariums ADD COLUMN fertilize_cycle_day_of_week INTEGER');
-    if (!hasColumn('aquariums', 'fertilize_reminder_mail')) this.db.exec('ALTER TABLE aquariums ADD COLUMN fertilize_reminder_mail INTEGER NOT NULL DEFAULT 0');
-    if (!hasColumn('aquariums', 'last_fertilize_reminder_sent_at')) this.db.exec('ALTER TABLE aquariums ADD COLUMN last_fertilize_reminder_sent_at TEXT');
-    if (!hasColumn('stock', 'name')) this.db.exec('ALTER TABLE stock ADD COLUMN name TEXT');
-    if (!hasColumn('stock', 'image_file')) this.db.exec('ALTER TABLE stock ADD COLUMN image_file TEXT');
-    if (!hasColumn('aquarium_shares', 'status')) this.db.exec("ALTER TABLE aquarium_shares ADD COLUMN status TEXT NOT NULL DEFAULT 'accepted'");
-    if (!hasColumn('aquarium_shares', 'token')) this.db.exec('ALTER TABLE aquarium_shares ADD COLUMN token TEXT');
-    if (!hasColumn('aquarium_shares', 'token_expires')) this.db.exec('ALTER TABLE aquarium_shares ADD COLUMN token_expires INTEGER');
-    if (!hasColumn('aquarium_shares', 'accepted_at')) this.db.exec('ALTER TABLE aquarium_shares ADD COLUMN accepted_at TEXT');
-    this.db.exec('CREATE INDEX IF NOT EXISTS idx_aq_shares_token ON aquarium_shares(token) WHERE token IS NOT NULL');
-    this.db.exec('CREATE INDEX IF NOT EXISTS idx_aq_shares_status ON aquarium_shares(user_id, status)');
     if (!hasColumn('users', 'email_verified')) this.db.exec('ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 1');
     if (!hasColumn('users', 'email_verify_token')) this.db.exec('ALTER TABLE users ADD COLUMN email_verify_token TEXT');
     if (!hasColumn('users', 'email_verify_expires')) this.db.exec('ALTER TABLE users ADD COLUMN email_verify_expires INTEGER');
@@ -205,6 +199,60 @@ class SqliteAdapter {
     if (!hasColumn('users', 'claude_model')) this.db.exec('ALTER TABLE users ADD COLUMN claude_model TEXT');
     if (!hasColumn('users', 'ai_provider')) this.db.exec('ALTER TABLE users ADD COLUMN ai_provider TEXT');
     if (!hasColumn('users', 'language')) this.db.exec("ALTER TABLE users ADD COLUMN language TEXT DEFAULT 'de'");
+
+    if (!hasColumn('sessions', 'id_token')) this.db.exec('ALTER TABLE sessions ADD COLUMN id_token TEXT');
+
+    if (!hasColumn('aquariums', 'image_file')) this.db.exec('ALTER TABLE aquariums ADD COLUMN image_file TEXT');
+    if (!hasColumn('aquariums', 'motto')) this.db.exec('ALTER TABLE aquariums ADD COLUMN motto TEXT');
+    if (!hasColumn('aquariums', 'description')) this.db.exec('ALTER TABLE aquariums ADD COLUMN description TEXT');
+    if (!hasColumn('aquariums', 'measure_cycle_interval')) this.db.exec('ALTER TABLE aquariums ADD COLUMN measure_cycle_interval INTEGER');
+    if (!hasColumn('aquariums', 'measure_cycle_unit')) this.db.exec("ALTER TABLE aquariums ADD COLUMN measure_cycle_unit TEXT DEFAULT 'days'");
+    if (!hasColumn('aquariums', 'measure_cycle_day_of_week')) this.db.exec('ALTER TABLE aquariums ADD COLUMN measure_cycle_day_of_week INTEGER');
+    if (!hasColumn('aquariums', 'measure_reminder_mail')) this.db.exec('ALTER TABLE aquariums ADD COLUMN measure_reminder_mail INTEGER NOT NULL DEFAULT 0');
+    if (!hasColumn('aquariums', 'last_measure_reminder_sent_at')) this.db.exec('ALTER TABLE aquariums ADD COLUMN last_measure_reminder_sent_at TEXT');
+    if (!hasColumn('aquariums', 'fertilize_cycle_interval')) this.db.exec('ALTER TABLE aquariums ADD COLUMN fertilize_cycle_interval INTEGER');
+    if (!hasColumn('aquariums', 'fertilize_cycle_unit')) this.db.exec("ALTER TABLE aquariums ADD COLUMN fertilize_cycle_unit TEXT DEFAULT 'days'");
+    if (!hasColumn('aquariums', 'fertilize_cycle_day_of_week')) this.db.exec('ALTER TABLE aquariums ADD COLUMN fertilize_cycle_day_of_week INTEGER');
+    if (!hasColumn('aquariums', 'fertilize_reminder_mail')) this.db.exec('ALTER TABLE aquariums ADD COLUMN fertilize_reminder_mail INTEGER NOT NULL DEFAULT 0');
+    if (!hasColumn('aquariums', 'last_fertilize_reminder_sent_at')) this.db.exec('ALTER TABLE aquariums ADD COLUMN last_fertilize_reminder_sent_at TEXT');
+
+    if (!hasColumn('stock', 'name')) this.db.exec('ALTER TABLE stock ADD COLUMN name TEXT');
+    if (!hasColumn('stock', 'image_file')) this.db.exec('ALTER TABLE stock ADD COLUMN image_file TEXT');
+
+    if (!hasColumn('measurements', 'created_by')) this.db.exec('ALTER TABLE measurements ADD COLUMN created_by INTEGER REFERENCES users(id) ON DELETE SET NULL');
+    if (!hasColumn('measurements', 'note')) this.db.exec('ALTER TABLE measurements ADD COLUMN note TEXT');
+
+    if (!hasColumn('alerts', 'acked_at')) this.db.exec('ALTER TABLE alerts ADD COLUMN acked_at TEXT');
+
+    if (!hasColumn('invitations', 'note')) this.db.exec('ALTER TABLE invitations ADD COLUMN note TEXT');
+    if (!hasColumn('invitations', 'max_uses')) this.db.exec('ALTER TABLE invitations ADD COLUMN max_uses INTEGER DEFAULT 1');
+    if (!hasColumn('invitations', 'used_count')) this.db.exec('ALTER TABLE invitations ADD COLUMN used_count INTEGER NOT NULL DEFAULT 0');
+
+    if (!hasColumn('aquarium_shares', 'status')) this.db.exec("ALTER TABLE aquarium_shares ADD COLUMN status TEXT NOT NULL DEFAULT 'accepted'");
+    if (!hasColumn('aquarium_shares', 'token')) this.db.exec('ALTER TABLE aquarium_shares ADD COLUMN token TEXT');
+    if (!hasColumn('aquarium_shares', 'token_expires')) this.db.exec('ALTER TABLE aquarium_shares ADD COLUMN token_expires INTEGER');
+    if (!hasColumn('aquarium_shares', 'accepted_at')) this.db.exec('ALTER TABLE aquarium_shares ADD COLUMN accepted_at TEXT');
+
+    if (!hasColumn('maintenance_logs', 'details')) this.db.exec('ALTER TABLE maintenance_logs ADD COLUMN details TEXT');
+    if (!hasColumn('maintenance_logs', 'note')) this.db.exec('ALTER TABLE maintenance_logs ADD COLUMN note TEXT');
+    if (!hasColumn('maintenance_logs', 'created_by')) this.db.exec('ALTER TABLE maintenance_logs ADD COLUMN created_by INTEGER REFERENCES users(id) ON DELETE SET NULL');
+
+    if (!hasColumn('aquarium_images', 'caption')) this.db.exec('ALTER TABLE aquarium_images ADD COLUMN caption TEXT');
+    if (!hasColumn('aquarium_images', 'is_primary')) this.db.exec('ALTER TABLE aquarium_images ADD COLUMN is_primary INTEGER NOT NULL DEFAULT 0');
+
+    if (!hasColumn('aquarium_chats', 'provider')) this.db.exec('ALTER TABLE aquarium_chats ADD COLUMN provider TEXT');
+    if (!hasColumn('aquarium_chats', 'model')) this.db.exec('ALTER TABLE aquarium_chats ADD COLUMN model TEXT');
+    if (!hasColumn('aquarium_chats', 'user_id')) this.db.exec('ALTER TABLE aquarium_chats ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE SET NULL');
+
+    if (!hasColumn('dosing_pumps', 'name')) this.db.exec("ALTER TABLE dosing_pumps ADD COLUMN name TEXT NOT NULL DEFAULT 'Dosierpumpe'");
+    if (!hasColumn('dosing_pumps', 'fertilizer_name')) this.db.exec("ALTER TABLE dosing_pumps ADD COLUMN fertilizer_name TEXT NOT NULL DEFAULT 'Dünger'");
+    if (!hasColumn('dosing_pumps', 'amount_ml')) this.db.exec('ALTER TABLE dosing_pumps ADD COLUMN amount_ml REAL NOT NULL DEFAULT 1');
+    if (!hasColumn('dosing_pumps', 'interval_days')) this.db.exec('ALTER TABLE dosing_pumps ADD COLUMN interval_days INTEGER NOT NULL DEFAULT 1');
+    if (!hasColumn('dosing_pumps', 'time_of_day')) this.db.exec('ALTER TABLE dosing_pumps ADD COLUMN time_of_day TEXT');
+    if (!hasColumn('dosing_pumps', 'last_dosed_at')) this.db.exec('ALTER TABLE dosing_pumps ADD COLUMN last_dosed_at TEXT');
+    if (!hasColumn('dosing_pumps', 'is_active')) this.db.exec('ALTER TABLE dosing_pumps ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1');
+    if (!hasColumn('dosing_pumps', 'note')) this.db.exec('ALTER TABLE dosing_pumps ADD COLUMN note TEXT');
+    if (!hasColumn('dosing_pumps', 'created_at')) this.db.exec("ALTER TABLE dosing_pumps ADD COLUMN created_at TEXT NOT NULL DEFAULT (datetime('now'))");
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oidc ON users(oidc_sub) WHERE oidc_sub IS NOT NULL');
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email != \'\'');
     this.db.exec('CREATE INDEX IF NOT EXISTS idx_users_verify_token ON users(email_verify_token) WHERE email_verify_token IS NOT NULL');
@@ -1235,8 +1283,11 @@ class SqliteAdapter {
 
         timeline.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
+        const offset = options.offset != null ? Math.max(0, Number(options.offset) || 0) : 0;
         if (options.limit && Number.isFinite(Number(options.limit))) {
-          return timeline.slice(0, Number(options.limit));
+          return timeline.slice(offset, offset + Number(options.limit));
+        } else if (offset > 0) {
+          return timeline.slice(offset);
         }
 
         return timeline;
@@ -1389,6 +1440,90 @@ class SqliteAdapter {
         return row ? row.count : 0;
       },
     };
+
+    this.dosingPumps = {
+      async listForAquarium(aquariumId) {
+        return db.prepare('SELECT * FROM dosing_pumps WHERE aquarium_id = ? ORDER BY id ASC').all(Number(aquariumId));
+      },
+      async findById(id) {
+        if (!id) return null;
+        return db.prepare('SELECT * FROM dosing_pumps WHERE id = ?').get(Number(id)) || null;
+      },
+      async create({
+        aquarium_id,
+        name,
+        fertilizer_name,
+        amount_ml,
+        interval_days = 1,
+        time_of_day = null,
+        is_active = 1,
+        note = null,
+      }) {
+        const info = db.prepare(`
+          INSERT INTO dosing_pumps (aquarium_id, name, fertilizer_name, amount_ml, interval_days, time_of_day, is_active, note)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          Number(aquarium_id),
+          String(name).trim(),
+          String(fertilizer_name).trim(),
+          Number(amount_ml),
+          Number(interval_days) || 1,
+          time_of_day ? String(time_of_day).trim() : null,
+          is_active ? 1 : 0,
+          note ? String(note).trim() : null
+        );
+        return this.findById(info.lastInsertRowid);
+      },
+      async update(id, aquariumId, fields = {}) {
+        const allowed = ['name', 'fertilizer_name', 'amount_ml', 'interval_days', 'time_of_day', 'is_active', 'note', 'last_dosed_at'];
+        const sets = [];
+        const params = [];
+        for (const [k, v] of Object.entries(fields)) {
+          if (!allowed.includes(k)) continue;
+          sets.push(`${k} = ?`);
+          if (k === 'amount_ml') params.push(Number(v));
+          else if (k === 'interval_days' || k === 'is_active') params.push(Number(v));
+          else if (v == null) params.push(null);
+          else params.push(String(v).trim());
+        }
+        if (!sets.length) return this.findById(id);
+        params.push(Number(id));
+        let sql = `UPDATE dosing_pumps SET ${sets.join(', ')} WHERE id = ?`;
+        if (aquariumId != null) {
+          sql += ' AND aquarium_id = ?';
+          params.push(Number(aquariumId));
+        }
+        db.prepare(sql).run(...params);
+        return this.findById(id);
+      },
+      async delete(id, aquariumId = null) {
+        let res;
+        if (aquariumId != null) {
+          res = db.prepare('DELETE FROM dosing_pumps WHERE id = ? AND aquarium_id = ?').run(Number(id), Number(aquariumId));
+        } else {
+          res = db.prepare('DELETE FROM dosing_pumps WHERE id = ?').run(Number(id));
+        }
+        return res.changes > 0;
+      },
+      async logDosing(id, aquariumId, userId = null, timestamp = null) {
+        const pump = await this.findById(id);
+        if (!pump || (aquariumId != null && pump.aquarium_id !== Number(aquariumId))) return null;
+        const loggedAt = timestamp || new Date().toISOString();
+        const details = `${pump.amount_ml} ml ${pump.fertilizer_name} (${pump.name})`;
+        const note = pump.note ? `Dosierung via Dosierpumpe "${pump.name}". ${pump.note}` : `Dosierung via Dosierpumpe "${pump.name}"`;
+        const maint = await self.maintenance.create({
+          aquarium_id: pump.aquarium_id,
+          logged_at: loggedAt,
+          type: 'dosing_pump',
+          percentage: null,
+          details,
+          note,
+          created_by: userId != null ? Number(userId) : null,
+        });
+        await this.update(pump.id, pump.aquarium_id, { last_dosed_at: loggedAt });
+        return { success: true, log_id: maint.id, logged_at: loggedAt };
+      },
+    };
   }
 
   async exportAllData() {
@@ -1406,6 +1541,7 @@ class SqliteAdapter {
     const maintenance_logs = db.prepare('SELECT * FROM maintenance_logs ORDER BY id ASC').all();
     const invitations = db.prepare('SELECT * FROM invitations ORDER BY id ASC').all();
     const aquarium_chats = db.prepare('SELECT * FROM aquarium_chats ORDER BY id ASC').all();
+    const dosing_pumps = db.prepare('SELECT * FROM dosing_pumps ORDER BY id ASC').all();
 
     const valuesByMId = new Map();
     for (const row of rawValues) {
@@ -1433,6 +1569,7 @@ class SqliteAdapter {
       maintenance_logs,
       invitations,
       aquarium_chats,
+      dosing_pumps,
     };
   }
 
@@ -1450,6 +1587,7 @@ class SqliteAdapter {
     const maintenance = Array.isArray(data.maintenance_logs) ? data.maintenance_logs : [];
     const invitations = Array.isArray(data.invitations) ? data.invitations : [];
     const chats = Array.isArray(data.aquarium_chats) ? data.aquarium_chats : [];
+    const dosing_pumps = Array.isArray(data.dosing_pumps) ? data.dosing_pumps : [];
 
     const validUserIds = new Set(users.map((u) => u.id));
     const currentSessions = db.prepare('SELECT * FROM sessions WHERE expires_at > ?').all(Date.now());
@@ -1457,6 +1595,7 @@ class SqliteAdapter {
     const runImport = db.transaction(() => {
       db.pragma('foreign_keys = OFF');
 
+      db.exec('DELETE FROM dosing_pumps');
       db.exec('DELETE FROM aquarium_chats');
       db.exec('DELETE FROM invitations');
       db.exec('DELETE FROM alerts');
@@ -1681,6 +1820,29 @@ class SqliteAdapter {
             c.provider || null,
             c.model || null,
             c.created_at || new Date().toISOString()
+          );
+        }
+      }
+
+      // Dosing Pumps
+      const insertDosingPump = db.prepare(`
+        INSERT INTO dosing_pumps (id, aquarium_id, name, fertilizer_name, amount_ml, interval_days, time_of_day, last_dosed_at, is_active, note, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const dp of dosing_pumps) {
+        if (dp && dp.aquarium_id) {
+          insertDosingPump.run(
+            dp.id,
+            dp.aquarium_id,
+            dp.name || 'Dosierpumpe',
+            dp.fertilizer_name || 'Dünger',
+            Number(dp.amount_ml) || 1,
+            Number(dp.interval_days) || 1,
+            dp.time_of_day || null,
+            dp.last_dosed_at || null,
+            dp.is_active !== undefined ? (dp.is_active ? 1 : 0) : 1,
+            dp.note || null,
+            dp.created_at || new Date().toISOString()
           );
         }
       }

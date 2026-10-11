@@ -136,6 +136,10 @@ class MongoAdapter {
       await db.collection('aquarium_chats').createIndex({ id: 1 }, { unique: true });
       await db.collection('aquarium_chats').createIndex({ aquarium_id: 1, created_at: 1 });
       await db.collection('aquarium_chats').createIndex({ aquarium_id: 1, id: 1 });
+
+      // Dosing pumps
+      await db.collection('dosing_pumps').createIndex({ id: 1 }, { unique: true });
+      await db.collection('dosing_pumps').createIndex({ aquarium_id: 1, id: 1 });
     } catch (e) {
       // Index creation warnings in mock/memory environments ignored
     }
@@ -520,6 +524,7 @@ class MongoAdapter {
         await db.collection('aquarium_shares').deleteMany({ aquarium_id: numId });
         await db.collection('maintenance_logs').deleteMany({ aquarium_id: numId });
         await db.collection('aquarium_chats').deleteMany({ aquarium_id: numId });
+        await db.collection('dosing_pumps').deleteMany({ aquarium_id: numId });
         return true;
       },
       async countForUser(userId) {
@@ -1228,8 +1233,11 @@ class MongoAdapter {
 
         timeline.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
+        const offset = options.offset != null ? Math.max(0, Number(options.offset) || 0) : 0;
         if (options.limit && Number.isFinite(Number(options.limit))) {
-          return timeline.slice(0, Number(options.limit));
+          return timeline.slice(offset, offset + Number(options.limit));
+        } else if (offset > 0) {
+          return timeline.slice(offset);
         }
 
         return timeline;
@@ -1399,6 +1407,124 @@ class MongoAdapter {
         return await db.collection('aquarium_chats').countDocuments({ aquarium_id: Number(aquariumId) });
       },
     };
+
+    this.dosingPumps = {
+      async listForAquarium(aquariumId) {
+        const rows = await db.collection('dosing_pumps').find({ aquarium_id: Number(aquariumId) }).sort({ id: 1 }).toArray();
+        return rows.map((r) => ({
+          id: r.id,
+          aquarium_id: r.aquarium_id,
+          name: r.name,
+          fertilizer_name: r.fertilizer_name,
+          amount_ml: r.amount_ml,
+          interval_days: r.interval_days,
+          time_of_day: r.time_of_day || null,
+          last_dosed_at: r.last_dosed_at || null,
+          is_active: r.is_active !== undefined ? (r.is_active ? 1 : 0) : 1,
+          note: r.note || null,
+          created_at: r.created_at,
+        }));
+      },
+      async findById(id) {
+        const r = await db.collection('dosing_pumps').findOne({ id: Number(id) });
+        if (!r) return null;
+        return {
+          id: r.id,
+          aquarium_id: r.aquarium_id,
+          name: r.name,
+          fertilizer_name: r.fertilizer_name,
+          amount_ml: r.amount_ml,
+          interval_days: r.interval_days,
+          time_of_day: r.time_of_day || null,
+          last_dosed_at: r.last_dosed_at || null,
+          is_active: r.is_active !== undefined ? (r.is_active ? 1 : 0) : 1,
+          note: r.note || null,
+          created_at: r.created_at,
+        };
+      },
+      async create({
+        aquarium_id,
+        name,
+        fertilizer_name,
+        amount_ml,
+        interval_days = 1,
+        time_of_day = null,
+        is_active = 1,
+        note = null,
+      }) {
+        const id = await self.getNextSequence('dosing_pumps');
+        const doc = {
+          _id: id,
+          id,
+          aquarium_id: Number(aquarium_id),
+          name: String(name).trim(),
+          fertilizer_name: String(fertilizer_name).trim(),
+          amount_ml: Number(amount_ml),
+          interval_days: Number(interval_days) || 1,
+          time_of_day: time_of_day ? String(time_of_day).trim() : null,
+          last_dosed_at: null,
+          is_active: is_active ? 1 : 0,
+          note: note ? String(note).trim() : null,
+          created_at: new Date().toISOString(),
+        };
+        await db.collection('dosing_pumps').insertOne(doc);
+        return {
+          id: doc.id,
+          aquarium_id: doc.aquarium_id,
+          name: doc.name,
+          fertilizer_name: doc.fertilizer_name,
+          amount_ml: doc.amount_ml,
+          interval_days: doc.interval_days,
+          time_of_day: doc.time_of_day,
+          last_dosed_at: doc.last_dosed_at,
+          is_active: doc.is_active,
+          note: doc.note,
+          created_at: doc.created_at,
+        };
+      },
+      async update(id, aquariumId, fields = {}) {
+        const numId = Number(id);
+        const updateFields = {};
+        const allowed = ['name', 'fertilizer_name', 'amount_ml', 'interval_days', 'time_of_day', 'is_active', 'note', 'last_dosed_at'];
+        for (const k of allowed) {
+          if (fields[k] !== undefined) {
+            if (k === 'amount_ml') updateFields[k] = Number(fields[k]);
+            else if (k === 'interval_days' || k === 'is_active') updateFields[k] = Number(fields[k]);
+            else if (fields[k] == null) updateFields[k] = null;
+            else updateFields[k] = String(fields[k]).trim();
+          }
+        }
+        if (Object.keys(updateFields).length === 0) return await this.findById(numId);
+        const filter = { id: numId };
+        if (aquariumId != null) filter.aquarium_id = Number(aquariumId);
+        await db.collection('dosing_pumps').updateOne(filter, { $set: updateFields });
+        return await this.findById(numId);
+      },
+      async delete(id, aquariumId = null) {
+        const filter = { id: Number(id) };
+        if (aquariumId != null) filter.aquarium_id = Number(aquariumId);
+        const res = await db.collection('dosing_pumps').deleteOne(filter);
+        return res.deletedCount > 0;
+      },
+      async logDosing(id, aquariumId, userId = null, timestamp = null) {
+        const pump = await this.findById(id);
+        if (!pump || (aquariumId != null && pump.aquarium_id !== Number(aquariumId))) return null;
+        const loggedAt = timestamp || new Date().toISOString();
+        const details = `${pump.amount_ml} ml ${pump.fertilizer_name} (${pump.name})`;
+        const note = pump.note ? `Dosierung via Dosierpumpe "${pump.name}". ${pump.note}` : `Dosierung via Dosierpumpe "${pump.name}"`;
+        const maint = await self.maintenance.create({
+          aquarium_id: pump.aquarium_id,
+          logged_at: loggedAt,
+          type: 'dosing_pump',
+          percentage: null,
+          details,
+          note,
+          created_by: userId != null ? Number(userId) : null,
+        });
+        await this.update(pump.id, pump.aquarium_id, { last_dosed_at: loggedAt });
+        return { success: true, log_id: maint.id, logged_at: loggedAt };
+      },
+    };
   }
 
   async exportAllData() {
@@ -1424,6 +1550,7 @@ class MongoAdapter {
     const maintenance_logs = stripId(await db.collection('maintenance_logs').find({}).sort({ id: 1 }).toArray());
     const invitations = stripId(await db.collection('invitations').find({}).sort({ id: 1 }).toArray());
     const aquarium_chats = stripId(await db.collection('aquarium_chats').find({}).sort({ id: 1 }).toArray());
+    const dosing_pumps = stripId(await db.collection('dosing_pumps').find({}).sort({ id: 1 }).toArray());
 
     return {
       users,
@@ -1436,6 +1563,7 @@ class MongoAdapter {
       maintenance_logs,
       invitations,
       aquarium_chats,
+      dosing_pumps,
     };
   }
 
@@ -1453,6 +1581,7 @@ class MongoAdapter {
     const maintenance = Array.isArray(data.maintenance_logs) ? data.maintenance_logs : [];
     const invitations = Array.isArray(data.invitations) ? data.invitations : [];
     const chats = Array.isArray(data.aquarium_chats) ? data.aquarium_chats : [];
+    const dosing_pumps = Array.isArray(data.dosing_pumps) ? data.dosing_pumps : [];
 
     const userIds = users.map((u) => u.id);
     const currentSessions = await db.collection('sessions').find({ expires_at: { $gt: Date.now() } }).toArray();
@@ -1470,6 +1599,7 @@ class MongoAdapter {
       db.collection('maintenance_logs').deleteMany({}),
       db.collection('invitations').deleteMany({}),
       db.collection('aquarium_chats').deleteMany({}),
+      db.collection('dosing_pumps').deleteMany({}),
       db.collection('counters').deleteMany({}),
     ]);
 
@@ -1484,6 +1614,7 @@ class MongoAdapter {
     if (maintenance.length > 0) await db.collection('maintenance_logs').insertMany(maintenance);
     if (invitations.length > 0) await db.collection('invitations').insertMany(invitations);
     if (chats.length > 0) await db.collection('aquarium_chats').insertMany(chats);
+    if (dosing_pumps.length > 0) await db.collection('dosing_pumps').insertMany(dosing_pumps);
 
     // Aktive Sessions für bestehende Benutzer wiederherstellen
     const validSessions = currentSessions.filter((s) => userIds.includes(s.user_id));
@@ -1501,6 +1632,7 @@ class MongoAdapter {
     const maxMaintId = maintenance.reduce((m, ml) => Math.max(m, ml.id || 0), 0);
     const maxInvId = invitations.reduce((m, iv) => Math.max(m, iv.id || 0), 0);
     const maxChatId = chats.reduce((m, c) => Math.max(m, c.id || 0), 0);
+    const maxDosingPumpId = dosing_pumps.reduce((m, dp) => Math.max(m, dp.id || 0), 0);
 
     const counterOps = [
       { _id: 'users', seq: maxUserId },
@@ -1512,6 +1644,7 @@ class MongoAdapter {
       { _id: 'maintenance_logs', seq: maxMaintId },
       { _id: 'invitations', seq: maxInvId },
       { _id: 'aquarium_chats', seq: maxChatId },
+      { _id: 'dosing_pumps', seq: maxDosingPumpId },
     ];
 
     for (const c of counterOps) {

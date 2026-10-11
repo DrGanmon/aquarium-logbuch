@@ -311,4 +311,5 @@ Complete license text: See [LICENSE](LICENSE) or in the application under `#/liz
 ## Roadmap
 
 - [x] AI chat assistant for aquariums with multi-provider support (OpenAI, Google Gemini, Anthropic Claude) and automated tank context (dimensions, stocking, limits, last 10 measurements).
+- [x] Fertilizer dosing & dosing pumps (multiple fertilizers/channels, dosages in ml, flexible intervals, logging, and lazy loading in logbook)
 - [ ] Automated email alerts for critical parameter threshold violations.

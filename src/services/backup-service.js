@@ -348,6 +348,7 @@ class BackupService {
     const measurement_values = Array.isArray(data.measurement_values) ? data.measurement_values : [];
     const alerts = Array.isArray(data.alerts) ? data.alerts : [];
     const maintenance_logs = Array.isArray(data.maintenance_logs) ? data.maintenance_logs : [];
+    const dosing_pumps = Array.isArray(data.dosing_pumps) ? data.dosing_pumps : [];
 
     // Migration von v1 (flache measurement_values Tabelle -> verschachteltes values Objekt in measurements)
     if (measurement_values.length > 0 && measurements.length > 0) {
@@ -552,6 +553,28 @@ class BackupService {
       };
     }).filter(Boolean);
 
+    // Normalisierung: Dosierpumpen (dosing_pumps)
+    let dosingPumpIdCounter = 1;
+    const normalizedDosingPumps = dosing_pumps.map((dp) => {
+      if (!dp || typeof dp !== 'object') return null;
+      const aqId = Number(dp.aquarium_id);
+      if (!validAquariumIds.has(aqId)) return null;
+      const id = dp.id != null ? Number(dp.id) : dosingPumpIdCounter++;
+      return {
+        id,
+        aquarium_id: aqId,
+        name: String(dp.name || 'Dosierpumpe').trim(),
+        fertilizer_name: String(dp.fertilizer_name || 'Dünger').trim(),
+        amount_ml: Number(dp.amount_ml) || 1,
+        interval_days: Number(dp.interval_days) || 1,
+        time_of_day: dp.time_of_day ? String(dp.time_of_day).trim() : null,
+        last_dosed_at: dp.last_dosed_at ? String(dp.last_dosed_at) : null,
+        is_active: dp.is_active !== undefined ? (dp.is_active ? 1 : 0) : 1,
+        note: dp.note ? String(dp.note).trim() : null,
+        created_at: dp.created_at || new Date().toISOString(),
+      };
+    }).filter(Boolean);
+
     // Bereinige Files (Path Traversal Protection)
     const cleanFiles = {};
     if (files && typeof files === 'object') {
@@ -576,6 +599,7 @@ class BackupService {
         measurements: normalizedMeasurements,
         alerts: normalizedAlerts,
         maintenance_logs: normalizedMaint,
+        dosing_pumps: normalizedDosingPumps,
       },
       files: cleanFiles,
     };

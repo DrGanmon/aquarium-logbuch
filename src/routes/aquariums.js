@@ -9,6 +9,7 @@ const { aquariumInput, aquariumSummary } = require('../services/aquarium-service
 const { thresholdsOfAquarium, buildMessage } = require('../services/alert-service');
 const { saveImage, saveAquariumImage, saveStockImage, deleteImage, getImagePath, getMimeType } = require('../services/image-service');
 const { validateMaintenanceInput, getAquariumTimeline } = require('../services/maintenance-service');
+const { validateDosingPumpInput } = require('../services/dosing-service');
 const { mailService } = require('../services/mail-service');
 const {
   detectDelimiter,
@@ -109,6 +110,7 @@ router.get(
     const latest = await db.measurements.getLatestValues(aq.id, thresholds);
     const stockCompatibility = compatibility || cfg.speciesService.analyzeStockCompatibility(aq, stockRows, lang);
     const summary = await db.aquariums.getSummary(aq, req.accessRole);
+    const dosingPumps = await db.dosingPumps.listForAquarium(aq.id);
 
     res.json({
       aquarium: summary,
@@ -119,6 +121,7 @@ router.get(
       stockCompatibility,
       alerts,
       latest,
+      dosing_pumps: dosingPumps,
       role: req.accessRole,
     });
   })
@@ -860,16 +863,121 @@ router.delete(
   })
 );
 
+// ---------- Dosierpumpen & Düngung ----------
+router.get(
+  '/:id/dosing-pumps',
+  auth,
+  ownAquarium,
+  wrap(async (req, res) => {
+    const list = await db.dosingPumps.listForAquarium(req.aq.id);
+    res.json(list);
+  })
+);
+
+router.post(
+  '/:id/dosing-pumps',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    const { error, value } = validateDosingPumpInput(req.body);
+    if (error) return res.status(400).json({ error });
+
+    const pump = await db.dosingPumps.create({
+      aquarium_id: req.aq.id,
+      ...value,
+    });
+    res.json(pump);
+  })
+);
+
+router.get(
+  '/:id/dosing-pumps/:pumpId',
+  auth,
+  ownAquarium,
+  wrap(async (req, res) => {
+    const pumpId = Number(req.params.pumpId);
+    const pump = await db.dosingPumps.findById(pumpId);
+    if (!pump || pump.aquarium_id !== req.aq.id) {
+      return res.status(404).json({ error: 'Dosierpumpe nicht gefunden.' });
+    }
+    res.json(pump);
+  })
+);
+
+router.put(
+  '/:id/dosing-pumps/:pumpId',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    const pumpId = Number(req.params.pumpId);
+    const pump = await db.dosingPumps.findById(pumpId);
+    if (!pump || pump.aquarium_id !== req.aq.id) {
+      return res.status(404).json({ error: 'Dosierpumpe nicht gefunden.' });
+    }
+
+    const { error, value } = validateDosingPumpInput(req.body);
+    if (error) return res.status(400).json({ error });
+
+    const updated = await db.dosingPumps.update(pump.id, req.aq.id, value);
+    res.json(updated);
+  })
+);
+
+router.delete(
+  '/:id/dosing-pumps/:pumpId',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    const pumpId = Number(req.params.pumpId);
+    const pump = await db.dosingPumps.findById(pumpId);
+    if (!pump || pump.aquarium_id !== req.aq.id) {
+      return res.status(404).json({ error: 'Dosierpumpe nicht gefunden.' });
+    }
+
+    await db.dosingPumps.delete(pump.id, req.aq.id);
+    res.json({ ok: true });
+  })
+);
+
+router.post(
+  '/:id/dosing-pumps/:pumpId/dose',
+  auth,
+  writeAquarium,
+  wrap(async (req, res) => {
+    const pumpId = Number(req.params.pumpId);
+    const pump = await db.dosingPumps.findById(pumpId);
+    if (!pump || pump.aquarium_id !== req.aq.id) {
+      return res.status(404).json({ error: 'Dosierpumpe nicht gefunden.' });
+    }
+
+    const result = await db.dosingPumps.logDosing(pump.id, req.aq.id, req.user.id, req.body.logged_at);
+    if (!result) return res.status(400).json({ error: 'Dosierung konnte nicht protokolliert werden.' });
+    res.json(result);
+  })
+);
+
 // ---------- Gesamtes Aquarium-Logbuch / Timeline (inkl. Messungen & Arbeiten) ----------
 router.get(
   '/:id/logs',
   auth,
   ownAquarium,
   wrap(async (req, res) => {
+    let limit = 25;
+    if (req.query.limit !== undefined) {
+      if (req.query.limit === 'all' || req.query.limit === '0') {
+        limit = null;
+      } else {
+        const parsed = Number(req.query.limit);
+        limit = Number.isFinite(parsed) && parsed > 0 ? parsed : 25;
+      }
+    }
+    const offset = req.query.offset !== undefined ? Math.max(0, Number(req.query.offset) || 0) : 0;
+
     const timeline = await getAquariumTimeline(db, req.aq.id, {
       days: req.query.days,
       kind: req.query.kind,
-      limit: req.query.limit,
+      limit,
+      offset,
     });
     res.json(timeline);
   })

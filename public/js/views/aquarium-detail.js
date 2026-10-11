@@ -31,6 +31,7 @@ import { activeCharts } from '../theme.js';
 import { showSpeciesModal } from './species.js';
 import { aquariumDialog } from './aquarium-list.js';
 import { maintenanceDialog } from './timeline.js';
+import { renderDosingPumpsSection, dosingPumpDialog } from './dosing-pumps.js';
 import { exportMeasurementsDialog, importMeasurementsDialog } from './export-import.js';
 import { showAquariumChatModal } from './ai-chat.js';
 import { route } from '../router.js';
@@ -616,17 +617,27 @@ export async function shareDialog(aq) {
 export async function viewAquarium(id) {
   let measUrl = `/aquariums/${id}/measurements`;
   let logsUrl = `/aquariums/${id}/logs`;
+  const baseLogParams = new URLSearchParams();
   if (RANGE === 'custom' && (CUSTOM_FROM || CUSTOM_TO)) {
     const params = new URLSearchParams();
-    if (CUSTOM_FROM) params.append('from', CUSTOM_FROM);
-    if (CUSTOM_TO) params.append('to', CUSTOM_TO);
+    if (CUSTOM_FROM) {
+      params.append('from', CUSTOM_FROM);
+      baseLogParams.append('from', CUSTOM_FROM);
+    }
+    if (CUSTOM_TO) {
+      params.append('to', CUSTOM_TO);
+      baseLogParams.append('to', CUSTOM_TO);
+    }
     measUrl += `?${params.toString()}`;
-    logsUrl += `?${params.toString()}`;
   } else {
     const days = Number(RANGE) || 90;
     measUrl += `?days=${days}`;
-    logsUrl += `?days=${days}`;
+    baseLogParams.append('days', days);
   }
+  const initialLogParams = new URLSearchParams(baseLogParams);
+  initialLogParams.append('limit', 25);
+  initialLogParams.append('offset', 0);
+  logsUrl += `?${initialLogParams.toString()}`;
 
   let d, ms, logs, images;
   try {
@@ -1846,23 +1857,283 @@ export async function viewAquarium(id) {
   }
   nodes.push(h('section', { class: 'card stack' }, stockNodes));
 
-  // Aquarium-Logbuch & Aktivitäten Timeline
-  let currentLogFilter = 'all';
-  const logContainer = h('div', { class: 'timeline' });
+  // Dosierpumpen & Automatische Düngung
+  nodes.push(renderDosingPumpsSection(aq, d.dosing_pumps || [], isReadOnly, () => route()));
 
-  const renderTimeline = () => {
-    let items = logs || [];
-    if (currentLogFilter === 'water_change') {
-      items = items.filter((it) => it.type === 'water_change');
-    } else if (currentLogFilter === 'maintenance') {
-      items = items.filter((it) => it.kind === 'maintenance' && it.type !== 'water_change');
-    } else if (currentLogFilter === 'plants') {
-      items = items.filter((it) => it.type === 'plants_cut' || it.type === 'plants_new');
-    } else if (currentLogFilter === 'measurement') {
-      items = items.filter((it) => it.kind === 'measurement');
+  // Aquarium-Logbuch & Aktivitäten Timeline
+  const PAGE_SIZE = 25;
+  let currentLogFilter = 'all';
+  let loadedLogs = logsList ? [...logsList] : [];
+  let hasMoreLogs = logsList && logsList.length >= PAGE_SIZE;
+  let isLoadingMore = false;
+  let currentOffset = loadedLogs.length;
+
+  const logContainer = h('div', { class: 'timeline' });
+  const loadMoreWrap = h('div', { style: 'text-align: center; margin-top: 1rem;' });
+
+  const renderLogItem = (it) => {
+    const isMeas = it.kind === 'measurement';
+    const typeClass = `t-${it.type || 'other'}`;
+
+    const headerNodes = [
+      h(
+        'div',
+        { class: 'log-item-title' },
+        h('span', { class: 'log-item-icon' }, it.icon || (isMeas ? '🧪' : '📝')),
+        h(
+          'span',
+          {},
+          it.type === 'water_change' && it.percentage
+            ? `Wasserwechsel (${it.percentage} %)`
+            : it.type === 'dosing_pump'
+            ? 'Dosierpumpe / Düngung'
+            : it.typeName || (isMeas ? 'Wassermessung' : 'Aktivität')
+        )
+      ),
+      h(
+        'div',
+        { class: 'log-item-meta' },
+        h('span', {}, fmtDate(it.timestamp)),
+        it.created_by_username
+          ? h('span', { class: 'tag' }, `von ${it.created_by_username}`)
+          : null
+      ),
+    ];
+
+    const bodyNodes = [];
+    if (it.type === 'water_change' && it.percentage) {
+      bodyNodes.push(
+        h('div', {}, h('span', { class: 'chip ok' }, `💧 ${it.percentage} % Teilwasserwechsel`))
+      );
+    }
+    if (it.type === 'dosing_pump') {
+      bodyNodes.push(
+        h('div', {}, h('span', { class: 'chip ok' }, `⚙️ Automatische / Pumpen-Dosierung`))
+      );
     }
 
-    if (!items.length) {
+    if (it.details) {
+      let prefix = 'Details: ';
+      if (it.type === 'filter_change') prefix = 'Gewechselte Medien: ';
+      else if (it.type === 'filter_clean') prefix = 'Gereinigte Filterteile: ';
+      else if (it.type === 'plants_new') prefix = 'Eingesetzte Pflanzen: ';
+      else if (it.type === 'plants_cut') prefix = 'Geschnittene Pflanzen: ';
+      else if (it.type === 'fertilize') prefix = 'Düngung: ';
+      else if (it.type === 'dosing_pump') prefix = 'Dosierung: ';
+      else if (it.type === 'feeding') prefix = 'Futter: ';
+
+      bodyNodes.push(h('div', { class: 'log-details-box' }, h('strong', {}, prefix), it.details));
+    }
+
+    if (isMeas && it.values) {
+      const valEntries = Object.entries(it.values);
+      if (valEntries.length) {
+        bodyNodes.push(
+          h(
+            'div',
+            { class: 'log-meas-grid' },
+            valEntries.map(([k, val]) => {
+              const p = param(k);
+              const st = evaluate(thresholds[k], val);
+              return h(
+                'span',
+                { class: `log-meas-pill ${st ? 'v-' + st : ''}` },
+                `${p.name.replace(/ \(.*\)/, '')}: ${fmtNum(p, val)}${p.unit ? ' ' + p.unit : ''}`
+              );
+            })
+          )
+        );
+      }
+      if (it.alerts && it.alerts.length) {
+        bodyNodes.push(
+          h(
+            'div',
+            { style: 'margin-top:.3rem' },
+            it.alerts.map((al) =>
+              h(
+                'div',
+                {
+                  class: `alert ${al.level}`,
+                  style: 'padding:.3rem .6rem; font-size:.85rem; margin-top:.2rem',
+                },
+                h('strong', {}, al.level === 'crit' ? 'Kritisch' : 'Auffällig'),
+                al.message
+              )
+            )
+          )
+        );
+      }
+    }
+
+    if (it.note) {
+      bodyNodes.push(
+        h(
+          'p',
+          {
+            class: 'muted',
+            style: 'margin:0; font-size:.9rem; font-style:italic',
+          },
+          it.note
+        )
+      );
+    }
+
+    const actions = [];
+    if (!isReadOnly) {
+      if (!isMeas) {
+        actions.push(
+          h(
+            'button',
+            {
+              class: 'btn small ghost',
+              type: 'button',
+              onclick: () => maintenanceDialog(aq, it),
+            },
+            'Bearbeiten'
+          )
+        );
+        actions.push(
+          h(
+            'button',
+            {
+              class: 'btn small ghost danger',
+              type: 'button',
+              onclick: async () => {
+                if (!confirm('Diesen Log-Eintrag wirklich löschen?')) return;
+                try {
+                  await api(`/aquariums/${id}/maintenance/${it.id}`, {
+                    method: 'DELETE',
+                  });
+                  toast('Eintrag gelöscht.');
+                  route();
+                } catch (ex) {
+                  toast(ex.message);
+                }
+              },
+            },
+            'Löschen'
+          )
+        );
+      } else {
+        actions.push(
+          h(
+            'button',
+            {
+              class: 'btn small ghost danger',
+              type: 'button',
+              onclick: async () => {
+                if (!confirm('Diese Messung wirklich löschen?')) return;
+                try {
+                  await api(`/aquariums/${id}/measurements/${it.id}`, {
+                    method: 'DELETE',
+                  });
+                  toast('Messung gelöscht.');
+                  route();
+                } catch (ex) {
+                  toast(ex.message);
+                }
+              },
+            },
+            'Löschen'
+          )
+        );
+      }
+    }
+
+    return h(
+      'div',
+      { class: `log-item ${typeClass}` },
+      h('div', { class: 'log-item-header' }, headerNodes),
+      bodyNodes.length ? h('div', { class: 'stack', style: 'gap:.35rem' }, bodyNodes) : null,
+      actions.length
+        ? h('div', { class: 'row', style: 'margin-top:.4rem; justify-content:flex-end' }, actions)
+        : null
+    );
+  };
+
+  const fetchLogBatch = async (offset = 0, filter = currentLogFilter) => {
+    const params = new URLSearchParams(baseLogParams);
+    params.append('limit', PAGE_SIZE);
+    params.append('offset', offset);
+    if (filter && filter !== 'all') {
+      params.append('kind', filter);
+    }
+    return await api(`/aquariums/${id}/logs?${params.toString()}`).catch(() => []);
+  };
+
+  let observer = null;
+
+  const loadMoreLogs = async () => {
+    if (isLoadingMore || !hasMoreLogs) return;
+    isLoadingMore = true;
+    updateLoadMoreUI();
+    try {
+      const newItems = await fetchLogBatch(currentOffset, currentLogFilter);
+      if (Array.isArray(newItems) && newItems.length > 0) {
+        loadedLogs.push(...newItems);
+        currentOffset += newItems.length;
+        hasMoreLogs = newItems.length >= PAGE_SIZE;
+      } else {
+        hasMoreLogs = false;
+      }
+    } catch (e) {
+      hasMoreLogs = false;
+    } finally {
+      isLoadingMore = false;
+      renderTimeline();
+    }
+  };
+
+  const updateLoadMoreUI = () => {
+    if (!loadedLogs.length) {
+      loadMoreWrap.replaceChildren();
+      return;
+    }
+
+    if (isLoadingMore) {
+      loadMoreWrap.replaceChildren(
+        h('p', { class: 'muted', style: 'margin: 0.5rem 0;' }, t('timeline.loadingMore'))
+      );
+      return;
+    }
+
+    if (hasMoreLogs) {
+      const loadBtn = h(
+        'button',
+        {
+          class: 'btn small ghost',
+          type: 'button',
+          onclick: () => loadMoreLogs(),
+        },
+        `📥 ${t('timeline.loadMore')} (${loadedLogs.length} geladen)`
+      );
+
+      const sentinel = h('div', { style: 'height: 1px; margin-top: 10px;' });
+
+      if (observer) observer.disconnect();
+      if (typeof IntersectionObserver !== 'undefined') {
+        observer = new IntersectionObserver((entries) => {
+          if (entries[0] && entries[0].isIntersecting && hasMoreLogs && !isLoadingMore) {
+            loadMoreLogs();
+          }
+        }, { rootMargin: '100px' });
+        observer.observe(sentinel);
+      }
+
+      loadMoreWrap.replaceChildren(loadBtn, sentinel);
+    } else {
+      loadMoreWrap.replaceChildren(
+        h(
+          'p',
+          { class: 'muted', style: 'font-size: .85rem; margin: 0.5rem 0;' },
+          `✓ ${t('timeline.allLoaded')} (${loadedLogs.length} Einträge)`
+        )
+      );
+    }
+  };
+
+  const renderTimeline = () => {
+    if (!loadedLogs.length) {
       logContainer.replaceChildren(
         h(
           'div',
@@ -1890,207 +2161,58 @@ export async function viewAquarium(id) {
             : null
         )
       );
+      loadMoreWrap.replaceChildren();
       return;
     }
 
+    logContainer.replaceChildren(...loadedLogs.map((it) => renderLogItem(it)));
+    updateLoadMoreUI();
+  };
+
+  const switchFilter = async (filterKey, buttonElem) => {
+    if (currentLogFilter === filterKey && !isLoadingMore) return;
+    currentLogFilter = filterKey;
+    logTabs.querySelectorAll('button').forEach((b) => (b.className = 'btn small ghost'));
+    if (buttonElem) buttonElem.className = 'btn small';
+
     logContainer.replaceChildren(
-      ...items.map((it) => {
-        const isMeas = it.kind === 'measurement';
-        const typeClass = `t-${it.type || 'other'}`;
-
-        const headerNodes = [
-          h(
-            'div',
-            { class: 'log-item-title' },
-            h('span', { class: 'log-item-icon' }, it.icon || (isMeas ? '🧪' : '📝')),
-            h(
-              'span',
-              {},
-              it.type === 'water_change' && it.percentage
-                ? `Wasserwechsel (${it.percentage} %)`
-                : it.typeName || (isMeas ? 'Wassermessung' : 'Aktivität')
-            )
-          ),
-          h(
-            'div',
-            { class: 'log-item-meta' },
-            h('span', {}, fmtDate(it.timestamp)),
-            it.created_by_username
-              ? h('span', { class: 'tag' }, `von ${it.created_by_username}`)
-              : null
-          ),
-        ];
-
-        const bodyNodes = [];
-        if (it.type === 'water_change' && it.percentage) {
-          bodyNodes.push(
-            h('div', {}, h('span', { class: 'chip ok' }, `💧 ${it.percentage} % Teilwasserwechsel`))
-          );
-        }
-
-        if (it.details) {
-          let prefix = 'Details: ';
-          if (it.type === 'filter_change') prefix = 'Gewechselte Medien: ';
-          else if (it.type === 'filter_clean') prefix = 'Gereinigte Filterteile: ';
-          else if (it.type === 'plants_new') prefix = 'Eingesetzte Pflanzen: ';
-          else if (it.type === 'plants_cut') prefix = 'Geschnittene Pflanzen: ';
-          else if (it.type === 'fertilize') prefix = 'Düngung: ';
-          else if (it.type === 'feeding') prefix = 'Futter: ';
-
-          bodyNodes.push(h('div', { class: 'log-details-box' }, h('strong', {}, prefix), it.details));
-        }
-
-        if (isMeas && it.values) {
-          const valEntries = Object.entries(it.values);
-          if (valEntries.length) {
-            bodyNodes.push(
-              h(
-                'div',
-                { class: 'log-meas-grid' },
-                valEntries.map(([k, val]) => {
-                  const p = param(k);
-                  const st = evaluate(thresholds[k], val);
-                  return h(
-                    'span',
-                    { class: `log-meas-pill ${st ? 'v-' + st : ''}` },
-                    `${p.name.replace(/ \(.*\)/, '')}: ${fmtNum(p, val)}${p.unit ? ' ' + p.unit : ''}`
-                  );
-                })
-              )
-            );
-          }
-          if (it.alerts && it.alerts.length) {
-            bodyNodes.push(
-              h(
-                'div',
-                { style: 'margin-top:.3rem' },
-                it.alerts.map((al) =>
-                  h(
-                    'div',
-                    {
-                      class: `alert ${al.level}`,
-                      style: 'padding:.3rem .6rem; font-size:.85rem; margin-top:.2rem',
-                    },
-                    h('strong', {}, al.level === 'crit' ? 'Kritisch' : 'Auffällig'),
-                    al.message
-                  )
-                )
-              )
-            );
-          }
-        }
-
-        if (it.note) {
-          bodyNodes.push(
-            h(
-              'p',
-              {
-                class: 'muted',
-                style: 'margin:0; font-size:.9rem; font-style:italic',
-              },
-              it.note
-            )
-          );
-        }
-
-        const actions = [];
-        if (!isReadOnly) {
-          if (!isMeas) {
-            actions.push(
-              h(
-                'button',
-                {
-                  class: 'btn small ghost',
-                  type: 'button',
-                  onclick: () => maintenanceDialog(aq, it),
-                },
-                'Bearbeiten'
-              )
-            );
-            actions.push(
-              h(
-                'button',
-                {
-                  class: 'btn small ghost danger',
-                  type: 'button',
-                  onclick: async () => {
-                    if (!confirm('Diesen Log-Eintrag wirklich löschen?')) return;
-                    try {
-                      await api(`/aquariums/${id}/maintenance/${it.id}`, {
-                        method: 'DELETE',
-                      });
-                      toast('Eintrag gelöscht.');
-                      route();
-                    } catch (ex) {
-                      toast(ex.message);
-                    }
-                  },
-                },
-                'Löschen'
-              )
-            );
-          } else {
-            actions.push(
-              h(
-                'button',
-                {
-                  class: 'btn small ghost danger',
-                  type: 'button',
-                  onclick: async () => {
-                    if (!confirm('Diese Messung wirklich löschen?')) return;
-                    try {
-                      await api(`/aquariums/${id}/measurements/${it.id}`, {
-                        method: 'DELETE',
-                      });
-                      toast('Messung gelöscht.');
-                      route();
-                    } catch (ex) {
-                      toast(ex.message);
-                    }
-                  },
-                },
-                'Löschen'
-              )
-            );
-          }
-        }
-
-        return h(
-          'div',
-          { class: `log-item ${typeClass}` },
-          h('div', { class: 'log-item-header' }, headerNodes),
-          bodyNodes.length ? h('div', { class: 'stack', style: 'gap:.35rem' }, bodyNodes) : null,
-          actions.length
-            ? h('div', { class: 'row', style: 'margin-top:.4rem; justify-content:flex-end' }, actions)
-            : null
-        );
-      })
+      h('p', { class: 'muted', style: 'text-align:center; padding: 1.5rem;' }, t('timeline.loadingMore'))
     );
+    loadMoreWrap.replaceChildren();
+
+    isLoadingMore = true;
+    currentOffset = 0;
+    try {
+      const items = await fetchLogBatch(0, filterKey);
+      loadedLogs = Array.isArray(items) ? items : [];
+      hasMoreLogs = loadedLogs.length >= PAGE_SIZE;
+      currentOffset = loadedLogs.length;
+    } catch (e) {
+      loadedLogs = [];
+      hasMoreLogs = false;
+    } finally {
+      isLoadingMore = false;
+      renderTimeline();
+    }
   };
 
   const logTabs = h(
     'div',
     { class: 'picker', style: 'margin-top:.4rem' },
     [
-      ['all', 'Alle Einträge'],
-      ['water_change', '💧 Wasserwechsel'],
-      ['maintenance', '🛠️ Pflege & Filter'],
-      ['plants', '🌱 Pflanzen'],
-      ['measurement', '🧪 Messungen'],
+      ['all', t('common.all')],
+      ['water_change', '💧 ' + t('timeline.filterWaterChange')],
+      ['maintenance', '🛠️ ' + t('timeline.filterFilter')],
+      ['dosing', t('timeline.filterDosing')],
+      ['plants', '🌱 ' + t('timeline.filterPlants')],
+      ['measurement', '🧪 ' + t('timeline.filterMeasurements')],
     ].map(([k, label]) =>
       h(
         'button',
         {
           class: `btn small ${k === currentLogFilter ? '' : 'ghost'}`,
           type: 'button',
-          onclick: (e) => {
-            currentLogFilter = k;
-            logTabs
-              .querySelectorAll('button')
-              .forEach((b) => (b.className = 'btn small ghost'));
-            e.target.className = 'btn small';
-            renderTimeline();
-          },
+          onclick: (e) => switchFilter(k, e.currentTarget),
         },
         label
       )
@@ -2109,11 +2231,11 @@ export async function viewAquarium(id) {
         h(
           'div',
           {},
-          h('h2', { style: 'margin:0' }, '📖 Aquarium-Logbuch & Aktivitäten'),
+          h('h2', { style: 'margin:0' }, '📖 ' + t('timeline.title')),
           h(
             'div',
             { class: 'muted' },
-            'Chronologisches Protokoll über alle Arbeiten, Wasserwechsel, Filterpflegen, Pflanzen und Messungen.'
+            t('timeline.subtitle')
           )
         ),
         !isReadOnly
@@ -2127,14 +2249,15 @@ export async function viewAquarium(id) {
                   type: 'button',
                   onclick: () => maintenanceDialog(aq),
                 },
-                '🛠️ Aktivität eintragen'
+                '🛠️ ' + t('timeline.newEntryBtn').replace('+ ', '')
               ),
-              h('a', { class: 'btn small ghost', href: `#/a/${id}/messen` }, '🧪 Messung eintragen')
+              h('a', { class: 'btn small ghost', href: `#/a/${id}/messen` }, '🧪 ' + t('detail.btnMeasure'))
             )
           : null
       ),
       logTabs,
-      logContainer
+      logContainer,
+      loadMoreWrap
     )
   );
 
