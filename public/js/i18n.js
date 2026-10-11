@@ -167,7 +167,20 @@ export function formatNumber(val, decimals = 1) {
 export function formatDate(isoOrDate, options = { dateStyle: 'short', timeStyle: 'short' }) {
   if (!isoOrDate) return '-';
   try {
-    const d = typeof isoOrDate === 'string' ? new Date(isoOrDate) : isoOrDate;
+    let d;
+    if (isoOrDate instanceof Date) {
+      d = isoOrDate;
+    } else if (typeof isoOrDate === 'string') {
+      const s = isoOrDate.trim();
+      if (!s) return '-';
+      if (!s.includes('T') && s.includes(' ')) {
+        d = new Date(s.replace(' ', 'T') + 'Z');
+      } else {
+        d = new Date(s);
+      }
+    } else {
+      d = new Date(isoOrDate);
+    }
     if (isNaN(d.getTime())) return String(isoOrDate);
     return d.toLocaleString(getLocale(), options);
   } catch (e) {

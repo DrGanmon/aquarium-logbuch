@@ -144,3 +144,78 @@ test('Messungen & Alarme: Erfassung, Validierung, Historie und Quittierung', asy
   assert.strictEqual(histAfterDel.data.length, 1);
   assert.strictEqual(histAfterDel.data[0].id, critMeas.data.id);
 });
+
+test('Aquarium öffnen nach Messungseintrag: Konsistenz von Detaildaten, Alarmen, Logbuch und Frontend-Hilfsfunktionen', async (t) => {
+  const env = createTestEnvironment();
+  t.after(async () => await env.cleanup());
+
+  const user = await env.createUserAndLogin('flowuser', 'password123', 'flow@example.com');
+
+  // 1. Aquarium erstellen
+  const createAq = await env.request('/api/aquariums', {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: {
+      name: 'Nano Cube 30',
+      water_type: 'fresh',
+      volume_l: 30,
+      description: 'Garnelenbecken mit Moosen',
+    },
+  });
+  assert.strictEqual(createAq.status, 200);
+  const aqId = createAq.data.id;
+
+  // 2. Ersten Wassertest eintragen (mit Warnung & kritischem Wert)
+  const createMeas = await env.request(`/api/aquariums/${aqId}/measurements`, {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: {
+      measured_at: new Date().toISOString(),
+      note: 'Erstmessung nach Einlaufphase',
+      values: {
+        ph: 7.2,
+        kh: 4,
+        gh: 7,
+        no2: 0.8, // crit
+        no3: 40,  // warn
+        temp: 24.5,
+      },
+    },
+  });
+  assert.strictEqual(createMeas.status, 200);
+
+  // 3. Alle Endpunkte abrufen, die beim Öffnen des Aquariums geladen werden
+  const [detailRes, measRes, logsRes, imagesRes] = await Promise.all([
+    env.request(`/api/aquariums/${aqId}`, { headers: { Cookie: user.cookie } }),
+    env.request(`/api/aquariums/${aqId}/measurements?days=90`, { headers: { Cookie: user.cookie } }),
+    env.request(`/api/aquariums/${aqId}/logs?days=90`, { headers: { Cookie: user.cookie } }),
+    env.request(`/api/aquariums/${aqId}/images`, { headers: { Cookie: user.cookie } }),
+  ]);
+
+  assert.strictEqual(detailRes.status, 200);
+  assert.strictEqual(measRes.status, 200);
+  assert.strictEqual(logsRes.status, 200);
+  assert.strictEqual(imagesRes.status, 200);
+
+  const aqData = detailRes.data;
+  assert.ok(aqData.aquarium);
+  assert.strictEqual(aqData.aquarium.name, 'Nano Cube 30');
+  assert.ok(Array.isArray(aqData.alerts));
+  assert.ok(aqData.alerts.length >= 2);
+  assert.ok(aqData.latest);
+  assert.strictEqual(aqData.latest.no2.value, 0.8);
+  assert.strictEqual(aqData.latest.no2.status, 'crit');
+
+  // 4. Validierung der Datums- und Alarm-Formatierung (Frontend sqlDate / formatDate Äquivalent)
+  for (const alert of aqData.alerts) {
+    assert.ok(alert.created_at, 'Alarm hat ein created_at Feld');
+    const parsedDate = new Date(alert.created_at.includes('T') ? alert.created_at : alert.created_at.replace(' ', 'T') + 'Z');
+    assert.strictEqual(isNaN(parsedDate.getTime()), false, 'Alarmdatum ist gültig');
+  }
+
+  // 5. Logbuch-Eintrag prüfen
+  assert.ok(logsRes.data.length >= 1);
+  const measLog = logsRes.data.find((l) => l.type === 'measurement');
+  assert.ok(measLog, 'Messung erscheint im Logbuch');
+  assert.strictEqual(measLog.values.no2, 0.8);
+});

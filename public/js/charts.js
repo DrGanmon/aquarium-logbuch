@@ -6,12 +6,13 @@ import { evaluate, fmtNum, fmtDate } from './utils.js';
 export const bandPlugin = {
   id: 'band',
   beforeDatasetsDraw(chart, args, o) {
+    if (!o || typeof o !== 'object') return;
     const {
       ctx,
       chartArea: a,
       scales: { y },
     } = chart;
-    if (!o || !a) return;
+    if (!ctx || !a || !y) return;
     const clamp = (px) => Math.min(Math.max(px, a.top), a.bottom);
     const isDark = isEffectiveDark();
     ctx.save();
@@ -36,15 +37,22 @@ export const bandPlugin = {
   },
 };
 
-export function makeChart(canvas, p, points, range) {
+export function makeChart(canvas, p, points, range = {}) {
   const isDark = isEffectiveDark();
-  const ys = points.map((q) => q.y);
-  const lo = [Math.min(...ys), range.okMin].filter((v) => v != null);
-  const hi = [Math.max(...ys), range.okMax].filter((v) => v != null);
-  const minV = Math.min(...lo),
-    maxV = Math.max(...hi);
+  const r = range || {};
+  const validPoints = (points || []).filter(
+    (q) => q && Number.isFinite(q.x) && Number.isFinite(q.y)
+  );
+  if (!validPoints.length) {
+    return null;
+  }
+  const ys = validPoints.map((q) => q.y);
+  const lo = [Math.min(...ys), r.okMin].filter((v) => v != null && Number.isFinite(v));
+  const hi = [Math.max(...ys), r.okMax].filter((v) => v != null && Number.isFinite(v));
+  const minV = lo.length ? Math.min(...lo) : (p?.min ?? 0);
+  const maxV = hi.length ? Math.max(...hi) : (p?.max ?? 10);
   const pad = (maxV - minV || Math.abs(maxV) || 1) * 0.12;
-  const xs = points.map((q) => q.x);
+  const xs = validPoints.map((q) => q.x);
   let xMin = Math.min(...xs),
     xMax = Math.max(...xs);
   if (xMin === xMax) {
@@ -58,26 +66,29 @@ export function makeChart(canvas, p, points, range) {
     return null;
   }
 
+  const suggestedMin = p?.min != null ? Math.max(minV - pad, p.min) : minV - pad;
+  const suggestedMax = p?.max != null ? Math.min(maxV + pad, p.max) : maxV + pad;
+
   const chartInstance = new ChartClass(canvas, {
     type: 'line',
     plugins: [bandPlugin],
     data: {
       datasets: [
         {
-          data: points,
+          data: validPoints,
           borderColor: isDark ? '#38bdf8' : '#12343b',
           backgroundColor: isDark ? '#38bdf8' : '#12343b',
           borderWidth: 2,
           pointRadius: 3.5,
           pointHoverRadius: 5,
           tension: 0.2,
-          pointBackgroundColor: points.map(
+          pointBackgroundColor: validPoints.map(
             (q) =>
               ({
                 ok: isDark ? '#34d399' : '#2f7a58',
                 warn: isDark ? '#fbbf24' : '#a86a00',
                 crit: isDark ? '#f87171' : '#b8341f',
-              }[evaluate(range, q.y)] || (isDark ? '#38bdf8' : '#12343b'))
+              }[evaluate(r, q.y)] || (isDark ? '#38bdf8' : '#12343b'))
           ),
         },
       ],
@@ -88,7 +99,7 @@ export function makeChart(canvas, p, points, range) {
       animation: false,
       plugins: {
         legend: { display: false },
-        band: range,
+        band: r,
         tooltip: {
           backgroundColor: isDark ? '#091315' : '#12343b',
           titleColor: isDark ? '#e2eeed' : '#ffffff',
@@ -97,7 +108,7 @@ export function makeChart(canvas, p, points, range) {
           borderWidth: 1,
           callbacks: {
             title: (it) => fmtDate(it[0].parsed.x),
-            label: (it) => `${fmtNum(p, it.parsed.y)}${p.unit ? ' ' + p.unit : ''}`,
+            label: (it) => `${fmtNum(p, it.parsed.y)}${p?.unit ? ' ' + p.unit : ''}`,
           },
         },
       },
@@ -117,8 +128,8 @@ export function makeChart(canvas, p, points, range) {
           },
         },
         y: {
-          suggestedMin: Math.max(minV - pad, p.min),
-          suggestedMax: Math.min(maxV + pad, p.max),
+          suggestedMin: Number.isFinite(suggestedMin) ? suggestedMin : undefined,
+          suggestedMax: Number.isFinite(suggestedMax) ? suggestedMax : undefined,
           ticks: {
             color: isDark ? '#8fa9ad' : '#4a6a70',
           },
@@ -126,8 +137,8 @@ export function makeChart(canvas, p, points, range) {
             color: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
           },
           title: {
-            display: !!p.unit,
-            text: p.unit,
+            display: !!p?.unit,
+            text: p?.unit || '',
             color: isDark ? '#8fa9ad' : '#4a6a70',
           },
         },

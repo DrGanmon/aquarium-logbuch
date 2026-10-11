@@ -581,13 +581,33 @@ export async function viewAquarium(id) {
     logsUrl += `?days=${days}`;
   }
 
-  const [d, ms, logs, images] = await Promise.all([
-    api(`/aquariums/${id}`),
-    api(measUrl),
-    api(logsUrl),
-    api(`/aquariums/${id}/images`),
-  ]);
-  const aq = d.aquarium;
+  let d, ms, logs, images;
+  try {
+    [d, ms, logs, images] = await Promise.all([
+      api(`/aquariums/${id}`),
+      api(measUrl).catch(() => []),
+      api(logsUrl).catch(() => []),
+      api(`/aquariums/${id}/images`).catch(() => []),
+    ]);
+  } catch (err) {
+    mount(
+      h(
+        'div',
+        { class: 'card stack' },
+        h('h2', {}, 'Fehler beim Laden des Aquariums'),
+        h('p', { class: 'error' }, err.message || 'Das Aquarium konnte nicht geladen werden.'),
+        h('div', { class: 'row' }, h('a', { class: 'btn', href: '#/' }, '‹ Zurück zur Übersicht'))
+      )
+    );
+    return;
+  }
+  const aq = d.aquarium || {};
+  const thresholds = d.thresholds || {};
+  const alertsList = Array.isArray(d.alerts) ? d.alerts : [];
+  const latestValues = d.latest || {};
+  const measList = Array.isArray(ms) ? ms : [];
+  const logsList = Array.isArray(logs) ? logs : [];
+  const imagesList = Array.isArray(images) ? images : [];
   const role = d.role || aq.role || 'owner';
   const isOwner = role === 'owner';
   const isReadOnly = role === 'view';
@@ -964,7 +984,7 @@ export async function viewAquarium(id) {
     );
   }
 
-  for (const a of d.alerts) {
+  for (const a of alertsList) {
     notices.push(
       h(
         'div',
@@ -996,7 +1016,7 @@ export async function viewAquarium(id) {
       )
     );
   }
-  if (!isReadOnly && d.alerts.length > 1) {
+  if (!isReadOnly && alertsList.length > 1) {
     notices.push(
       h(
         'div',
@@ -1177,7 +1197,7 @@ export async function viewAquarium(id) {
 
   // Aktuelle Werte
   const allKnownParams = CONFIG?.allParameters || CONFIG?.parameters || [];
-  const keys = allKnownParams.map((p) => p.key).filter((k) => d.latest[k]);
+  const keys = allKnownParams.map((p) => p.key).filter((k) => latestValues[k]);
   if (keys.length) {
     nodes.push(
       h(
@@ -1189,7 +1209,7 @@ export async function viewAquarium(id) {
           { class: 'values' },
           keys.map((k) => {
             const p = param(k),
-              l = d.latest[k];
+              l = latestValues[k];
             return h(
               'div',
               { class: 'value ' + (l.status || '') },
@@ -1246,9 +1266,10 @@ export async function viewAquarium(id) {
   const charts = [];
   const chartCards = [];
   for (const p of allKnownParams) {
-    const points = ms
-      .filter((m) => m.values[p.key] != null)
-      .map((m) => ({ x: new Date(m.measured_at).getTime(), y: m.values[p.key] }));
+    const points = measList
+      .filter((m) => m && m.values && m.values[p.key] != null)
+      .map((m) => ({ x: new Date(m.measured_at).getTime(), y: m.values[p.key] }))
+      .filter((pt) => Number.isFinite(pt.x) && Number.isFinite(pt.y));
     if (!points.length) continue;
     const canvas = h('canvas', { role: 'img', 'aria-label': `Verlauf ${p.name}` });
     chartCards.push({
@@ -1871,7 +1892,7 @@ export async function viewAquarium(id) {
                 { class: 'log-meas-grid' },
                 valEntries.map(([k, val]) => {
                   const p = param(k);
-                  const st = evaluate(d.thresholds[k], val);
+                  const st = evaluate(thresholds[k], val);
                   return h(
                     'span',
                     { class: `log-meas-pill ${st ? 'v-' + st : ''}` },
@@ -2135,8 +2156,8 @@ export async function viewAquarium(id) {
                     {},
                     h('td', {}, fmtDate(m.measured_at)),
                     used.map((p) => {
-                      const v = m.values[p.key];
-                      const st = v == null ? null : evaluate(d.thresholds[p.key], v);
+                      const v = m.values ? m.values[p.key] : null;
+                      const st = v == null ? null : evaluate(thresholds[p.key], v);
                       return h(
                         'td',
                         { class: st === 'crit' ? 'v-crit' : st === 'warn' ? 'v-warn' : '' },
@@ -2237,7 +2258,7 @@ export async function viewAquarium(id) {
 
   mount(h('div', { class: 'stack' }, nodes));
   for (const c of chartCards)
-    charts.push(makeChart(c.canvas, c.p, c.points, d.thresholds[c.p.key]));
+    charts.push(makeChart(c.canvas, c.p, c.points, thresholds[c.p.key] || {}));
   cleanups.push(() => {
     charts.forEach((c) => {
       if (c && typeof c.destroy === 'function') {

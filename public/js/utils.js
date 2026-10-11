@@ -16,7 +16,32 @@ export const fmtNum = (p, v) => formatNumber(v, p?.decimals ?? 1);
 
 export const fmtDate = (iso) => formatDate(iso);
 
-export const sqlDate = (s) => new Date(s.replace(' ', 'T') + 'Z').toISOString();
+export const sqlDate = (s) => {
+  if (!s) return '';
+  if (s instanceof Date) return s.toISOString();
+  if (typeof s !== 'string') {
+    try {
+      return new Date(s).toISOString();
+    } catch (e) {
+      return String(s);
+    }
+  }
+  const str = s.trim();
+  if (!str) return '';
+  if (str.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(str)) {
+    return str;
+  }
+  try {
+    const iso = str.includes('T') ? str + 'Z' : str.replace(' ', 'T') + 'Z';
+    const d = new Date(iso);
+    if (!isNaN(d.getTime())) return d.toISOString();
+  } catch (e) {}
+  try {
+    const d = new Date(str);
+    if (!isNaN(d.getTime())) return d.toISOString();
+  } catch (e) {}
+  return str;
+};
 
 export const getStatusLabel = (status) => {
   if (status === 'ok') return t('common.statusOk');
