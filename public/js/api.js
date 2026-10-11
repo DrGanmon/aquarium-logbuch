@@ -1,6 +1,7 @@
 'use strict';
 
 import { setMe } from './state.js';
+import { getCurrentLanguage } from './i18n.js';
 
 let onUnauthorizedCallback = null;
 export function setOnUnauthorized(cb) {
@@ -9,9 +10,14 @@ export function setOnUnauthorized(cb) {
 
 export async function api(path, { method = 'GET', body } = {}) {
   // relativ zu <base href>, damit die App auch unter einem Unterpfad läuft
+  const lang = getCurrentLanguage ? getCurrentLanguage() : 'de';
   const res = await fetch('api' + path, {
     method,
-    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'fetch',
+      'X-Language': lang,
+    },
     body: body ? JSON.stringify(body) : undefined,
     credentials: 'same-origin',
   });

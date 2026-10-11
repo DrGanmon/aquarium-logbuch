@@ -244,13 +244,15 @@ class MailService {
   /**
    * Sendet eine E-Mail-Bestätigung (Verifizierung) an einen Benutzer.
    */
-  sendVerificationEmail(user, token) {
+  sendVerificationEmail(user, token, lang = null) {
+    const userLang = lang || user?.language || 'de';
     const baseUrl = APP_URL || 'http://localhost:3000';
     const verifyUrl = `${baseUrl}/#/verify-email?token=${encodeURIComponent(token)}`;
     const { subject, html, text } = createEmailVerificationMail({
       username: user.username,
       verifyUrl,
       expiresHours: 24,
+      lang: userLang,
     });
 
     return this.enqueueMail({
@@ -264,13 +266,15 @@ class MailService {
   /**
    * Sendet eine E-Mail zum Zurücksetzen des Passworts.
    */
-  sendPasswordResetEmail(user, token) {
+  sendPasswordResetEmail(user, token, lang = null) {
+    const userLang = lang || user?.language || 'de';
     const baseUrl = APP_URL || 'http://localhost:3000';
     const resetUrl = `${baseUrl}/#/reset-password?token=${encodeURIComponent(token)}`;
     const { subject, html, text } = createPasswordResetMail({
       username: user.username,
       resetUrl,
       expiresMinutes: 60,
+      lang: userLang,
     });
 
     return this.enqueueMail({
@@ -284,13 +288,15 @@ class MailService {
   /**
    * Sendet eine E-Mail zur Bestätigung der Konto-Löschung.
    */
-  sendAccountDeletionEmail(user, token) {
+  sendAccountDeletionEmail(user, token, lang = null) {
+    const userLang = lang || user?.language || 'de';
     const baseUrl = APP_URL || 'http://localhost:3000';
     const deleteUrl = `${baseUrl}/#/delete-account?token=${encodeURIComponent(token)}`;
     const { subject, html, text } = createAccountDeletionMail({
       username: user.username,
       deleteUrl,
       expiresMinutes: 60,
+      lang: userLang,
     });
 
     return this.enqueueMail({
@@ -304,7 +310,7 @@ class MailService {
   /**
    * Sendet eine Einladungs-E-Mail an einen neuen Benutzer.
    */
-  sendInvitationEmail({ to, inviterName, inviteCode, expiresDays = 14, expiresDate = null }) {
+  sendInvitationEmail({ to, inviterName, inviteCode, expiresDays = 14, expiresDate = null, lang = 'de' }) {
     const baseUrl = APP_URL || 'http://localhost:3000';
     const inviteUrl = `${baseUrl}/#/register?invite=${encodeURIComponent(inviteCode)}&email=${encodeURIComponent(to)}`;
     const { subject, html, text } = createInvitationMail({
@@ -313,6 +319,7 @@ class MailService {
       inviteCode,
       expiresDays,
       expiresDate,
+      lang,
     });
 
     return this.enqueueMail({
@@ -326,7 +333,8 @@ class MailService {
   /**
    * Sendet eine Einladungs-E-Mail zur Aquarium-Freigabe an einen Benutzer.
    */
-  sendShareInvitationEmail({ user, ownerUsername, aquariumName, role, token, expiresDays = 14 }) {
+  sendShareInvitationEmail({ user, ownerUsername, aquariumName, role, token, expiresDays = 14, lang = null }) {
+    const userLang = lang || user?.language || 'de';
     const baseUrl = APP_URL || 'http://localhost:3000';
     const acceptUrl = `${baseUrl}/#/share-invitation?token=${encodeURIComponent(token)}`;
     const { subject, html, text } = createShareAquariumMail({
@@ -336,6 +344,7 @@ class MailService {
       role,
       acceptUrl,
       expiresDays,
+      lang: userLang,
     });
 
     return this.enqueueMail({
@@ -349,20 +358,23 @@ class MailService {
   /**
    * Sendet eine Erinnerungs-E-Mail für einen fälligen Messzyklus.
    */
-  sendMeasureReminderEmail({ user, aquarium, cycleStatus }) {
+  sendMeasureReminderEmail({ user, aquarium, cycleStatus, lang = null }) {
+    const userLang = lang || user?.language || 'de';
+    const isEn = String(userLang).toLowerCase().startsWith('en');
     const baseUrl = APP_URL || 'http://localhost:3000';
     const measureUrl = `${baseUrl}/#/a/${aquarium.id}/messen`;
     const lastDateStr = cycleStatus?.last_action_at
-      ? new Date(cycleStatus.last_action_at).toLocaleDateString('de-DE')
-      : 'Keine bisherige Messung';
+      ? new Date(cycleStatus.last_action_at).toLocaleDateString(isEn ? 'en-US' : 'de-DE')
+      : (isEn ? 'No previous measurement' : 'Keine bisherige Messung');
 
     const { subject, html, text } = createMeasureReminderMail({
       username: user.username,
       aquariumName: aquarium.name,
-      cycleLabel: cycleStatus?.cycle_label || 'Regelmäßig',
+      cycleLabel: cycleStatus?.cycle_label || (isEn ? 'Regular' : 'Regelmäßig'),
       lastDateStr,
-      statusLabel: cycleStatus?.status_label || 'Fällig',
+      statusLabel: cycleStatus?.status_label || (isEn ? 'Due' : 'Fällig'),
       measureUrl,
+      lang: userLang,
     });
 
     return this.enqueueMail({
@@ -376,20 +388,23 @@ class MailService {
   /**
    * Sendet eine Erinnerungs-E-Mail für einen fälligen Düngzyklus.
    */
-  sendFertilizeReminderEmail({ user, aquarium, cycleStatus }) {
+  sendFertilizeReminderEmail({ user, aquarium, cycleStatus, lang = null }) {
+    const userLang = lang || user?.language || 'de';
+    const isEn = String(userLang).toLowerCase().startsWith('en');
     const baseUrl = APP_URL || 'http://localhost:3000';
     const fertilizeUrl = `${baseUrl}/#/a/${aquarium.id}`;
     const lastDateStr = cycleStatus?.last_action_at
-      ? new Date(cycleStatus.last_action_at).toLocaleDateString('de-DE')
-      : 'Keine bisherige Düngung';
+      ? new Date(cycleStatus.last_action_at).toLocaleDateString(isEn ? 'en-US' : 'de-DE')
+      : (isEn ? 'No previous fertilization' : 'Keine bisherige Düngung');
 
     const { subject, html, text } = createFertilizeReminderMail({
       username: user.username,
       aquariumName: aquarium.name,
-      cycleLabel: cycleStatus?.cycle_label || 'Regelmäßig',
+      cycleLabel: cycleStatus?.cycle_label || (isEn ? 'Regular' : 'Regelmäßig'),
       lastDateStr,
-      statusLabel: cycleStatus?.status_label || 'Fällig',
+      statusLabel: cycleStatus?.status_label || (isEn ? 'Due' : 'Fällig'),
       fertilizeUrl,
+      lang: userLang,
     });
 
     return this.enqueueMail({
@@ -403,12 +418,13 @@ class MailService {
   /**
    * Sendet eine Test-E-Mail über die konfigurierten SMTP-Einstellungen.
    */
-  async sendTestEmail(toEmail, adminUsername = 'Admin') {
+  async sendTestEmail(toEmail, adminUsername = 'Admin', lang = 'de') {
     const config = this.getRawConfig();
     const serverInfo = `${config.host}:${config.port} (${config.secure ? 'SSL/TLS' : 'STARTTLS/Standard'})`;
     const { subject, html, text } = createTestEmailMail({
       adminUsername,
       serverInfo,
+      lang,
     });
 
     return this.sendDirect({

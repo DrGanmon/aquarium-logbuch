@@ -186,6 +186,7 @@ class MongoAdapter {
         email_verify_expires = null,
         password_reset_token = null,
         password_reset_expires = null,
+        language = 'de',
       }) {
         const id = await self.getNextSequence('users');
         const doc = {
@@ -214,11 +215,11 @@ class MongoAdapter {
           claude_api_key: null,
           claude_model: null,
           ai_provider: null,
-          language: 'de',
+          language: language === 'en' ? 'en' : 'de',
           created_at: new Date().toISOString(),
         };
         await db.collection('users').insertOne(doc);
-        return { id, username, email, oidc_sub, email_verified: email_verified ? 1 : 0 };
+        return { id, username, email, oidc_sub, email_verified: email_verified ? 1 : 0, language: doc.language };
       },
       async update(id, fields = {}) {
         const numId = Number(id);
@@ -336,6 +337,7 @@ class MongoAdapter {
           id_token: s.id_token,
           username: u.username,
           email: u.email,
+          language: u.language || 'de',
         };
       },
       async delete(tokenHash) {

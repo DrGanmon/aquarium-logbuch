@@ -16,6 +16,7 @@ async function auth(req, res, next) {
       id: row.user_id || row.id,
       username: row.username,
       email: row.email || null,
+      language: row.language || 'de',
       isAdmin: isEmailAdmin(row.email),
     };
     next();

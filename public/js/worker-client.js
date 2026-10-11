@@ -450,7 +450,8 @@ function fallbackSearchSpecies(data) {
 }
 
 function fallbackCheckCompatibility(data) {
-  const { aquarium, speciesCatalog, stocking } = data;
+  const { aquarium, speciesCatalog, stocking, lang = 'de' } = data;
+  const isEn = String(lang).toLowerCase().startsWith('en');
   const issues = [];
   const warnings = [];
   const infos = [];
@@ -462,6 +463,8 @@ function fallbackCheckCompatibility(data) {
     for (const sp of speciesCatalog) {
       if (sp.id) catalogMap.set(String(sp.id), sp);
       if (sp.name) catalogMap.set(sp.name.toLowerCase(), sp);
+      if (sp.name_de) catalogMap.set(sp.name_de.toLowerCase(), sp);
+      if (sp.name_en) catalogMap.set(sp.name_en.toLowerCase(), sp);
     }
   }
 
@@ -475,19 +478,25 @@ function fallbackCheckCompatibility(data) {
 
   for (const st of populated) {
     if (st.meta && st.meta.minVolumeL && vol > 0 && vol < st.meta.minVolumeL) {
+      const spName = isEn ? (st.meta.name_en || st.meta.name) : (st.meta.name_de || st.meta.name);
       warnings.push({
         type: 'min_volume',
-        title: `Mindestbeckengröße unterschritten: ${st.meta.name}`,
-        message: `„${st.meta.name}“ benötigt mindestens ${st.meta.minVolumeL} Liter (Becken hat ${vol} L).`,
-        species: st.meta.name,
+        title: isEn ? `Tank size too small: ${spName}` : `Mindestbeckengröße unterschritten: ${spName}`,
+        message: isEn
+          ? `"${spName}" requires at least ${st.meta.minVolumeL} litres (tank has ${vol} L).`
+          : `„${spName}“ benötigt mindestens ${st.meta.minVolumeL} Liter (Becken hat ${vol} L).`,
+        species: spName,
       });
     }
     if (st.meta && st.meta.socialType === 'school' && st.meta.minGroupCount && st.count < st.meta.minGroupCount) {
+      const spName = isEn ? (st.meta.name_en || st.meta.name) : (st.meta.name_de || st.meta.name);
       warnings.push({
         type: 'school_size',
-        title: `Schwarmgröße zu klein: ${st.meta.name}`,
-        message: `„${st.meta.name}“ ist ein Schwarmfisch und sollte ab ${st.meta.minGroupCount} Tieren gehalten werden (aktuell: ${st.count}).`,
-        species: st.meta.name,
+        title: isEn ? `School size too small: ${spName}` : `Schwarmgröße zu klein: ${spName}`,
+        message: isEn
+          ? `"${spName}" is a schooling fish and should be kept with at least ${st.meta.minGroupCount} specimens (currently: ${st.count}).`
+          : `„${spName}“ ist ein Schwarmfisch und sollte ab ${st.meta.minGroupCount} Tieren gehalten werden (aktuell: ${st.count}).`,
+        species: spName,
       });
     }
   }
@@ -496,8 +505,10 @@ function fallbackCheckCompatibility(data) {
   if (bettas.reduce((sum, b) => sum + b.count, 0) > 1) {
     issues.push({
       type: 'betta_solitary',
-      title: 'Kritischer Konflikt: Mehrere Kampffische',
-      message: 'Siamesische Kampffische (Betta splendens) müssen strikt einzeln gehalten werden!',
+      title: isEn ? 'Critical Conflict: Multiple Fighting Fish' : 'Kritischer Konflikt: Mehrere Kampffische',
+      message: isEn
+        ? 'Siamese fighting fish (Betta splendens) must strictly be kept solitary!'
+        : 'Siamesische Kampffische (Betta splendens) müssen strikt einzeln gehalten werden!',
     });
   }
 
@@ -506,10 +517,14 @@ function fallbackCheckCompatibility(data) {
   if (nippers.length && longFins.length) {
     for (const nip of nippers) {
       for (const lf of longFins) {
+        const nipName = isEn ? (nip.meta.name_en || nip.meta.name) : (nip.meta.name_de || nip.meta.name);
+        const lfName = isEn ? (lf.meta.name_en || lf.meta.name) : (lf.meta.name_de || lf.meta.name);
         warnings.push({
           type: 'fin_nipping',
-          title: `Flossenbeißer-Gefahr: ${nip.meta.name} vs. ${lf.meta.name}`,
-          message: `„${nip.meta.name}“ neigt zum Flossenbeißen bei langflossigen Arten wie „${lf.meta.name}“.`,
+          title: isEn ? `Fin-nipping risk: ${nipName} vs. ${lfName}` : `Flossenbeißer-Gefahr: ${nipName} vs. ${lfName}`,
+          message: isEn
+            ? `"${nipName}" tends to nip fins of long-finned species like "${lfName}".`
+            : `„${nipName}“ neigt zum Flossenbeißen bei langflossigen Arten wie „${lfName}“.`,
         });
       }
     }
@@ -520,10 +535,14 @@ function fallbackCheckCompatibility(data) {
   if (predators.length && shrimps.length) {
     for (const pred of predators) {
       for (const sh of shrimps) {
+        const predName = isEn ? (pred.meta.name_en || pred.meta.name) : (pred.meta.name_de || pred.meta.name);
+        const shName = isEn ? (sh.meta.name_en || sh.meta.name) : (sh.meta.name_de || sh.meta.name);
         warnings.push({
           type: 'predator_prey',
-          title: `Fressfeind-Warnung: ${pred.meta.name} vs. ${sh.meta.name}`,
-          message: `„${pred.meta.name}“ betrachtet kleine Zwerggarnelen („${sh.meta.name}“) als Lebendfutter.`,
+          title: isEn ? `Predator warning: ${predName} vs. ${shName}` : `Fressfeind-Warnung: ${predName} vs. ${shName}`,
+          message: isEn
+            ? `"${predName}" considers dwarf shrimp ("${shName}") as live prey.`
+            : `„${predName}“ betrachtet kleine Zwerggarnelen („${shName}“) als Lebendfutter.`,
         });
       }
     }
@@ -553,8 +572,10 @@ function fallbackCheckCompatibility(data) {
       if (tMin > tMax) {
         issues.push({
           type: 'temp_mismatch',
-          title: 'Temperatur-Inkompatibilität',
-          message: `Kein gemeinsamer Temperaturbereich vorhanden (benötigt mindestens ${tMin} °C, aber maximal ${tMax} °C).`,
+          title: isEn ? 'Temperature Incompatibility' : 'Temperatur-Inkompatibilität',
+          message: isEn
+            ? `No common temperature range found (requires at least ${tMin} °C, but max ${tMax} °C).`
+            : `Kein gemeinsamer Temperaturbereich vorhanden (benötigt mindestens ${tMin} °C, aber maximal ${tMax} °C).`,
         });
       }
     }
@@ -563,8 +584,10 @@ function fallbackCheckCompatibility(data) {
       if (phMin > phMax) {
         issues.push({
           type: 'ph_mismatch',
-          title: 'pH-Wert-Inkompatibilität',
-          message: `Kein gemeinsamer pH-Bereich vorhanden (benötigt mindestens ${phMin}, aber maximal ${phMax}).`,
+          title: isEn ? 'pH Range Incompatibility' : 'pH-Wert-Inkompatibilität',
+          message: isEn
+            ? `No common pH range found (requires at least ${phMin}, but max ${phMax}).`
+            : `Kein gemeinsamer pH-Bereich vorhanden (benötigt mindestens ${phMin}, aber maximal ${phMax}).`,
         });
       }
     }
@@ -679,8 +702,8 @@ export async function searchSpeciesInWorker(speciesList, searchTerm = '', waterT
 /**
  * Überprüft Beckenbesatz und Kompatibilität im Worker-Thread.
  */
-export async function checkCompatibilityInWorker(aquarium, speciesCatalog, stocking) {
-  return runWorkerTask('CHECK_COMPATIBILITY', { aquarium, speciesCatalog, stocking });
+export async function checkCompatibilityInWorker(aquarium, speciesCatalog, stocking, lang = 'de') {
+  return runWorkerTask('CHECK_COMPATIBILITY', { aquarium, speciesCatalog, stocking, lang });
 }
 
 /**

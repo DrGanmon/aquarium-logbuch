@@ -32,26 +32,36 @@ export async function showSpeciesModal(spOrName) {
   const tags = Array.isArray(sp.tags) ? sp.tags : [];
   const tagNodes = [];
   if (tags.includes('solitary_betta'))
-    tagNodes.push(h('span', { class: 'tag danger' }, 'Kampffisch / Einzelhaltung'));
+    tagNodes.push(h('span', { class: 'tag danger' }, t('species.tagBetta')));
   if (tags.includes('fin_nipper'))
-    tagNodes.push(h('span', { class: 'tag danger' }, 'Flossenbeißer'));
-  if (tags.includes('long_fins')) tagNodes.push(h('span', { class: 'tag warn' }, 'Lange Flossen'));
+    tagNodes.push(h('span', { class: 'tag danger' }, t('species.tagFinNipper')));
+  if (tags.includes('long_fins')) tagNodes.push(h('span', { class: 'tag warn' }, t('species.tagLongFins')));
   if (tags.includes('predator_small_prey'))
-    tagNodes.push(h('span', { class: 'tag warn' }, 'Räuber / Frisst Zwerggarnelen'));
+    tagNodes.push(h('span', { class: 'tag warn' }, t('species.tagPredator')));
   if (tags.includes('dwarf_shrimp'))
-    tagNodes.push(h('span', { class: 'tag info' }, 'Zwerggarnele'));
+    tagNodes.push(h('span', { class: 'tag info' }, t('species.tagDwarfShrimp')));
   if (tags.includes('requires_sand'))
-    tagNodes.push(h('span', { class: 'tag info' }, 'Sandboden Pflicht'));
+    tagNodes.push(h('span', { class: 'tag info' }, t('species.tagSand')));
   if (tags.includes('requires_wood'))
-    tagNodes.push(h('span', { class: 'tag info' }, 'Wurzelholz Pflicht'));
+    tagNodes.push(h('span', { class: 'tag info' }, t('species.tagWood')));
   if (tags.includes('requires_caves'))
-    tagNodes.push(h('span', { class: 'tag info' }, 'Höhlenbedarf'));
+    tagNodes.push(h('span', { class: 'tag info' }, t('species.tagCaves')));
+  if (tags.includes('requires_shells'))
+    tagNodes.push(h('span', { class: 'tag info' }, t('species.tagShells')));
   if (tags.includes('coldwater'))
-    tagNodes.push(h('span', { class: 'tag info' }, 'Kaltwasserfisch'));
+    tagNodes.push(h('span', { class: 'tag info' }, t('species.tagColdwater')));
   if (tags.includes('high_temp') || tags.includes('high_temp_required'))
-    tagNodes.push(h('span', { class: 'tag warn' }, 'Wärmebedürftig'));
+    tagNodes.push(h('span', { class: 'tag warn' }, t('species.tagHighTemp')));
   if (tags.includes('malawi_cichlid') || tags.includes('tanganjika_cichlid'))
-    tagNodes.push(h('span', { class: 'tag warn' }, 'Ostafrika-Felsenbiotop'));
+    tagNodes.push(h('span', { class: 'tag warn' }, t('species.tagRiftLake')));
+
+  const swimZoneLabel = sp.tankRegion === 'top'
+    ? t('species.zoneTop')
+    : sp.tankRegion === 'bottom'
+    ? t('species.zoneBottom')
+    : sp.tankRegion === 'top_middle'
+    ? t('species.zoneMiddle')
+    : t('species.zoneAll');
 
   d.replaceChildren(
     h(
@@ -65,16 +75,16 @@ export async function showSpeciesModal(spOrName) {
           ? h('div', { class: 'muted', style: 'font-style:italic' }, sp.scientificName)
           : null
       ),
-      h('button', { class: 'btn small ghost', type: 'button', onclick: close, 'aria-label': 'Schließen' }, '✕')
+      h('button', { class: 'btn small ghost', type: 'button', onclick: close, 'aria-label': t('common.close') }, '✕')
     ),
     h(
       'div',
       { class: 'row', style: 'margin-top:.4rem' },
-      h('span', { class: 'tag ok' }, sp.category || 'Allgemein'),
+      h('span', { class: 'tag ok' }, sp.category || t('species.allCategories')),
       h(
         'span',
         { class: `tag ${sp.waterType === 'salt' ? 'info' : 'ok'}` },
-        sp.waterType === 'salt' ? 'Meerwasser' : 'Süßwasser'
+        sp.waterType === 'salt' ? t('species.saltwater') : t('species.freshwater')
       ),
       sp.profile ? h('span', { class: 'tag' }, `Profil: ${CONFIG?.profiles?.[sp.profile] || sp.profile}`) : null,
       ...tagNodes
@@ -86,11 +96,11 @@ export async function showSpeciesModal(spOrName) {
       h(
         'div',
         { class: 'card stack', style: 'gap:.3rem; padding:.8rem' },
-        h('h3', { style: 'margin-bottom:.3rem' }, 'Wasserwerte'),
+        h('h3', { style: 'margin-bottom:.3rem' }, t('detail.tabOverview')),
         h(
           'div',
           {},
-          h('strong', {}, 'Temperatur: '),
+          h('strong', {}, t('species.temp') + ': '),
           `${sp.temp?.min ?? '–'}–${sp.temp?.max ?? '–'} °C`,
           sp.temp?.idealMin != null
             ? h('span', { class: 'muted' }, ` (Ideal: ${sp.temp.idealMin}–${sp.temp.idealMax} °C)`)
@@ -99,42 +109,36 @@ export async function showSpeciesModal(spOrName) {
         h(
           'div',
           {},
-          h('strong', {}, 'pH-Wert: '),
+          h('strong', {}, t('species.ph') + ': '),
           `${sp.ph?.min ?? '–'}–${sp.ph?.max ?? '–'}`,
           sp.ph?.idealMin != null
             ? h('span', { class: 'muted' }, ` (Ideal: ${sp.ph.idealMin}–${sp.ph.idealMax})`)
             : ''
         ),
         sp.gh?.min != null
-          ? h('div', {}, h('strong', {}, 'Gesamthärte (GH): '), `${sp.gh.min}–${sp.gh.max} °dH`)
+          ? h('div', {}, h('strong', {}, t('species.gh') + ': '), `${sp.gh.min}–${sp.gh.max} °dH`)
           : null,
         sp.kh?.min != null
-          ? h('div', {}, h('strong', {}, 'Karbonathärte (KH): '), `${sp.kh.min}–${sp.kh.max} °dH`)
+          ? h('div', {}, h('strong', {}, t('species.kh') + ': '), `${sp.kh.min}–${sp.kh.max} °dH`)
           : null
       ),
       h(
         'div',
         { class: 'card stack', style: 'gap:.3rem; padding:.8rem' },
-        h('h3', { style: 'margin-bottom:.3rem' }, 'Becken & Verhalten'),
+        h('h3', { style: 'margin-bottom:.3rem' }, t('species.behaviorNotes')),
         h(
           'div',
           {},
-          h('strong', {}, 'Mindestvolumen: '),
+          h('strong', {}, t('species.minVolume') + ': '),
           sp.minVolumeL ? `${sp.minVolumeL} Liter (${sp.minTankLengthCm || '–'} cm)` : '–'
         ),
-        h('div', {}, h('strong', {}, 'Sozialform: '), socialLabel(sp.socialType, sp.minGroupCount)),
-        h('div', {}, h('strong', {}, 'Territorialität: '), territorialLabel(sp.territorial)),
+        h('div', {}, h('strong', {}, t('species.social') + ': '), socialLabel(sp.socialType, sp.minGroupCount)),
+        h('div', {}, h('strong', {}, t('species.territorial') + ': '), territorialLabel(sp.territorial)),
         h(
           'div',
           {},
-          h('strong', {}, 'Schwimmzone: '),
-          sp.tankRegion === 'top'
-            ? 'Oberfläche'
-            : sp.tankRegion === 'bottom'
-            ? 'Boden'
-            : sp.tankRegion === 'top_middle'
-            ? 'Oben / Mitte'
-            : 'Überall'
+          h('strong', {}, t('species.zone') + ': '),
+          swimZoneLabel
         )
       )
     ),
@@ -153,7 +157,7 @@ export async function showSpeciesModal(spOrName) {
       'div',
       { class: 'row between', style: 'margin-top:.8rem;' },
       h('span', {}, ''),
-      h('button', { class: 'btn', type: 'button', onclick: close }, 'Schließen')
+      h('button', { class: 'btn', type: 'button', onclick: close }, t('common.close'))
     )
   );
 
@@ -164,22 +168,23 @@ export async function showSpeciesModal(spOrName) {
 export async function viewSpeciesCatalog(selectedId = null) {
   const data = await api('/species');
   const all = data.species || [];
-  const categories = ['Alle', ...(data.categories || [])];
+  const allLabel = t('common.all');
+  const categories = [allLabel, ...(data.categories || [])];
 
-  let currentCategory = 'Alle';
+  let currentCategory = allLabel;
   let currentWaterType = 'all';
   let searchTerm = '';
 
   const searchInput = h('input', {
     type: 'search',
-    placeholder: 'Art, wissenschaftlicher Name oder Verhalten suchen...',
+    placeholder: t('species.searchPlaceholder'),
   });
   const waterSelect = h(
     'select',
     { style: 'width:auto' },
-    h('option', { value: 'all' }, 'Alle Wassertypen'),
-    h('option', { value: 'fresh' }, 'Nur Süßwasser'),
-    h('option', { value: 'salt' }, 'Nur Meerwasser')
+    h('option', { value: 'all' }, t('species.allTypes')),
+    h('option', { value: 'fresh' }, t('species.filterFresh')),
+    h('option', { value: 'salt' }, t('species.filterSalt'))
   );
 
   const grid = h('div', { class: 'species-grid' });
@@ -188,14 +193,14 @@ export async function viewSpeciesCatalog(selectedId = null) {
   const renderCards = async () => {
     const seq = ++renderSeq;
     const list = await searchSpeciesInWorker(all, searchTerm, currentWaterType, currentCategory);
-    if (seq !== renderSeq) return; // Veraltete Suche ignorieren
+    if (seq !== renderSeq) return;
 
     if (!list.length) {
       grid.replaceChildren(
         h(
           'p',
           { class: 'muted', style: 'grid-column: 1 / -1' },
-          'Keine passenden Aquarienbewohner gefunden.'
+          t('species.emptyCatalog')
         )
       );
       return;
@@ -210,16 +215,22 @@ export async function viewSpeciesCatalog(selectedId = null) {
           h(
             'span',
             { class: `tag ${sp.waterType === 'salt' ? 'info' : 'ok'}` },
-            sp.waterType === 'salt' ? 'Meerwasser' : 'Süßwasser'
+            sp.waterType === 'salt' ? t('species.saltwater') : t('species.freshwater')
           )
         );
         if (sp.minVolumeL) chips.push(h('span', { class: 'tag' }, `ab ${sp.minVolumeL} L`));
         chips.push(h('span', { class: 'tag info' }, socialLabel(sp.socialType, sp.minGroupCount)));
         if (sp.territorial === 'solitary_aggressive')
-          chips.push(h('span', { class: 'tag danger' }, 'Einzelgänger / Kampffisch'));
-        else if (sp.territorial === 'strong') chips.push(h('span', { class: 'tag warn' }, 'Territorial'));
+          chips.push(h('span', { class: 'tag danger' }, t('species.terrAggressive')));
+        else if (sp.territorial === 'strong') chips.push(h('span', { class: 'tag warn' }, t('species.terrStrong')));
         else if (tags.includes('fin_nipper'))
-          chips.push(h('span', { class: 'tag danger' }, 'Flossenbeißer'));
+          chips.push(h('span', { class: 'tag danger' }, t('species.tagFinNipper')));
+
+        const dietLabel = sp.diet === 'herbivore'
+          ? t('species.dietHerbivore')
+          : sp.diet === 'carnivore'
+          ? t('species.dietCarnivore')
+          : t('species.dietOmnivore');
 
         return h(
           'div',
@@ -243,7 +254,7 @@ export async function viewSpeciesCatalog(selectedId = null) {
             h(
               'div',
               { class: 'muted', style: 'font-size:.85rem; line-height:1.4' },
-              `Temp: ${sp.temp?.min ?? '–'}–${sp.temp?.max ?? '–'} °C · pH: ${sp.ph?.min ?? '–'}–${sp.ph?.max ?? '–'} · ${sp.diet === 'herbivore' ? 'Pflanzenfresser' : sp.diet === 'carnivore' ? 'Fleischfresser' : 'Allesfresser'}`
+              `Temp: ${sp.temp?.min ?? '–'}–${sp.temp?.max ?? '–'} °C · pH: ${sp.ph?.min ?? '–'}–${sp.ph?.max ?? '–'} · ${dietLabel}`
             ),
             sp.description ? h('p', { class: 'muted', style: 'margin:0; font-size:.88rem' }, sp.description) : null
           ),
@@ -257,7 +268,7 @@ export async function viewSpeciesCatalog(selectedId = null) {
                 type: 'button',
                 onclick: () => showSpeciesModal(sp),
               },
-              'Vollständiges Profil & Haltungsansprüche'
+              t('species.viewProfile')
             )
           )
         );

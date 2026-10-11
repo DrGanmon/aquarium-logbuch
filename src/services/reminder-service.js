@@ -3,7 +3,7 @@
 const { mailService } = require('./mail-service');
 const logger = require('../utils/logger');
 
-const WEEKDAY_NAMES = {
+const WEEKDAY_NAMES_DE = {
   1: 'Montag',
   2: 'Dienstag',
   3: 'Mittwoch',
@@ -13,7 +13,7 @@ const WEEKDAY_NAMES = {
   7: 'Sonntag',
 };
 
-const WEEKDAY_SHORT = {
+const WEEKDAY_SHORT_DE = {
   1: 'Mo.',
   2: 'Di.',
   3: 'Mi.',
@@ -22,6 +22,29 @@ const WEEKDAY_SHORT = {
   6: 'Sa.',
   7: 'So.',
 };
+
+const WEEKDAY_NAMES_EN = {
+  1: 'Monday',
+  2: 'Tuesday',
+  3: 'Wednesday',
+  4: 'Thursday',
+  5: 'Friday',
+  6: 'Saturday',
+  7: 'Sunday',
+};
+
+const WEEKDAY_SHORT_EN = {
+  1: 'Mon',
+  2: 'Tue',
+  3: 'Wed',
+  4: 'Thu',
+  5: 'Fri',
+  6: 'Sat',
+  7: 'Sun',
+};
+
+const WEEKDAY_NAMES = WEEKDAY_NAMES_DE;
+const WEEKDAY_SHORT = WEEKDAY_SHORT_DE;
 
 /**
  * Wandelt ein Javascript Date in den ISO-Wochentag (1 = Montag, ..., 7 = Sonntag) um.
@@ -38,8 +61,13 @@ function getIsoDay(date) {
  * @param {string|Date|null} lastActionDate - Datum der letzten Durchführung
  * @param {string|Date|null} fallbackDate - Fallback-Datum (z. B. Erstellungsdatum des Aquariums)
  * @param {Date} [nowDate] - Aktueller Zeitpunkt (für Tests injizierbar)
+ * @param {string} [lang] - Sprache ('de' oder 'en')
  */
-function calculateCycleStatus(cycleConfig = {}, lastActionDate = null, fallbackDate = null, nowDate = new Date()) {
+function calculateCycleStatus(cycleConfig = {}, lastActionDate = null, fallbackDate = null, nowDate = new Date(), lang = 'de') {
+  const isEn = String(lang).toLowerCase().startsWith('en');
+  const weekdayNames = isEn ? WEEKDAY_NAMES_EN : WEEKDAY_NAMES_DE;
+  const weekdayShort = isEn ? WEEKDAY_SHORT_EN : WEEKDAY_SHORT_DE;
+
   const interval = cycleConfig.interval != null && cycleConfig.interval !== '' ? Number(cycleConfig.interval) : null;
   const unit = cycleConfig.unit === 'weeks' ? 'weeks' : 'days';
   let dayOfWeek = cycleConfig.day_of_week != null && cycleConfig.day_of_week !== '' ? Number(cycleConfig.day_of_week) : null;
@@ -54,8 +82,8 @@ function calculateCycleStatus(cycleConfig = {}, lastActionDate = null, fallbackD
       interval: null,
       unit,
       day_of_week: dayOfWeek,
-      day_of_week_label: dayOfWeek ? WEEKDAY_NAMES[dayOfWeek] : null,
-      day_of_week_short: dayOfWeek ? WEEKDAY_SHORT[dayOfWeek] : null,
+      day_of_week_label: dayOfWeek ? weekdayNames[dayOfWeek] : null,
+      day_of_week_short: dayOfWeek ? weekdayShort[dayOfWeek] : null,
       reminder_mail: reminderMail,
       last_action_at: lastActionDate ? new Date(lastActionDate).toISOString() : null,
       next_due_at: null,
@@ -63,8 +91,8 @@ function calculateCycleStatus(cycleConfig = {}, lastActionDate = null, fallbackD
       is_overdue: false,
       days_remaining: null,
       days_overdue: 0,
-      cycle_label: 'Kein Zyklus festgelegt',
-      status_label: 'Nicht konfiguriert',
+      cycle_label: isEn ? 'No cycle configured' : 'Kein Zyklus festgelegt',
+      status_label: isEn ? 'Not configured' : 'Nicht konfiguriert',
     };
   }
 
@@ -123,24 +151,46 @@ function calculateCycleStatus(cycleConfig = {}, lastActionDate = null, fallbackD
   const daysRemaining = diffDays > 0 ? diffDays : 0;
 
   let statusLabel;
-  if (diffDays === 0) {
-    statusLabel = 'Fällig heute';
-  } else if (diffDays === 1) {
-    statusLabel = 'Fällig morgen';
-  } else if (diffDays > 1) {
-    statusLabel = `Fällig in ${diffDays} Tagen`;
-  } else if (diffDays === -1) {
-    statusLabel = 'Überfällig seit gestern (1 Tag)';
+  if (isEn) {
+    if (diffDays === 0) {
+      statusLabel = 'Due today';
+    } else if (diffDays === 1) {
+      statusLabel = 'Due tomorrow';
+    } else if (diffDays > 1) {
+      statusLabel = `Due in ${diffDays} days`;
+    } else if (diffDays === -1) {
+      statusLabel = 'Overdue since yesterday (1 day)';
+    } else {
+      statusLabel = `Overdue since ${Math.abs(diffDays)} days`;
+    }
   } else {
-    statusLabel = `Überfällig seit ${Math.abs(diffDays)} Tagen`;
+    if (diffDays === 0) {
+      statusLabel = 'Fällig heute';
+    } else if (diffDays === 1) {
+      statusLabel = 'Fällig morgen';
+    } else if (diffDays > 1) {
+      statusLabel = `Fällig in ${diffDays} Tagen`;
+    } else if (diffDays === -1) {
+      statusLabel = 'Überfällig seit gestern (1 Tag)';
+    } else {
+      statusLabel = `Überfällig seit ${Math.abs(diffDays)} Tagen`;
+    }
   }
 
-  const dayLabel = dayOfWeek ? ` (${WEEKDAY_NAMES[dayOfWeek]})` : '';
+  const dayLabel = dayOfWeek ? ` (${weekdayNames[dayOfWeek]})` : '';
   let cycleLabel;
-  if (unit === 'days') {
-    cycleLabel = interval === 1 ? `Täglich${dayLabel}` : `Alle ${interval} Tage${dayLabel}`;
+  if (isEn) {
+    if (unit === 'days') {
+      cycleLabel = interval === 1 ? `Daily${dayLabel}` : `Every ${interval} days${dayLabel}`;
+    } else {
+      cycleLabel = interval === 1 ? `Weekly${dayLabel}` : `Every ${interval} weeks${dayLabel}`;
+    }
   } else {
-    cycleLabel = interval === 1 ? `Wöchentlich${dayLabel}` : `Alle ${interval} Wochen${dayLabel}`;
+    if (unit === 'days') {
+      cycleLabel = interval === 1 ? `Täglich${dayLabel}` : `Alle ${interval} Tage${dayLabel}`;
+    } else {
+      cycleLabel = interval === 1 ? `Wöchentlich${dayLabel}` : `Alle ${interval} Wochen${dayLabel}`;
+    }
   }
 
   return {
@@ -148,8 +198,8 @@ function calculateCycleStatus(cycleConfig = {}, lastActionDate = null, fallbackD
     interval,
     unit,
     day_of_week: dayOfWeek,
-    day_of_week_label: dayOfWeek ? WEEKDAY_NAMES[dayOfWeek] : null,
-    day_of_week_short: dayOfWeek ? WEEKDAY_SHORT[dayOfWeek] : null,
+    day_of_week_label: dayOfWeek ? weekdayNames[dayOfWeek] : null,
+    day_of_week_short: dayOfWeek ? weekdayShort[dayOfWeek] : null,
     reminder_mail: reminderMail,
     last_action_at: lastActionDate ? new Date(lastActionDate).toISOString() : null,
     next_due_at: nextDue.toISOString(),
@@ -218,6 +268,7 @@ class ReminderService {
 
       const user = await db.users.findById(aq.user_id);
       if (!user || !user.email) continue;
+      const userLang = user.language || 'de';
 
       // 1. Messzyklus prüfen
       if (hasMeasureMail) {
@@ -232,7 +283,8 @@ class ReminderService {
           },
           lastMeasDate,
           aq.created_at,
-          now
+          now,
+          userLang
         );
 
         if (measureStatus.is_due) {
@@ -256,11 +308,12 @@ class ReminderService {
                 user,
                 aquarium: aq,
                 cycleStatus: measureStatus,
+                lang: userLang,
               });
               await db.aquariums.updateReminderSent(aq.id, 'measure', now.toISOString());
               aq.last_measure_reminder_sent_at = now.toISOString();
               sentCount++;
-              logger.info(`Messzyklus-Erinnerung versendet für Aquarium „${aq.name}“ an ${user.email}`, 'reminder');
+              logger.info(`Messzyklus-Erinnerung versendet für Aquarium „${aq.name}“ an ${user.email} (Lang: ${userLang})`, 'reminder');
             } catch (err) {
               logger.error(`Fehler beim Senden der Messzyklus-Erinnerung für Aq #${aq.id}: ${err.message}`, 'reminder');
             }
@@ -281,7 +334,8 @@ class ReminderService {
           },
           lastFertilizeDate,
           aq.created_at,
-          now
+          now,
+          userLang
         );
 
         if (fertilizeStatus.is_due) {
@@ -303,11 +357,12 @@ class ReminderService {
                 user,
                 aquarium: aq,
                 cycleStatus: fertilizeStatus,
+                lang: userLang,
               });
               await db.aquariums.updateReminderSent(aq.id, 'fertilize', now.toISOString());
               aq.last_fertilize_reminder_sent_at = now.toISOString();
               sentCount++;
-              logger.info(`Düngzyklus-Erinnerung versendet für Aquarium „${aq.name}“ an ${user.email}`, 'reminder');
+              logger.info(`Düngzyklus-Erinnerung versendet für Aquarium „${aq.name}“ an ${user.email} (Lang: ${userLang})`, 'reminder');
             } catch (err) {
               logger.error(`Fehler beim Senden der Düngzyklus-Erinnerung für Aq #${aq.id}: ${err.message}`, 'reminder');
             }

@@ -272,10 +272,11 @@ class SqliteAdapter {
         email_verify_expires = null,
         password_reset_token = null,
         password_reset_expires = null,
+        language = 'de',
       }) {
         const info = db
           .prepare(
-            'INSERT INTO users (username, password_hash, email, oidc_sub, email_verified, email_verify_token, email_verify_expires, password_reset_token, password_reset_expires) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO users (username, password_hash, email, oidc_sub, email_verified, email_verify_token, email_verify_expires, password_reset_token, password_reset_expires, language) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
           )
           .run(
             username,
@@ -286,7 +287,8 @@ class SqliteAdapter {
             email_verify_token,
             email_verify_expires,
             password_reset_token,
-            password_reset_expires
+            password_reset_expires,
+            language === 'en' ? 'en' : 'de'
           );
         const id = Number(info.lastInsertRowid);
         return {
@@ -297,6 +299,7 @@ class SqliteAdapter {
           email_verified: email_verified ? 1 : 0,
           email_verify_token,
           email_verify_expires,
+          language: language === 'en' ? 'en' : 'de',
         };
       },
       async update(id, fields = {}) {
@@ -393,7 +396,7 @@ class SqliteAdapter {
           db
             .prepare(
               `
-          SELECT s.token_hash, s.user_id, s.expires_at, s.id_token, u.username, u.email
+          SELECT s.token_hash, s.user_id, s.expires_at, s.id_token, u.username, u.email, u.language
           FROM sessions s
           JOIN users u ON u.id = s.user_id
           WHERE s.token_hash = ?

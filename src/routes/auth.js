@@ -195,6 +195,8 @@ router.post(
       verifyExpires = Date.now() + 24 * 3600 * 1000; // 24 Stunden
     }
 
+    const language = (req.body.language === 'en' || String(req.headers['x-language']).toLowerCase() === 'en' || (req.headers['accept-language'] && req.headers['accept-language'].startsWith('en'))) ? 'en' : 'de';
+
     const user = await db.users.create({
       username,
       password_hash: await hashPassword(password),
@@ -202,6 +204,7 @@ router.post(
       email_verified: emailVerified,
       email_verify_token: verifyToken,
       email_verify_expires: verifyExpires,
+      language,
     });
 
     if (invitation) {
@@ -214,7 +217,7 @@ router.post(
     }
 
     // Bestätigungs-E-Mail versenden
-    mailService.sendVerificationEmail(user, verifyToken);
+    mailService.sendVerificationEmail(user, verifyToken, language);
 
     res.json({
       id: user.id,
@@ -861,13 +864,15 @@ router.post(
         note,
       });
 
-      const expiresDateStr = new Date(expiresAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const expiresDateStr = new Date(expiresAt).toLocaleDateString(req.user.language === 'en' ? 'en-US' : 'de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const inviteLang = req.body.language || req.user.language || 'de';
       mailService.sendInvitationEmail({
         to: email,
         inviterName: [req.user.first_name, req.user.last_name].filter(Boolean).join(' ') || req.user.username,
         inviteCode: code,
         expiresDays: days,
         expiresDate: expiresDateStr,
+        lang: inviteLang,
       });
 
       return res.json({
@@ -1007,7 +1012,8 @@ router.post(
           email_verify_token: token,
           email_verify_expires: expires,
         });
-        mailService.sendVerificationEmail(user, token);
+        const lang = req.body?.language || req.headers['x-language'] || user.language || 'de';
+        mailService.sendVerificationEmail(user, token, lang);
       }
     }
     res.json({
@@ -1039,7 +1045,8 @@ router.post(
           password_reset_token: token,
           password_reset_expires: expires,
         });
-        mailService.sendPasswordResetEmail(user, token);
+        const lang = req.body?.language || req.headers['x-language'] || user.language || 'de';
+        mailService.sendPasswordResetEmail(user, token, lang);
       }
     }
 

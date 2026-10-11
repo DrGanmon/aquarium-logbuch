@@ -299,9 +299,13 @@ function handleSearchSpecies(data) {
   }
 
   // Filter Kategorie
-  if (category && category !== 'Alle') {
+  if (category && category !== 'Alle' && category !== 'All') {
     const catLower = category.toLowerCase();
-    list = list.filter((s) => s.category && s.category.toLowerCase() === catLower);
+    list = list.filter((s) =>
+      (s.category && s.category.toLowerCase() === catLower) ||
+      (s.category_de && s.category_de.toLowerCase() === catLower) ||
+      (s.category_en && s.category_en.toLowerCase() === catLower)
+    );
   }
 
   // Suche & Scoring
@@ -312,10 +316,18 @@ function handleSearchSpecies(data) {
     const scored = [];
     for (const sp of list) {
       const name = (sp.name || '').toLowerCase();
+      const nameDe = (sp.name_de || '').toLowerCase();
+      const nameEn = (sp.name_en || '').toLowerCase();
       const sci = (sp.scientificName || '').toLowerCase();
       const cat = (sp.category || '').toLowerCase();
+      const catDe = (sp.category_de || '').toLowerCase();
+      const catEn = (sp.category_en || '').toLowerCase();
       const desc = (sp.description || '').toLowerCase();
+      const descDe = (sp.description_de || '').toLowerCase();
+      const descEn = (sp.description_en || '').toLowerCase();
       const beh = (sp.behaviorNotes || '').toLowerCase();
+      const behDe = (sp.behaviorNotes_de || '').toLowerCase();
+      const behEn = (sp.behaviorNotes_en || '').toLowerCase();
       const tags = Array.isArray(sp.tags) ? sp.tags.map((t) => t.toLowerCase()) : [];
 
       let score = 0;
@@ -324,13 +336,13 @@ function handleSearchSpecies(data) {
       for (const part of queryParts) {
         let partMatched = false;
 
-        if (name === part) {
+        if (name === part || nameDe === part || nameEn === part) {
           score += 100;
           partMatched = true;
-        } else if (name.startsWith(part)) {
+        } else if (name.startsWith(part) || nameDe.startsWith(part) || nameEn.startsWith(part)) {
           score += 50;
           partMatched = true;
-        } else if (name.includes(part)) {
+        } else if (name.includes(part) || nameDe.includes(part) || nameEn.includes(part)) {
           score += 30;
           partMatched = true;
         }
@@ -343,7 +355,7 @@ function handleSearchSpecies(data) {
           partMatched = true;
         }
 
-        if (cat.includes(part)) {
+        if (cat.includes(part) || catDe.includes(part) || catEn.includes(part)) {
           score += 15;
           partMatched = true;
         }
@@ -353,12 +365,12 @@ function handleSearchSpecies(data) {
           partMatched = true;
         }
 
-        if (beh.includes(part)) {
+        if (beh.includes(part) || behDe.includes(part) || behEn.includes(part)) {
           score += 10;
           partMatched = true;
         }
 
-        if (desc.includes(part)) {
+        if (desc.includes(part) || descDe.includes(part) || descEn.includes(part)) {
           score += 5;
           partMatched = true;
         }
@@ -386,7 +398,8 @@ function handleSearchSpecies(data) {
 // -------------------------------------------------------------
 
 function handleCheckCompatibility(data) {
-  const { aquarium, speciesCatalog, stocking } = data;
+  const { aquarium, speciesCatalog, stocking, lang = 'de' } = data;
+  const isEn = String(lang).toLowerCase().startsWith('en');
   const issues = [];
   const warnings = [];
   const infos = [];
@@ -401,6 +414,8 @@ function handleCheckCompatibility(data) {
     for (const sp of speciesCatalog) {
       if (sp.id) catalogMap.set(String(sp.id), sp);
       if (sp.name) catalogMap.set(sp.name.toLowerCase(), sp);
+      if (sp.name_de) catalogMap.set(sp.name_de.toLowerCase(), sp);
+      if (sp.name_en) catalogMap.set(sp.name_en.toLowerCase(), sp);
     }
   }
 
@@ -415,11 +430,14 @@ function handleCheckCompatibility(data) {
   // 1. Beckenvolumen Prüfung
   for (const st of populated) {
     if (st.meta && st.meta.minVolumeL && vol > 0 && vol < st.meta.minVolumeL) {
+      const spName = isEn ? (st.meta.name_en || st.meta.name) : (st.meta.name_de || st.meta.name);
       warnings.push({
         type: 'min_volume',
-        title: `Mindestbeckengröße unterschritten: ${st.meta.name}`,
-        message: `„${st.meta.name}“ benötigt mindestens ${st.meta.minVolumeL} Liter (Becken hat ${vol} L).`,
-        species: st.meta.name,
+        title: isEn ? `Tank size too small: ${spName}` : `Mindestbeckengröße unterschritten: ${spName}`,
+        message: isEn
+          ? `"${spName}" requires at least ${st.meta.minVolumeL} litres (tank has ${vol} L).`
+          : `„${spName}“ benötigt mindestens ${st.meta.minVolumeL} Liter (Becken hat ${vol} L).`,
+        species: spName,
       });
     }
   }
@@ -428,11 +446,14 @@ function handleCheckCompatibility(data) {
   for (const st of populated) {
     if (st.meta && st.meta.socialType === 'school' && st.meta.minGroupCount) {
       if (st.count < st.meta.minGroupCount) {
+        const spName = isEn ? (st.meta.name_en || st.meta.name) : (st.meta.name_de || st.meta.name);
         warnings.push({
           type: 'school_size',
-          title: `Schwarmgröße zu klein: ${st.meta.name}`,
-          message: `„${st.meta.name}“ ist ein Schwarmfisch und sollte ab ${st.meta.minGroupCount} Tieren gehalten werden (aktuell: ${st.count}).`,
-          species: st.meta.name,
+          title: isEn ? `School size too small: ${spName}` : `Schwarmgröße zu klein: ${spName}`,
+          message: isEn
+            ? `"${spName}" is a schooling fish and should be kept with at least ${st.meta.minGroupCount} specimens (currently: ${st.count}).`
+            : `„${spName}“ ist ein Schwarmfisch und sollte ab ${st.meta.minGroupCount} Tieren gehalten werden (aktuell: ${st.count}).`,
+          species: spName,
         });
       }
     }
@@ -444,8 +465,10 @@ function handleCheckCompatibility(data) {
   if (totalBettas > 1) {
     issues.push({
       type: 'betta_solitary',
-      title: 'Kritischer Konflikt: Mehrere Kampffische',
-      message: 'Siamesische Kampffische (Betta splendens) müssen strikt einzeln gehalten werden!',
+      title: isEn ? 'Critical Conflict: Multiple Fighting Fish' : 'Kritischer Konflikt: Mehrere Kampffische',
+      message: isEn
+        ? 'Siamese fighting fish (Betta splendens) must strictly be kept solitary!'
+        : 'Siamesische Kampffische (Betta splendens) müssen strikt einzeln gehalten werden!',
     });
   }
 
@@ -455,10 +478,14 @@ function handleCheckCompatibility(data) {
   if (nippers.length && longFins.length) {
     for (const nip of nippers) {
       for (const lf of longFins) {
+        const nipName = isEn ? (nip.meta.name_en || nip.meta.name) : (nip.meta.name_de || nip.meta.name);
+        const lfName = isEn ? (lf.meta.name_en || lf.meta.name) : (lf.meta.name_de || lf.meta.name);
         warnings.push({
           type: 'fin_nipping',
-          title: `Flossenbeißer-Gefahr: ${nip.meta.name} vs. ${lf.meta.name}`,
-          message: `„${nip.meta.name}“ neigt zum Flossenbeißen bei langflossigen Arten wie „${lf.meta.name}“.`,
+          title: isEn ? `Fin-nipping risk: ${nipName} vs. ${lfName}` : `Flossenbeißer-Gefahr: ${nipName} vs. ${lfName}`,
+          message: isEn
+            ? `"${nipName}" tends to nip fins of long-finned species like "${lfName}".`
+            : `„${nipName}“ neigt zum Flossenbeißen bei langflossigen Arten wie „${lfName}“.`,
         });
       }
     }
@@ -470,10 +497,14 @@ function handleCheckCompatibility(data) {
   if (predators.length && shrimps.length) {
     for (const pred of predators) {
       for (const sh of shrimps) {
+        const predName = isEn ? (pred.meta.name_en || pred.meta.name) : (pred.meta.name_de || pred.meta.name);
+        const shName = isEn ? (sh.meta.name_en || sh.meta.name) : (sh.meta.name_de || sh.meta.name);
         warnings.push({
           type: 'predator_prey',
-          title: `Fressfeind-Warnung: ${pred.meta.name} vs. ${sh.meta.name}`,
-          message: `„${pred.meta.name}“ betrachtet kleine Zwerggarnelen („${sh.meta.name}“) als Lebendfutter.`,
+          title: isEn ? `Predator warning: ${predName} vs. ${shName}` : `Fressfeind-Warnung: ${predName} vs. ${shName}`,
+          message: isEn
+            ? `"${predName}" considers dwarf shrimp ("${shName}") as live prey.`
+            : `„${predName}“ betrachtet kleine Zwerggarnelen („${shName}“) als Lebendfutter.`,
         });
       }
     }

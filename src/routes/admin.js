@@ -319,7 +319,8 @@ router.post(
       return res.status(400).json({ error: 'Bitte gib eine gültige Empfänger-E-Mail-Adresse für den Test an.' });
     }
     try {
-      const result = await mailService.sendTestEmail(toEmail, req.user.username);
+      const lang = req.body?.language || req.user.language || 'de';
+      const result = await mailService.sendTestEmail(toEmail, req.user.username, lang);
       res.json({ ok: true, message: `Test-E-Mail erfolgreich an ${toEmail} gesendet.`, result });
     } catch (err) {
       res.status(500).json({ error: `SMTP-Fehler: ${err.message}` });
@@ -411,13 +412,15 @@ router.post(
         note,
       });
 
-      const expiresDateStr = new Date(expiresAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const inviteLang = req.body.language || req.user.language || 'de';
+      const expiresDateStr = new Date(expiresAt).toLocaleDateString(inviteLang === 'en' ? 'en-US' : 'de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
       mailService.sendInvitationEmail({
         to: email,
         inviterName: [req.user.first_name, req.user.last_name].filter(Boolean).join(' ') || req.user.username || 'Administrator',
         inviteCode: code,
         expiresDays: mailDays,
         expiresDate: expiresDateStr,
+        lang: inviteLang,
       });
 
       return res.json({

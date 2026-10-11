@@ -37,14 +37,29 @@ function escapeHtml(str) {
 /**
  * Ermittelt den Pfad zur .tpl Datei.
  * Sucht zuerst im Benutzerverzeichnis (data/mail-templates/), dann im Standardverzeichnis (src/templates/mail/).
+ * Unterstützt sprachspezifische Templates (z. B. verify-email.en.tpl oder en/verify-email.tpl).
  */
-function getTemplatePath(templateName) {
-  const cleanName = templateName.endsWith('.tpl') ? templateName : `${templateName}.tpl`;
-  const userPath = path.join(USER_TEMPLATE_DIR, cleanName);
+function getTemplatePath(templateName, lang = 'de') {
+  const baseName = templateName.replace(/\.tpl$/, '').replace(/\.(de|en)$/, '');
+  const isEn = String(lang).toLowerCase().startsWith('en');
+
+  if (isEn) {
+    const userPathEn = path.join(USER_TEMPLATE_DIR, `${baseName}.en.tpl`);
+    if (fs.existsSync(userPathEn)) return userPathEn;
+    const userPathSubEn = path.join(USER_TEMPLATE_DIR, 'en', `${baseName}.tpl`);
+    if (fs.existsSync(userPathSubEn)) return userPathSubEn;
+
+    const defaultPathEn = path.join(TEMPLATE_DIR, `${baseName}.en.tpl`);
+    if (fs.existsSync(defaultPathEn)) return defaultPathEn;
+    const defaultPathSubEn = path.join(TEMPLATE_DIR, 'en', `${baseName}.tpl`);
+    if (fs.existsSync(defaultPathSubEn)) return defaultPathSubEn;
+  }
+
+  const userPath = path.join(USER_TEMPLATE_DIR, `${baseName}.tpl`);
   if (fs.existsSync(userPath)) {
     return userPath;
   }
-  const defaultPath = path.join(TEMPLATE_DIR, cleanName);
+  const defaultPath = path.join(TEMPLATE_DIR, `${baseName}.tpl`);
   if (fs.existsSync(defaultPath)) {
     return defaultPath;
   }
@@ -54,8 +69,8 @@ function getTemplatePath(templateName) {
 /**
  * Lädt den Inhalt einer .tpl Datei.
  */
-function loadTemplate(templateName) {
-  const filePath = getTemplatePath(templateName);
+function loadTemplate(templateName, lang = 'de') {
+  const filePath = getTemplatePath(templateName, lang);
   if (!fs.existsSync(filePath)) {
     throw new Error(`Mail-Template '${templateName}' (.tpl) wurde nicht gefunden: ${filePath}`);
   }
@@ -103,11 +118,14 @@ function replaceTokens(templateContent, tokens = {}, options = { escape: true })
 /**
  * Rendert ein benanntes .tpl Template mit übergebenen Tokens.
  */
-function renderTemplate(templateName, tokens = {}) {
-  const tpl = loadTemplate(templateName);
-  const brandTitle = tokens.brandTitle || '🐠 Aquarium-Logbuch';
+function renderTemplate(templateName, tokens = {}, lang = 'de') {
+  const isEn = String(lang).toLowerCase().startsWith('en');
+  const tpl = loadTemplate(templateName, lang);
+  const brandTitle = tokens.brandTitle || (isEn ? '🐠 Aquarium Logbook' : '🐠 Aquarium-Logbuch');
   const currentYear = tokens.currentYear || new Date().getFullYear();
-  const footerNote = tokens.footerNote || 'Aquarium-Logbuch – Deine Wasserwerte und Aquarien stets im Blick.';
+  const footerNote = tokens.footerNote || (isEn
+    ? 'Aquarium Logbook – Keep your water parameters and aquariums in view.'
+    : 'Aquarium-Logbuch – Deine Wasserwerte und Aquarien stets im Blick.');
   const logoUrl = tokens.logoUrl || getLogoUrl();
 
   const fullTokens = {
@@ -318,11 +336,16 @@ function renderBaseTemplate({ title, preheader, headline, contentHtml, ctaText, 
  * Template für die E-Mail-Adressen-Bestätigung (Verifizierung).
  * Nutzt 'verify-email.tpl'.
  */
-function createEmailVerificationMail({ username, verifyUrl, expiresHours = 24 }) {
-  const subject = '🐠 Bitte bestätige deine E-Mail-Adresse für Aquarium-Logbuch';
-  const preheader = `Hallo ${username}, bitte bestätige deine E-Mail-Adresse, um dein Konto zu aktivieren.`;
-  const headline = 'E-Mail-Adresse bestätigen';
-  const ctaText = 'E-Mail-Adresse jetzt bestätigen';
+function createEmailVerificationMail({ username, verifyUrl, expiresHours = 24, lang = 'de' }) {
+  const isEn = String(lang).toLowerCase().startsWith('en');
+  const subject = isEn
+    ? '🐠 Please verify your email address for Aquarium Logbook'
+    : '🐠 Bitte bestätige deine E-Mail-Adresse für Aquarium-Logbuch';
+  const preheader = isEn
+    ? `Hello ${username}, please verify your email address to activate your account.`
+    : `Hallo ${username}, bitte bestätige deine E-Mail-Adresse, um dein Konto zu aktivieren.`;
+  const headline = isEn ? 'Verify Email Address' : 'E-Mail-Adresse bestätigen';
+  const ctaText = isEn ? 'Verify Email Address Now' : 'E-Mail-Adresse jetzt bestätigen';
 
   const html = renderTemplate('verify-email', {
     title: subject,
@@ -334,9 +357,22 @@ function createEmailVerificationMail({ username, verifyUrl, expiresHours = 24 })
     expiresHours,
     ctaText,
     ctaUrl: verifyUrl,
-  });
+  }, lang);
 
-  const text = `Hallo ${username},
+  const text = isEn
+    ? `Hello ${username},
+
+Thank you for signing up for Aquarium Logbook!
+
+Please open the following link in your browser to verify your email address and activate your account:
+${verifyUrl}
+
+This link is valid for ${expiresHours} hours.
+
+If you did not create an account, you can safely ignore this email.
+
+Your Aquarium Logbook Team`
+    : `Hallo ${username},
 
 vielen Dank für deine Registrierung beim Aquarium-Logbuch!
 
@@ -356,11 +392,16 @@ Dein Aquarium-Logbuch Team`;
  * Template für das Zurücksetzen des Passworts.
  * Nutzt 'password-reset.tpl'.
  */
-function createPasswordResetMail({ username, resetUrl, expiresMinutes = 60 }) {
-  const subject = '🔐 Passwort zurücksetzen für Aquarium-Logbuch';
-  const preheader = `Hallo ${username}, du hast eine Anfrage zum Zurücksetzen deines Passworts gestellt.`;
-  const headline = 'Passwort zurücksetzen';
-  const ctaText = 'Neues Passwort festlegen';
+function createPasswordResetMail({ username, resetUrl, expiresMinutes = 60, lang = 'de' }) {
+  const isEn = String(lang).toLowerCase().startsWith('en');
+  const subject = isEn
+    ? '🔐 Reset your password for Aquarium Logbook'
+    : '🔐 Passwort zurücksetzen für Aquarium-Logbuch';
+  const preheader = isEn
+    ? `Hello ${username}, you requested a password reset for your account.`
+    : `Hallo ${username}, du hast eine Anfrage zum Zurücksetzen deines Passworts gestellt.`;
+  const headline = isEn ? 'Reset Password' : 'Passwort zurücksetzen';
+  const ctaText = isEn ? 'Set New Password' : 'Neues Passwort festlegen';
 
   const html = renderTemplate('password-reset', {
     title: subject,
@@ -372,9 +413,22 @@ function createPasswordResetMail({ username, resetUrl, expiresMinutes = 60 }) {
     expiresMinutes,
     ctaText,
     ctaUrl: resetUrl,
-  });
+  }, lang);
 
-  const text = `Hallo ${username},
+  const text = isEn
+    ? `Hello ${username},
+
+We received a request to reset the password for your account (${username}) at Aquarium Logbook.
+
+To set a new password, please open the following link in your browser:
+${resetUrl}
+
+This link is valid for ${expiresMinutes} minutes.
+
+If you did not make this request, you can simply ignore this message. Your password remains unchanged.
+
+Your Aquarium Logbook Team`
+    : `Hallo ${username},
 
 wir haben eine Anfrage erhalten, das Passwort für dein Konto (${username}) beim Aquarium-Logbuch zurückzusetzen.
 
@@ -394,23 +448,37 @@ Dein Aquarium-Logbuch Team`;
  * Template für Test-E-Mails aus dem Admin-Bereich.
  * Nutzt 'test-email.tpl'.
  */
-function createTestEmailMail({ adminUsername, serverInfo }) {
-  const subject = '✅ Test-E-Mail von Aquarium-Logbuch';
-  const preheader = 'Deine SMTP-Mail-Konfiguration funktioniert einwandfrei.';
-  const headline = 'SMTP-Konfiguration erfolgreich!';
-  const dateStr = new Date().toLocaleString('de-DE');
+function createTestEmailMail({ adminUsername, serverInfo, lang = 'de' }) {
+  const isEn = String(lang).toLowerCase().startsWith('en');
+  const subject = isEn ? '✅ Test Email from Aquarium Logbook' : '✅ Test-E-Mail von Aquarium-Logbuch';
+  const preheader = isEn
+    ? 'Your SMTP email configuration is working properly.'
+    : 'Deine SMTP-Mail-Konfiguration funktioniert einwandfrei.';
+  const headline = isEn ? 'SMTP Configuration Successful!' : 'SMTP-Konfiguration erfolgreich!';
+  const dateStr = isEn
+    ? new Date().toLocaleString('en-US')
+    : new Date().toLocaleString('de-DE');
 
   const html = renderTemplate('test-email', {
     title: subject,
     subject,
     preheader,
     headline,
-    adminUsername: adminUsername || 'Administrator',
-    serverInfo: serverInfo || 'Lokal konfiguriert',
+    adminUsername: adminUsername || (isEn ? 'Administrator' : 'Administrator'),
+    serverInfo: serverInfo || (isEn ? 'Configured locally' : 'Lokal konfiguriert'),
     dateStr,
-  });
+  }, lang);
 
-  const text = `Hallo ${adminUsername || 'Administrator'},
+  const text = isEn
+    ? `Hello ${adminUsername || 'Administrator'},
+
+The SMTP email configuration for Aquarium Logbook was tested successfully!
+
+Timestamp: ${dateStr}
+Server: ${serverInfo || 'Configured locally'}
+
+Your Aquarium Logbook System`
+    : `Hallo ${adminUsername || 'Administrator'},
 
 die SMTP-Konfiguration für das Aquarium-Logbuch funktioniert erfolgreich!
 
@@ -426,11 +494,16 @@ Dein Aquarium-Logbuch System`;
  * Template für die Bestätigung der Konto-Löschung.
  * Nutzt 'delete-account.tpl'.
  */
-function createAccountDeletionMail({ username, deleteUrl, expiresMinutes = 60 }) {
-  const subject = '⚠️ Bestätigung zur Löschung deines Benutzerkontos';
-  const preheader = `Hallo ${username}, bitte bestätige die endgültige Löschung deines Kontos beim Aquarium-Logbuch.`;
-  const headline = 'Konto unwiderruflich löschen';
-  const ctaText = 'Konto jetzt endgültig löschen';
+function createAccountDeletionMail({ username, deleteUrl, expiresMinutes = 60, lang = 'de' }) {
+  const isEn = String(lang).toLowerCase().startsWith('en');
+  const subject = isEn
+    ? '⚠️ Confirmation to permanently delete your user account'
+    : '⚠️ Bestätigung zur Löschung deines Benutzerkontos';
+  const preheader = isEn
+    ? `Hello ${username}, please confirm the permanent deletion of your Aquarium Logbook account.`
+    : `Hallo ${username}, bitte bestätige die endgültige Löschung deines Kontos beim Aquarium-Logbuch.`;
+  const headline = isEn ? 'Permanently Delete Account' : 'Konto unwiderruflich löschen';
+  const ctaText = isEn ? 'Permanently Delete My Account Now' : 'Konto jetzt endgültig löschen';
 
   const html = renderTemplate('delete-account', {
     title: subject,
@@ -442,9 +515,25 @@ function createAccountDeletionMail({ username, deleteUrl, expiresMinutes = 60 })
     expiresMinutes,
     ctaText,
     ctaUrl: deleteUrl,
-  });
+  }, lang);
 
-  const text = `Hallo ${username},
+  const text = isEn
+    ? `Hello ${username},
+
+You requested the permanent deletion of your user account at Aquarium Logbook in your profile settings.
+
+IMPORTANT NOTICE:
+If you confirm the deletion, your user account and all your aquariums, measurements, alerts, maintenance tasks, uploaded photos, and shares will be permanently deleted!
+
+To confirm the permanent deletion of your account, please open the following link in your browser:
+${deleteUrl}
+
+This link is valid for ${expiresMinutes} minutes.
+
+If you do NOT want to delete your account, simply ignore this email. Your account remains unchanged.
+
+Your Aquarium Logbook Team`
+    : `Hallo ${username},
 
 du hast in den Profileinstellungen die endgültige Löschung deines Benutzerkontos beim Aquarium-Logbuch angefordert.
 
@@ -463,51 +552,58 @@ Dein Aquarium-Logbuch Team`;
   return { subject, html, text };
 }
 
-module.exports = {
-  getTemplatePath,
-  loadTemplate,
-  replaceTokens,
-  renderTemplate,
-  renderBaseTemplate,
-  createEmailVerificationMail,
-  createPasswordResetMail,
-  createTestEmailMail,
-  createAccountDeletionMail,
-  createInvitationMail,
-  createShareAquariumMail,
-  createMeasureReminderMail,
-  createFertilizeReminderMail,
-};
-
 /**
  * Template für die Freigabe/Einladung zu einem Aquarium.
  * Nutzt 'share-aquarium.tpl'.
  */
-function createShareAquariumMail({ username, ownerUsername, aquariumName, role, acceptUrl, expiresDays = 14 }) {
-  const inviter = ownerUsername || 'Ein Benutzer';
-  const roleLabel = role === 'write' ? 'Schreibrechte (Werte erfassen & bearbeiten)' : 'Leserechte (Werte & Verlauf ansehen)';
-  const subject = `🐠 ${inviter} hat das Aquarium „${aquariumName}“ mit dir geteilt`;
-  const preheader = `${inviter} hat dich eingeladen, das Aquarium „${aquariumName}“ mit ${role === 'write' ? 'Schreibrechten' : 'Leserechten'} zu verwalten.`;
-  const headline = 'Aquarium-Freigabe erhalten';
-  const ctaText = 'Freigabe annehmen';
+function createShareAquariumMail({ username, ownerUsername, aquariumName, role, acceptUrl, expiresDays = 14, lang = 'de' }) {
+  const isEn = String(lang).toLowerCase().startsWith('en');
+  const inviter = ownerUsername || (isEn ? 'A user' : 'Ein Benutzer');
+  const roleLabel = role === 'write'
+    ? (isEn ? 'Write permissions (record & edit values, stock & logs)' : 'Schreibrechte (Werte erfassen & bearbeiten)')
+    : (isEn ? 'Read-only permissions (view values & history)' : 'Leserechte (Werte & Verlauf ansehen)');
+  const subject = isEn
+    ? `🐠 ${inviter} shared the aquarium "${aquariumName}" with you`
+    : `🐠 ${inviter} hat das Aquarium „${aquariumName}“ mit dir geteilt`;
+  const preheader = isEn
+    ? `${inviter} invited you to manage the aquarium "${aquariumName}" with ${role === 'write' ? 'write permissions' : 'view permissions'}.`
+    : `${inviter} hat dich eingeladen, das Aquarium „${aquariumName}“ mit ${role === 'write' ? 'Schreibrechten' : 'Leserechten'} zu verwalten.`;
+  const headline = isEn ? 'Aquarium Access Invitation' : 'Aquarium-Freigabe erhalten';
+  const ctaText = isEn ? 'Accept Invitation' : 'Freigabe annehmen';
 
   const html = renderTemplate('share-aquarium', {
     title: subject,
     subject,
     preheader,
     headline,
-    username: username || 'Aquarianer',
+    username: username || (isEn ? 'Aquarist' : 'Aquarianer'),
     ownerUsername: inviter,
-    aquariumName: aquariumName || 'Aquarium',
+    aquariumName: aquariumName || (isEn ? 'Aquarium' : 'Aquarium'),
     role,
     roleLabel,
     acceptUrl,
     ctaText,
     ctaUrl: acceptUrl,
     expiresDays,
-  });
+  }, lang);
 
-  const text = `Hallo ${username || 'Aquarianer'},
+  const text = isEn
+    ? `Hello ${username || 'Aquarist'},
+
+${inviter} would like to share the aquarium "${aquariumName}" with you on Aquarium Logbook!
+
+Sharing details:
+- Aquarium: ${aquariumName}
+- Shared by: ${inviter}
+- Permission: ${roleLabel}
+
+To accept the invitation and add the aquarium to your overview, open the following link:
+${acceptUrl}
+
+This link is valid for ${expiresDays} days.
+
+Your Aquarium Logbook Team`
+    : `Hallo ${username || 'Aquarianer'},
 
 ${inviter} möchte das Aquarium „${aquariumName}“ im Aquarium-Logbuch mit dir teilen!
 
@@ -530,13 +626,18 @@ Dein Aquarium-Logbuch Team`;
  * Template für Einladungen neuer Benutzer.
  * Nutzt 'invitation.tpl'.
  */
-function createInvitationMail({ inviterName, inviteUrl, inviteCode, expiresDays = 14, expiresDate = null }) {
-  const inviter = inviterName || 'Ein Mitglied';
-  const subject = `💌 Einladung zu Aquarium-Logbuch von ${inviter}`;
-  const preheader = `${inviter} hat dich eingeladen, dem Aquarium-Logbuch beizutreten.`;
-  const headline = 'Du wurdest eingeladen!';
-  const ctaText = 'Einladung annehmen & registrieren';
-  const expiresDateHint = expiresDate ? ` (bis zum ${expiresDate})` : '';
+function createInvitationMail({ inviterName, inviteUrl, inviteCode, expiresDays = 14, expiresDate = null, lang = 'de' }) {
+  const isEn = String(lang).toLowerCase().startsWith('en');
+  const inviter = inviterName || (isEn ? 'A member' : 'Ein Mitglied');
+  const subject = isEn ? `💌 Invitation to Aquarium Logbook from ${inviter}` : `💌 Einladung zu Aquarium-Logbuch von ${inviter}`;
+  const preheader = isEn
+    ? `${inviter} invited you to join Aquarium Logbook.`
+    : `${inviter} hat dich eingeladen, dem Aquarium-Logbuch beizutreten.`;
+  const headline = isEn ? 'You are invited!' : 'Du wurdest eingeladen!';
+  const ctaText = isEn ? 'Accept Invitation & Register' : 'Einladung annehmen & registrieren';
+  const expiresDateHint = expiresDate
+    ? (isEn ? ` (until ${expiresDate})` : ` (bis zum ${expiresDate})`)
+    : '';
 
   const html = renderTemplate('invitation', {
     title: subject,
@@ -550,9 +651,26 @@ function createInvitationMail({ inviterName, inviteUrl, inviteCode, expiresDays 
     expiresDateHint,
     ctaText,
     ctaUrl: inviteUrl,
-  });
+  }, lang);
 
-  const text = `Hallo,
+  const text = isEn
+    ? `Hello,
+
+${inviter} warmly invited you to join Aquarium Logbook!
+
+With Aquarium Logbook, you can easily track water parameters, maintenance tasks, photos, and fish livestock.
+
+Your Invite Code: ${inviteCode}
+
+Open the following link in your browser to accept your invitation and create your account:
+${inviteUrl}
+
+This invitation is valid for ${expiresDays} days${expiresDateHint}.
+
+If you did not expect this invitation, you can safely ignore this email.
+
+Your Aquarium Logbook Team`
+    : `Hallo,
 
 ${inviter} hat dich herzlich eingeladen, dem Aquarium-Logbuch beizutreten!
 
@@ -576,29 +694,44 @@ Dein Aquarium-Logbuch Team`;
  * Template für Erinnerungen an fällige Messzyklen.
  * Nutzt 'measure-reminder.tpl'.
  */
-function createMeasureReminderMail({ username, aquariumName, cycleLabel, lastDateStr, statusLabel, measureUrl }) {
-  const aqName = aquariumName || 'Aquarium';
-  const subject = `🧪 Erinnerung: Messung fällig für „${aqName}“`;
-  const preheader = `Für dein Aquarium „${aqName}“ ist gemäß deinem Messzyklus (${cycleLabel}) eine neue Messung fällig.`;
-  const headline = 'Wasserwert-Messung fällig';
-  const ctaText = 'Messung jetzt eintragen';
+function createMeasureReminderMail({ username, aquariumName, cycleLabel, lastDateStr, statusLabel, measureUrl, lang = 'de' }) {
+  const isEn = String(lang).toLowerCase().startsWith('en');
+  const aqName = aquariumName || (isEn ? 'Aquarium' : 'Aquarium');
+  const subject = isEn ? `🧪 Reminder: Test measurement due for "${aqName}"` : `🧪 Erinnerung: Messung fällig für „${aqName}“`;
+  const preheader = isEn
+    ? `A new water test measurement is due for "${aqName}" according to your scheduled test cycle (${cycleLabel}).`
+    : `Für dein Aquarium „${aqName}“ ist gemäß deinem Messzyklus (${cycleLabel}) eine neue Messung fällig.`;
+  const headline = isEn ? 'Water Measurement Due' : 'Wasserwert-Messung fällig';
+  const ctaText = isEn ? 'Record Measurement Now' : 'Messung jetzt eintragen';
 
   const html = renderTemplate('measure-reminder', {
     title: subject,
     subject,
     preheader,
     headline,
-    username: username || 'Aquarianer',
+    username: username || (isEn ? 'Aquarist' : 'Aquarianer'),
     aquariumName: aqName,
-    cycleLabel: cycleLabel || 'Regelmäßig',
-    lastDateStr: lastDateStr || 'Keine bisherige Messung',
-    statusLabel: statusLabel || 'Fällig',
+    cycleLabel: cycleLabel || (isEn ? 'Regular' : 'Regelmäßig'),
+    lastDateStr: lastDateStr || (isEn ? 'No previous measurement' : 'Keine bisherige Messung'),
+    statusLabel: statusLabel || (isEn ? 'Due' : 'Fällig'),
     measureUrl,
     ctaText,
     ctaUrl: measureUrl,
-  });
+  }, lang);
 
-  const text = `Hallo ${username || 'Aquarianer'},
+  const text = isEn
+    ? `Hello ${username || 'Aquarist'},
+
+A new water test measurement is due for your aquarium "${aqName}" according to your scheduled cycle (${cycleLabel})!
+
+Status: ${statusLabel}
+Last measurement: ${lastDateStr || 'No previous measurement'}
+
+Record your new water parameters in Aquarium Logbook:
+${measureUrl}
+
+Your Aquarium Logbook Team`
+    : `Hallo ${username || 'Aquarianer'},
 
 für dein Aquarium „${aqName}“ ist gemäß deinem hinterlegten Messzyklus (${cycleLabel}) eine neue Wasserwert-Messung fällig!
 
@@ -617,29 +750,44 @@ Dein Aquarium-Logbuch Team`;
  * Template für Erinnerungen an fällige Düngzyklen.
  * Nutzt 'fertilize-reminder.tpl'.
  */
-function createFertilizeReminderMail({ username, aquariumName, cycleLabel, lastDateStr, statusLabel, fertilizeUrl }) {
-  const aqName = aquariumName || 'Aquarium';
-  const subject = `🌿 Erinnerung: Düngung fällig für „${aqName}“`;
-  const preheader = `Für dein Aquarium „${aqName}“ ist gemäß deinem Düngzyklus (${cycleLabel}) eine Düngung fällig.`;
-  const headline = 'Pflanzendüngung fällig';
-  const ctaText = 'Düngung im Logbuch eintragen';
+function createFertilizeReminderMail({ username, aquariumName, cycleLabel, lastDateStr, statusLabel, fertilizeUrl, lang = 'de' }) {
+  const isEn = String(lang).toLowerCase().startsWith('en');
+  const aqName = aquariumName || (isEn ? 'Aquarium' : 'Aquarium');
+  const subject = isEn ? `🌿 Reminder: Fertilization due for "${aqName}"` : `🌿 Erinnerung: Düngung fällig für „${aqName}“`;
+  const preheader = isEn
+    ? `Plant fertilization is due for "${aqName}" according to your scheduled cycle (${cycleLabel}).`
+    : `Für dein Aquarium „${aqName}“ ist gemäß deinem Düngzyklus (${cycleLabel}) eine Düngung fällig.`;
+  const headline = isEn ? 'Plant Fertilization Due' : 'Pflanzendüngung fällig';
+  const ctaText = isEn ? 'Log Fertilization Now' : 'Düngung im Logbuch eintragen';
 
   const html = renderTemplate('fertilize-reminder', {
     title: subject,
     subject,
     preheader,
     headline,
-    username: username || 'Aquarianer',
+    username: username || (isEn ? 'Aquarist' : 'Aquarianer'),
     aquariumName: aqName,
-    cycleLabel: cycleLabel || 'Regelmäßig',
-    lastDateStr: lastDateStr || 'Keine bisherige Düngung',
-    statusLabel: statusLabel || 'Fällig',
+    cycleLabel: cycleLabel || (isEn ? 'Regular' : 'Regelmäßig'),
+    lastDateStr: lastDateStr || (isEn ? 'No previous fertilization' : 'Keine bisherige Düngung'),
+    statusLabel: statusLabel || (isEn ? 'Due' : 'Fällig'),
     fertilizeUrl,
     ctaText,
     ctaUrl: fertilizeUrl,
-  });
+  }, lang);
 
-  const text = `Hallo ${username || 'Aquarianer'},
+  const text = isEn
+    ? `Hello ${username || 'Aquarist'},
+
+Plant fertilization is due for your aquarium "${aqName}" according to your scheduled cycle (${cycleLabel})!
+
+Status: ${statusLabel}
+Last fertilization: ${lastDateStr || 'No previous fertilization'}
+
+Log your fertilization in Aquarium Logbook:
+${fertilizeUrl}
+
+Your Aquarium Logbook Team`
+    : `Hallo ${username || 'Aquarianer'},
 
 für dein Aquarium „${aqName}“ steht gemäß deinem hinterlegten Düngzyklus (${cycleLabel}) eine neue Pflanzendüngung an!
 
@@ -653,3 +801,19 @@ Dein Aquarium-Logbuch Team`;
 
   return { subject, html, text };
 }
+
+module.exports = {
+  getTemplatePath,
+  loadTemplate,
+  replaceTokens,
+  renderTemplate,
+  renderBaseTemplate,
+  createEmailVerificationMail,
+  createPasswordResetMail,
+  createTestEmailMail,
+  createAccountDeletionMail,
+  createInvitationMail,
+  createShareAquariumMail,
+  createMeasureReminderMail,
+  createFertilizeReminderMail,
+};

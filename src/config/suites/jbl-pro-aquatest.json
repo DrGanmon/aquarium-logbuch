@@ -1,12 +1,15 @@
 {
   "id": "jbl-pro",
   "name": "JBL Pro Tröpfchentest",
+  "name_en": "JBL Pro Drop Test",
   "description": "JBL PRO AQUATEST Testlab Tropfentests für Süß- und Meerwasser nach JBL-Gebrauchsanweisung",
+  "description_en": "JBL PRO AQUATEST Testlab drop tests for freshwater and saltwater according to JBL instructions",
   "isDefault": true,
   "tests": [
     {
       "key": "temp",
       "name": "Temperatur",
+      "name_en": "Temperature",
       "unit": "°C",
       "decimals": 1,
       "step": 0.1,
@@ -15,12 +18,14 @@
       "wait": 0,
       "verified": true,
       "hint": "Mit dem Aquarienthermometer direkt im Becken messen, kein Timer nötig.",
+      "hint_en": "Measure directly in the tank using an aquarium thermometer, no timer needed.",
       "fresh": { "okMin": 23, "okMax": 27, "critMin": 18, "critMax": 31 },
       "salt": { "okMin": 24, "okMax": 26, "critMin": 22, "critMax": 29 }
     },
     {
       "key": "ph",
       "name": "pH-Wert",
+      "name_en": "pH Value",
       "unit": "",
       "decimals": 1,
       "step": 0.1,
@@ -29,12 +34,14 @@
       "wait": 180,
       "verified": true,
       "hint": "5 ml Probewasser mit Reagens versetzen (z. B. 4 Tropfen 3,0–10 / 7,4–9,0 bzw. 3 Tropfen 6,0–7,6), mischen und nach 3 min mit der Farbkarte abgleichen.",
+      "hint_en": "Add reagent to 5 ml sample water, mix, and compare with color chart after 3 min.",
       "fresh": { "okMin": 6.5, "okMax": 7.5, "critMin": 5.5, "critMax": 8.5 },
       "salt": { "okMin": 8.0, "okMax": 8.4, "critMin": 7.6, "critMax": 8.7 }
     },
     {
       "key": "kh",
       "name": "Karbonathärte (KH)",
+      "name_en": "Carbonate Hardness (KH)",
       "unit": "°dH",
       "decimals": 1,
       "step": 0.5,
@@ -43,12 +50,14 @@
       "wait": 0,
       "verified": true,
       "hint": "5 ml Probewasser in die Küvette füllen. Reagens tropfenweise zugeben und schwenken, bis die Farbe von Blau nach Gelb umschlägt. Anzahl der Tropfen = °dKH.",
+      "hint_en": "Fill 5 ml sample water into cuvette. Add reagent drop by drop and swirl until color turns from blue to yellow. Number of drops = °dKH.",
       "fresh": { "okMin": 3, "okMax": 10, "critMin": 1, "critMax": 20 },
       "salt": { "okMin": 6.5, "okMax": 9.5, "critMin": 5, "critMax": 13 }
     },
     {
       "key": "gh",
       "name": "Gesamthärte (GH)",
+      "name_en": "General Hardness (GH)",
       "unit": "°dH",
       "decimals": 1,
       "step": 0.5,
@@ -57,12 +66,14 @@
       "wait": 0,
       "verified": true,
       "hint": "5 ml Probewasser in die Küvette füllen. Reagens tropfenweise zugeben und schwenken, bis die Farbe von Rot nach Grün umschlägt. Anzahl der Tropfen = °dGH.",
+      "hint_en": "Fill 5 ml sample water into cuvette. Add reagent drop by drop and swirl until color turns from red to green. Number of drops = °dGH.",
       "fresh": { "okMin": 6, "okMax": 14, "critMin": 3, "critMax": 25 },
       "salt": { "okMin": null, "okMax": null, "critMin": null, "critMax": null }
     },
     {
       "key": "nh4",
       "name": "Ammonium (NH4)",
+      "name_en": "Ammonium (NH4)",
       "unit": "mg/l",
       "decimals": 2,
       "step": 0.05,
@@ -71,12 +82,14 @@
       "wait": 600,
       "verified": true,
       "hint": "5 ml Probewasser: 4 Tropfen Reagens 1 (schwenken), 4 Tropfen Reagens 2 (schwenken), 5 Tropfen Reagens 3 (schwenken). 10 Minuten warten und im Komparatorblock ablesen.",
+      "hint_en": "5 ml sample water: 4 drops reagent 1, 4 drops reagent 2, 5 drops reagent 3 (swirl after each). Wait 10 min and read in comparator block.",
       "fresh": { "okMin": 0, "okMax": 0.1, "critMin": null, "critMax": 0.5 },
       "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.25 }
     },
     {
       "key": "no2",
       "name": "Nitrit (NO2)",
+      "name_en": "Nitrite (NO2)",
       "unit": "mg/l",
       "decimals": 2,
       "step": 0.01,
@@ -85,12 +98,14 @@
       "wait": 300,
       "verified": true,
       "hint": "5 ml Probewasser: 5 Tropfen Reagens 1 und 5 Tropfen Reagens 2 zugeben, nach jeder Zugabe schwenken. 5 Minuten warten und im Komparatorblock ablesen.",
+      "hint_en": "5 ml sample water: 5 drops reagent 1 and 5 drops reagent 2, swirl after each. Wait 5 min and read in comparator block.",
       "fresh": { "okMin": 0, "okMax": 0.1, "critMin": null, "critMax": 0.5 },
       "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.2 }
     },
     {
       "key": "no3",
       "name": "Nitrat (NO3)",
+      "name_en": "Nitrate (NO3)",
       "unit": "mg/l",
       "decimals": 0,
       "step": 1,
@@ -99,12 +114,14 @@
       "wait": 600,
       "verified": true,
       "hint": "10 ml Probewasser: 2 große Messlöffel Reagens 1 und 6 Tropfen Reagens 2 zugeben. 1 Minute kräftig schütteln, 10 Minuten stehen lassen und im Komparatorblock ablesen.",
+      "hint_en": "10 ml sample water: 2 large scoops reagent 1 and 6 drops reagent 2. Shake vigorously for 1 min, let stand 10 min and read in comparator block.",
       "fresh": { "okMin": 0, "okMax": 25, "critMin": null, "critMax": 100 },
       "salt": { "okMin": 0, "okMax": 10, "critMin": null, "critMax": 40 }
     },
     {
       "key": "po4",
       "name": "Phosphat (PO4)",
+      "name_en": "Phosphate (PO4)",
       "unit": "mg/l",
       "decimals": 2,
       "step": 0.05,
@@ -113,12 +130,14 @@
       "wait": 600,
       "verified": true,
       "hint": "10 ml Probewasser: 1 kleinen Messlöffel Reagens 1 lösen, 10 Tropfen Reagens 2 zugeben, schwenken. 10 Minuten warten und im Komparatorblock ablesen.",
+      "hint_en": "10 ml sample water: 1 small scoop reagent 1 (swirl to dissolve), 10 drops reagent 2 (mix). Wait 10 min and read in comparator block.",
       "fresh": { "okMin": 0, "okMax": 0.5, "critMin": null, "critMax": 2 },
       "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.3 }
     },
     {
       "key": "fe",
       "name": "Eisen (Fe)",
+      "name_en": "Iron (Fe)",
       "unit": "mg/l",
       "decimals": 2,
       "step": 0.01,
@@ -127,12 +146,14 @@
       "wait": 600,
       "verified": true,
       "hint": "5 ml Probewasser: 5 Tropfen Reagens Fe zugeben und schwenken. 10 Minuten warten und im Komparatorblock ablesen.",
+      "hint_en": "5 ml sample water: 5 drops reagent Fe, mix and wait 10 min. Read in comparator block.",
       "fresh": { "okMin": 0, "okMax": 0.2, "critMin": null, "critMax": 1 },
       "salt": { "okMin": 0, "okMax": 0.02, "critMin": null, "critMax": 0.1 }
     },
     {
       "key": "k",
       "name": "Kalium (K)",
+      "name_en": "Potassium (K)",
       "unit": "mg/l",
       "decimals": 0,
       "step": 1,
@@ -141,12 +162,14 @@
       "wait": 90,
       "verified": true,
       "hint": "15 ml Probewasser: 10 Tropfen Reagens 1 (schwenken), 1 gestrichenen großen Messlöffel Reagens 2 zugeben, 30 s leicht schwenken, 1 min stehen lassen. Trübung im Messröhrchen über dem Kreuz ablesen. Meerwasser: Probe 1:30 verdünnen und Wert x30.",
+      "hint_en": "15 ml sample water: 10 drops reagent 1 (mix), 1 large scoop reagent 2, swirl for 30 s and let stand 60 s. Read turbidity over cross in measuring tube.",
       "fresh": { "okMin": 5, "okMax": 30, "critMin": 2, "critMax": 40 },
       "salt": { "okMin": 380, "okMax": 400, "critMin": 300, "critMax": 450 }
     },
     {
       "key": "mg",
       "name": "Magnesium (Mg)",
+      "name_en": "Magnesium (Mg)",
       "unit": "mg/l",
       "decimals": 0,
       "step": 10,
@@ -155,12 +178,14 @@
       "wait": 60,
       "verified": true,
       "hint": "Süßwasser: 5 ml Probe, 7 Tropfen Reagens 1 (schwenken, 1 min warten), dann Reagens 2 tropfenweise bis Umschlag von Rot über Braun/Grau nach Grün. Tropfen x 100 = mg/l (oder Farbvergleich).",
+      "hint_en": "Freshwater: 5 ml sample, 7 drops reagent 1 (wait 1 min), then reagent 2 dropwise until color turns from red to green. Drops x 100 = mg/l.",
       "fresh": { "okMin": 5, "okMax": 30, "critMin": 2, "critMax": 60 },
       "salt": { "okMin": 1250, "okMax": 1400, "critMin": 1050, "critMax": 1600 }
     },
     {
       "key": "ca",
       "name": "Calcium (Ca)",
+      "name_en": "Calcium (Ca)",
       "unit": "mg/l",
       "decimals": 0,
       "step": 5,
@@ -169,12 +194,14 @@
       "wait": 60,
       "verified": true,
       "hint": "5 ml Probe: 5 Tropfen Reagens 1 (schwenken, 1 min warten), 1 kleinen Messlöffel Reagens 2 lösen. Reagens 3 tropfenweise zugeben bis Umschlag von Rosa nach Blau. Tropfen x 20 = mg/l Ca.",
+      "hint_en": "5 ml sample: 5 drops reagent 1 (wait 1 min), 1 small scoop reagent 2. Add reagent 3 dropwise until pink turns blue. Drops x 20 = mg/l Ca.",
       "fresh": { "okMin": 20, "okMax": 80, "critMin": 10, "critMax": 150 },
       "salt": { "okMin": 400, "okMax": 450, "critMin": 340, "critMax": 500 }
     },
     {
       "key": "cu",
       "name": "Kupfer (Cu)",
+      "name_en": "Copper (Cu)",
       "unit": "mg/l",
       "decimals": 3,
       "step": 0.005,
@@ -183,12 +210,14 @@
       "wait": 900,
       "verified": true,
       "hint": "5 ml Probewasser: 5 Tropfen Reagens 1 (schwenken), 5 Tropfen Reagens 2 (schwenken). 15 Minuten warten und im Komparatorblock ablesen.",
+      "hint_en": "5 ml sample water: 5 drops reagent 1, 5 drops reagent 2. Wait 15 min and read in comparator block.",
       "fresh": { "okMin": 0, "okMax": 0.02, "critMin": null, "critMax": 0.1 },
       "salt": { "okMin": 0, "okMax": 0.01, "critMin": null, "critMax": 0.05 }
     },
     {
       "key": "sio2",
       "name": "Silikat (SiO2)",
+      "name_en": "Silicate (SiO2)",
       "unit": "mg/l",
       "decimals": 2,
       "step": 0.1,
@@ -197,12 +226,14 @@
       "wait": 180,
       "verified": true,
       "hint": "10 ml Probewasser: 10 Tropfen Reagens 1 (3 min warten), 10 Tropfen Reagens 2 (3 min warten), 1 kleinen Löffel Reagens 3 (3 min warten, im Komparator ablesen).",
+      "hint_en": "10 ml sample water: 10 drops reagent 1 (wait 3 min), 10 drops reagent 2 (wait 3 min), 1 scoop reagent 3 (wait 3 min, read in comparator).",
       "fresh": { "okMin": 0, "okMax": 1.2, "critMin": null, "critMax": 3.0 },
       "salt": { "okMin": 0, "okMax": 0.5, "critMin": null, "critMax": 2.0 }
     },
     {
       "key": "o2",
       "name": "Sauerstoff (O2)",
+      "name_en": "Oxygen (O2)",
       "unit": "mg/l",
       "decimals": 1,
       "step": 0.1,
@@ -211,12 +242,14 @@
       "wait": 600,
       "verified": true,
       "hint": "Gefäß randvoll füllen: 6 Tropfen Reagens 1 und 6 Tropfen Reagens 2 zugeben, blasenfrei verschließen und 30 s schütteln. Nach 10 min 6 Tropfen Reagens 3 zugeben, schütteln und mit Farbkarte abgleichen.",
+      "hint_en": "Fill vessel completely: 6 drops reagent 1, 6 drops reagent 2, seal and shake 30 s. After 10 min add 6 drops reagent 3, shake and compare with color chart.",
       "fresh": { "okMin": 6, "okMax": null, "critMin": 3, "critMax": null },
       "salt": { "okMin": 6, "okMax": null, "critMin": 4, "critMax": null }
     },
     {
       "key": "co2",
       "name": "Kohlendioxid (CO2)",
+      "name_en": "Carbon Dioxide (CO2)",
       "unit": "mg/l",
       "decimals": 0,
       "step": 1,
@@ -225,6 +258,7 @@
       "wait": 0,
       "verified": true,
       "hint": "Direkttest: 20 ml Probe, 5 Tropfen Reagens 1, dann Reagens 2 tropfenweise unter Schwenken zugeben, bis eine schwache Rosafärbung für 60 s stabil bleibt. Tropfen x 2 = mg/l CO2.",
+      "hint_en": "Direct test: 20 ml sample, 5 drops reagent 1, then reagent 2 dropwise until faint pink color remains stable for 60 s. Drops x 2 = mg/l CO2.",
       "fresh": { "okMin": 10, "okMax": 30, "critMin": null, "critMax": 60 },
       "salt": { "okMin": null, "okMax": null, "critMin": null, "critMax": null }
     }

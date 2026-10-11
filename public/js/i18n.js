@@ -35,6 +35,7 @@ export function getLocale(lang = currentLang) {
 export function getLanguage() {
   return currentLang;
 }
+export const getCurrentLanguage = getLanguage;
 
 /**
  * Liest einen verschachtelten Übersetzungsschlüssel aus (z. B. 'common.save' oder 'auth.loginTitle').

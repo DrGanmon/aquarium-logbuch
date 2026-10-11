@@ -64,13 +64,16 @@ router.get(
   ownAquarium,
   wrap(async (req, res) => {
     const aq = req.aq;
+    const lang = req.query.lang || req.headers['x-language'] || req.user?.language || 'de';
     const stockRows = await db.stock.listForAquarium(aq.id);
     const stock = stockRows.map((s) => {
-      const sp = cfg.speciesService.findSpeciesByName(s.species);
+      const sp = cfg.speciesService.getSpeciesById(s.species, lang) || cfg.speciesService.findSpeciesByName(s.species, lang);
       return {
         ...s,
         scientificName: sp?.scientificName || null,
         category: sp?.category || null,
+        category_de: sp?.category_de || null,
+        category_en: sp?.category_en || null,
         minVolumeL: sp?.minVolumeL || null,
         socialType: sp?.socialType || null,
         minGroupCount: sp?.minGroupCount || 1,
@@ -83,7 +86,7 @@ router.get(
     const { profiles, thresholds, conflicts, compatibility } = await thresholdsOfAquarium(aq, db, stockRows);
     const alerts = await db.alerts.listOpenForAquarium(aq.id);
     const latest = await db.measurements.getLatestValues(aq.id, thresholds);
-    const stockCompatibility = compatibility || cfg.speciesService.analyzeStockCompatibility(aq, stockRows);
+    const stockCompatibility = compatibility || cfg.speciesService.analyzeStockCompatibility(aq, stockRows, lang);
     const summary = await db.aquariums.getSummary(aq, req.accessRole);
 
     res.json({
@@ -191,6 +194,7 @@ router.post(
 
     if (targetUser.email && mailService) {
       try {
+        const shareLang = targetUser.language || req.user.language || 'de';
         mailService.sendShareInvitationEmail({
           user: targetUser,
           ownerUsername: req.user.username,
@@ -198,6 +202,7 @@ router.post(
           role,
           token,
           expiresDays,
+          lang: shareLang,
         });
       } catch (e) {
         // Mail-Fehler soll Freigabe-Erstellung nicht abbrechen
