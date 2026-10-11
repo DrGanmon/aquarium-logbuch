@@ -9,6 +9,7 @@ const { deleteImage } = require('../services/image-service');
 const { backupService } = require('../services/backup-service');
 const { mailService } = require('../services/mail-service');
 const { registrationService } = require('../services/registration-service');
+const { legalConfigService } = require('../services/legal-config-service');
 const path = require('path');
 const logger = require('../utils/logger');
 
@@ -487,6 +488,33 @@ router.delete(
       return res.status(404).json({ error: 'Einladung nicht gefunden.' });
     }
     res.json({ ok: true });
+  })
+);
+
+/* ---------- Rechtliches & Kontakt-E-Mails Konfiguration ---------- */
+
+router.get(
+  '/legal-config',
+  auth,
+  requireAdmin,
+  wrap((req, res) => {
+    res.json({
+      config: legalConfigService.getConfig(),
+    });
+  })
+);
+
+router.put(
+  '/legal-config',
+  auth,
+  requireAdmin,
+  wrap((req, res) => {
+    try {
+      const updated = legalConfigService.saveConfig(req.body || {});
+      res.json({ ok: true, config: updated });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
   })
 );
 

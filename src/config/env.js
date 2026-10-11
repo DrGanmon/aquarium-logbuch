@@ -57,6 +57,10 @@ const ADMIN_EMAIL = (env.ADMIN_EMAIL || cfg.ADMIN_EMAIL || '').trim();
 const ADMIN_EMAILS = ADMIN_EMAIL.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 const isEmailAdmin = (email) => !!email && ADMIN_EMAILS.includes(String(email).trim().toLowerCase());
 
+// Kontakt- und Impressums-E-Mail-Adressen
+const CONTACT_EMAIL = (env.CONTACT_EMAIL || cfg.CONTACT_EMAIL || ADMIN_EMAIL || 'dr@ganmon.org').trim();
+const IMPRINT_EMAIL = (env.IMPRINT_EMAIL || env.IMPRESSUM_EMAIL || cfg.IMPRINT_EMAIL || CONTACT_EMAIL || 'dr@ganmon.org').trim();
+
 module.exports = {
   PORT,
   DATA_DIR,
@@ -82,4 +86,6 @@ module.exports = {
   ADMIN_EMAIL,
   ADMIN_EMAILS,
   isEmailAdmin,
+  CONTACT_EMAIL,
+  IMPRINT_EMAIL,
 };

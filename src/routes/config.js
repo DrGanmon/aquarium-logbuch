@@ -4,8 +4,14 @@ const cfg = require('../../config');
 const { auth } = require('../middleware/auth');
 const db = require('../db');
 const { wrap, str } = require('../utils/helpers');
+const { legalConfigService } = require('../services/legal-config-service');
 
 const router = express.Router();
+
+// Öffentlich zugängliche Informationen für Impressum, Kontakt und Lizenz
+router.get(['/legal-info', '/legal/config', '/public-info'], (req, res) => {
+  res.json(legalConfigService.getConfig());
+});
 
 router.get(
   '/config',

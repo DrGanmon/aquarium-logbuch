@@ -142,6 +142,9 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; font-family: var(--font); color: var(--ink); background: var(--glass);
   font-size: 16px; line-height: 1.45;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 h1, h2, h3 { line-height: 1.2; margin: 0 0 .5em; font-weight: 650; letter-spacing: -.01em; }
 h1 { font-size: 1.7rem; } h2 { font-size: 1.2rem; } h3 { font-size: 1rem; }
@@ -160,7 +163,7 @@ a { color: var(--ink); }
 .topbar .btn.ghost { color: var(--topbar-text); border-color: rgba(255, 255, 255, 0.35); }
 .topbar .btn.ghost:hover { background: var(--topbar-btn-hover); }
 
-main { max-width: 960px; margin: 0 auto; padding: 1rem; }
+main { max-width: 960px; margin: 0 auto; padding: 1rem; width: 100%; flex: 1 0 auto; }
 .stack > * + * { margin-top: 1rem; }
 .row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
 .row.between { justify-content: space-between; }
@@ -733,3 +736,168 @@ dialog.wide { max-width: 640px; }
 }
 
 @media (prefers-reduced-motion: reduce) { .tube .fill { transition: none; } }
+
+/* ---------- Footer & Rechtliches ---------- */
+.site-footer {
+  margin-top: auto;
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+  padding: 1.25rem 1rem;
+  color: var(--ink-soft);
+  font-size: .88rem;
+  width: 100%;
+}
+
+.footer-container {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .85rem;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  flex-wrap: wrap;
+}
+
+.footer-copy {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.footer-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .15rem .55rem;
+  background: var(--water-soft);
+  color: var(--ink);
+  border: 1px solid var(--water);
+  border-radius: 99px;
+  font-size: .78rem;
+  font-weight: 600;
+}
+
+.footer-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color .15s ease;
+}
+
+.footer-link:hover, .footer-link:focus-visible {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+/* Legal Views */
+.legal-container {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.legal-tabs {
+  display: flex;
+  gap: .4rem;
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 1.25rem;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.legal-tab {
+  padding: .55rem .95rem;
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  white-space: nowrap;
+  transition: all .15s ease;
+}
+
+.legal-tab:hover {
+  color: var(--ink);
+  background: var(--table-hover);
+}
+
+.legal-tab.active {
+  color: var(--primary, var(--ink));
+  border-bottom: 3px solid var(--water);
+  background: var(--paper);
+  margin-bottom: -2px;
+}
+
+.legal-box {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.4rem;
+  box-shadow: var(--card-shadow);
+}
+
+.legal-box h2 {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: .4rem;
+  margin-top: 1.2rem;
+  margin-bottom: .6rem;
+  font-size: 1.15rem;
+}
+
+.legal-box h2:first-child {
+  margin-top: 0;
+}
+
+.legal-box h3 {
+  margin-top: 1rem;
+  margin-bottom: .3rem;
+  font-size: 1rem;
+}
+
+.legal-badge-box {
+  background: var(--water-soft);
+  border: 1px solid var(--water);
+  border-radius: var(--radius);
+  padding: 1rem 1.15rem;
+  margin: .8rem 0 1.2rem 0;
+}
+
+.license-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+  background: var(--paper);
+  margin-bottom: 1rem;
+}
+
+.license-pre {
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: .75rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: .8rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 240px;
+  overflow-y: auto;
+}

@@ -121,12 +121,18 @@ function evaluate(range, value) {
 // E-Mail-Adresse(n) des Administrators (mehrere mit Komma trennen)
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'dr@ganmon.org';
 
+// Konfigurierbare E-Mail-Adressen für Kontakt und Impressum
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL || process.env.ADMIN_EMAIL || 'dr@ganmon.org';
+const IMPRINT_EMAIL = process.env.IMPRINT_EMAIL || process.env.IMPRESSUM_EMAIL || process.env.CONTACT_EMAIL || process.env.ADMIN_EMAIL || 'dr@ganmon.org';
+
 module.exports = {
   PARAMETERS,
   PROFILES,
   SPECIES,
   WATER_TYPES,
   ADMIN_EMAIL,
+  CONTACT_EMAIL,
+  IMPRINT_EMAIL,
   thresholdsFor,
   evaluate,
   suiteService,

@@ -87,6 +87,13 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **Schnellfilter:** Umschaltbar zwischen 7 Tage, 14 Tage, 30 Tage, 3 Monate (Standard), 6 Monate, 1 Jahr und Alles.
   - **Benutzerdefinierter Zeitraum:** Freie Auswahl von Start- und Enddatum per Datumswähler.
   - **Persönliche Voreinstellung:** Im Benutzerprofil kann der gewünschte Standard-Zeitraum für das eigene Konto dauerhaft festgelegt werden.
+- **Rechtliche Konformität & Footer (EU AI Act, DDG, DSGVO, Lizenzen & Kontakt):**
+  - **Footer auf allen Seiten:** Fester, responsiver Footer mit Schnelllinks zu Impressum, Datenschutz, Lizenzen und Kontakt – erreichbar im angemeldeten und nicht angemeldeten Zustand.
+  - **🤖 EU AI Act Transparenz (Art. 50 Verordnung (EU) 2024/1689):** Vollständige Offenlegung der KI-gestützten Softwareerstellung (JetBrains Junie) inklusive Hinweisen zu den Grenzen automatisierter Richtwert- und Berechnungsfunktionen.
+  - **⚖️ Impressum (§ 5 DDG & § 18 MStV):** Gesetzeskonforme Anbieterkennzeichnung mit Betreiberangaben, Kontakt-E-Mail und Hinweisen zur EU-Online-Streitbeilegung.
+  - **🔒 Datenschutzerklärung (DSGVO / GDPR):** Transparente Erläuterung aller Datenverarbeitungsprozesse (Konto, Aquariendaten, Session-Cookies, SMTP-Mails, Server-Logs), datensparsames lokales Hosting ohne Drittanbieter-Tracker und Dokumentation der Betroffenenrechte (inkl. CSV-Datenexport und 2-Stufen-Kontolöschung).
+  - **📜 Modul-Copyright & Open-Source-Lizenzen:** Lückenlose Auflistung aller verwendeten Open-Source-Module (`express`, `better-sqlite3`, `mongodb`, `chart.js`, Node.js Built-ins) mit Autoren, Versionen und vollständigen Lizenztexten (MIT, Apache 2.0).
+  - **✉️ Kontakt & Support:** Direkte Kontaktmöglichkeiten für technischen Support, Administrator-Anfragen und Datenschutzanliegen.
 - Warnungen (auffällig) und Alarme (kritisch) mit Handlungshinweis, zum Abhaken
 - Erinnerung, wenn die letzte Messung länger her ist als eingestellt
 
@@ -133,6 +140,8 @@ docker compose up -d --build
 | `LOCAL_LOGIN` | automatisch | Lokale Anmeldung mit Passwort. Standard: aus, wenn OIDC aktiv ist, sonst an |
 | `OIDC_LINK_BY_USERNAME` | false | `true` verknüpft beim ersten OIDC-Login ein vorhandenes lokales Konto mit gleichem Benutzernamen |
 | `ADMIN_EMAIL` | (leer) | E-Mail-Adresse des Administrators (oder mehrere durch Komma getrennt) für den Admin-Bereich / Benutzerverwaltung |
+| `CONTACT_EMAIL` | `ADMIN_EMAIL` | Optionale Support- & Kontakt-E-Mail-Adresse für Impressum & Kontaktseite |
+| `IMPRINT_EMAIL` | `CONTACT_EMAIL` | Optionale E-Mail-Adresse für Anbieterkennzeichnung / Impressum gem. § 5 DDG |
 | `SMTP_HOST` | (leer) | SMTP-Server-Host für E-Mail-Versand (auch über Admin-Interface konfigurierbar) |
 | `SMTP_PORT` | `587` | SMTP-Port (z. B. `587` für STARTTLS, `465` für SSL/TLS, `25` unverschlüsselt) |
 | `SMTP_SECURE` | `false` | `true` für direkte SSL/TLS-Verschlüsselung (Port 465) |
@@ -171,6 +180,11 @@ Der Administrator wird anhand der E-Mail-Adresse festgelegt. Dazu entweder in `c
   - Konfiguration der maximalen Gültigkeit für Benutzer-Einladungscodes (Standard: 7 Tage).
   - Erstellung von Admin-Einladungscodes mit individueller Verwendungsanzahl (z. B. unbegrenzt oder einmalig) sowie E-Mail-Einladungen.
   - Übersicht aller aktiven, eingelösten und abgelaufenen Einladungen inklusive Widerruf- / Löschfunktion.
+- **E-Mail- & SMTP-Server-Konfiguration:**
+  - Konfiguration des SMTP-Ausgangsservers für E-Mail-Verifizierungen, Passwort-Reset und Benachrichtigungen.
+  - Warteschlangen-Statusanzeige und Live-Testmail-Versand.
+- **Rechtliches & Kontakt-E-Mails (Impressum & Support):**
+  - Eigene E-Mail-Adressen für Support-/Datenschutz-Anfragen (`CONTACT_EMAIL`) und das Impressum (`IMPRINT_EMAIL` gem. § 5 DDG) direkt über die Weboberfläche oder per Umgebungsvariablen festlegen.
 - **Backup & Restore (Datensicherung & Wiederherstellung):**
   - **Manuelle Backups:** Vollständige Sicherung der gesamten Datenbank (Benutzer, Aquarien, Messwerte, Alarme, Logbuch) inklusive aller hochgeladenen Fotos als komprimierte Datei (`.json.gz`).
   - **Wiederherstellung (Restore):** Einspielen von Sicherungsdateien über die Weboberfläche oder aus der lokalen Backup-Liste.
@@ -251,6 +265,21 @@ Die Testparameter und Standardwerte liegen in `src/config/suites/jbl-pro-aquates
 ## Bekannte Grenzen
 
 - Automatischer E-Mail-Versand bei Grenzwert-Alarmen ist für ein zukünftiges Release vorgesehen.
+
+## Lizenz & Copyright
+
+Dieses Projekt steht unter der **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Lizenz (CC BY-NC-SA 4.0)**.
+
+- **✅ Erlaubt (Privat & Community):**
+  - Kostenlose Nutzung, Installation und Betrieb für den privaten und persönlichen Gebrauch.
+  - Modifikation, Anpassung und Weiterentwicklung des Quellcodes.
+- **🔄 Pflicht (Copyleft & Attribution):**
+  - **ShareAlike:** Abgeleitete Werke und Weiterentwicklungen müssen unter derselben Lizenz (CC BY-NC-SA 4.0) veröffentlicht werden.
+  - **Attribution:** Urheberhinweise und Verweise auf das Originalprojekt müssen erhalten bleiben.
+- **⛔ Untersagt (Nicht-kommerziell):**
+  - Jegliche kommerzielle Nutzung, der Weiterverkauf oder das Anbieten der Anwendung als entgeltliche Dienstleistung (z. B. kommerzielles SaaS-Hosting) ohne vorherige schriftliche Genehmigung des Urhebers.
+
+Vollständiger Lizenztext: Siehe [LICENSE](LICENSE).
 
 ## TODS
 
