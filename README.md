@@ -109,9 +109,16 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 
 ```bash
 npm ci               # Abhängigkeiten installieren (Node >= 22)
+npm run build        # Bündelt und minifiziert das Frontend nach public/dist/
 npm test             # führt alle automatisierten Tests aus (SQLite & MongoDB)
 npm start            # startet die App (Standard: SQLite unter http://localhost:3000)
 ```
+
+- **Frontend-Build & Minification (`npm run build` / `npm run dist`):**
+  - Kompiliert und bündelt sämtliche modularen Frontend-Dateien (`public/app.js` & `public/js/**`) zu einer kompakten, minifizierten Datei `public/dist/app.min.js` inklusive Source-Maps.
+  - Minifiziert das Stylesheet `public/style.css` zu `public/dist/style.min.css`.
+  - Der Server (`src/app.js`) erkennt das erstellte Bundle automatisch und bindet die optimierte Version ein (mit transparentem Entwicklungs-Fallback auf die ungebündelten Module, falls kein `dist/` existiert).
+  - Mit `npm run build:watch` können Frontend-Änderungen während der Entwicklung automatisch in Echtzeit neu kompiliert werden.
 
 ### 2. Betrieb mit MongoDB (Docker Compose)
 

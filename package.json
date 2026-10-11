@@ -6,7 +6,10 @@
   "license": "CC-BY-NC-SA-4.0",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test 'test/**/*.test.js'"
+    "build": "node scripts/build.js",
+    "dist": "node scripts/build.js",
+    "build:watch": "node scripts/build.js --watch",
+    "test": "node --test --test-concurrency=1 'test/**/*.test.js'"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
@@ -19,6 +22,7 @@
     "node": ">=22"
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
     "mongodb-memory-server": "^11.3.0"
   }
 }

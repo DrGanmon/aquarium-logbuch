@@ -20,3 +20,8 @@ data/uploads/**
 data/backups/**
 !data/backups/**/
 !data/backups/**/.gitkeep
+
+# Frontend Build / Dist (Ordnerstruktur über .gitkeep erhalten)
+public/dist/**
+!public/dist/**/
+!public/dist/**/.gitkeep

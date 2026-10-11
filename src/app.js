@@ -36,11 +36,28 @@ app.use('/auth', oidcRoutes);
 
 // Frontend: index.html mit <base href>, damit die App auch unter einem Unterpfad (APP_URL mit Pfad) läuft
 const publicDir = path.join(__dirname, '..', 'public');
-const INDEX_HTML = fs
-  .readFileSync(path.join(publicDir, 'index.html'), 'utf8')
-  .replace('<head>', `<head>\n  <base href="${APP_PATH.replace(/["<>&]/g, '')}/">`);
 
-const sendIndex = (req, res) => res.type('html').setHeader('Cache-Control', 'no-cache').send(INDEX_HTML);
+function getIndexHtml() {
+  const hasDistJs = fs.existsSync(path.join(publicDir, 'dist', 'app.min.js'));
+  const hasDistCss = fs.existsSync(path.join(publicDir, 'dist', 'style.min.css'));
+  let html = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
+
+  if (hasDistJs) {
+    html = html.replace('<script type="module" src="app.js"></script>', '<script type="module" src="dist/app.min.js"></script>');
+  } else {
+    html = html.replace('<script type="module" src="dist/app.min.js"></script>', '<script type="module" src="app.js"></script>');
+  }
+
+  if (hasDistCss) {
+    html = html.replace('<link rel="stylesheet" href="style.css">', '<link rel="stylesheet" href="dist/style.min.css">');
+  } else {
+    html = html.replace('<link rel="stylesheet" href="dist/style.min.css">', '<link rel="stylesheet" href="style.css">');
+  }
+
+  return html.replace('<head>', `<head>\n  <base href="${APP_PATH.replace(/["<>&]/g, '')}/">`);
+}
+
+const sendIndex = (req, res) => res.type('html').setHeader('Cache-Control', 'no-cache').send(getIndexHtml());
 
 app.get(['/', '/index.html'], sendIndex);
 app.get('/vendor/chart.js', (req, res) =>
