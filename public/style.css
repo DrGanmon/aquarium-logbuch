@@ -427,6 +427,99 @@ td.v-warn { color: var(--amber); font-weight: 650; } td.v-crit { color: var(--co
 }
 .sticky-save { position: sticky; bottom: 0; background: linear-gradient(transparent, var(--glass) 30%); padding: 1rem 0 .5rem; }
 
+/* Multi-Timer Dock & Parallele Timer */
+.multi-timer-dock {
+  position: sticky;
+  top: 3.5rem;
+  z-index: 15;
+  background: var(--paper);
+  border: 1.5px solid var(--water);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: .75rem 1rem;
+  border-radius: var(--radius);
+  margin-bottom: .8rem;
+  transition: all .2s ease;
+}
+.multi-timer-dock.has-finished {
+  border-color: var(--kelp);
+  box-shadow: 0 4px 18px rgba(46, 125, 50, 0.2);
+}
+.multi-timer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: .5rem;
+}
+.multi-timer-title {
+  font-weight: 700;
+  font-size: .95rem;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  color: var(--ink);
+}
+.multi-timer-subtitle {
+  font-size: .82rem;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+.multi-timer-actions {
+  display: flex;
+  gap: .4rem;
+  align-items: center;
+}
+.multi-timer-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+}
+.multi-timer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .35rem .75rem;
+  border-radius: 999px;
+  font-size: .84rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+.multi-timer-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+.multi-timer-chip.running {
+  border-color: var(--water);
+  background: var(--water-soft);
+  color: var(--water);
+}
+.multi-timer-chip.done {
+  border-color: var(--kelp);
+  background: var(--kelp-bg);
+  color: var(--kelp);
+  animation: pulse-done 2s infinite;
+}
+@keyframes pulse-done {
+  0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.45); }
+  70% { box-shadow: 0 0 0 7px rgba(46, 125, 50, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
+}
+.test.timer-flash {
+  animation: flash-focus 1.6s ease;
+}
+@keyframes flash-focus {
+  0% { transform: scale(1.02); box-shadow: 0 0 0 4px var(--water); border-color: var(--water); }
+  50% { transform: scale(1.02); box-shadow: 0 0 0 4px var(--water); border-color: var(--water); }
+  100% { transform: scale(1); box-shadow: none; }
+}
+
 dialog { border: 1px solid var(--line); border-radius: var(--radius); padding: 1.2rem; max-width: 420px; width: calc(100% - 2rem); background: var(--paper); color: var(--ink); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); }
 dialog::backdrop { background: var(--dialog-backdrop); }
 

@@ -206,7 +206,8 @@ export async function viewMeasure(id) {
       const clock = h('span', { class: 'clock', 'aria-live': 'off' }, p.wait ? mmss(p.wait) : '');
       const fill = h('div', { class: 'fill' });
       const tube = h('div', { class: 'tube' + (p.wait ? '' : ' idle') }, fill);
-      const btn = h('button', { class: 'btn small ghost', type: 'button' }, 'Timer starten');
+      const btn = h('button', { class: 'btn small ghost', type: 'button' }, p.wait ? t('measure.timerStart', { time: mmss(p.wait) }) : 'Timer starten');
+      const btnReset = h('button', { class: 'btn small ghost', type: 'button', style: 'display:none;' }, t('measure.timerReset'));
       const el = h(
         'div',
         { class: 'test', 'data-key': p.key },
@@ -221,7 +222,7 @@ export async function viewMeasure(id) {
           'div',
           { class: 'test-body' },
           p.wait
-            ? h('div', { class: 'timer-line' }, btn, clock)
+            ? h('div', { class: 'timer-line' }, btn, btnReset, clock)
             : h('span', { class: 'muted' }, 'Kein Warten nötig'),
           h('div', {}, input, p.unit ? h('span', { class: 'muted' }, ` ${p.unit}`) : null)
         ),
@@ -282,7 +283,20 @@ export async function viewMeasure(id) {
         render();
         updateWake();
       });
-      rows.set(p.key, { p, el, fill, clock, btn, input });
+      btnReset.addEventListener('click', (e) => {
+        e.preventDefault();
+        delete timers[p.key];
+        finished.delete(p.key);
+        pushNotificationManager.cancelTimer({
+          timerId: `${id}:${p.key}`,
+          testKey: p.key,
+          aquariumId: id,
+        });
+        saveTimers();
+        render();
+        updateWake();
+      });
+      rows.set(p.key, { p, el, fill, clock, btn, btnReset, input });
       list.append(el);
     }
   }
@@ -372,15 +386,48 @@ export async function viewMeasure(id) {
   };
   updateNotificationBanner();
 
+  const multiTimerDock = h('div', { class: 'multi-timer-dock card', style: 'display:none;' });
+
+  const cancelAllTimers = () => {
+    for (const k of Object.keys(timers)) {
+      pushNotificationManager.cancelTimer({
+        timerId: `${id}:${k}`,
+        testKey: k,
+        aquariumId: id,
+      });
+      delete timers[k];
+      finished.delete(k);
+    }
+    saveTimers();
+    render();
+    updateWake();
+  };
+
+  const clearFinishedTimers = () => {
+    const now = Date.now();
+    for (const [k, end] of Object.entries(timers)) {
+      if (end <= now) {
+        delete timers[k];
+        finished.delete(k);
+      }
+    }
+    saveTimers();
+    render();
+    updateWake();
+  };
+
   function render() {
     const now = Date.now();
+    const activeItems = [];
+
     for (const [k, r] of rows) {
       if (!r.p.wait) continue;
       const end = timers[k];
       if (!end) {
         r.fill.style.setProperty('--p', 0);
         r.clock.textContent = mmss(r.p.wait);
-        r.btn.textContent = 'Timer starten';
+        r.btn.textContent = t('measure.timerStart', { time: mmss(r.p.wait) });
+        r.btnReset.style.display = 'none';
         r.el.classList.remove('done');
         continue;
       }
@@ -388,13 +435,31 @@ export async function viewMeasure(id) {
       if (left > 0) {
         r.fill.style.setProperty('--p', Math.min(100, (1 - left / r.p.wait) * 100));
         r.clock.textContent = mmss(left);
-        r.btn.textContent = 'Abbrechen';
+        r.btn.textContent = t('measure.timerCancel');
+        r.btnReset.style.display = 'none';
         r.el.classList.remove('done');
+        activeItems.push({
+          key: k,
+          name: r.p.name,
+          wait: r.p.wait,
+          left,
+          isDone: false,
+          row: r,
+        });
       } else {
         r.fill.style.setProperty('--p', 100);
-        r.clock.textContent = 'Fertig';
-        r.btn.textContent = 'Neu starten';
+        r.clock.textContent = t('measure.timerDone');
+        r.btn.textContent = t('measure.timerRestart');
+        r.btnReset.style.display = '';
         r.el.classList.add('done');
+        activeItems.push({
+          key: k,
+          name: r.p.name,
+          wait: r.p.wait,
+          left: 0,
+          isDone: true,
+          row: r,
+        });
         if (!finished.has(k)) {
           finished.add(k);
           pushNotificationManager.notify({
@@ -404,10 +469,112 @@ export async function viewMeasure(id) {
             waitSec: r.p.wait,
             url: location.href,
           });
-          toast(`${r.p.name}: Zeit abgelaufen, jetzt ablesen.`);
+          toast(`${r.p.name}: ${t('measure.timerDone')}`);
           updateWake();
         }
       }
+    }
+
+    // Multi-Timer Dock Rendering
+    if (activeItems.length === 0) {
+      multiTimerDock.style.display = 'none';
+      multiTimerDock.replaceChildren();
+    } else {
+      multiTimerDock.style.display = '';
+      const runningCount = activeItems.filter((i) => !i.isDone).length;
+      const finishedCount = activeItems.filter((i) => i.isDone).length;
+
+      if (finishedCount > 0) {
+        multiTimerDock.classList.add('has-finished');
+      } else {
+        multiTimerDock.classList.remove('has-finished');
+      }
+
+      // Sortieren: Fertige Tests zuerst, dann laufende Timer aufsteigend nach Restzeit
+      activeItems.sort((a, b) => {
+        if (a.isDone && !b.isDone) return -1;
+        if (!a.isDone && b.isDone) return 1;
+        return a.left - b.left;
+      });
+
+      let subtitleText = '';
+      if (runningCount > 0 && finishedCount > 0) {
+        subtitleText = t('measure.timersRunningAndFinished', { running: runningCount, finished: finishedCount });
+      } else if (runningCount > 0) {
+        subtitleText = t('measure.timersOnlyRunning', { running: runningCount });
+      } else {
+        subtitleText = t('measure.timersOnlyFinished', { finished: finishedCount });
+      }
+
+      const chips = activeItems.map((item) => {
+        const chipEl = h(
+          'span',
+          {
+            class: `multi-timer-chip ${item.isDone ? 'done' : 'running'}`,
+            title: item.isDone ? t('measure.timerReadyClick') : `${item.name}: ${mmss(item.left)}`,
+            onclick: (e) => {
+              e.preventDefault();
+              item.row.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              item.row.el.classList.add('timer-flash');
+              setTimeout(() => item.row.el.classList.remove('timer-flash'), 1600);
+              if (item.isDone) {
+                setTimeout(() => item.row.input.focus(), 300);
+              }
+            },
+          },
+          item.isDone
+            ? `✅ ${item.name}: ${t('measure.timerDone')}`
+            : `⏳ ${item.name}: ${mmss(item.left)}`
+        );
+        return chipEl;
+      });
+
+      const actions = [];
+      if (finishedCount > 0) {
+        actions.push(
+          h(
+            'button',
+            {
+              class: 'btn small ghost',
+              type: 'button',
+              onclick: (e) => {
+                e.preventDefault();
+                clearFinishedTimers();
+              },
+            },
+            t('measure.clearFinishedTimers')
+          )
+        );
+      }
+      actions.push(
+        h(
+          'button',
+          {
+            class: 'btn small ghost',
+            type: 'button',
+            onclick: (e) => {
+              e.preventDefault();
+              cancelAllTimers();
+            },
+          },
+          t('measure.cancelAllTimers')
+        )
+      );
+
+      multiTimerDock.replaceChildren(
+        h(
+          'div',
+          { class: 'multi-timer-header' },
+          h(
+            'div',
+            { class: 'multi-timer-title' },
+            t('measure.activeTimersTitle', { count: activeItems.length }),
+            h('span', { class: 'multi-timer-subtitle' }, ` • ${subtitleText}`)
+          ),
+          h('div', { class: 'multi-timer-actions' }, ...actions)
+        ),
+        h('div', { class: 'multi-timer-chips' }, ...chips)
+      );
     }
   }
 
@@ -485,6 +652,7 @@ export async function viewMeasure(id) {
         )
       ),
       notificationBanner,
+      multiTimerDock,
       form
     )
   );
