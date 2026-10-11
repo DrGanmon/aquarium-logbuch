@@ -32,6 +32,7 @@ test('Footer, Impressum, EU AI Act, Datenschutz & Lizenzen Validierung', async (
     assert.ok(indexHtml.includes('href="#/datenschutz"'), 'Link zu Datenschutz muss vorhanden sein');
     assert.ok(indexHtml.includes('href="#/lizenzen"'), 'Link zu Lizenzen & Copyright muss vorhanden sein');
     assert.ok(indexHtml.includes('href="#/kontakt"'), 'Link zu Kontakt muss vorhanden sein');
+    assert.ok(indexHtml.includes('href="https://github.com/DrGanmon/aquarium-logbuch"'), 'Link zum Repository muss vorhanden sein');
     assert.ok(indexHtml.includes('EU AI Act'), 'EU AI Act Hinweis-Badge im Footer');
   });
 

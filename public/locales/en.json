@@ -88,7 +88,8 @@
     "imprint": "⚖️ Imprint & AI Notice",
     "privacy": "🔒 Privacy Policy",
     "licenses": "📜 Licenses & Copyright",
-    "contact": "✉️ Contact"
+    "contact": "✉️ Contact",
+    "repo": "🐙 GitHub"
   },
   "auth": {
     "loginTitle": "Sign In",

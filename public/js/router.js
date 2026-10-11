@@ -54,6 +54,9 @@ export function updateFooter() {
     links[2].textContent = t('footer.licenses');
     links[3].textContent = t('footer.contact');
   }
+  if (links.length >= 5) {
+    links[4].textContent = t('footer.repo');
+  }
 }
 
 export function updateTopbarUser() {
