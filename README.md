@@ -4,6 +4,10 @@
 
 # Aquarium-Logbuch
 
+<p align="center">
+  <strong>🇩🇪 Deutsch</strong> &nbsp;|&nbsp; <a href="README.en.md">🇬🇧 English</a>
+</p>
+
 Mehrbenutzer-Webanwendung für Aquarien-Wasserwerte. Node.js (ab Version 22), Express sowie wahlweise **SQLite** (lokal/leichtgewichtig) oder **MongoDB** (produktiv/skalierbar).
 Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen [Pocket ID](https://pocket-id.org).
 
