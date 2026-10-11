@@ -105,7 +105,8 @@ class MongoAdapter {
 
       // Aquarium shares
       await db.collection('aquarium_shares').createIndex({ aquarium_id: 1, user_id: 1 }, { unique: true });
-      await db.collection('aquarium_shares').createIndex({ user_id: 1 });
+      await db.collection('aquarium_shares').createIndex({ user_id: 1, status: 1 });
+      await db.collection('aquarium_shares').createIndex({ token: 1 }, { sparse: true });
 
       // Stock
       await db.collection('stock').createIndex({ id: 1 }, { unique: true });
@@ -336,7 +337,10 @@ class MongoAdapter {
       async listForUser(userId) {
         const numUserId = Number(userId);
         const ownRows = await db.collection('aquariums').find({ user_id: numUserId }).sort({ name: 1 }).toArray();
-        const shareRows = await db.collection('aquarium_shares').find({ user_id: numUserId }).toArray();
+        const shareRows = await db
+          .collection('aquarium_shares')
+          .find({ user_id: numUserId, $or: [{ status: 'accepted' }, { status: { $exists: false } }] })
+          .toArray();
 
         const sharedAqs = [];
         for (const s of shareRows) {
@@ -451,7 +455,7 @@ class MongoAdapter {
           return { aq, role: 'owner' };
         }
         const share = await self.shares.find(id, user.id);
-        if (share) {
+        if (share && (share.status === 'accepted' || !share.status)) {
           return { aq, role: share.role };
         }
         if (user.isAdmin) {
@@ -468,7 +472,9 @@ class MongoAdapter {
 
         const crit = await db.collection('alerts').countDocuments({ aquarium_id: aq.id, acked_at: null, level: 'crit' });
         const warn = await db.collection('alerts').countDocuments({ aquarium_id: aq.id, acked_at: null, level: 'warn' });
-        const sharesCount = await db.collection('aquarium_shares').countDocuments({ aquarium_id: aq.id });
+        const sharesCount = await db
+          .collection('aquarium_shares')
+          .countDocuments({ aquarium_id: aq.id, $or: [{ status: 'accepted' }, { status: { $exists: false } }] });
         const imagesCount = await db.collection('aquarium_images').countDocuments({ aquarium_id: aq.id });
 
         return {
@@ -589,35 +595,143 @@ class MongoAdapter {
         return shares.map((s) => {
           const u = userMap.get(s.user_id);
           return {
+            aquarium_id: s.aquarium_id,
             user_id: s.user_id,
             role: s.role,
+            status: s.status || 'accepted',
+            token: s.token || null,
+            token_expires: s.token_expires || null,
             created_at: s.created_at,
+            accepted_at: s.accepted_at || null,
             username: u?.username || '',
             email: u?.email || null,
           };
         });
       },
+      async listPendingForUser(userId) {
+        const numUserId = Number(userId);
+        const shares = await db
+          .collection('aquarium_shares')
+          .find({ user_id: numUserId, status: 'pending' })
+          .sort({ created_at: -1 })
+          .toArray();
+        if (shares.length === 0) return [];
+
+        const results = [];
+        for (const s of shares) {
+          const aq = await db.collection('aquariums').findOne({ id: s.aquarium_id });
+          if (!aq) continue;
+          const owner = await db.collection('users').findOne({ id: aq.user_id });
+          results.push({
+            aquarium_id: s.aquarium_id,
+            user_id: s.user_id,
+            role: s.role,
+            status: s.status,
+            token: s.token || null,
+            token_expires: s.token_expires || null,
+            created_at: s.created_at,
+            aquarium_name: aq.name,
+            water_type: aq.water_type,
+            volume_l: aq.volume_l,
+            owner_username: owner?.username || '',
+            owner_email: owner?.email || null,
+          });
+        }
+        return results;
+      },
       async find(aquariumId, userId) {
         return (await db.collection('aquarium_shares').findOne({ aquarium_id: Number(aquariumId), user_id: Number(userId) })) || null;
       },
-      async upsert(aquariumId, userId, role) {
+      async findByToken(token) {
+        if (!token) return null;
+        const s = await db.collection('aquarium_shares').findOne({ token: String(token) });
+        if (!s) return null;
+        const aq = await db.collection('aquariums').findOne({ id: s.aquarium_id });
+        if (!aq) return null;
+        const owner = await db.collection('users').findOne({ id: aq.user_id });
+        const targetUser = await db.collection('users').findOne({ id: s.user_id });
+        return {
+          ...s,
+          aquarium_name: aq.name,
+          water_type: aq.water_type,
+          volume_l: aq.volume_l,
+          owner_username: owner?.username || '',
+          owner_email: owner?.email || null,
+          target_username: targetUser?.username || '',
+          target_email: targetUser?.email || null,
+        };
+      },
+      async upsert(aquariumId, userId, role, status = 'pending', token = null, tokenExpires = null) {
         await db.collection('aquarium_shares').updateOne(
           { aquarium_id: Number(aquariumId), user_id: Number(userId) },
           {
             $set: {
               role,
+              status,
+              token,
+              token_expires: tokenExpires,
               created_at: new Date().toISOString(),
             },
           },
           { upsert: true }
         );
       },
+      async updateRole(aquariumId, userId, role) {
+        const res = await db.collection('aquarium_shares').updateOne(
+          { aquarium_id: Number(aquariumId), user_id: Number(userId) },
+          { $set: { role } }
+        );
+        return res.matchedCount > 0;
+      },
+      async accept(aquariumId, userId) {
+        const res = await db.collection('aquarium_shares').updateOne(
+          { aquarium_id: Number(aquariumId), user_id: Number(userId) },
+          {
+            $set: {
+              status: 'accepted',
+              accepted_at: new Date().toISOString(),
+              token: null,
+              token_expires: null,
+            },
+          }
+        );
+        return res.matchedCount > 0;
+      },
+      async acceptByToken(token, userId = null) {
+        if (!token) return false;
+        const filter = { token: String(token) };
+        if (userId != null) filter.user_id = Number(userId);
+        const res = await db.collection('aquarium_shares').updateOne(
+          filter,
+          {
+            $set: {
+              status: 'accepted',
+              accepted_at: new Date().toISOString(),
+              token: null,
+              token_expires: null,
+            },
+          }
+        );
+        return res.matchedCount > 0;
+      },
+      async decline(aquariumId, userId) {
+        const res = await db.collection('aquarium_shares').deleteOne({ aquarium_id: Number(aquariumId), user_id: Number(userId) });
+        return res.deletedCount > 0;
+      },
+      async declineByToken(token) {
+        if (!token) return false;
+        const res = await db.collection('aquarium_shares').deleteOne({ token: String(token) });
+        return res.deletedCount > 0;
+      },
       async delete(aquariumId, userId) {
         const res = await db.collection('aquarium_shares').deleteOne({ aquarium_id: Number(aquariumId), user_id: Number(userId) });
         return res.deletedCount > 0;
       },
       async count(aquariumId) {
-        return await db.collection('aquarium_shares').countDocuments({ aquarium_id: Number(aquariumId) });
+        return await db.collection('aquarium_shares').countDocuments({
+          aquarium_id: Number(aquariumId),
+          $or: [{ status: 'accepted' }, { status: { $exists: false } }],
+        });
       },
     };
 

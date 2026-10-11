@@ -21,16 +21,27 @@ test('Pflegearbeiten, Wasserwechsel & Logbuch-Timeline', async (t) => {
   assert.strictEqual(createAq.status, 200);
   const aqId = createAq.data.id;
 
-  // Freigaben für Writer (write) und Viewer (view) einrichten
+  // Freigaben für Writer (write) und Viewer (view) einrichten und annehmen
   await env.request(`/api/aquariums/${aqId}/shares`, {
     method: 'POST',
     headers: { Cookie: owner.cookie },
     body: { username: 'writer_user', role: 'write' },
   });
+  await env.request('/api/shares/accept', {
+    method: 'POST',
+    headers: { Cookie: writer.cookie },
+    body: { aquarium_id: aqId },
+  });
+
   await env.request(`/api/aquariums/${aqId}/shares`, {
     method: 'POST',
     headers: { Cookie: owner.cookie },
     body: { username: 'viewer_user', role: 'view' },
+  });
+  await env.request('/api/shares/accept', {
+    method: 'POST',
+    headers: { Cookie: viewer.cookie },
+    body: { aquarium_id: aqId },
   });
 
   // 2. Pflegemaßnahmen & Arbeiten eintragen (Wasserwechsel, Filter, Pflanzen, Pflege)

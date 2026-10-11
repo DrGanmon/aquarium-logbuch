@@ -1,5 +1,6 @@
 'use strict';
 const express = require('express');
+const crypto = require('crypto');
 const db = require('../db');
 const cfg = require('../../config');
 const { wrap, str } = require('../utils/helpers');
@@ -8,6 +9,7 @@ const { aquariumInput, aquariumSummary } = require('../services/aquarium-service
 const { thresholdsOfAquarium, buildMessage } = require('../services/alert-service');
 const { saveImage, saveAquariumImage, saveStockImage, deleteImage, getImagePath, getMimeType } = require('../services/image-service');
 const { validateMaintenanceInput, getAquariumTimeline } = require('../services/maintenance-service');
+const { mailService } = require('../services/mail-service');
 
 const router = express.Router();
 
@@ -142,8 +144,88 @@ router.post(
       return res.status(400).json({ error: 'Das Aquarium gehört diesem Benutzer bereits.' });
     }
 
-    await db.shares.upsert(req.aq.id, targetUser.id, role);
-    res.json({ ok: true, user_id: targetUser.id, username: targetUser.username, email: targetUser.email, role });
+    const existingShare = await db.shares.find(req.aq.id, targetUser.id);
+    if (existingShare && (existingShare.status === 'accepted' || (!existingShare.status && !req.body.forceNewInvite))) {
+      // Rolle für bestehende akzeptierte Freigabe aktualisieren
+      await db.shares.updateRole(req.aq.id, targetUser.id, role);
+      return res.json({
+        ok: true,
+        user_id: targetUser.id,
+        username: targetUser.username,
+        email: targetUser.email,
+        role,
+        status: 'accepted',
+      });
+    }
+
+    // Neue Freigabe oder Status pending: Token generieren und Einladungsmail senden
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresDays = 14;
+    const tokenExpires = Date.now() + expiresDays * 86400000;
+
+    await db.shares.upsert(req.aq.id, targetUser.id, role, 'pending', token, tokenExpires);
+
+    if (targetUser.email && mailService) {
+      try {
+        mailService.sendShareInvitationEmail({
+          user: targetUser,
+          ownerUsername: req.user.username,
+          aquariumName: req.aq.name,
+          role,
+          token,
+          expiresDays,
+        });
+      } catch (e) {
+        // Mail-Fehler soll Freigabe-Erstellung nicht abbrechen
+      }
+    }
+
+    res.json({
+      ok: true,
+      user_id: targetUser.id,
+      username: targetUser.username,
+      email: targetUser.email,
+      role,
+      status: 'pending',
+      token,
+      message: 'Einladungs-E-Mail wurde an den Benutzer gesendet.',
+    });
+  })
+);
+
+router.post(
+  '/:id/shares/:userId/resend',
+  auth,
+  ownerAquarium,
+  wrap(async (req, res) => {
+    const targetUserId = Number(req.params.userId);
+    const targetUser = await db.users.findById(targetUserId);
+    if (!targetUser) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+
+    const share = await db.shares.find(req.aq.id, targetUserId);
+    if (!share) return res.status(404).json({ error: 'Freigabe nicht gefunden.' });
+    if (share.status === 'accepted') {
+      return res.status(400).json({ error: 'Diese Freigabe wurde bereits angenommen.' });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresDays = 14;
+    const tokenExpires = Date.now() + expiresDays * 86400000;
+
+    await db.shares.upsert(req.aq.id, targetUserId, share.role, 'pending', token, tokenExpires);
+
+    if (targetUser.email && mailService) {
+      mailService.sendShareInvitationEmail({
+        user: targetUser,
+        ownerUsername: req.user.username,
+        aquariumName: req.aq.name,
+        role: share.role,
+        token,
+        expiresDays,
+      });
+    }
+
+    res.json({ ok: true, message: 'Einladungs-E-Mail erneut gesendet.', token });
   })
 );
 

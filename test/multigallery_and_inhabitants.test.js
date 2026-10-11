@@ -103,11 +103,16 @@ test('Aquarium-Bildergalerie: Mehrere Bilder hochladen, anzeigen, als Titelbild 
   });
   const aqId = createAq.data.id;
 
-  // Für Viewer mit 'view' freigeben
+  // Für Viewer mit 'view' freigeben und annehmen
   await env.request(`/api/aquariums/${aqId}/shares`, {
     method: 'POST',
     headers: { Cookie: user.cookie },
     body: { username: 'gallery_viewer', role: 'view' },
+  });
+  await env.request('/api/shares/accept', {
+    method: 'POST',
+    headers: { Cookie: viewer.cookie },
+    body: { aquarium_id: aqId },
   });
 
   // 1. Zunächst keine Bilder
@@ -239,11 +244,16 @@ test('Besatz & Bewohner: Namen vergeben, Porträtfotos hochladen, anzeigen, bear
   });
   const aqId = createAq.data.id;
 
-  // Freigabe für Viewer
+  // Freigabe für Viewer und annehmen
   await env.request(`/api/aquariums/${aqId}/shares`, {
     method: 'POST',
     headers: { Cookie: user.cookie },
     body: { username: 'fish_viewer', role: 'view' },
+  });
+  await env.request('/api/shares/accept', {
+    method: 'POST',
+    headers: { Cookie: viewer.cookie },
+    body: { aquarium_id: aqId },
   });
 
   // 1. Bewohner mit Name und Foto anlegen

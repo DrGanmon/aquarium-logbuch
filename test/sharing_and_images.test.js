@@ -158,7 +158,7 @@ test('Aquarien teilen: Berechtigungen (view vs. write), Freigabe-Verwaltung und 
   });
   assert.strictEqual(shareSelf.status, 400);
 
-  // 2. Owner teilt Aquarium mit Ben (Rolle: view)
+  // 2. Owner teilt Aquarium mit Ben (Rolle: view) -> erzeugt Einladung (Status pending)
   const shareWithBen = await env.request(`/api/aquariums/${aqId}/shares`, {
     method: 'POST',
     headers: { Cookie: owner.cookie },
@@ -167,8 +167,11 @@ test('Aquarien teilen: Berechtigungen (view vs. write), Freigabe-Verwaltung und 
   assert.strictEqual(shareWithBen.status, 200);
   assert.strictEqual(shareWithBen.data.role, 'view');
   assert.strictEqual(shareWithBen.data.username, 'reader_ben');
+  assert.strictEqual(shareWithBen.data.status, 'pending');
+  assert.ok(shareWithBen.data.token, 'Token sollte generiert worden sein');
+  const inviteToken = shareWithBen.data.token;
 
-  // Freigabeliste abrufen
+  // Freigabeliste abrufen: Owner sieht Ausstehend-Status
   const listShares = await env.request(`/api/aquariums/${aqId}/shares`, {
     headers: { Cookie: owner.cookie },
   });
@@ -176,8 +179,40 @@ test('Aquarien teilen: Berechtigungen (view vs. write), Freigabe-Verwaltung und 
   assert.strictEqual(listShares.data.length, 1);
   assert.strictEqual(listShares.data[0].username, 'reader_ben');
   assert.strictEqual(listShares.data[0].role, 'view');
+  assert.strictEqual(listShares.data[0].status, 'pending');
 
-  // 3. Ben sieht das Aquarium in seiner Übersicht
+  // Vor Annahme: Ben sieht das geteilte Aquarium NICHT in seiner Liste und darf es nicht abrufen (404)
+  const listBeforeAccept = await env.request('/api/aquariums', { headers: { Cookie: viewer.cookie } });
+  assert.strictEqual(listBeforeAccept.status, 200);
+  assert.strictEqual(listBeforeAccept.data.length, 0);
+
+  const getBeforeAccept = await env.request(`/api/aquariums/${aqId}`, { headers: { Cookie: viewer.cookie } });
+  assert.strictEqual(getBeforeAccept.status, 404);
+
+  // Ben sieht die ausstehende Einladung in /api/shares/pending
+  const pendingBen = await env.request('/api/shares/pending', { headers: { Cookie: viewer.cookie } });
+  assert.strictEqual(pendingBen.status, 200);
+  assert.strictEqual(pendingBen.data.length, 1);
+  assert.strictEqual(pendingBen.data[0].aquarium_id, aqId);
+  assert.strictEqual(pendingBen.data[0].owner_username, 'owner_anna');
+
+  // Token-Details prüfen
+  const checkToken = await env.request(`/api/shares/invite/${inviteToken}`);
+  assert.strictEqual(checkToken.status, 200);
+  assert.strictEqual(checkToken.data.valid, true);
+  assert.strictEqual(checkToken.data.aquarium_name, 'Gemeinsames Korallenbecken');
+  assert.strictEqual(checkToken.data.owner_username, 'owner_anna');
+
+  // 3. Ben nimmt die Einladung an (POST /api/shares/accept)
+  const acceptRes = await env.request('/api/shares/accept', {
+    method: 'POST',
+    headers: { Cookie: viewer.cookie },
+    body: { token: inviteToken },
+  });
+  assert.strictEqual(acceptRes.status, 200);
+  assert.strictEqual(acceptRes.data.ok, true);
+
+  // 4. Nach Annahme: Ben sieht das Aquarium in seiner Übersicht
   const listBen = await env.request('/api/aquariums', { headers: { Cookie: viewer.cookie } });
   assert.strictEqual(listBen.status, 200);
   assert.strictEqual(listBen.data.length, 1);
@@ -186,7 +221,7 @@ test('Aquarien teilen: Berechtigungen (view vs. write), Freigabe-Verwaltung und 
   assert.strictEqual(listBen.data[0].owner_username, 'owner_anna');
   assert.strictEqual(listBen.data[0].has_image, true);
 
-  // 4. Ben kann Aquarium, Bild und Messungen lesen
+  // 5. Ben kann Aquarium, Bild und Messungen lesen
   const viewAqBen = await env.request(`/api/aquariums/${aqId}`, { headers: { Cookie: viewer.cookie } });
   assert.strictEqual(viewAqBen.status, 200);
   assert.strictEqual(viewAqBen.data.role, 'view');
@@ -194,7 +229,7 @@ test('Aquarien teilen: Berechtigungen (view vs. write), Freigabe-Verwaltung und 
   const viewImgBen = await env.request(`/api/aquariums/${aqId}/image`, { headers: { Cookie: viewer.cookie } });
   assert.strictEqual(viewImgBen.status, 200);
 
-  // 5. Ben (view) darf NICHT schreiben -> 403 auf alle Schreiboperationen
+  // 6. Ben (view) darf NICHT schreiben -> 403 auf alle Schreiboperationen
   const putAqBen = await env.request(`/api/aquariums/${aqId}`, {
     method: 'PUT',
     headers: { Cookie: viewer.cookie },

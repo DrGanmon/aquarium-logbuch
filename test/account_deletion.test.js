@@ -101,6 +101,13 @@ test('Konto-Löschung: Zweistufiger Ablauf mit App- und E-Mail-Bestätigung (SQL
   });
   assert.strictEqual(shareUser2Res.status, 200);
 
+  // user1 nimmt die Einladung von user2 an
+  await env.request('/api/shares/accept', {
+    method: 'POST',
+    headers: { Cookie: user1.cookie },
+    body: { aquarium_id: user2AqId },
+  });
+
   // user1 erfasst eine Pflegemaßnahme im Becken von user2
   const maintOnUser2Res = await env.request(`/api/aquariums/${user2AqId}/maintenance`, {
     method: 'POST',

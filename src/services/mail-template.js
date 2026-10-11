@@ -474,7 +474,55 @@ module.exports = {
   createTestEmailMail,
   createAccountDeletionMail,
   createInvitationMail,
+  createShareAquariumMail,
 };
+
+/**
+ * Template für die Freigabe/Einladung zu einem Aquarium.
+ * Nutzt 'share-aquarium.tpl'.
+ */
+function createShareAquariumMail({ username, ownerUsername, aquariumName, role, acceptUrl, expiresDays = 14 }) {
+  const inviter = ownerUsername || 'Ein Benutzer';
+  const roleLabel = role === 'write' ? 'Schreibrechte (Werte erfassen & bearbeiten)' : 'Leserechte (Werte & Verlauf ansehen)';
+  const subject = `🐠 ${inviter} hat das Aquarium „${aquariumName}“ mit dir geteilt`;
+  const preheader = `${inviter} hat dich eingeladen, das Aquarium „${aquariumName}“ mit ${role === 'write' ? 'Schreibrechten' : 'Leserechten'} zu verwalten.`;
+  const headline = 'Aquarium-Freigabe erhalten';
+  const ctaText = 'Freigabe annehmen';
+
+  const html = renderTemplate('share-aquarium', {
+    title: subject,
+    subject,
+    preheader,
+    headline,
+    username: username || 'Aquarianer',
+    ownerUsername: inviter,
+    aquariumName: aquariumName || 'Aquarium',
+    role,
+    roleLabel,
+    acceptUrl,
+    ctaText,
+    ctaUrl: acceptUrl,
+    expiresDays,
+  });
+
+  const text = `Hallo ${username || 'Aquarianer'},
+
+${inviter} möchte das Aquarium „${aquariumName}“ im Aquarium-Logbuch mit dir teilen!
+
+Details zur Freigabe:
+- Aquarium: ${aquariumName}
+- Geteilt von: ${inviter}
+- Berechtigung: ${roleLabel}
+
+Um die Einladung anzunehmen und das Aquarium in deiner Übersicht zu sehen, öffne bitte folgenden Link im Browser:
+${acceptUrl}
+
+Dieser Link ist ${expiresDays} Tage gültig. Nach der Annahme findest du das Becken unter „Mit mir geteilte Aquarien“.
+
+Dein Aquarium-Logbuch Team`;
+
+  return { subject, html, text };
+}
 
 /**
  * Template für Einladungen neuer Benutzer.

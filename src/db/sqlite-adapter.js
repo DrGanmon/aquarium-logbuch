@@ -85,10 +85,16 @@ class SqliteAdapter {
         aquarium_id INTEGER NOT NULL REFERENCES aquariums(id) ON DELETE CASCADE,
         user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         role TEXT NOT NULL CHECK(role IN ('view', 'write')),
+        status TEXT NOT NULL DEFAULT 'accepted',
+        token TEXT,
+        token_expires INTEGER,
+        accepted_at TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         PRIMARY KEY (aquarium_id, user_id)
       );
       CREATE INDEX IF NOT EXISTS idx_aq_shares_user ON aquarium_shares(user_id);
+      CREATE INDEX IF NOT EXISTS idx_aq_shares_status ON aquarium_shares(user_id, status);
+      CREATE INDEX IF NOT EXISTS idx_aq_shares_token ON aquarium_shares(token);
       CREATE TABLE IF NOT EXISTS maintenance_logs (
         id INTEGER PRIMARY KEY,
         aquarium_id INTEGER NOT NULL REFERENCES aquariums(id) ON DELETE CASCADE,
@@ -143,6 +149,12 @@ class SqliteAdapter {
     if (!hasColumn('aquariums', 'description')) this.db.exec('ALTER TABLE aquariums ADD COLUMN description TEXT');
     if (!hasColumn('stock', 'name')) this.db.exec('ALTER TABLE stock ADD COLUMN name TEXT');
     if (!hasColumn('stock', 'image_file')) this.db.exec('ALTER TABLE stock ADD COLUMN image_file TEXT');
+    if (!hasColumn('aquarium_shares', 'status')) this.db.exec("ALTER TABLE aquarium_shares ADD COLUMN status TEXT NOT NULL DEFAULT 'accepted'");
+    if (!hasColumn('aquarium_shares', 'token')) this.db.exec('ALTER TABLE aquarium_shares ADD COLUMN token TEXT');
+    if (!hasColumn('aquarium_shares', 'token_expires')) this.db.exec('ALTER TABLE aquarium_shares ADD COLUMN token_expires INTEGER');
+    if (!hasColumn('aquarium_shares', 'accepted_at')) this.db.exec('ALTER TABLE aquarium_shares ADD COLUMN accepted_at TEXT');
+    this.db.exec('CREATE INDEX IF NOT EXISTS idx_aq_shares_token ON aquarium_shares(token) WHERE token IS NOT NULL');
+    this.db.exec('CREATE INDEX IF NOT EXISTS idx_aq_shares_status ON aquarium_shares(user_id, status)');
     if (!hasColumn('users', 'email_verified')) this.db.exec('ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 1');
     if (!hasColumn('users', 'email_verify_token')) this.db.exec('ALTER TABLE users ADD COLUMN email_verify_token TEXT');
     if (!hasColumn('users', 'email_verify_expires')) this.db.exec('ALTER TABLE users ADD COLUMN email_verify_expires INTEGER');
@@ -385,7 +397,7 @@ class SqliteAdapter {
           FROM aquarium_shares s
           JOIN aquariums a ON a.id = s.aquarium_id
           JOIN users u ON u.id = a.user_id
-          WHERE s.user_id = ?
+          WHERE s.user_id = ? AND (s.status = 'accepted' OR s.status IS NULL)
           ORDER BY a.name
         `
           )
@@ -463,7 +475,7 @@ class SqliteAdapter {
           return { aq, role: 'owner' };
         }
         const share = await self.shares.find(id, user.id);
-        if (share) {
+        if (share && (share.status === 'accepted' || !share.status)) {
           return { aq, role: share.role };
         }
         if (user.isAdmin) {
@@ -480,7 +492,7 @@ class SqliteAdapter {
         const alerts = db.prepare(`SELECT level, COUNT(*) n FROM alerts WHERE aquarium_id = ? AND acked_at IS NULL GROUP BY level`).all(aq.id);
         const crit = alerts.find((a) => a.level === 'crit')?.n || 0;
         const warn = alerts.find((a) => a.level === 'warn')?.n || 0;
-        const sharesCount = db.prepare('SELECT COUNT(*) as n FROM aquarium_shares WHERE aquarium_id = ?').get(aq.id)?.n || 0;
+        const sharesCount = db.prepare("SELECT COUNT(*) as n FROM aquarium_shares WHERE aquarium_id = ? AND (status = 'accepted' OR status IS NULL)").get(aq.id)?.n || 0;
         const imagesCount = db.prepare('SELECT COUNT(*) as n FROM aquarium_images WHERE aquarium_id = ?').get(aq.id)?.n || 0;
 
         return {
@@ -584,33 +596,112 @@ class SqliteAdapter {
         return db
           .prepare(
             `
-          SELECT s.user_id, s.role, s.created_at, u.username, u.email
+          SELECT s.aquarium_id, s.user_id, s.role, s.status, s.token, s.token_expires, s.created_at, s.accepted_at, u.username, u.email
           FROM aquarium_shares s
           JOIN users u ON u.id = s.user_id
           WHERE s.aquarium_id = ?
           ORDER BY s.created_at ASC
         `
           )
-          .all(aquariumId);
+          .all(Number(aquariumId));
+      },
+      async listPendingForUser(userId) {
+        return db
+          .prepare(
+            `
+          SELECT s.aquarium_id, s.user_id, s.role, s.status, s.token, s.token_expires, s.created_at,
+                 a.name AS aquarium_name, a.water_type, a.volume_l,
+                 u.username AS owner_username, u.email AS owner_email
+          FROM aquarium_shares s
+          JOIN aquariums a ON a.id = s.aquarium_id
+          JOIN users u ON u.id = a.user_id
+          WHERE s.user_id = ? AND s.status = 'pending'
+          ORDER BY s.created_at DESC
+        `
+          )
+          .all(Number(userId));
       },
       async find(aquariumId, userId) {
-        return db.prepare('SELECT * FROM aquarium_shares WHERE aquarium_id = ? AND user_id = ?').get(aquariumId, userId) || null;
+        return db.prepare('SELECT * FROM aquarium_shares WHERE aquarium_id = ? AND user_id = ?').get(Number(aquariumId), Number(userId)) || null;
       },
-      async upsert(aquariumId, userId, role) {
+      async findByToken(token) {
+        if (!token) return null;
+        return (
+          db
+            .prepare(
+              `
+          SELECT s.*,
+                 a.name AS aquarium_name, a.water_type, a.volume_l,
+                 u.username AS owner_username, u.email AS owner_email,
+                 target_user.username AS target_username, target_user.email AS target_email
+          FROM aquarium_shares s
+          JOIN aquariums a ON a.id = s.aquarium_id
+          JOIN users u ON u.id = a.user_id
+          JOIN users target_user ON target_user.id = s.user_id
+          WHERE s.token = ?
+        `
+            )
+            .get(String(token)) || null
+        );
+      },
+      async upsert(aquariumId, userId, role, status = 'pending', token = null, tokenExpires = null) {
         db.prepare(
           `
-          INSERT INTO aquarium_shares (aquarium_id, user_id, role)
-          VALUES (?, ?, ?)
-          ON CONFLICT(aquarium_id, user_id) DO UPDATE SET role = excluded.role
+          INSERT INTO aquarium_shares (aquarium_id, user_id, role, status, token, token_expires, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+          ON CONFLICT(aquarium_id, user_id) DO UPDATE SET
+            role = excluded.role,
+            status = excluded.status,
+            token = excluded.token,
+            token_expires = excluded.token_expires
         `
-        ).run(aquariumId, userId, role);
+        ).run(Number(aquariumId), Number(userId), role, status, token, tokenExpires);
+      },
+      async updateRole(aquariumId, userId, role) {
+        const res = db.prepare('UPDATE aquarium_shares SET role = ? WHERE aquarium_id = ? AND user_id = ?').run(role, Number(aquariumId), Number(userId));
+        return res.changes > 0;
+      },
+      async accept(aquariumId, userId) {
+        const res = db
+          .prepare(
+            "UPDATE aquarium_shares SET status = 'accepted', accepted_at = datetime('now'), token = NULL, token_expires = NULL WHERE aquarium_id = ? AND user_id = ?"
+          )
+          .run(Number(aquariumId), Number(userId));
+        return res.changes > 0;
+      },
+      async acceptByToken(token, userId = null) {
+        if (!token) return false;
+        let res;
+        if (userId != null) {
+          res = db
+            .prepare(
+              "UPDATE aquarium_shares SET status = 'accepted', accepted_at = datetime('now'), token = NULL, token_expires = NULL WHERE token = ? AND user_id = ?"
+            )
+            .run(String(token), Number(userId));
+        } else {
+          res = db
+            .prepare(
+              "UPDATE aquarium_shares SET status = 'accepted', accepted_at = datetime('now'), token = NULL, token_expires = NULL WHERE token = ?"
+            )
+            .run(String(token));
+        }
+        return res.changes > 0;
+      },
+      async decline(aquariumId, userId) {
+        const res = db.prepare('DELETE FROM aquarium_shares WHERE aquarium_id = ? AND user_id = ?').run(Number(aquariumId), Number(userId));
+        return res.changes > 0;
+      },
+      async declineByToken(token) {
+        if (!token) return false;
+        const res = db.prepare('DELETE FROM aquarium_shares WHERE token = ?').run(String(token));
+        return res.changes > 0;
       },
       async delete(aquariumId, userId) {
-        const res = db.prepare('DELETE FROM aquarium_shares WHERE aquarium_id = ? AND user_id = ?').run(aquariumId, userId);
+        const res = db.prepare('DELETE FROM aquarium_shares WHERE aquarium_id = ? AND user_id = ?').run(Number(aquariumId), Number(userId));
         return res.changes > 0;
       },
       async count(aquariumId) {
-        return db.prepare('SELECT COUNT(*) as n FROM aquarium_shares WHERE aquarium_id = ?').get(aquariumId).n;
+        return db.prepare("SELECT COUNT(*) as n FROM aquarium_shares WHERE aquarium_id = ? AND (status = 'accepted' OR status IS NULL)").get(Number(aquariumId))?.n || 0;
       },
     };
 
@@ -1240,11 +1331,20 @@ class SqliteAdapter {
 
       // Shares
       const insertShare = db.prepare(`
-        INSERT INTO aquarium_shares (aquarium_id, user_id, role, created_at)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO aquarium_shares (aquarium_id, user_id, role, status, token, token_expires, accepted_at, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `);
       for (const s of shares) {
-        insertShare.run(s.aquarium_id, s.user_id, s.role || 'view', s.created_at || new Date().toISOString());
+        insertShare.run(
+          s.aquarium_id,
+          s.user_id,
+          s.role || 'view',
+          s.status || 'accepted',
+          s.token || null,
+          s.token_expires || null,
+          s.accepted_at || null,
+          s.created_at || new Date().toISOString()
+        );
       }
 
       // Stock

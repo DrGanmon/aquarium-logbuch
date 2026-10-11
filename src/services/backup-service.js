@@ -441,10 +441,15 @@ class BackupService {
       const userId = Number(s.user_id);
       if (!validAquariumIds.has(aqId) || !validUserIds.has(userId)) return null;
       const role = s.role === 'write' ? 'write' : 'view';
+      const status = s.status === 'pending' ? 'pending' : 'accepted';
       return {
         aquarium_id: aqId,
         user_id: userId,
         role,
+        status,
+        token: s.token ? String(s.token) : null,
+        token_expires: s.token_expires ? Number(s.token_expires) : null,
+        accepted_at: s.accepted_at ? String(s.accepted_at) : null,
         created_at: s.created_at || new Date().toISOString(),
       };
     }).filter(Boolean);

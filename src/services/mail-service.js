@@ -9,6 +9,7 @@ const {
   createTestEmailMail,
   createAccountDeletionMail,
   createInvitationMail,
+  createShareAquariumMail,
 } = require('./mail-template');
 const logger = require('../utils/logger');
 
@@ -314,6 +315,29 @@ class MailService {
 
     return this.enqueueMail({
       to,
+      subject,
+      html,
+      text,
+    });
+  }
+
+  /**
+   * Sendet eine Einladungs-E-Mail zur Aquarium-Freigabe an einen Benutzer.
+   */
+  sendShareInvitationEmail({ user, ownerUsername, aquariumName, role, token, expiresDays = 14 }) {
+    const baseUrl = APP_URL || 'http://localhost:3000';
+    const acceptUrl = `${baseUrl}/#/share-invitation?token=${encodeURIComponent(token)}`;
+    const { subject, html, text } = createShareAquariumMail({
+      username: user.username,
+      ownerUsername,
+      aquariumName,
+      role,
+      acceptUrl,
+      expiresDays,
+    });
+
+    return this.enqueueMail({
+      to: user.email,
       subject,
       html,
       text,

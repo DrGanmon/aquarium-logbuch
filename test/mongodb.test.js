@@ -104,6 +104,14 @@ test('MongoDB: Vollständiger Lebenszyklus, Authentifizierung, Aquarien, Freigab
     });
     assert.equal(shareRes.status, 200);
 
+    // otherUser nimmt die Einladung an
+    const acceptRes = await env.request('/api/shares/accept', {
+      method: 'POST',
+      headers: { Cookie: otherUser.cookie },
+      body: { aquarium_id: aquariumId },
+    });
+    assert.equal(acceptRes.status, 200);
+
     // otherUser kann Aquarium abrufen und hat Rolle 'write'
     const otherDetail = await env.request(`/api/aquariums/${aquariumId}`, {
       headers: { Cookie: otherUser.cookie },

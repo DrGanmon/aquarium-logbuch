@@ -243,6 +243,74 @@ textarea { min-height: 80px; resize: vertical; }
 .table-wrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-size: .92rem; font-variant-numeric: tabular-nums; }
 th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
+
+/* Navigation Tabs (z. B. Aquarien-Übersicht) */
+.nav-tabs {
+  display: flex;
+  gap: .5rem;
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 1.2rem;
+  overflow-x: auto;
+}
+.nav-tab-btn {
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  padding: .6rem 1rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: -2px;
+  transition: color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.nav-tab-btn:hover {
+  color: var(--ink);
+}
+.nav-tab-btn.active {
+  color: var(--water);
+  border-bottom-color: var(--water);
+}
+.nav-tab-btn .tab-badge {
+  background: var(--table-hover);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: .8rem;
+  font-weight: 600;
+  padding: .15rem .5rem;
+  border-radius: 12px;
+}
+.nav-tab-btn.active .tab-badge {
+  background: var(--water-soft);
+  color: var(--water);
+  border-color: var(--water);
+}
+.pending-shares-box {
+  background: var(--paper);
+  border: 1px solid var(--amber);
+  border-left: 4px solid var(--amber);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+}
+.pending-share-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: .75rem 0;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.pending-share-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
 tr:hover td { background: var(--table-hover); }
 td.v-warn { color: var(--amber); font-weight: 650; } td.v-crit { color: var(--coral); font-weight: 650; }
 

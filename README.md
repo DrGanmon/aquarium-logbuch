@@ -47,6 +47,10 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **Pflanzen & Gärtnern:** Dokumentation von Pflanzenschnitten/Rückschnitt sowie neu eingesetzten Pflanzenarten.
   - **Pflege & Düngung:** Erfassung von Scheibenreinigung, Bodengrundpflege, Düngedosierungen und Spezialfütterungen.
   - **Kombinierte Timeline:** Anzeige aller Pflegemaßnahmen und Wassermessungen in einer gefilterten Übersicht (Alle, Wasserwechsel, Pflege & Filter, Pflanzen, Messungen).
+- **Aquarien-Übersicht mit 2 Tabs & Einladungs-Workflow:**
+  - **🐠 Eigene Aquarien:** Zeigt übersichtlich alle selbst erstellten Aquarien inklusive Wasserwerten, Alarmanzeigen und Fotos.
+  - **👥 Mit mir geteilte Aquarien:** Listet alle Becken auf, die von anderen Aquarianern freigegeben und angenommen wurden.
+  - **✉️ Einladungs-Mail & Annahme-Pflicht:** Beim Teilen eines Aquariums wird eine ansprechende Einladungs-E-Mail (`share-aquarium.tpl`) mit Bestätigungslink an den Benutzer versendet. Erst nach Annahme der Einladung (über den E-Mail-Link oder direkt im Tab „Mit mir geteilte Aquarien“) wird das Aquarium für den Benutzer sichtbar und zugänglich.
 - Aquarien mit anderen registrierten Benutzern teilen mit flexiblen Berechtigungen:
   - **Lesen (view):** Wasserwerte, Verlaufsgraphen, Besatz, Logbuch und Alarme einsehen.
   - **Schreiben (write):** Messwerte und Pflegeaktivitäten erfassen/bearbeiten/löschen, Besatz verwalten, Alarme bestätigen und Bilder bearbeiten.
@@ -235,3 +239,5 @@ Die Testparameter und Standardwerte liegen in `src/config/suites/jbl-pro-aquates
 ## Bekannte Grenzen
 
 - Automatischer E-Mail-Versand bei Grenzwert-Alarmen ist für ein zukünftiges Release vorgesehen.
+- Export aller Messwerte eines Aquariums via CSV oder Exel
+- Erinnerungs E-Mail für festgelegten messzyklus

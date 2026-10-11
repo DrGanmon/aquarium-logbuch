@@ -10,6 +10,7 @@ const logger = require('./utils/logger');
 const authRoutes = require('./routes/auth');
 const configRoutes = require('./routes/config');
 const aquariumRoutes = require('./routes/aquariums');
+const shareRoutes = require('./routes/shares');
 const adminRoutes = require('./routes/admin');
 const oidcRoutes = require('./routes/oidc');
 
@@ -28,6 +29,7 @@ app.use('/api', csrfProtection);
 // API Routen
 app.use('/api', authRoutes);
 app.use('/api', configRoutes);
+app.use('/api/shares', shareRoutes);
 app.use('/api/aquariums', aquariumRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/auth', oidcRoutes);

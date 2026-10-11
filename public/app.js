@@ -350,6 +350,9 @@ async function route() {
   if (routePath === 'forgot-password') {
     return showAuth('forgot');
   }
+  if (routePath === 'share-invitation' || routePath === 'invite/share') {
+    return await viewShareInvitation(token);
+  }
   if (routePath === 'delete-account' || routePath === 'confirm-delete-account') {
     return await viewDeleteAccount(token);
   }
@@ -750,6 +753,107 @@ async function viewDeleteAccount(token) {
   mount(h('div', { class: 'auth' }, headerRow, confirmCard));
 }
 
+async function viewShareInvitation(token) {
+  $topbar.hidden = !ME;
+  if (ME) updateTopbarUser();
+
+  const headerRow = h('div', { class: 'row between', style: 'margin-bottom:.5rem; align-items:center;' },
+    h('p', { class: 'muted', style: 'margin:0' }, 'Wasserwerte im Blick behalten.')
+  );
+
+  if (!token) {
+    mount(h('div', { class: 'auth' }, headerRow,
+      h('div', { class: 'card stack' },
+        h('h1', {}, '⚠️ Ungültiger Link'),
+        h('p', { class: 'error' }, 'Es wurde kein Einladungstoken übergeben.'),
+        h('a', { class: 'btn', href: '#/' }, 'Zur Startseite')
+      )
+    ));
+    return;
+  }
+
+  try {
+    const info = await api(`/shares/invite/${encodeURIComponent(token)}`);
+    const acceptBtn = h('button', { class: 'btn', type: 'button' }, 'Freigabe annehmen');
+    const declineBtn = h('button', { class: 'btn ghost', type: 'button' }, 'Ablehnen');
+    const err = h('p', { class: 'error', role: 'alert' });
+
+    acceptBtn.onclick = async () => {
+      acceptBtn.disabled = true;
+      try {
+        const res = await api('/shares/accept', { method: 'POST', body: { token } });
+        toast(res.message || 'Freigabe erfolgreich angenommen!');
+        CURRENT_AQ_TAB = 'shared';
+        localStorage.setItem('aquarium_list_tab', 'shared');
+        location.hash = `#/a/${res.aquarium_id}`;
+      } catch (ex) {
+        err.textContent = ex.message;
+        acceptBtn.disabled = false;
+      }
+    };
+
+    declineBtn.onclick = async () => {
+      if (!confirm('Möchtest du diese Freigabe-Einladung wirklich ablehnen?')) return;
+      declineBtn.disabled = true;
+      try {
+        await api('/shares/decline', { method: 'POST', body: { token } });
+        toast('Einladung abgelehnt.');
+        location.hash = '#/';
+      } catch (ex) {
+        err.textContent = ex.message;
+        declineBtn.disabled = false;
+      }
+    };
+
+    mount(h('div', { class: 'auth', style: 'max-width: 540px; margin: 2rem auto;' },
+      h('div', { class: 'card stack' },
+        h('div', { style: 'text-align:center;' },
+          h('img', { src: 'icon-192.png', alt: 'Logo', style: 'width:64px; height:64px; border-radius:14px; margin-bottom:1rem;' }),
+          h('h1', {}, '🐠 Aquarium-Freigabe'),
+          h('p', { class: 'muted' }, `${info.owner_username} hat ein Aquarium mit dir geteilt`)
+        ),
+        h('div', { class: 'compat-box info stack', style: 'gap:.4rem;' },
+          h('div', { style: 'display:flex; justify-content:space-between;' },
+            h('strong', {}, 'Aquarium:'),
+            h('span', {}, info.aquarium_name)
+          ),
+          h('div', { style: 'display:flex; justify-content:space-between;' },
+            h('strong', {}, 'Wasserart & Volumen:'),
+            h('span', {}, `${CONFIG?.waterTypes?.[info.water_type] || info.water_type}${info.volume_l ? ' · ' + info.volume_l + ' l' : ''}`)
+          ),
+          h('div', { style: 'display:flex; justify-content:space-between;' },
+            h('strong', {}, 'Berechtigung:'),
+            h('span', {}, info.roleLabel || (info.role === 'write' ? 'Schreibrechte' : 'Leserechte'))
+          ),
+          h('div', { style: 'display:flex; justify-content:space-between;' },
+            h('strong', {}, 'Geteilt für:'),
+            h('span', {}, info.target_username || info.target_email || 'Dich')
+          )
+        ),
+        err,
+        ME ? h('div', { class: 'row between', style: 'margin-top:1rem;' },
+          declineBtn,
+          acceptBtn
+        ) : h('div', { class: 'stack', style: 'margin-top:1rem;' },
+          h('p', { class: 'muted', style: 'text-align:center;' }, 'Bitte melde dich an oder erstelle ein Konto, um diese Freigabe anzunehmen:'),
+          h('div', { class: 'row center', style: 'gap:.75rem;' },
+            h('a', { class: 'btn', href: '#/', onclick: () => showAuth('login') }, 'Anmelden'),
+            h('a', { class: 'btn ghost', href: '#/register', onclick: () => showAuth('register') }, 'Registrieren')
+          )
+        )
+      )
+    ));
+  } catch (ex) {
+    mount(h('div', { class: 'auth' }, headerRow,
+      h('div', { class: 'card stack' },
+        h('h1', {}, '⚠️ Einladung nicht verfügbar'),
+        h('p', { class: 'error' }, ex.message),
+        h('a', { class: 'btn', href: '#/' }, 'Zur Startseite')
+      )
+    ));
+  }
+}
+
 function updateTopbarUser() {
   if (!ME) return;
   const whoami = document.getElementById('whoami');
@@ -793,9 +897,20 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
 });
 
 /* ---------- Aquarienliste ---------- */
+let CURRENT_AQ_TAB = localStorage.getItem('aquarium_list_tab') || 'own';
+
 async function viewList() {
-  const list = await api('/aquariums');
-  const cards = list.map((a) => {
+  const [list, pendingShares] = await Promise.all([
+    api('/aquariums'),
+    api('/shares/pending').catch(() => []),
+  ]);
+
+  const ownList = list.filter((a) => a.role === 'owner');
+  const sharedList = list.filter((a) => a.role !== 'owner');
+
+  const activeTab = CURRENT_AQ_TAB === 'shared' ? 'shared' : 'own';
+
+  function renderCard(a) {
     const s = a.open_crit ? 'crit' : (a.open_warn || a.overdue) ? 'warn' : a.last_measured_at ? 'ok' : 'none';
     const isOwner = a.role === 'owner';
     return h('a', { class: `card aq-card s-${s}`, href: `#/a/${a.id}` },
@@ -814,11 +929,119 @@ async function viewList() {
         !isOwner && a.role === 'view' ? h('span', { class: 'chip none' }, `Geteilt: Lesen (${a.owner_username || 'Besitzer'})`) : null,
         isOwner && a.shares_count > 0 ? h('span', { class: 'chip none' }, `Geteilt (${a.shares_count})`) : null),
       a.last_measured_at ? h('div', { class: 'muted', style: 'margin-top:.4rem' }, 'Zuletzt gemessen: ', fmtDate(a.last_measured_at)) : null);
-  });
+  }
+
+  // Tabs
+  const tabOwnBtn = h('button', {
+    class: `nav-tab-btn ${activeTab === 'own' ? 'active' : ''}`,
+    type: 'button',
+    onclick: () => {
+      CURRENT_AQ_TAB = 'own';
+      localStorage.setItem('aquarium_list_tab', 'own');
+      viewList();
+    }
+  }, '🐠 Eigene Aquarien', h('span', { class: 'tab-badge' }, ownList.length));
+
+  const tabSharedBtn = h('button', {
+    class: `nav-tab-btn ${activeTab === 'shared' ? 'active' : ''}`,
+    type: 'button',
+    onclick: () => {
+      CURRENT_AQ_TAB = 'shared';
+      localStorage.setItem('aquarium_list_tab', 'shared');
+      viewList();
+    }
+  }, '👥 Mit mir geteilte Aquarien', h('span', { class: 'tab-badge' }, pendingShares.length > 0 ? `${sharedList.length} (+${pendingShares.length})` : sharedList.length));
+
+  const navTabs = h('div', { class: 'nav-tabs' }, tabOwnBtn, tabSharedBtn);
+
+  let tabContent;
+  if (activeTab === 'own') {
+    const cards = ownList.map(renderCard);
+    tabContent = cards.length
+      ? h('div', { class: 'aq-list' }, cards)
+      : h('div', { class: 'card stack' },
+          h('h2', {}, 'Noch kein eigenes Aquarium'),
+          h('p', {}, 'Lege dein erstes Becken an, dann kannst du Wasserwerte eintragen, Fotos hochladen und den Verlauf sehen.'),
+          h('div', {}, h('button', { class: 'btn', type: 'button', onclick: () => aquariumDialog() }, 'Aquarium anlegen'))
+        );
+  } else {
+    // Shared Tab
+    const pendingSection = pendingShares.length > 0 ? h('div', { class: 'pending-shares-box stack' },
+      h('h3', { style: 'margin:0; display:flex; align-items:center; gap:.5rem;' },
+        '✉️ Offene Freigabe-Einladungen',
+        h('span', { class: 'chip warn' }, `${pendingShares.length} ausstehend`)
+      ),
+      h('p', { class: 'muted', style: 'margin:0; font-size:.9rem;' }, 'Du wurdest eingeladen, auf folgende Aquarien zuzugreifen. Nimm die Einladung an, um das Becken einzusehen:'),
+      h('div', { class: 'stack', style: 'gap:.5rem;' },
+        pendingShares.map((ps) => {
+          const roleLabel = ps.role === 'write' ? 'Schreibrechte' : 'Leserechte';
+          return h('div', { class: 'pending-share-item' },
+            h('div', {},
+              h('strong', { style: 'font-size:1.05rem; display:block;' }, ps.aquarium_name),
+              h('div', { class: 'muted', style: 'font-size:.85rem;' },
+                `Geteilt von: `, h('strong', {}, ps.owner_username),
+                ` · Berechtigung: `, h('span', { class: ps.role === 'write' ? 'chip ok' : 'chip none' }, roleLabel),
+                ` · Eingeladen am: `, fmtDate(ps.created_at)
+              )
+            ),
+            h('div', { class: 'row', style: 'gap:.5rem;' },
+              h('button', {
+                class: 'btn small',
+                type: 'button',
+                onclick: async (e) => {
+                  e.target.disabled = true;
+                  try {
+                    await api('/shares/accept', { method: 'POST', body: { aquarium_id: ps.aquarium_id } });
+                    toast(`Einladung für „${ps.aquarium_name}“ angenommen!`);
+                    viewList();
+                  } catch (err) {
+                    toast(err.message);
+                    e.target.disabled = false;
+                  }
+                }
+              }, 'Annehmen'),
+              h('button', {
+                class: 'btn small ghost',
+                type: 'button',
+                onclick: async (e) => {
+                  if (!confirm(`Einladung für „${ps.aquarium_name}“ wirklich ablehnen?`)) return;
+                  e.target.disabled = true;
+                  try {
+                    await api('/shares/decline', { method: 'POST', body: { aquarium_id: ps.aquarium_id } });
+                    toast('Einladung abgelehnt.');
+                    viewList();
+                  } catch (err) {
+                    toast(err.message);
+                    e.target.disabled = false;
+                  }
+                }
+              }, 'Ablehnen')
+            )
+          );
+        })
+      )
+    ) : null;
+
+    const cards = sharedList.map(renderCard);
+    const listSection = cards.length
+      ? h('div', { class: 'aq-list' }, cards)
+      : h('div', { class: 'card stack' },
+          h('h2', {}, 'Keine geteilten Aquarien'),
+          h('p', {}, 'Aktuell wurden keine Aquarien mit dir geteilt.'),
+          h('p', { class: 'muted', style: 'margin:0;' }, 'Sobald andere Aquarianer ein Becken mit dir teilen und du die Einladung per E-Mail oder hier annimmst, wird es in diesem Bereich angezeigt.')
+        );
+
+    tabContent = h('div', { class: 'stack' }, pendingSection, listSection);
+  }
+
   mount(h('div', { class: 'stack' },
-    h('div', { class: 'row between' }, h('h1', {}, 'Meine Aquarien'), h('button', { class: 'btn', type: 'button', onclick: () => aquariumDialog() }, 'Aquarium anlegen')),
-    cards.length ? h('div', { class: 'aq-list' }, cards)
-      : h('div', { class: 'card stack' }, h('h2', {}, 'Noch kein Aquarium'), h('p', {}, 'Lege dein erstes Becken an, dann kannst du Wasserwerte eintragen und den Verlauf sehen.'), h('div', {}, h('button', { class: 'btn', type: 'button', onclick: () => aquariumDialog() }, 'Aquarium anlegen')))));
+    h('div', { class: 'row between', style: 'align-items:center;' },
+      h('h1', { style: 'margin:0;' }, 'Meine Aquarien'),
+      h('button', { class: 'btn', type: 'button', onclick: () => aquariumDialog() }, 'Aquarium anlegen')
+    ),
+    navTabs,
+    tabContent
+  ));
 }
 
 function aquariumDialog(aq) {
@@ -1146,7 +1369,7 @@ function editStockDialog(aq, s) {
 }
 
 async function shareDialog(aq) {
-  const dlg = h('dialog', { style: 'max-width:540px' });
+  const dlg = h('dialog', { style: 'max-width:620px' });
   const err = h('p', { class: 'error', role: 'alert' });
   const listWrap = h('div', { class: 'stack', style: 'margin: 1rem 0' });
 
@@ -1154,7 +1377,7 @@ async function shareDialog(aq) {
   const roleSelect = h('select', {},
     h('option', { value: 'view' }, 'Nur Lesen (view)'),
     h('option', { value: 'write' }, 'Lesen & Schreiben (write)'));
-  const addBtn = h('button', { class: 'btn', type: 'submit' }, 'Freigeben');
+  const addBtn = h('button', { class: 'btn', type: 'submit' }, 'Einladen / Freigeben');
 
   async function loadShares() {
     listWrap.replaceChildren(h('p', { class: 'muted' }, 'Lade Freigaben...'));
@@ -1165,8 +1388,9 @@ async function shareDialog(aq) {
         return;
       }
       const table = h('table', {},
-        h('thead', {}, h('tr', {}, h('th', {}, 'Benutzer'), h('th', {}, 'Berechtigung'), h('th', {}, ''))),
+        h('thead', {}, h('tr', {}, h('th', {}, 'Benutzer'), h('th', {}, 'Berechtigung'), h('th', {}, 'Status'), h('th', {}, ''))),
         h('tbody', {}, shares.map((s) => {
+          const isPending = s.status === 'pending';
           const sel = h('select', { style: 'min-height:34px;padding:.2rem .4rem' },
             h('option', { value: 'view', selected: s.role === 'view' }, 'Lesen'),
             h('option', { value: 'write', selected: s.role === 'write' }, 'Schreiben'));
@@ -1177,17 +1401,52 @@ async function shareDialog(aq) {
               loadShares();
             } catch (ex) { err.textContent = ex.message; }
           });
+
+          const statusChip = isPending
+            ? h('span', { class: 'chip warn', title: 'Wartet auf Annahme durch den Benutzer' }, 'Ausstehend')
+            : h('span', { class: 'chip ok', title: 'Einladung wurde angenommen' }, 'Angenommen');
+
+          const actionBtns = [
+            h('button', {
+              class: 'btn small danger',
+              type: 'button',
+              onclick: async () => {
+                if (!confirm(`Freigabe für „${s.username}“ wirklich entfernen?`)) return;
+                try {
+                  await api(`/aquariums/${aq.id}/shares/${s.user_id}`, { method: 'DELETE' });
+                  toast(`Freigabe für ${s.username} entfernt.`);
+                  loadShares();
+                } catch (ex) { err.textContent = ex.message; }
+              }
+            }, 'Entfernen'),
+          ];
+
+          if (isPending) {
+            actionBtns.unshift(
+              h('button', {
+                class: 'btn small ghost',
+                type: 'button',
+                title: 'Einladungs-E-Mail erneut senden',
+                onclick: async (e) => {
+                  e.target.disabled = true;
+                  try {
+                    await api(`/aquariums/${aq.id}/shares/${s.user_id}/resend`, { method: 'POST' });
+                    toast(`Einladungs-E-Mail an ${s.username} erneut gesendet.`);
+                  } catch (ex) {
+                    err.textContent = ex.message;
+                  } finally {
+                    e.target.disabled = false;
+                  }
+                }
+              }, '📧 Erneut senden')
+            );
+          }
+
           return h('tr', {},
             h('td', {}, h('strong', {}, s.username), s.email ? h('div', { class: 'muted', style: 'font-size:.8rem' }, s.email) : null),
             h('td', {}, sel),
-            h('td', {}, h('button', { class: 'btn small danger', type: 'button', onclick: async () => {
-              if (!confirm(`Freigabe für „${s.username}“ wirklich entfernen?`)) return;
-              try {
-                await api(`/aquariums/${aq.id}/shares/${s.user_id}`, { method: 'DELETE' });
-                toast(`Freigabe für ${s.username} entfernt.`);
-                loadShares();
-              } catch (ex) { err.textContent = ex.message; }
-            } }, 'Entfernen')));
+            h('td', {}, statusChip),
+            h('td', {}, h('div', { class: 'row', style: 'gap:.35rem;' }, ...actionBtns)));
         })));
       listWrap.replaceChildren(h('div', { class: 'table-wrap' }, table));
     } catch (ex) {
@@ -1198,13 +1457,13 @@ async function shareDialog(aq) {
   const addForm = h('form', { class: 'stack', onsubmit: async (e) => {
     e.preventDefault(); err.textContent = '';
     try {
-      await api(`/aquariums/${aq.id}/shares`, { method: 'POST', body: { usernameOrEmail: queryInput.value.trim(), role: roleSelect.value } });
-      toast('Aquarium erfolgreich freigegeben.');
+      const res = await api(`/aquariums/${aq.id}/shares`, { method: 'POST', body: { usernameOrEmail: queryInput.value.trim(), role: roleSelect.value } });
+      toast(res.message || 'Einladungs-E-Mail erfolgreich versendet.');
       queryInput.value = '';
       loadShares();
     } catch (ex) { err.textContent = ex.message; }
   } },
-  h('h3', {}, 'Neuen Benutzer hinzufügen'),
+  h('h3', {}, 'Neuen Benutzer einladen'),
   h('div', { class: 'grid2' },
     h('div', { class: 'field' }, h('label', {}, 'Benutzername / E-Mail'), queryInput),
     h('div', { class: 'field' }, h('label', {}, 'Berechtigung'), roleSelect)),
@@ -1213,9 +1472,9 @@ async function shareDialog(aq) {
   dlg.append(
     h('div', { class: 'stack' },
       h('h2', {}, `Aquarium teilen: „${aq.name}“`),
-      h('p', { class: 'muted' }, 'Gib anderen registrierten Benutzern Lese- oder Schreibrechte für dieses Aquarium.'),
+      h('p', { class: 'muted' }, 'Gib anderen registrierten Benutzern Lese- oder Schreibrechte für dieses Aquarium. Der Benutzer erhält eine Einladungs-E-Mail und muss die Freigabe annehmen.'),
       err,
-      h('h3', {}, 'Bestehende Freigaben'),
+      h('h3', {}, 'Bestehende Freigaben & Einladungen'),
       listWrap,
       addForm,
       h('div', { class: 'row', style: 'margin-top:1rem' },
