@@ -354,6 +354,10 @@ export function aquariumDialog(aq) {
     fertilize_reminder_mail: h('input', { type: 'checkbox', checked: fMail }),
   };
 
+  const submitBtn = h('button', { class: 'btn', type: 'submit' }, t('common.save'));
+  const cancelBtn = h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, t('common.cancel'));
+  let isSubmitting = false;
+
   const dlg = h(
     'dialog',
     { class: 'wide stack' },
@@ -364,21 +368,26 @@ export function aquariumDialog(aq) {
         method: 'dialog',
         onsubmit: async (e) => {
           e.preventDefault();
+          if (isSubmitting) return;
+          isSubmitting = true;
+          submitBtn.disabled = true;
+          cancelBtn.disabled = true;
+          submitBtn.textContent = t('common.saving');
           err.textContent = '';
           const body = {
-            name: f.name.value,
-            motto: f.motto.value,
-            description: f.description.value,
+            name: f.name.value.trim(),
+            motto: f.motto.value.trim() || null,
+            description: f.description.value.trim() || null,
             water_type: f.water_type.value,
-            volume_l: f.volume_l.value,
-            notes: f.notes.value,
-            measure_cycle_interval: f.measure_cycle_interval.value,
-            measure_cycle_unit: f.measure_cycle_unit.value,
-            measure_cycle_day_of_week: f.measure_cycle_day_of_week.value,
+            volume_l: f.volume_l.value ? Number(f.volume_l.value) : null,
+            notes: f.notes.value.trim() || null,
+            measure_cycle_interval: f.measure_cycle_interval.value ? Number(f.measure_cycle_interval.value) : 1,
+            measure_cycle_unit: f.measure_cycle_unit.value || 'weeks',
+            measure_cycle_day_of_week: f.measure_cycle_day_of_week.value !== '' ? Number(f.measure_cycle_day_of_week.value) : null,
             measure_reminder_mail: f.measure_reminder_mail.checked ? 1 : 0,
-            fertilize_cycle_interval: f.fertilize_cycle_interval.value,
-            fertilize_cycle_unit: f.fertilize_cycle_unit.value,
-            fertilize_cycle_day_of_week: f.fertilize_cycle_day_of_week.value,
+            fertilize_cycle_interval: f.fertilize_cycle_interval.value ? Number(f.fertilize_cycle_interval.value) : 1,
+            fertilize_cycle_unit: f.fertilize_cycle_unit.value || 'weeks',
+            fertilize_cycle_day_of_week: f.fertilize_cycle_day_of_week.value !== '' ? Number(f.fertilize_cycle_day_of_week.value) : null,
             fertilize_reminder_mail: f.fertilize_reminder_mail.checked ? 1 : 0,
           };
           try {
@@ -403,6 +412,10 @@ export function aquariumDialog(aq) {
             else location.hash = `#/a/${targetId}`;
           } catch (ex) {
             err.textContent = ex.message;
+            isSubmitting = false;
+            submitBtn.disabled = false;
+            cancelBtn.disabled = false;
+            submitBtn.textContent = t('common.save');
           }
         },
       },
@@ -504,8 +517,8 @@ export function aquariumDialog(aq) {
       h(
         'div',
         { class: 'row' },
-        h('button', { class: 'btn', type: 'submit' }, t('common.save')),
-        h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, t('common.cancel')),
+        submitBtn,
+        cancelBtn,
         editing && isOwner
           ? h(
               'button',

@@ -584,12 +584,19 @@ export async function viewMeasure(id) {
   render();
   updateWake();
 
+  const saveBtn = h('button', { class: 'btn', type: 'submit' }, t('measure.saveBtn'));
+  let isSubmitting = false;
+
   const form = h(
     'form',
     {
       class: 'stack',
       onsubmit: async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        isSubmitting = true;
+        saveBtn.disabled = true;
+        saveBtn.textContent = t('common.saving');
         err.textContent = '';
         const values = {};
         for (const [k, r] of rows)
@@ -616,6 +623,9 @@ export async function viewMeasure(id) {
         } catch (ex) {
           err.textContent = ex.message;
           err.scrollIntoView({ block: 'center' });
+          isSubmitting = false;
+          saveBtn.disabled = false;
+          saveBtn.textContent = t('measure.saveBtn');
         }
       },
     },
@@ -630,7 +640,7 @@ export async function viewMeasure(id) {
       h(
         'div',
         { class: 'row' },
-        h('button', { class: 'btn', type: 'submit' }, t('measure.saveBtn')),
+        saveBtn,
         h('a', { class: 'btn ghost', href: `#/a/${id}` }, t('common.cancel'))
       )
     )

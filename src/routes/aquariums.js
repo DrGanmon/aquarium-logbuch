@@ -21,6 +21,18 @@ const { buildAquariumSystemPrompt, chatWithAquarium } = require('../services/ai-
 
 const router = express.Router();
 
+// Schutz gegen parallele Doppel-Submits (z. B. durch Doppelklicks oder Verbindungsverzögerungen)
+const recentAquariumCreates = new Map();
+
+function cleanRecentCreates() {
+  const now = Date.now();
+  for (const [key, data] of recentAquariumCreates.entries()) {
+    if (now - data.timestamp > 5000) {
+      recentAquariumCreates.delete(key);
+    }
+  }
+}
+
 router.get(
   '/',
   auth,
@@ -36,6 +48,14 @@ router.post(
   wrap(async (req, res) => {
     const { error, value } = aquariumInput(req.body);
     if (error) return res.status(400).json({ error });
+
+    cleanRecentCreates();
+    const dedupKey = `${req.user.id}:${(value.name || '').trim().toLowerCase()}:${value.water_type}:${value.volume_l || ''}`;
+    const recent = recentAquariumCreates.get(dedupKey);
+    if (recent && Date.now() - recent.timestamp < 3000) {
+      return res.json({ id: recent.id });
+    }
+
     const info = await db.aquariums.create({
       user_id: req.user.id,
       name: value.name,
@@ -54,6 +74,7 @@ router.post(
       fertilize_cycle_day_of_week: value.fertilize_cycle_day_of_week,
       fertilize_reminder_mail: value.fertilize_reminder_mail,
     });
+    recentAquariumCreates.set(dedupKey, { id: info.id, timestamp: Date.now() });
     res.json({ id: info.id });
   })
 );

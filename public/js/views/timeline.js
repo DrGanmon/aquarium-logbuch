@@ -113,12 +113,21 @@ export function maintenanceDialog(aq, existing = null) {
   typeSelect.addEventListener('change', () => updateFormForType(typeSelect.value));
   updateFormForType(initialType);
 
+  const submitBtn = h('button', { class: 'btn', type: 'submit' }, t('common.save'));
+  const cancelBtn = h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, t('common.cancel'));
+  let isSubmitting = false;
+
   const form = h(
     'form',
     {
       class: 'stack',
       onsubmit: async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        isSubmitting = true;
+        submitBtn.disabled = true;
+        cancelBtn.disabled = true;
+        submitBtn.textContent = t('common.saving');
         err.textContent = '';
         const body = {
           type: typeSelect.value,
@@ -142,6 +151,10 @@ export function maintenanceDialog(aq, existing = null) {
           route();
         } catch (ex) {
           err.textContent = ex.message;
+          isSubmitting = false;
+          submitBtn.disabled = false;
+          cancelBtn.disabled = false;
+          submitBtn.textContent = t('common.save');
         }
       },
     },
@@ -163,8 +176,8 @@ export function maintenanceDialog(aq, existing = null) {
     h(
       'div',
       { class: 'row' },
-      h('button', { class: 'btn', type: 'submit' }, t('common.save')),
-      h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, t('common.cancel')),
+      submitBtn,
+      cancelBtn,
       editing
         ? h(
             'button',

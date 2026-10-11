@@ -81,17 +81,26 @@ export function uploadImageDialog(aq) {
     }
   });
 
+  const submitBtn = h('button', { class: 'btn', type: 'submit' }, 'Hochladen');
+  const cancelBtn = h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen');
+  let isSubmitting = false;
+
   const form = h(
     'form',
     {
       class: 'stack',
       onsubmit: async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
         err.textContent = '';
         if (!imageBase64) {
           err.textContent = 'Bitte ein Bild auswählen.';
           return;
         }
+        isSubmitting = true;
+        submitBtn.disabled = true;
+        cancelBtn.disabled = true;
+        submitBtn.textContent = 'Wird hochgeladen...';
         try {
           await api(`/aquariums/${aq.id}/images`, {
             method: 'POST',
@@ -106,6 +115,10 @@ export function uploadImageDialog(aq) {
           route();
         } catch (ex) {
           err.textContent = ex.message;
+          isSubmitting = false;
+          submitBtn.disabled = false;
+          cancelBtn.disabled = false;
+          submitBtn.textContent = 'Hochladen';
         }
       },
     },
@@ -138,8 +151,8 @@ export function uploadImageDialog(aq) {
     h(
       'div',
       { class: 'row' },
-      h('button', { class: 'btn', type: 'submit' }, 'Hochladen'),
-      h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen')
+      submitBtn,
+      cancelBtn
     )
   );
 
@@ -157,6 +170,9 @@ export function editImageCaptionDialog(aq, img) {
     value: img.caption || '',
     placeholder: 'z. B. Beckenansicht von links...',
   });
+  const submitBtn = h('button', { class: 'btn', type: 'submit' }, 'Speichern');
+  const cancelBtn = h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen');
+  let isSubmitting = false;
 
   const form = h(
     'form',
@@ -164,6 +180,11 @@ export function editImageCaptionDialog(aq, img) {
       class: 'stack',
       onsubmit: async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        isSubmitting = true;
+        submitBtn.disabled = true;
+        cancelBtn.disabled = true;
+        submitBtn.textContent = 'Wird gespeichert...';
         err.textContent = '';
         try {
           await api(`/aquariums/${aq.id}/images/${img.id}`, {
@@ -175,6 +196,10 @@ export function editImageCaptionDialog(aq, img) {
           route();
         } catch (ex) {
           err.textContent = ex.message;
+          isSubmitting = false;
+          submitBtn.disabled = false;
+          cancelBtn.disabled = false;
+          submitBtn.textContent = 'Speichern';
         }
       },
     },
@@ -184,8 +209,8 @@ export function editImageCaptionDialog(aq, img) {
     h(
       'div',
       { class: 'row' },
-      h('button', { class: 'btn', type: 'submit' }, 'Speichern'),
-      h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen')
+      submitBtn,
+      cancelBtn
     )
   );
 
@@ -283,12 +308,21 @@ export function editStockDialog(aq, s) {
     btnRemoveImg.style.display = 'none';
   });
 
+  const submitBtn = h('button', { class: 'btn', type: 'submit' }, 'Speichern');
+  const cancelBtn = h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen');
+  let isSubmitting = false;
+
   const form = h(
     'form',
     {
       class: 'stack',
       onsubmit: async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        isSubmitting = true;
+        submitBtn.disabled = true;
+        cancelBtn.disabled = true;
+        submitBtn.textContent = 'Wird gespeichert...';
         err.textContent = '';
         try {
           await api(`/aquariums/${aq.id}/stock/${s.id}`, {
@@ -307,6 +341,10 @@ export function editStockDialog(aq, s) {
           route();
         } catch (ex) {
           err.textContent = ex.message;
+          isSubmitting = false;
+          submitBtn.disabled = false;
+          cancelBtn.disabled = false;
+          submitBtn.textContent = 'Speichern';
         }
       },
     },
@@ -341,8 +379,8 @@ export function editStockDialog(aq, s) {
     h(
       'div',
       { class: 'row' },
-      h('button', { class: 'btn', type: 'submit' }, 'Speichern'),
-      h('button', { class: 'btn ghost', type: 'button', onclick: () => dlg.close() }, 'Abbrechen')
+      submitBtn,
+      cancelBtn
     )
   );
 
@@ -369,6 +407,7 @@ export async function shareDialog(aq) {
     h('option', { value: 'write' }, 'Lesen & Schreiben (write)')
   );
   const addBtn = h('button', { class: 'btn', type: 'submit' }, 'Einladen / Freigeben');
+  let isShareSubmitting = false;
 
   async function loadShares() {
     listWrap.replaceChildren(h('p', { class: 'muted' }, 'Lade Freigaben...'));
@@ -503,6 +542,10 @@ export async function shareDialog(aq) {
       class: 'stack',
       onsubmit: async (e) => {
         e.preventDefault();
+        if (isShareSubmitting) return;
+        isShareSubmitting = true;
+        addBtn.disabled = true;
+        addBtn.textContent = 'Wird gesendet...';
         err.textContent = '';
         try {
           const res = await api(`/aquariums/${aq.id}/shares`, {
@@ -514,6 +557,10 @@ export async function shareDialog(aq) {
           loadShares();
         } catch (ex) {
           err.textContent = ex.message;
+        } finally {
+          isShareSubmitting = false;
+          addBtn.disabled = false;
+          addBtn.textContent = 'Einladen / Freigeben';
         }
       },
     },
@@ -1718,6 +1765,9 @@ export async function viewAquarium(id) {
   }
 
   if (!isReadOnly) {
+    const addStockBtn = h('button', { class: 'btn', type: 'submit' }, 'Besatz hinzufügen');
+    let isAddStockSubmitting = false;
+
     stockNodes.push(
       h(
         'datalist',
@@ -1737,6 +1787,10 @@ export async function viewAquarium(id) {
           style: 'margin-top:1.2rem',
           onsubmit: async (e) => {
             e.preventDefault();
+            if (isAddStockSubmitting) return;
+            isAddStockSubmitting = true;
+            addStockBtn.disabled = true;
+            addStockBtn.textContent = 'Wird hinzugefügt...';
             stockErr.textContent = '';
             try {
               await api(`/aquariums/${id}/stock`, {
@@ -1752,6 +1806,9 @@ export async function viewAquarium(id) {
               route();
             } catch (ex) {
               stockErr.textContent = ex.message;
+              isAddStockSubmitting = false;
+              addStockBtn.disabled = false;
+              addStockBtn.textContent = 'Besatz hinzufügen';
             }
           },
         },
@@ -1783,7 +1840,7 @@ export async function viewAquarium(id) {
           h('div', { style: 'margin-top:.3rem' }, btnRemoveStockImg)
         ),
         stockErr,
-        h('div', {}, h('button', { class: 'btn', type: 'submit' }, 'Besatz hinzufügen'))
+        h('div', {}, addStockBtn)
       )
     );
   }

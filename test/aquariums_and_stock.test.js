@@ -149,3 +149,45 @@ test('Aquarien & Besatz: CRUD, Validierung und Schwellenwerte', async (t) => {
   assert.strictEqual(listAfterDel.data.length, 1);
   assert.strictEqual(listAfterDel.data[0].id, aq1Id);
 });
+
+test('Aquarium-Erstellung: Schutz vor Mehrfachanlage bei schnellen Doppel-Submits', async (t) => {
+  const env = createTestEnvironment();
+  t.after(async () => await env.cleanup());
+
+  const user = await env.createUserAndLogin('dedupuser', 'password123');
+
+  // Parallele / schnelle doppelte Anfragen simulieren (z. B. Doppelklick im UI)
+  const reqPayload = {
+    name: 'Diskus-Oase',
+    water_type: 'fresh',
+    volume_l: 450,
+    motto: 'Könige des Amazonas',
+    description: 'Großes Becken für Diskusfische',
+  };
+
+  const [res1, res2] = await Promise.all([
+    env.request('/api/aquariums', {
+      method: 'POST',
+      headers: { Cookie: user.cookie },
+      body: reqPayload,
+    }),
+    env.request('/api/aquariums', {
+      method: 'POST',
+      headers: { Cookie: user.cookie },
+      body: reqPayload,
+    }),
+  ]);
+
+  assert.strictEqual(res1.status, 200);
+  assert.strictEqual(res2.status, 200);
+  // Beide Anfragen müssen dieselbe ID zurückgeben
+  assert.strictEqual(res1.data.id, res2.data.id);
+
+  // In der Datenbank darf exakt 1 Aquarium existieren
+  const listRes = await env.request('/api/aquariums', {
+    headers: { Cookie: user.cookie },
+  });
+  assert.strictEqual(listRes.status, 200);
+  assert.strictEqual(listRes.data.length, 1);
+  assert.strictEqual(listRes.data[0].name, 'Diskus-Oase');
+});
