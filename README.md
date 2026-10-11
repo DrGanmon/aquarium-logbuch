@@ -109,16 +109,17 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 
 ```bash
 npm ci               # Abhängigkeiten installieren (Node >= 22)
-npm run build        # Bündelt und minifiziert das Frontend nach public/dist/
+npm run build        # Bündelt das Frontend unminifiziert für Entwicklung (public/dist/app.js)
+npm run dist         # Bündelt und minifiziert für Produktion (public/dist/app.min.js)
 npm test             # führt alle automatisierten Tests aus (SQLite & MongoDB)
 npm start            # startet die App (Standard: SQLite unter http://localhost:3000)
 ```
 
-- **Frontend-Build & Minification (`npm run build` / `npm run dist`):**
-  - Kompiliert und bündelt sämtliche modularen Frontend-Dateien (`public/app.js` & `public/js/**`) zu einer kompakten, minifizierten Datei `public/dist/app.min.js` inklusive Source-Maps.
-  - Minifiziert das Stylesheet `public/style.css` zu `public/dist/style.min.css`.
-  - Der Server (`src/app.js`) erkennt das erstellte Bundle automatisch und bindet die optimierte Version ein (mit transparentem Entwicklungs-Fallback auf die ungebündelten Module, falls kein `dist/` existiert).
-  - Mit `npm run build:watch` können Frontend-Änderungen während der Entwicklung automatisch in Echtzeit neu kompiliert werden.
+- **Frontend-Builds (`npm run build` vs. `npm run dist`):**
+  - **`npm run build` (Unminified Entwicklungs-Bundle):** Kompiliert und bündelt sämtliche Frontend-Module schnell nach `public/dist/app.js` und `public/dist/style.css` (inkl. Source-Maps) ohne Minification, ideal für schnelles Debugging und Entwicklung.
+  - **`npm run dist` (Minified Produktions-Bundle):** Kompiliert, bündelt und minifiziert das gesamte Frontend hochoptimiert nach `public/dist/app.min.js` und `public/dist/style.min.css` (inkl. Source-Maps) für minimale Übertragungsgrößen im Produktivbetrieb.
+  - **Automatischer Server-Fallback:** Der Server (`src/app.js`) erkennt vorhandene Bundles automatisch (bevorzugt `dist/app.min.js`, danach `dist/app.js`, und fällt bei ungebautem Entwicklungsstand transparent auf die ungebündelten ES-Module `app.js` / `style.css` zurück).
+  - **Watch-Modi:** Mit `npm run build:watch` (unminified) oder `npm run dist:watch` (minified) werden Änderungen an Quelldateien automatisch in Echtzeit neu gebaut.
 
 ### 2. Betrieb mit MongoDB (Docker Compose)
 

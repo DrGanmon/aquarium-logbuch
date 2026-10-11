@@ -38,21 +38,29 @@ app.use('/auth', oidcRoutes);
 const publicDir = path.join(__dirname, '..', 'public');
 
 function getIndexHtml() {
-  const hasDistJs = fs.existsSync(path.join(publicDir, 'dist', 'app.min.js'));
-  const hasDistCss = fs.existsSync(path.join(publicDir, 'dist', 'style.min.css'));
+  const hasDistMinJs = fs.existsSync(path.join(publicDir, 'dist', 'app.min.js'));
+  const hasDistJs = fs.existsSync(path.join(publicDir, 'dist', 'app.js'));
+  const hasDistMinCss = fs.existsSync(path.join(publicDir, 'dist', 'style.min.css'));
+  const hasDistCss = fs.existsSync(path.join(publicDir, 'dist', 'style.css'));
+
+  let jsSrc = 'app.js';
+  if (hasDistMinJs) {
+    jsSrc = 'dist/app.min.js';
+  } else if (hasDistJs) {
+    jsSrc = 'dist/app.js';
+  }
+
+  let cssSrc = 'style.css';
+  if (hasDistMinCss) {
+    cssSrc = 'dist/style.min.css';
+  } else if (hasDistCss) {
+    cssSrc = 'dist/style.css';
+  }
+
   let html = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
 
-  if (hasDistJs) {
-    html = html.replace('<script type="module" src="app.js"></script>', '<script type="module" src="dist/app.min.js"></script>');
-  } else {
-    html = html.replace('<script type="module" src="dist/app.min.js"></script>', '<script type="module" src="app.js"></script>');
-  }
-
-  if (hasDistCss) {
-    html = html.replace('<link rel="stylesheet" href="style.css">', '<link rel="stylesheet" href="dist/style.min.css">');
-  } else {
-    html = html.replace('<link rel="stylesheet" href="dist/style.min.css">', '<link rel="stylesheet" href="style.css">');
-  }
+  html = html.replace(/<script type="module" src="[^"]+"><\/script>/, `<script type="module" src="${jsSrc}"></script>`);
+  html = html.replace(/<link rel="stylesheet" href="[^"]*style[^"]*\.css">/, `<link rel="stylesheet" href="${cssSrc}">`);
 
   return html.replace('<head>', `<head>\n  <base href="${APP_PATH.replace(/["<>&]/g, '')}/">`);
 }

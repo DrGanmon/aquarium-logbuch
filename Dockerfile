@@ -4,7 +4,7 @@ COPY package.json package-lock.json .npmrc ./
 # better-sqlite3 bringt fertige Binaries mit, es wird nichts kompiliert
 RUN npm ci
 COPY . .
-RUN npm run build
+RUN npm run dist
 RUN npm prune --omit=dev
 ENV NODE_ENV=production PORT=3000 DATA_DIR=/data
 RUN mkdir -p /data && chown node:node /data
