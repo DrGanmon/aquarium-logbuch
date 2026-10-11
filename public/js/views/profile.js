@@ -593,7 +593,7 @@ export async function viewProfile() {
     title: '🟣 Anthropic Claude',
     badge: claudeBadge,
     description:
-      'Unterstützt Claude 3.5 Haiku, Claude 3.5 Sonnet und Claude 3 Opus über Anthropic Console.',
+      'Unterstützt Claude 3.7 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Haiku und Claude 3 Opus über Anthropic Console.',
     keyPlaceholder: 'sk-ant-...',
     keyMasked: currentMe.claudeKeyMasked,
     keySet: currentMe.claudeKeySet,
@@ -602,16 +602,20 @@ export async function viewProfile() {
     modelVal: currentMe.claudeModel || 'claude-3-5-haiku-20241022',
     models: [
       {
-        value: 'claude-3-5-haiku-20241022',
-        label: 'claude-3-5-haiku (Empfohlen: Schnell, kostengünstig & intelligent)',
+        value: 'claude-3-7-sonnet-20250219',
+        label: 'claude-3-7-sonnet (Modernstes Hybrid-Reasoning Flaggschiff-Modell)',
       },
       {
         value: 'claude-3-5-sonnet-20241022',
         label:
-          'claude-3-5-sonnet (Modernstes Spitzenmodell mit maximaler Analysefähigkeit)',
+          'claude-3-5-sonnet (Spitzenmodell für anspruchsvolle Analysen & Zusammenhänge)',
       },
-      { value: 'claude-3-haiku-20240307', label: 'claude-3-haiku' },
-      { value: 'claude-3-opus-20240229', label: 'claude-3-opus' },
+      {
+        value: 'claude-3-5-haiku-20241022',
+        label: 'claude-3-5-haiku (Empfohlen: Schnell, kostengünstig & intelligent)',
+      },
+      { value: 'claude-3-haiku-20240307', label: 'claude-3-haiku (Kompaktes Basis-Modell)' },
+      { value: 'claude-3-opus-20240229', label: 'claude-3-opus (High-End Modell)' },
     ],
     keyUrl: 'https://console.anthropic.com/settings/keys',
     keyUrlText: 'console.anthropic.com/settings/keys',

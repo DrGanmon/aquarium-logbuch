@@ -383,33 +383,67 @@ async function callGemini({ apiKey, model, systemPrompt, messages = [], message 
  */
 async function callClaude({ apiKey, model, systemPrompt, messages = [], message = null }) {
   const chosenModel = model || DEFAULT_CLAUDE_MODEL;
-  const chatMessages = [];
+  const rawChatMessages = [];
 
   if (Array.isArray(messages) && messages.length > 0) {
     for (const m of messages) {
-      if (m && typeof m.content === 'string' && (m.role === 'user' || m.role === 'assistant')) {
-        chatMessages.push({
+      if (m && typeof m.content === 'string' && m.content.trim() && (m.role === 'user' || m.role === 'assistant')) {
+        rawChatMessages.push({
           role: m.role,
-          content: m.content.slice(0, 8000),
+          content: m.content.trim().slice(0, 8000),
         });
       }
     }
   }
 
   if (message && typeof message === 'string' && message.trim()) {
-    chatMessages.push({
+    rawChatMessages.push({
       role: 'user',
       content: message.trim().slice(0, 8000),
     });
   }
 
+  // Anthropic Vorgaben für Nachrichten:
+  // 1. Nachrichten müssen abwechselnd 'user' und 'assistant' sein (aufeinanderfolgende gleiche Rollen zusammenführen)
+  // 2. Die erste Nachricht MUSS die Rolle 'user' haben
+  // 3. Jede Nachricht muss nicht-leeren Content haben
+  const chatMessages = [];
+  for (const msg of rawChatMessages) {
+    if (!msg.content) continue;
+    if (chatMessages.length === 0) {
+      if (msg.role === 'user') {
+        chatMessages.push({ role: 'user', content: msg.content });
+      } else {
+        // Falls Historie mit Assistant beginnt, eine einleitende User-Nachricht voranstellen
+        chatMessages.push({ role: 'user', content: 'Hallo' });
+        chatMessages.push({ role: 'assistant', content: msg.content });
+      }
+    } else {
+      const prev = chatMessages[chatMessages.length - 1];
+      if (prev.role === msg.role) {
+        // Gleiche Rolle: Inhalte zusammenführen
+        prev.content += '\n\n' + msg.content;
+      } else {
+        chatMessages.push({ role: msg.role, content: msg.content });
+      }
+    }
+  }
+
+  // Falls keine Nachrichten übrig blieben, Standard-Nachricht einfügen
+  if (chatMessages.length === 0) {
+    chatMessages.push({ role: 'user', content: 'Hallo' });
+  }
+
   const payload = {
     model: chosenModel,
-    system: systemPrompt,
     messages: chatMessages,
     max_tokens: 1500,
     temperature: 0.7,
   };
+
+  if (systemPrompt && typeof systemPrompt === 'string' && systemPrompt.trim()) {
+    payload.system = systemPrompt.trim();
+  }
 
   const url = 'https://api.anthropic.com/v1/messages';
   const response = await fetch(url, {
@@ -429,15 +463,23 @@ async function callClaude({ apiKey, model, systemPrompt, messages = [], message 
       errorData = await response.json();
     } catch (e) {}
 
-    const claudeError = errorData?.error?.message || response.statusText;
+    const claudeError = errorData?.error?.message || errorData?.message || response.statusText;
     let friendlyMessage = `Anthropic Claude API Fehler (${response.status}): ${claudeError}`;
 
     if (response.status === 401) {
       friendlyMessage = 'Der hinterlegte Anthropic Claude API-Schlüssel ist ungültig oder abgelaufen. Bitte prüfe den Schlüssel in deinem Profil.';
+    } else if (response.status === 403) {
+      friendlyMessage = `Anthropic Claude Zugriff verweigert (403): ${claudeError}`;
     } else if (response.status === 429) {
-      friendlyMessage = 'Claude Rate-Limit erreicht. Bitte prüfe dein Anthropic-Guthaben oder versuche es in wenigen Momenten erneut.';
+      friendlyMessage = 'Anthropic Claude Rate-Limit oder Kontingentlimit erreicht. Bitte prüfe dein Anthropic-Guthaben (Credits) oder versuche es in wenigen Momenten erneut.';
     } else if (response.status === 404) {
       friendlyMessage = `Das ausgewählte Claude-Modell „${chosenModel}“ wurde nicht gefunden oder ist nicht freigeschaltet.`;
+    } else if (response.status === 529) {
+      friendlyMessage = 'Anthropic Claude ist derzeit überlastet (529 Overloaded). Bitte versuche es in wenigen Momenten erneut.';
+    } else if (response.status === 400) {
+      if (String(claudeError).toLowerCase().includes('credit') || String(claudeError).toLowerCase().includes('balance') || String(claudeError).toLowerCase().includes('quota')) {
+        friendlyMessage = `Anthropic Claude Guthaben aufgebraucht oder nicht aufgeladen: ${claudeError}`;
+      }
     }
 
     const err = new Error(friendlyMessage);
@@ -447,10 +489,12 @@ async function callClaude({ apiKey, model, systemPrompt, messages = [], message 
   }
 
   const data = await response.json();
-  const reply = data.content?.map((c) => c.text || '').join('') || '';
+  const reply = Array.isArray(data.content)
+    ? data.content.map((c) => (c.type === 'text' ? c.text : c.text || '')).join('')
+    : (data.text || '');
 
   return {
-    reply,
+    reply: reply || '',
     model: data.model || chosenModel,
     provider: 'claude',
     usage: data.usage || null,
@@ -672,7 +716,7 @@ async function testClaudeConnection(apiKey, model = DEFAULT_CLAUDE_MODEL) {
     body: JSON.stringify({
       model: chosenModel,
       messages: [{ role: 'user', content: 'Antworte nur mit dem Wort OK.' }],
-      max_tokens: 5,
+      max_tokens: 25,
     }),
     signal: AbortSignal.timeout(15000),
   });
@@ -683,12 +727,24 @@ async function testClaudeConnection(apiKey, model = DEFAULT_CLAUDE_MODEL) {
       errorData = await response.json();
     } catch (e) {}
 
-    const claudeError = errorData?.error?.message || response.statusText;
+    const claudeError = errorData?.error?.message || errorData?.message || response.statusText;
     if (response.status === 401) {
       throw new Error('Ungültiger Anthropic Claude API-Schlüssel. Bitte überprüfe deine Eingabe.');
     }
+    if (response.status === 403) {
+      throw new Error(`Anthropic Claude Zugriff verweigert (403): ${claudeError}`);
+    }
     if (response.status === 429) {
-      throw new Error('Anthropic Claude Rate-Limit oder Guthabenlimit erreicht.');
+      throw new Error('Anthropic Claude Rate-Limit oder Kontingentlimit erreicht. Bitte prüfe dein Guthaben.');
+    }
+    if (response.status === 404) {
+      throw new Error(`Das ausgewählte Claude-Modell „${chosenModel}“ wurde nicht gefunden oder ist nicht freigeschaltet.`);
+    }
+    if (response.status === 529) {
+      throw new Error('Anthropic Claude ist derzeit überlastet (529 Overloaded). Bitte versuche es später erneut.');
+    }
+    if (response.status === 400 && (String(claudeError).toLowerCase().includes('credit') || String(claudeError).toLowerCase().includes('balance') || String(claudeError).toLowerCase().includes('quota'))) {
+      throw new Error(`Anthropic Claude Guthaben aufgebraucht oder nicht aufgeladen: ${claudeError}`);
     }
     throw new Error(`Anthropic Claude Verbindungstest fehlgeschlagen (${response.status}): ${claudeError}`);
   }

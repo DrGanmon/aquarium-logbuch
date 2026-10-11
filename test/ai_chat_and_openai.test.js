@@ -251,6 +251,103 @@ test('Google Gemini und Anthropic Claude Profilverwaltung: Speichern, Maskieren 
   assert.strictEqual(delClaude.data.user.claudeKeySet, false);
 });
 
+test('Anthropic Claude Chat Service: Nachrichten-Normalisierung, System-Prompt und API-Header', async (t) => {
+  const env = createTestEnvironment();
+  t.after(async () => await env.cleanup());
+
+  const user = await env.createUserAndLogin('claude_chat_tester', 'password123', 'claude@example.com');
+
+  const aqRes = await env.request('/api/aquariums', {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: {
+      name: 'Claude Testbecken',
+      volume_l: 120,
+      water_type: 'fresh',
+    },
+  });
+  const aqId = aqRes.data.id;
+
+  // Claude API-Key speichern
+  await env.request('/api/me/claude', {
+    method: 'PUT',
+    headers: { Cookie: user.cookie },
+    body: {
+      apiKey: 'sk-ant-test-key-1234567890',
+      model: 'claude-3-7-sonnet-20250219',
+      setAsActive: true,
+    },
+  });
+
+  // Mock global.fetch abfangen
+  const originalFetch = global.fetch;
+  let interceptedRequest = null;
+
+  global.fetch = async (url, options) => {
+    if (String(url).includes('api.anthropic.com')) {
+      interceptedRequest = {
+        url,
+        options,
+        body: JSON.parse(options.body),
+      };
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          id: 'msg_123',
+          type: 'message',
+          role: 'assistant',
+          model: 'claude-3-7-sonnet-20250219',
+          content: [{ type: 'text', text: 'Wasserwerte sehen gut aus!' }],
+          usage: { input_tokens: 150, output_tokens: 20 },
+        }),
+      };
+    }
+    return originalFetch(url, options);
+  };
+
+  try {
+    const chatRes = await env.request(`/api/aquariums/${aqId}/chat`, {
+      method: 'POST',
+      headers: { Cookie: user.cookie },
+      body: {
+        message: 'Wie sind meine Wasserwerte?',
+        messages: [
+          { role: 'assistant', content: 'Willkommen!' },
+          { role: 'user', content: 'Erste Frage' },
+          { role: 'user', content: 'Zusatzfrage' },
+        ],
+      },
+    });
+
+    assert.strictEqual(chatRes.status, 200);
+    assert.strictEqual(chatRes.data.ok, true);
+    assert.strictEqual(chatRes.data.provider, 'claude');
+    assert.strictEqual(chatRes.data.reply, 'Wasserwerte sehen gut aus!');
+
+    // Prüfen, ob Anthropic Vorgaben exakt eingehalten wurden
+    assert.ok(interceptedRequest);
+    assert.strictEqual(interceptedRequest.options.headers['x-api-key'], 'sk-ant-test-key-1234567890');
+    assert.strictEqual(interceptedRequest.options.headers['anthropic-version'], '2023-06-01');
+    assert.strictEqual(interceptedRequest.body.model, 'claude-3-7-sonnet-20250219');
+    assert.ok(interceptedRequest.body.system.includes('Claude Testbecken'));
+
+    // Anthropic-Validierung: Erste Nachricht muss Rolle 'user' sein
+    assert.strictEqual(interceptedRequest.body.messages[0].role, 'user');
+
+    // Keine zwei gleichen Rollen hintereinander
+    for (let i = 1; i < interceptedRequest.body.messages.length; i++) {
+      assert.notStrictEqual(
+        interceptedRequest.body.messages[i].role,
+        interceptedRequest.body.messages[i - 1].role,
+        'Anthropic verbietet aufeinanderfolgende gleiche Rollen'
+      );
+    }
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
 test('Aquarium Chat API Endpunkte: Kontext-Abruf und Fehler ohne API-Key', async (t) => {
   const env = createTestEnvironment();
   t.after(async () => await env.cleanup());
