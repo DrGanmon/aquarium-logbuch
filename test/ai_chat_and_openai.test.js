@@ -711,3 +711,102 @@ test('KI-Chat UI: Benutzer-Avatar & Profilbild-Einbindung im Frontend', () => {
   assert.ok(css.includes('.chat-avatar-img'), 'CSS enthält .chat-avatar-img');
   assert.ok(css.includes('object-fit: cover'), 'Avatar-Bild verwendet object-fit: cover');
 });
+
+test('OpenAI Chat Service: Parameter-Kompatibilität mit max_completion_tokens und reasoning-Modellen', async (t) => {
+  const env = createTestEnvironment();
+  t.after(async () => await env.cleanup());
+
+  const user = await env.createUserAndLogin('openai_tokens_tester', 'password123', 'tokens@example.com');
+
+  const aqRes = await env.request('/api/aquariums', {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: {
+      name: 'OpenAI Testbecken',
+      volume_l: 200,
+      water_type: 'fresh',
+    },
+  });
+  const aqId = aqRes.data.id;
+
+  const originalFetch = global.fetch;
+  const interceptedOpenAi = [];
+
+  global.fetch = async (url, options) => {
+    const sUrl = String(url);
+    if (sUrl.includes('/chat/completions')) {
+      const parsedBody = JSON.parse(options.body);
+      interceptedOpenAi.push({ url, options, body: parsedBody });
+      return {
+        ok: true,
+        status: 200,
+        clone: () => ({
+          json: async () => ({}),
+        }),
+        json: async () => ({
+          model: parsedBody.model,
+          choices: [
+            {
+              message: {
+                role: 'assistant',
+                content: 'Wasserwerte sind optimal.',
+              },
+            },
+          ],
+        }),
+      };
+    }
+    return originalFetch(url, options);
+  };
+
+  try {
+    // 1. Standard-Modell (z.B. gpt-4o): max_completion_tokens gesetzt, kein max_tokens, temperature vorhanden
+    await env.request('/api/me/openai', {
+      method: 'PUT',
+      headers: { Cookie: user.cookie },
+      body: { apiKey: 'sk-proj-test-tokens-12345', model: 'gpt-4o', setAsActive: true },
+    });
+
+    const chatGpt4o = await env.request(`/api/aquariums/${aqId}/chat`, {
+      method: 'POST',
+      headers: { Cookie: user.cookie },
+      body: { message: 'Wie ist der pH-Wert?' },
+    });
+    assert.strictEqual(chatGpt4o.status, 200);
+
+    const req1 = interceptedOpenAi[interceptedOpenAi.length - 1];
+    assert.strictEqual(req1.body.model, 'gpt-4o');
+    assert.strictEqual(req1.body.max_completion_tokens, 1500, 'Muss max_completion_tokens verwenden');
+    assert.strictEqual(req1.body.max_tokens, undefined, 'Darf kein max_tokens enthalten');
+    assert.strictEqual(req1.body.temperature, 0.7);
+
+    // 2. Reasoning-Modell (z.B. o3-mini): max_completion_tokens gesetzt, KEIN temperature
+    await env.request('/api/me/openai', {
+      method: 'PUT',
+      headers: { Cookie: user.cookie },
+      body: { apiKey: 'sk-proj-test-tokens-12345', model: 'o3-mini', setAsActive: true },
+    });
+
+    const chatO3 = await env.request(`/api/aquariums/${aqId}/chat`, {
+      method: 'POST',
+      headers: { Cookie: user.cookie },
+      body: { message: 'Diagnostiziere die Messwerte.' },
+    });
+    assert.strictEqual(chatO3.status, 200);
+
+    const req2 = interceptedOpenAi[interceptedOpenAi.length - 1];
+    assert.strictEqual(req2.body.model, 'o3-mini');
+    assert.strictEqual(req2.body.max_completion_tokens, 1500, 'Reasoning-Modell nutzt max_completion_tokens');
+    assert.strictEqual(req2.body.max_tokens, undefined, 'Reasoning-Modell darf kein max_tokens enthalten');
+    assert.strictEqual(req2.body.temperature, undefined, 'Reasoning-Modell darf kein temperature enthalten');
+
+    // 3. Verbindungstest für OpenAI mit testOpenAiConnection
+    const testRes = await testOpenAiConnection('sk-proj-test-tokens-12345', 'gpt-4o');
+    assert.strictEqual(testRes.ok, true);
+    const reqTest = interceptedOpenAi[interceptedOpenAi.length - 1];
+    assert.strictEqual(reqTest.body.max_completion_tokens, 25, 'Testverbindung nutzt max_completion_tokens');
+    assert.strictEqual(reqTest.body.max_tokens, undefined, 'Testverbindung darf kein max_tokens enthalten');
+  } finally {
+    global.fetch = originalFetch;
+  }
+});

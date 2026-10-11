@@ -1,7 +1,7 @@
 {
   "enabled": true,
   "host": "127.0.0.1",
-  "port": 38647,
+  "port": 43723,
   "secure": false,
   "requireTls": false,
   "ignoreTls": true,

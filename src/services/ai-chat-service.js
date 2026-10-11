@@ -231,22 +231,21 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
     });
   }
 
-  const isReasoning = /^(o1|o3|o4)/i.test(model);
+  const chosenModel = model || DEFAULT_OPENAI_MODEL;
+  const isReasoning = /^(o[1-9]|chatgpt-reasoning)/i.test(chosenModel) || /\bo[1-9]-/i.test(chosenModel);
   const payload = {
-    model: model || DEFAULT_OPENAI_MODEL,
+    model: chosenModel,
     messages: chatMessages,
     stream: Boolean(stream),
+    max_completion_tokens: 1500,
   };
 
-  if (isReasoning) {
-    payload.max_completion_tokens = 1500;
-  } else {
+  if (!isReasoning) {
     payload.temperature = 0.7;
-    payload.max_tokens = 1500;
   }
 
   const url = `${OPENAI_URL_BASE}/chat/completions`;
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -255,6 +254,29 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(60000),
   });
+
+  // Fallback für ältere Drittanbieter-Proxies, falls max_completion_tokens nicht unterstützt wird
+  if (!response.ok && response.status === 400) {
+    let errorData = null;
+    try {
+      errorData = await response.clone().json();
+    } catch (e) {}
+    const errMsg = String(errorData?.error?.message || '');
+    if (errMsg.includes('max_completion_tokens') && (errMsg.includes('unsupported') || errMsg.includes('unknown') || errMsg.includes('extra fields'))) {
+      const fallbackPayload = { ...payload };
+      delete fallbackPayload.max_completion_tokens;
+      fallbackPayload.max_tokens = 1500;
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(fallbackPayload),
+        signal: AbortSignal.timeout(60000),
+      });
+    }
+  }
 
   if (!response.ok) {
     let errorData = {};
@@ -975,19 +997,19 @@ async function testOpenAiConnection(apiKey, model = DEFAULT_OPENAI_MODEL) {
     throw new Error('Bitte gib einen OpenAI API-Schlüssel ein.');
   }
 
-  const isReasoning = /^(o1|o3|o4)/i.test(model);
+  const chosenModel = model || DEFAULT_OPENAI_MODEL;
+  const isReasoning = /^(o[1-9]|chatgpt-reasoning)/i.test(chosenModel) || /\bo[1-9]-/i.test(chosenModel);
   const testPayload = {
-    model: model || DEFAULT_OPENAI_MODEL,
+    model: chosenModel,
     messages: [{ role: 'user', content: 'Antworte nur mit dem Wort OK.' }],
+    max_completion_tokens: 25,
   };
-  if (isReasoning) {
-    testPayload.max_completion_tokens = 25;
-  } else {
-    testPayload.max_tokens = 5;
+  if (!isReasoning) {
+    testPayload.temperature = 0.7;
   }
 
   const url = `${OPENAI_URL_BASE}/chat/completions`;
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -996,6 +1018,29 @@ async function testOpenAiConnection(apiKey, model = DEFAULT_OPENAI_MODEL) {
     body: JSON.stringify(testPayload),
     signal: AbortSignal.timeout(15000),
   });
+
+  // Fallback für ältere OpenAI-kompatible Proxies
+  if (!response.ok && response.status === 400) {
+    let errorData = null;
+    try {
+      errorData = await response.clone().json();
+    } catch (e) {}
+    const errMsg = String(errorData?.error?.message || '');
+    if (errMsg.includes('max_completion_tokens') && (errMsg.includes('unsupported') || errMsg.includes('unknown') || errMsg.includes('extra fields'))) {
+      const fallbackPayload = { ...testPayload };
+      delete fallbackPayload.max_completion_tokens;
+      fallbackPayload.max_tokens = 25;
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${key}`,
+        },
+        body: JSON.stringify(fallbackPayload),
+        signal: AbortSignal.timeout(15000),
+      });
+    }
+  }
 
   if (!response.ok) {
     let errorData = {};
