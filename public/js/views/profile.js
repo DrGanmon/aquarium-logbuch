@@ -364,13 +364,17 @@ export async function viewProfile() {
     hasKey,
     serverHasKey,
     modelVal,
-    models,
     keyUrl,
     keyUrlText,
     saveEndpoint,
     deleteEndpoint,
     testEndpoint,
+    modelsEndpoint,
   }) {
+    let currentModel = modelVal || '';
+    let isFetchingModels = false;
+    let debounceTimer = null;
+
     const fKey = h('input', {
       type: 'password',
       placeholder: keySet
@@ -382,18 +386,151 @@ export async function viewProfile() {
       style: 'font-family: monospace;',
     });
 
-    const hasCustomVal = modelVal && !models.some((m) => m.value === modelVal);
-    const options = models.map((m) =>
-      h('option', { value: m.value, selected: modelVal === m.value }, m.label)
+    const fMod = h('select', { style: 'flex: 1;' });
+    const customModelInput = h('input', {
+      type: 'text',
+      placeholder: 'z.B. gpt-4o, claude-3-7-sonnet-20250219...',
+      style: 'display:none; font-family: monospace; margin-top: .35rem;',
+    });
+
+    const modelStatus = h('span', { class: 'muted', style: 'font-size:.82rem;' });
+
+    const btnFetchModels = h(
+      'button',
+      {
+        class: 'btn small ghost',
+        type: 'button',
+        title: t('profile.refreshModelsTooltip'),
+        onclick: (e) => {
+          e.preventDefault();
+          fetchModels();
+        },
+      },
+      '🔄 ' + t('profile.fetchModels')
     );
-    if (hasCustomVal) {
-      options.unshift(h('option', { value: modelVal, selected: true }, `${modelVal} (Benutzerdefiniert)`));
+
+    function populateModelSelect(modelsList, selectedValue) {
+      fMod.replaceChildren();
+      const valToSelect = selectedValue || currentModel;
+
+      if (!modelsList || modelsList.length === 0) {
+        if (valToSelect) {
+          fMod.append(h('option', { value: valToSelect, selected: true }, `${valToSelect} (Gespeichert)`));
+        } else {
+          fMod.append(h('option', { value: '' }, `(${t('profile.enterKeyToFetchModels')})`));
+        }
+      } else {
+        const hasMatch = modelsList.some((m) => m.value === valToSelect);
+        if (valToSelect && !hasMatch && valToSelect !== '__custom__') {
+          fMod.append(h('option', { value: valToSelect, selected: true }, `${valToSelect} (Aktuell ausgewählt)`));
+        }
+
+        for (const m of modelsList) {
+          fMod.append(
+            h(
+              'option',
+              { value: m.value, selected: m.value === valToSelect },
+              m.label || m.value
+            )
+          );
+        }
+      }
+
+      fMod.append(h('option', { value: '__custom__' }, t('profile.customModelOption')));
+
+      if (fMod.value === '__custom__') {
+        customModelInput.style.display = 'block';
+        if (valToSelect && valToSelect !== '__custom__') {
+          customModelInput.value = valToSelect;
+        }
+      } else {
+        customModelInput.style.display = 'none';
+      }
     }
 
-    const fMod = h('select', {}, options);
+    fMod.addEventListener('change', () => {
+      if (fMod.value === '__custom__') {
+        customModelInput.style.display = 'block';
+        customModelInput.focus();
+      } else {
+        customModelInput.style.display = 'none';
+        currentModel = fMod.value;
+      }
+    });
+
+    async function fetchModels() {
+      if (isFetchingModels) return;
+      const keyVal = fKey.value.trim();
+      if (!keyVal && !hasKey && !serverHasKey) {
+        modelStatus.textContent = t('profile.enterKeyToFetchModels');
+        populateModelSelect([], currentModel);
+        return;
+      }
+
+      isFetchingModels = true;
+      fMod.disabled = true;
+      btnFetchModels.disabled = true;
+      modelStatus.textContent = t('profile.fetchingModels');
+      boxErr.textContent = '';
+
+      try {
+        const res = await api(modelsEndpoint, {
+          method: 'POST',
+          body: { apiKey: keyVal || undefined },
+        });
+
+        const fetchedModels = Array.isArray(res.models) ? res.models : [];
+        populateModelSelect(fetchedModels, currentModel);
+        modelStatus.textContent = t('profile.modelsFetchedCount', { count: fetchedModels.length });
+      } catch (ex) {
+        modelStatus.textContent = '⚠️ ' + ex.message;
+        populateModelSelect([], currentModel);
+      } finally {
+        isFetchingModels = false;
+        fMod.disabled = false;
+        btnFetchModels.disabled = false;
+      }
+    }
+
+    // Beim Tippen oder Einfügen eines API-Keys automatisch Modelle abfragen
+    fKey.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      const val = fKey.value.trim();
+      if (val.length >= 8) {
+        debounceTimer = setTimeout(() => {
+          fetchModels();
+        }, 600);
+      } else if (!val && !hasKey && !serverHasKey) {
+        populateModelSelect([], currentModel);
+        modelStatus.textContent = t('profile.enterKeyToFetchModels');
+      }
+    });
+
+    fKey.addEventListener('change', () => {
+      clearTimeout(debounceTimer);
+      const val = fKey.value.trim();
+      if (val.length >= 8 || (!val && (hasKey || serverHasKey))) {
+        fetchModels();
+      }
+    });
+
+    // Initiale Optionen setzen und ggf. Modelle direkt im Hintergrund laden
+    populateModelSelect([], currentModel);
+    if (hasKey || serverHasKey) {
+      setTimeout(() => fetchModels(), 50);
+    } else {
+      modelStatus.textContent = t('profile.enterKeyToFetchModels');
+    }
 
     const boxErr = h('p', { class: 'error', role: 'alert' });
     const boxSuccess = h('div', { class: 'compat-box ok', style: 'display:none; margin-top:.5rem;' });
+
+    function getSelectedModel() {
+      if (fMod.value === '__custom__') {
+        return customModelInput.value.trim() || currentModel;
+      }
+      return fMod.value || currentModel;
+    }
 
     const btnTest = h(
       'button',
@@ -404,7 +541,7 @@ export async function viewProfile() {
           boxErr.textContent = '';
           boxSuccess.style.display = 'none';
           const keyVal = fKey.value.trim();
-          if (!keyVal && !hasKey) {
+          if (!keyVal && !hasKey && !serverHasKey) {
             boxErr.textContent = `Bitte gib zuerst einen ${title} API-Schlüssel ein.`;
             return;
           }
@@ -413,7 +550,7 @@ export async function viewProfile() {
           try {
             const res = await api(testEndpoint, {
               method: 'POST',
-              body: { apiKey: keyVal || undefined, model: fMod.value },
+              body: { apiKey: keyVal || undefined, model: getSelectedModel() },
             });
             boxSuccess.textContent = '✅ ' + (res.message || 'Verbindung erfolgreich!');
             boxSuccess.style.display = 'block';
@@ -470,7 +607,8 @@ export async function viewProfile() {
           boxSuccess.style.display = 'none';
           try {
             const keyVal = fKey.value.trim();
-            const body = { model: fMod.value };
+            const chosenModel = getSelectedModel();
+            const body = { model: chosenModel };
             if (keyVal) body.apiKey = keyVal;
             const res = await api(saveEndpoint, { method: 'PUT', body });
             setMe(res.user);
@@ -500,7 +638,18 @@ export async function viewProfile() {
           h('a', { href: keyUrl, target: '_blank', rel: 'noopener noreferrer' }, keyUrlText)
         )
       ),
-      h('div', { class: 'field' }, h('label', {}, 'Modell'), fMod),
+      h(
+        'div',
+        { class: 'field' },
+        h(
+          'div',
+          { class: 'row between', style: 'align-items:center; margin-bottom:.25rem;' },
+          h('label', { style: 'margin:0;' }, t('profile.modelLabel')),
+          modelStatus
+        ),
+        h('div', { class: 'row', style: 'gap:.4rem; align-items:center;' }, fMod, btnFetchModels),
+        customModelInput
+      ),
       boxErr,
       boxSuccess,
       h('div', { class: 'row', style: 'gap:.4rem; flex-wrap:wrap;' }, btnSave, btnTest, btnDelete)
@@ -533,29 +682,19 @@ export async function viewProfile() {
     id: 'openai',
     title: '🟢 OpenAI / ChatGPT',
     badge: openAiBadge,
-    description: 'Unterstützt GPT-6, GPT-6-mini, GPT-5, GPT-4o, GPT-4o-mini, o3-mini, o1 und frühere OpenAI-Modelle.',
+    description: 'Unterstützt alle für deinen API-Key freigeschalteten Modelle (z. B. GPT-6, GPT-6-mini, GPT-5, GPT-4o, o3-mini, o1).',
     keyPlaceholder: 'sk-proj-...',
     keyMasked: currentMe.openaiKeyMasked,
     keySet: currentMe.openaiKeySet,
     hasKey: currentMe.hasOpenaiKey,
     serverHasKey: currentMe.serverHasOpenaiKey,
     modelVal: currentMe.openaiModel || 'gpt-4o-mini',
-    models: [
-      { value: 'gpt-6', label: 'gpt-6 (Next-Gen Flaggschiff-Modell: Maximale Intelligenz & Präzision)' },
-      { value: 'gpt-6-mini', label: 'gpt-6-mini (Next-Gen: Ultra-Schnell & Kosteneffizient)' },
-      { value: 'gpt-5', label: 'gpt-5 (Next-Gen High-End-Modell)' },
-      { value: 'gpt-4o-mini', label: 'gpt-4o-mini (Empfohlen: Schnell & Kostengünstig)' },
-      { value: 'gpt-4o', label: 'gpt-4o (Leistungsstarkes Allround-Modell)' },
-      { value: 'o3-mini', label: 'o3-mini (Reasoning-Modell für komplexe Analysen)' },
-      { value: 'o1', label: 'o1 (Erweitertes Reasoning-Modell)' },
-      { value: 'gpt-4-turbo', label: 'gpt-4-turbo' },
-      { value: 'gpt-3.5-turbo', label: 'gpt-3.5-turbo' },
-    ],
     keyUrl: 'https://platform.openai.com/api-keys',
     keyUrlText: 'platform.openai.com/api-keys',
     saveEndpoint: '/me/openai',
     deleteEndpoint: '/me/openai',
     testEndpoint: '/me/openai/test',
+    modelsEndpoint: '/me/openai/models',
   });
 
   // Google Gemini Box
@@ -564,27 +703,19 @@ export async function viewProfile() {
     title: '🔵 Google Gemini',
     badge: geminiBadge,
     description:
-      'Unterstützt Gemini 2.5 Flash, 2.0 Flash, 1.5 Flash und 1.5 Pro über Google AI Studio.',
+      'Unterstützt alle verfügbaren Google Gemini Modelle (z. B. Gemini 2.5 Flash, 2.5 Pro, 2.0 Flash) über Google AI Studio.',
     keyPlaceholder: 'AIzaSy...',
     keyMasked: currentMe.geminiKeyMasked,
     keySet: currentMe.geminiKeySet,
     hasKey: currentMe.hasGeminiKey,
     serverHasKey: currentMe.serverHasGeminiKey,
     modelVal: currentMe.geminiModel || 'gemini-2.5-flash',
-    models: [
-      {
-        value: 'gemini-2.5-flash',
-        label: 'gemini-2.5-flash (Empfohlen: Neuestes & extrem schnelles Flash-Modell)',
-      },
-      { value: 'gemini-2.0-flash', label: 'gemini-2.0-flash (Sehr schnell & kostengünstig)' },
-      { value: 'gemini-1.5-flash', label: 'gemini-1.5-flash (Bewährtes Multimodal-Modell)' },
-      { value: 'gemini-1.5-pro', label: 'gemini-1.5-pro (Höchste Argumentationstiefe)' },
-    ],
     keyUrl: 'https://aistudio.google.com/app/apikey',
     keyUrlText: 'aistudio.google.com/app/apikey',
     saveEndpoint: '/me/gemini',
     deleteEndpoint: '/me/gemini',
     testEndpoint: '/me/gemini/test',
+    modelsEndpoint: '/me/gemini/models',
   });
 
   // Anthropic Claude Box
@@ -593,35 +724,19 @@ export async function viewProfile() {
     title: '🟣 Anthropic Claude',
     badge: claudeBadge,
     description:
-      'Unterstützt Claude 3.7 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Haiku und Claude 3 Opus über Anthropic Console.',
+      'Unterstützt alle für deinen Account verfügbaren Claude-Modelle (z. B. Claude 3.7 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Haiku) über die Anthropic Console. Wichtig: Erfordert aufgeladene Prepaid-Credits (ab 5 $).',
     keyPlaceholder: 'sk-ant-...',
     keyMasked: currentMe.claudeKeyMasked,
     keySet: currentMe.claudeKeySet,
     hasKey: currentMe.hasClaudeKey,
     serverHasKey: currentMe.serverHasClaudeKey,
     modelVal: currentMe.claudeModel || 'claude-3-5-haiku-20241022',
-    models: [
-      {
-        value: 'claude-3-7-sonnet-20250219',
-        label: 'claude-3-7-sonnet (Modernstes Hybrid-Reasoning Flaggschiff-Modell)',
-      },
-      {
-        value: 'claude-3-5-sonnet-20241022',
-        label:
-          'claude-3-5-sonnet (Spitzenmodell für anspruchsvolle Analysen & Zusammenhänge)',
-      },
-      {
-        value: 'claude-3-5-haiku-20241022',
-        label: 'claude-3-5-haiku (Empfohlen: Schnell, kostengünstig & intelligent)',
-      },
-      { value: 'claude-3-haiku-20240307', label: 'claude-3-haiku (Kompaktes Basis-Modell)' },
-      { value: 'claude-3-opus-20240229', label: 'claude-3-opus (High-End Modell)' },
-    ],
     keyUrl: 'https://console.anthropic.com/settings/keys',
-    keyUrlText: 'console.anthropic.com/settings/keys',
+    keyUrlText: 'console.anthropic.com (Guthaben unter Plans & Billing aufladen)',
     saveEndpoint: '/me/claude',
     deleteEndpoint: '/me/claude',
     testEndpoint: '/me/claude/test',
+    modelsEndpoint: '/me/claude/models',
   });
 
   const aiCard = h(

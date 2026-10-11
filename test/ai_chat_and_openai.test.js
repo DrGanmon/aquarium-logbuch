@@ -386,3 +386,154 @@ test('Aquarium Chat API Endpunkte: Kontext-Abruf und Fehler ohne API-Key', async
   assert.strictEqual(chatNoKeyRes.data.code, 'NO_API_KEY');
   assert.ok(chatNoKeyRes.data.error.includes('API-Schlüssel'));
 });
+
+test('Dynamische Modellabfrage: Endpunkte für OpenAI, Gemini, Claude und /me/ai/models', async (t) => {
+  const env = createTestEnvironment();
+  t.after(async () => await env.cleanup());
+
+  const user = await env.createUserAndLogin('model_fetcher', 'password123', 'models@example.com');
+
+  // 1. Ohne Key schlägt der Abruf mit 400 fehl
+  const noKeyOpenAi = await env.request('/api/me/openai/models', {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+  });
+  assert.strictEqual(noKeyOpenAi.status, 400);
+
+  const noKeyGemini = await env.request('/api/me/gemini/models', {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+  });
+  assert.strictEqual(noKeyGemini.status, 400);
+
+  const noKeyClaude = await env.request('/api/me/claude/models', {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+  });
+  assert.strictEqual(noKeyClaude.status, 400);
+
+  // 2. Mocking für alle drei Provider-Endpunkte
+  const originalFetch = global.fetch;
+
+  global.fetch = async (url, options) => {
+    const sUrl = String(url);
+    if (sUrl.includes('api.openai.com/v1/models')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          object: 'list',
+          data: [
+            { id: 'gpt-4o', object: 'model' },
+            { id: 'gpt-4o-mini', object: 'model' },
+            { id: 'gpt-6', object: 'model' },
+            { id: 'gpt-6-mini', object: 'model' },
+            { id: 'o3-mini', object: 'model' },
+            { id: 'text-embedding-3-small', object: 'model' },
+            { id: 'dall-e-3', object: 'model' },
+          ],
+        }),
+      };
+    }
+    if (sUrl.includes('generativelanguage.googleapis.com')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          models: [
+            {
+              name: 'models/gemini-2.5-flash',
+              displayName: 'Gemini 2.5 Flash',
+              supportedGenerationMethods: ['generateContent', 'countTokens'],
+            },
+            {
+              name: 'models/gemini-2.5-pro',
+              displayName: 'Gemini 2.5 Pro',
+              supportedGenerationMethods: ['generateContent'],
+            },
+            {
+              name: 'models/embedding-001',
+              supportedGenerationMethods: ['embedContent'],
+            },
+          ],
+        }),
+      };
+    }
+    if (sUrl.includes('api.anthropic.com/v1/models')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          data: [
+            { id: 'claude-3-7-sonnet-20250219', display_name: 'Claude 3.7 Sonnet', type: 'model' },
+            { id: 'claude-3-5-sonnet-20241022', display_name: 'Claude 3.5 Sonnet', type: 'model' },
+            { id: 'claude-3-5-haiku-20241022', display_name: 'Claude 3.5 Haiku', type: 'model' },
+          ],
+        }),
+      };
+    }
+    return originalFetch(url, options);
+  };
+
+  try {
+    // OpenAI Models abrufen
+    const openAiRes = await env.request('/api/me/openai/models', {
+      method: 'POST',
+      headers: { Cookie: user.cookie },
+      body: { apiKey: 'sk-proj-test123456789' },
+    });
+    assert.strictEqual(openAiRes.status, 200);
+    assert.strictEqual(openAiRes.data.ok, true);
+    assert.strictEqual(openAiRes.data.provider, 'openai');
+    assert.ok(Array.isArray(openAiRes.data.models));
+    const openAiModelIds = openAiRes.data.models.map((m) => m.value);
+    assert.ok(openAiModelIds.includes('gpt-6'));
+    assert.ok(openAiModelIds.includes('gpt-4o'));
+    assert.ok(openAiModelIds.includes('o3-mini'));
+    // Nicht-Chat-Modelle müssen herausgefiltert worden sein
+    assert.ok(!openAiModelIds.includes('text-embedding-3-small'));
+    assert.ok(!openAiModelIds.includes('dall-e-3'));
+
+    // Google Gemini Models abrufen
+    const geminiRes = await env.request('/api/me/gemini/models', {
+      method: 'POST',
+      headers: { Cookie: user.cookie },
+      body: { apiKey: 'AIzaSyTest123456789' },
+    });
+    assert.strictEqual(geminiRes.status, 200);
+    assert.strictEqual(geminiRes.data.ok, true);
+    assert.strictEqual(geminiRes.data.provider, 'gemini');
+    assert.ok(Array.isArray(geminiRes.data.models));
+    const geminiModelIds = geminiRes.data.models.map((m) => m.value);
+    assert.ok(geminiModelIds.includes('gemini-2.5-flash'));
+    assert.ok(geminiModelIds.includes('gemini-2.5-pro'));
+    assert.ok(!geminiModelIds.includes('embedding-001'));
+
+    // Anthropic Claude Models abrufen
+    const claudeRes = await env.request('/api/me/claude/models', {
+      method: 'POST',
+      headers: { Cookie: user.cookie },
+      body: { apiKey: 'sk-ant-test123456789' },
+    });
+    assert.strictEqual(claudeRes.status, 200);
+    assert.strictEqual(claudeRes.data.ok, true);
+    assert.strictEqual(claudeRes.data.provider, 'claude');
+    assert.ok(Array.isArray(claudeRes.data.models));
+    const claudeModelIds = claudeRes.data.models.map((m) => m.value);
+    assert.ok(claudeModelIds.includes('claude-3-7-sonnet-20250219'));
+    assert.ok(claudeModelIds.includes('claude-3-5-haiku-20241022'));
+
+    // Universal /me/ai/models Endpunkt testen
+    const aiUnifiedRes = await env.request('/api/me/ai/models', {
+      method: 'POST',
+      headers: { Cookie: user.cookie },
+      body: { provider: 'claude', apiKey: 'sk-ant-test123456789' },
+    });
+    assert.strictEqual(aiUnifiedRes.status, 200);
+    assert.strictEqual(aiUnifiedRes.data.ok, true);
+    assert.strictEqual(aiUnifiedRes.data.provider, 'claude');
+    assert.strictEqual(aiUnifiedRes.data.models.length, 3);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});

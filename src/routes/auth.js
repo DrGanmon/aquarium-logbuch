@@ -31,6 +31,10 @@ const {
   testOpenAiConnection,
   testGeminiConnection,
   testClaudeConnection,
+  fetchOpenAiModels,
+  fetchGeminiModels,
+  fetchClaudeModels,
+  fetchProviderModels,
 } = require('../services/ai-chat-service');
 
 const router = express.Router();
@@ -539,8 +543,8 @@ router.post(
   auth,
   wrap(async (req, res) => {
     const user = await db.users.findById(req.user.id);
-    const keyToTest = (req.body.apiKey || user?.openai_api_key || OPENAI_API_KEY || '').trim();
-    const modelToTest = (req.body.model || user?.openai_model || OPENAI_MODEL || 'gpt-4o-mini').trim();
+    const keyToTest = (req.body?.apiKey || user?.openai_api_key || OPENAI_API_KEY || '').trim();
+    const modelToTest = (req.body?.model || user?.openai_model || OPENAI_MODEL || 'gpt-4o-mini').trim();
 
     if (!keyToTest) {
       return res.status(400).json({ error: 'Kein OpenAI API-Schlüssel zum Testen übergeben oder hinterlegt.' });
@@ -549,6 +553,24 @@ router.post(
     try {
       const result = await testOpenAiConnection(keyToTest, modelToTest);
       res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  })
+);
+
+router.post(
+  '/me/openai/models',
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    const keyToUse = (req.body?.apiKey || user?.openai_api_key || OPENAI_API_KEY || '').trim();
+    if (!keyToUse) {
+      return res.status(400).json({ error: 'Bitte gib zuerst einen OpenAI API-Schlüssel ein, um die verfügbaren Modelle abzufragen.' });
+    }
+    try {
+      const models = await fetchOpenAiModels(keyToUse);
+      res.json({ ok: true, provider: 'openai', models });
     } catch (err) {
       res.status(400).json({ error: err.message });
     }
@@ -619,8 +641,8 @@ router.post(
   auth,
   wrap(async (req, res) => {
     const user = await db.users.findById(req.user.id);
-    const keyToTest = (req.body.apiKey || user?.gemini_api_key || GEMINI_API_KEY || '').trim();
-    const modelToTest = (req.body.model || user?.gemini_model || GEMINI_MODEL || 'gemini-2.5-flash').trim();
+    const keyToTest = (req.body?.apiKey || user?.gemini_api_key || GEMINI_API_KEY || '').trim();
+    const modelToTest = (req.body?.model || user?.gemini_model || GEMINI_MODEL || 'gemini-2.5-flash').trim();
 
     if (!keyToTest) {
       return res.status(400).json({ error: 'Kein Google Gemini API-Schlüssel zum Testen übergeben oder hinterlegt.' });
@@ -629,6 +651,24 @@ router.post(
     try {
       const result = await testGeminiConnection(keyToTest, modelToTest);
       res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  })
+);
+
+router.post(
+  '/me/gemini/models',
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    const keyToUse = (req.body?.apiKey || user?.gemini_api_key || GEMINI_API_KEY || '').trim();
+    if (!keyToUse) {
+      return res.status(400).json({ error: 'Bitte gib zuerst einen Google Gemini API-Schlüssel ein, um die verfügbaren Modelle abzufragen.' });
+    }
+    try {
+      const models = await fetchGeminiModels(keyToUse);
+      res.json({ ok: true, provider: 'gemini', models });
     } catch (err) {
       res.status(400).json({ error: err.message });
     }
@@ -699,8 +739,8 @@ router.post(
   auth,
   wrap(async (req, res) => {
     const user = await db.users.findById(req.user.id);
-    const keyToTest = (req.body.apiKey || user?.claude_api_key || CLAUDE_API_KEY || '').trim();
-    const modelToTest = (req.body.model || user?.claude_model || CLAUDE_MODEL || 'claude-3-5-haiku-20241022').trim();
+    const keyToTest = (req.body?.apiKey || user?.claude_api_key || CLAUDE_API_KEY || '').trim();
+    const modelToTest = (req.body?.model || user?.claude_model || CLAUDE_MODEL || 'claude-3-5-haiku-20241022').trim();
 
     if (!keyToTest) {
       return res.status(400).json({ error: 'Kein Anthropic Claude API-Schlüssel zum Testen übergeben oder hinterlegt.' });
@@ -716,13 +756,31 @@ router.post(
 );
 
 router.post(
+  '/me/claude/models',
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    const keyToUse = (req.body?.apiKey || user?.claude_api_key || CLAUDE_API_KEY || '').trim();
+    if (!keyToUse) {
+      return res.status(400).json({ error: 'Bitte gib zuerst einen Anthropic Claude API-Schlüssel ein, um die verfügbaren Modelle abzufragen.' });
+    }
+    try {
+      const models = await fetchClaudeModels(keyToUse);
+      res.json({ ok: true, provider: 'claude', models });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  })
+);
+
+router.post(
   '/me/ai/test',
   auth,
   wrap(async (req, res) => {
     const user = await db.users.findById(req.user.id);
-    const provider = (req.body.provider || user?.ai_provider || 'openai').toLowerCase().trim();
-    let apiKey = (req.body.apiKey || '').trim();
-    let model = (req.body.model || '').trim();
+    const provider = (req.body?.provider || user?.ai_provider || 'openai').toLowerCase().trim();
+    let apiKey = (req.body?.apiKey || '').trim();
+    let model = (req.body?.model || '').trim();
 
     if (!apiKey) {
       if (provider === 'gemini') apiKey = (user?.gemini_api_key || GEMINI_API_KEY || '').trim();
@@ -737,6 +795,33 @@ router.post(
     try {
       const result = await testAiConnection({ provider, apiKey, model });
       res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  })
+);
+
+router.post(
+  '/me/ai/models',
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    const provider = (req.body?.provider || user?.ai_provider || DEFAULT_AI_PROVIDER || 'openai').toLowerCase().trim();
+    let apiKey = (req.body?.apiKey || '').trim();
+
+    if (!apiKey) {
+      if (provider === 'gemini') apiKey = (user?.gemini_api_key || GEMINI_API_KEY || '').trim();
+      else if (provider === 'claude') apiKey = (user?.claude_api_key || CLAUDE_API_KEY || '').trim();
+      else apiKey = (user?.openai_api_key || OPENAI_API_KEY || '').trim();
+    }
+
+    if (!apiKey) {
+      return res.status(400).json({ error: `Bitte gib zuerst einen ${provider} API-Schlüssel ein, um die verfügbaren Modelle abzufragen.` });
+    }
+
+    try {
+      const models = await fetchProviderModels({ provider, apiKey });
+      res.json({ ok: true, provider, models });
     } catch (err) {
       res.status(400).json({ error: err.message });
     }

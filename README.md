@@ -76,7 +76,8 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 - **Verhaltens- & Territorialitäts-Prüfung:** Automatische Erkennung von Vergesellschaftungs- und Verhaltenskonflikten (z. B. Einzelhaltung bei Siamesischen Kampffischen, Flossenbeißer vs. Langflosser, Räuber vs. Zwerggarnelen, Krebse vs. Bodenfische, Mindestgruppengrößen bei Schwarmfischen und Temperatur-/pH-Inkompatibilitäten).
 - **🤖 Persönlicher KI-Chat-Assistent für Aquarien (Multi-Provider: OpenAI, Google Gemini, Anthropic Claude):**
   - **Umfassender automatischer Beckenkontext:** Bei jeder Chat-Anfrage wird ein präziser System-Prompt injiziert mit Beckenabmessungen, Volumen, Beckentyp, Filtertechnik, Bodengrund, vollständigem Tier- und Pflanzenbesatz (samt Verhaltens- und Artanforderungen) sowie den letzten 10 Wassertests (inklusive Messdatum, Grenzwert-Einstufungen `ok`/`warn`/`crit` und Trendanalyse).
-  - **Multi-Provider & Bring Your Own Key (BYOK):** Volle Unterstützung für **OpenAI (ChatGPT)**, **Google Gemini** und **Anthropic Claude**. Jeder Benutzer kann im eigenen Profil persönliche API-Schlüssel hinterlegen, den bevorzugten Provider wählen und das gewünschte Modell (z. B. `gpt-6`, `gpt-6-mini`, `gpt-4o-mini`, `gemini-2.5-flash`, `claude-3-5-haiku`) konfigurieren.
+  - **Multi-Provider & Bring Your Own Key (BYOK):** Volle Unterstützung für **OpenAI (ChatGPT)**, **Google Gemini** und **Anthropic Claude**. Jeder Benutzer kann im eigenen Profil persönliche API-Schlüssel hinterlegen, den bevorzugten Provider wählen und verfügbare Modelle dynamisch beim Anbieter abfragen lassen (inklusive Freitext-Eingabe für individuelle Modelle).
+  - **Dynamische Modellabfrage:** Beim Eingeben eines API-Keys werden die für den Account freigeschalteten Modelle (z. B. GPT-6, GPT-6-mini, GPT-4o, Gemini 2.5 Flash/Pro, Claude 3.7 Sonnet, Claude 3.5 Haiku) in Echtzeit über die Provider-API abgefragt und im Dropdown zur Auswahl bereitgestellt.
   - **Schwebender Aktionsbutton (FAB):** Direkter Zugriff auf den Chat über einen dezenten Floating Action Button in der Detailansicht des Aquariums – wird dynamisch nur angezeigt, wenn für das Benutzerkonto ein gültiger KI-Schlüssel hinterlegt ist.
   - **Live-Verbindungstest & Schnellstart-Fragen:** Integrierte Schlüssel-Validierung direkt im Profil sowie thematische Schnellfragen im Chat (*„Bewerte meine Wasserwerte“*, *„Passen neue Fische dazu?“*, *„Tipps gegen Algen“*).
   - **Datensparsamkeit & Sicherheit:** Keine Datenweitergabe an KI-Dienste ohne aktive Chatauslösung; API-Schlüssel werden sicher in der Datenbank gespeichert, im UI maskiert und können jederzeit vom Benutzer gelöscht werden.
@@ -195,7 +196,7 @@ Jeder angemeldete Benutzer kann über die Kopfzeile auf sein **Benutzerprofil** 
 - **🤖 KI-Assistent & Sprachmodelle:**
   - Auswahl des bevorzugten Anbieters (**OpenAI / ChatGPT**, **Google Gemini**, **Anthropic Claude**).
   - Sichere Hinterlegung und Maskierung persönlicher API-Keys.
-  - Modellauswahl (z. B. `gpt-6`, `gpt-6-mini`, `gpt-5`, `gpt-4o-mini`, `gpt-4o`, `gemini-2.5-flash`, `gemini-2.5-pro`, `claude-3-5-haiku`, `claude-3-5-sonnet`).
+  - Dynamische Modellauswahl direkt vom Anbieter (mit Echtzeit-Abfrage bei Key-Eingabe sowie benutzerdefinierter Freitexteingabe).
   - Integrierter Live-Verbindungstest und vollständiges Löschen gespeicherter Schlüssel mit einem Klick.
 - **Passwortverwaltung:** Ändern des aktuellen Passworts (bei lokaler Anmeldung).
 - **OIDC-Verknüpfung:** Direktes Verknüpfen oder Entkoppeln des Kontos mit Pocket ID / OpenID Connect.

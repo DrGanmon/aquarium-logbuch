@@ -75,7 +75,8 @@ Login optionally local with password or via OAuth 2.0 / OpenID Connect against [
 - **Behavior & Territoriality Analysis:** Automated detection of cohabitation conflicts (e.g., single-specimen rule for Siamese fighting fish, fin nippers vs. long-finned fish, predators vs. dwarf shrimp, crayfish vs. bottom dwellers, minimum school sizes, and temperature/pH incompatibilities).
 - **🤖 Personal AI Aquarium Chat Assistant (Multi-Provider: OpenAI, Google Gemini, Anthropic Claude):**
   - **Comprehensive Automated Tank Context:** Every chat query automatically injects a tailored system prompt containing tank dimensions, volume, water type, filtration, substrate, complete fauna and flora inventory (with behavioral traits and care requirements), and the last 10 water test records (including test dates, `ok`/`warn`/`crit` ratings, and trend data).
-  - **Multi-Provider & Bring Your Own Key (BYOK):** Full support for **OpenAI (ChatGPT)**, **Google Gemini**, and **Anthropic Claude**. Users can store personal API keys in their profile, select their preferred provider, and choose desired models (e.g., `gpt-6`, `gpt-6-mini`, `gpt-4o-mini`, `gemini-2.5-flash`, `claude-3-5-haiku`).
+  - **Multi-Provider & Bring Your Own Key (BYOK):** Full support for **OpenAI (ChatGPT)**, **Google Gemini**, and **Anthropic Claude**. Users can store personal API keys in their profile, select their preferred provider, and query available models dynamically directly from provider APIs (including custom free-text model input).
+  - **Dynamic Model Fetching:** Entering an API key queries active models (e.g., GPT-6, GPT-6-mini, GPT-4o, Gemini 2.5 Flash/Pro, Claude 3.7 Sonnet, Claude 3.5 Haiku) in real-time from the provider's API.
   - **Floating Action Button (FAB):** Direct chat access via a floating action button in the aquarium detail view — displayed dynamically only when a valid AI key is configured for the account.
   - **Live Connection Test & Quick Starter Prompts:** Built-in key validation directly in profile settings plus quick question chips (*"Evaluate my water parameters"*, *"Can I add new fish?"*, *"Algae prevention tips"*).
   - **Privacy & Security:** Zero background data transmission; data is sent to the respective AI provider only when the user explicitly sends a chat message or tests a key in their profile. API keys are stored securely on the server and masked in the UI.
@@ -194,7 +195,7 @@ Logged-in users can open their **User Profile** (`#/profile`) from the header na
 - **🤖 AI Assistant & LLM Settings:**
   - Choose preferred AI provider (**OpenAI / ChatGPT**, **Google Gemini**, **Anthropic Claude**).
   - Securely store, mask, and test personal API keys.
-  - Select model presets (e.g., `gpt-6`, `gpt-6-mini`, `gpt-5`, `gpt-4o-mini`, `gpt-4o`, `gemini-2.5-flash`, `claude-3-5-haiku`).
+  - Dynamic model selection queried live from provider APIs upon key entry with custom free-text model input.
   - 1-click live connection testing and instant key removal.
 - **Password Management:** Update local account password.
 - **OIDC Account Linking:** Link or unlink the local account with Pocket ID / OpenID Connect.

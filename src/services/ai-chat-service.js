@@ -473,7 +473,7 @@ async function callClaude({ apiKey, model, systemPrompt, messages = [], message 
     } else if (response.status === 429) {
       friendlyMessage = 'Anthropic Claude Rate-Limit oder Kontingentlimit erreicht. Bitte prüfe dein Anthropic-Guthaben (Credits) oder versuche es in wenigen Momenten erneut.';
     } else if (response.status === 404) {
-      friendlyMessage = `Das ausgewählte Claude-Modell „${chosenModel}“ wurde nicht gefunden oder ist nicht freigeschaltet.`;
+      friendlyMessage = `Das ausgewählte Claude-Modell „${chosenModel}“ ist für diesen API-Schlüssel nicht freigeschaltet (HTTP 404). Dies tritt bei Anthropic auf, wenn in der Anthropic Console (console.anthropic.com -> Plans & Billing) noch kein Prepaid-Guthaben aufgeladen wurde (Tier 0). Bitte lade dort mindestens 5 $ Guthaben auf. (Hinweis: Ein normales Claude.ai Pro Web-Abo schaltet nicht automatisch die Entwickler-API frei).`;
     } else if (response.status === 529) {
       friendlyMessage = 'Anthropic Claude ist derzeit überlastet (529 Overloaded). Bitte versuche es in wenigen Momenten erneut.';
     } else if (response.status === 400) {
@@ -589,6 +589,225 @@ async function chatWithAquarium({
     return await callClaude({ apiKey, model, systemPrompt, messages, message });
   } else {
     return await callOpenAi({ apiKey, model, systemPrompt, messages, message, stream });
+  }
+}
+
+/**
+ * Ruft die verfügbaren Modelle von OpenAI ab.
+ */
+async function fetchOpenAiModels(apiKey, baseUrl = OPENAI_URL_BASE) {
+  const key = String(apiKey || '').trim();
+  if (!key) {
+    throw new Error('Bitte gib einen OpenAI API-Schlüssel ein.');
+  }
+
+  const url = `${baseUrl || OPENAI_URL_BASE}/models`;
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${key}`,
+    },
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!response.ok) {
+    let errorData = {};
+    try {
+      errorData = await response.json();
+    } catch (e) {}
+    const msg = errorData?.error?.message || response.statusText;
+    if (response.status === 401) {
+      throw new Error('Ungültiger OpenAI API-Schlüssel. Bitte überprüfe deine Eingabe.');
+    }
+    throw new Error(`Fehler beim Abrufen der OpenAI-Modelle (${response.status}): ${msg}`);
+  }
+
+  const data = await response.json();
+  const rawList = Array.isArray(data.data) ? data.data : [];
+
+  // Relevante Chat-/Reasoning-Modelle filtern (Audio, Whisper, Embeddings, DALL-E etc. ausschließen)
+  const excludeRegex = /(tts|whisper|dall-e|embedding|moderation|realtime|transcription|audio)/i;
+  const chatModels = rawList.filter((m) => {
+    const id = m.id || '';
+    if (excludeRegex.test(id)) return false;
+    return /^(gpt|o1|o3|o4|chatgpt)/i.test(id);
+  });
+
+  const priority = [
+    'gpt-6', 'gpt-6-mini', 'gpt-5',
+    'gpt-4o', 'gpt-4o-mini', 'gpt-4o-2024-11-20', 'gpt-4o-2024-08-06', 'gpt-4o-2024-05-13',
+    'o3-mini', 'o1', 'o1-mini', 'o1-preview',
+    'gpt-4-turbo', 'gpt-4-turbo-preview', 'gpt-4',
+    'gpt-3.5-turbo'
+  ];
+
+  chatModels.sort((a, b) => {
+    const idA = a.id || '';
+    const idB = b.id || '';
+    const idxA = priority.indexOf(idA);
+    const idxB = priority.indexOf(idB);
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    if (idxA !== -1) return -1;
+    if (idxB !== -1) return 1;
+    return idA.localeCompare(idB);
+  });
+
+  return chatModels.map((m) => ({
+    value: m.id,
+    label: m.id,
+    created: m.created,
+    ownedBy: m.owned_by,
+  }));
+}
+
+/**
+ * Ruft die verfügbaren Modelle von Google Gemini ab.
+ */
+async function fetchGeminiModels(apiKey) {
+  const key = String(apiKey || '').trim();
+  if (!key) {
+    throw new Error('Bitte gib einen Google Gemini API-Schlüssel ein.');
+  }
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`;
+  const response = await fetch(url, {
+    method: 'GET',
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!response.ok) {
+    let errorData = {};
+    try {
+      errorData = await response.json();
+    } catch (e) {}
+    const msg = errorData?.error?.message || response.statusText;
+    if (response.status === 400 && String(msg).toLowerCase().includes('api key')) {
+      throw new Error('Ungültiger Google Gemini API-Schlüssel. Bitte überprüfe deine Eingabe.');
+    }
+    throw new Error(`Fehler beim Abrufen der Gemini-Modelle (${response.status}): ${msg}`);
+  }
+
+  const data = await response.json();
+  const rawList = Array.isArray(data.models) ? data.models : [];
+
+  const contentModels = rawList.filter((m) => {
+    const methods = Array.isArray(m.supportedGenerationMethods) ? m.supportedGenerationMethods : [];
+    return methods.includes('generateContent');
+  });
+
+  const priority = [
+    'gemini-2.5-flash',
+    'gemini-2.5-pro',
+    'gemini-2.0-flash',
+    'gemini-2.0-flash-lite',
+    'gemini-1.5-flash',
+    'gemini-1.5-pro',
+    'gemini-1.0-pro',
+  ];
+
+  contentModels.sort((a, b) => {
+    const idA = (a.name || '').replace(/^models\//, '');
+    const idB = (b.name || '').replace(/^models\//, '');
+    const idxA = priority.indexOf(idA);
+    const idxB = priority.indexOf(idB);
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    if (idxA !== -1) return -1;
+    if (idxB !== -1) return 1;
+    return idA.localeCompare(idB);
+  });
+
+  return contentModels.map((m) => {
+    const cleanId = (m.name || '').replace(/^models\//, '');
+    const label = m.displayName && m.displayName !== cleanId
+      ? `${cleanId} (${m.displayName})`
+      : cleanId;
+    return {
+      value: cleanId,
+      label,
+      displayName: m.displayName || cleanId,
+      description: m.description || '',
+    };
+  });
+}
+
+/**
+ * Ruft die verfügbaren Modelle von Anthropic Claude ab.
+ */
+async function fetchClaudeModels(apiKey) {
+  const key = String(apiKey || '').trim();
+  if (!key) {
+    throw new Error('Bitte gib einen Anthropic Claude API-Schlüssel ein.');
+  }
+
+  const url = 'https://api.anthropic.com/v1/models';
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+    },
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!response.ok) {
+    let errorData = {};
+    try {
+      errorData = await response.json();
+    } catch (e) {}
+    const msg = errorData?.error?.message || errorData?.message || response.statusText;
+    if (response.status === 401) {
+      throw new Error('Ungültiger Anthropic Claude API-Schlüssel. Bitte überprüfe deine Eingabe.');
+    }
+    if (response.status === 404) {
+      throw new Error('Modelle konnten nicht abgerufen werden (HTTP 404). Bitte prüfe dein Prepaid-Guthaben in der Anthropic Console.');
+    }
+    throw new Error(`Fehler beim Abrufen der Claude-Modelle (${response.status}): ${msg}`);
+  }
+
+  const data = await response.json();
+  const rawList = Array.isArray(data.data) ? data.data : [];
+
+  const priority = [
+    'claude-3-7-sonnet-20250219',
+    'claude-3-5-sonnet-20241022',
+    'claude-3-5-haiku-20241022',
+    'claude-3-opus-20240229',
+    'claude-3-haiku-20240307',
+  ];
+
+  rawList.sort((a, b) => {
+    const idA = a.id || '';
+    const idB = b.id || '';
+    const idxA = priority.indexOf(idA);
+    const idxB = priority.indexOf(idB);
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    if (idxA !== -1) return -1;
+    if (idxB !== -1) return 1;
+    return idA.localeCompare(idB);
+  });
+
+  return rawList.map((m) => {
+    const id = m.id;
+    const label = m.display_name ? `${id} (${m.display_name})` : id;
+    return {
+      value: id,
+      label,
+      displayName: m.display_name || id,
+    };
+  });
+}
+
+/**
+ * Ruft dynamisch Modelle für den angegebenen Provider ab.
+ */
+async function fetchProviderModels({ provider, apiKey }) {
+  const p = (provider || 'openai').toLowerCase().trim();
+  if (p === 'gemini') {
+    return await fetchGeminiModels(apiKey);
+  } else if (p === 'claude') {
+    return await fetchClaudeModels(apiKey);
+  } else {
+    return await fetchOpenAiModels(apiKey);
   }
 }
 
@@ -738,7 +957,7 @@ async function testClaudeConnection(apiKey, model = DEFAULT_CLAUDE_MODEL) {
       throw new Error('Anthropic Claude Rate-Limit oder Kontingentlimit erreicht. Bitte prüfe dein Guthaben.');
     }
     if (response.status === 404) {
-      throw new Error(`Das ausgewählte Claude-Modell „${chosenModel}“ wurde nicht gefunden oder ist nicht freigeschaltet.`);
+      throw new Error(`Das ausgewählte Claude-Modell „${chosenModel}“ ist für diesen API-Schlüssel nicht freigeschaltet (HTTP 404). Dies tritt bei Anthropic auf, wenn in der Anthropic Console (console.anthropic.com -> Plans & Billing) noch kein Prepaid-Guthaben aufgeladen wurde (Tier 0). Bitte lade dort mindestens 5 $ Guthaben auf. (Hinweis: Ein normales Claude.ai Pro Web-Abo schaltet nicht automatisch die Entwickler-API frei).`);
     }
     if (response.status === 529) {
       throw new Error('Anthropic Claude ist derzeit überlastet (529 Overloaded). Bitte versuche es später erneut.');
@@ -775,6 +994,10 @@ async function testAiConnection({ provider, apiKey, model }) {
 module.exports = {
   buildAquariumSystemPrompt,
   chatWithAquarium,
+  fetchOpenAiModels,
+  fetchGeminiModels,
+  fetchClaudeModels,
+  fetchProviderModels,
   testOpenAiConnection,
   testGeminiConnection,
   testClaudeConnection,
