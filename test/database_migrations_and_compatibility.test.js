@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const Database = require('better-sqlite3');
 const SqliteAdapter = require('../src/db/sqlite-adapter');
+const migrator = require('../src/db/migrator');
 const { backupService } = require('../src/services/backup-service');
 const { createMongoTestEnvironment } = require('./helpers/env');
 
@@ -189,7 +190,7 @@ test('Database Migrations & Backward Compatibility', async (t) => {
     await restoreAdapter.close();
   });
 
-  await t.test('3. Mongo-Adapter Abwärtskompatibilität & Migration', async (subT) => {
+  await t.test('3. Mongo-Adapter Abwärtskompatibilität, Schema-Version & Dokumenten-Migration', async (subT) => {
     const mongoEnv = await createMongoTestEnvironment();
     if (!mongoEnv) {
       subT.skip('MongoDB In-Memory Server steht in dieser Umgebung nicht zur Verfügung.');
@@ -199,7 +200,14 @@ test('Database Migrations & Backward Compatibility', async (t) => {
     try {
       await mongoEnv.start();
       const mongoAdapter = require('../src/db');
+      const rawDb = mongoAdapter.getRawDb();
 
+      // 1. Schema-Version prüfen
+      assert.equal(mongoAdapter.getSchemaVersion(), 1, 'MongoAdapter muss Schema-Version 1 melden');
+      const v = await migrator.getCurrentVersionMongo(rawDb);
+      assert.equal(v, 1, 'migrator.getCurrentVersionMongo muss Version 1 zurückgeben');
+
+      // 2. Testen, dass Dosierpumpen auf Mongo einwandfrei funktionieren
       const testAqId = 99999;
       const pumps = await mongoAdapter.dosingPumps.listForAquarium(testAqId);
       assert.deepEqual(pumps, []);
@@ -224,11 +232,252 @@ test('Database Migrations & Backward Compatibility', async (t) => {
       assert.equal(logs.length, 1);
       assert.equal(logs[0].type, 'dosing_pump');
 
+      // 3. Dokumenten-Migration von Bestandsdaten in MongoDB testen
+      // Setze Schema-Version zurück auf 0, um den Upgrade-Prozess einer Altdatenbank zu simulieren
+      await rawDb.collection('schema_version').deleteMany({});
+      assert.equal(await migrator.getCurrentVersionMongo(rawDb), 0, 'Ohne Versionseintrag muss MongoDB Version 0 melden');
+
+      // Füge unvollständige Altdaten direkt in MongoDB ein (wie aus alter MongoDB-Version vor Migrationen)
+      await rawDb.collection('users').insertOne({ id: 888, username: 'mongo_legacy_user', password_hash: 'hash' });
+      await rawDb.collection('aquariums').insertOne({ id: 888, user_id: 888, name: 'Legacy Nano' });
+      await rawDb.collection('stock').insertOne({ id: 888, aquarium_id: 888, species: 'Garnelen' });
+      await rawDb.collection('maintenance_logs').insertOne({ id: 888, aquarium_id: 888, logged_at: '2025-01-01T10:00:00Z', type: 'fertilize', note: '5ml NPK Dünger' });
+
+      // Führe Migrationen auf MongoDB explizit aus (v0 -> v1)
+      const mongoMigRes = await migrator.runMigrationsMongo(rawDb);
+      assert.equal(mongoMigRes.previousVersion, 0);
+      assert.equal(mongoMigRes.currentVersion, 1);
+
+      // Verifiziere, dass alle Dokumente in MongoDB nun die erforderlichen Felder besitzen
+      const legacyUserDoc = await rawDb.collection('users').findOne({ id: 888 });
+      assert.equal(legacyUserDoc.language, 'de', 'Users-Dokument muss language besitzen');
+      assert.equal(legacyUserDoc.email_verified, 1, 'Users-Dokument muss email_verified besitzen');
+      assert.equal(legacyUserDoc.email, null);
+
+      const legacyAqDoc = await rawDb.collection('aquariums').findOne({ id: 888 });
+      assert.equal(legacyAqDoc.water_type, 'fresh');
+      assert.equal(legacyAqDoc.fertilize_cycle_unit, 'days');
+      assert.equal(legacyAqDoc.fertilize_reminder_mail, 0);
+      assert.equal(legacyAqDoc.measure_reminder_mail, 0);
+
+      const legacyStockDoc = await rawDb.collection('stock').findOne({ id: 888 });
+      assert.equal(legacyStockDoc.profile, 'allgemein');
+      assert.equal(legacyStockDoc.count, 1);
+
+      const legacyLogDoc = await rawDb.collection('maintenance_logs').findOne({ id: 888 });
+      assert.ok(legacyLogDoc.details, 'Maintenance log details muss migriert worden sein');
+      assert.match(legacyLogDoc.details, /5ml NPK Dünger/);
+
+      // 4. Sequenzielle MongoDB-Migrationen mit benutzerdefiniertem Migrationsordner testen
+      await rawDb.collection('schema_version').deleteMany({});
+      const customMongoMigDir = path.join(tmpDir, 'custom_mongo_migrations');
+      fs.mkdirSync(customMongoMigDir, { recursive: true });
+
+      fs.writeFileSync(
+        path.join(customMongoMigDir, '001_initial.js'),
+        `module.exports = {
+          version: 1,
+          name: '001_initial',
+          async upMongo(db) {
+            await db.collection('test_mongo_col').insertOne({ key: 'init' });
+          }
+        };`
+      );
+
+      fs.writeFileSync(
+        path.join(customMongoMigDir, '002_add_field.js'),
+        `module.exports = {
+          version: 2,
+          name: '002_add_field',
+          async upMongo(db) {
+            await db.collection('test_mongo_col').updateMany({}, { $set: { migrated_v2: true } });
+          }
+        };`
+      );
+
+      // Migrationen in isolierter MongoDB Collection ausführen
+      const customMigRes = await migrator.runMigrationsMongo(rawDb, { migrationsDir: customMongoMigDir });
+      assert.equal(customMigRes.previousVersion, 0);
+      assert.equal(customMigRes.currentVersion, 2);
+      assert.equal(customMigRes.latestVersion, 2);
+      assert.deepEqual(
+        customMigRes.applied.map((a) => a.version),
+        [1, 2],
+        'Migrationen 1 und 2 müssen sequenziell auf MongoDB ausgeführt worden sein'
+      );
+
+      const testColDoc = await rawDb.collection('test_mongo_col').findOne({ key: 'init' });
+      assert.ok(testColDoc);
+      assert.equal(testColDoc.migrated_v2, true, 'Dokument in MongoDB muss durch v2 Migration aktualisiert worden sein');
+
       // Cleanup
       await mongoAdapter.dosingPumps.delete(created.id, testAqId);
       await mongoAdapter.maintenance.delete(doseRes.log_id, testAqId);
+      await rawDb.collection('users').deleteOne({ id: 888 });
+      await rawDb.collection('aquariums').deleteOne({ id: 888 });
+      await rawDb.collection('stock').deleteOne({ id: 888 });
+      await rawDb.collection('maintenance_logs').deleteOne({ id: 888 });
+      await rawDb.collection('test_mongo_col').drop().catch(() => {});
     } finally {
       await mongoEnv.cleanup();
     }
+  });
+
+  await t.test('4. Dateibasiertes Versions- & Migrationssystem (v0 Schema, v1 Dosing Pumps & Bestandsdaten-Migration)', async () => {
+    const migDbPath = path.join(tmpDir, 'migration_test.db');
+    const rawDb = new Database(migDbPath);
+
+    // 1. Wenn keine Nummer gespeichert ist, wird Version 0 angenommen
+    assert.equal(migrator.getCurrentVersion(rawDb), 0, 'Ohne Versionstabelle/Eintrag muss Version 0 zurückgegeben werden');
+
+    // 2. Migrationen ausführen (Default: v0 -> v1 aus src/db/migrations/001_dosing_pumps.js)
+    const runRes = migrator.runMigrations(rawDb);
+    assert.equal(runRes.previousVersion, 0);
+    assert.equal(runRes.currentVersion, 1);
+    assert.equal(runRes.latestVersion, 1);
+    assert.equal(runRes.applied.length, 1);
+    assert.equal(runRes.applied[0].version, 1);
+    assert.equal(runRes.applied[0].name, '001_dosing_pumps');
+
+    // Versionsnummer nach Migration prüfen
+    assert.equal(migrator.getCurrentVersion(rawDb), 1);
+    const verRow = rawDb.prepare('SELECT version, name, applied_at FROM schema_version WHERE version = 1').get();
+    assert.ok(verRow, 'schema_version Tabelle muss Version 1 enthalten');
+    assert.equal(verRow.version, 1);
+    assert.ok(verRow.applied_at);
+
+    // 3. Erneuter Start: Version vergleichen und nichts erneut ausführen
+    const runResAgain = migrator.runMigrations(rawDb);
+    assert.equal(runResAgain.previousVersion, 1);
+    assert.equal(runResAgain.currentVersion, 1);
+    assert.equal(runResAgain.applied.length, 0, 'Bereits migrierte Versionen dürfen nicht erneut ausgeführt werden');
+
+    rawDb.close();
+
+    // 4. SqliteAdapter Schema-Version-Methode und Bestandsdatenmigration testen
+    const adapter = new SqliteAdapter({ dbPath: migDbPath, dataDir: tmpDir });
+    await adapter.init();
+    assert.equal(adapter.getSchemaVersion(), 1, 'Adapter muss aktuelle Schema-Version 1 melden');
+    await adapter.close();
+
+    // 5. Test mit Altdatenbank auf v0 mit Bestandsdaten (Dünge-Logs und Aquarien), die auf v1 migriert werden
+    const legacyBestandDbPath = path.join(tmpDir, 'legacy_bestand.db');
+    const bestandDb = new Database(legacyBestandDbPath);
+
+    // Initialisiere v0 Schema direkt
+    const baseMigration = require('../src/db/migrations/000_base_schema');
+    baseMigration.up(bestandDb);
+
+    // Füge Bestandsdaten ein (vor Dosierpumpe)
+    bestandDb.prepare("INSERT INTO users (id, username, password_hash, language) VALUES (1, 'tester', 'hash', NULL)").run();
+    bestandDb.prepare("INSERT INTO aquariums (id, user_id, name, fertilize_cycle_unit) VALUES (1, 1, 'Pflanzenbecken', NULL)").run();
+    bestandDb.prepare("INSERT INTO stock (id, aquarium_id, species) VALUES (1, 1, 'Neons')").run();
+    bestandDb.prepare("INSERT INTO maintenance_logs (id, aquarium_id, logged_at, type, note) VALUES (1, 1, '2025-01-01 10:00:00', 'fertilize', 'Eisen-Volldünger 5ml')").run();
+
+    // Führe Migration auf v1 aus
+    const bestandMigRes = migrator.runMigrations(bestandDb);
+    assert.equal(bestandMigRes.previousVersion, 0);
+    assert.equal(bestandMigRes.currentVersion, 1);
+
+    // Prüfe Bestandsdatenmigration
+    const updatedUser = bestandDb.prepare('SELECT language FROM users WHERE id = 1').get();
+    assert.equal(updatedUser.language, 'de', 'Sprache muss standardisiert worden sein');
+
+    const updatedAq = bestandDb.prepare('SELECT fertilize_cycle_unit, fertilize_reminder_mail FROM aquariums WHERE id = 1').get();
+    assert.equal(updatedAq.fertilize_cycle_unit, 'days');
+    assert.equal(updatedAq.fertilize_reminder_mail, 0);
+
+    const updatedStock = bestandDb.prepare('SELECT count, profile FROM stock WHERE id = 1').get();
+    assert.equal(updatedStock.count, 1);
+    assert.equal(updatedStock.profile, 'allgemein');
+
+    const updatedLog = bestandDb.prepare('SELECT details FROM maintenance_logs WHERE id = 1').get();
+    assert.ok(updatedLog.details, 'Log details müssen migriert worden sein');
+    assert.match(updatedLog.details, /Eisen-Volldünger 5ml/);
+
+    bestandDb.close();
+
+    // 5. Test mit dynamischem Multi-File-Migrationsordner (v1 -> v2 -> v3)
+    const customMigDir = path.join(tmpDir, 'custom_migrations');
+    fs.mkdirSync(customMigDir, { recursive: true });
+
+    fs.writeFileSync(
+      path.join(customMigDir, '001_step_one.js'),
+      `module.exports = {
+        version: 1,
+        name: '001_step_one',
+        up(db) {
+          db.exec('CREATE TABLE test_table_a (id INTEGER PRIMARY KEY, title TEXT)');
+        }
+      };`
+    );
+
+    fs.writeFileSync(
+      path.join(customMigDir, '002_step_two.js'),
+      `module.exports = {
+        version: 2,
+        name: '002_step_two',
+        up(db) {
+          db.exec('CREATE TABLE test_table_b (id INTEGER PRIMARY KEY, count INTEGER)');
+        }
+      };`
+    );
+
+    fs.writeFileSync(
+      path.join(customMigDir, '003_step_three.js'),
+      `module.exports = {
+        version: 3,
+        name: '003_step_three',
+        up(db) {
+          db.exec('ALTER TABLE test_table_b ADD COLUMN note TEXT');
+        }
+      };`
+    );
+
+    const stepDbPath = path.join(tmpDir, 'step_migration.db');
+    const stepDb = new Database(stepDbPath);
+
+    // Initial v0
+    assert.equal(migrator.getCurrentVersion(stepDb), 0);
+
+    // Sequenzielle Ausführung aller 3 Migrationen
+    const stepRes = migrator.runMigrations(stepDb, { migrationsDir: customMigDir });
+    assert.equal(stepRes.previousVersion, 0);
+    assert.equal(stepRes.currentVersion, 3);
+    assert.equal(stepRes.latestVersion, 3);
+    assert.deepEqual(
+      stepRes.applied.map((a) => a.version),
+      [1, 2, 3],
+      'Migrationen 1, 2 und 3 müssen sequenziell ausgeführt worden sein'
+    );
+
+    // Tabellenstrukturen prüfen
+    stepDb.prepare('INSERT INTO test_table_a (id, title) VALUES (1, ?)').run('Test A');
+    stepDb.prepare('INSERT INTO test_table_b (id, count, note) VALUES (1, ?, ?)').run(42, 'Notiz');
+
+    const rowA = stepDb.prepare('SELECT * FROM test_table_a WHERE id = 1').get();
+    const rowB = stepDb.prepare('SELECT * FROM test_table_b WHERE id = 1').get();
+    assert.equal(rowA.title, 'Test A');
+    assert.equal(rowB.count, 42);
+    assert.equal(rowB.note, 'Notiz');
+
+    // Schrittweise Migration: DB auf v1 setzen, dann auf v3 aktualisieren
+    const partialDbPath = path.join(tmpDir, 'partial_migration.db');
+    const partialDb = new Database(partialDbPath);
+    partialDb.exec('CREATE TABLE test_table_a (id INTEGER PRIMARY KEY, title TEXT)');
+    migrator.setCurrentVersion(partialDb, 1, 'manual_v1');
+    assert.equal(migrator.getCurrentVersion(partialDb), 1);
+
+    const partialRes = migrator.runMigrations(partialDb, { migrationsDir: customMigDir });
+    assert.equal(partialRes.previousVersion, 1);
+    assert.equal(partialRes.currentVersion, 3);
+    assert.deepEqual(
+      partialRes.applied.map((a) => a.version),
+      [2, 3],
+      'Nur noch ausstehende Migrationen (2 und 3) dürfen ausgeführt werden'
+    );
+
+    stepDb.close();
+    partialDb.close();
   });
 });

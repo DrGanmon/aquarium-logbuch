@@ -5,6 +5,7 @@ const cfg = require('../../config');
 const { isOverdue } = require('../services/aquarium-service');
 const { calculateCycleStatus } = require('../services/reminder-service');
 const { deleteImage } = require('../services/image-service');
+const { runMigrationsMongo, getCurrentVersionMongo } = require('./migrator');
 
 function escapeRegex(string) {
   return String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -18,6 +19,7 @@ class MongoAdapter {
     this.client = null;
     this.db = null;
     this._initialized = false;
+    this.schemaVersion = 0;
   }
 
   async init() {
@@ -40,6 +42,8 @@ class MongoAdapter {
     }
 
     await this._createIndexes();
+    const migRes = await runMigrationsMongo(this.db);
+    this.schemaVersion = migRes.currentVersion;
     this._setupRepositories();
     this._initialized = true;
     return this;
@@ -60,6 +64,10 @@ class MongoAdapter {
 
   getRawDb() {
     return this.db;
+  }
+
+  getSchemaVersion() {
+    return this.schemaVersion;
   }
 
   async getNextSequence(name) {
@@ -1652,6 +1660,10 @@ class MongoAdapter {
         await db.collection('counters').updateOne({ _id: c._id }, { $set: { seq: c.seq } }, { upsert: true });
       }
     }
+
+    // Führe Migrationen aus, um importierte Bestandsdaten auf das aktuelle Schema zu normalisieren
+    const migRes = await runMigrationsMongo(db);
+    this.schemaVersion = migRes.currentVersion;
 
     return true;
   }
