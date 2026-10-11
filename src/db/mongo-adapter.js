@@ -123,6 +123,12 @@ class MongoAdapter {
       // Maintenance logs
       await db.collection('maintenance_logs').createIndex({ id: 1 }, { unique: true });
       await db.collection('maintenance_logs').createIndex({ aquarium_id: 1, logged_at: -1 });
+
+      // Invitations
+      await db.collection('invitations').createIndex({ id: 1 }, { unique: true });
+      await db.collection('invitations').createIndex({ code: 1 }, { unique: true, collation: { locale: 'en', strength: 2 } });
+      await db.collection('invitations').createIndex({ created_by: 1 });
+      await db.collection('invitations').createIndex({ expires_at: 1 });
     } catch (e) {
       // Index creation warnings in mock/memory environments ignored
     }
@@ -1010,6 +1016,104 @@ class MongoAdapter {
         );
       },
     };
+
+    this.invitations = {
+      async findById(id) {
+        if (!id) return null;
+        const inv = await db.collection('invitations').findOne({ id: Number(id) });
+        if (!inv) return null;
+        if (inv.created_by) {
+          const u = await db.collection('users').findOne({ id: inv.created_by });
+          inv.created_by_username = u ? u.username : null;
+        }
+        return inv;
+      },
+      async findByCode(code) {
+        if (!code) return null;
+        const inv = await db.collection('invitations').findOne(
+          { code: { $regex: new RegExp(`^${escapeRegex(String(code).trim())}$`, 'i') } }
+        );
+        if (!inv) return null;
+        if (inv.created_by) {
+          const u = await db.collection('users').findOne({ id: inv.created_by });
+          inv.created_by_username = u ? u.username : null;
+        }
+        return inv;
+      },
+      async findByEmail(email) {
+        if (!email) return [];
+        const invs = await db.collection('invitations').find(
+          { email: { $regex: new RegExp(`^${escapeRegex(String(email).trim())}$`, 'i') } }
+        ).sort({ id: -1 }).toArray();
+        for (const inv of invs) {
+          if (inv.created_by) {
+            const u = await db.collection('users').findOne({ id: inv.created_by });
+            inv.created_by_username = u ? u.username : null;
+          }
+        }
+        return invs;
+      },
+      async listAll() {
+        const invs = await db.collection('invitations').find({}).sort({ id: -1 }).toArray();
+        for (const inv of invs) {
+          if (inv.created_by) {
+            const u = await db.collection('users').findOne({ id: inv.created_by });
+            inv.created_by_username = u ? u.username : null;
+          }
+        }
+        return invs;
+      },
+      async listForUser(userId) {
+        const invs = await db.collection('invitations').find({ created_by: Number(userId) }).sort({ id: -1 }).toArray();
+        for (const inv of invs) {
+          if (inv.created_by) {
+            const u = await db.collection('users').findOne({ id: inv.created_by });
+            inv.created_by_username = u ? u.username : null;
+          }
+        }
+        return invs;
+      },
+      async create({
+        code,
+        type = 'code',
+        email = null,
+        created_by = null,
+        max_uses = 1,
+        used_count = 0,
+        expires_at,
+        note = null,
+      }) {
+        const id = await self.getNextSequence('invitations');
+        const doc = {
+          _id: id,
+          id,
+          code: String(code).trim(),
+          type,
+          email: email ? String(email).trim().toLowerCase() : null,
+          created_by: created_by != null ? Number(created_by) : null,
+          max_uses: max_uses != null ? Number(max_uses) : 1,
+          used_count: used_count != null ? Number(used_count) : 0,
+          expires_at: Number(expires_at),
+          note: note ? String(note).trim() : null,
+          created_at: new Date().toISOString(),
+        };
+        await db.collection('invitations').insertOne(doc);
+        return this.findById(id);
+      },
+      async use(id) {
+        const res = await db.collection('invitations').updateOne(
+          { id: Number(id) },
+          { $inc: { used_count: 1 } }
+        );
+        return res.modifiedCount > 0;
+      },
+      async delete(id, createdBy = null) {
+        const filter = { id: Number(id) };
+        if (createdBy != null) filter.created_by = Number(createdBy);
+        const res = await db.collection('invitations').deleteOne(filter);
+        return res.deletedCount > 0;
+      },
+    };
   }
 
   async exportAllData() {
@@ -1033,6 +1137,7 @@ class MongoAdapter {
     const measurements = stripId(await db.collection('measurements').find({}).sort({ id: 1 }).toArray());
     const alerts = stripId(await db.collection('alerts').find({}).sort({ id: 1 }).toArray());
     const maintenance_logs = stripId(await db.collection('maintenance_logs').find({}).sort({ id: 1 }).toArray());
+    const invitations = stripId(await db.collection('invitations').find({}).sort({ id: 1 }).toArray());
 
     return {
       users,
@@ -1043,6 +1148,7 @@ class MongoAdapter {
       measurements,
       alerts,
       maintenance_logs,
+      invitations,
     };
   }
 
@@ -1058,6 +1164,7 @@ class MongoAdapter {
     const measurements = Array.isArray(data.measurements) ? data.measurements : [];
     const alerts = Array.isArray(data.alerts) ? data.alerts : [];
     const maintenance = Array.isArray(data.maintenance_logs) ? data.maintenance_logs : [];
+    const invitations = Array.isArray(data.invitations) ? data.invitations : [];
 
     const userIds = users.map((u) => u.id);
     const currentSessions = await db.collection('sessions').find({ expires_at: { $gt: Date.now() } }).toArray();
@@ -1073,6 +1180,7 @@ class MongoAdapter {
       db.collection('measurements').deleteMany({}),
       db.collection('alerts').deleteMany({}),
       db.collection('maintenance_logs').deleteMany({}),
+      db.collection('invitations').deleteMany({}),
       db.collection('counters').deleteMany({}),
     ]);
 
@@ -1085,6 +1193,7 @@ class MongoAdapter {
     if (measurements.length > 0) await db.collection('measurements').insertMany(measurements);
     if (alerts.length > 0) await db.collection('alerts').insertMany(alerts);
     if (maintenance.length > 0) await db.collection('maintenance_logs').insertMany(maintenance);
+    if (invitations.length > 0) await db.collection('invitations').insertMany(invitations);
 
     // Aktive Sessions für bestehende Benutzer wiederherstellen
     const validSessions = currentSessions.filter((s) => userIds.includes(s.user_id));
@@ -1100,6 +1209,7 @@ class MongoAdapter {
     const maxMeasId = measurements.reduce((m, ms) => Math.max(m, ms.id || 0), 0);
     const maxAlertId = alerts.reduce((m, al) => Math.max(m, al.id || 0), 0);
     const maxMaintId = maintenance.reduce((m, ml) => Math.max(m, ml.id || 0), 0);
+    const maxInvId = invitations.reduce((m, iv) => Math.max(m, iv.id || 0), 0);
 
     const counterOps = [
       { _id: 'users', seq: maxUserId },
@@ -1109,6 +1219,7 @@ class MongoAdapter {
       { _id: 'measurements', seq: maxMeasId },
       { _id: 'alerts', seq: maxAlertId },
       { _id: 'maintenance_logs', seq: maxMaintId },
+      { _id: 'invitations', seq: maxInvId },
     ];
 
     for (const c of counterOps) {

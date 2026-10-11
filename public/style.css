@@ -558,4 +558,46 @@ dialog.wide { max-width: 640px; }
   margin: 0 auto;
 }
 
+/* Einladungen & Registrierung */
+.invite-code-box {
+  background: var(--tag-bg);
+  border: 2px dashed var(--water);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.invite-code-text {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--kelp);
+}
+
+.mode-radio-card {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  padding: .85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.mode-radio-card:hover {
+  border-color: var(--water);
+}
+
+.mode-radio-card.selected {
+  border-color: var(--water);
+  background: var(--water-soft);
+}
+
 @media (prefers-reduced-motion: reduce) { .tube .fill { transition: none; } }

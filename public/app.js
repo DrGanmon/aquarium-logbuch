@@ -341,6 +341,12 @@ async function route() {
   if (routePath === 'reset-password') {
     return await viewResetPassword(token);
   }
+  if (routePath === 'register') {
+    return showAuth('register', {
+      inviteCode: params.get('invite') || params.get('code') || '',
+      email: params.get('email') || '',
+    });
+  }
   if (routePath === 'forgot-password') {
     return showAuth('forgot');
   }
@@ -372,11 +378,13 @@ let AUTH_ERROR = new URLSearchParams(location.search).get('auth_error') || '';
 let OIDC_LINKED = new URLSearchParams(location.search).get('oidc_linked') === '1';
 if (location.search) history.replaceState(null, '', location.pathname + location.hash);
 
-async function showAuth(mode = 'login') {
+async function showAuth(mode = 'login', options = {}) {
   $topbar.hidden = true;
-  let info = { registration: true, localLogin: true, oidc: false, oidcName: '' };
+  let info = { registration: true, mode: 'open', isInviteOnly: false, isClosed: false, localLogin: true, oidc: false, oidcName: '' };
   try { info = await (await fetch('api/registration')).json(); } catch (e) { /* Standard */ }
-  const registration = info.registration;
+  const registration = info.registration && !info.isClosed;
+  const isInviteOnly = Boolean(info.isInviteOnly);
+  const isClosed = Boolean(info.isClosed);
   const err = h('p', { class: 'error', role: 'alert' }, AUTH_ERROR);
   AUTH_ERROR = '';
   const oidcBtn = info.oidc ? h('a', { class: 'btn', href: 'auth/login' }, `Mit ${info.oidcName} anmelden`) : null;
@@ -404,6 +412,20 @@ async function showAuth(mode = 'login') {
     mount(h('div', { class: 'auth' }, headerRow,
       h('div', { class: 'card stack' }, h('h1', {}, 'Anmelden'), err, oidcBtn)));
     oidcBtn?.focus();
+    return;
+  }
+
+  // Modus: Registrierung geschlossen
+  if (mode === 'register' && (isClosed || !info.registration)) {
+    mount(h('div', { class: 'auth' }, headerRow,
+      h('div', { class: 'card stack' },
+        h('h1', {}, '⛔ Registrierung geschlossen'),
+        h('div', { class: 'compat-box warn' },
+          h('p', { style: 'margin:0;' }, 'Die Registrierung neuer Benutzerkonten ist derzeit geschlossen. Neue Einladungen oder Registrierungen sind aktuell nicht möglich.')
+        ),
+        h('button', { class: 'btn', type: 'button', onclick: () => { location.hash = '#/'; showAuth('login'); } }, 'Zurück zur Anmeldung')
+      )
+    ));
     return;
   }
 
@@ -440,15 +462,25 @@ async function showAuth(mode = 'login') {
 
   // Modus: Login oder Register
   const user = h('input', { id: 'u', autocomplete: 'username', required: true });
-  const mail = mode === 'register' ? h('input', { id: 'e', type: 'email', autocomplete: 'email', required: true }) : null;
+  const mail = mode === 'register' ? h('input', { id: 'e', type: 'email', autocomplete: 'email', required: true, value: options.email || '' }) : null;
   const pass = h('input', { id: 'p', type: 'password', autocomplete: mode === 'login' ? 'current-password' : 'new-password', required: true, minlength: mode === 'login' ? null : '8' });
+  const inviteInput = mode === 'register' ? h('input', {
+    id: 'inv',
+    value: options.inviteCode || '',
+    placeholder: isInviteOnly ? 'z. B. AQU-9F2A-88CD' : 'Einladungscode (optional)',
+    required: isInviteOnly,
+  }) : null;
+
   const resendBox = h('div', { style: 'display:none; margin-top:.5rem;' });
 
   const form = h('form', { class: 'card stack', onsubmit: async (e) => {
     e.preventDefault(); err.textContent = ''; resendBox.style.display = 'none';
     try {
       const body = { username: user.value, password: pass.value };
-      if (mode === 'register' && mail && mail.value.trim()) body.email = mail.value.trim();
+      if (mode === 'register') {
+        if (mail && mail.value.trim()) body.email = mail.value.trim();
+        if (inviteInput && inviteInput.value.trim()) body.inviteCode = inviteInput.value.trim();
+      }
       const res = await api(mode === 'login' ? '/login' : '/register', { method: 'POST', body });
       if (mode === 'register' && res.needsVerification) {
         mount(h('div', { class: 'auth' }, headerRow,
@@ -487,9 +519,16 @@ async function showAuth(mode = 'login') {
       }
     }
   } },
-  h('h1', {}, mode === 'login' ? 'Anmelden' : 'Konto erstellen'),
+  h('h1', {}, mode === 'login' ? 'Anmelden' : (isInviteOnly ? 'Einladung einlösen & Konto erstellen' : 'Konto erstellen')),
+  isInviteOnly && mode === 'register' ? h('div', { class: 'compat-box info', style: 'margin-bottom:.5rem;' },
+    h('p', { style: 'margin:0; font-size:.9rem;' }, '🔑 Für die Registrierung ist ein gültiger Einladungscode erforderlich.')
+  ) : null,
   h('div', { class: 'field' }, h('label', { for: 'u' }, 'Benutzername'), user),
   mail ? h('div', { class: 'field' }, h('label', { for: 'e' }, 'E-Mail-Adresse (für Verifizierung & Passwort-Reset)'), mail) : null,
+  inviteInput ? h('div', { class: 'field' },
+    h('label', { for: 'inv' }, isInviteOnly ? 'Einladungscode / Registrierungscode' : 'Einladungscode (optional)'),
+    inviteInput
+  ) : null,
   h('div', { class: 'field' },
     h('div', { class: 'row between', style: 'align-items:baseline;' },
       h('label', { for: 'p' }, mode === 'login' ? 'Passwort' : 'Passwort (mindestens 8 Zeichen)'),
@@ -505,7 +544,19 @@ async function showAuth(mode = 'login') {
   resendBox,
   h('button', { class: 'btn', type: 'submit' }, mode === 'login' ? 'Anmelden' : 'Konto erstellen'),
   mode === 'login' && oidcBtn ? [h('p', { class: 'muted' }, 'oder'), oidcBtn] : null,
-  registration && h('button', { class: 'btn ghost', type: 'button', onclick: () => showAuth(mode === 'login' ? 'register' : 'login') }, mode === 'login' ? 'Neues Konto erstellen' : 'Ich habe schon ein Konto'));
+  registration && h('button', {
+    class: 'btn ghost',
+    type: 'button',
+    onclick: () => {
+      if (mode === 'login') {
+        location.hash = '#/register';
+        showAuth('register');
+      } else {
+        location.hash = '#/';
+        showAuth('login');
+      }
+    }
+  }, mode === 'login' ? (isInviteOnly ? 'Einladung einlösen / Registrieren' : 'Neues Konto erstellen') : 'Ich habe schon ein Konto'));
   mount(h('div', { class: 'auth' }, headerRow, form));
   user.focus();
 }
@@ -2608,17 +2659,20 @@ async function viewMeasure(id) {
 
 /* ---------- Admin / Benutzerverwaltung ---------- */
 async function viewAdmin() {
-  const [users, logData, backupData, mailData] = await Promise.all([
+  const [users, logData, backupData, mailData, regData] = await Promise.all([
     api('/admin/users'),
     api('/admin/logs').catch(() => ({ logs: [], logPath: 'data/aquarium.log' })),
     api('/admin/backups').catch(() => ({ backups: [], config: { enabled: false, intervalHours: 24, retentionCount: 10, includeFiles: true } })),
     api('/admin/mail').catch(() => ({ config: { enabled: false, host: '', port: 587, secure: false, requireTls: false, from: '', user: '', rateLimitMs: 500, hasPassword: false }, queue: { queueLength: 0, sentCount: 0, failedCount: 0 } })),
+    api('/admin/registration').catch(() => ({ config: { mode: 'open', userCodeMaxDays: 7, mailInviteMaxDays: 14 }, invitations: [] })),
   ]);
 
   const backups = backupData.backups || [];
   const backupConfig = backupData.config || { enabled: false, intervalHours: 24, retentionCount: 10, includeFiles: true };
   const mailConfig = mailData.config || { enabled: false, host: '', port: 587, secure: false, requireTls: false, from: '', user: '', rateLimitMs: 500, hasPassword: false };
   const mailQueue = mailData.queue || { queueLength: 0, sentCount: 0, failedCount: 0, lastSentAt: null, lastError: null };
+  const regConfig = regData.config || { mode: 'open', userCodeMaxDays: 7, mailInviteMaxDays: 14 };
+  const adminInvitations = regData.invitations || [];
 
   const rows = users.map((u) => {
     const isSelf = u.id === ME.id;
@@ -2650,6 +2704,209 @@ async function viewAdmin() {
       )
     );
   });
+
+  /* ---------- Registrierungs- & Einladungs-Verwaltung (Admin) ---------- */
+  const regErr = h('p', { class: 'error', role: 'alert' });
+
+  const selMode = h('select', { style: 'max-width:340px;' },
+    h('option', { value: 'open', selected: regConfig.mode === 'open' }, '🟢 Offen (Jeder kann sich einfach registrieren)'),
+    h('option', { value: 'invite_admin', selected: regConfig.mode === 'invite_admin' }, '🔒 Einladung (Admin) (Nur Admins können einladen)'),
+    h('option', { value: 'invite_open', selected: regConfig.mode === 'invite_open' }, '👥 Einladung (Offen) (Jeder registrierte Nutzer kann einladen)'),
+    h('option', { value: 'closed', selected: regConfig.mode === 'closed' }, '⛔ Geschlossen (Keine neuen Einladungen/Registrierungen)')
+  );
+
+  const inpUserCodeMaxDays = h('input', {
+    type: 'number',
+    min: '1',
+    max: '365',
+    value: String(regConfig.userCodeMaxDays || 7),
+    style: 'max-width:110px;',
+  });
+
+  const btnSaveRegConfig = h('button', {
+    class: 'btn small',
+    type: 'button',
+    onclick: async () => {
+      regErr.textContent = '';
+      try {
+        const body = {
+          mode: selMode.value,
+          userCodeMaxDays: Number(inpUserCodeMaxDays.value) || 7,
+          mailInviteMaxDays: 14,
+        };
+        await api('/admin/registration/config', { method: 'PUT', body });
+        toast('Registrierungs-Einstellungen erfolgreich gespeichert.');
+        await viewAdmin();
+      } catch (ex) {
+        regErr.textContent = ex.message;
+      }
+    }
+  }, 'Registrierungs-Einstellungen speichern');
+
+  // Admin-Einladung erstellen
+  const selAdminInvType = h('select', { style: 'max-width:140px;' },
+    h('option', { value: 'code', selected: true }, 'Code erstellen'),
+    h('option', { value: 'mail' }, 'Per E-Mail versenden')
+  );
+  const inpAdminCustomCode = h('input', { placeholder: 'Code (leer für Zufall)', maxlength: '40', style: 'max-width:200px;' });
+  const inpAdminMailTo = h('input', { type: 'email', placeholder: 'empfaenger@example.com', maxlength: '120', style: 'max-width:240px; display:none;' });
+  const inpAdminMaxUses = h('input', { type: 'number', min: '0', max: '10000', value: '1', placeholder: '0 = unbegrenzt', style: 'max-width:110px;' });
+  const inpAdminDays = h('input', { type: 'number', min: '1', max: '365', value: '14', style: 'max-width:90px;' });
+  const inpAdminNote = h('input', { placeholder: 'Optionale Notiz', maxlength: '200', style: 'max-width:220px;' });
+
+  selAdminInvType.addEventListener('change', () => {
+    const isMail = selAdminInvType.value === 'mail';
+    inpAdminMailTo.style.display = isMail ? '' : 'none';
+    inpAdminCustomCode.style.display = isMail ? 'none' : '';
+    inpAdminMaxUses.style.display = isMail ? 'none' : '';
+    if (isMail) {
+      inpAdminDays.value = '14';
+      inpAdminDays.max = '14';
+    } else {
+      inpAdminDays.max = '365';
+    }
+  });
+
+  const btnAdminCreateInv = h('button', {
+    class: 'btn small',
+    type: 'button',
+    onclick: async () => {
+      regErr.textContent = '';
+      try {
+        const isMail = selAdminInvType.value === 'mail';
+        const body = {
+          type: selAdminInvType.value,
+          code: !isMail && inpAdminCustomCode.value.trim() ? inpAdminCustomCode.value.trim() : undefined,
+          email: isMail ? inpAdminMailTo.value.trim() : undefined,
+          maxUses: isMail ? 1 : (Number(inpAdminMaxUses.value) || 0),
+          days: Number(inpAdminDays.value) || 14,
+          note: inpAdminNote.value.trim() || undefined,
+        };
+        const res = await api('/admin/invitations', { method: 'POST', body });
+        toast(res.message || 'Einladung erfolgreich erstellt.');
+        inpAdminCustomCode.value = '';
+        inpAdminMailTo.value = '';
+        inpAdminNote.value = '';
+        await viewAdmin();
+      } catch (ex) {
+        regErr.textContent = ex.message;
+      }
+    }
+  }, '➕ Einladung erstellen');
+
+  const baseUrl = location.origin + location.pathname;
+  const adminInvRows = adminInvitations.map((inv) => {
+    let statusBadge = h('span', { class: 'chip ok' }, '✓ Aktiv');
+    if (inv.status === 'exhausted') statusBadge = h('span', { class: 'chip none' }, 'Eingelöst');
+    else if (inv.status === 'expired') statusBadge = h('span', { class: 'chip warn' }, 'Abgelaufen');
+
+    const usesText = inv.maxUses === 0 || inv.maxUses == null ? `${inv.usedCount} / ∞` : `${inv.usedCount} / ${inv.maxUses}`;
+    const inviteLink = `${baseUrl}#/register?invite=${encodeURIComponent(inv.code)}${inv.email ? `&email=${encodeURIComponent(inv.email)}` : ''}`;
+
+    const btnCopy = h('button', {
+      class: 'btn small ghost',
+      type: 'button',
+      title: 'Einladungslink kopieren',
+      onclick: async () => {
+        try {
+          await navigator.clipboard.writeText(inviteLink);
+          toast('Einladungslink kopiert!');
+        } catch (e) {
+          prompt('Einladungslink kopieren:', inviteLink);
+        }
+      }
+    }, '📋 Kopieren');
+
+    const btnDel = h('button', {
+      class: 'btn small danger',
+      type: 'button',
+      onclick: async () => {
+        if (!confirm(`Einladung „${inv.code}“ wirklich löschen?`)) return;
+        try {
+          await api(`/admin/invitations/${inv.id}`, { method: 'DELETE' });
+          toast('Einladung gelöscht.');
+          await viewAdmin();
+        } catch (ex) {
+          toast(ex.message);
+        }
+      }
+    }, 'Löschen');
+
+    return h('tr', {},
+      h('td', {},
+        h('strong', { style: 'font-family:monospace; font-size:1.05rem;' }, inv.code),
+        inv.email ? h('div', { class: 'muted', style: 'font-size:.82rem;' }, `E-Mail: ${inv.email}`) : null
+      ),
+      h('td', {}, inv.type === 'mail' ? 'E-Mail' : 'Code'),
+      h('td', {}, inv.createdByUsername || 'System'),
+      h('td', {}, usesText),
+      h('td', {}, fmtDate(inv.expiresAt)),
+      h('td', {}, statusBadge),
+      h('td', {}, inv.note || h('span', { class: 'muted' }, '–')),
+      h('td', {}, h('div', { class: 'row', style: 'gap:.35rem;' }, btnCopy, btnDel))
+    );
+  });
+
+  const registrationCard = h('div', { class: 'card stack' },
+    h('div', { class: 'row between', style: 'align-items:center;' },
+      h('div', {},
+        h('h2', { style: 'margin:0' }, '🔑 Registrierungs-Modus & Einladungen'),
+        h('span', { class: 'muted' }, 'Steuere, wer neue Konten erstellen oder Einladungen verschicken darf.')
+      ),
+      regConfig.mode === 'open'
+        ? h('span', { class: 'chip ok' }, '🟢 Offen')
+        : (regConfig.mode === 'invite_admin'
+          ? h('span', { class: 'chip info' }, '🔒 Einladung (Admin)')
+          : (regConfig.mode === 'invite_open'
+            ? h('span', { class: 'chip ok' }, '👥 Einladung (Offen)')
+            : h('span', { class: 'chip warn' }, '⛔ Geschlossen')))
+    ),
+    regErr,
+    h('div', { class: 'card stack', style: 'background: var(--paper); border: 1px solid var(--line); padding: 1rem; gap: .75rem;' },
+      h('h3', { style: 'margin:0;' }, 'Modus-Auswahl & Code-Gültigkeit'),
+      h('div', { class: 'row', style: 'gap: 1rem; flex-wrap: wrap; align-items: center;' },
+        h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'Registrierungs-Modus:'), selMode),
+        h('label', { class: 'row', style: 'gap:.4rem;' }, h('span', { class: 'muted' }, 'Nutzer-Code Gültigkeit max. (Tage):'), inpUserCodeMaxDays),
+        btnSaveRegConfig
+      ),
+      h('div', { class: 'muted', style: 'font-size:.82rem; line-height:1.4;' },
+        '• 🟢 Offen: Jeder Besucher kann sich direkt registrieren. ',
+        '• 🔒 Einladung (Admin): Registrierung nur mit Code/Mail-Einladung von Administratoren. ',
+        '• 👥 Einladung (Offen): Jeder registrierte Nutzer kann im Profil Einladungen erstellen. ',
+        '• ⛔ Geschlossen: Registrierung und Einladungen komplett deaktiviert.'
+      )
+    ),
+    h('div', { class: 'card stack', style: 'background: var(--paper); border: 1px solid var(--line); padding: 1rem; gap: .75rem;' },
+      h('h3', { style: 'margin:0;' }, '➕ Neue Einladung erstellen / versenden'),
+      h('div', { class: 'row', style: 'gap: .8rem; flex-wrap: wrap; align-items: center;' },
+        selAdminInvType,
+        inpAdminCustomCode,
+        inpAdminMailTo,
+        inpAdminMaxUses,
+        h('label', { class: 'row', style: 'gap:.3rem;' }, h('span', { class: 'muted' }, 'Tage:'), inpAdminDays),
+        inpAdminNote,
+        btnAdminCreateInv
+      )
+    ),
+    h('h3', { style: 'margin:.5rem 0 0 0;' }, `Alle erstellten Einladungen (${adminInvitations.length})`),
+    h('div', { class: 'table-wrap' },
+      h('table', {},
+        h('thead', {},
+          h('tr', {},
+            h('th', {}, 'Code / Empfänger'),
+            h('th', {}, 'Typ'),
+            h('th', {}, 'Erstellt von'),
+            h('th', {}, 'Verwendung'),
+            h('th', {}, 'Gültig bis'),
+            h('th', {}, 'Status'),
+            h('th', {}, 'Notiz'),
+            h('th', {}, 'Aktionen')
+          )
+        ),
+        h('tbody', {}, adminInvRows.length ? adminInvRows : h('tr', {}, h('td', { colspan: '8', class: 'muted', style: 'text-align:center; padding:1.2rem;' }, 'Keine Einladungen vorhanden.')))
+      )
+    )
+  );
 
   /* ---------- Mail / SMTP UI Komponenten ---------- */
   const chkMailEnabled = h('input', { type: 'checkbox', checked: !!mailConfig.enabled, id: 'chk-mail-enabled' });
@@ -2968,6 +3225,7 @@ async function viewAdmin() {
         )
       )
     ),
+    registrationCard,
     h('div', { class: 'card stack' },
       h('div', { class: 'row between', style: 'align-items:center;' },
         h('div', {},
@@ -3519,6 +3777,186 @@ async function viewProfile() {
     )
   );
 
+  // Einladungs-Sektion (für Benutzer, wenn Modus "Einladung (Offen)" aktiv oder Admin)
+  let invitationCard = null;
+  if (ME.canInvite) {
+    const invErr = h('p', { class: 'error', role: 'alert' });
+    const maxDays = Number(ME.userCodeMaxDays) || 7;
+
+    const inpCodeDays = h('select', { style: 'max-width:160px;' },
+      h('option', { value: String(maxDays), selected: true }, `${maxDays} Tage (Standard)`),
+      maxDays > 3 ? h('option', { value: '3' }, '3 Tage') : null,
+      maxDays > 1 ? h('option', { value: '1' }, '1 Tag') : null
+    );
+    const inpCodeNote = h('input', { placeholder: 'Optionale Notiz (z. B. Für Alex)', maxlength: '200', style: 'max-width:240px;' });
+
+    const inpMailTo = h('input', { type: 'email', placeholder: 'freund@example.com', maxlength: '120', style: 'max-width:260px;' });
+    const inpMailNote = h('input', { placeholder: 'Optionale Notiz', maxlength: '200', style: 'max-width:200px;' });
+
+    const invTableBody = h('tbody');
+    const loadUserInvitations = async () => {
+      try {
+        const res = await api('/me/invitations');
+        const list = res.invitations || [];
+        if (!list.length) {
+          invTableBody.replaceChildren(
+            h('tr', {}, h('td', { colspan: '6', class: 'muted', style: 'text-align:center; padding:1.2rem;' }, 'Du hast noch keine Einladungen erstellt.'))
+          );
+          return;
+        }
+
+        const baseUrl = location.origin + location.pathname;
+        const rows = list.map((inv) => {
+          let statusBadge = h('span', { class: 'chip ok' }, '✓ Aktiv');
+          if (inv.status === 'exhausted') statusBadge = h('span', { class: 'chip none' }, 'Eingelöst');
+          else if (inv.status === 'expired') statusBadge = h('span', { class: 'chip warn' }, 'Abgelaufen');
+
+          const inviteLink = `${baseUrl}#/register?invite=${encodeURIComponent(inv.code)}${inv.email ? `&email=${encodeURIComponent(inv.email)}` : ''}`;
+
+          const btnCopy = h('button', {
+            class: 'btn small ghost',
+            type: 'button',
+            title: 'Einladungslink kopieren',
+            onclick: async () => {
+              try {
+                await navigator.clipboard.writeText(inviteLink);
+                toast('Einladungslink in Zwischenablage kopiert!');
+              } catch (e) {
+                prompt('Einladungslink kopieren:', inviteLink);
+              }
+            }
+          }, '📋 Link kopieren');
+
+          const btnDel = h('button', {
+            class: 'btn small danger',
+            type: 'button',
+            onclick: async () => {
+              if (!confirm('Diese Einladung wirklich löschen/widerrufen?')) return;
+              try {
+                await api(`/me/invitations/${inv.id}`, { method: 'DELETE' });
+                toast('Einladung gelöscht.');
+                await loadUserInvitations();
+              } catch (ex) {
+                toast(ex.message);
+              }
+            }
+          }, 'Löschen');
+
+          return h('tr', {},
+            h('td', {},
+              h('strong', { style: 'font-family:monospace; font-size:1.05rem;' }, inv.code),
+              inv.email ? h('div', { class: 'muted', style: 'font-size:.82rem;' }, `E-Mail: ${inv.email}`) : null
+            ),
+            h('td', {}, inv.type === 'mail' ? 'E-Mail' : 'Code'),
+            h('td', {}, `${inv.usedCount} / ${inv.maxUses || 1}`),
+            h('td', {}, fmtDate(inv.expiresAt)),
+            h('td', {}, statusBadge),
+            h('td', {}, h('div', { class: 'row', style: 'gap:.35rem;' }, btnCopy, btnDel))
+          );
+        });
+        invTableBody.replaceChildren(...rows);
+      } catch (e) {
+        invTableBody.replaceChildren(
+          h('tr', {}, h('td', { colspan: '6', class: 'error' }, e.message))
+        );
+      }
+    };
+
+    const btnCreateCode = h('button', {
+      class: 'btn small',
+      type: 'button',
+      onclick: async () => {
+        invErr.textContent = '';
+        try {
+          const res = await api('/me/invitations', {
+            method: 'POST',
+            body: {
+              type: 'code',
+              days: Number(inpCodeDays.value) || maxDays,
+              note: inpCodeNote.value.trim() || undefined,
+            },
+          });
+          inpCodeNote.value = '';
+          toast(res.message || 'Einladungscode erstellt!');
+          await loadUserInvitations();
+        } catch (ex) {
+          invErr.textContent = ex.message;
+        }
+      }
+    }, '➕ Code generieren');
+
+    const btnSendMail = h('button', {
+      class: 'btn small',
+      type: 'button',
+      onclick: async () => {
+        invErr.textContent = '';
+        if (!inpMailTo.value.trim()) {
+          invErr.textContent = 'Bitte gib eine Empfänger-E-Mail-Adresse ein.';
+          return;
+        }
+        try {
+          const res = await api('/me/invitations', {
+            method: 'POST',
+            body: {
+              type: 'mail',
+              email: inpMailTo.value.trim(),
+              days: 14,
+              note: inpMailNote.value.trim() || undefined,
+            },
+          });
+          inpMailTo.value = '';
+          inpMailNote.value = '';
+          toast(res.message || 'Einladungs-E-Mail versendet!');
+          await loadUserInvitations();
+        } catch (ex) {
+          invErr.textContent = ex.message;
+        }
+      }
+    }, '✉️ Einladungs-Mail senden');
+
+    loadUserInvitations();
+
+    invitationCard = h('div', { class: 'card stack' },
+      h('h2', {}, '💌 Freunde einladen'),
+      h('p', { class: 'muted', style: 'margin:0;' },
+        'Erstelle einen Registrierungscode oder versende eine Einladungs-E-Mail, um Freunde zum Aquarium-Logbuch einzuladen.'
+      ),
+      h('div', { class: 'grid2', style: 'gap:1rem; align-items:start;' },
+        h('div', { class: 'card stack', style: 'background:var(--paper); border:1px solid var(--line);' },
+          h('h3', { style: 'margin:0 0 .25rem 0;' }, '🔑 Registrierungscode erstellen'),
+          h('p', { class: 'muted', style: 'margin:0; font-size:.85rem;' }, `Gültig für maximal ${maxDays} Tage. Kann 1-mal eingelöst werden.`),
+          h('div', { class: 'field' }, h('label', {}, 'Gültigkeitsdauer'), inpCodeDays),
+          h('div', { class: 'field' }, h('label', {}, 'Notiz (optional)'), inpCodeNote),
+          h('div', {}, btnCreateCode)
+        ),
+        h('div', { class: 'card stack', style: 'background:var(--paper); border:1px solid var(--line);' },
+          h('h3', { style: 'margin:0 0 .25rem 0;' }, '✉️ Per E-Mail einladen'),
+          h('p', { class: 'muted', style: 'margin:0; font-size:.85rem;' }, 'Versendet eine E-Mail mit Registrierungslink. Gültig für maximal 14 Tage.'),
+          h('div', { class: 'field' }, h('label', {}, 'Empfänger-E-Mail'), inpMailTo),
+          h('div', { class: 'field' }, h('label', {}, 'Notiz (optional)'), inpMailNote),
+          h('div', {}, btnSendMail)
+        )
+      ),
+      invErr,
+      h('h3', { style: 'margin:.5rem 0 0 0;' }, 'Meine erstellten Einladungen'),
+      h('div', { class: 'table-wrap' },
+        h('table', {},
+          h('thead', {},
+            h('tr', {},
+              h('th', {}, 'Code / Empfänger'),
+              h('th', {}, 'Typ'),
+              h('th', {}, 'Verwendung'),
+              h('th', {}, 'Gültig bis'),
+              h('th', {}, 'Status'),
+              h('th', {}, 'Aktionen')
+            )
+          ),
+          invTableBody
+        )
+      )
+    );
+  }
+
   // Gefahrenbereich: Konto löschen
   let deleteAccountCard = null;
   if (!ME.isAdmin) {
@@ -3551,6 +3989,7 @@ async function viewProfile() {
     profileForm,
     themeCard,
     graphRangeCard,
+    invitationCard,
     notificationsCard,
     testSuiteCard,
     passwordCard,

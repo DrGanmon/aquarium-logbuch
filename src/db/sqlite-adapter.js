@@ -110,6 +110,21 @@ class SqliteAdapter {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
       CREATE INDEX IF NOT EXISTS idx_aq_images_aq ON aquarium_images(aquarium_id);
+      CREATE TABLE IF NOT EXISTS invitations (
+        id INTEGER PRIMARY KEY,
+        code TEXT NOT NULL UNIQUE COLLATE NOCASE,
+        type TEXT NOT NULL DEFAULT 'code',
+        email TEXT COLLATE NOCASE,
+        created_by INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        max_uses INTEGER DEFAULT 1,
+        used_count INTEGER NOT NULL DEFAULT 0,
+        expires_at INTEGER NOT NULL,
+        note TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_invitations_code ON invitations(code);
+      CREATE INDEX IF NOT EXISTS idx_invitations_created_by ON invitations(created_by);
+      CREATE INDEX IF NOT EXISTS idx_invitations_expires ON invitations(expires_at);
     `);
 
     const hasColumn = (table, col) => this.db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === col);
@@ -981,6 +996,96 @@ class SqliteAdapter {
         );
       },
     };
+
+    this.invitations = {
+      async findById(id) {
+        if (!id) return null;
+        return (
+          db.prepare(`
+            SELECT i.*, u.username as created_by_username
+            FROM invitations i
+            LEFT JOIN users u ON u.id = i.created_by
+            WHERE i.id = ?
+          `).get(Number(id)) || null
+        );
+      },
+      async findByCode(code) {
+        if (!code) return null;
+        return (
+          db.prepare(`
+            SELECT i.*, u.username as created_by_username
+            FROM invitations i
+            LEFT JOIN users u ON u.id = i.created_by
+            WHERE i.code = ?
+          `).get(String(code).trim()) || null
+        );
+      },
+      async findByEmail(email) {
+        if (!email) return [];
+        return db.prepare(`
+          SELECT i.*, u.username as created_by_username
+          FROM invitations i
+          LEFT JOIN users u ON u.id = i.created_by
+          WHERE i.email = ?
+          ORDER BY i.id DESC
+        `).all(String(email).trim());
+      },
+      async listAll() {
+        return db.prepare(`
+          SELECT i.*, u.username as created_by_username
+          FROM invitations i
+          LEFT JOIN users u ON u.id = i.created_by
+          ORDER BY i.id DESC
+        `).all();
+      },
+      async listForUser(userId) {
+        return db.prepare(`
+          SELECT i.*, u.username as created_by_username
+          FROM invitations i
+          LEFT JOIN users u ON u.id = i.created_by
+          WHERE i.created_by = ?
+          ORDER BY i.id DESC
+        `).all(Number(userId));
+      },
+      async create({
+        code,
+        type = 'code',
+        email = null,
+        created_by = null,
+        max_uses = 1,
+        used_count = 0,
+        expires_at,
+        note = null,
+      }) {
+        const info = db.prepare(`
+          INSERT INTO invitations (code, type, email, created_by, max_uses, used_count, expires_at, note)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          code,
+          type,
+          email || null,
+          created_by != null ? Number(created_by) : null,
+          max_uses != null ? Number(max_uses) : 1,
+          used_count != null ? Number(used_count) : 0,
+          Number(expires_at),
+          note || null
+        );
+        return this.findById(info.lastInsertRowid);
+      },
+      async use(id) {
+        const res = db.prepare('UPDATE invitations SET used_count = used_count + 1 WHERE id = ?').run(Number(id));
+        return res.changes > 0;
+      },
+      async delete(id, createdBy = null) {
+        let res;
+        if (createdBy != null) {
+          res = db.prepare('DELETE FROM invitations WHERE id = ? AND created_by = ?').run(Number(id), Number(createdBy));
+        } else {
+          res = db.prepare('DELETE FROM invitations WHERE id = ?').run(Number(id));
+        }
+        return res.changes > 0;
+      },
+    };
   }
 
   async exportAllData() {
@@ -996,6 +1101,7 @@ class SqliteAdapter {
     const rawValues = db.prepare('SELECT * FROM measurement_values ORDER BY measurement_id ASC, param ASC').all();
     const alerts = db.prepare('SELECT * FROM alerts ORDER BY id ASC').all();
     const maintenance_logs = db.prepare('SELECT * FROM maintenance_logs ORDER BY id ASC').all();
+    const invitations = db.prepare('SELECT * FROM invitations ORDER BY id ASC').all();
 
     const valuesByMId = new Map();
     for (const row of rawValues) {
@@ -1021,6 +1127,7 @@ class SqliteAdapter {
       measurements,
       alerts,
       maintenance_logs,
+      invitations,
     };
   }
 
@@ -1036,6 +1143,7 @@ class SqliteAdapter {
     const measurements = Array.isArray(data.measurements) ? data.measurements : [];
     const alerts = Array.isArray(data.alerts) ? data.alerts : [];
     const maintenance = Array.isArray(data.maintenance_logs) ? data.maintenance_logs : [];
+    const invitations = Array.isArray(data.invitations) ? data.invitations : [];
 
     const validUserIds = new Set(users.map((u) => u.id));
     const currentSessions = db.prepare('SELECT * FROM sessions WHERE expires_at > ?').all(Date.now());
@@ -1043,6 +1151,7 @@ class SqliteAdapter {
     const runImport = db.transaction(() => {
       db.pragma('foreign_keys = OFF');
 
+      db.exec('DELETE FROM invitations');
       db.exec('DELETE FROM alerts');
       db.exec('DELETE FROM measurement_values');
       db.exec('DELETE FROM measurements');
@@ -1203,6 +1312,26 @@ class SqliteAdapter {
           ml.note || null,
           ml.created_by || null,
           ml.created_at || new Date().toISOString()
+        );
+      }
+
+      // Invitations
+      const insertInv = db.prepare(`
+        INSERT INTO invitations (id, code, type, email, created_by, max_uses, used_count, expires_at, note, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const inv of invitations) {
+        insertInv.run(
+          inv.id,
+          inv.code,
+          inv.type || 'code',
+          inv.email || null,
+          inv.created_by || null,
+          inv.max_uses != null ? inv.max_uses : 1,
+          inv.used_count != null ? inv.used_count : 0,
+          Number(inv.expires_at),
+          inv.note || null,
+          inv.created_at || new Date().toISOString()
         );
       }
 

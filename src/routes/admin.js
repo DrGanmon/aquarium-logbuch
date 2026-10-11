@@ -8,6 +8,7 @@ const { auth, requireAdmin } = require('../middleware/auth');
 const { deleteImage } = require('../services/image-service');
 const { backupService } = require('../services/backup-service');
 const { mailService } = require('../services/mail-service');
+const { registrationService } = require('../services/registration-service');
 const path = require('path');
 const logger = require('../utils/logger');
 
@@ -322,6 +323,170 @@ router.post(
     } catch (err) {
       res.status(500).json({ error: `SMTP-Fehler: ${err.message}` });
     }
+  })
+);
+
+/* ---------- Registrierungs- & Einladungs-Verwaltung ---------- */
+
+router.get(
+  '/registration',
+  auth,
+  requireAdmin,
+  wrap(async (req, res) => {
+    const config = registrationService.getConfig();
+    const rows = await db.invitations.listAll();
+    const now = Date.now();
+    const invitations = rows.map((inv) => {
+      const isExpired = inv.expires_at < now;
+      const isExhausted = inv.max_uses != null && inv.max_uses > 0 && inv.used_count >= inv.max_uses;
+      let status = 'active';
+      if (isExhausted) status = 'exhausted';
+      else if (isExpired) status = 'expired';
+
+      return {
+        id: inv.id,
+        code: inv.code,
+        type: inv.type,
+        email: inv.email || null,
+        createdBy: inv.created_by,
+        createdByUsername: inv.created_by_username || (inv.created_by ? `User #${inv.created_by}` : 'System'),
+        maxUses: inv.max_uses,
+        usedCount: inv.used_count,
+        expiresAt: inv.expires_at,
+        note: inv.note || null,
+        createdAt: inv.created_at,
+        status,
+      };
+    });
+
+    res.json({ config, invitations });
+  })
+);
+
+router.put(
+  '/registration/config',
+  auth,
+  requireAdmin,
+  wrap((req, res) => {
+    const updated = registrationService.saveConfig(req.body || {});
+    res.json({ ok: true, config: updated });
+  })
+);
+
+router.post(
+  '/invitations',
+  auth,
+  requireAdmin,
+  wrap(async (req, res) => {
+    const type = req.body.type === 'mail' ? 'mail' : 'code';
+    const customCode = req.body.code ? str(req.body.code, 64).trim().toUpperCase() : null;
+    const email = req.body.email ? str(req.body.email, 120).trim().toLowerCase() : null;
+    const maxUses = req.body.maxUses !== undefined ? Math.max(0, Number(req.body.maxUses)) : 1;
+    const days = Math.max(1, Math.min(3650, Number(req.body.days) || 14));
+    const note = req.body.note ? str(req.body.note, 200).trim() : null;
+
+    if (type === 'mail') {
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ error: 'Gültige Empfänger-E-Mail-Adresse erforderlich.' });
+      }
+      const existingUser = await db.users.findByEmail(email);
+      if (existingUser) {
+        return res.status(409).json({ error: 'Ein Benutzer mit dieser E-Mail-Adresse ist bereits registriert.' });
+      }
+
+      // Mail Einladungen sind maximal 14 Tage gültig
+      const mailDays = Math.min(14, days);
+      const expiresAt = Date.now() + mailDays * 24 * 3600 * 1000;
+      const code = customCode || registrationService.generateInviteToken();
+
+      const inv = await db.invitations.create({
+        code,
+        type: 'mail',
+        email,
+        created_by: req.user.id,
+        max_uses: 1,
+        used_count: 0,
+        expires_at: expiresAt,
+        note,
+      });
+
+      const expiresDateStr = new Date(expiresAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      mailService.sendInvitationEmail({
+        to: email,
+        inviterName: [req.user.first_name, req.user.last_name].filter(Boolean).join(' ') || req.user.username || 'Administrator',
+        inviteCode: code,
+        expiresDays: mailDays,
+        expiresDate: expiresDateStr,
+      });
+
+      return res.json({
+        ok: true,
+        invitation: {
+          id: inv.id,
+          code: inv.code,
+          type: inv.type,
+          email: inv.email,
+          maxUses: inv.max_uses,
+          usedCount: inv.used_count,
+          expiresAt: inv.expires_at,
+          status: 'active',
+          createdAt: inv.created_at,
+        },
+        message: `Einladungs-E-Mail erfolgreich an ${email} versendet.`,
+      });
+    }
+
+    // Type === 'code'
+    if (customCode) {
+      const existing = await db.invitations.findByCode(customCode);
+      if (existing) {
+        return res.status(409).json({ error: 'Dieser Einladungscode existiert bereits.' });
+      }
+    }
+
+    const code = customCode || registrationService.generateInviteCode();
+    const expiresAt = Date.now() + days * 24 * 3600 * 1000;
+
+    const inv = await db.invitations.create({
+      code,
+      type: 'code',
+      email: null,
+      created_by: req.user.id,
+      max_uses: maxUses, // 0 = unbegrenzt, sonst feste Anzahl
+      used_count: 0,
+      expires_at: expiresAt,
+      note,
+    });
+
+    res.json({
+      ok: true,
+      invitation: {
+        id: inv.id,
+        code: inv.code,
+        type: inv.type,
+        email: null,
+        maxUses: inv.max_uses,
+        usedCount: inv.used_count,
+        expiresAt: inv.expires_at,
+        status: 'active',
+        createdAt: inv.created_at,
+      },
+      message: 'Einladungscode erfolgreich erstellt.',
+    });
+  })
+);
+
+router.delete(
+  '/invitations/:id',
+  auth,
+  requireAdmin,
+  wrap(async (req, res) => {
+    const id = Number(req.params.id);
+    const deleted = await db.invitations.delete(id);
+    if (!deleted) {
+      return res.status(404).json({ error: 'Einladung nicht gefunden.' });
+    }
+    res.json({ ok: true });
   })
 );
 

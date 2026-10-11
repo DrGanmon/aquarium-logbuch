@@ -14,6 +14,12 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **Multi-Worker Clusterbetrieb:** Über `WORKERS=auto` (oder feste Anzahl) verteilt der Supervisor eingehende Anfragen auf mehrere Worker-Prozesse über alle CPU-Kerne hinweg.
   - **Zustandsloses OIDC:** OIDC-Zustände werden kryptografisch signiert und funktionieren prozess- und instanzübergreifend.
 - Anmeldung über Pocket ID (OIDC) oder lokal mit Registrierung
+- **4 Registrierungs- & Einladungsmodi:**
+  - **🟢 Offen:** Jeder Besucher kann sich direkt selbst registrieren.
+  - **🔒 Einladung (Admin):** Nur Administratoren können neue Einladungscodes generieren oder Einladungs-E-Mails versenden.
+  - **👥 Einladung (Offen):** Alle registrierten Benutzer können im Profil Freunde per Code oder E-Mail einladen.
+  - **⛔ Geschlossen:** Registrierung und neue Einladungen sind vollständig deaktiviert.
+  - **Flexible Einladungscodes & E-Mails:** Einladungscodes mit konfigurierbarer Gültigkeit (standardmäßig max. 7 Tage für Nutzer, vom Admin konfigurierbar) und Verwendungsbeschränkungen sowie E-Mail-Einladungen (max. 14 Tage Gültigkeit).
 - **Light & Dark Mode:** Vollständige Unterstützung für ein helles und augenschonendes dunkles Farbschema:
   - **Systemstandard:** Verwendet standardmäßig die Farbschema-Einstellungen des Betriebssystems (`prefers-color-scheme`).
   - **Umschaltbar:** Schnell-Umschalter in der Kopfzeile und auf der Anmeldeseite sowie feste Auswahlmöglichkeit im Benutzerprofil.
@@ -122,6 +128,7 @@ Jeder angemeldete Benutzer kann über die Kopfzeile auf sein **Benutzerprofil** 
 - **Standard-Zeitraum für Graphen:** Festlegung des bevorzugten Zeitraums (z. B. 3 Monate, 6 Monate, 1 Jahr) für die Verlaufsgraphen.
 - **Passwortverwaltung:** Ändern des aktuellen Passworts (bei lokaler Anmeldung).
 - **OIDC-Verknüpfung:** Direktes Verknüpfen oder Entkoppeln des Kontos mit Pocket ID / OpenID Connect.
+- **Freunde einladen (bei aktivem Einladungsmodus):** Registrierungscodes (bis maximal 7 Tage bzw. konfigurierte Gültigkeit) und E-Mail-Einladungen (bis maximal 14 Tage Gültigkeit) erstellen, den Status einsehen und Einladungslinks direkt teilen.
 - **Konto löschen (Zweistufige Bestätigung):**
   - **1. Schritt (In der Anwendung):** Bestätigung im Profilbereich (bei lokaler Anmeldung inklusive Passworteingabe) zur Auslösung der Löschanforderung.
   - **2. Schritt (Per E-Mail):** Aus Sicherheitsgründen wird eine Bestätigungs-E-Mail mit einem zeitlich begrenzten Bestätigungslink versendet. Erst durch Klick auf diesen Link wird die Löschung endgültig vollzogen.
@@ -134,6 +141,11 @@ Der Administrator wird anhand der E-Mail-Adresse festgelegt. Dazu entweder in `c
 - Benutzer, deren E-Mail-Adresse (aus OIDC/Pocket ID oder lokaler Registrierung) mit `ADMIN_EMAIL` übereinstimmt, erhalten Administrator-Rechte.
 - Im Header erscheint der Button **Benutzerverwaltung** (`#/admin`).
 - Administratoren können alle registrierten Benutzer einsehen, neue Benutzer anlegen, bestehende Benutzer bearbeiten (Benutzername, E-Mail, Passwort ändern) und Benutzer samt deren Daten löschen.
+- **Registrierungs-Modi & Einladungs-Verwaltung:**
+  - Umschalten zwischen den 4 Modi: **Offen**, **Einladung (Admin)**, **Einladung (Offen)** und **Geschlossen**.
+  - Konfiguration der maximalen Gültigkeit für Benutzer-Einladungscodes (Standard: 7 Tage).
+  - Erstellung von Admin-Einladungscodes mit individueller Verwendungsanzahl (z. B. unbegrenzt oder einmalig) sowie E-Mail-Einladungen.
+  - Übersicht aller aktiven, eingelösten und abgelaufenen Einladungen inklusive Widerruf- / Löschfunktion.
 - **Backup & Restore (Datensicherung & Wiederherstellung):**
   - **Manuelle Backups:** Vollständige Sicherung der gesamten Datenbank (Benutzer, Aquarien, Messwerte, Alarme, Logbuch) inklusive aller hochgeladenen Fotos als komprimierte Datei (`.json.gz`).
   - **Wiederherstellung (Restore):** Einspielen von Sicherungsdateien über die Weboberfläche oder aus der lokalen Backup-Liste.

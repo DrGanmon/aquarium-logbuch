@@ -449,4 +449,51 @@ module.exports = {
   createPasswordResetMail,
   createTestEmailMail,
   createAccountDeletionMail,
+  createInvitationMail,
 };
+
+/**
+ * Template für Einladungen neuer Benutzer.
+ * Nutzt 'invitation.tpl'.
+ */
+function createInvitationMail({ inviterName, inviteUrl, inviteCode, expiresDays = 14, expiresDate = null }) {
+  const inviter = inviterName || 'Ein Mitglied';
+  const subject = `💌 Einladung zu Aquarium-Logbuch von ${inviter}`;
+  const preheader = `${inviter} hat dich eingeladen, dem Aquarium-Logbuch beizutreten.`;
+  const headline = 'Du wurdest eingeladen!';
+  const ctaText = 'Einladung annehmen & registrieren';
+  const expiresDateHint = expiresDate ? ` (bis zum ${expiresDate})` : '';
+
+  const html = renderTemplate('invitation', {
+    title: subject,
+    subject,
+    preheader,
+    headline,
+    inviterName: inviter,
+    inviteUrl,
+    inviteCode,
+    expiresDays,
+    expiresDateHint,
+    ctaText,
+    ctaUrl: inviteUrl,
+  });
+
+  const text = `Hallo,
+
+${inviter} hat dich herzlich eingeladen, dem Aquarium-Logbuch beizutreten!
+
+Mit dem Aquarium-Logbuch behältst du Wasserwerte, Pflegemaßnahmen, Beckenfotos und Bewohner deiner Aquarien spielend leicht im Blick.
+
+Dein Einladungscode: ${inviteCode}
+
+Öffne folgenden Link in deinem Browser, um deine Einladung anzunehmen und dein Konto zu erstellen:
+${inviteUrl}
+
+Diese Einladung ist ${expiresDays} Tage gültig${expiresDateHint}.
+
+Falls du diese Einladung nicht erwartet hast, kannst du diese Nachricht einfach ignorieren.
+
+Dein Aquarium-Logbuch Team`;
+
+  return { subject, html, text };
+}

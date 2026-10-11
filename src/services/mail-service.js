@@ -8,6 +8,7 @@ const {
   createPasswordResetMail,
   createTestEmailMail,
   createAccountDeletionMail,
+  createInvitationMail,
 } = require('./mail-template');
 const logger = require('../utils/logger');
 
@@ -291,6 +292,28 @@ class MailService {
 
     return this.enqueueMail({
       to: user.email,
+      subject,
+      html,
+      text,
+    });
+  }
+
+  /**
+   * Sendet eine Einladungs-E-Mail an einen neuen Benutzer.
+   */
+  sendInvitationEmail({ to, inviterName, inviteCode, expiresDays = 14, expiresDate = null }) {
+    const baseUrl = APP_URL || 'http://localhost:3000';
+    const inviteUrl = `${baseUrl}/#/register?invite=${encodeURIComponent(inviteCode)}&email=${encodeURIComponent(to)}`;
+    const { subject, html, text } = createInvitationMail({
+      inviterName,
+      inviteUrl,
+      inviteCode,
+      expiresDays,
+      expiresDate,
+    });
+
+    return this.enqueueMail({
+      to,
       subject,
       html,
       text,

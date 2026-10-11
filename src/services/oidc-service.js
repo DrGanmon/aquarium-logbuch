@@ -10,6 +10,7 @@ const {
   ALLOW_REGISTRATION,
   APP_URL,
 } = require('../config/env');
+const { registrationService } = require('./registration-service');
 
 const oidc = OIDC_ENABLED
   ? createOidc({
@@ -64,7 +65,7 @@ async function userForClaims(claims, db) {
       return { ...local, oidc_sub: sub, email: email || local.email, email_verified: 1 };
     }
   }
-  if (!ALLOW_REGISTRATION) return null;
+  if (!ALLOW_REGISTRATION || registrationService.getConfig().isClosed) return null;
   const username = await usernameFromClaims(claims, db);
   const user = await db.users.create({
     username,
