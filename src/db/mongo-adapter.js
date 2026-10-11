@@ -3,6 +3,7 @@ const { MongoClient } = require('mongodb');
 const { MONGODB_URI, MONGODB_DB_NAME } = require('../config/env');
 const cfg = require('../../config');
 const { isOverdue } = require('../services/aquarium-service');
+const { calculateCycleStatus } = require('../services/reminder-service');
 const { deleteImage } = require('../services/image-service');
 
 function escapeRegex(string) {
@@ -381,7 +382,24 @@ class MongoAdapter {
           owner_email: owner?.email || null,
         };
       },
-      async create({ user_id, name, volume_l = null, water_type = 'fresh', reminder_days = 7, notes = null, motto = null, description = null }) {
+      async create({
+        user_id,
+        name,
+        volume_l = null,
+        water_type = 'fresh',
+        reminder_days = 7,
+        notes = null,
+        motto = null,
+        description = null,
+        measure_cycle_interval = null,
+        measure_cycle_unit = 'days',
+        measure_cycle_day_of_week = null,
+        measure_reminder_mail = 0,
+        fertilize_cycle_interval = null,
+        fertilize_cycle_unit = 'days',
+        fertilize_cycle_day_of_week = null,
+        fertilize_reminder_mail = 0,
+      }) {
         const id = await self.getNextSequence('aquariums');
         const doc = {
           _id: id,
@@ -395,6 +413,16 @@ class MongoAdapter {
           motto: motto || null,
           description: description || null,
           image_file: null,
+          measure_cycle_interval: measure_cycle_interval != null ? Number(measure_cycle_interval) : null,
+          measure_cycle_unit: measure_cycle_unit || 'days',
+          measure_cycle_day_of_week: measure_cycle_day_of_week != null ? Number(measure_cycle_day_of_week) : null,
+          measure_reminder_mail: measure_reminder_mail ? 1 : 0,
+          last_measure_reminder_sent_at: null,
+          fertilize_cycle_interval: fertilize_cycle_interval != null ? Number(fertilize_cycle_interval) : null,
+          fertilize_cycle_unit: fertilize_cycle_unit || 'days',
+          fertilize_cycle_day_of_week: fertilize_cycle_day_of_week != null ? Number(fertilize_cycle_day_of_week) : null,
+          fertilize_reminder_mail: fertilize_reminder_mail ? 1 : 0,
+          last_fertilize_reminder_sent_at: null,
           created_at: new Date().toISOString(),
         };
         await db.collection('aquariums').insertOne(doc);
@@ -403,7 +431,26 @@ class MongoAdapter {
       async update(id, fields = {}) {
         const numId = Number(id);
         const updateFields = {};
-        const allowed = ['name', 'volume_l', 'water_type', 'reminder_days', 'notes', 'image_file', 'motto', 'description'];
+        const allowed = [
+          'name',
+          'volume_l',
+          'water_type',
+          'reminder_days',
+          'notes',
+          'image_file',
+          'motto',
+          'description',
+          'measure_cycle_interval',
+          'measure_cycle_unit',
+          'measure_cycle_day_of_week',
+          'measure_reminder_mail',
+          'last_measure_reminder_sent_at',
+          'fertilize_cycle_interval',
+          'fertilize_cycle_unit',
+          'fertilize_cycle_day_of_week',
+          'fertilize_reminder_mail',
+          'last_fertilize_reminder_sent_at',
+        ];
 
         for (const k of allowed) {
           if (fields[k] !== undefined) {
@@ -413,6 +460,15 @@ class MongoAdapter {
 
         if (Object.keys(updateFields).length === 0) return true;
         const res = await db.collection('aquariums').updateOne({ id: numId }, { $set: updateFields });
+        return res.matchedCount > 0;
+      },
+      async listAllRaw() {
+        return await db.collection('aquariums').find({}).sort({ id: 1 }).toArray();
+      },
+      async updateReminderSent(id, type, timestamp) {
+        const numId = Number(id);
+        const col = type === 'measure' ? 'last_measure_reminder_sent_at' : 'last_fertilize_reminder_sent_at';
+        const res = await db.collection('aquariums').updateOne({ id: numId }, { $set: { [col]: timestamp } });
         return res.matchedCount > 0;
       },
       async updateImage(id, filename) {
@@ -469,6 +525,7 @@ class MongoAdapter {
           .collection('maintenance_logs')
           .findOne({ aquarium_id: aq.id, type: 'water_change' }, { sort: { logged_at: -1 } });
         const lastMaintenance = await db.collection('maintenance_logs').findOne({ aquarium_id: aq.id }, { sort: { logged_at: -1 } });
+        const lastFertilize = await db.collection('maintenance_logs').findOne({ aquarium_id: aq.id, type: 'fertilize' }, { sort: { logged_at: -1 } });
 
         const crit = await db.collection('alerts').countDocuments({ aquarium_id: aq.id, acked_at: null, level: 'crit' });
         const warn = await db.collection('alerts').countDocuments({ aquarium_id: aq.id, acked_at: null, level: 'warn' });
@@ -476,6 +533,28 @@ class MongoAdapter {
           .collection('aquarium_shares')
           .countDocuments({ aquarium_id: aq.id, $or: [{ status: 'accepted' }, { status: { $exists: false } }] });
         const imagesCount = await db.collection('aquarium_images').countDocuments({ aquarium_id: aq.id });
+
+        const measureCycleStatus = calculateCycleStatus(
+          {
+            interval: aq.measure_cycle_interval,
+            unit: aq.measure_cycle_unit,
+            day_of_week: aq.measure_cycle_day_of_week,
+            reminder_mail: aq.measure_reminder_mail,
+          },
+          last ? last.measured_at : null,
+          aq.created_at
+        );
+
+        const fertilizeCycleStatus = calculateCycleStatus(
+          {
+            interval: aq.fertilize_cycle_interval,
+            unit: aq.fertilize_cycle_unit,
+            day_of_week: aq.fertilize_cycle_day_of_week,
+            reminder_mail: aq.fertilize_reminder_mail,
+          },
+          lastFertilize ? lastFertilize.logged_at : null,
+          aq.created_at
+        );
 
         return {
           ...aq,
@@ -492,9 +571,13 @@ class MongoAdapter {
           last_water_change_percent: lastWaterChange ? lastWaterChange.percentage : null,
           last_maintenance_at: lastMaintenance ? lastMaintenance.logged_at : null,
           last_maintenance_type: lastMaintenance ? lastMaintenance.type : null,
+          last_fertilized_at: lastFertilize ? lastFertilize.logged_at : null,
           open_crit: crit,
           open_warn: warn,
-          overdue: isOverdue(aq, last),
+          overdue: isOverdue(aq, last) || (measureCycleStatus.configured && measureCycleStatus.is_due),
+          measure_cycle_status: measureCycleStatus,
+          fertilize_cycle_status: fertilizeCycleStatus,
+          fertilize_overdue: fertilizeCycleStatus.configured && fertilizeCycleStatus.is_due,
         };
       },
     };
@@ -868,6 +951,9 @@ class MongoAdapter {
       async findById(id) {
         return (await db.collection('measurements').findOne({ id: Number(id) })) || null;
       },
+      async findLastForAquarium(aquariumId) {
+        return (await db.collection('measurements').findOne({ aquarium_id: Number(aquariumId) }, { sort: { measured_at: -1 } })) || null;
+      },
       async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [] }) {
         const measId = await self.getNextSequence('measurements');
         const doc = {
@@ -1008,6 +1094,9 @@ class MongoAdapter {
       },
       async findById(id) {
         return (await db.collection('maintenance_logs').findOne({ id: Number(id) })) || null;
+      },
+      async findLastByType(aquariumId, type) {
+        return (await db.collection('maintenance_logs').findOne({ aquarium_id: Number(aquariumId), type: String(type) }, { sort: { logged_at: -1 } })) || null;
       },
       async create({ aquarium_id, logged_at, type, percentage = null, details = null, note = null, created_by = null }) {
         const id = await self.getNextSequence('maintenance_logs');

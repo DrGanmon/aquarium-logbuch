@@ -475,6 +475,8 @@ module.exports = {
   createAccountDeletionMail,
   createInvitationMail,
   createShareAquariumMail,
+  createMeasureReminderMail,
+  createFertilizeReminderMail,
 };
 
 /**
@@ -564,6 +566,88 @@ ${inviteUrl}
 Diese Einladung ist ${expiresDays} Tage gültig${expiresDateHint}.
 
 Falls du diese Einladung nicht erwartet hast, kannst du diese Nachricht einfach ignorieren.
+
+Dein Aquarium-Logbuch Team`;
+
+  return { subject, html, text };
+}
+
+/**
+ * Template für Erinnerungen an fällige Messzyklen.
+ * Nutzt 'measure-reminder.tpl'.
+ */
+function createMeasureReminderMail({ username, aquariumName, cycleLabel, lastDateStr, statusLabel, measureUrl }) {
+  const aqName = aquariumName || 'Aquarium';
+  const subject = `🧪 Erinnerung: Messung fällig für „${aqName}“`;
+  const preheader = `Für dein Aquarium „${aqName}“ ist gemäß deinem Messzyklus (${cycleLabel}) eine neue Messung fällig.`;
+  const headline = 'Wasserwert-Messung fällig';
+  const ctaText = 'Messung jetzt eintragen';
+
+  const html = renderTemplate('measure-reminder', {
+    title: subject,
+    subject,
+    preheader,
+    headline,
+    username: username || 'Aquarianer',
+    aquariumName: aqName,
+    cycleLabel: cycleLabel || 'Regelmäßig',
+    lastDateStr: lastDateStr || 'Keine bisherige Messung',
+    statusLabel: statusLabel || 'Fällig',
+    measureUrl,
+    ctaText,
+    ctaUrl: measureUrl,
+  });
+
+  const text = `Hallo ${username || 'Aquarianer'},
+
+für dein Aquarium „${aqName}“ ist gemäß deinem hinterlegten Messzyklus (${cycleLabel}) eine neue Wasserwert-Messung fällig!
+
+Status: ${statusLabel}
+Letzte Messung: ${lastDateStr || 'Keine bisherige Messung'}
+
+Trage deine neuen Wasserwerte direkt im Aquarium-Logbuch ein:
+${measureUrl}
+
+Dein Aquarium-Logbuch Team`;
+
+  return { subject, html, text };
+}
+
+/**
+ * Template für Erinnerungen an fällige Düngzyklen.
+ * Nutzt 'fertilize-reminder.tpl'.
+ */
+function createFertilizeReminderMail({ username, aquariumName, cycleLabel, lastDateStr, statusLabel, fertilizeUrl }) {
+  const aqName = aquariumName || 'Aquarium';
+  const subject = `🌿 Erinnerung: Düngung fällig für „${aqName}“`;
+  const preheader = `Für dein Aquarium „${aqName}“ ist gemäß deinem Düngzyklus (${cycleLabel}) eine Düngung fällig.`;
+  const headline = 'Pflanzendüngung fällig';
+  const ctaText = 'Düngung im Logbuch eintragen';
+
+  const html = renderTemplate('fertilize-reminder', {
+    title: subject,
+    subject,
+    preheader,
+    headline,
+    username: username || 'Aquarianer',
+    aquariumName: aqName,
+    cycleLabel: cycleLabel || 'Regelmäßig',
+    lastDateStr: lastDateStr || 'Keine bisherige Düngung',
+    statusLabel: statusLabel || 'Fällig',
+    fertilizeUrl,
+    ctaText,
+    ctaUrl: fertilizeUrl,
+  });
+
+  const text = `Hallo ${username || 'Aquarianer'},
+
+für dein Aquarium „${aqName}“ steht gemäß deinem hinterlegten Düngzyklus (${cycleLabel}) eine neue Pflanzendüngung an!
+
+Status: ${statusLabel}
+Letzte Düngung: ${lastDateStr || 'Keine bisherige Düngung'}
+
+Dokumentiere deine Düngung im Aquarium-Logbuch:
+${fertilizeUrl}
 
 Dein Aquarium-Logbuch Team`;
 

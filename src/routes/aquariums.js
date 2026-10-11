@@ -37,6 +37,14 @@ router.post(
       notes: value.notes,
       motto: value.motto,
       description: value.description,
+      measure_cycle_interval: value.measure_cycle_interval,
+      measure_cycle_unit: value.measure_cycle_unit,
+      measure_cycle_day_of_week: value.measure_cycle_day_of_week,
+      measure_reminder_mail: value.measure_reminder_mail,
+      fertilize_cycle_interval: value.fertilize_cycle_interval,
+      fertilize_cycle_unit: value.fertilize_cycle_unit,
+      fertilize_cycle_day_of_week: value.fertilize_cycle_day_of_week,
+      fertilize_reminder_mail: value.fertilize_reminder_mail,
     });
     res.json({ id: info.id });
   })
@@ -99,6 +107,14 @@ router.put(
       notes: value.notes,
       motto: value.motto,
       description: value.description,
+      measure_cycle_interval: value.measure_cycle_interval,
+      measure_cycle_unit: value.measure_cycle_unit,
+      measure_cycle_day_of_week: value.measure_cycle_day_of_week,
+      measure_reminder_mail: value.measure_reminder_mail,
+      fertilize_cycle_interval: value.fertilize_cycle_interval,
+      fertilize_cycle_unit: value.fertilize_cycle_unit,
+      fertilize_cycle_day_of_week: value.fertilize_cycle_day_of_week,
+      fertilize_reminder_mail: value.fertilize_reminder_mail,
     });
     res.json({ ok: true });
   })

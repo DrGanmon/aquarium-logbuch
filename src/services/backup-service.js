@@ -409,6 +409,16 @@ class BackupService {
         image_file: a.image_file ? path.basename(String(a.image_file)) : null,
         motto: a.motto ? String(a.motto).trim() : null,
         description: a.description ? String(a.description).trim() : null,
+        measure_cycle_interval: a.measure_cycle_interval != null ? Number(a.measure_cycle_interval) : null,
+        measure_cycle_unit: a.measure_cycle_unit === 'weeks' ? 'weeks' : 'days',
+        measure_cycle_day_of_week: a.measure_cycle_day_of_week != null ? Number(a.measure_cycle_day_of_week) : null,
+        measure_reminder_mail: a.measure_reminder_mail ? 1 : 0,
+        last_measure_reminder_sent_at: a.last_measure_reminder_sent_at ? String(a.last_measure_reminder_sent_at) : null,
+        fertilize_cycle_interval: a.fertilize_cycle_interval != null ? Number(a.fertilize_cycle_interval) : null,
+        fertilize_cycle_unit: a.fertilize_cycle_unit === 'weeks' ? 'weeks' : 'days',
+        fertilize_cycle_day_of_week: a.fertilize_cycle_day_of_week != null ? Number(a.fertilize_cycle_day_of_week) : null,
+        fertilize_reminder_mail: a.fertilize_reminder_mail ? 1 : 0,
+        last_fertilize_reminder_sent_at: a.last_fertilize_reminder_sent_at ? String(a.last_fertilize_reminder_sent_at) : null,
         created_at: a.created_at || new Date().toISOString(),
       };
     }).filter((a) => a && a.id);

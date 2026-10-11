@@ -911,7 +911,9 @@ async function viewList() {
   const activeTab = CURRENT_AQ_TAB === 'shared' ? 'shared' : 'own';
 
   function renderCard(a) {
-    const s = a.open_crit ? 'crit' : (a.open_warn || a.overdue) ? 'warn' : a.last_measured_at ? 'ok' : 'none';
+    const isDueMeasure = a.overdue || (a.measure_cycle_status && a.measure_cycle_status.is_due);
+    const isDueFertilize = a.fertilize_overdue || (a.fertilize_cycle_status && a.fertilize_cycle_status.is_due);
+    const s = a.open_crit ? 'crit' : (a.open_warn || isDueMeasure || isDueFertilize) ? 'warn' : a.last_measured_at ? 'ok' : 'none';
     const isOwner = a.role === 'owner';
     return h('a', { class: `card aq-card s-${s}`, href: `#/a/${a.id}` },
       a.has_image ? h('img', { class: 'aq-card-img', src: `api/aquariums/${a.id}/image`, alt: a.name, loading: 'lazy' }) : null,
@@ -921,9 +923,11 @@ async function viewList() {
       h('div', { class: 'row', style: 'margin-top:.6rem' },
         a.open_crit ? h('span', { class: 'chip crit' }, `${a.open_crit} kritisch`) : null,
         a.open_warn ? h('span', { class: 'chip warn' }, `${a.open_warn} auffällig`) : null,
-        a.overdue ? h('span', { class: 'chip warn' }, 'Messung fällig') : null,
-        !a.open_crit && !a.open_warn && !a.overdue && a.last_measured_at ? h('span', { class: 'chip ok' }, 'alles im Bereich') : null,
+        isDueMeasure ? h('span', { class: 'chip warn' }, '🧪 Messung fällig') : null,
+        isDueFertilize ? h('span', { class: 'chip warn' }, '🌿 Düngung fällig') : null,
+        !a.open_crit && !a.open_warn && !isDueMeasure && !isDueFertilize && a.last_measured_at ? h('span', { class: 'chip ok' }, 'alles im Bereich') : null,
         !a.last_measured_at ? h('span', { class: 'chip none' }, 'noch keine Messung') : null,
+        a.last_fertilized_at ? h('span', { class: 'chip ok' }, `🌿 Düngung: ${fmtDate(a.last_fertilized_at)}`) : null,
         a.last_water_change_at ? h('span', { class: 'chip ok' }, `💧 WW: ${fmtDate(a.last_water_change_at)}${a.last_water_change_percent ? ' (' + a.last_water_change_percent + '%)' : ''}`) : null,
         !isOwner && a.role === 'write' ? h('span', { class: 'chip ok' }, `Geteilt: Schreiben (${a.owner_username || 'Besitzer'})`) : null,
         !isOwner && a.role === 'view' ? h('span', { class: 'chip none' }, `Geteilt: Lesen (${a.owner_username || 'Besitzer'})`) : null,
@@ -1090,18 +1094,75 @@ function aquariumDialog(aq) {
     btnRemoveImg.style.display = 'none';
   });
 
+  const weekdaysList = [
+    { val: '', label: 'Beliebiger Wochentag / Flexibel' },
+    { val: '1', label: 'Montag' },
+    { val: '2', label: 'Dienstag' },
+    { val: '3', label: 'Mittwoch' },
+    { val: '4', label: 'Donnerstag' },
+    { val: '5', label: 'Freitag' },
+    { val: '6', label: 'Samstag' },
+    { val: '7', label: 'Sonntag' },
+  ];
+
+  const mInterval = aq?.measure_cycle_interval != null ? aq.measure_cycle_interval : (aq?.reminder_days ? aq.reminder_days : 7);
+  const mUnit = aq?.measure_cycle_unit || 'days';
+  const mDay = aq?.measure_cycle_day_of_week != null ? String(aq.measure_cycle_day_of_week) : '';
+  const mMail = Boolean(aq?.measure_reminder_mail);
+
+  const fInterval = aq?.fertilize_cycle_interval != null ? aq.fertilize_cycle_interval : '';
+  const fUnit = aq?.fertilize_cycle_unit || 'weeks';
+  const fDay = aq?.fertilize_cycle_day_of_week != null ? String(aq.fertilize_cycle_day_of_week) : '';
+  const fMail = Boolean(aq?.fertilize_reminder_mail);
+
   const f = {
     name: h('input', { required: true, maxlength: '80', value: aq?.name || '' }),
     motto: h('input', { maxlength: '160', placeholder: 'z. B. Mein Amazonas-Biotop / Naturaquarium 120', value: aq?.motto || '' }),
     description: h('textarea', { maxlength: '4000', rows: '3', placeholder: 'Generelle Beschreibung (z. B. Scape, Bepflanzung, Beleuchtung, Technik & Philosophie)...', value: aq?.description || '' }),
     water_type: h('select', { value: aq?.water_type || 'fresh' }, Object.entries(CONFIG.waterTypes).map(([k, v]) => h('option', { value: k }, v))),
     volume_l: h('input', { type: 'number', min: '1', max: '100000', inputmode: 'numeric', value: aq?.volume_l ?? '' }),
-    reminder_days: h('input', { type: 'number', min: '0', max: '365', inputmode: 'numeric', value: aq?.reminder_days ?? 7 }),
     notes: h('textarea', { maxlength: '1000', placeholder: 'Kurze Notizen...', value: aq?.notes || '' }),
+
+    // Messzyklus
+    measure_cycle_interval: h('input', { type: 'number', min: '0', max: '365', placeholder: 'z. B. 7 oder 14 (0 = aus)', value: mInterval }),
+    measure_cycle_unit: h('select', { value: mUnit },
+      h('option', { value: 'days' }, 'Tage'),
+      h('option', { value: 'weeks' }, 'Wochen')
+    ),
+    measure_cycle_day_of_week: h('select', { value: mDay },
+      weekdaysList.map((w) => h('option', { value: w.val, selected: String(w.val) === String(mDay) }, w.label))
+    ),
+    measure_reminder_mail: h('input', { type: 'checkbox', checked: mMail }),
+
+    // Düngzyklus
+    fertilize_cycle_interval: h('input', { type: 'number', min: '0', max: '365', placeholder: 'z. B. 1 oder 2 (leer/0 = aus)', value: fInterval }),
+    fertilize_cycle_unit: h('select', { value: fUnit },
+      h('option', { value: 'days' }, 'Tage'),
+      h('option', { value: 'weeks' }, 'Wochen')
+    ),
+    fertilize_cycle_day_of_week: h('select', { value: fDay },
+      weekdaysList.map((w) => h('option', { value: w.val, selected: String(w.val) === String(fDay) }, w.label))
+    ),
+    fertilize_reminder_mail: h('input', { type: 'checkbox', checked: fMail }),
   };
   const dlg = h('dialog', { class: 'wide stack' }, h('form', { class: 'stack', method: 'dialog', onsubmit: async (e) => {
     e.preventDefault(); err.textContent = '';
-    const body = Object.fromEntries(Object.entries(f).map(([k, el]) => [k, el.value]));
+    const body = {
+      name: f.name.value,
+      motto: f.motto.value,
+      description: f.description.value,
+      water_type: f.water_type.value,
+      volume_l: f.volume_l.value,
+      notes: f.notes.value,
+      measure_cycle_interval: f.measure_cycle_interval.value,
+      measure_cycle_unit: f.measure_cycle_unit.value,
+      measure_cycle_day_of_week: f.measure_cycle_day_of_week.value,
+      measure_reminder_mail: f.measure_reminder_mail.checked ? 1 : 0,
+      fertilize_cycle_interval: f.fertilize_cycle_interval.value,
+      fertilize_cycle_unit: f.fertilize_cycle_unit.value,
+      fertilize_cycle_day_of_week: f.fertilize_cycle_day_of_week.value,
+      fertilize_reminder_mail: f.fertilize_reminder_mail.checked ? 1 : 0,
+    };
     try {
       let targetId = aq?.id;
       if (editing) {
@@ -1127,7 +1188,33 @@ function aquariumDialog(aq) {
   h('div', { class: 'grid2' },
     h('div', { class: 'field' }, h('label', {}, 'Wasserart'), f.water_type),
     h('div', { class: 'field' }, h('label', {}, 'Volumen (Liter)'), f.volume_l)),
-  h('div', { class: 'field' }, h('label', {}, 'Messung fällig nach (Tagen, 0 = keine Erinnerung)'), f.reminder_days),
+
+  // Messzyklus
+  h('div', { class: 'cycle-edit-box stack' },
+    h('strong', { style: 'display:flex; align-items:center; gap:.4rem; color: var(--accent);' }, '🧪 Messzyklus (Wasserwerte)'),
+    h('div', { class: 'grid3' },
+      h('div', { class: 'field' }, h('label', {}, 'Intervall'), f.measure_cycle_interval),
+      h('div', { class: 'field' }, h('label', {}, 'Einheit'), f.measure_cycle_unit),
+      h('div', { class: 'field' }, h('label', {}, 'Wochentag'), f.measure_cycle_day_of_week)),
+    h('label', { class: 'row', style: 'gap:.5rem; align-items:center; font-size:.9rem; cursor:pointer; margin-top:.2rem;' },
+      f.measure_reminder_mail,
+      '📧 Erinnerungs-E-Mail senden, wenn Messung fällig ist'
+    )
+  ),
+
+  // Düngzyklus
+  h('div', { class: 'cycle-edit-box stack' },
+    h('strong', { style: 'display:flex; align-items:center; gap:.4rem; color: #10b981;' }, '🌿 Düngzyklus (Pflanzendünger)'),
+    h('div', { class: 'grid3' },
+      h('div', { class: 'field' }, h('label', {}, 'Intervall'), f.fertilize_cycle_interval),
+      h('div', { class: 'field' }, h('label', {}, 'Einheit'), f.fertilize_cycle_unit),
+      h('div', { class: 'field' }, h('label', {}, 'Wochentag'), f.fertilize_cycle_day_of_week)),
+    h('label', { class: 'row', style: 'gap:.5rem; align-items:center; font-size:.9rem; cursor:pointer; margin-top:.2rem;' },
+      f.fertilize_reminder_mail,
+      '📧 Erinnerungs-E-Mail senden, wenn Düngung fällig ist'
+    )
+  ),
+
   h('div', { class: 'field' }, h('label', {}, 'Kurze Notizen'), f.notes),
   h('div', { class: 'field' },
     h('label', {}, 'Titelbild vom Aquarium (PNG, JPG, WebP, GIF, max. 5 MB)'),
@@ -1487,7 +1574,9 @@ async function shareDialog(aq) {
 }
 
 function maintenanceDialog(aq, existing = null) {
-  const editing = !!existing;
+  const isObj = existing && typeof existing === 'object';
+  const editing = isObj;
+  const initialType = isObj ? existing.type : (typeof existing === 'string' ? existing : 'water_change');
   const dlg = h('dialog', { class: 'wide' });
   const err = h('p', { class: 'error', role: 'alert' });
 
@@ -1503,26 +1592,26 @@ function maintenanceDialog(aq, existing = null) {
     other: { key: 'other', label: 'Sonstige Arbeit', icon: '📝', hasPercentage: false },
   };
 
-  const initialDate = existing ? localInputValue(new Date(existing.timestamp || existing.logged_at)) : localInputValue();
+  const initialDate = isObj ? localInputValue(new Date(existing.timestamp || existing.logged_at)) : localInputValue();
   const dateInput = h('input', { type: 'datetime-local', required: true, value: initialDate });
   const typeSelect = h('select', { required: true },
-    Object.entries(types).map(([k, t]) => h('option', { value: k, selected: existing?.type === k }, `${t.icon || ''} ${t.label}`))
+    Object.entries(types).map(([k, t]) => h('option', { value: k, selected: initialType === k }, `${t.icon || ''} ${t.label}`))
   );
 
-  const percentInput = h('input', { type: 'number', min: '1', max: '100', step: '1', placeholder: 'z. B. 30 oder 50', value: existing?.percentage ?? '30' });
+  const percentInput = h('input', { type: 'number', min: '1', max: '100', step: '1', placeholder: 'z. B. 30 oder 50', value: isObj ? (existing?.percentage ?? '30') : '30' });
   const percentField = h('div', { class: 'field' },
     h('label', {}, 'Wasserwechsel-Anteil (%)'),
     percentInput
   );
 
-  const detailsInput = h('input', { maxlength: '500', value: existing?.details || '' });
+  const detailsInput = h('input', { maxlength: '500', value: isObj ? (existing?.details || '') : '' });
   const detailsLabel = h('label', {}, 'Details zur Arbeit');
   const detailsField = h('div', { class: 'field' },
     detailsLabel,
     detailsInput
   );
 
-  const noteInput = h('textarea', { maxlength: '1000', placeholder: 'Optionale Bemerkungen...', value: existing?.note || '' });
+  const noteInput = h('textarea', { maxlength: '1000', placeholder: 'Optionale Bemerkungen...', value: isObj ? (existing?.note || '') : '' });
 
   const updateFormForType = (typeKey) => {
     if (typeKey === 'water_change') {
@@ -1560,7 +1649,7 @@ function maintenanceDialog(aq, existing = null) {
   };
 
   typeSelect.addEventListener('change', () => updateFormForType(typeSelect.value));
-  updateFormForType(existing?.type || 'water_change');
+  updateFormForType(initialType);
 
   const form = h('form', { class: 'stack', method: 'dialog', onsubmit: async (e) => {
     e.preventDefault();
@@ -1842,7 +1931,35 @@ async function viewAquarium(id) {
 
   // Warnungen, Alarme und Besatz-Kompatibilität
   const notices = [];
-  if (aq.overdue) notices.push(h('div', { class: 'alert warn' }, h('div', {}, h('strong', {}, 'Messung fällig'), `Die letzte Messung ist länger als ${aq.reminder_days} Tage her.`)));
+  if (aq.measure_cycle_status?.configured) {
+    if (aq.measure_cycle_status.is_due) {
+      notices.push(h('div', { class: 'alert warn' },
+        h('div', {},
+          h('strong', {}, '🧪 Messung fällig: '),
+          `${aq.measure_cycle_status.status_label} (Messzyklus: ${aq.measure_cycle_status.cycle_label})`
+        ),
+        !isReadOnly ? h('a', { class: 'btn small', href: `#/a/${id}/messen` }, 'Jetzt messen') : null
+      ));
+    }
+  } else if (aq.overdue) {
+    notices.push(h('div', { class: 'alert warn' },
+      h('div', {},
+        h('strong', {}, '🧪 Messung fällig: '),
+        `Die letzte Messung ist länger als ${aq.reminder_days} Tage her.`
+      ),
+      !isReadOnly ? h('a', { class: 'btn small', href: `#/a/${id}/messen` }, 'Jetzt messen') : null
+    ));
+  }
+
+  if (aq.fertilize_cycle_status?.configured && aq.fertilize_cycle_status.is_due) {
+    notices.push(h('div', { class: 'alert warn' },
+      h('div', {},
+        h('strong', {}, '🌿 Düngung fällig: '),
+        `${aq.fertilize_cycle_status.status_label} (Düngzyklus: ${aq.fertilize_cycle_status.cycle_label})`
+      ),
+      !isReadOnly ? h('button', { class: 'btn small', type: 'button', onclick: () => maintenanceDialog(aq, 'fertilize') }, 'Düngung eintragen') : null
+    ));
+  }
   
   if (d.stockCompatibility) {
     if (d.stockCompatibility.issues && d.stockCompatibility.issues.length) {
@@ -1880,6 +1997,63 @@ async function viewAquarium(id) {
     notices.push(h('div', {}, h('button', { class: 'btn small ghost', type: 'button', onclick: async () => { await api(`/aquariums/${id}/alerts/ack`, { method: 'POST', body: {} }); route(); } }, 'Alle als erledigt markieren')));
   }
   if (notices.length) nodes.push(h('section', { class: 'stack', 'aria-label': 'Warnungen' }, notices));
+
+  // Mess- & Düngzyklus Übersicht
+  const mStatus = aq.measure_cycle_status || {};
+  const fStatus = aq.fertilize_cycle_status || {};
+
+  const mChipClass = !mStatus.configured ? 'none' : mStatus.is_overdue ? 'crit' : mStatus.is_due ? 'warn' : 'ok';
+  const fChipClass = !fStatus.configured ? 'none' : fStatus.is_overdue ? 'crit' : fStatus.is_due ? 'warn' : 'ok';
+
+  const cycleSection = h('section', { class: 'card stack' },
+    h('div', { class: 'row between', style: 'align-items: center;' },
+      h('h2', { style: 'margin:0' }, '📅 Mess- & Düngzyklen'),
+      !isReadOnly ? h('button', { class: 'btn small ghost', type: 'button', onclick: () => aquariumDialog(aq) }, '⚙️ Zyklen einstellen') : null
+    ),
+    h('div', { class: 'grid2', style: 'gap: 1rem;' },
+      // Card 1: Messzyklus
+      h('div', { class: 'cycle-card stack' },
+        h('div', { class: 'row between', style: 'align-items: center;' },
+          h('strong', { style: 'font-size: 1.05rem; display:flex; align-items:center; gap:.4rem;' }, '🧪 Messzyklus'),
+          h('span', { class: `chip ${mChipClass}` }, mStatus.configured ? mStatus.status_label : 'Nicht festgelegt')
+        ),
+        h('div', { class: 'muted', style: 'font-size: .9rem;' },
+          mStatus.configured
+            ? `Intervall: ${mStatus.cycle_label}`
+            : 'Kein Messzyklus hinterlegt.'
+        ),
+        mStatus.configured ? h('div', { class: 'muted', style: 'font-size: .85rem;' },
+          `Nächste Fälligkeit: `, h('strong', {}, mStatus.next_due_at ? fmtDate(mStatus.next_due_at) : '–'),
+          mStatus.last_action_at ? ` · Zuletzt: ${fmtDate(mStatus.last_action_at)}` : ''
+        ) : null,
+        h('div', { class: 'row between', style: 'align-items: center; margin-top: .4rem; font-size: .85rem;' },
+          h('span', { class: 'muted' }, mStatus.reminder_mail ? '📧 E-Mail-Erinnerung aktiv' : '🔕 Keine E-Mail-Erinnerung'),
+          !isReadOnly ? h('a', { class: 'btn small', href: `#/a/${id}/messen` }, '🧪 Jetzt messen') : null
+        )
+      ),
+      // Card 2: Düngzyklus
+      h('div', { class: 'cycle-card stack' },
+        h('div', { class: 'row between', style: 'align-items: center;' },
+          h('strong', { style: 'font-size: 1.05rem; display:flex; align-items:center; gap:.4rem;' }, '🌿 Düngzyklus'),
+          h('span', { class: `chip ${fChipClass}` }, fStatus.configured ? fStatus.status_label : 'Nicht festgelegt')
+        ),
+        h('div', { class: 'muted', style: 'font-size: .9rem;' },
+          fStatus.configured
+            ? `Intervall: ${fStatus.cycle_label}`
+            : 'Kein Düngzyklus hinterlegt.'
+        ),
+        fStatus.configured ? h('div', { class: 'muted', style: 'font-size: .85rem;' },
+          `Nächste Fälligkeit: `, h('strong', {}, fStatus.next_due_at ? fmtDate(fStatus.next_due_at) : '–'),
+          fStatus.last_action_at ? ` · Zuletzt: ${fmtDate(fStatus.last_action_at)}` : ''
+        ) : null,
+        h('div', { class: 'row between', style: 'align-items: center; margin-top: .4rem; font-size: .85rem;' },
+          h('span', { class: 'muted' }, fStatus.reminder_mail ? '📧 E-Mail-Erinnerung aktiv' : '🔕 Keine E-Mail-Erinnerung'),
+          !isReadOnly ? h('button', { class: 'btn small', type: 'button', onclick: () => maintenanceDialog(aq, 'fertilize') }, '🌿 Düngung eintragen') : null
+        )
+      )
+    )
+  );
+  nodes.push(cycleSection);
 
   // Aktuelle Werte
   const allKnownParams = CONFIG.allParameters || CONFIG.parameters;

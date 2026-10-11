@@ -190,7 +190,25 @@ textarea { min-height: 80px; resize: vertical; }
 .field + .field { margin-top: .85rem; }
 .grid2 { display: grid; gap: .85rem; grid-template-columns: 1fr; }
 @media (min-width: 640px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+.grid3 { display: grid; gap: .85rem; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .grid3 { grid-template-columns: 1fr 1fr 1fr; } }
 .error { color: var(--coral); font-weight: 600; min-height: 1.4em; }
+
+/* Pflege- und Messzyklen */
+.cycle-card {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: var(--shadow-sm);
+}
+.cycle-edit-box {
+  padding: .85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--table-hover);
+  margin: .4rem 0;
+}
 
 /* Status */
 .chip { display: inline-block; padding: .1rem .55rem; border-radius: 99px; font-size: .82rem; font-weight: 650; }

@@ -5,6 +5,7 @@ const Database = require('better-sqlite3');
 const { DATA_DIR } = require('../config/env');
 const cfg = require('../../config');
 const { isOverdue } = require('../services/aquarium-service');
+const { calculateCycleStatus } = require('../services/reminder-service');
 const { deleteImage } = require('../services/image-service');
 
 class SqliteAdapter {
@@ -46,6 +47,19 @@ class SqliteAdapter {
         water_type TEXT NOT NULL DEFAULT 'fresh',
         reminder_days INTEGER NOT NULL DEFAULT 7,
         notes TEXT,
+        image_file TEXT,
+        motto TEXT,
+        description TEXT,
+        measure_cycle_interval INTEGER,
+        measure_cycle_unit TEXT DEFAULT 'days',
+        measure_cycle_day_of_week INTEGER,
+        measure_reminder_mail INTEGER NOT NULL DEFAULT 0,
+        last_measure_reminder_sent_at TEXT,
+        fertilize_cycle_interval INTEGER,
+        fertilize_cycle_unit TEXT DEFAULT 'days',
+        fertilize_cycle_day_of_week INTEGER,
+        fertilize_reminder_mail INTEGER NOT NULL DEFAULT 0,
+        last_fertilize_reminder_sent_at TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
       CREATE TABLE IF NOT EXISTS stock (
@@ -147,6 +161,16 @@ class SqliteAdapter {
     if (!hasColumn('aquariums', 'image_file')) this.db.exec('ALTER TABLE aquariums ADD COLUMN image_file TEXT');
     if (!hasColumn('aquariums', 'motto')) this.db.exec('ALTER TABLE aquariums ADD COLUMN motto TEXT');
     if (!hasColumn('aquariums', 'description')) this.db.exec('ALTER TABLE aquariums ADD COLUMN description TEXT');
+    if (!hasColumn('aquariums', 'measure_cycle_interval')) this.db.exec('ALTER TABLE aquariums ADD COLUMN measure_cycle_interval INTEGER');
+    if (!hasColumn('aquariums', 'measure_cycle_unit')) this.db.exec("ALTER TABLE aquariums ADD COLUMN measure_cycle_unit TEXT DEFAULT 'days'");
+    if (!hasColumn('aquariums', 'measure_cycle_day_of_week')) this.db.exec('ALTER TABLE aquariums ADD COLUMN measure_cycle_day_of_week INTEGER');
+    if (!hasColumn('aquariums', 'measure_reminder_mail')) this.db.exec('ALTER TABLE aquariums ADD COLUMN measure_reminder_mail INTEGER NOT NULL DEFAULT 0');
+    if (!hasColumn('aquariums', 'last_measure_reminder_sent_at')) this.db.exec('ALTER TABLE aquariums ADD COLUMN last_measure_reminder_sent_at TEXT');
+    if (!hasColumn('aquariums', 'fertilize_cycle_interval')) this.db.exec('ALTER TABLE aquariums ADD COLUMN fertilize_cycle_interval INTEGER');
+    if (!hasColumn('aquariums', 'fertilize_cycle_unit')) this.db.exec("ALTER TABLE aquariums ADD COLUMN fertilize_cycle_unit TEXT DEFAULT 'days'");
+    if (!hasColumn('aquariums', 'fertilize_cycle_day_of_week')) this.db.exec('ALTER TABLE aquariums ADD COLUMN fertilize_cycle_day_of_week INTEGER');
+    if (!hasColumn('aquariums', 'fertilize_reminder_mail')) this.db.exec('ALTER TABLE aquariums ADD COLUMN fertilize_reminder_mail INTEGER NOT NULL DEFAULT 0');
+    if (!hasColumn('aquariums', 'last_fertilize_reminder_sent_at')) this.db.exec('ALTER TABLE aquariums ADD COLUMN last_fertilize_reminder_sent_at TEXT');
     if (!hasColumn('stock', 'name')) this.db.exec('ALTER TABLE stock ADD COLUMN name TEXT');
     if (!hasColumn('stock', 'image_file')) this.db.exec('ALTER TABLE stock ADD COLUMN image_file TEXT');
     if (!hasColumn('aquarium_shares', 'status')) this.db.exec("ALTER TABLE aquarium_shares ADD COLUMN status TEXT NOT NULL DEFAULT 'accepted'");
@@ -422,16 +446,75 @@ class SqliteAdapter {
             .get(numId) || null
         );
       },
-      async create({ user_id, name, volume_l = null, water_type = 'fresh', reminder_days = 7, notes = null, motto = null, description = null }) {
+      async create({
+        user_id,
+        name,
+        volume_l = null,
+        water_type = 'fresh',
+        reminder_days = 7,
+        notes = null,
+        motto = null,
+        description = null,
+        measure_cycle_interval = null,
+        measure_cycle_unit = 'days',
+        measure_cycle_day_of_week = null,
+        measure_reminder_mail = 0,
+        fertilize_cycle_interval = null,
+        fertilize_cycle_unit = 'days',
+        fertilize_cycle_day_of_week = null,
+        fertilize_reminder_mail = 0,
+      }) {
         const info = db
-          .prepare('INSERT INTO aquariums (user_id, name, volume_l, water_type, reminder_days, notes, motto, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-          .run(user_id, name, volume_l, water_type, reminder_days, notes, motto, description);
+          .prepare(
+            `INSERT INTO aquariums (
+              user_id, name, volume_l, water_type, reminder_days, notes, motto, description,
+              measure_cycle_interval, measure_cycle_unit, measure_cycle_day_of_week, measure_reminder_mail,
+              fertilize_cycle_interval, fertilize_cycle_unit, fertilize_cycle_day_of_week, fertilize_reminder_mail
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          )
+          .run(
+            user_id,
+            name,
+            volume_l,
+            water_type,
+            reminder_days,
+            notes,
+            motto,
+            description,
+            measure_cycle_interval,
+            measure_cycle_unit,
+            measure_cycle_day_of_week,
+            measure_reminder_mail,
+            fertilize_cycle_interval,
+            fertilize_cycle_unit,
+            fertilize_cycle_day_of_week,
+            fertilize_reminder_mail
+          );
         return { id: Number(info.lastInsertRowid) };
       },
       async update(id, fields = {}) {
         const setClauses = [];
         const params = [];
-        const allowed = ['name', 'volume_l', 'water_type', 'reminder_days', 'notes', 'image_file', 'motto', 'description'];
+        const allowed = [
+          'name',
+          'volume_l',
+          'water_type',
+          'reminder_days',
+          'notes',
+          'image_file',
+          'motto',
+          'description',
+          'measure_cycle_interval',
+          'measure_cycle_unit',
+          'measure_cycle_day_of_week',
+          'measure_reminder_mail',
+          'last_measure_reminder_sent_at',
+          'fertilize_cycle_interval',
+          'fertilize_cycle_unit',
+          'fertilize_cycle_day_of_week',
+          'fertilize_reminder_mail',
+          'last_fertilize_reminder_sent_at',
+        ];
 
         for (const k of allowed) {
           if (fields[k] !== undefined) {
@@ -443,6 +526,14 @@ class SqliteAdapter {
         if (setClauses.length === 0) return true;
         params.push(id);
         const res = db.prepare(`UPDATE aquariums SET ${setClauses.join(', ')} WHERE id = ?`).run(...params);
+        return res.changes > 0;
+      },
+      async listAllRaw() {
+        return db.prepare('SELECT * FROM aquariums ORDER BY id ASC').all();
+      },
+      async updateReminderSent(id, type, timestamp) {
+        const col = type === 'measure' ? 'last_measure_reminder_sent_at' : 'last_fertilize_reminder_sent_at';
+        const res = db.prepare(`UPDATE aquariums SET ${col} = ? WHERE id = ?`).run(timestamp, Number(id));
         return res.changes > 0;
       },
       async updateImage(id, filename) {
@@ -489,11 +580,34 @@ class SqliteAdapter {
           .prepare("SELECT logged_at, percentage FROM maintenance_logs WHERE aquarium_id = ? AND type = 'water_change' ORDER BY logged_at DESC LIMIT 1")
           .get(aq.id);
         const lastMaintenance = db.prepare('SELECT logged_at, type FROM maintenance_logs WHERE aquarium_id = ? ORDER BY logged_at DESC LIMIT 1').get(aq.id);
+        const lastFertilize = db.prepare("SELECT logged_at, details, note FROM maintenance_logs WHERE aquarium_id = ? AND type = 'fertilize' ORDER BY logged_at DESC LIMIT 1").get(aq.id);
         const alerts = db.prepare(`SELECT level, COUNT(*) n FROM alerts WHERE aquarium_id = ? AND acked_at IS NULL GROUP BY level`).all(aq.id);
         const crit = alerts.find((a) => a.level === 'crit')?.n || 0;
         const warn = alerts.find((a) => a.level === 'warn')?.n || 0;
         const sharesCount = db.prepare("SELECT COUNT(*) as n FROM aquarium_shares WHERE aquarium_id = ? AND (status = 'accepted' OR status IS NULL)").get(aq.id)?.n || 0;
         const imagesCount = db.prepare('SELECT COUNT(*) as n FROM aquarium_images WHERE aquarium_id = ?').get(aq.id)?.n || 0;
+
+        const measureCycleStatus = calculateCycleStatus(
+          {
+            interval: aq.measure_cycle_interval,
+            unit: aq.measure_cycle_unit,
+            day_of_week: aq.measure_cycle_day_of_week,
+            reminder_mail: aq.measure_reminder_mail,
+          },
+          last ? last.measured_at : null,
+          aq.created_at
+        );
+
+        const fertilizeCycleStatus = calculateCycleStatus(
+          {
+            interval: aq.fertilize_cycle_interval,
+            unit: aq.fertilize_cycle_unit,
+            day_of_week: aq.fertilize_cycle_day_of_week,
+            reminder_mail: aq.fertilize_reminder_mail,
+          },
+          lastFertilize ? lastFertilize.logged_at : null,
+          aq.created_at
+        );
 
         return {
           ...aq,
@@ -510,9 +624,13 @@ class SqliteAdapter {
           last_water_change_percent: lastWaterChange ? lastWaterChange.percentage : null,
           last_maintenance_at: lastMaintenance ? lastMaintenance.logged_at : null,
           last_maintenance_type: lastMaintenance ? lastMaintenance.type : null,
+          last_fertilized_at: lastFertilize ? lastFertilize.logged_at : null,
           open_crit: crit,
           open_warn: warn,
-          overdue: isOverdue(aq, last),
+          overdue: isOverdue(aq, last) || (measureCycleStatus.configured && measureCycleStatus.is_due),
+          measure_cycle_status: measureCycleStatus,
+          fertilize_cycle_status: fertilizeCycleStatus,
+          fertilize_overdue: fertilizeCycleStatus.configured && fertilizeCycleStatus.is_due,
         };
       },
     };
@@ -861,6 +979,14 @@ class SqliteAdapter {
         for (const v of vals) values[v.param] = v.value;
         return { ...m, values };
       },
+      async findLastForAquarium(aquariumId) {
+        const m = db.prepare('SELECT * FROM measurements WHERE aquarium_id = ? ORDER BY measured_at DESC LIMIT 1').get(Number(aquariumId));
+        if (!m) return null;
+        const vals = db.prepare('SELECT param, value FROM measurement_values WHERE measurement_id = ?').all(m.id);
+        const values = {};
+        for (const v of vals) values[v.param] = v.value;
+        return { ...m, values };
+      },
       async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [] }) {
         const insertMeas = db.prepare('INSERT INTO measurements (aquarium_id, measured_at, note, created_by) VALUES (?, ?, ?, ?)');
         const insertVal = db.prepare('INSERT INTO measurement_values (measurement_id, param, value) VALUES (?, ?, ?)');
@@ -974,6 +1100,13 @@ class SqliteAdapter {
       },
       async findById(id) {
         return db.prepare('SELECT * FROM maintenance_logs WHERE id = ?').get(id) || null;
+      },
+      async findLastByType(aquariumId, type) {
+        return (
+          db
+            .prepare('SELECT * FROM maintenance_logs WHERE aquarium_id = ? AND type = ? ORDER BY logged_at DESC LIMIT 1')
+            .get(Number(aquariumId), String(type)) || null
+        );
       },
       async create({ aquarium_id, logged_at, type, percentage = null, details = null, note = null, created_by = null }) {
         const info = db
@@ -1294,8 +1427,12 @@ class SqliteAdapter {
 
       // Aquariums
       const insertAq = db.prepare(`
-        INSERT INTO aquariums (id, user_id, name, volume_l, water_type, reminder_days, notes, image_file, motto, description, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO aquariums (
+          id, user_id, name, volume_l, water_type, reminder_days, notes, image_file, motto, description,
+          measure_cycle_interval, measure_cycle_unit, measure_cycle_day_of_week, measure_reminder_mail, last_measure_reminder_sent_at,
+          fertilize_cycle_interval, fertilize_cycle_unit, fertilize_cycle_day_of_week, fertilize_reminder_mail, last_fertilize_reminder_sent_at,
+          created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       for (const a of aquariums) {
         insertAq.run(
@@ -1309,6 +1446,16 @@ class SqliteAdapter {
           a.image_file || null,
           a.motto || null,
           a.description || null,
+          a.measure_cycle_interval != null ? a.measure_cycle_interval : null,
+          a.measure_cycle_unit || 'days',
+          a.measure_cycle_day_of_week != null ? a.measure_cycle_day_of_week : null,
+          a.measure_reminder_mail ? 1 : 0,
+          a.last_measure_reminder_sent_at || null,
+          a.fertilize_cycle_interval != null ? a.fertilize_cycle_interval : null,
+          a.fertilize_cycle_unit || 'days',
+          a.fertilize_cycle_day_of_week != null ? a.fertilize_cycle_day_of_week : null,
+          a.fertilize_reminder_mail ? 1 : 0,
+          a.last_fertilize_reminder_sent_at || null,
           a.created_at || new Date().toISOString()
         );
       }

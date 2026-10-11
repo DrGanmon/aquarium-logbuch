@@ -38,7 +38,13 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 - Admin-Bereich mit Benutzerverwaltung für Administratoren (festgelegt anhand der E-Mail-Adresse in der Konfiguration) sowie integriertem System-Logbuch & Fehlerprotokoll
 - **Überwachungsprozess & Ausfallsicherheit (Supervisor):** Ein übergeordneter Watchdog-Prozess überwacht die Anwendung, fängt ungeplante Abstürze oder Ausnahmen automatisch ab und startet den Worker-Prozess verzögerungsfrei neu
 - **Strukturiertes Fehler- und Ereignis-Logging:** Alle Serverfehler, Uncaught Exceptions, Stderr-Meldungen und Supervisor-Ereignisse werden mit Zeitstempel und Log-Level in eine `.log`-Datei (`data/aquarium.log`) protokolliert
-- **Aquarien-Verwaltung mit Motto & Beschreibung:** Aquarien flexibel anlegen und pflegen mit Name, individuellem Motto / Leitspruch, ausführlicher Beschreibung (Scape, Bepflanzung, Philosophie, Technik), Süß- oder Meerwasser, Volumen, Erinnerungsintervall und Notizen
+- **Aquarien-Verwaltung mit Motto, Beschreibung & Pflegezyklen:**
+  - Aquarien flexibel anlegen und pflegen mit Name, individuellem Motto / Leitspruch, ausführlicher Beschreibung (Scape, Bepflanzung, Philosophie, Technik), Süß- oder Meerwasser, Volumen und Notizen.
+  - **Unabhängige Mess- und Düngzyklen:**
+    - **🧪 Messzyklus:** Intervall flexibel in Tagen oder Wochen (z. B. alle 3 Tage, wöchentlich, alle 2 Wochen) mit optionalem festen Wochentag (z. B. samstags).
+    - **🌿 Düngzyklus:** Unabhängig konfigurierbarer Zyklus in Tagen oder Wochen mit Wochentagsfestlegung für Pflanzendünger.
+    - **📧 Optionale Erinnerungs-E-Mails:** Automatische Benachrichtigung per E-Mail (`measure-reminder.tpl` / `fertilize-reminder.tpl`) mit direktem Aktionslink, sobald eine Messung oder Düngung fällig oder überfällig wird.
+    - **Status-Tracking:** Übersichtliche Statusanzeigen im Aquarium („Fällig heute“, „Überfällig seit X Tagen“) und Fälligkeits-Badges in der Beckenübersicht.
 - **Mehrere Bilder pro Aquarium & Fotogalerie:** Beliebig viele Bilder pro Becken hochladen (PNG, JPG, WebP, GIF bis 5 MB), Bildunterschriften vergeben, Titelbild auswählen und alle Fotos in einer interaktiven Galerie mit Lightbox-Großansicht betrachten
 - **Bewohner benennen & Einzelfotos hochladen:** Aquarienbewohner mit individuellen Namen / Bezeichnungen (z. B. Kampffisch „Bubbles“, Pärchen, Gruppen) versehen und eigene Porträtfotos für jeden Bewohner hochladen und ansehen
 - **Aquarium-Logbuch & Aktivitäten-Timeline:** Lückenloses, chronologisches Protokoll über alle Arbeiten und Ereignisse am Aquarium:
@@ -239,5 +245,8 @@ Die Testparameter und Standardwerte liegen in `src/config/suites/jbl-pro-aquates
 ## Bekannte Grenzen
 
 - Automatischer E-Mail-Versand bei Grenzwert-Alarmen ist für ein zukünftiges Release vorgesehen.
+
+## TODS
+
 - Export aller Messwerte eines Aquariums via CSV oder Exel
-- Erinnerungs E-Mail für festgelegten messzyklus
+- AI anbindung um die becken zu bewerten und ai fragen zu den becken zu stellen. Eigener account muss dazu verknüpft werden.

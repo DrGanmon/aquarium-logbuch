@@ -10,6 +10,8 @@ const {
   createAccountDeletionMail,
   createInvitationMail,
   createShareAquariumMail,
+  createMeasureReminderMail,
+  createFertilizeReminderMail,
 } = require('./mail-template');
 const logger = require('../utils/logger');
 
@@ -334,6 +336,60 @@ class MailService {
       role,
       acceptUrl,
       expiresDays,
+    });
+
+    return this.enqueueMail({
+      to: user.email,
+      subject,
+      html,
+      text,
+    });
+  }
+
+  /**
+   * Sendet eine Erinnerungs-E-Mail für einen fälligen Messzyklus.
+   */
+  sendMeasureReminderEmail({ user, aquarium, cycleStatus }) {
+    const baseUrl = APP_URL || 'http://localhost:3000';
+    const measureUrl = `${baseUrl}/#/a/${aquarium.id}/messen`;
+    const lastDateStr = cycleStatus?.last_action_at
+      ? new Date(cycleStatus.last_action_at).toLocaleDateString('de-DE')
+      : 'Keine bisherige Messung';
+
+    const { subject, html, text } = createMeasureReminderMail({
+      username: user.username,
+      aquariumName: aquarium.name,
+      cycleLabel: cycleStatus?.cycle_label || 'Regelmäßig',
+      lastDateStr,
+      statusLabel: cycleStatus?.status_label || 'Fällig',
+      measureUrl,
+    });
+
+    return this.enqueueMail({
+      to: user.email,
+      subject,
+      html,
+      text,
+    });
+  }
+
+  /**
+   * Sendet eine Erinnerungs-E-Mail für einen fälligen Düngzyklus.
+   */
+  sendFertilizeReminderEmail({ user, aquarium, cycleStatus }) {
+    const baseUrl = APP_URL || 'http://localhost:3000';
+    const fertilizeUrl = `${baseUrl}/#/a/${aquarium.id}`;
+    const lastDateStr = cycleStatus?.last_action_at
+      ? new Date(cycleStatus.last_action_at).toLocaleDateString('de-DE')
+      : 'Keine bisherige Düngung';
+
+    const { subject, html, text } = createFertilizeReminderMail({
+      username: user.username,
+      aquariumName: aquarium.name,
+      cycleLabel: cycleStatus?.cycle_label || 'Regelmäßig',
+      lastDateStr,
+      statusLabel: cycleStatus?.status_label || 'Fällig',
+      fertilizeUrl,
     });
 
     return this.enqueueMail({

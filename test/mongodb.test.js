@@ -52,6 +52,13 @@ test('MongoDB: Vollständiger Lebenszyklus, Authentifizierung, Aquarien, Freigab
         water_type: 'fresh',
         reminder_days: 7,
         notes: 'Südamerika Biotop',
+        measure_cycle_interval: 2,
+        measure_cycle_unit: 'weeks',
+        measure_cycle_day_of_week: 6,
+        measure_reminder_mail: 1,
+        fertilize_cycle_interval: 3,
+        fertilize_cycle_unit: 'days',
+        fertilize_reminder_mail: 1,
       },
     });
     assert.equal(createRes.status, 200);
