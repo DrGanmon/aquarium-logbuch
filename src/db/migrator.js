@@ -1,8 +1,13 @@
 'use strict';
 const path = require('path');
 const fs = require('fs');
+const logger = require('../utils/logger');
 
 const SCHEMA_VERSION_TABLE = 'schema_version';
+
+function getBackupService() {
+  return require('../services/backup-service').backupService;
+}
 
 /**
  * Ermittelt die aktuelle Versionsnummer der SQLite-Datenbank.
@@ -156,12 +161,16 @@ function loadMigrations(migrationsDir) {
 /**
  * Vergleicht die aktuelle SQLite-Datenbankversion mit den vorhandenen Migrationen
  * und führt alle noch ausstehenden Migrationen sequenziell nacheinander aus.
+ * Vor Ausführung der ersten Migration wird über den integrierten Backup-Service ein zwingendes Backup erstellt.
  * @param {import('better-sqlite3').Database} db
  * @param {object} [options]
  * @param {string} [options.migrationsDir]
- * @returns {{ previousVersion: number, currentVersion: number, latestVersion: number, applied: Array<{ version: number, name: string }> }}
+ * @param {string} [options.backupsDir]
+ * @param {object} [options.adapter]
+ * @param {boolean} [options.skipBackup]
+ * @returns {Promise<{ previousVersion: number, currentVersion: number, latestVersion: number, applied: Array<{ version: number, name: string }>, backup?: object }>}
  */
-function runMigrations(db, options = {}) {
+async function runMigrations(db, options = {}) {
   if (!db) {
     throw new Error('Keine gültige Datenbankverbindung übergeben.');
   }
@@ -172,12 +181,16 @@ function runMigrations(db, options = {}) {
   const latestVersion = migrations.length > 0 ? Math.max(...migrations.map((m) => m.version)) : 0;
 
   const applied = [];
+  let backupInfo = null;
+
+  logger.info(`Prüfe SQLite-Datenbankversion (Aktuelle Version: v${currentVersion}, Neueste verfügbare Version: v${latestVersion}, Geladene Migrationen: ${migrations.length})...`, 'db');
 
   // Wenn die Datenbank auf Version 0 ist (z.B. neu oder Altdatenbank ohne Versionstabelle):
   // Stelle das Basisschema (Version 0) sicher
   if (currentVersion === 0) {
     const v0 = migrations.find((m) => m.version === 0);
     if (v0) {
+      logger.info(`Initialisiere / überprüfe Basisschema (Version 0: '${v0.name}')...`, 'db');
       if (typeof v0.upSqlite === 'function') {
         v0.upSqlite(db);
       } else if (typeof v0.up === 'function') {
@@ -190,8 +203,22 @@ function runMigrations(db, options = {}) {
   const toRun = migrations.filter((m) => m.version > currentVersion);
 
   if (toRun.length > 0) {
+    logger.info(`Es stehen ${toRun.length} SQLite-Migration(en) an (Upgrade von v${currentVersion} auf v${latestVersion}).`, 'db');
+
+    // Zwingendes Backup über den integrierten BackupService vor dem Start der ersten Migration erstellen
+    if (!options.skipBackup) {
+      logger.info(`Erstelle zwingendes Sicherheits-Backup über den Backup-Service vor Start der ersten Migration (v${toRun[0].version})...`, 'db');
+      const backupService = getBackupService();
+      backupInfo = await backupService.createPreMigrationBackup({
+        db,
+        dbAdapter: options.adapter,
+        currentVersion,
+        backupsDir: options.backupsDir,
+      });
+    }
+
     for (const migration of toRun) {
-      // Führe Migration aus
+      logger.info(`Starte Migration Version ${migration.version} ('${migration.name}')...`, 'db');
       if (typeof migration.upSqlite === 'function') {
         migration.upSqlite(db);
       } else if (typeof migration.up === 'function') {
@@ -200,26 +227,38 @@ function runMigrations(db, options = {}) {
       // Speichere die neue Version in der Datenbank
       setCurrentVersion(db, migration.version, migration.name);
       applied.push({ version: migration.version, name: migration.name });
+      logger.info(`Migration Version ${migration.version} ('${migration.name}') erfolgreich abgeschlossen.`, 'db');
     }
+  } else {
+    logger.info(`SQLite-Datenbank ist auf dem aktuellen Stand (Version v${currentVersion}). Keine weiteren Migrationen erforderlich.`, 'db');
   }
 
   const newVersion = getCurrentVersion(db);
+
+  if (applied.length > 0) {
+    logger.info(`Alle SQLite-Migrationen erfolgreich abgeschlossen. Aktuelle Schema-Version: v${newVersion}.`, 'db');
+  }
 
   return {
     previousVersion: currentVersion,
     currentVersion: newVersion,
     latestVersion,
     applied,
+    backup: backupInfo,
   };
 }
 
 /**
  * Vergleicht die aktuelle MongoDB-Datenbankversion mit den vorhandenen Migrationen,
  * migriert alle Dokumente auf das neueste Schema und führt alle ausstehenden Migrationen sequenziell aus.
+ * Vor Ausführung der ersten Migration wird über den integrierten Backup-Service ein zwingendes Backup erstellt.
  * @param {import('mongodb').Db} db
  * @param {object} [options]
  * @param {string} [options.migrationsDir]
- * @returns {Promise<{ previousVersion: number, currentVersion: number, latestVersion: number, applied: Array<{ version: number, name: string }> }>}
+ * @param {string} [options.backupsDir]
+ * @param {object} [options.adapter]
+ * @param {boolean} [options.skipBackup]
+ * @returns {Promise<{ previousVersion: number, currentVersion: number, latestVersion: number, applied: Array<{ version: number, name: string }>, backup?: object }>}
  */
 async function runMigrationsMongo(db, options = {}) {
   if (!db || typeof db.collection !== 'function') {
@@ -232,12 +271,16 @@ async function runMigrationsMongo(db, options = {}) {
   const latestVersion = migrations.length > 0 ? Math.max(...migrations.map((m) => m.version)) : 0;
 
   const applied = [];
+  let backupInfo = null;
+
+  logger.info(`Prüfe MongoDB-Datenbankversion (Aktuelle Version: v${currentVersion}, Neueste verfügbare Version: v${latestVersion}, Geladene Migrationen: ${migrations.length})...`, 'db');
 
   // Wenn die MongoDB-Datenbank auf Version 0 ist (z.B. neu oder Altdatenbank ohne Versionstracking):
   // Führe Basisschema / v0-Migration für Mongo aus
   if (currentVersion === 0) {
     const v0 = migrations.find((m) => m.version === 0);
     if (v0) {
+      logger.info(`Initialisiere / überprüfe MongoDB-Basisschema (Version 0: '${v0.name}')...`, 'db');
       if (typeof v0.upMongo === 'function') {
         await v0.upMongo(db);
       } else if (typeof v0.up === 'function') {
@@ -250,7 +293,22 @@ async function runMigrationsMongo(db, options = {}) {
   const toRun = migrations.filter((m) => m.version > currentVersion);
 
   if (toRun.length > 0) {
+    logger.info(`Es stehen ${toRun.length} MongoDB-Migration(en) an (Upgrade von v${currentVersion} auf v${latestVersion}).`, 'db');
+
+    // Zwingendes Backup über den integrierten BackupService vor dem Start der ersten Migration erstellen
+    if (!options.skipBackup) {
+      logger.info(`Erstelle zwingendes Sicherheits-Backup über den Backup-Service vor Start der ersten MongoDB-Migration (v${toRun[0].version})...`, 'db');
+      const backupService = getBackupService();
+      backupInfo = await backupService.createPreMigrationBackup({
+        db,
+        dbAdapter: options.adapter,
+        currentVersion,
+        backupsDir: options.backupsDir,
+      });
+    }
+
     for (const migration of toRun) {
+      logger.info(`Starte MongoDB-Migration Version ${migration.version} ('${migration.name}')...`, 'db');
       if (typeof migration.upMongo === 'function') {
         await migration.upMongo(db);
       } else if (typeof migration.up === 'function') {
@@ -258,16 +316,24 @@ async function runMigrationsMongo(db, options = {}) {
       }
       await setCurrentVersionMongo(db, migration.version, migration.name);
       applied.push({ version: migration.version, name: migration.name });
+      logger.info(`MongoDB-Migration Version ${migration.version} ('${migration.name}') erfolgreich abgeschlossen.`, 'db');
     }
+  } else {
+    logger.info(`MongoDB-Datenbank ist auf dem aktuellen Stand (Version v${currentVersion}). Keine weiteren Migrationen erforderlich.`, 'db');
   }
 
   const newVersion = await getCurrentVersionMongo(db);
+
+  if (applied.length > 0) {
+    logger.info(`Alle MongoDB-Migrationen erfolgreich abgeschlossen. Aktuelle Schema-Version: v${newVersion}.`, 'db');
+  }
 
   return {
     previousVersion: currentVersion,
     currentVersion: newVersion,
     latestVersion,
     applied,
+    backup: backupInfo,
   };
 }
 

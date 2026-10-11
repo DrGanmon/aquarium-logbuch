@@ -4,9 +4,12 @@ const fs = require('fs');
 const zlib = require('zlib');
 const { promisify } = require('util');
 const { DATA_DIR } = require('../config/env');
-const db = require('../db');
 const { UPLOADS_DIR } = require('./image-service');
 const logger = require('../utils/logger');
+
+function getDb() {
+  return require('../db');
+}
 
 const gzipAsync = promisify(zlib.gzip);
 const gunzipAsync = promisify(zlib.gunzip);
@@ -90,13 +93,12 @@ class BackupService {
         : current.includeFiles,
     };
     fs.writeFileSync(this.configFile, JSON.stringify(merged, null, 2), 'utf8');
-    logger.info(
-      `Backup-Konfiguration aktualisiert: Aktiv=${merged.enabled}, Intervall=${merged.intervalHours}h, Vorhalteanzahl=${merged.retentionCount}`,
-      'backup'
-    );
-    this.pruneOldBackups().catch((err) => {
-      logger.error(`Fehler beim Pruning nach Konfigurationsänderung: ${err.message}`, 'backup');
-    });
+    if (newConfig.enabled !== undefined || newConfig.intervalHours !== undefined || newConfig.retentionCount !== undefined) {
+      logger.info(
+        `Backup-Konfiguration aktualisiert: Aktiv=${merged.enabled}, Intervall=${merged.intervalHours}h, Vorhalteanzahl=${merged.retentionCount}`,
+        'backup'
+      );
+    }
     return merged;
   }
 
@@ -156,19 +158,74 @@ class BackupService {
   /**
    * Erzeugt ein vollständiges Daten-Backup-Objekt.
    */
-  async generateBackupData({ includeFiles = true } = {}) {
+  async generateBackupData({ includeFiles = true, dbAdapter = null, db: rawDb = null } = {}) {
     if (this.isRestoring) {
       throw new Error('Während einer laufenden Wiederherstellung kann kein Backup erstellt werden.');
     }
 
-    const rawData = await db.exportAllData();
+    let rawData = {};
+    let dbType = 'sqlite';
+
+    if (dbAdapter && typeof dbAdapter.exportAllData === 'function') {
+      try {
+        rawData = await dbAdapter.exportAllData();
+        dbType = dbAdapter.type || 'sqlite';
+      } catch (err) {
+        logger.warn(`Fehler beim Export über Adapter für Backup: ${err.message}`, 'backup');
+      }
+    } else if (rawDb) {
+      if (typeof rawDb.collection === 'function') {
+        dbType = 'mongodb';
+        try {
+          const collections = await rawDb.listCollections().toArray();
+          for (const col of collections) {
+            if (col.name.startsWith('system.')) continue;
+            try {
+              rawData[col.name] = await rawDb.collection(col.name).find().toArray();
+            } catch (e) {
+              rawData[col.name] = [];
+            }
+          }
+        } catch (e) {
+          logger.warn(`Fehler beim Auslesen von MongoDB-Collections für Backup: ${e.message}`, 'backup');
+        }
+      } else if (typeof rawDb.prepare === 'function') {
+        dbType = 'sqlite';
+        try {
+          const tables = rawDb
+            .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
+            .all()
+            .map((r) => r.name);
+          for (const table of tables) {
+            try {
+              rawData[table] = rawDb.prepare(`SELECT * FROM "${table}"`).all();
+            } catch (e) {
+              rawData[table] = [];
+            }
+          }
+        } catch (e) {
+          logger.warn(`Fehler beim Auslesen von SQLite-Tabellen für Backup: ${e.message}`, 'backup');
+        }
+      }
+    } else {
+      const activeDb = getDb();
+      if (activeDb && typeof activeDb.exportAllData === 'function') {
+        try {
+          rawData = await activeDb.exportAllData();
+          dbType = activeDb.type || 'sqlite';
+        } catch (err) {
+          logger.warn(`Fehler beim Export über Default-DB für Backup: ${err.message}`, 'backup');
+        }
+      }
+    }
+
     const files = includeFiles ? await this.exportFiles() : {};
 
     const backupPayload = {
       version: CURRENT_SCHEMA_VERSION,
       appVersion: APP_VERSION,
       exportedAt: new Date().toISOString(),
-      dbType: db.type,
+      dbType,
       data: rawData,
       files,
     };
@@ -179,17 +236,20 @@ class BackupService {
   /**
    * Erstellt ein Backup und speichert es lokal als komprimierte .json.gz Datei.
    */
-  async createBackup({ isAuto = false, includeFiles = null, customFilename = null } = {}) {
-    if (this.isBackingUp) {
-      throw new Error('Ein Backup-Vorgang läuft bereits.');
+  async createBackup({ isAuto = false, includeFiles = null, customFilename = null, dbAdapter = null, db: rawDb = null, backupsDir = null } = {}) {
+    while (this.isBackingUp) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
     }
     this.isBackingUp = true;
     try {
       this._ensureDirs();
+      const targetBackupsDir = backupsDir || this.backupsDir;
+      fs.mkdirSync(targetBackupsDir, { recursive: true });
+
       const cfg = this.getConfig();
       const shouldIncludeFiles = includeFiles !== null ? Boolean(includeFiles) : cfg.includeFiles;
 
-      const backupData = await this.generateBackupData({ includeFiles: shouldIncludeFiles });
+      const backupData = await this.generateBackupData({ includeFiles: shouldIncludeFiles, dbAdapter, db: rawDb });
       const jsonStr = JSON.stringify(backupData);
       const gzipped = await gzipAsync(Buffer.from(jsonStr, 'utf8'));
 
@@ -198,7 +258,7 @@ class BackupService {
       const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
       const prefix = isAuto ? 'auto-backup' : 'manual-backup';
       const filename = customFilename || `aquarium-${prefix}-${dateStr}.json.gz`;
-      const fullPath = path.join(this.backupsDir, filename);
+      const fullPath = path.join(targetBackupsDir, filename);
 
       fs.writeFileSync(fullPath, gzipped);
 
@@ -209,10 +269,14 @@ class BackupService {
       );
 
       // Aktualisiere Konfigurationsmetadaten
-      this.saveConfig({
-        lastBackupAt: now.toISOString(),
-        lastBackupFile: filename,
-      });
+      try {
+        this.saveConfig({
+          lastBackupAt: now.toISOString(),
+          lastBackupFile: filename,
+        });
+      } catch (cfgErr) {
+        // ignore
+      }
 
       // Bereinige alte Backups gemäß Retention
       await this.pruneOldBackups();
@@ -229,6 +293,27 @@ class BackupService {
     } finally {
       this.isBackingUp = false;
     }
+  }
+
+  /**
+   * Erstellt ein zwingendes Backup vor Ausführung von Datenbankmigrationen.
+   */
+  async createPreMigrationBackup({ dbAdapter = null, db: rawDb = null, currentVersion = 0, backupsDir = null } = {}) {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+    const filename = `aquarium-auto-backup-pre-migration-v${currentVersion}-${dateStr}.json.gz`;
+
+    logger.info(`Erstelle zwingendes Sicherheits-Backup vor Start der ersten Migration (Ausgangsversion v${currentVersion})...`, 'backup');
+
+    return this.createBackup({
+      isAuto: true,
+      includeFiles: false,
+      customFilename: filename,
+      dbAdapter,
+      db: rawDb,
+      backupsDir,
+    });
   }
 
   /**
@@ -635,7 +720,7 @@ class BackupService {
       const normalized = this.migrateBackupData(rawObj);
 
       // 1. Spiele Daten in Datenbank ein
-      await db.importAllData(normalized.data);
+      await getDb().importAllData(normalized.data);
 
       // 2. Spiele zugehörige Dateien ein
       if (normalized.files && Object.keys(normalized.files).length > 0) {

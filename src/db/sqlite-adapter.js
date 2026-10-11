@@ -20,20 +20,30 @@ class SqliteAdapter {
 
   async init() {
     if (this._initialized && this.db) return this;
-    if (this.dbPath !== ':memory:') {
-      fs.mkdirSync(path.dirname(this.dbPath), { recursive: true });
-    }
-    this.db = new Database(this.dbPath);
-    this.db.pragma('journal_mode = WAL');
-    this.db.pragma('foreign_keys = ON');
-    this.db.pragma('busy_timeout = 5000');
+    if (this._initPromise) return this._initPromise;
 
-    // Führe alle anstehenden Migrationen sequenziell aus
-    runMigrations(this.db);
+    this._initPromise = (async () => {
+      try {
+        if (this.dbPath !== ':memory:') {
+          fs.mkdirSync(path.dirname(this.dbPath), { recursive: true });
+        }
+        this.db = new Database(this.dbPath);
+        this.db.pragma('journal_mode = WAL');
+        this.db.pragma('foreign_keys = ON');
+        this.db.pragma('busy_timeout = 5000');
 
-    this._setupRepositories();
-    this._initialized = true;
-    return this;
+        // Führe alle anstehenden Migrationen sequenziell aus
+        await runMigrations(this.db, { adapter: this, dbPath: this.dbPath });
+
+        this._setupRepositories();
+        this._initialized = true;
+        return this;
+      } finally {
+        this._initPromise = null;
+      }
+    })();
+
+    return this._initPromise;
   }
 
   getSchemaVersion() {
@@ -1304,21 +1314,31 @@ class SqliteAdapter {
   }
 
   async exportAllData() {
-    if (!this._initialized) await this.init();
+    if (!this._initialized && !this.db) await this.init();
     const db = this.db;
 
-    const users = db.prepare('SELECT * FROM users ORDER BY id ASC').all();
-    const aquariums = db.prepare('SELECT * FROM aquariums ORDER BY id ASC').all();
-    const aquarium_images = db.prepare('SELECT * FROM aquarium_images ORDER BY id ASC').all();
-    const aquarium_shares = db.prepare('SELECT * FROM aquarium_shares ORDER BY aquarium_id ASC, user_id ASC').all();
-    const stock = db.prepare('SELECT * FROM stock ORDER BY id ASC').all();
-    const rawMeasurements = db.prepare('SELECT * FROM measurements ORDER BY id ASC').all();
-    const rawValues = db.prepare('SELECT * FROM measurement_values ORDER BY measurement_id ASC, param ASC').all();
-    const alerts = db.prepare('SELECT * FROM alerts ORDER BY id ASC').all();
-    const maintenance_logs = db.prepare('SELECT * FROM maintenance_logs ORDER BY id ASC').all();
-    const invitations = db.prepare('SELECT * FROM invitations ORDER BY id ASC').all();
-    const aquarium_chats = db.prepare('SELECT * FROM aquarium_chats ORDER BY id ASC').all();
-    const dosing_pumps = db.prepare('SELECT * FROM dosing_pumps ORDER BY id ASC').all();
+    const safeGetAll = (table, order = 'id ASC') => {
+      try {
+        const exists = Boolean(db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?").get(table));
+        if (!exists) return [];
+        return db.prepare(`SELECT * FROM "${table}" ORDER BY ${order}`).all();
+      } catch (e) {
+        return [];
+      }
+    };
+
+    const users = safeGetAll('users', 'id ASC');
+    const aquariums = safeGetAll('aquariums', 'id ASC');
+    const aquarium_images = safeGetAll('aquarium_images', 'id ASC');
+    const aquarium_shares = safeGetAll('aquarium_shares', 'aquarium_id ASC, user_id ASC');
+    const stock = safeGetAll('stock', 'id ASC');
+    const rawMeasurements = safeGetAll('measurements', 'id ASC');
+    const rawValues = safeGetAll('measurement_values', 'measurement_id ASC, param ASC');
+    const alerts = safeGetAll('alerts', 'id ASC');
+    const maintenance_logs = safeGetAll('maintenance_logs', 'id ASC');
+    const invitations = safeGetAll('invitations', 'id ASC');
+    const aquarium_chats = safeGetAll('aquarium_chats', 'id ASC');
+    const dosing_pumps = safeGetAll('dosing_pumps', 'id ASC');
 
     const valuesByMId = new Map();
     for (const row of rawValues) {

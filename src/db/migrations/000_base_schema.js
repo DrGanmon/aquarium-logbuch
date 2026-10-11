@@ -1,4 +1,5 @@
 'use strict';
+const logger = require('../../utils/logger');
 
 /**
  * Migration Version 0: Basisschema vor der Dosierpumpe
@@ -236,6 +237,8 @@ module.exports = {
     db.exec('CREATE INDEX IF NOT EXISTS idx_users_verify_token ON users(email_verify_token) WHERE email_verify_token IS NOT NULL');
     db.exec('CREATE INDEX IF NOT EXISTS idx_users_reset_token ON users(password_reset_token) WHERE password_reset_token IS NOT NULL');
     db.exec('CREATE INDEX IF NOT EXISTS idx_users_delete_token ON users(account_delete_token) WHERE account_delete_token IS NOT NULL');
+
+    logger.info('Basisschema v0 (SQLite): Alle Tabellenstrukturen und Indizes erfolgreich verifiziert.', 'db');
   },
 
   /**
@@ -406,5 +409,7 @@ module.exports = {
       { used_count: { $exists: false } },
       { $set: { used_count: 0 } }
     );
+
+    logger.info('Basisschema v0 (MongoDB): Standardfelder für alle Bestandsdokumente erfolgreich verifiziert.', 'db');
   }
 };

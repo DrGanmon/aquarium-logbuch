@@ -8,6 +8,7 @@ const Database = require('better-sqlite3');
 const SqliteAdapter = require('../src/db/sqlite-adapter');
 const migrator = require('../src/db/migrator');
 const { backupService } = require('../src/services/backup-service');
+const logger = require('../src/utils/logger');
 const { createMongoTestEnvironment } = require('./helpers/env');
 
 test('Database Migrations & Backward Compatibility', async (t) => {
@@ -331,7 +332,7 @@ test('Database Migrations & Backward Compatibility', async (t) => {
     assert.equal(migrator.getCurrentVersion(rawDb), 0, 'Ohne Versionstabelle/Eintrag muss Version 0 zurückgegeben werden');
 
     // 2. Migrationen ausführen (Default: v0 -> v1 aus src/db/migrations/001_dosing_pumps.js)
-    const runRes = migrator.runMigrations(rawDb);
+    const runRes = await migrator.runMigrations(rawDb);
     assert.equal(runRes.previousVersion, 0);
     assert.equal(runRes.currentVersion, 1);
     assert.equal(runRes.latestVersion, 1);
@@ -347,7 +348,7 @@ test('Database Migrations & Backward Compatibility', async (t) => {
     assert.ok(verRow.applied_at);
 
     // 3. Erneuter Start: Version vergleichen und nichts erneut ausführen
-    const runResAgain = migrator.runMigrations(rawDb);
+    const runResAgain = await migrator.runMigrations(rawDb);
     assert.equal(runResAgain.previousVersion, 1);
     assert.equal(runResAgain.currentVersion, 1);
     assert.equal(runResAgain.applied.length, 0, 'Bereits migrierte Versionen dürfen nicht erneut ausgeführt werden');
@@ -375,7 +376,7 @@ test('Database Migrations & Backward Compatibility', async (t) => {
     bestandDb.prepare("INSERT INTO maintenance_logs (id, aquarium_id, logged_at, type, note) VALUES (1, 1, '2025-01-01 10:00:00', 'fertilize', 'Eisen-Volldünger 5ml')").run();
 
     // Führe Migration auf v1 aus
-    const bestandMigRes = migrator.runMigrations(bestandDb);
+    const bestandMigRes = await migrator.runMigrations(bestandDb);
     assert.equal(bestandMigRes.previousVersion, 0);
     assert.equal(bestandMigRes.currentVersion, 1);
 
@@ -441,7 +442,7 @@ test('Database Migrations & Backward Compatibility', async (t) => {
     assert.equal(migrator.getCurrentVersion(stepDb), 0);
 
     // Sequenzielle Ausführung aller 3 Migrationen
-    const stepRes = migrator.runMigrations(stepDb, { migrationsDir: customMigDir });
+    const stepRes = await migrator.runMigrations(stepDb, { migrationsDir: customMigDir });
     assert.equal(stepRes.previousVersion, 0);
     assert.equal(stepRes.currentVersion, 3);
     assert.equal(stepRes.latestVersion, 3);
@@ -468,7 +469,7 @@ test('Database Migrations & Backward Compatibility', async (t) => {
     migrator.setCurrentVersion(partialDb, 1, 'manual_v1');
     assert.equal(migrator.getCurrentVersion(partialDb), 1);
 
-    const partialRes = migrator.runMigrations(partialDb, { migrationsDir: customMigDir });
+    const partialRes = await migrator.runMigrations(partialDb, { migrationsDir: customMigDir });
     assert.equal(partialRes.previousVersion, 1);
     assert.equal(partialRes.currentVersion, 3);
     assert.deepEqual(
@@ -479,5 +480,88 @@ test('Database Migrations & Backward Compatibility', async (t) => {
 
     stepDb.close();
     partialDb.close();
+  });
+
+  await t.test('6. Mandatory pre-migration backup & info logging (SQLite)', async () => {
+    const backupTestDir = path.join(tmpDir, 'backup_test_sqlite');
+    const backupsDir = path.join(backupTestDir, 'backups');
+    fs.mkdirSync(backupTestDir, { recursive: true });
+
+    const testDbPath = path.join(backupTestDir, 'pre_mig_test.db');
+    const db = new Database(testDbPath);
+
+    // Initialisiere Basistabelle und Daten vor Migration
+    db.exec(`
+      CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT);
+      INSERT INTO users (id, username) VALUES (1, 'backup_user');
+    `);
+
+    // Führe Migration aus mit speziellem backupsDir
+    const migRes = await migrator.runMigrations(db, { backupsDir });
+    assert.equal(migRes.currentVersion, 1);
+    assert.ok(migRes.backup, 'Ein Backup-Objekt muss bei Migrationen zurückgegeben werden');
+    assert.ok(fs.existsSync(migRes.backup.fullPath), 'Die Backup-Datei muss existieren');
+    assert.match(migRes.backup.filename, /^aquarium-auto-backup-pre-migration-v0-/);
+
+    // Prüfe Inhalt des Gzip-Backups
+    const zlib = require('zlib');
+    const backupContent = fs.readFileSync(migRes.backup.fullPath);
+    const unzipped = zlib.gunzipSync(backupContent).toString('utf8');
+    const backupJson = JSON.parse(unzipped);
+    assert.equal(backupJson.dbType, 'sqlite');
+    assert.ok(Array.isArray(backupJson.data.users));
+    assert.equal(backupJson.data.users[0].username, 'backup_user');
+
+    // Prüfe Logs
+    const recentLogs = logger.readRecentLogs(50).join('\n');
+    assert.match(recentLogs, /Prüfe SQLite-Datenbankversion/);
+    assert.match(recentLogs, /Erstelle zwingendes Sicherheits-Backup über den Backup-Service/);
+    assert.match(recentLogs, /Migration Version 1 .* erfolgreich abgeschlossen/);
+
+    db.close();
+  });
+
+  await t.test('7. Mandatory pre-migration backup & info logging (MongoDB)', async () => {
+    const MongoAdapter = require('../src/db/mongo-adapter');
+    const mongoEnv = await createMongoTestEnvironment('mongo_migration_backup_log_test');
+    if (!mongoEnv) return;
+
+    try {
+      const mongoAdapter = new MongoAdapter({ uri: mongoEnv.getMongoUri(), dbName: 'mongo_backup_log_db' });
+      await mongoAdapter.init();
+      const rawDb = mongoAdapter.getRawDb();
+
+      const mongoBackupDir = path.join(tmpDir, 'mongo_backups');
+      fs.mkdirSync(mongoBackupDir, { recursive: true });
+
+      // Vorab Altdaten in Collection einfügen und Version auf 0 zurücksetzen
+      await rawDb.collection('schema_version').deleteMany({});
+      await rawDb.collection('users').insertOne({ id: 99, username: 'mongo_backup_user' });
+
+      // Migration ausführen mit benutzerdefiniertem backupsDir
+      const migRes = await migrator.runMigrationsMongo(rawDb, { backupsDir: mongoBackupDir, adapter: mongoAdapter });
+      assert.equal(migRes.currentVersion, 1);
+      assert.ok(migRes.backup, 'Backup-Objekt muss bei Mongo-Migration vorhanden sein');
+      assert.ok(fs.existsSync(migRes.backup.fullPath), 'Mongo-Backup-Datei muss existieren');
+
+      // Inhalt des Mongo-Backups prüfen
+      const zlib = require('zlib');
+      const backupContent = fs.readFileSync(migRes.backup.fullPath);
+      const unzipped = zlib.gunzipSync(backupContent).toString('utf8');
+      const backupJson = JSON.parse(unzipped);
+      assert.equal(backupJson.dbType, 'mongodb');
+      assert.ok(Array.isArray(backupJson.data.users));
+      assert.equal(backupJson.data.users[0].username, 'mongo_backup_user');
+
+      // Prüfe Logs
+      const recentLogs = logger.readRecentLogs(50).join('\n');
+      assert.match(recentLogs, /Prüfe MongoDB-Datenbankversion/);
+      assert.match(recentLogs, /Erstelle zwingendes Sicherheits-Backup über den Backup-Service/);
+      assert.match(recentLogs, /MongoDB-Migration Version 1 .* erfolgreich abgeschlossen/);
+
+      await mongoAdapter.close();
+    } finally {
+      await mongoEnv.cleanup();
+    }
   });
 });

@@ -13,12 +13,11 @@ const { Supervisor } = require('../src/services/supervisor');
 test('Logging & Überwachungsprozess (Supervisor)', async (t) => {
   let env;
 
-  t.beforeEach(async () => {
-    env = createTestEnvironment();
-  });
-
   t.afterEach(async () => {
-    if (env) await env.cleanup();
+    if (env) {
+      await env.cleanup();
+      env = null;
+    }
   });
 
   await t.test('Logger schreibt formatierte Einträge und Fehler in .log Datei', async () => {
@@ -56,6 +55,7 @@ test('Logging & Überwachungsprozess (Supervisor)', async (t) => {
   });
 
   await t.test('Express Error-Handler loggt 500er Fehler in die Log-Datei', async () => {
+    env = createTestEnvironment();
     const express = require('express');
     const testApp = express();
     const testLogFile = path.join(env.getDataDir(), 'aquarium.log');
@@ -90,6 +90,7 @@ test('Logging & Überwachungsprozess (Supervisor)', async (t) => {
   });
 
   await t.test('Admin-Endpunkte für Logs: Zugriffsschutz und Log-Verwaltung', async () => {
+    env = createTestEnvironment();
     const testLogFile = path.join(env.getDataDir(), 'aquarium.log');
     process.env.LOG_FILE = testLogFile;
 

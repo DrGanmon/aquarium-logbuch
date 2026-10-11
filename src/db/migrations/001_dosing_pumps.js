@@ -1,4 +1,5 @@
 'use strict';
+const logger = require('../../utils/logger');
 
 /**
  * Migration Version 1: Einführung der Dosierpumpe und Migration von Bestandsdaten
@@ -122,6 +123,8 @@ module.exports = {
         // ignore
       }
     }
+
+    logger.info('Migration v1 (SQLite): Tabelle dosing_pumps angelegt und Bestandsdaten erfolgreich migriert.', 'db');
   },
 
   /**
@@ -195,5 +198,7 @@ module.exports = {
       { name: { $exists: false } },
       { $set: { name: 'Dosierpumpe' } }
     );
+
+    logger.info('Migration v1 (MongoDB): Düngeeinstellungen und dosing_pumps Dokumente erfolgreich migriert.', 'db');
   },
 };

@@ -24,29 +24,38 @@ class MongoAdapter {
 
   async init() {
     if (this._initialized && this.db) return this;
+    if (this._initPromise) return this._initPromise;
 
-    this.client = new MongoClient(this.uri);
-    await this.client.connect();
-
-    // Ermittle den Datenbanknamen aus der URI oder den Optionen
-    if (this.dbName) {
-      this.db = this.client.db(this.dbName);
-    } else {
+    this._initPromise = (async () => {
       try {
-        const parsed = new URL(this.uri);
-        const pathName = parsed.pathname.replace(/^\/+/, '');
-        this.db = this.client.db(pathName || 'aquarium');
-      } catch (e) {
-        this.db = this.client.db('aquarium');
-      }
-    }
+        this.client = new MongoClient(this.uri);
+        await this.client.connect();
 
-    await this._createIndexes();
-    const migRes = await runMigrationsMongo(this.db);
-    this.schemaVersion = migRes.currentVersion;
-    this._setupRepositories();
-    this._initialized = true;
-    return this;
+        // Ermittle den Datenbanknamen aus der URI oder den Optionen
+        if (this.dbName) {
+          this.db = this.client.db(this.dbName);
+        } else {
+          try {
+            const parsed = new URL(this.uri);
+            const pathName = parsed.pathname.replace(/^\/+/, '');
+            this.db = this.client.db(pathName || 'aquarium');
+          } catch (e) {
+            this.db = this.client.db('aquarium');
+          }
+        }
+
+        await this._createIndexes();
+        const migRes = await runMigrationsMongo(this.db, { adapter: this });
+        this.schemaVersion = migRes.currentVersion;
+        this._setupRepositories();
+        this._initialized = true;
+        return this;
+      } finally {
+        this._initPromise = null;
+      }
+    })();
+
+    return this._initPromise;
   }
 
   async close() {
@@ -1536,8 +1545,9 @@ class MongoAdapter {
   }
 
   async exportAllData() {
-    if (!this._initialized) await this.init();
+    if (!this._initialized && !this.db) await this.init();
     const db = this.db;
+    if (!db) return {};
 
     const stripId = (docs) =>
       docs.map((d) => {
@@ -1546,19 +1556,25 @@ class MongoAdapter {
         return copy;
       });
 
-    const users = stripId(await db.collection('users').find({}).sort({ id: 1 }).toArray());
-    const aquariums = stripId(await db.collection('aquariums').find({}).sort({ id: 1 }).toArray());
-    const aquarium_images = stripId(await db.collection('aquarium_images').find({}).sort({ id: 1 }).toArray());
-    const aquarium_shares = stripId(
-      await db.collection('aquarium_shares').find({}).sort({ aquarium_id: 1, user_id: 1 }).toArray()
-    );
-    const stock = stripId(await db.collection('stock').find({}).sort({ id: 1 }).toArray());
-    const measurements = stripId(await db.collection('measurements').find({}).sort({ id: 1 }).toArray());
-    const alerts = stripId(await db.collection('alerts').find({}).sort({ id: 1 }).toArray());
-    const maintenance_logs = stripId(await db.collection('maintenance_logs').find({}).sort({ id: 1 }).toArray());
-    const invitations = stripId(await db.collection('invitations').find({}).sort({ id: 1 }).toArray());
-    const aquarium_chats = stripId(await db.collection('aquarium_chats').find({}).sort({ id: 1 }).toArray());
-    const dosing_pumps = stripId(await db.collection('dosing_pumps').find({}).sort({ id: 1 }).toArray());
+    const safeGetDocs = async (collectionName, sort = { id: 1 }) => {
+      try {
+        return stripId(await db.collection(collectionName).find({}).sort(sort).toArray());
+      } catch (e) {
+        return [];
+      }
+    };
+
+    const users = await safeGetDocs('users');
+    const aquariums = await safeGetDocs('aquariums');
+    const aquarium_images = await safeGetDocs('aquarium_images');
+    const aquarium_shares = await safeGetDocs('aquarium_shares', { aquarium_id: 1, user_id: 1 });
+    const stock = await safeGetDocs('stock');
+    const measurements = await safeGetDocs('measurements');
+    const alerts = await safeGetDocs('alerts');
+    const maintenance_logs = await safeGetDocs('maintenance_logs');
+    const invitations = await safeGetDocs('invitations');
+    const aquarium_chats = await safeGetDocs('aquarium_chats');
+    const dosing_pumps = await safeGetDocs('dosing_pumps');
 
     return {
       users,
@@ -1576,7 +1592,7 @@ class MongoAdapter {
   }
 
   async importAllData(data = {}) {
-    if (!this._initialized) await this.init();
+    if (!this._initialized && !this.db) await this.init();
     const db = this.db;
 
     const users = Array.isArray(data.users) ? data.users : [];
