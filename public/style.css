@@ -1107,6 +1107,16 @@ dialog.wide { max-width: 640px; }
   background: var(--paper);
   border: 1px solid var(--line);
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.chat-avatar img,
+.chat-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 
 .chat-message.user .chat-avatar {

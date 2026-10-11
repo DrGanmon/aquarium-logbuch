@@ -696,3 +696,18 @@ test('KI-Chat: Persistenz in Datenbank, automatische Kontext-Historie und Verlau
     global.fetch = originalFetch;
   }
 });
+
+test('KI-Chat UI: Benutzer-Avatar & Profilbild-Einbindung im Frontend', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+
+  const chatJs = fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'views', 'ai-chat.js'), 'utf8');
+  assert.ok(chatJs.includes('ME?.hasAvatar'), 'Chat prüft ob Benutzer ein Avatar-Bild besitzt');
+  assert.ok(chatJs.includes('api/me/avatar'), 'Chat bindet Benutzer-Avatar-URL ein');
+  assert.ok(chatJs.includes('chat-avatar-img'), 'Chat verwendet chat-avatar-img Klasse für das Benutzerbild');
+
+  const css = fs.readFileSync(path.join(__dirname, '..', 'public', 'style.css'), 'utf8');
+  assert.ok(css.includes('.chat-avatar'), 'CSS enthält .chat-avatar');
+  assert.ok(css.includes('.chat-avatar-img'), 'CSS enthält .chat-avatar-img');
+  assert.ok(css.includes('object-fit: cover'), 'Avatar-Bild verwendet object-fit: cover');
+});

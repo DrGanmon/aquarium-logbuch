@@ -215,10 +215,34 @@ export async function showAquariumChatModal(aq) {
         ? new Date(time).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
         : time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
+    let avatarEl;
+    if (isUser) {
+      if (ME?.hasAvatar) {
+        avatarEl = h(
+          'div',
+          { class: 'chat-avatar user-avatar' },
+          h('img', {
+            src: `api/me/avatar?t=${Date.now()}`,
+            alt: ME.username || 'User',
+            class: 'chat-avatar-img',
+            onerror: (e) => {
+              if (e.currentTarget?.parentElement) {
+                e.currentTarget.parentElement.textContent = '👤';
+              }
+            },
+          })
+        );
+      } else {
+        avatarEl = h('div', { class: 'chat-avatar' }, '👤');
+      }
+    } else {
+      avatarEl = h('div', { class: 'chat-avatar' }, '🤖');
+    }
+
     const msgBubble = h(
       'div',
       { class: `chat-message ${isUser ? 'user' : 'assistant'}` },
-      h('div', { class: 'chat-avatar' }, isUser ? '👤' : '🤖'),
+      avatarEl,
       h(
         'div',
         { class: 'chat-bubble-content' },
