@@ -382,13 +382,15 @@ export async function viewProfile() {
       style: 'font-family: monospace;',
     });
 
-    const fMod = h(
-      'select',
-      {},
-      models.map((m) =>
-        h('option', { value: m.value, selected: modelVal === m.value }, m.label)
-      )
+    const hasCustomVal = modelVal && !models.some((m) => m.value === modelVal);
+    const options = models.map((m) =>
+      h('option', { value: m.value, selected: modelVal === m.value }, m.label)
     );
+    if (hasCustomVal) {
+      options.unshift(h('option', { value: modelVal, selected: true }, `${modelVal} (Benutzerdefiniert)`));
+    }
+
+    const fMod = h('select', {}, options);
 
     const boxErr = h('p', { class: 'error', role: 'alert' });
     const boxSuccess = h('div', { class: 'compat-box ok', style: 'display:none; margin-top:.5rem;' });
@@ -531,7 +533,7 @@ export async function viewProfile() {
     id: 'openai',
     title: '🟢 OpenAI / ChatGPT',
     badge: openAiBadge,
-    description: 'Unterstützt gpt-4o, gpt-4o-mini, o3-mini und frühere OpenAI-Modelle.',
+    description: 'Unterstützt GPT-6, GPT-6-mini, GPT-5, GPT-4o, GPT-4o-mini, o3-mini, o1 und frühere OpenAI-Modelle.',
     keyPlaceholder: 'sk-proj-...',
     keyMasked: currentMe.openaiKeyMasked,
     keySet: currentMe.openaiKeySet,
@@ -539,9 +541,13 @@ export async function viewProfile() {
     serverHasKey: currentMe.serverHasOpenaiKey,
     modelVal: currentMe.openaiModel || 'gpt-4o-mini',
     models: [
+      { value: 'gpt-6', label: 'gpt-6 (Next-Gen Flaggschiff-Modell: Maximale Intelligenz & Präzision)' },
+      { value: 'gpt-6-mini', label: 'gpt-6-mini (Next-Gen: Ultra-Schnell & Kosteneffizient)' },
+      { value: 'gpt-5', label: 'gpt-5 (Next-Gen High-End-Modell)' },
       { value: 'gpt-4o-mini', label: 'gpt-4o-mini (Empfohlen: Schnell & Kostengünstig)' },
-      { value: 'gpt-4o', label: 'gpt-4o (Leistungsstärkstes Allround-Modell)' },
+      { value: 'gpt-4o', label: 'gpt-4o (Leistungsstarkes Allround-Modell)' },
       { value: 'o3-mini', label: 'o3-mini (Reasoning-Modell für komplexe Analysen)' },
+      { value: 'o1', label: 'o1 (Erweitertes Reasoning-Modell)' },
       { value: 'gpt-4-turbo', label: 'gpt-4-turbo' },
       { value: 'gpt-3.5-turbo', label: 'gpt-3.5-turbo' },
     ],

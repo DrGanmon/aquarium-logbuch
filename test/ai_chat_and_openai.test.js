@@ -128,13 +128,13 @@ test('OpenAI API-Key Profilverwaltung: Speichern, Maskieren, Testen und Löschen
   assert.strictEqual(meInit.data.openaiKeyMasked, null);
   assert.strictEqual(meInit.data.openaiModel, 'gpt-4o-mini');
 
-  // 2. Key und Modell speichern
+  // 2. Key und Modell (gpt-6) speichern
   const saveRes = await env.request('/api/me/openai', {
     method: 'PUT',
     headers: { Cookie: user.cookie },
     body: {
       apiKey: 'sk-proj-1234567890abcdefghijklmnopqr',
-      model: 'gpt-4o',
+      model: 'gpt-6',
     },
   });
   assert.strictEqual(saveRes.status, 200);
@@ -143,13 +143,24 @@ test('OpenAI API-Key Profilverwaltung: Speichern, Maskieren, Testen und Löschen
   assert.strictEqual(saveRes.data.user.hasOpenaiKey, true);
   assert.ok(saveRes.data.user.openaiKeyMasked.startsWith('sk-'));
   assert.ok(saveRes.data.user.openaiKeyMasked.endsWith('opqr'));
-  assert.strictEqual(saveRes.data.user.openaiModel, 'gpt-4o');
+  assert.strictEqual(saveRes.data.user.openaiModel, 'gpt-6');
 
   // 3. GET /api/me prüft Persistenz
   const meSaved = await env.request('/api/me', { headers: { Cookie: user.cookie } });
   assert.strictEqual(meSaved.status, 200);
   assert.strictEqual(meSaved.data.openaiKeySet, true);
-  assert.strictEqual(meSaved.data.openaiModel, 'gpt-4o');
+  assert.strictEqual(meSaved.data.openaiModel, 'gpt-6');
+
+  // 3b. Modell auf gpt-6-mini aktualisieren
+  const updateModelRes = await env.request('/api/me/openai', {
+    method: 'PUT',
+    headers: { Cookie: user.cookie },
+    body: {
+      model: 'gpt-6-mini',
+    },
+  });
+  assert.strictEqual(updateModelRes.status, 200);
+  assert.strictEqual(updateModelRes.data.user.openaiModel, 'gpt-6-mini');
 
   // 4. Key löschen
   const delRes = await env.request('/api/me/openai', {

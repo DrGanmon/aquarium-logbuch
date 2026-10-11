@@ -231,13 +231,19 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
     });
   }
 
+  const isReasoning = /^(o1|o3|o4)/i.test(model);
   const payload = {
     model: model || DEFAULT_OPENAI_MODEL,
     messages: chatMessages,
-    temperature: 0.7,
-    max_tokens: 1500,
     stream: Boolean(stream),
   };
+
+  if (isReasoning) {
+    payload.max_completion_tokens = 1500;
+  } else {
+    payload.temperature = 0.7;
+    payload.max_tokens = 1500;
+  }
 
   const url = `${OPENAI_URL_BASE}/chat/completions`;
   const response = await fetch(url, {
@@ -551,6 +557,17 @@ async function testOpenAiConnection(apiKey, model = DEFAULT_OPENAI_MODEL) {
     throw new Error('Bitte gib einen OpenAI API-Schlüssel ein.');
   }
 
+  const isReasoning = /^(o1|o3|o4)/i.test(model);
+  const testPayload = {
+    model: model || DEFAULT_OPENAI_MODEL,
+    messages: [{ role: 'user', content: 'Antworte nur mit dem Wort OK.' }],
+  };
+  if (isReasoning) {
+    testPayload.max_completion_tokens = 25;
+  } else {
+    testPayload.max_tokens = 5;
+  }
+
   const url = `${OPENAI_URL_BASE}/chat/completions`;
   const response = await fetch(url, {
     method: 'POST',
@@ -558,11 +575,7 @@ async function testOpenAiConnection(apiKey, model = DEFAULT_OPENAI_MODEL) {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${key}`,
     },
-    body: JSON.stringify({
-      model: model || DEFAULT_OPENAI_MODEL,
-      messages: [{ role: 'user', content: 'Antworte nur mit dem Wort OK.' }],
-      max_tokens: 5,
-    }),
+    body: JSON.stringify(testPayload),
     signal: AbortSignal.timeout(15000),
   });
 
