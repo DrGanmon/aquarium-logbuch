@@ -209,7 +209,7 @@ Logged-in users can open their **User Profile** (`#/profile`) from the header na
 Administrators are identified by their email address matching `ADMIN_EMAIL` in `config.js` or environment variables (comma-separated for multiple admins).
 
 - Users matching `ADMIN_EMAIL` receive administrative privileges.
-- A **User Management** button appears in the navigation bar (`#/admin`).
+- An **Admin** button appears in the navigation bar (`#/admin`).
 - Administrators can view all users, create new accounts, edit credentials, and delete users along with their data.
 - **Registration Modes & Invitation Management:**
   - Switch between 4 modes: **Open**, **Invitation (Admin)**, **Invitation (Open)**, and **Closed**.
