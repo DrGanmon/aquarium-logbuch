@@ -64,6 +64,12 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   (Weichwasser, Hartwasser, Garnelen und Wirbellose).
 - **Artenkatalog & Besatzprüfung:** Umfassende Datenbank aller gängigen Aquarienbewohner in Deutschland (Salmler, Lebendgebärende, Labyrinthfische/Kampffische, Buntbarsche, Welse, Bärblinge, Garnelen, Schnecken, Meerwasser) mit Wasserwerten, Mindestbeckenvolumen, Sozialverhalten und Territorialregeln.
 - **Verhaltens- & Territorialitäts-Prüfung:** Automatische Erkennung von Vergesellschaftungs- und Verhaltenskonflikten (z. B. Einzelhaltung bei Siamesischen Kampffischen, Flossenbeißer vs. Langflosser, Räuber vs. Zwerggarnelen, Krebse vs. Bodenfische, Mindestgruppengrößen bei Schwarmfischen und Temperatur-/pH-Inkompatibilitäten).
+- **🤖 Persönlicher KI-Chat-Assistent für Aquarien (Multi-Provider: OpenAI, Google Gemini, Anthropic Claude):**
+  - **Umfassender automatischer Beckenkontext:** Bei jeder Chat-Anfrage wird ein präziser System-Prompt injiziert mit Beckenabmessungen, Volumen, Beckentyp, Filtertechnik, Bodengrund, vollständigem Tier- und Pflanzenbesatz (samt Verhaltens- und Artanforderungen) sowie den letzten 10 Wassertests (inklusive Messdatum, Grenzwert-Einstufungen `ok`/`warn`/`crit` und Trendanalyse).
+  - **Multi-Provider & Bring Your Own Key (BYOK):** Volle Unterstützung für **OpenAI (ChatGPT)**, **Google Gemini** und **Anthropic Claude**. Jeder Benutzer kann im eigenen Profil persönliche API-Schlüssel hinterlegen, den bevorzugten Provider wählen und das gewünschte Modell (z. B. `gpt-4o-mini`, `gemini-2.5-flash`, `claude-3-5-haiku`) konfigurieren.
+  - **Schwebender Aktionsbutton (FAB):** Direkter Zugriff auf den Chat über einen dezenten Floating Action Button in der Detailansicht des Aquariums – wird dynamisch nur angezeigt, wenn für das Benutzerkonto ein gültiger KI-Schlüssel hinterlegt ist.
+  - **Live-Verbindungstest & Schnellstart-Fragen:** Integrierte Schlüssel-Validierung direkt im Profil sowie thematische Schnellfragen im Chat (*„Bewerte meine Wasserwerte“*, *„Passen neue Fische dazu?“*, *„Tipps gegen Algen“*).
+  - **Datensparsamkeit & Sicherheit:** Keine Datenweitergabe an KI-Dienste ohne aktive Chatauslösung; API-Schlüssel werden sicher in der Datenbank gespeichert, im UI maskiert und können jederzeit vom Benutzer gelöscht werden.
 - Messmaske für 15 Parameter mit Timer pro Test (mehrere gleichzeitig, Ton und Vibration bei Ablauf,
   Bildschirm bleibt während der Timer an, wenn der Browser das erlaubt)
 - **PWA & Mobile App Icons (Home-Bildschirm Shortcut):**
@@ -89,10 +95,10 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **Persönliche Voreinstellung:** Im Benutzerprofil kann der gewünschte Standard-Zeitraum für das eigene Konto dauerhaft festgelegt werden.
 - **Rechtliche Konformität & Footer (EU AI Act, DDG, DSGVO, Lizenzen & Kontakt):**
   - **Footer auf allen Seiten:** Fester, responsiver Footer mit Schnelllinks zu Impressum, Datenschutz, Lizenzen und Kontakt – erreichbar im angemeldeten und nicht angemeldeten Zustand.
-  - **🤖 EU AI Act Transparenz (Art. 50 Verordnung (EU) 2024/1689):** Vollständige Offenlegung der KI-gestützten Softwareerstellung (JetBrains Junie) inklusive Hinweisen zu den Grenzen automatisierter Richtwert- und Berechnungsfunktionen.
+  - **🤖 EU AI Act Transparenz (Art. 50 Verordnung (EU) 2024/1689):** Vollständige Offenlegung der KI-gestützten Softwareerstellung (JetBrains Junie) inklusive Hinweisen zu den Grenzen automatisierter Richtwert- und Berechnungsfunktionen sowie des KI-Aquarium-Assistenten.
   - **⚖️ Impressum (§ 5 DDG & § 18 MStV):** Gesetzeskonforme Anbieterkennzeichnung mit Betreiberangaben, Kontakt-E-Mail und Hinweisen zur EU-Online-Streitbeilegung.
-  - **🔒 Datenschutzerklärung (DSGVO / GDPR):** Transparente Erläuterung aller Datenverarbeitungsprozesse (Konto, Aquariendaten, Session-Cookies, SMTP-Mails, Server-Logs), datensparsames lokales Hosting ohne Drittanbieter-Tracker und Dokumentation der Betroffenenrechte (inkl. CSV-Datenexport und 2-Stufen-Kontolöschung).
-  - **📜 Modul-Copyright & Open-Source-Lizenzen:** Lückenlose Auflistung aller verwendeten Open-Source-Module (`express`, `better-sqlite3`, `mongodb`, `chart.js`, Node.js Built-ins) mit Autoren, Versionen und vollständigen Lizenztexten (MIT, Apache 2.0).
+  - **🔒 Datenschutzerklärung (DSGVO / GDPR):** Transparente Erläuterung aller Datenverarbeitungsprozesse (Konto, Aquariendaten, Session-Cookies, SMTP-Mails, Server-Logs, optionale KI-Chat-Dienste via OpenAI, Google Gemini und Anthropic Claude), datensparsames lokales Hosting ohne Drittanbieter-Tracker und Dokumentation der Betroffenenrechte (inkl. CSV-Datenexport und 2-Stufen-Kontolöschung).
+  - **📜 Modul-Copyright & Open-Source-Lizenzen:** Lückenlose Auflistung aller verwendeten Open-Source-Module (`express`, `better-sqlite3`, `mongodb`, `chart.js`, Node.js Built-ins) mit Autoren, Versionen und vollständigen Lizenztexten (MIT, Apache 2.0, CC BY-NC-SA 4.0).
   - **✉️ Kontakt & Support:** Direkte Kontaktmöglichkeiten für technischen Support, Administrator-Anfragen und Datenschutzanliegen.
 - Warnungen (auffällig) und Alarme (kritisch) mit Handlungshinweis, zum Abhaken
 - Erinnerung, wenn die letzte Messung länger her ist als eingestellt
@@ -149,6 +155,14 @@ docker compose up -d --build
 | `SMTP_PASS` | (leer) | SMTP-Passwort |
 | `SMTP_FROM` | `Aquarium-Logbuch <noreply@...>` | Absenderadresse für ausgehende E-Mails |
 | `SMTP_RATE_LIMIT_MS` | `500` | Verzögerung zwischen E-Mails in der Queue (Millisekunden) |
+| `DEFAULT_AI_PROVIDER` | `openai` | Standard-KI-Provider für den Chat (`openai`, `gemini`, `claude`) |
+| `OPENAI_API_KEY` | (leer) | Globaler Fallback-API-Key für OpenAI / ChatGPT (optional) |
+| `OPENAI_MODEL` | `gpt-4o-mini` | Standard-Modell für OpenAI Chat Completions |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Optionale Basis-URL für OpenAI API / Proxys |
+| `GEMINI_API_KEY` | (leer) | Globaler Fallback-API-Key für Google Gemini (optional) |
+| `GEMINI_MODEL` | `gemini-2.5-flash` | Standard-Modell für Google Gemini |
+| `CLAUDE_API_KEY` | (leer) | Globaler Fallback-API-Key für Anthropic Claude (optional) |
+| `CLAUDE_MODEL` | `claude-3-5-haiku-20241022` | Standard-Modell für Anthropic Claude Messages API |
 | `LOG_FILE` | `./data/aquarium.log` | Pfad zur `.log`-Datei für Fehler- und Systemprotokolle |
 | `SUPERVISOR` | `true` | `false` startet die Anwendung im Einzelprozess ohne Überwachungs-Watchdog |
 | `WORKERS` | `1` (bzw. `auto` in Docker) | Anzahl der Worker-Prozesse (`auto` = alle CPU-Kerne) |
@@ -160,6 +174,11 @@ Jeder angemeldete Benutzer kann über die Kopfzeile auf sein **Benutzerprofil** 
 - **Profilbild (Avatar):** Hochladen (JPG, PNG, WebP, GIF bis 5 MB) oder Löschen des eigenen Profilbilds.
 - **Persönliche Angaben:** Pflege von Vorname, Nachname, Benutzername, „Über mich“-Bio und E-Mail-Adresse.
 - **Standard-Zeitraum für Graphen:** Festlegung des bevorzugten Zeitraums (z. B. 3 Monate, 6 Monate, 1 Jahr) für die Verlaufsgraphen.
+- **🤖 KI-Assistent & Sprachmodelle:**
+  - Auswahl des bevorzugten Anbieters (**OpenAI / ChatGPT**, **Google Gemini**, **Anthropic Claude**).
+  - Sichere Hinterlegung und Maskierung persönlicher API-Keys.
+  - Modellauswahl (z. B. `gpt-4o-mini`, `gpt-4o`, `gemini-2.5-flash`, `gemini-2.5-pro`, `claude-3-5-haiku`, `claude-3-5-sonnet`).
+  - Integrierter Live-Verbindungstest und vollständiges Löschen gespeicherter Schlüssel mit einem Klick.
 - **Passwortverwaltung:** Ändern des aktuellen Passworts (bei lokaler Anmeldung).
 - **OIDC-Verknüpfung:** Direktes Verknüpfen oder Entkoppeln des Kontos mit Pocket ID / OpenID Connect.
 - **Freunde einladen (bei aktivem Einladungsmodus):** Registrierungscodes (bis maximal 7 Tage bzw. konfigurierte Gültigkeit) und E-Mail-Einladungen (bis maximal 14 Tage Gültigkeit) erstellen, den Status einsehen und Einladungslinks direkt teilen.
@@ -278,9 +297,12 @@ Dieses Projekt steht unter der **Creative Commons Attribution-NonCommercial-Shar
   - **Attribution:** Urheberhinweise und Verweise auf das Originalprojekt müssen erhalten bleiben.
 - **⛔ Untersagt (Nicht-kommerziell):**
   - Jegliche kommerzielle Nutzung, der Weiterverkauf oder das Anbieten der Anwendung als entgeltliche Dienstleistung (z. B. kommerzielles SaaS-Hosting) ohne vorherige schriftliche Genehmigung des Urhebers.
+- **📜 Drittanbieter-Lizenzen:**
+  - Verwendete Open-Source-Module (`express`, `better-sqlite3`, `chart.js` unter MIT License; `mongodb` unter Apache License 2.0).
 
-Vollständiger Lizenztext: Siehe [LICENSE](LICENSE).
+Vollständiger Lizenztext: Siehe [LICENSE](LICENSE) sowie in der App unter `#/lizenzen`.
 
-## TODS
+## Geplante Erweiterungen & Roadmap
 
-- AI anbindung um die becken zu bewerten und ai fragen zu den becken zu stellen. Eigener account muss dazu verknüpft werden.
+- [x] KI-Chat-Assistent für Aquarien mit Multi-Provider-Unterstützung (OpenAI, Google Gemini, Anthropic Claude) und automatischem Beckenkontext (Maße, Besatz, Grenzwerte, die letzten 10 Messungen).
+- [ ] Automatischer E-Mail-Versand bei kritischen Grenzwert-Alarmen.

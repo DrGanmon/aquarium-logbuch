@@ -1009,14 +1009,26 @@ async function viewLegal(requestedTab = 'impressum') {
           'Für Systembenachrichtigungen (Verifizierungslinks, Passwort-Reset, Freigabe-Einladungen, konfigurierte Mess-/Düngungserinnerungen) werden E-Mails über den hinterlegten SMTP-Server versendet.'
         ),
         h('li', {},
+          h('strong', {}, 'KI-Chat-Assistent & Sprachmodelle (Art. 6 Abs. 1 lit. a & b DSGVO): '),
+          'Die Nutzung des KI-Aquarium-Assistenten ist vollständig freiwillig („Bring Your Own Key“). Wenn Sie im Profil einen persönlichen API-Schlüssel für OpenAI (ChatGPT), Google Gemini oder Anthropic Claude hinterlegen und eine Chat-Anfrage absenden, werden die Stammdaten des Aquariums (Name, Volumen, Abmessungen, Technik, Bodengrund), der Besatz (Pflanzen- und Tierarten) sowie die letzten bis zu 10 Messungen als Kontext an den jeweiligen Anbieter übermittelt, um fachbezogene Antworten zu generieren. API-Schlüssel werden sicher in der Datenbank gespeichert, im Frontend nur maskiert angezeigt und können im Benutzerprofil jederzeit restlos gelöscht werden.'
+        ),
+        h('li', {},
           h('strong', {}, 'Server-Logdateien (Art. 6 Abs. 1 lit. f DSGVO): '),
           'Beim Zugriff werden technische Serverprotokolle (IP-Adresse, Zeitstempel, HTTP-Status, Fehlermeldungen) erfasst, um die Funktionsfähigkeit, Verfügbarkeit und Sicherheit der Anwendung zu gewährleisten.'
         )
       ),
 
-      h('h2', {}, '3. Lokale Verarbeitung, Keine externen Tracker & Keine Datenweitergabe'),
+      h('h2', {}, '3. Lokale Verarbeitung, Keine externen Tracker & Externe Dienste'),
       h('p', {},
-        'Diese Anwendung ist für den autarken Eigenbetrieb (Self-Hosting) konzipiert. Es findet keinerlei Weitergabe personenbezogener Daten an Dritte, Werbenetzwerke oder Analyseanbieter statt. Alle Bibliotheken (einschließlich Chart.js) und Schriftarten werden lokal vom Server geladen – es bestehen keine externen Abhängigkeiten von Drittanbieter-CDNs.'
+        'Diese Anwendung ist für den autarken Eigenbetrieb (Self-Hosting) konzipiert. Es findet keinerlei Tracking oder Weitergabe personenbezogener Daten an Dritte oder Werbenetzwerke statt. Alle Bibliotheken (einschließlich Chart.js) und Schriftarten werden lokal vom Server geladen – es bestehen keine externen Abhängigkeiten von Drittanbieter-CDNs.'
+      ),
+      h('p', {},
+        'Sofern Sie freiwillig die KI-Chat-Funktion nutzen, erfolgt die Kommunikation über die offizielle API des von Ihnen gewählten Anbieters. Weitere Informationen zur Datenverarbeitung finden Sie in den Datenschutzrichtlinien der Anbieter:',
+        h('ul', { style: 'padding-left:1.2rem; margin:.4rem 0;' },
+          h('li', {}, h('strong', {}, 'OpenAI, L.L.C.: '), h('a', { href: 'https://openai.com/privacy', target: '_blank', rel: 'noopener noreferrer' }, 'https://openai.com/privacy')),
+          h('li', {}, h('strong', {}, 'Google LLC (Gemini): '), h('a', { href: 'https://policies.google.com/privacy', target: '_blank', rel: 'noopener noreferrer' }, 'https://policies.google.com/privacy')),
+          h('li', {}, h('strong', {}, 'Anthropic PBC (Claude): '), h('a', { href: 'https://www.anthropic.com/privacy', target: '_blank', rel: 'noopener noreferrer' }, 'https://www.anthropic.com/privacy'))
+        )
       ),
 
       h('h2', {}, '4. Speicherdauer und vollständige Datenlöschung (Recht auf Vergessenwerden)'),
@@ -2550,10 +2562,59 @@ async function showAquariumChatModal(aq) {
     }
   });
 
-  // API Key Hinweis / Schnelleingabe wenn kein Key vorhanden
-  const apiKeyBox = h('div', { class: 'compat-box warn', style: (!ME?.hasOpenaiKey ? 'display:block;' : 'display:none;') });
-  const quickKeyInput = h('input', { type: 'password', placeholder: 'sk-proj-...', style: 'max-width: 280px; font-family: monospace;' });
+  // Aktiven Anbieter & Modell ermitteln
+  let activeProvider = (ME?.aiProvider || 'openai').toLowerCase();
+  const getProviderInfo = (prov) => {
+    if (prov === 'gemini') {
+      return {
+        id: 'gemini',
+        name: 'Google Gemini',
+        model: ME?.geminiModel || 'gemini-2.5-flash',
+        hasKey: Boolean(ME?.hasGeminiKey),
+        link: 'https://aistudio.google.com/app/apikey',
+      };
+    }
+    if (prov === 'claude') {
+      return {
+        id: 'claude',
+        name: 'Anthropic Claude',
+        model: ME?.claudeModel || 'claude-3-5-haiku-20241022',
+        hasKey: Boolean(ME?.hasClaudeKey),
+        link: 'https://console.anthropic.com/settings/keys',
+      };
+    }
+    return {
+      id: 'openai',
+      name: 'OpenAI / ChatGPT',
+      model: ME?.openaiModel || 'gpt-4o-mini',
+      hasKey: Boolean(ME?.hasOpenaiKey),
+      link: 'https://platform.openai.com/api-keys',
+    };
+  };
+
+  let curInfo = getProviderInfo(activeProvider);
+
+  // API Key Hinweis / Schnelleingabe wenn kein Key für den aktiven Anbieter vorhanden
+  const apiKeyBox = h('div', { class: 'compat-box warn', style: (!curInfo.hasKey ? 'display:block;' : 'display:none;') });
+  const quickKeyInput = h('input', { type: 'password', placeholder: 'API-Schlüssel eingeben...', style: 'max-width: 280px; font-family: monospace;' });
   const quickKeySaveBtn = h('button', { class: 'btn small', type: 'button' }, 'Schlüssel speichern');
+  const quickKeyLink = h('a', { class: 'btn small ghost', href: curInfo.link, target: '_blank', rel: 'noopener noreferrer' }, 'Schlüssel erstellen ↗');
+
+  const updateApiKeyBoxContent = () => {
+    curInfo = getProviderInfo(activeProvider);
+    quickKeyLink.href = curInfo.link;
+    apiKeyBox.replaceChildren(
+      h('strong', {}, `🔑 Kein ${curInfo.name} API-Schlüssel hinterlegt`),
+      h('p', { style: 'margin: .2rem 0 .5rem; font-size:.88rem;' },
+        `Um mit deinem Aquarium zu chatten, hinterlege bitte deinen persönlichen ${curInfo.name} API-Schlüssel. Du kannst ihn direkt hier eingeben oder im Profil unter „KI-Assistent & Sprachmodelle“ verwalten.`
+      ),
+      h('div', { class: 'row', style: 'gap:.4rem; flex-wrap:wrap; align-items:center;' },
+        quickKeyInput,
+        quickKeySaveBtn,
+        quickKeyLink
+      )
+    );
+  };
 
   quickKeySaveBtn.addEventListener('click', async () => {
     const val = quickKeyInput.value.trim();
@@ -2564,10 +2625,11 @@ async function showAquariumChatModal(aq) {
     quickKeySaveBtn.disabled = true;
     quickKeySaveBtn.textContent = 'Speichere...';
     try {
-      const res = await api('/me/openai', { method: 'PUT', body: { apiKey: val } });
+      const endpoint = activeProvider === 'gemini' ? '/me/gemini' : (activeProvider === 'claude' ? '/me/claude' : '/me/openai');
+      const res = await api(endpoint, { method: 'PUT', body: { apiKey: val, setAsActive: true } });
       ME = res.user;
       apiKeyBox.style.display = 'none';
-      toast('API-Schlüssel gespeichert!');
+      toast(`${curInfo.name} API-Schlüssel gespeichert!`);
     } catch (ex) {
       toast(ex.message);
     } finally {
@@ -2576,17 +2638,7 @@ async function showAquariumChatModal(aq) {
     }
   });
 
-  apiKeyBox.replaceChildren(
-    h('strong', {}, '🔑 Kein OpenAI / ChatGPT API-Schlüssel hinterlegt'),
-    h('p', { style: 'margin: .2rem 0 .5rem; font-size:.88rem;' },
-      'Um mit deinem Aquarium zu chatten, hinterlege bitte deinen persönlichen OpenAI API-Schlüssel. Du kannst ihn direkt hier eingeben oder im Profil verwalten.'
-    ),
-    h('div', { class: 'row', style: 'gap:.4rem; flex-wrap:wrap; align-items:center;' },
-      quickKeyInput,
-      quickKeySaveBtn,
-      h('a', { class: 'btn small ghost', href: 'https://platform.openai.com/api-keys', target: '_blank', rel: 'noopener noreferrer' }, 'Schlüssel erstellen ↗')
-    )
-  );
+  updateApiKeyBoxContent();
 
   // Chat-Verlauf Container
   const messagesWrap = h('div', { class: 'chat-messages-container stack', style: 'flex: 1; overflow-y: auto; padding: .75rem; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); gap: .75rem;' });
@@ -2701,7 +2753,7 @@ async function showAquariumChatModal(aq) {
       const apiMessages = chatHistory.map((m) => ({ role: m.role, content: m.content }));
       const res = await api(`/aquariums/${aq.id}/chat`, {
         method: 'POST',
-        body: { messages: apiMessages },
+        body: { messages: apiMessages, provider: activeProvider },
       });
 
       typingIndicator.remove();
@@ -2715,7 +2767,7 @@ async function showAquariumChatModal(aq) {
     } catch (ex) {
       typingIndicator.remove();
       errBanner.textContent = ex.message;
-      if (ex.message.includes('API-Schlüssel')) {
+      if (ex.message.includes('API-Schlüssel') || ex.code === 'NO_API_KEY') {
         apiKeyBox.style.display = 'block';
       }
     } finally {
@@ -2735,9 +2787,9 @@ async function showAquariumChatModal(aq) {
   });
 
   const headerRow = h('div', { class: 'row between', style: 'align-items: center;' },
-    h('div', { style: 'display: flex; align-items: center; gap: .5rem;' },
+    h('div', { style: 'display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;' },
       h('h2', { style: 'margin:0;' }, `🤖 KI-Assistent: ${aq.name}`),
-      h('span', { class: 'tag info', style: 'font-size: .8rem;' }, `Modell: ${ME?.openaiModel || 'gpt-4o-mini'}`)
+      h('span', { class: 'tag info', style: 'font-size: .8rem;' }, `${curInfo.name}: ${curInfo.model}`)
     ),
     h('div', { class: 'row', style: 'gap: .4rem; align-items: center;' },
       clearBtn,
@@ -3524,7 +3576,7 @@ async function viewAquarium(id) {
     ));
   }
 
-  if (ME?.hasOpenaiKey) {
+  if (ME?.hasAiKey || ME?.hasAnyAiKey || ME?.hasOpenaiKey || ME?.hasGeminiKey || ME?.hasClaudeKey) {
     nodes.push(h('button', {
       class: 'chat-fab',
       type: 'button',
@@ -5037,122 +5089,269 @@ async function viewProfile() {
     );
   }
 
-  // ChatGPT & KI-Assistent Sektion
-  const openAiErr = h('p', { class: 'error', role: 'alert' });
-  const openAiSuccess = h('div', { class: 'compat-box ok', style: 'display:none; margin-top:.5rem;' });
+  // KI-Assistent & Sprachmodelle Sektion (OpenAI, Gemini, Claude)
+  const aiErr = h('p', { class: 'error', role: 'alert' });
+  const aiSuccess = h('div', { class: 'compat-box ok', style: 'display:none; margin-top:.5rem;' });
 
-  const fApiKey = h('input', {
-    type: 'password',
-    placeholder: ME.openaiKeySet ? `Gespeichert (${ME.openaiKeyMasked})` : (ME.serverHasOpenaiKey ? 'Server-Standard aktiv' : 'sk-proj-...'),
-    autocomplete: 'off',
-    style: 'font-family: monospace;',
-  });
-
-  const fModel = h('select', {},
-    h('option', { value: 'gpt-4o-mini', selected: ME.openaiModel === 'gpt-4o-mini' }, 'gpt-4o-mini (Empfohlen: Schnell & Kostengünstig)'),
-    h('option', { value: 'gpt-4o', selected: ME.openaiModel === 'gpt-4o' }, 'gpt-4o (Leistungsstärkstes Modell)'),
-    h('option', { value: 'o3-mini', selected: ME.openaiModel === 'o3-mini' }, 'o3-mini (Reasoning-Modell)'),
-    h('option', { value: 'gpt-4-turbo', selected: ME.openaiModel === 'gpt-4-turbo' }, 'gpt-4-turbo'),
-    h('option', { value: 'gpt-3.5-turbo', selected: ME.openaiModel === 'gpt-3.5-turbo' }, 'gpt-3.5-turbo')
+  // 1. Aktiver Anbieter Selector
+  const activeAiProviderSelect = h('select', {},
+    h('option', { value: 'openai', selected: (ME.aiProvider || 'openai') === 'openai' }, 'OpenAI / ChatGPT' + (ME.hasOpenaiKey ? ' (Schlüssel hinterlegt)' : '')),
+    h('option', { value: 'gemini', selected: ME.aiProvider === 'gemini' }, 'Google Gemini' + (ME.hasGeminiKey ? ' (Schlüssel hinterlegt)' : '')),
+    h('option', { value: 'claude', selected: ME.aiProvider === 'claude' }, 'Anthropic Claude' + (ME.hasClaudeKey ? ' (Schlüssel hinterlegt)' : ''))
   );
 
-  const keyStatusBadge = ME.openaiKeySet
+  activeAiProviderSelect.addEventListener('change', async (e) => {
+    aiErr.textContent = '';
+    aiSuccess.style.display = 'none';
+    try {
+      const res = await api('/me/ai', { method: 'PUT', body: { provider: e.target.value } });
+      ME = res.user;
+      toast(`Aktiver KI-Anbieter auf ${e.target.selectedOptions[0].text.split(' (')[0]} gesetzt.`);
+      viewProfile();
+    } catch (ex) {
+      aiErr.textContent = ex.message;
+    }
+  });
+
+  // 2. Provider-Sektionen aufbauen
+  function makeProviderBox({
+    id,
+    title,
+    badge,
+    description,
+    keyPlaceholder,
+    keyMasked,
+    keySet,
+    hasKey,
+    serverHasKey,
+    modelVal,
+    models,
+    keyUrl,
+    keyUrlText,
+    saveEndpoint,
+    deleteEndpoint,
+    testEndpoint,
+  }) {
+    const fKey = h('input', {
+      type: 'password',
+      placeholder: keySet ? `Gespeichert (${keyMasked})` : (serverHasKey ? 'Server-Standard aktiv' : keyPlaceholder),
+      autocomplete: 'off',
+      style: 'font-family: monospace;',
+    });
+
+    const fMod = h('select', {},
+      models.map((m) => h('option', { value: m.value, selected: modelVal === m.value }, m.label))
+    );
+
+    const boxErr = h('p', { class: 'error', role: 'alert' });
+    const boxSuccess = h('div', { class: 'compat-box ok', style: 'display:none; margin-top:.5rem;' });
+
+    const btnTest = h('button', {
+      class: 'btn small ghost',
+      type: 'button',
+      onclick: async () => {
+        boxErr.textContent = '';
+        boxSuccess.style.display = 'none';
+        const keyVal = fKey.value.trim();
+        if (!keyVal && !hasKey) {
+          boxErr.textContent = `Bitte gib zuerst einen ${title} API-Schlüssel ein.`;
+          return;
+        }
+        btnTest.disabled = true;
+        btnTest.textContent = '⏳ Teste...';
+        try {
+          const res = await api(testEndpoint, {
+            method: 'POST',
+            body: { apiKey: keyVal || undefined, model: fMod.value },
+          });
+          boxSuccess.textContent = '✅ ' + (res.message || 'Verbindung erfolgreich!');
+          boxSuccess.style.display = 'block';
+        } catch (ex) {
+          boxErr.textContent = ex.message;
+        } finally {
+          btnTest.disabled = false;
+          btnTest.textContent = '🧪 Verbindung testen';
+        }
+      }
+    }, '🧪 Verbindung testen');
+
+    const btnDelete = keySet ? h('button', {
+      class: 'btn small ghost danger',
+      type: 'button',
+      onclick: async () => {
+        if (!confirm(`Möchtest du deinen hinterlegten ${title} API-Schlüssel wirklich entfernen?`)) return;
+        boxErr.textContent = '';
+        try {
+          const res = await api(deleteEndpoint, { method: 'DELETE' });
+          ME = res.user;
+          toast(`${title} API-Schlüssel entfernt.`);
+          viewProfile();
+        } catch (ex) {
+          boxErr.textContent = ex.message;
+        }
+      }
+    }, 'Schlüssel entfernen') : null;
+
+    const btnSave = h('button', { class: 'btn small', type: 'submit' }, 'Speichern');
+
+    const form = h('form', {
+      class: 'stack',
+      style: 'padding: 1rem; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); gap: .75rem;',
+      onsubmit: async (e) => {
+        e.preventDefault();
+        boxErr.textContent = '';
+        boxSuccess.style.display = 'none';
+        try {
+          const keyVal = fKey.value.trim();
+          const body = { model: fMod.value };
+          if (keyVal) body.apiKey = keyVal;
+          const res = await api(saveEndpoint, { method: 'PUT', body });
+          ME = res.user;
+          toast(`${title} Einstellungen gespeichert.`);
+          viewProfile();
+        } catch (ex) {
+          boxErr.textContent = ex.message;
+        }
+      }
+    },
+      h('div', { class: 'row between', style: 'align-items:center; flex-wrap:wrap; gap:.4rem;' },
+        h('h3', { style: 'margin:0; font-size:1.05rem;' }, title),
+        badge
+      ),
+      h('p', { class: 'muted', style: 'margin:0; font-size:.88rem;' }, description),
+      h('div', { class: 'field' },
+        h('label', {}, `${title} API-Schlüssel`),
+        fKey,
+        h('span', { class: 'muted', style: 'font-size:.82rem; margin-top:.2rem;' },
+          'Schlüssel erstellen auf ',
+          h('a', { href: keyUrl, target: '_blank', rel: 'noopener noreferrer' }, keyUrlText)
+        )
+      ),
+      h('div', { class: 'field' },
+        h('label', {}, 'Modell'),
+        fMod
+      ),
+      boxErr,
+      boxSuccess,
+      h('div', { class: 'row', style: 'gap:.4rem; flex-wrap:wrap;' },
+        btnSave,
+        btnTest,
+        btnDelete
+      )
+    );
+
+    return form;
+  }
+
+  // Badges
+  const openAiBadge = ME.openaiKeySet
     ? h('span', { class: 'tag ok' }, `Aktiv: ${ME.openaiKeyMasked}`)
-    : (ME.serverHasOpenaiKey
-        ? h('span', { class: 'tag info' }, 'Server-Standard aktiv')
-        : h('span', { class: 'tag warn' }, 'Kein API-Key hinterlegt'));
+    : (ME.serverHasOpenaiKey ? h('span', { class: 'tag info' }, 'Server-Standard') : h('span', { class: 'tag warn' }, 'Kein Key'));
 
-  const btnTestOpenAi = h('button', {
-    class: 'btn ghost',
-    type: 'button',
-    onclick: async () => {
-      openAiErr.textContent = '';
-      openAiSuccess.style.display = 'none';
-      const keyVal = fApiKey.value.trim();
-      if (!keyVal && !ME.hasOpenaiKey) {
-        openAiErr.textContent = 'Bitte gib zuerst einen OpenAI API-Schlüssel ein.';
-        return;
-      }
-      btnTestOpenAi.disabled = true;
-      btnTestOpenAi.textContent = '⏳ Verbindung wird getestet...';
-      try {
-        const res = await api('/me/openai/test', {
-          method: 'POST',
-          body: { apiKey: keyVal || undefined, model: fModel.value },
-        });
-        openAiSuccess.textContent = '✅ ' + (res.message || 'Verbindung zu OpenAI erfolgreich!');
-        openAiSuccess.style.display = 'block';
-      } catch (ex) {
-        openAiErr.textContent = ex.message;
-      } finally {
-        btnTestOpenAi.disabled = false;
-        btnTestOpenAi.textContent = '🧪 Verbindung testen';
-      }
-    }
-  }, '🧪 Verbindung testen');
+  const geminiBadge = ME.geminiKeySet
+    ? h('span', { class: 'tag ok' }, `Aktiv: ${ME.geminiKeyMasked}`)
+    : (ME.serverHasGeminiKey ? h('span', { class: 'tag info' }, 'Server-Standard') : h('span', { class: 'tag warn' }, 'Kein Key'));
 
-  const btnDeleteOpenAi = ME.openaiKeySet ? h('button', {
-    class: 'btn ghost danger',
-    type: 'button',
-    onclick: async () => {
-      if (!confirm('Möchtest du deinen hinterlegten OpenAI API-Schlüssel wirklich entfernen?')) return;
-      openAiErr.textContent = '';
-      try {
-        const res = await api('/me/openai', { method: 'DELETE' });
-        ME = res.user;
-        toast('OpenAI API-Schlüssel entfernt.');
-        viewProfile();
-      } catch (ex) {
-        openAiErr.textContent = ex.message;
-      }
-    }
-  }, 'Schlüssel entfernen') : null;
+  const claudeBadge = ME.claudeKeySet
+    ? h('span', { class: 'tag ok' }, `Aktiv: ${ME.claudeKeyMasked}`)
+    : (ME.serverHasClaudeKey ? h('span', { class: 'tag info' }, 'Server-Standard') : h('span', { class: 'tag warn' }, 'Kein Key'));
 
-  const openaiCard = h('form', {
-    class: 'card stack',
-    onsubmit: async (e) => {
-      e.preventDefault();
-      openAiErr.textContent = '';
-      openAiSuccess.style.display = 'none';
-      try {
-        const keyVal = fApiKey.value.trim();
-        const body = { model: fModel.value };
-        if (keyVal) body.apiKey = keyVal;
-        const res = await api('/me/openai', { method: 'PUT', body });
-        ME = res.user;
-        toast('ChatGPT & KI-Einstellungen gespeichert.');
-        viewProfile();
-      } catch (ex) {
-        openAiErr.textContent = ex.message;
-      }
-    }
-  },
+  // OpenAI Box
+  const openaiBox = makeProviderBox({
+    id: 'openai',
+    title: '🟢 OpenAI / ChatGPT',
+    badge: openAiBadge,
+    description: 'Unterstützt gpt-4o, gpt-4o-mini, o3-mini und frühere OpenAI-Modelle.',
+    keyPlaceholder: 'sk-proj-...',
+    keyMasked: ME.openaiKeyMasked,
+    keySet: ME.openaiKeySet,
+    hasKey: ME.hasOpenaiKey,
+    serverHasKey: ME.serverHasOpenaiKey,
+    modelVal: ME.openaiModel || 'gpt-4o-mini',
+    models: [
+      { value: 'gpt-4o-mini', label: 'gpt-4o-mini (Empfohlen: Schnell & Kostengünstig)' },
+      { value: 'gpt-4o', label: 'gpt-4o (Leistungsstärkstes Allround-Modell)' },
+      { value: 'o3-mini', label: 'o3-mini (Reasoning-Modell für komplexe Analysen)' },
+      { value: 'gpt-4-turbo', label: 'gpt-4-turbo' },
+      { value: 'gpt-3.5-turbo', label: 'gpt-3.5-turbo' },
+    ],
+    keyUrl: 'https://platform.openai.com/api-keys',
+    keyUrlText: 'platform.openai.com/api-keys',
+    saveEndpoint: '/me/openai',
+    deleteEndpoint: '/me/openai',
+    testEndpoint: '/me/openai/test',
+  });
+
+  // Google Gemini Box
+  const geminiBox = makeProviderBox({
+    id: 'gemini',
+    title: '🔵 Google Gemini',
+    badge: geminiBadge,
+    description: 'Unterstützt Gemini 2.5 Flash, 2.0 Flash, 1.5 Flash und 1.5 Pro über Google AI Studio.',
+    keyPlaceholder: 'AIzaSy...',
+    keyMasked: ME.geminiKeyMasked,
+    keySet: ME.geminiKeySet,
+    hasKey: ME.hasGeminiKey,
+    serverHasKey: ME.serverHasGeminiKey,
+    modelVal: ME.geminiModel || 'gemini-2.5-flash',
+    models: [
+      { value: 'gemini-2.5-flash', label: 'gemini-2.5-flash (Empfohlen: Neuestes & extrem schnelles Flash-Modell)' },
+      { value: 'gemini-2.0-flash', label: 'gemini-2.0-flash (Sehr schnell & kostengünstig)' },
+      { value: 'gemini-1.5-flash', label: 'gemini-1.5-flash (Bewährtes Multimodal-Modell)' },
+      { value: 'gemini-1.5-pro', label: 'gemini-1.5-pro (Höchste Argumentationstiefe)' },
+    ],
+    keyUrl: 'https://aistudio.google.com/app/apikey',
+    keyUrlText: 'aistudio.google.com/app/apikey',
+    saveEndpoint: '/me/gemini',
+    deleteEndpoint: '/me/gemini',
+    testEndpoint: '/me/gemini/test',
+  });
+
+  // Anthropic Claude Box
+  const claudeBox = makeProviderBox({
+    id: 'claude',
+    title: '🟣 Anthropic Claude',
+    badge: claudeBadge,
+    description: 'Unterstützt Claude 3.5 Haiku, Claude 3.5 Sonnet und Claude 3 Opus über Anthropic Console.',
+    keyPlaceholder: 'sk-ant-...',
+    keyMasked: ME.claudeKeyMasked,
+    keySet: ME.claudeKeySet,
+    hasKey: ME.hasClaudeKey,
+    serverHasKey: ME.serverHasClaudeKey,
+    modelVal: ME.claudeModel || 'claude-3-5-haiku-20241022',
+    models: [
+      { value: 'claude-3-5-haiku-20241022', label: 'claude-3-5-haiku (Empfohlen: Schnell, kostengünstig & intelligent)' },
+      { value: 'claude-3-5-sonnet-20241022', label: 'claude-3-5-sonnet (Modernstes Spitzenmodell mit maximaler Analysefähigkeit)' },
+      { value: 'claude-3-haiku-20240307', label: 'claude-3-haiku' },
+      { value: 'claude-3-opus-20240229', label: 'claude-3-opus' },
+    ],
+    keyUrl: 'https://console.anthropic.com/settings/keys',
+    keyUrlText: 'console.anthropic.com/settings/keys',
+    saveEndpoint: '/me/claude',
+    deleteEndpoint: '/me/claude',
+    testEndpoint: '/me/claude/test',
+  });
+
+  const aiCard = h('div', { class: 'card stack', style: 'gap:1.25rem;' },
     h('div', { class: 'row between', style: 'align-items:center; flex-wrap:wrap; gap:.5rem;' },
-      h('h2', { style: 'margin:0;' }, '🤖 ChatGPT & KI-Assistent'),
-      keyStatusBadge
+      h('h2', { style: 'margin:0;' }, '🤖 KI-Assistent & Sprachmodelle'),
+      ME.hasAnyAiKey || ME.hasAiKey
+        ? h('span', { class: 'tag ok' }, `Aktiver Anbieter: ${activeAiProviderSelect.options[activeAiProviderSelect.selectedIndex]?.text.split(' (')[0] || 'OpenAI'}`)
+        : h('span', { class: 'tag warn' }, 'Kein aktiver Schlüssel')
     ),
     h('p', { class: 'muted', style: 'margin:0;' },
-      'Hinterlege deinen persönlichen OpenAI / ChatGPT API-Schlüssel, um direkt in der App mit deinem Aquarium zu chatten. Der KI-Assistent hat vollen Zugriff auf deine Beckendaten, Besatz und die letzten 10 Messwerte. Der Schlüssel wird nur für deine Anfragen genutzt und es erfolgt kein Login über ChatGPT.'
+      'Hinterlege deinen persönlichen API-Schlüssel für OpenAI (ChatGPT), Google Gemini oder Anthropic Claude, um direkt in der App mit deinen Aquarien zu chatten. Der KI-Assistent erhält bei jeder Frage den gesamten Beckenkontext (Größe, Besatz, Grenzwerte und die letzten 10 Messungen).'
     ),
     h('div', { class: 'field' },
-      h('label', {}, 'OpenAI API-Schlüssel (sk-...)'),
-      fApiKey,
-      h('span', { class: 'muted', style: 'font-size:.82rem; margin-top:.2rem;' },
-        'Einen Schlüssel kannst du auf ',
-        h('a', { href: 'https://platform.openai.com/api-keys', target: '_blank', rel: 'noopener noreferrer' }, 'platform.openai.com/api-keys'),
-        ' erstellen.'
-      )
+      h('label', {}, 'Aktiver KI-Anbieter für Aquarium-Chat'),
+      activeAiProviderSelect
     ),
-    h('div', { class: 'field' },
-      h('label', {}, 'Bevorzugtes KI-Modell'),
-      fModel
-    ),
-    openAiErr,
-    openAiSuccess,
-    h('div', { class: 'row', style: 'gap:.5rem; flex-wrap:wrap;' },
-      h('button', { class: 'btn', type: 'submit' }, 'Einstellungen speichern'),
-      btnTestOpenAi,
-      btnDeleteOpenAi
+    aiErr,
+    aiSuccess,
+    h('div', { class: 'stack', style: 'gap:1rem;' },
+      openaiBox,
+      geminiBox,
+      claudeBox
     )
   );
 
@@ -5593,7 +5792,7 @@ async function viewProfile() {
     ),
     avatarCard,
     profileForm,
-    openaiCard,
+    aiCard,
     themeCard,
     graphRangeCard,
     invitationCard,

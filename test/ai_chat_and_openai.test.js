@@ -165,6 +165,81 @@ test('OpenAI API-Key Profilverwaltung: Speichern, Maskieren, Testen und Löschen
   assert.strictEqual(meDeleted.data.openaiKeyMasked, null);
 });
 
+test('Google Gemini und Anthropic Claude Profilverwaltung: Speichern, Maskieren und Löschen', async (t) => {
+  const env = createTestEnvironment();
+  t.after(async () => await env.cleanup());
+
+  const user = await env.createUserAndLogin('gemini_claude_user', 'password123', 'gc@example.com');
+
+  // 1. Initialer Zustand
+  const meInit = await env.request('/api/me', { headers: { Cookie: user.cookie } });
+  assert.strictEqual(meInit.status, 200);
+  assert.strictEqual(meInit.data.geminiKeySet, false);
+  assert.strictEqual(meInit.data.geminiKeyMasked, null);
+  assert.strictEqual(meInit.data.claudeKeySet, false);
+  assert.strictEqual(meInit.data.claudeKeyMasked, null);
+
+  // 2. Google Gemini Key und Modell speichern
+  const saveGeminiRes = await env.request('/api/me/gemini', {
+    method: 'PUT',
+    headers: { Cookie: user.cookie },
+    body: {
+      apiKey: 'AIzaSyAbCdEfGhIjKlMnOpQrStUvWxYz123456',
+      model: 'gemini-2.5-flash',
+      setAsActive: true,
+    },
+  });
+  assert.strictEqual(saveGeminiRes.status, 200);
+  assert.strictEqual(saveGeminiRes.data.user.geminiKeySet, true);
+  assert.strictEqual(saveGeminiRes.data.user.hasGeminiKey, true);
+  assert.strictEqual(saveGeminiRes.data.user.aiProvider, 'gemini');
+  assert.ok(saveGeminiRes.data.user.geminiKeyMasked.startsWith('AIz'));
+  assert.ok(saveGeminiRes.data.user.geminiKeyMasked.endsWith('3456'));
+
+  // 3. Anthropic Claude Key und Modell speichern
+  const saveClaudeRes = await env.request('/api/me/claude', {
+    method: 'PUT',
+    headers: { Cookie: user.cookie },
+    body: {
+      apiKey: 'sk-ant-api03-1234567890abcdefghijklmnopqrstuvwxyz',
+      model: 'claude-3-5-sonnet-20241022',
+      setAsActive: true,
+    },
+  });
+  assert.strictEqual(saveClaudeRes.status, 200);
+  assert.strictEqual(saveClaudeRes.data.user.claudeKeySet, true);
+  assert.strictEqual(saveClaudeRes.data.user.hasClaudeKey, true);
+  assert.strictEqual(saveClaudeRes.data.user.aiProvider, 'claude');
+  assert.strictEqual(saveClaudeRes.data.user.claudeModel, 'claude-3-5-sonnet-20241022');
+  assert.ok(saveClaudeRes.data.user.claudeKeyMasked.startsWith('sk-'));
+
+  // 4. Multi-Provider PUT /api/me/ai für Provider-Wechsel
+  const switchRes = await env.request('/api/me/ai', {
+    method: 'PUT',
+    headers: { Cookie: user.cookie },
+    body: {
+      provider: 'gemini',
+    },
+  });
+  assert.strictEqual(switchRes.status, 200);
+  assert.strictEqual(switchRes.data.user.aiProvider, 'gemini');
+
+  // 5. Löschen von Gemini- und Claude-Keys
+  const delGemini = await env.request('/api/me/gemini', {
+    method: 'DELETE',
+    headers: { Cookie: user.cookie },
+  });
+  assert.strictEqual(delGemini.status, 200);
+  assert.strictEqual(delGemini.data.user.geminiKeySet, false);
+
+  const delClaude = await env.request('/api/me/claude', {
+    method: 'DELETE',
+    headers: { Cookie: user.cookie },
+  });
+  assert.strictEqual(delClaude.status, 200);
+  assert.strictEqual(delClaude.data.user.claudeKeySet, false);
+});
+
 test('Aquarium Chat API Endpunkte: Kontext-Abruf und Fehler ohne API-Key', async (t) => {
   const env = createTestEnvironment();
   t.after(async () => await env.cleanup());

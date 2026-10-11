@@ -9,8 +9,13 @@ const {
   OIDC_PROVIDER_NAME,
   isEmailAdmin,
   APP_URL,
+  DEFAULT_AI_PROVIDER,
   OPENAI_API_KEY,
   OPENAI_MODEL,
+  GEMINI_API_KEY,
+  GEMINI_MODEL,
+  CLAUDE_API_KEY,
+  CLAUDE_MODEL,
 } = require('../config/env');
 const { oidc } = require('../services/oidc-service');
 const { hashPassword, verifyPassword, DUMMY_HASH, hasLocalPassword, sha } = require('../utils/crypto');
@@ -21,9 +26,21 @@ const { auth } = require('../middleware/auth');
 const { saveAvatar, deleteImage, getImagePath, getMimeType } = require('../services/image-service');
 const { mailService } = require('../services/mail-service');
 const { registrationService } = require('../services/registration-service');
-const { testOpenAiConnection } = require('../services/ai-chat-service');
+const {
+  testAiConnection,
+  testOpenAiConnection,
+  testGeminiConnection,
+  testClaudeConnection,
+} = require('../services/ai-chat-service');
 
 const router = express.Router();
+
+function maskApiKey(rawKey, serverKey) {
+  if (rawKey) {
+    return rawKey.length > 8 ? rawKey.slice(0, 3) + '...' + rawKey.slice(-4) : '***';
+  }
+  return serverKey ? 'Über Server konfiguriert' : null;
+}
 
 function serializeMe(u) {
   let selectedTests = null;
@@ -37,10 +54,16 @@ function serializeMe(u) {
   const regConfig = registrationService.getConfig();
   const isAdmin = isEmailAdmin(u.email);
 
-  const rawKey = (u.openai_api_key || '').trim();
-  const maskedKey = rawKey
-    ? (rawKey.length > 8 ? rawKey.slice(0, 3) + '...' + rawKey.slice(-4) : '***')
-    : (OPENAI_API_KEY ? 'Über Server konfiguriert' : null);
+  const rawOpenaiKey = (u.openai_api_key || '').trim();
+  const rawGeminiKey = (u.gemini_api_key || '').trim();
+  const rawClaudeKey = (u.claude_api_key || '').trim();
+
+  const activeProvider = u.ai_provider || (rawClaudeKey ? 'claude' : (rawGeminiKey ? 'gemini' : (rawOpenaiKey ? 'openai' : (DEFAULT_AI_PROVIDER || 'openai'))));
+
+  const hasOpenai = Boolean(rawOpenaiKey || OPENAI_API_KEY);
+  const hasGemini = Boolean(rawGeminiKey || GEMINI_API_KEY);
+  const hasClaude = Boolean(rawClaudeKey || CLAUDE_API_KEY);
+  const hasAnyKey = Boolean(hasOpenai || hasGemini || hasClaude);
 
   return {
     id: u.id,
@@ -64,11 +87,33 @@ function serializeMe(u) {
     oidcSub: u.oidc_sub || null,
     oidcEnabled: OIDC_ENABLED,
     oidcProviderName: OIDC_PROVIDER_NAME,
-    hasOpenaiKey: Boolean(rawKey || OPENAI_API_KEY),
-    openaiKeySet: Boolean(rawKey),
-    openaiKeyMasked: maskedKey,
+
+    // KI-Assistent & Multi-Provider Status
+    aiProvider: activeProvider,
+    hasAiKey: hasAnyKey,
+    hasAnyAiKey: hasAnyKey,
+
+    // OpenAI
+    hasOpenaiKey: hasOpenai,
+    openaiKeySet: Boolean(rawOpenaiKey),
+    openaiKeyMasked: maskApiKey(rawOpenaiKey, OPENAI_API_KEY),
     openaiModel: u.openai_model || OPENAI_MODEL || 'gpt-4o-mini',
     serverHasOpenaiKey: Boolean(OPENAI_API_KEY),
+
+    // Google Gemini
+    hasGeminiKey: hasGemini,
+    geminiKeySet: Boolean(rawGeminiKey),
+    geminiKeyMasked: maskApiKey(rawGeminiKey, GEMINI_API_KEY),
+    geminiModel: u.gemini_model || GEMINI_MODEL || 'gemini-2.5-flash',
+    serverHasGeminiKey: Boolean(GEMINI_API_KEY),
+
+    // Anthropic Claude
+    hasClaudeKey: hasClaude,
+    claudeKeySet: Boolean(rawClaudeKey),
+    claudeKeyMasked: maskApiKey(rawClaudeKey, CLAUDE_API_KEY),
+    claudeModel: u.claude_model || CLAUDE_MODEL || 'claude-3-5-haiku-20241022',
+    serverHasClaudeKey: Boolean(CLAUDE_API_KEY),
+
     isAdmin,
   };
 }
@@ -369,7 +414,61 @@ router.post(
   })
 );
 
-/* ---------- OpenAI / ChatGPT API-Schlüssel & Modellverwaltung ---------- */
+/* ---------- KI-Assistent & Sprachmodelle API-Schlüssel & Modellverwaltung ---------- */
+
+router.put(
+  ['/me/ai', '/me/ai-settings'],
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+
+    const updates = {};
+
+    if (req.body.provider !== undefined) {
+      const p = req.body.provider === null || req.body.provider === '' ? null : str(req.body.provider, 20).toLowerCase().trim();
+      if (p && !['openai', 'gemini', 'claude'].includes(p)) {
+        return res.status(400).json({ error: 'Ungültiger KI-Anbieter. Erlaubt sind openai, gemini oder claude.' });
+      }
+      updates.ai_provider = p;
+    }
+
+    // OpenAI
+    if (req.body.openaiApiKey !== undefined) {
+      updates.openai_api_key = req.body.openaiApiKey ? str(req.body.openaiApiKey, 500).trim() : null;
+    }
+    if (req.body.openaiModel !== undefined) {
+      updates.openai_model = req.body.openaiModel ? str(req.body.openaiModel, 100).trim() : null;
+    }
+
+    // Google Gemini
+    if (req.body.geminiApiKey !== undefined) {
+      updates.gemini_api_key = req.body.geminiApiKey ? str(req.body.geminiApiKey, 500).trim() : null;
+    }
+    if (req.body.geminiModel !== undefined) {
+      updates.gemini_model = req.body.geminiModel ? str(req.body.geminiModel, 100).trim() : null;
+    }
+
+    // Anthropic Claude
+    if (req.body.claudeApiKey !== undefined) {
+      updates.claude_api_key = req.body.claudeApiKey ? str(req.body.claudeApiKey, 500).trim() : null;
+    }
+    if (req.body.claudeModel !== undefined) {
+      updates.claude_model = req.body.claudeModel ? str(req.body.claudeModel, 100).trim() : null;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await db.users.update(req.user.id, updates);
+    }
+
+    const updated = await db.users.findById(req.user.id);
+    res.json({
+      ok: true,
+      message: 'KI-Einstellungen erfolgreich gespeichert.',
+      user: serializeMe(updated),
+    });
+  })
+);
 
 router.put(
   ['/me/openai', '/me/openai-key'],
@@ -393,6 +492,7 @@ router.put(
     const updates = {};
     if (apiKey !== undefined) updates.openai_api_key = apiKey;
     if (model !== undefined) updates.openai_model = model;
+    if (req.body.setAsActive) updates.ai_provider = 'openai';
 
     if (Object.keys(updates).length > 0) {
       await db.users.update(req.user.id, updates);
@@ -401,7 +501,7 @@ router.put(
     const updated = await db.users.findById(req.user.id);
     res.json({
       ok: true,
-      message: 'ChatGPT-Einstellungen erfolgreich gespeichert.',
+      message: 'OpenAI-Einstellungen erfolgreich gespeichert.',
       user: serializeMe(updated),
     });
   })
@@ -422,7 +522,7 @@ router.delete(
     const updated = await db.users.findById(req.user.id);
     res.json({
       ok: true,
-      message: 'ChatGPT API-Schlüssel entfernt.',
+      message: 'OpenAI API-Schlüssel entfernt.',
       user: serializeMe(updated),
     });
   })
@@ -437,11 +537,199 @@ router.post(
     const modelToTest = (req.body.model || user?.openai_model || OPENAI_MODEL || 'gpt-4o-mini').trim();
 
     if (!keyToTest) {
-      return res.status(400).json({ error: 'Kein API-Schlüssel zum Testen übergeben oder hinterlegt.' });
+      return res.status(400).json({ error: 'Kein OpenAI API-Schlüssel zum Testen übergeben oder hinterlegt.' });
     }
 
     try {
       const result = await testOpenAiConnection(keyToTest, modelToTest);
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  })
+);
+
+// Google Gemini
+router.put(
+  ['/me/gemini', '/me/gemini-key'],
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+
+    let rawKey = req.body.apiKey !== undefined ? req.body.apiKey : req.body.key;
+    let apiKey = undefined;
+    if (rawKey !== undefined) {
+      apiKey = rawKey === null || rawKey === '' ? null : str(rawKey, 500).trim();
+    }
+
+    let rawModel = req.body.model;
+    let model = undefined;
+    if (rawModel !== undefined) {
+      model = rawModel === null || rawModel === '' ? null : str(rawModel, 100).trim();
+    }
+
+    const updates = {};
+    if (apiKey !== undefined) updates.gemini_api_key = apiKey;
+    if (model !== undefined) updates.gemini_model = model;
+    if (req.body.setAsActive) updates.ai_provider = 'gemini';
+
+    if (Object.keys(updates).length > 0) {
+      await db.users.update(req.user.id, updates);
+    }
+
+    const updated = await db.users.findById(req.user.id);
+    res.json({
+      ok: true,
+      message: 'Google Gemini Einstellungen erfolgreich gespeichert.',
+      user: serializeMe(updated),
+    });
+  })
+);
+
+router.delete(
+  ['/me/gemini', '/me/gemini-key'],
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+
+    await db.users.update(req.user.id, {
+      gemini_api_key: null,
+      gemini_model: null,
+    });
+
+    const updated = await db.users.findById(req.user.id);
+    res.json({
+      ok: true,
+      message: 'Google Gemini API-Schlüssel entfernt.',
+      user: serializeMe(updated),
+    });
+  })
+);
+
+router.post(
+  '/me/gemini/test',
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    const keyToTest = (req.body.apiKey || user?.gemini_api_key || GEMINI_API_KEY || '').trim();
+    const modelToTest = (req.body.model || user?.gemini_model || GEMINI_MODEL || 'gemini-2.5-flash').trim();
+
+    if (!keyToTest) {
+      return res.status(400).json({ error: 'Kein Google Gemini API-Schlüssel zum Testen übergeben oder hinterlegt.' });
+    }
+
+    try {
+      const result = await testGeminiConnection(keyToTest, modelToTest);
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  })
+);
+
+// Anthropic Claude
+router.put(
+  ['/me/claude', '/me/claude-key'],
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+
+    let rawKey = req.body.apiKey !== undefined ? req.body.apiKey : req.body.key;
+    let apiKey = undefined;
+    if (rawKey !== undefined) {
+      apiKey = rawKey === null || rawKey === '' ? null : str(rawKey, 500).trim();
+    }
+
+    let rawModel = req.body.model;
+    let model = undefined;
+    if (rawModel !== undefined) {
+      model = rawModel === null || rawModel === '' ? null : str(rawModel, 100).trim();
+    }
+
+    const updates = {};
+    if (apiKey !== undefined) updates.claude_api_key = apiKey;
+    if (model !== undefined) updates.claude_model = model;
+    if (req.body.setAsActive) updates.ai_provider = 'claude';
+
+    if (Object.keys(updates).length > 0) {
+      await db.users.update(req.user.id, updates);
+    }
+
+    const updated = await db.users.findById(req.user.id);
+    res.json({
+      ok: true,
+      message: 'Anthropic Claude Einstellungen erfolgreich gespeichert.',
+      user: serializeMe(updated),
+    });
+  })
+);
+
+router.delete(
+  ['/me/claude', '/me/claude-key'],
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
+
+    await db.users.update(req.user.id, {
+      claude_api_key: null,
+      claude_model: null,
+    });
+
+    const updated = await db.users.findById(req.user.id);
+    res.json({
+      ok: true,
+      message: 'Anthropic Claude API-Schlüssel entfernt.',
+      user: serializeMe(updated),
+    });
+  })
+);
+
+router.post(
+  '/me/claude/test',
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    const keyToTest = (req.body.apiKey || user?.claude_api_key || CLAUDE_API_KEY || '').trim();
+    const modelToTest = (req.body.model || user?.claude_model || CLAUDE_MODEL || 'claude-3-5-haiku-20241022').trim();
+
+    if (!keyToTest) {
+      return res.status(400).json({ error: 'Kein Anthropic Claude API-Schlüssel zum Testen übergeben oder hinterlegt.' });
+    }
+
+    try {
+      const result = await testClaudeConnection(keyToTest, modelToTest);
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  })
+);
+
+router.post(
+  '/me/ai/test',
+  auth,
+  wrap(async (req, res) => {
+    const user = await db.users.findById(req.user.id);
+    const provider = (req.body.provider || user?.ai_provider || 'openai').toLowerCase().trim();
+    let apiKey = (req.body.apiKey || '').trim();
+    let model = (req.body.model || '').trim();
+
+    if (!apiKey) {
+      if (provider === 'gemini') apiKey = (user?.gemini_api_key || GEMINI_API_KEY || '').trim();
+      else if (provider === 'claude') apiKey = (user?.claude_api_key || CLAUDE_API_KEY || '').trim();
+      else apiKey = (user?.openai_api_key || OPENAI_API_KEY || '').trim();
+    }
+
+    if (!apiKey) {
+      return res.status(400).json({ error: `Kein API-Schlüssel für ${provider} zum Testen übergeben oder hinterlegt.` });
+    }
+
+    try {
+      const result = await testAiConnection({ provider, apiKey, model });
       res.json(result);
     } catch (err) {
       res.status(400).json({ error: err.message });

@@ -871,13 +871,14 @@ router.post(
   auth,
   ownAquarium,
   wrap(async (req, res) => {
-    const { messages, message, stream } = req.body || {};
+    const { messages, message, provider, stream } = req.body || {};
     try {
       const result = await chatWithAquarium({
         aquariumId: req.aq.id,
         user: req.user,
         messages,
         message,
+        provider,
         stream: Boolean(stream),
         customDb: db,
       });
@@ -895,6 +896,7 @@ router.post(
         ok: true,
         reply: result.reply,
         model: result.model,
+        provider: result.provider,
         usage: result.usage,
       });
     } catch (err) {
@@ -902,6 +904,7 @@ router.post(
       res.status(status).json({
         error: err.message,
         code: err.code || 'CHAT_ERROR',
+        provider: err.provider || null,
         status,
       });
     }

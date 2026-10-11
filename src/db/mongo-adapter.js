@@ -209,6 +209,11 @@ class MongoAdapter {
           password_reset_expires: password_reset_expires || null,
           openai_api_key: null,
           openai_model: null,
+          gemini_api_key: null,
+          gemini_model: null,
+          claude_api_key: null,
+          claude_model: null,
+          ai_provider: null,
           created_at: new Date().toISOString(),
         };
         await db.collection('users').insertOne(doc);
@@ -238,6 +243,11 @@ class MongoAdapter {
           'account_delete_expires',
           'openai_api_key',
           'openai_model',
+          'gemini_api_key',
+          'gemini_model',
+          'claude_api_key',
+          'claude_model',
+          'ai_provider',
         ];
 
         for (const k of allowed) {

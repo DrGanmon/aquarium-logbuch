@@ -188,6 +188,11 @@ class SqliteAdapter {
     if (!hasColumn('users', 'account_delete_expires')) this.db.exec('ALTER TABLE users ADD COLUMN account_delete_expires INTEGER');
     if (!hasColumn('users', 'openai_api_key')) this.db.exec('ALTER TABLE users ADD COLUMN openai_api_key TEXT');
     if (!hasColumn('users', 'openai_model')) this.db.exec('ALTER TABLE users ADD COLUMN openai_model TEXT');
+    if (!hasColumn('users', 'gemini_api_key')) this.db.exec('ALTER TABLE users ADD COLUMN gemini_api_key TEXT');
+    if (!hasColumn('users', 'gemini_model')) this.db.exec('ALTER TABLE users ADD COLUMN gemini_model TEXT');
+    if (!hasColumn('users', 'claude_api_key')) this.db.exec('ALTER TABLE users ADD COLUMN claude_api_key TEXT');
+    if (!hasColumn('users', 'claude_model')) this.db.exec('ALTER TABLE users ADD COLUMN claude_model TEXT');
+    if (!hasColumn('users', 'ai_provider')) this.db.exec('ALTER TABLE users ADD COLUMN ai_provider TEXT');
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oidc ON users(oidc_sub) WHERE oidc_sub IS NOT NULL');
     this.db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email != \'\'');
     this.db.exec('CREATE INDEX IF NOT EXISTS idx_users_verify_token ON users(email_verify_token) WHERE email_verify_token IS NOT NULL');
@@ -317,6 +322,11 @@ class SqliteAdapter {
           'account_delete_expires',
           'openai_api_key',
           'openai_model',
+          'gemini_api_key',
+          'gemini_model',
+          'claude_api_key',
+          'claude_model',
+          'ai_provider',
         ];
 
         for (const k of allowed) {

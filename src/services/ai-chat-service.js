@@ -1,10 +1,27 @@
 'use strict';
 const db = require('../db');
 const cfg = require('../../config');
-const { OPENAI_API_KEY, OPENAI_MODEL, OPENAI_BASE_URL } = require('../config/env');
+const {
+  DEFAULT_AI_PROVIDER,
+  OPENAI_API_KEY,
+  OPENAI_MODEL,
+  OPENAI_BASE_URL,
+  GEMINI_API_KEY,
+  GEMINI_MODEL,
+  CLAUDE_API_KEY,
+  CLAUDE_MODEL,
+} = require('../config/env');
 
-const DEFAULT_MODEL = OPENAI_MODEL || 'gpt-4o-mini';
-const BASE_URL = (OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
+const DEFAULT_OPENAI_MODEL = OPENAI_MODEL || 'gpt-4o-mini';
+const DEFAULT_GEMINI_MODEL = GEMINI_MODEL || 'gemini-2.5-flash';
+const DEFAULT_CLAUDE_MODEL = CLAUDE_MODEL || 'claude-3-5-haiku-20241022';
+const OPENAI_URL_BASE = (OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
+
+const AI_PROVIDERS = {
+  OPENAI: 'openai',
+  GEMINI: 'gemini',
+  CLAUDE: 'claude',
+};
 
 function formatValue(p, val) {
   if (val == null || Number.isNaN(val)) return '–';
@@ -191,34 +208,9 @@ async function buildAquariumSystemPrompt(aquariumId, customDb = null) {
 }
 
 /**
- * Führt einen Chat-Request gegen die OpenAI / ChatGPT API aus.
+ * OpenAI / ChatGPT Aufruf
  */
-async function chatWithAquarium({
-  aquariumId,
-  user,
-  messages = [],
-  message = null,
-  stream = false,
-  customDb = null,
-}) {
-  const database = customDb || db;
-  const dbUser = user?.id ? await database.users.findById(user.id) : null;
-
-  // API-Key auflösen: User-Key hat Vorrang, sonst Server-Key
-  const apiKey = (dbUser?.openai_api_key || OPENAI_API_KEY || '').trim();
-  if (!apiKey) {
-    const err = new Error('Kein OpenAI/ChatGPT API-Schlüssel hinterlegt. Bitte hinterlege deinen persönlichen API-Key im Benutzerprofil unter „Mein Profil -> ChatGPT & KI-Assistent“.');
-    err.code = 'NO_API_KEY';
-    err.status = 400;
-    throw err;
-  }
-
-  const model = (dbUser?.openai_model || OPENAI_MODEL || DEFAULT_MODEL).trim();
-
-  // System-Prompt und Beckenkontext generieren
-  const { systemPrompt } = await buildAquariumSystemPrompt(aquariumId, database);
-
-  // Nachrichtenliste aufbauen
+async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message = null, stream = false }) {
   const chatMessages = [{ role: 'system', content: systemPrompt }];
 
   if (Array.isArray(messages) && messages.length > 0) {
@@ -226,7 +218,7 @@ async function chatWithAquarium({
       if (m && typeof m.content === 'string' && (m.role === 'user' || m.role === 'assistant')) {
         chatMessages.push({
           role: m.role,
-          content: m.content.slice(0, 8000), // Begrenzung gegen überlange Payloads
+          content: m.content.slice(0, 8000),
         });
       }
     }
@@ -239,21 +231,15 @@ async function chatWithAquarium({
     });
   }
 
-  // Sicherstellen, dass mindestens eine User-Nachricht existiert
-  const hasUserMsg = chatMessages.some((m) => m.role === 'user');
-  if (!hasUserMsg) {
-    throw new Error('Keine Benutzernachricht übergeben.');
-  }
-
   const payload = {
-    model,
+    model: model || DEFAULT_OPENAI_MODEL,
     messages: chatMessages,
     temperature: 0.7,
     max_tokens: 1500,
     stream: Boolean(stream),
   };
 
-  const url = `${BASE_URL}/chat/completions`;
+  const url = `${OPENAI_URL_BASE}/chat/completions`;
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -261,16 +247,14 @@ async function chatWithAquarium({
       'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(60000), // 60s Timeout
+    signal: AbortSignal.timeout(60000),
   });
 
   if (!response.ok) {
     let errorData = {};
     try {
       errorData = await response.json();
-    } catch (e) {
-      // ignore
-    }
+    } catch (e) {}
 
     const openAiError = errorData?.error?.message || response.statusText;
     let friendlyMessage = `OpenAI API Fehler (${response.status}): ${openAiError}`;
@@ -285,15 +269,12 @@ async function chatWithAquarium({
 
     const err = new Error(friendlyMessage);
     err.status = response.status;
-    err.openAiError = errorData;
+    err.apiError = errorData;
     throw err;
   }
 
   if (stream) {
-    return {
-      stream: response.body,
-      model,
-    };
+    return { stream: response.body, model: model || DEFAULT_OPENAI_MODEL, provider: 'openai' };
   }
 
   const data = await response.json();
@@ -301,21 +282,276 @@ async function chatWithAquarium({
 
   return {
     reply,
-    model: data.model || model,
+    model: data.model || model || DEFAULT_OPENAI_MODEL,
+    provider: 'openai',
     usage: data.usage || null,
   };
 }
 
 /**
- * Prüft die Gültigkeit eines API-Keys mit einer minimalen Testanfrage.
+ * Google Gemini Aufruf (Google AI Studio API)
  */
-async function testOpenAiConnection(apiKey, model = DEFAULT_MODEL) {
-  const key = String(apiKey || '').trim();
-  if (!key) {
-    throw new Error('Bitte gib einen API-Schlüssel ein.');
+async function callGemini({ apiKey, model, systemPrompt, messages = [], message = null }) {
+  const chosenModel = model || DEFAULT_GEMINI_MODEL;
+  const contents = [];
+
+  if (Array.isArray(messages) && messages.length > 0) {
+    for (const m of messages) {
+      if (m && typeof m.content === 'string') {
+        const role = m.role === 'assistant' ? 'model' : 'user';
+        contents.push({
+          role,
+          parts: [{ text: m.content.slice(0, 8000) }],
+        });
+      }
+    }
   }
 
-  const url = `${BASE_URL}/chat/completions`;
+  if (message && typeof message === 'string' && message.trim()) {
+    contents.push({
+      role: 'user',
+      parts: [{ text: message.trim().slice(0, 8000) }],
+    });
+  }
+
+  const payload = {
+    system_instruction: {
+      parts: [{ text: systemPrompt }],
+    },
+    contents,
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 1500,
+    },
+  };
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(chosenModel)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(60000),
+  });
+
+  if (!response.ok) {
+    let errorData = {};
+    try {
+      errorData = await response.json();
+    } catch (e) {}
+
+    const geminiError = errorData?.error?.message || response.statusText;
+    let friendlyMessage = `Google Gemini API Fehler (${response.status}): ${geminiError}`;
+
+    if (response.status === 400 && String(geminiError).toLowerCase().includes('api key')) {
+      friendlyMessage = 'Der hinterlegte Gemini API-Schlüssel ist ungültig. Bitte prüfe den Schlüssel in deinem Profil.';
+    } else if (response.status === 403) {
+      friendlyMessage = 'Zugriff verweigert. Bitte prüfe die Berechtigungen deines Google Gemini API-Keys.';
+    } else if (response.status === 429) {
+      friendlyMessage = 'Google Gemini Rate-Limit oder Kontingentlimit erreicht. Bitte versuche es in wenigen Momenten erneut.';
+    } else if (response.status === 404) {
+      friendlyMessage = `Das ausgewählte Gemini-Modell „${chosenModel}“ wurde nicht gefunden oder ist nicht verfügbar.`;
+    }
+
+    const err = new Error(friendlyMessage);
+    err.status = response.status;
+    err.apiError = errorData;
+    throw err;
+  }
+
+  const data = await response.json();
+  const candidate = data.candidates?.[0];
+  const reply = candidate?.content?.parts?.map((p) => p.text || '').join('') || '';
+
+  return {
+    reply,
+    model: chosenModel,
+    provider: 'gemini',
+    usage: data.usageMetadata || null,
+  };
+}
+
+/**
+ * Anthropic Claude Aufruf
+ */
+async function callClaude({ apiKey, model, systemPrompt, messages = [], message = null }) {
+  const chosenModel = model || DEFAULT_CLAUDE_MODEL;
+  const chatMessages = [];
+
+  if (Array.isArray(messages) && messages.length > 0) {
+    for (const m of messages) {
+      if (m && typeof m.content === 'string' && (m.role === 'user' || m.role === 'assistant')) {
+        chatMessages.push({
+          role: m.role,
+          content: m.content.slice(0, 8000),
+        });
+      }
+    }
+  }
+
+  if (message && typeof message === 'string' && message.trim()) {
+    chatMessages.push({
+      role: 'user',
+      content: message.trim().slice(0, 8000),
+    });
+  }
+
+  const payload = {
+    model: chosenModel,
+    system: systemPrompt,
+    messages: chatMessages,
+    max_tokens: 1500,
+    temperature: 0.7,
+  };
+
+  const url = 'https://api.anthropic.com/v1/messages';
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(60000),
+  });
+
+  if (!response.ok) {
+    let errorData = {};
+    try {
+      errorData = await response.json();
+    } catch (e) {}
+
+    const claudeError = errorData?.error?.message || response.statusText;
+    let friendlyMessage = `Anthropic Claude API Fehler (${response.status}): ${claudeError}`;
+
+    if (response.status === 401) {
+      friendlyMessage = 'Der hinterlegte Anthropic Claude API-Schlüssel ist ungültig oder abgelaufen. Bitte prüfe den Schlüssel in deinem Profil.';
+    } else if (response.status === 429) {
+      friendlyMessage = 'Claude Rate-Limit erreicht. Bitte prüfe dein Anthropic-Guthaben oder versuche es in wenigen Momenten erneut.';
+    } else if (response.status === 404) {
+      friendlyMessage = `Das ausgewählte Claude-Modell „${chosenModel}“ wurde nicht gefunden oder ist nicht freigeschaltet.`;
+    }
+
+    const err = new Error(friendlyMessage);
+    err.status = response.status;
+    err.apiError = errorData;
+    throw err;
+  }
+
+  const data = await response.json();
+  const reply = data.content?.map((c) => c.text || '').join('') || '';
+
+  return {
+    reply,
+    model: data.model || chosenModel,
+    provider: 'claude',
+    usage: data.usage || null,
+  };
+}
+
+/**
+ * Löst den aktiven Provider, Key und Modell für den Chat auf.
+ */
+function resolveProviderAndConfig(user, requestedProvider = null) {
+  let provider = (requestedProvider || user?.ai_provider || '').toLowerCase().trim();
+
+  // Wenn kein Provider gewählt ist, anhand vorhandener Keys automatisch bestimmen
+  if (!provider || !['openai', 'gemini', 'claude'].includes(provider)) {
+    if (user?.openai_api_key || (!user?.gemini_api_key && !user?.claude_api_key && OPENAI_API_KEY)) {
+      provider = 'openai';
+    } else if (user?.gemini_api_key || (!user?.claude_api_key && GEMINI_API_KEY)) {
+      provider = 'gemini';
+    } else if (user?.claude_api_key || CLAUDE_API_KEY) {
+      provider = 'claude';
+    } else {
+      provider = DEFAULT_AI_PROVIDER || 'openai';
+    }
+  }
+
+  let apiKey = '';
+  let model = '';
+
+  if (provider === 'gemini') {
+    apiKey = (user?.gemini_api_key || GEMINI_API_KEY || '').trim();
+    model = (user?.gemini_model || GEMINI_MODEL || DEFAULT_GEMINI_MODEL).trim();
+  } else if (provider === 'claude') {
+    apiKey = (user?.claude_api_key || CLAUDE_API_KEY || '').trim();
+    model = (user?.claude_model || CLAUDE_MODEL || DEFAULT_CLAUDE_MODEL).trim();
+  } else {
+    provider = 'openai';
+    apiKey = (user?.openai_api_key || OPENAI_API_KEY || '').trim();
+    model = (user?.openai_model || OPENAI_MODEL || DEFAULT_OPENAI_MODEL).trim();
+  }
+
+  return { provider, apiKey, model };
+}
+
+/**
+ * Führt einen Chat-Request gegen den konfigurierten KI-Anbieter (OpenAI, Gemini, Claude) aus.
+ */
+async function chatWithAquarium({
+  aquariumId,
+  user,
+  messages = [],
+  message = null,
+  provider = null,
+  stream = false,
+  customDb = null,
+}) {
+  const database = customDb || db;
+  const dbUser = user?.id ? await database.users.findById(user.id) : null;
+
+  const resolved = resolveProviderAndConfig(dbUser, provider);
+  const activeProvider = resolved.provider;
+  const apiKey = resolved.apiKey;
+  const model = resolved.model;
+
+  if (!apiKey) {
+    const providerNames = {
+      openai: 'OpenAI / ChatGPT',
+      gemini: 'Google Gemini',
+      claude: 'Anthropic Claude',
+    };
+    const pName = providerNames[activeProvider] || activeProvider;
+    const err = new Error(`Kein API-Schlüssel für ${pName} hinterlegt. Bitte hinterlege deinen persönlichen API-Key im Benutzerprofil unter „Mein Profil -> KI-Assistent & Sprachmodelle“.`);
+    err.code = 'NO_API_KEY';
+    err.provider = activeProvider;
+    err.status = 400;
+    throw err;
+  }
+
+  // System-Prompt und Beckenkontext generieren
+  const { systemPrompt } = await buildAquariumSystemPrompt(aquariumId, database);
+
+  // Sicherstellen, dass mindestens eine User-Nachricht existiert
+  const hasUserMsg = (message && typeof message === 'string' && message.trim()) ||
+    (Array.isArray(messages) && messages.some((m) => m && m.role === 'user' && m.content && m.content.trim()));
+
+  if (!hasUserMsg) {
+    throw new Error('Keine Benutzernachricht übergeben.');
+  }
+
+  if (activeProvider === 'gemini') {
+    return await callGemini({ apiKey, model, systemPrompt, messages, message });
+  } else if (activeProvider === 'claude') {
+    return await callClaude({ apiKey, model, systemPrompt, messages, message });
+  } else {
+    return await callOpenAi({ apiKey, model, systemPrompt, messages, message, stream });
+  }
+}
+
+/**
+ * Prüft die Gültigkeit eines OpenAI API-Keys mit einer minimalen Testanfrage.
+ */
+async function testOpenAiConnection(apiKey, model = DEFAULT_OPENAI_MODEL) {
+  const key = String(apiKey || '').trim();
+  if (!key) {
+    throw new Error('Bitte gib einen OpenAI API-Schlüssel ein.');
+  }
+
+  const url = `${OPENAI_URL_BASE}/chat/completions`;
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -323,7 +559,7 @@ async function testOpenAiConnection(apiKey, model = DEFAULT_MODEL) {
       'Authorization': `Bearer ${key}`,
     },
     body: JSON.stringify({
-      model: model || DEFAULT_MODEL,
+      model: model || DEFAULT_OPENAI_MODEL,
       messages: [{ role: 'user', content: 'Antworte nur mit dem Wort OK.' }],
       max_tokens: 5,
     }),
@@ -338,10 +574,10 @@ async function testOpenAiConnection(apiKey, model = DEFAULT_MODEL) {
 
     const openAiError = errorData?.error?.message || response.statusText;
     if (response.status === 401) {
-      throw new Error('Ungültiger API-Schlüssel. Bitte überprüfe deine Eingabe.');
+      throw new Error('Ungültiger OpenAI API-Schlüssel. Bitte überprüfe deine Eingabe.');
     }
     if (response.status === 429) {
-      throw new Error('API-Schlüssel ist gültig, aber das Kontingent ist erschöpft (Quota Exceeded / Rate Limit).');
+      throw new Error('OpenAI API-Schlüssel ist gültig, aber das Kontingent ist erschöpft (Quota Exceeded / Rate Limit).');
     }
     throw new Error(`OpenAI Verbindungstest fehlgeschlagen (${response.status}): ${openAiError}`);
   }
@@ -349,14 +585,134 @@ async function testOpenAiConnection(apiKey, model = DEFAULT_MODEL) {
   const data = await response.json();
   return {
     ok: true,
+    provider: 'openai',
     model: data.model || model,
     message: 'Verbindung zu OpenAI erfolgreich hergestellt!',
   };
+}
+
+/**
+ * Prüft die Gültigkeit eines Google Gemini API-Keys mit einer Testanfrage.
+ */
+async function testGeminiConnection(apiKey, model = DEFAULT_GEMINI_MODEL) {
+  const key = String(apiKey || '').trim();
+  if (!key) {
+    throw new Error('Bitte gib einen Google Gemini API-Schlüssel ein.');
+  }
+
+  const chosenModel = model || DEFAULT_GEMINI_MODEL;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(chosenModel)}:generateContent?key=${encodeURIComponent(key)}`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts: [{ text: 'Antworte nur mit dem Wort OK.' }] }],
+      generationConfig: { maxOutputTokens: 5 },
+    }),
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!response.ok) {
+    let errorData = {};
+    try {
+      errorData = await response.json();
+    } catch (e) {}
+
+    const geminiError = errorData?.error?.message || response.statusText;
+    if (response.status === 400 && String(geminiError).toLowerCase().includes('api key')) {
+      throw new Error('Ungültiger Google Gemini API-Schlüssel. Bitte überprüfe deine Eingabe.');
+    }
+    if (response.status === 429) {
+      throw new Error('Gemini Rate-Limit erreicht. Bitte versuche es in wenigen Momenten erneut.');
+    }
+    throw new Error(`Google Gemini Verbindungstest fehlgeschlagen (${response.status}): ${geminiError}`);
+  }
+
+  return {
+    ok: true,
+    provider: 'gemini',
+    model: chosenModel,
+    message: 'Verbindung zu Google Gemini erfolgreich hergestellt!',
+  };
+}
+
+/**
+ * Prüft die Gültigkeit eines Anthropic Claude API-Keys mit einer Testanfrage.
+ */
+async function testClaudeConnection(apiKey, model = DEFAULT_CLAUDE_MODEL) {
+  const key = String(apiKey || '').trim();
+  if (!key) {
+    throw new Error('Bitte gib einen Anthropic Claude API-Schlüssel ein.');
+  }
+
+  const chosenModel = model || DEFAULT_CLAUDE_MODEL;
+  const url = 'https://api.anthropic.com/v1/messages';
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: chosenModel,
+      messages: [{ role: 'user', content: 'Antworte nur mit dem Wort OK.' }],
+      max_tokens: 5,
+    }),
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!response.ok) {
+    let errorData = {};
+    try {
+      errorData = await response.json();
+    } catch (e) {}
+
+    const claudeError = errorData?.error?.message || response.statusText;
+    if (response.status === 401) {
+      throw new Error('Ungültiger Anthropic Claude API-Schlüssel. Bitte überprüfe deine Eingabe.');
+    }
+    if (response.status === 429) {
+      throw new Error('Anthropic Claude Rate-Limit oder Guthabenlimit erreicht.');
+    }
+    throw new Error(`Anthropic Claude Verbindungstest fehlgeschlagen (${response.status}): ${claudeError}`);
+  }
+
+  const data = await response.json();
+  return {
+    ok: true,
+    provider: 'claude',
+    model: data.model || chosenModel,
+    message: 'Verbindung zu Anthropic Claude erfolgreich hergestellt!',
+  };
+}
+
+/**
+ * Universeller KI-Verbindungstest
+ */
+async function testAiConnection({ provider, apiKey, model }) {
+  const p = (provider || 'openai').toLowerCase().trim();
+  if (p === 'gemini') {
+    return await testGeminiConnection(apiKey, model);
+  } else if (p === 'claude') {
+    return await testClaudeConnection(apiKey, model);
+  } else {
+    return await testOpenAiConnection(apiKey, model);
+  }
 }
 
 module.exports = {
   buildAquariumSystemPrompt,
   chatWithAquarium,
   testOpenAiConnection,
-  DEFAULT_MODEL,
+  testGeminiConnection,
+  testClaudeConnection,
+  testAiConnection,
+  resolveProviderAndConfig,
+  AI_PROVIDERS,
+  DEFAULT_OPENAI_MODEL,
+  DEFAULT_GEMINI_MODEL,
+  DEFAULT_CLAUDE_MODEL,
 };

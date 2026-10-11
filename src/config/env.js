@@ -61,10 +61,21 @@ const isEmailAdmin = (email) => !!email && ADMIN_EMAILS.includes(String(email).t
 const CONTACT_EMAIL = (env.CONTACT_EMAIL || cfg.CONTACT_EMAIL || ADMIN_EMAIL || 'dr@ganmon.org').trim();
 const IMPRINT_EMAIL = (env.IMPRINT_EMAIL || env.IMPRESSUM_EMAIL || cfg.IMPRINT_EMAIL || CONTACT_EMAIL || 'dr@ganmon.org').trim();
 
-// OpenAI / ChatGPT Konfiguration
+// KI-Assistent & Sprachmodelle Konfiguration (OpenAI, Gemini, Claude)
+const DEFAULT_AI_PROVIDER = (env.DEFAULT_AI_PROVIDER || 'openai').toLowerCase().trim();
+
+// OpenAI / ChatGPT
 const OPENAI_API_KEY = (env.OPENAI_API_KEY || '').trim();
 const OPENAI_MODEL = (env.OPENAI_MODEL || 'gpt-4o-mini').trim();
 const OPENAI_BASE_URL = (env.OPENAI_BASE_URL || 'https://api.openai.com/v1').trim();
+
+// Google Gemini
+const GEMINI_API_KEY = (env.GEMINI_API_KEY || env.GOOGLE_API_KEY || '').trim();
+const GEMINI_MODEL = (env.GEMINI_MODEL || 'gemini-2.5-flash').trim();
+
+// Anthropic Claude
+const CLAUDE_API_KEY = (env.CLAUDE_API_KEY || env.ANTHROPIC_API_KEY || '').trim();
+const CLAUDE_MODEL = (env.CLAUDE_MODEL || 'claude-3-5-haiku-20241022').trim();
 
 module.exports = {
   PORT,
@@ -93,7 +104,12 @@ module.exports = {
   isEmailAdmin,
   CONTACT_EMAIL,
   IMPRINT_EMAIL,
+  DEFAULT_AI_PROVIDER,
   OPENAI_API_KEY,
   OPENAI_MODEL,
   OPENAI_BASE_URL,
+  GEMINI_API_KEY,
+  GEMINI_MODEL,
+  CLAUDE_API_KEY,
+  CLAUDE_MODEL,
 };
