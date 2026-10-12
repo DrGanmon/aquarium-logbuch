@@ -160,6 +160,8 @@ docker compose -f docker-compose.sqlite.yml up -d
 
 Für Updates dieselben `pull`- und `up -d`-Befehle erneut ausführen. Die Daten bleiben in den benannten Volumes erhalten.
 
+Der GitHub-Workflow baut das App-Image für `linux/amd64` und `linux/arm64` und veröffentlicht beide Architekturen unter denselben Tags. Docker wählt beim Pull automatisch die passende Architektur aus, etwa ARM64 auf einem Raspberry Pi mit 64-Bit-Betriebssystem. Pull Requests bauen beide Varianten zur Prüfung, ohne sie zu veröffentlichen.
+
 ### 3. Konfigurationsvariablen
 
 | Variable | Standard | Bedeutung |
