@@ -471,7 +471,14 @@
     "backupTitle": "Datensicherung erstellen",
     "createBackupBtn": "Vollständiges Backup erstellen",
     "restoreBackupBtn": "Backup einspielen",
-    "logsTitle": "Server- & Fehlerprotokolle"
+    "logsTitle": "Server- & Fehlerprotokolle",
+    "tabs": {
+      "users": "Userverwaltung",
+      "registration": "Einladung & Registrierung",
+      "settings": "Einstellungen",
+      "backups": "Backups",
+      "logs": "Logs"
+    }
   },
   "legal": {
     "imprintTitle": "⚖️ Impressum & Anbieterkennzeichnung",

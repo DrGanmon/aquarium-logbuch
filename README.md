@@ -226,6 +226,8 @@ Jeder angemeldete Benutzer kann über die Kopfzeile auf sein **Benutzerprofil** 
 
 ## Admin-Bereich und Benutzerverwaltung
 
+Die Admin-Ansicht ist in fünf Tabs gegliedert: **Userverwaltung**, **Einladung & Registrierung** (Registrierungsmodi, Gültigkeiten, Einladungscodes und E-Mail-Einladungen), **Einstellungen** (Rechtliches sowie E-Mail/SMTP inklusive Testmail und Warteschlange), **Backups** und **Logs**.
+
 Der Administrator wird anhand der E-Mail-Adresse festgelegt. Dazu entweder in `config.js` oder über die Umgebungsvariable `ADMIN_EMAIL` die gewünschte E-Mail-Adresse hinterlegen (z. B. `ADMIN_EMAIL=admin@example.com` bzw. kommagetrennt für mehrere).
 
 - Benutzer, deren E-Mail-Adresse (aus OIDC/Pocket ID oder lokaler Registrierung) mit `ADMIN_EMAIL` übereinstimmt, erhalten Administrator-Rechte.

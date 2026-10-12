@@ -225,6 +225,8 @@ Logged-in users can open their **User Profile** (`#/profile`) from the header na
 
 ## Admin Panel & User Administration
 
+The admin view is organized into five tabs: **User management**, **Invitations & registration** (registration modes, validity periods, invitation codes and email invitations), **Settings** (legal settings and email/SMTP, including test email and queue), **Backups**, and **Logs**.
+
 Administrators are identified by their email address matching `ADMIN_EMAIL` in `config.js` or environment variables (comma-separated for multiple admins).
 
 - Users matching `ADMIN_EMAIL` receive administrative privileges.

@@ -471,7 +471,14 @@
     "backupTitle": "Create Backup",
     "createBackupBtn": "Create Full Backup",
     "restoreBackupBtn": "Restore Backup",
-    "logsTitle": "Server & Error Logs"
+    "logsTitle": "Server & Error Logs",
+    "tabs": {
+      "users": "User management",
+      "registration": "Invitations & registration",
+      "settings": "Settings",
+      "backups": "Backups",
+      "logs": "Logs"
+    }
   },
   "legal": {
     "imprintTitle": "⚖️ Imprint & Legal Information",
