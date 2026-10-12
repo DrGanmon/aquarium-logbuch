@@ -1,14 +1,48 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onBeforeUnmount, watch, nextTick } from "vue";
 import Modal from "./Modal.vue";
 import StockForm from "./StockForm.vue";
+import SpeciesDetail from "./SpeciesDetail.vue";
 import { api } from "../api";
-import { session, t, errorMessage } from "../state";
-import type { Stock } from "../types";
+import { session, t, errorMessage, language } from "../state";
+import type { Stock, Species } from "../types";
 const props = defineProps<{ id: string; stock: Stock[]; readonly: boolean }>();
 const emit = defineEmits<{ changed: []; image: [url: string] }>();
 const editing = ref<Stock>();
 const error = ref("");
+const selectedSpecies = ref<Species>();
+let speciesTrigger: HTMLElement | undefined;
+async function closeSpecies() {
+  selectedSpecies.value = undefined;
+  await nextTick();
+  speciesTrigger?.focus();
+}
+const speciesBusy = ref<string>();
+let speciesRequest: AbortController | undefined;
+const speciesCache = new Map<string, Species>();
+watch(language, () => { speciesRequest?.abort(); speciesCache.clear(); selectedSpecies.value = undefined; });
+onBeforeUnmount(() => speciesRequest?.abort());
+async function showSpecies(stock: Stock, event: Event) {
+  speciesTrigger = event.currentTarget as HTMLElement;
+  if (!stock.speciesId) return;
+  speciesRequest?.abort();
+  const request = new AbortController();
+  speciesRequest = request;
+  speciesBusy.value = stock.speciesId;
+  error.value = "";
+  try {
+    const cached = speciesCache.get(stock.speciesId);
+    const species = cached || (await api<{ species: Species }>(`/species/${encodeURIComponent(stock.speciesId)}`, { signal: request.signal })).species;
+    if (!request.signal.aborted) {
+      speciesCache.set(stock.speciesId, species);
+      selectedSpecies.value = species;
+    }
+  } catch (e) {
+    if (!request.signal.aborted) error.value = errorMessage(e);
+  } finally {
+    if (speciesRequest === request) speciesBusy.value = undefined;
+  }
+}
 async function remove(stock: Stock) {
   if (!confirm(t("common.delete") + "?")) return;
   try {
@@ -39,6 +73,7 @@ async function remove(stock: Stock) {
           <img
             v-if="item.has_image || item.image_file"
             class="stock-avatar"
+            loading="lazy"
             :src="`api/aquariums/${id}/stock/${item.id}/image`"
             :alt="item.name || item.species"
             @click="emit('image', `api/aquariums/${id}/stock/${item.id}/image`)"
@@ -54,15 +89,20 @@ async function remove(stock: Stock) {
             </div>
           </div>
         </div>
-        <div v-if="!readonly" class="row">
+        <div class="row">
+          <button v-if="item.speciesId" class="btn small ghost" :disabled="speciesBusy === item.speciesId" @click="showSpecies(item, $event)">{{ speciesBusy === item.speciesId ? t('common.loading') : t('detail.residentDetails') }}</button>
+          <span v-if="!item.speciesId" class="muted">{{ t('detail.noSpeciesDetails') }}</span>
+          <template v-if="!readonly">
           <button class="btn small ghost" @click="editing = item">
             {{ t("common.edit") }}</button
           ><button class="btn small ghost danger" @click="remove(item)">
             {{ t("common.delete") }}
           </button>
+          </template>
         </div>
       </div>
     </div>
+    <SpeciesDetail v-if="selectedSpecies" :species="selectedSpecies" @close="closeSpecies" />
     <p v-if="error" class="error">{{ error }}</p>
     <StockForm v-if="!readonly" :id="id" @saved="emit('changed')" /><Modal
       v-if="editing"

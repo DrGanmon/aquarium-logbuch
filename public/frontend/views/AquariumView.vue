@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onBeforeUnmount, ref, watch } from "vue";
 import { api } from "../api";
 import { session, t, errorMessage, fmtDate, fmtNum, language } from "../state";
 import type {
@@ -8,6 +8,8 @@ import type {
   Measurement,
   LogEntry,
   Id,
+  Stock,
+  Pump,
 } from "../types";
 import AquariumForm from "../components/AquariumForm.vue";
 import Modal from "../components/Modal.vue";
@@ -18,12 +20,12 @@ import PumpSection from "../components/PumpSection.vue";
 import CsvDialog from "../components/CsvDialog.vue";
 import ChatDialog from "../components/ChatDialog.vue";
 import SharingDialog from "../components/SharingDialog.vue";
+import LazySection from "../components/LazySection.vue";
+import { useLazyResource } from "../composables/lazy-resource";
 import { readImage } from "../composables/media";
 const props = defineProps<{ id: string }>();
 const detail = ref<AquariumDetail>();
-const photos = ref<Photo[]>([]);
-const measurements = ref<Measurement[]>([]);
-const logs = ref<LogEntry[]>([]);
+
 const error = ref("");
 const loading = ref(true);
 const modal = ref("");
@@ -32,7 +34,7 @@ const logEntry = ref<LogEntry>();
 const logType = ref("water_change");
 const filter = ref("all");
 const more = ref(true);
-const logBusy = ref(false);
+const moreLoading = ref(false);
 const busy = ref(false);
 const range = ref(
   localStorage.getItem("aquarium_graph_range") ||
@@ -65,62 +67,71 @@ const cycles = computed(() => [
   { name: "🧪 Messzyklus", status: aquarium.value?.measure_cycle_status },
   { name: "🌿 Düngzyklus", status: aquarium.value?.fertilize_cycle_status },
 ]);
+const gallery = useLazyResource<Photo[]>([], (signal) => api(`/aquariums/${props.id}/images`, { signal }));
+const history = useLazyResource<Measurement[]>([], (signal) => {
+  const query = new URLSearchParams(range.value === "custom" ? { from: from.value, to: to.value } : { days: range.value });
+  return api(`/aquariums/${props.id}/measurements?${query}`, { signal });
+});
+const residents = useLazyResource<Stock[]>([], (signal) => api(`/aquariums/${props.id}/stock`, { signal }));
+const pumpsResource = useLazyResource<Pump[]>([], (signal) => api(`/aquariums/${props.id}/dosing-pumps`, { signal }));
+let paginationController: AbortController | undefined;
+const timeline = useLazyResource<LogEntry[]>([], async (signal) => {
+  paginationController?.abort();
+  const rows = await api<LogEntry[]>(`/aquariums/${props.id}/logs?kind=${filter.value}&limit=25&offset=0`, { signal });
+  if (!signal.aborted) more.value = rows.length === 25;
+  return rows;
+});
+const photos = gallery.data;
+const measurements = history.data;
+const stock = residents.data;
+const pumps = pumpsResource.data;
+const logs = timeline.data;
+const logBusy = computed(() => timeline.loading.value || moreLoading.value);
+const resources = [gallery, history, residents, pumpsResource, timeline];
+let detailController: AbortController | undefined;
+onBeforeUnmount(() => { detailController?.abort(); paginationController?.abort(); });
 onMounted(load);
 watch(language, load);
-watch([range, from, to], async () => {
+watch([range, from, to], () => {
   localStorage.setItem("aquarium_graph_range", range.value);
   localStorage.setItem("aquarium_graph_custom_from", from.value);
   localStorage.setItem("aquarium_graph_custom_to", to.value);
-  await loadMeasurements();
+  if (history.active.value) void history.load(true);
 });
-watch(filter, () => loadLogs(true));
+watch(filter, () => { if (timeline.active.value) void timeline.load(true); });
 async function load() {
+  detailController?.abort();
+  const request = new AbortController();
+  detailController = request;
   try {
-    [detail.value, photos.value] = await Promise.all([
-      api<AquariumDetail>(`/aquariums/${props.id}`),
-      api<Photo[]>(`/aquariums/${props.id}/images`),
-    ]);
+    const result = await api<AquariumDetail>(`/aquariums/${props.id}?summary=true`, { signal: request.signal });
+    if (request.signal.aborted) return;
+    detail.value = result;
     error.value = "";
-    await Promise.all([loadMeasurements(), loadLogs(true)]);
+    await Promise.all(resources.filter((resource) => resource.active.value).map((resource) => resource.load(true)));
   } catch (e) {
-    error.value = errorMessage(e);
+    if (!request.signal.aborted) error.value = errorMessage(e);
   } finally {
-    loading.value = false;
-  }
-}
-let measurementRequest = 0;
-let logRequest = 0;
-async function loadMeasurements() {
-  const request = ++measurementRequest;
-  try {
-    const query = new URLSearchParams(
-      range.value === "custom"
-        ? { from: from.value, to: to.value }
-        : { days: range.value },
-    );
-    const result = await api<Measurement[]>(
-      `/aquariums/${props.id}/measurements?${query}`,
-    );
-    if (request === measurementRequest) measurements.value = result;
-  } catch (e) {
-    error.value = errorMessage(e);
+    if (detailController === request) loading.value = false;
   }
 }
 async function loadLogs(reset = false) {
-  if (logBusy.value && !reset) return;
-  const request = ++logRequest;
-  logBusy.value = true;
+  if (reset) return timeline.load(true);
+  if (logBusy.value || !more.value) return;
+  const request = new AbortController();
+  paginationController?.abort();
+  paginationController = request;
+  moreLoading.value = true;
   try {
-    const rows = await api<LogEntry[]>(
-      `/aquariums/${props.id}/logs?kind=${filter.value}&limit=25&offset=${reset ? 0 : logs.value.length}`,
-    );
-    if (request !== logRequest) return;
-    logs.value = reset ? rows : [...logs.value, ...rows];
+    const rows = await api<LogEntry[]>(`/aquariums/${props.id}/logs?kind=${filter.value}&limit=25&offset=${logs.value.length}`, { signal: request.signal });
+    if (request.signal.aborted) return;
+    logs.value = [...logs.value, ...rows];
     more.value = rows.length === 25;
+    timeline.error.value = "";
   } catch (e) {
-    error.value = errorMessage(e);
+    if (!request.signal.aborted) timeline.error.value = errorMessage(e);
   } finally {
-    if (request === logRequest) logBusy.value = false;
+    if (paginationController === request) moreLoading.value = false;
   }
 }
 function openLog(entry?: LogEntry, type = "water_change") {
@@ -251,80 +262,82 @@ async function leave() {
         <div style="white-space: pre-wrap">{{ aquarium.description }}</div>
       </div>
       <p v-if="aquarium.notes" class="muted">{{ aquarium.notes }}</p>
-      <section class="card stack">
-        <div class="row between">
-          <h2 style="margin: 0">
-            📸 {{ t("detail.galleryTitle") }} ({{ photos.length }})
-          </h2>
-          <button
-            v-if="!readonly"
-            class="btn small"
-            @click="
-              editingPhoto = undefined;
-              caption = '';
-              modal = 'photo';
-            "
-          >
-            {{ t("detail.uploadPhoto") }}
-          </button>
-        </div>
-        <div v-if="photos.length" class="gallery-grid">
-          <div v-for="photo in photos" :key="photo.id" class="gallery-card">
-            <div
-              class="gallery-img-wrap"
-              tabindex="0"
-              role="button"
-              :aria-label="photo.caption || t('common.imageLightboxTitle')"
-              @click="lightbox = photoUrl(photo)"
-              @keydown.enter="lightbox = photoUrl(photo)"
+      <LazySection data-lazy="gallery" :label="t('detail.galleryTitle')" :loaded="gallery.loaded.value" :loading="gallery.loading.value" :error="gallery.error.value" @activate="gallery.load()">
+        <section class="card stack">
+          <div class="row between">
+            <h2 style="margin: 0">
+              📸 {{ t("detail.galleryTitle") }} ({{ photos.length }})
+            </h2>
+            <button
+              v-if="!readonly"
+              class="btn small"
+              @click="
+                editingPhoto = undefined;
+                caption = '';
+                modal = 'photo';
+              "
             >
-              <img
-                class="gallery-img"
-                :src="photoUrl(photo)"
-                :alt="photo.caption || aquarium.name"
-                loading="lazy"
-              /><span v-if="photo.is_primary" class="gallery-primary-badge"
-                >★ Titelbild</span
+              {{ t("detail.uploadPhoto") }}
+            </button>
+          </div>
+          <div v-if="photos.length" class="gallery-grid">
+            <div v-for="photo in photos" :key="photo.id" class="gallery-card">
+              <div
+                class="gallery-img-wrap"
+                tabindex="0"
+                role="button"
+                :aria-label="photo.caption || t('common.imageLightboxTitle')"
+                @click="lightbox = photoUrl(photo)"
+                @keydown.enter="lightbox = photoUrl(photo)"
               >
-            </div>
-            <div class="gallery-card-body">
-              <div v-if="photo.caption" class="gallery-caption">
-                {{ photo.caption }}
+                <img
+                  class="gallery-img"
+                  :src="photoUrl(photo)"
+                  :alt="photo.caption || aquarium.name"
+                  loading="lazy"
+                /><span v-if="photo.is_primary" class="gallery-primary-badge"
+                  >★ Titelbild</span
+                >
               </div>
-              <div v-if="!readonly" class="gallery-actions">
-                <button
-                  v-if="!photo.is_primary"
-                  class="btn small ghost"
-                  @click="mutate(`/images/${photo.id}/primary`, 'PUT')"
-                >
-                  {{ t("detail.setCover") }}</button
-                ><button class="btn small ghost" @click="editCaption(photo)">
-                  {{ t("common.edit") }}</button
-                ><button
-                  class="btn small ghost danger"
-                  @click="remove(`/images/${photo.id}`)"
-                >
-                  {{ t("common.delete") }}
-                </button>
+              <div class="gallery-card-body">
+                <div v-if="photo.caption" class="gallery-caption">
+                  {{ photo.caption }}
+                </div>
+                <div v-if="!readonly" class="gallery-actions">
+                  <button
+                    v-if="!photo.is_primary"
+                    class="btn small ghost"
+                    @click="mutate(`/images/${photo.id}/primary`, 'PUT')"
+                  >
+                    {{ t("detail.setCover") }}</button
+                  ><button class="btn small ghost" @click="editCaption(photo)">
+                    {{ t("common.edit") }}</button
+                  ><button
+                    class="btn small ghost danger"
+                    @click="remove(`/images/${photo.id}`)"
+                  >
+                    {{ t("common.delete") }}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div v-else style="text-align: center; padding: 1.5rem 0">
-          <p class="muted">Noch keine Fotos in der Galerie vorhanden.</p>
-          <button
-            v-if="!readonly"
-            class="btn small ghost"
-            @click="
-              editingPhoto = undefined;
-              caption = '';
-              modal = 'photo';
-            "
-          >
-            Erstes Foto hochladen
-          </button>
-        </div>
-      </section>
+          <div v-else style="text-align: center; padding: 1.5rem 0">
+            <p class="muted">Noch keine Fotos in der Galerie vorhanden.</p>
+            <button
+              v-if="!readonly"
+              class="btn small ghost"
+              @click="
+                editingPhoto = undefined;
+                caption = '';
+                modal = 'photo';
+              "
+            >
+              Erstes Foto hochladen
+            </button>
+          </div>
+        </section>
+      </LazySection>
       <section
         v-if="detail.alerts.length || detail.conflicts.length"
         class="stack"
@@ -462,195 +475,205 @@ async function leave() {
           >
         </div>
       </section>
-      <section v-if="Object.keys(detail.latest).length" class="stack">
-        <div class="row between">
-          <h2 style="margin: 0">Verlauf</h2>
-          <div class="range-tabs" role="group" aria-label="Zeitraum">
-            <button
-              v-for="value in [
-                '7',
-                '14',
-                '30',
-                '90',
-                '180',
-                '365',
-                'all',
-                'custom',
-              ]"
-              :key="value"
-              type="button"
-              :aria-pressed="range === value"
-              @click="range = value"
-            >
-              {{
-                t(
-                  "common.range" +
-                    (value === "all"
-                      ? "All"
-                      : value === "custom"
-                        ? "Custom"
-                        : value),
-                )
-              }}
+      <LazySection v-if="Object.keys(detail.latest).length" data-lazy="history" :label="t('detail.historyTitle')" :loaded="history.loaded.value" :loading="history.loading.value" :error="history.error.value" @activate="history.load()">
+        <section class="stack">
+          <div class="row between">
+            <h2 style="margin: 0">Verlauf</h2>
+            <div class="range-tabs" role="group" aria-label="Zeitraum">
+              <button
+                v-for="value in [
+                  '7',
+                  '14',
+                  '30',
+                  '90',
+                  '180',
+                  '365',
+                  'all',
+                  'custom',
+                ]"
+                :key="value"
+                type="button"
+                :aria-pressed="range === value"
+                @click="range = value"
+              >
+                {{
+                  t(
+                    "common.range" +
+                      (value === "all"
+                        ? "All"
+                        : value === "custom"
+                          ? "Custom"
+                          : value),
+                  )
+                }}
+              </button>
+            </div>
+          </div>
+          <div v-if="range === 'custom'" class="custom-range-bar">
+            <label>Von<input v-model="from" type="date" /></label
+            ><label>Bis<input v-model="to" type="date" /></label>
+          </div>
+          <div v-if="chartParameters.length" class="charts">
+            <WaterChart
+              v-for="parameter in chartParameters"
+              :key="parameter.key"
+              :parameter="parameter"
+              :measurements="measurements"
+              :range="detail.thresholds[parameter.key]"
+            />
+          </div>
+          <p v-else class="muted">In diesem Zeitraum gibt es keine Messungen.</p>
+          <p v-if="chartParameters.length" class="muted">
+            Grüner Bereich = Zielbereich, rot gestrichelt = kritische Grenze.
+          </p>
+        </section>
+      </LazySection>
+      <LazySection data-lazy="residents" :label="t('detail.residentsTitle')" :loaded="residents.loaded.value" :loading="residents.loading.value" :error="residents.error.value" @activate="residents.load()">
+        <StockSection
+          :id="id"
+          :stock="stock"
+          :readonly="readonly"
+          @changed="load"
+          @image="(url) => (lightbox = url)"
+        />
+      </LazySection>
+      <LazySection data-lazy="pumpsResource" :label="t('detail.pumpsTitle')" :loaded="pumpsResource.loaded.value" :loading="pumpsResource.loading.value" :error="pumpsResource.error.value" @activate="pumpsResource.load()">
+        <PumpSection
+          :id="id"
+          :pumps="pumps"
+          :readonly="readonly"
+          @changed="load"
+        />
+      </LazySection>
+      <LazySection data-lazy="timeline" :label="t('timeline.title')" :loaded="timeline.loaded.value" :loading="timeline.loading.value" :error="timeline.error.value" @activate="timeline.load()">
+        <section class="card stack">
+          <div class="row between">
+            <h2 style="margin: 0">📖 {{ t("timeline.title") }}</h2>
+            <button v-if="!readonly" class="btn small ghost" @click="openLog()">
+              {{ t("timeline.newEntryBtn") }}
             </button>
           </div>
-        </div>
-        <div v-if="range === 'custom'" class="custom-range-bar">
-          <label>Von<input v-model="from" type="date" /></label
-          ><label>Bis<input v-model="to" type="date" /></label>
-        </div>
-        <div v-if="chartParameters.length" class="charts">
-          <WaterChart
-            v-for="parameter in chartParameters"
-            :key="parameter.key"
-            :parameter="parameter"
-            :measurements="measurements"
-            :range="detail.thresholds[parameter.key]"
-          />
-        </div>
-        <p v-else class="muted">In diesem Zeitraum gibt es keine Messungen.</p>
-        <p v-if="chartParameters.length" class="muted">
-          Grüner Bereich = Zielbereich, rot gestrichelt = kritische Grenze.
-        </p>
-      </section>
-      <StockSection
-        :id="id"
-        :stock="detail.stock"
-        :readonly="readonly"
-        @changed="load"
-        @image="(url) => (lightbox = url)"
-      />
-      <PumpSection
-        :id="id"
-        :pumps="detail.dosing_pumps"
-        :readonly="readonly"
-        @changed="load"
-      />
-      <section class="card stack">
-        <div class="row between">
-          <h2 style="margin: 0">📖 {{ t("timeline.title") }}</h2>
-          <button v-if="!readonly" class="btn small ghost" @click="openLog()">
-            {{ t("timeline.newEntryBtn") }}
-          </button>
-        </div>
-        <div class="row">
-          <select v-model="filter" aria-label="Aktivitäten filtern">
-            <option value="all">{{ t("timeline.filterAll") }}</option>
-            <option value="measurement">
-              {{ t("timeline.filterMeasurements") }}
-            </option>
-            <option
-              v-for="(type, key) in session.config?.maintenanceTypes"
-              :key="key"
-              :value="key"
-            >
-              {{ type.icon }} {{ type.label }}
-            </option>
-          </select>
-        </div>
-        <div class="timeline">
-          <article
-            v-for="entry in logs"
-            :key="`${entry.kind}-${entry.id}`"
-            class="log-item"
-            :class="`t-${entry.type}`"
-          >
-            <div class="log-item-icon">{{ entry.icon }}</div>
-            <div class="stack">
-              <div class="row between">
-                <strong>{{
-                  entry.typeName ||
-                  session.config?.maintenanceTypes[entry.type || ""]?.label ||
-                  "Wassermessung"
-                }}</strong
-                ><span class="muted">{{ fmtDate(entry.timestamp) }}</span>
-              </div>
-              <div v-if="entry.percentage">💧 {{ entry.percentage }} %</div>
-              <p v-if="entry.details">{{ entry.details }}</p>
-              <p v-if="entry.note" class="muted">{{ entry.note }}</p>
-              <div v-if="entry.values" class="row">
-                <span
-                  v-for="(value, key) in entry.values"
-                  :key="key"
-                  class="chip none"
-                  >{{ key }}: {{ fmtNum(value) }}</span
-                >
-              </div>
-              <div v-if="!readonly" class="row">
-                <button
-                  v-if="entry.kind === 'maintenance'"
-                  class="btn small ghost"
-                  @click="openLog(entry)"
-                >
-                  {{ t("common.edit") }}</button
-                ><button
-                  class="btn small ghost danger"
-                  @click="
-                    remove(
-                      `/${entry.kind === 'measurement' ? 'measurements' : 'maintenance'}/${entry.id}`,
-                    )
-                  "
-                >
-                  {{ t("common.delete") }}
-                </button>
-              </div>
-            </div>
-          </article>
-        </div>
-        <button
-          v-if="more"
-          class="btn ghost"
-          :disabled="logBusy"
-          @click="loadLogs()"
-        >
-          {{ t("timeline.loadMore") }}
-        </button>
-        <p v-if="!logs.length" class="muted">
-          {{ t("detail.noMaintenanceYet") }}
-        </p>
-      </section>
-      <section class="card stack">
-        <h2>Messwerte-Tabelle</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>{{ t("common.date") }}</th>
-                <th v-for="parameter in chartParameters" :key="parameter.key">
-                  {{ parameter.name }} ({{ parameter.unit }})
-                </th>
-                <th>{{ t("common.notes") }}</th>
-                <th v-if="!readonly">{{ t("common.actions") }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="measurement in [...measurements].reverse()"
-                :key="measurement.id"
+          <div class="row">
+            <select v-model="filter" aria-label="Aktivitäten filtern">
+              <option value="all">{{ t("timeline.filterAll") }}</option>
+              <option value="measurement">
+                {{ t("timeline.filterMeasurements") }}
+              </option>
+              <option
+                v-for="(type, key) in session.config?.maintenanceTypes"
+                :key="key"
+                :value="key"
               >
-                <td>{{ fmtDate(measurement.measured_at) }}</td>
-                <td v-for="parameter in chartParameters" :key="parameter.key">
-                  {{
-                    fmtNum(
-                      measurement.values[parameter.key],
-                      parameter.decimals,
-                    )
-                  }}
-                </td>
-                <td>{{ measurement.note }}</td>
-                <td v-if="!readonly">
+                {{ type.icon }} {{ type.label }}
+              </option>
+            </select>
+          </div>
+          <div class="timeline">
+            <article
+              v-for="entry in logs"
+              :key="`${entry.kind}-${entry.id}`"
+              class="log-item"
+              :class="`t-${entry.type}`"
+            >
+              <div class="log-item-icon">{{ entry.icon }}</div>
+              <div class="stack">
+                <div class="row between">
+                  <strong>{{
+                    entry.typeName ||
+                    session.config?.maintenanceTypes[entry.type || ""]?.label ||
+                    "Wassermessung"
+                  }}</strong
+                  ><span class="muted">{{ fmtDate(entry.timestamp) }}</span>
+                </div>
+                <div v-if="entry.percentage">💧 {{ entry.percentage }} %</div>
+                <p v-if="entry.details">{{ entry.details }}</p>
+                <p v-if="entry.note" class="muted">{{ entry.note }}</p>
+                <div v-if="entry.values" class="row">
+                  <span
+                    v-for="(value, key) in entry.values"
+                    :key="key"
+                    class="chip none"
+                    >{{ key }}: {{ fmtNum(value) }}</span
+                  >
+                </div>
+                <div v-if="!readonly" class="row">
                   <button
+                    v-if="entry.kind === 'maintenance'"
+                    class="btn small ghost"
+                    @click="openLog(entry)"
+                  >
+                    {{ t("common.edit") }}</button
+                  ><button
                     class="btn small ghost danger"
-                    @click="remove(`/measurements/${measurement.id}`)"
+                    @click="
+                      remove(
+                        `/${entry.kind === 'measurement' ? 'measurements' : 'maintenance'}/${entry.id}`,
+                      )
+                    "
                   >
                     {{ t("common.delete") }}
                   </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+                </div>
+              </div>
+            </article>
+          </div>
+          <button
+            v-if="more"
+            class="btn ghost"
+            :disabled="logBusy"
+            @click="loadLogs()"
+          >
+            {{ t("timeline.loadMore") }}
+          </button>
+          <p v-if="!logs.length" class="muted">
+            {{ t("detail.noMaintenanceYet") }}
+          </p>
+        </section>
+      </LazySection>
+      <LazySection data-lazy="history" :label="t('detail.measurementsTitle')" :loaded="history.loaded.value" :loading="history.loading.value" :error="history.error.value" @activate="history.load()">
+        <section class="card stack">
+          <h2>Messwerte-Tabelle</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>{{ t("common.date") }}</th>
+                  <th v-for="parameter in chartParameters" :key="parameter.key">
+                    {{ parameter.name }} ({{ parameter.unit }})
+                  </th>
+                  <th>{{ t("common.notes") }}</th>
+                  <th v-if="!readonly">{{ t("common.actions") }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="measurement in [...measurements].reverse()"
+                  :key="measurement.id"
+                >
+                  <td>{{ fmtDate(measurement.measured_at) }}</td>
+                  <td v-for="parameter in chartParameters" :key="parameter.key">
+                    {{
+                      fmtNum(
+                        measurement.values[parameter.key],
+                        parameter.decimals,
+                      )
+                    }}
+                  </td>
+                  <td>{{ measurement.note }}</td>
+                  <td v-if="!readonly">
+                    <button
+                      class="btn small ghost danger"
+                      @click="remove(`/measurements/${measurement.id}`)"
+                    >
+                      {{ t("common.delete") }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </LazySection>
       <button
         v-if="hasAI"
         class="chat-fab"

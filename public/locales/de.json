@@ -169,6 +169,15 @@
     "deleteConfirm": "Möchtest du das Aquarium „{name}“ wirklich löschen? Alle Messwerte, Fotos und Einträge gehen unwiderruflich verloren."
   },
   "detail": {
+    "noSpeciesDetails": "Keine Artendetails im Katalog verfügbar.",
+    "lazyRetry": "Erneut laden",
+    "lazyWaiting": "Wird beim Scrollen geladen.",
+    "residentDetails": "Artendetails",
+    "residentsTitle": "Besatz & Tierwohl",
+    "pumpsTitle": "Dosierpumpen",
+    "historyTitle": "Verlauf",
+    "measurementsTitle": "Messwerte-Tabelle",
+
     "tabOverview": "Übersicht & Werte",
     "tabMeasurements": "Messwerte erfassen",
     "tabHistory": "Verlauf & Graphen",

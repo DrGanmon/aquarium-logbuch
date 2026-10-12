@@ -184,6 +184,7 @@ export interface Aquarium {
   fertilize_reminder_mail?: number | boolean;
 }
 export interface Stock {
+  speciesId?: string | null;
   id: Id;
   species: string;
   name?: string;

@@ -319,6 +319,14 @@ Approximate manufacturer capacities per kit/refill, researched on 2026-10-12:
 
 Capacity remains adjustable for different pack sizes and individual drop consumption. Select the pH/magnesium variant and direct or calculated CO₂ in your profile. At **75% usage**, one email per refill is queued with the test name and estimated remaining capacity, provided reminders are enabled, the email address is verified and SMTP is configured. Thresholds round up to whole tests: test 38 for a capacity of 50, or test 19 for 25. Once SMTP is configured, the reminder scheduler also checks pending reminders every 30 minutes. Templates: `test-refill-reminder.tpl` and `test-refill-reminder.en.tpl`; overrides belong in `data/mail-templates/`. Usage and reminder status are preserved by backup/restore with both SQLite and MongoDB.
 
+## Aquarium details: lazy loading
+
+Aquarium information, care cycles, latest measurements and warnings load immediately. Gallery, history, residents, dosing pumps and timeline load when their section approaches the viewport. Charts and the measurements table share one request. Loaded sections remain available and refresh after changes.
+
+Failed sections can be retried. Superseded requests and requests for a page being left are cancelled. The timeline continues to load 25 entries at a time. Known residents offer a **Species details** button that opens the catalog details, image and credits in a modal, including for read-only users. Custom species without a catalog match show an explanatory note.
+
+The API provides `GET /api/aquariums/:id?summary=true` for the compact overview and `GET /api/aquariums/:id/stock` for residents. The full detail response remains available without the summary parameter, with existing access rules unchanged. Browsers without `IntersectionObserver` load all sections automatically.
+
 ## Species Catalog & Stocking Compatibility
 
 Stocking is powered by modular **JSON species catalogs** in `src/config/species/` (or `data/species/` for custom catalogs):

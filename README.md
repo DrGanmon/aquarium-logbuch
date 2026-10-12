@@ -331,6 +331,16 @@ Hinterlegte Reichweiten sind Hersteller-Richtwerte pro Test-Set bzw. Nachfüllun
 
 Die Reichweite bleibt anpassbar, etwa für eine andere Packungsgröße oder den individuellen Tropfenverbrauch. Im Profil können die pH- und Magnesium-Variante sowie CO₂ Direct oder berechnetes CO₂ ausgewählt werden. Ab **75 % Verbrauch** wird einmal pro Nachfüllung eine E-Mail mit Testname und Restmenge eingereiht, sofern die Erinnerung aktiviert ist, die E-Mail-Adresse verifiziert wurde und SMTP eingerichtet ist. Die Grenze wird auf ganze Tests aufgerundet: bei 50 Tests ab Test 38, bei 25 ab Test 19. Nach dem Einrichten von SMTP prüft der Erinnerungs-Scheduler bisher offene Erinnerungen ebenfalls (alle 30 Minuten). Vorlagen: `test-refill-reminder.tpl` und `test-refill-reminder.en.tpl`; eigene Vorlagen unter `data/mail-templates/`. Verbrauch und Erinnerungsstatus bleiben bei Backup/Restore mit SQLite und MongoDB erhalten.
 
+## Aquarium-Detailansicht: Lazy Loading
+
+Beim Öffnen eines Aquariums werden Stammdaten, Pflegezyklen, aktuelle Messwerte und Warnungen sofort geladen. Galerie, Verlauf, Bewohner, Dosierpumpen und Logbuch werden nachgeladen, sobald ihr Abschnitt beim Scrollen in die Nähe des sichtbaren Bereichs kommt. Verlauf und Messwerttabelle teilen ihre Datenabfrage. Bereits geladene Abschnitte bleiben verfügbar; nach Änderungen werden die Übersicht und die bereits aktivierten Bereiche aktualisiert.
+
+- Fehlgeschlagene Abschnitte lassen sich einzeln erneut laden. Überholte Anfragen, etwa nach einem Zeitraumwechsel, und Anfragen beim Verlassen der Ansicht werden abgebrochen.
+- Das Logbuch lädt weiterhin jeweils 25 Einträge über „Weitere laden“ nach.
+- Bei bekannten Bewohnerarten öffnet **Artendetails** die Katalogansicht mit Bild, Wasseranforderungen, Haltung und Bildnachweis direkt als Modal. Die Schaltfläche ist auch mit reinem Lesezugriff verfügbar. Freie Arten ohne Katalogtreffer erhalten einen entsprechenden Hinweis.
+- Die API unterstützt eine kompakte Übersicht über `GET /api/aquariums/:id?summary=true` und das getrennte Nachladen über `GET /api/aquariums/:id/stock`. Ohne `summary=true` bleibt die bisherige vollständige Detailantwort erhalten. Die bisherigen Zugriffsrechte gelten auch für die neuen Abfragen.
+- Browser ohne `IntersectionObserver` laden die Bereiche automatisch ohne Scroll-Erkennung.
+
 ## Artenkatalog und Besatz-Kompatibilitätsprüfung
 
 Der Besatz wird über modulare **JSON-Artenkataloge** unter `src/config/species/` (bzw. für eigene Erweiterungen unter `data/species/`) gesteuert:

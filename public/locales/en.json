@@ -169,6 +169,15 @@
     "deleteConfirm": "Do you really want to delete the aquarium “{name}”? All measurements, photos, and log entries will be permanently lost."
   },
   "detail": {
+    "noSpeciesDetails": "No species details available in the catalog.",
+    "lazyRetry": "Retry",
+    "lazyWaiting": "Loads as you scroll.",
+    "residentDetails": "Species details",
+    "residentsTitle": "Residents & welfare",
+    "pumpsTitle": "Dosing pumps",
+    "historyTitle": "History",
+    "measurementsTitle": "Measurements table",
+
     "tabOverview": "Overview & Values",
     "tabMeasurements": "Record Measurements",
     "tabHistory": "History & Graphs",

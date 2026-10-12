@@ -34,6 +34,27 @@ function cleanRecentCreates() {
   }
 }
 
+function enrichStock(stockRows, lang) {
+  return stockRows.map((s) => {
+    const sp = cfg.speciesService.getSpeciesById(s.species, lang) || cfg.speciesService.findSpeciesByName(s.species, lang);
+    return {
+      ...s,
+      speciesId: sp?.id || null,
+      scientificName: sp?.scientificName || null,
+      category: sp?.category || null,
+      category_de: sp?.category_de || null,
+      category_en: sp?.category_en || null,
+      minVolumeL: sp?.minVolumeL || null,
+      socialType: sp?.socialType || null,
+      minGroupCount: sp?.minGroupCount || 1,
+      territorial: sp?.territorial || null,
+      tags: sp?.tags || [],
+      decorHints: sp?.decorHints || null,
+      behaviorNotes: sp?.behaviorNotes || null,
+    };
+  });
+}
+
 router.get(
   '/',
   auth,
@@ -88,29 +109,14 @@ router.get(
     const aq = req.aq;
     const lang = req.query.lang || req.headers['x-language'] || req.user?.language || 'de';
     const stockRows = await db.stock.listForAquarium(aq.id);
-    const stock = stockRows.map((s) => {
-      const sp = cfg.speciesService.getSpeciesById(s.species, lang) || cfg.speciesService.findSpeciesByName(s.species, lang);
-      return {
-        ...s,
-        scientificName: sp?.scientificName || null,
-        category: sp?.category || null,
-        category_de: sp?.category_de || null,
-        category_en: sp?.category_en || null,
-        minVolumeL: sp?.minVolumeL || null,
-        socialType: sp?.socialType || null,
-        minGroupCount: sp?.minGroupCount || 1,
-        territorial: sp?.territorial || null,
-        tags: sp?.tags || [],
-        decorHints: sp?.decorHints || null,
-        behaviorNotes: sp?.behaviorNotes || null,
-      };
-    });
+    const compact = req.query.summary === 'true';
+    const stock = compact ? [] : enrichStock(stockRows, lang);
     const { profiles, thresholds, conflicts, compatibility } = await thresholdsOfAquarium(aq, db, stockRows);
     const alerts = await db.alerts.listOpenForAquarium(aq.id);
     const latest = await db.measurements.getLatestValues(aq.id, thresholds);
     const stockCompatibility = compatibility || cfg.speciesService.analyzeStockCompatibility(aq, stockRows, lang);
     const summary = await db.aquariums.getSummary(aq, req.accessRole);
-    const dosingPumps = await db.dosingPumps.listForAquarium(aq.id);
+    const dosingPumps = compact ? [] : await db.dosingPumps.listForAquarium(aq.id);
 
     res.json({
       aquarium: summary,
@@ -451,6 +457,11 @@ router.delete(
 );
 
 // ---------- Besatz & Bewohner ----------
+router.get('/:id/stock', auth, ownAquarium, wrap(async (req, res) => {
+  const lang = req.query.lang || req.headers['x-language'] || req.user?.language || 'de';
+  res.json(enrichStock(await db.stock.listForAquarium(req.aq.id), lang));
+}));
+
 router.post(
   '/:id/stock',
   auth,

@@ -1406,3 +1406,7 @@ dialog.wide { max-width: 640px; }
   .species-water-row > strong { grid-column: 1 / -1; }
   .species-facts > div { padding: .65rem; }
 }
+
+.lazy-section { min-width: 0; }
+.lazy-placeholder { min-height: 160px; justify-content: center; }
+.lazy-placeholder h2, .lazy-placeholder p { margin: 0; }
