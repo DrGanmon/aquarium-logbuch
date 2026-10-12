@@ -2,10 +2,11 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const { createTestEnvironment } = require('./helpers/env');
+const { createTestEnvironment, createMongoTestEnvironment } = require('./helpers/env');
 
-test('Dosierpumpen & Lazy Loading im Logbuch', async (t) => {
-  const env = createTestEnvironment();
+for (const type of ['sqlite', 'mongodb']) {
+test(`Dosierpumpen & Lazy Loading im Logbuch (${type})`, async (t) => {
+  const env = type === 'mongodb' ? await createMongoTestEnvironment() : createTestEnvironment();
   t.after(async () => await env.cleanup());
 
   const user = await env.createUserAndLogin('dosinguser', 'password123');
@@ -89,6 +90,22 @@ test('Dosierpumpen & Lazy Loading im Logbuch', async (t) => {
   assert.strictEqual(updateRes.status, 200);
   assert.strictEqual(updateRes.data.amount_ml, 3.0);
   assert.strictEqual(updateRes.data.name, 'Kanal 1 (Mikro)');
+
+  const pumpBody = { name: 'Kanal 1', fertilizer_name: 'Eisen', amount_ml: 2.5, interval_days: 1, time_of_day: '08:00', is_active: false };
+  const paused = await env.request(`/api/aquariums/${aqId}/dosing-pumps/${pump1Id}`, {
+    method: 'PUT', headers: { Cookie: user.cookie }, body: pumpBody,
+  });
+  assert.strictEqual(paused.data.is_active, 0);
+  const resumed = await env.request(`/api/aquariums/${aqId}/dosing-pumps/${pump1Id}`, {
+    method: 'PUT', headers: { Cookie: user.cookie }, body: { ...pumpBody, fertilizer_name: 'Eisen-Volldünger', amount_ml: 3, is_active: true },
+  });
+  assert.strictEqual(resumed.data.is_active, 1);
+  for (const invalid of [{ amount_ml: 0.001 }, { interval_days: 1.5 }, { time_of_day: '25:99' }]) {
+    const result = await env.request(`/api/aquariums/${aqId}/dosing-pumps/${pump1Id}`, {
+      method: 'PUT', headers: { Cookie: user.cookie }, body: { ...pumpBody, ...invalid },
+    });
+    assert.strictEqual(result.status, 400);
+  }
 
   // 7. Dosierung auslösen (Jetzt dosieren)
   const doseRes = await env.request(`/api/aquariums/${aqId}/dosing-pumps/${pump1Id}/dose`, {
@@ -179,3 +196,5 @@ test('Dosierpumpen & Lazy Loading im Logbuch', async (t) => {
   assert.strictEqual(listAfterDel.status, 200);
   assert.strictEqual(listAfterDel.data.length, 1);
 });
+
+}

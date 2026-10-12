@@ -178,7 +178,6 @@
     "pumpsTitle": "Dosing pumps",
     "historyTitle": "History",
     "measurementsTitle": "Measurements table",
-
     "tabOverview": "Overview & Values",
     "tabMeasurements": "Record Measurements",
     "tabHistory": "History & Graphs",
@@ -702,5 +701,34 @@
     "page": "Page {page} of {pages}",
     "noAquariums": "No matching aquarium with write access is available. Create an aquarium with the matching water type first.",
     "saved": "Added {count} × {species} to the aquarium."
+  },
+  "pumps": {
+    "title": "Dosing pumps & fertilization",
+    "add": "Add dosing pump",
+    "edit": "Edit dosing pump",
+    "help": "Manage dosing schedules and record completed doses in the logbook.",
+    "empty": "No dosing pumps configured yet. Start by adding a pump or channel.",
+    "active": "Active",
+    "paused": "Paused",
+    "daily": "Daily",
+    "everyDays": "Every {days} days",
+    "last": "Last recorded",
+    "never": "No dose recorded yet",
+    "record": "Record dose",
+    "name": "Pump / channel",
+    "nameExample": "e.g. Channel 1",
+    "liquid": "Fertilizer / liquid",
+    "amount": "Amount per dose (ml)",
+    "interval": "Interval (days)",
+    "intervalHelp": "1 = daily, 2 = every other day.",
+    "time": "Scheduled time (optional)",
+    "activePlan": "Dosing schedule active",
+    "saved": "Dosing pump saved.",
+    "deleted": "Dosing pump deleted.",
+    "recorded": "Dose recorded in the logbook.",
+    "deleteTitle": "Delete dosing pump",
+    "deleteConfirm": "Delete “{name}”? Existing logbook entries will be retained.",
+    "recordConfirm": "Record {amount} ml {liquid} for “{name}” as a completed dose now?",
+    "recordHelp": "This records the dose at the current time. The app does not control a pump."
   }
 }

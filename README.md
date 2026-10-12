@@ -349,6 +349,8 @@ Die Reichweite bleibt anpassbar, etwa für eine andere Packungsgröße oder den 
 
 Beim Öffnen eines Aquariums werden Stammdaten, Pflegezyklen, aktuelle Messwerte und Warnungen sofort geladen. Galerie, Verlauf, Bewohner, Dosierpumpen und Logbuch werden nachgeladen, sobald ihr Abschnitt beim Scrollen in die Nähe des sichtbaren Bereichs kommt. Verlauf und Messwerttabelle teilen ihre Datenabfrage. Bereits geladene Abschnitte bleiben verfügbar; nach Änderungen werden die Übersicht und die bereits aktivierten Bereiche aktualisiert.
 
+Dosierpumpen werden pro Pumpe oder Kanal mit Flüssigkeit, Menge pro Dosierung, Tagesintervall und optionaler Uhrzeit eingerichtet. Der Plan kann aktiv oder pausiert sein. „Dosierung eintragen“ bestätigt eine bereits erfolgte Dosierung und speichert sie zum aktuellen Zeitpunkt im Logbuch; die App steuert keine Hardware. Beim Löschen einer Pumpe bleiben vorhandene Logbucheinträge erhalten.
+
 - Fehlgeschlagene Abschnitte lassen sich einzeln erneut laden. Überholte Anfragen, etwa nach einem Zeitraumwechsel, und Anfragen beim Verlassen der Ansicht werden abgebrochen.
 - Das Logbuch lädt weiterhin jeweils 25 Einträge über „Weitere laden“ nach.
 - Bei bekannten Bewohnerarten öffnet **Artendetails** die Katalogansicht mit Bild, Wasseranforderungen, Haltung und Bildnachweis direkt als Modal. Die Schaltfläche ist auch mit reinem Lesezugriff verfügbar. Freie Arten ohne Katalogtreffer erhalten einen entsprechenden Hinweis.

@@ -17,6 +17,7 @@ function validateDosingPumpInput(body) {
     return { error: 'Bitte eine gültige Dosiermenge in Millilitern angeben (z. B. 2.5 ml).' };
   }
   amountMl = Math.round(amountMl * 100) / 100;
+  if (amountMl < 0.01) return { error: 'Die kleinste Dosiermenge beträgt 0.01 ml.' };
 
   let intervalDays = Number(body.interval_days != null ? body.interval_days : 1);
   if (!Number.isInteger(intervalDays) || intervalDays < 1 || intervalDays > 365) {
@@ -25,10 +26,10 @@ function validateDosingPumpInput(body) {
 
   let timeOfDay = str(body.time_of_day, 10);
   if (timeOfDay && !/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(timeOfDay)) {
-    timeOfDay = null;
+    return { error: 'Bitte eine gültige Uhrzeit angeben (HH:MM).' };
   }
 
-  const isActive = body.is_active === false || body.is_active === 0 || body.is_active === '0' ? 0 : 1;
+  const isActive = [false, 0, '0', 'false'].includes(body.is_active) ? 0 : 1;
   const note = str(body.note, 500);
 
   return {

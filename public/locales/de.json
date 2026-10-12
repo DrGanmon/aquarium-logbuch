@@ -178,7 +178,6 @@
     "pumpsTitle": "Dosierpumpen",
     "historyTitle": "Verlauf",
     "measurementsTitle": "Messwerte-Tabelle",
-
     "tabOverview": "Übersicht & Werte",
     "tabMeasurements": "Messwerte erfassen",
     "tabHistory": "Verlauf & Graphen",
@@ -702,5 +701,34 @@
     "page": "Seite {page} von {pages}",
     "noAquariums": "Kein passendes Aquarium mit Schreibzugriff vorhanden. Lege zuerst ein Aquarium mit der passenden Wasserart an.",
     "saved": "{count} × {species} zum Aquarium hinzugefügt."
+  },
+  "pumps": {
+    "title": "Dosierpumpen & Düngung",
+    "add": "Dosierpumpe hinzufügen",
+    "edit": "Dosierpumpe bearbeiten",
+    "help": "Verwalte deine Dosierpläne und trage erfolgte Dosierungen ins Logbuch ein.",
+    "empty": "Noch keine Dosierpumpen eingerichtet. Lege zuerst eine Pumpe oder einen Kanal an.",
+    "active": "Aktiv",
+    "paused": "Pausiert",
+    "daily": "Täglich",
+    "everyDays": "Alle {days} Tage",
+    "last": "Zuletzt eingetragen",
+    "never": "Noch keine Dosierung eingetragen",
+    "record": "Dosierung eintragen",
+    "name": "Pumpe / Kanal",
+    "nameExample": "z. B. Kanal 1",
+    "liquid": "Dünger / Flüssigkeit",
+    "amount": "Menge pro Dosierung (ml)",
+    "interval": "Intervall (Tage)",
+    "intervalHelp": "1 = täglich, 2 = jeden zweiten Tag.",
+    "time": "Geplante Uhrzeit (optional)",
+    "activePlan": "Dosierplan aktiv",
+    "saved": "Dosierpumpe gespeichert.",
+    "deleted": "Dosierpumpe gelöscht.",
+    "recorded": "Dosierung ins Logbuch eingetragen.",
+    "deleteTitle": "Dosierpumpe löschen",
+    "deleteConfirm": "„{name}“ löschen? Bereits vorhandene Logbucheinträge bleiben erhalten.",
+    "recordConfirm": "Jetzt {amount} ml {liquid} für „{name}“ als erfolgte Dosierung eintragen?",
+    "recordHelp": "Dies protokolliert die Dosierung zum aktuellen Zeitpunkt. Die App steuert keine Pumpe."
   }
 }
