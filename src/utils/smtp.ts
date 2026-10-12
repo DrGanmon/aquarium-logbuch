@@ -76,9 +76,15 @@ function sendSmtpMail(config?: any, mailOptions?: any) {
     const rejectUnauthorized = config.rejectUnauthorized !== false;
     const timeout = Number(config.timeout) || 15000;
 
+    if ([mailOptions.from, config.from, mailOptions.to, host].some(value => /[\r\n]/.test(String(value || '')))) {
+      return reject(new Error('Ungültige Zeilenumbrüche in SMTP-Headern.'));
+    }
     const fromAddress = extractEmail(mailOptions.from || config.from || 'noreply@aquarium.local');
     const toAddress = extractEmail(mailOptions.to);
 
+    if (![fromAddress, toAddress].every(address => /^[^\s<>@]+@[^\s<>@]+$/.test(address))) {
+      return reject(new Error('Ungültige SMTP-Adresse.'));
+    }
     if (!toAddress) {
       return reject(new Error('Kein Empfänger (to) angegeben.'));
     }
@@ -264,6 +270,11 @@ function sendSmtpMail(config?: any, mailOptions?: any) {
     }
 
     function proceedAuth(authLine?: any) {
+      if (requireTls && !secure && !isTlsUpgraded) {
+        cleanup();
+        reject(new Error('SMTP-Server bietet kein erforderliches TLS an.'));
+        return;
+      }
       if (config.user && config.pass) {
         const authStr = authLine ? authLine.toUpperCase() : 'AUTH LOGIN PLAIN';
         if (authStr.includes('PLAIN') && !authStr.includes('LOGIN')) {
@@ -307,6 +318,7 @@ function sendSmtpMail(config?: any, mailOptions?: any) {
       const activeSocket = socket;
       activeSocket.on('data', (chunk: any) => {
         buffer += chunk.toString('utf8');
+        if (buffer.length > 65536) { cleanup(); reject(new Error('SMTP-Antwort ist zu groß.')); return; }
         while (buffer.includes('\r\n')) {
           const idx = buffer.indexOf('\r\n');
           const line = buffer.slice(0, idx);
@@ -320,6 +332,7 @@ function sendSmtpMail(config?: any, mailOptions?: any) {
 
             if (!activeSocket._currentLines) activeSocket._currentLines = [];
             activeSocket._currentLines.push(line);
+            if (activeSocket._currentLines.length > 100) { cleanup(); reject(new Error('Zu viele SMTP-Antwortzeilen.')); return; }
 
             if (!isContinuation) {
               const fullLines = activeSocket._currentLines;
@@ -336,7 +349,7 @@ function sendSmtpMail(config?: any, mailOptions?: any) {
       });
 
       activeSocket.on('close', () => {
-        if (state !== 'QUIT' && state !== 'SENDING_CONTENT') {
+        if (state !== 'QUIT' && state !== 'UPGRADING_TLS') {
           // Unerwartetes Schließen vor Abschluss
           cleanup();
           reject(new Error('SMTP-Verbindung wurde vorzeitig vom Server geschlossen.'));

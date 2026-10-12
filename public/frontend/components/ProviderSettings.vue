@@ -16,31 +16,39 @@ const models = ref<{ id: string; name?: string }[]>([]);
 const error = ref("");
 const message = ref("");
 const busy = ref(false);
+const lifecycle = new AbortController();
+let modelRequest: AbortController | undefined;
 let debounce: ReturnType<typeof setTimeout>;
 watch(key, (value) => {
+  modelRequest?.abort();
   clearTimeout(debounce);
   if (value.length >= 8)
     debounce = setTimeout(() => {
       void fetchModels();
     }, 600);
 });
-onBeforeUnmount(() => clearTimeout(debounce));
+onBeforeUnmount(() => { clearTimeout(debounce); modelRequest?.abort(); lifecycle.abort(); });
 onMounted(() => {
   if (props.masked) void fetchModels();
 });
 async function fetchModels() {
+  modelRequest?.abort();
+  const request = new AbortController();
+  modelRequest = request;
   try {
     const result = await api<{
       models: ({ id: string; name?: string } | string)[];
     }>(`/me/${props.provider}/models`, {
       method: "POST",
       body: { apiKey: key.value || undefined },
+      signal: request.signal,
     });
+    if (request.signal.aborted) return;
     models.value = result.models.map((item) =>
       typeof item === "string" ? { id: item } : item,
     );
   } catch (e) {
-    error.value = errorMessage(e);
+    if (!request.signal.aborted) error.value = errorMessage(e);
   }
 }
 async function action(type: "save" | "test" | "delete") {
@@ -53,6 +61,7 @@ async function action(type: "save" | "test" | "delete") {
     const result = await api<{ user?: User; message?: string }>(
       `/me/${props.provider}${type === "test" ? "/test" : ""}`,
       {
+        signal: lifecycle.signal,
         method: type === "save" ? "PUT" : type === "test" ? "POST" : "DELETE",
         body:
           type === "delete"

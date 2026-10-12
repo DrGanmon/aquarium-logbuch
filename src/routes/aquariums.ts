@@ -2,7 +2,7 @@ import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
 'use strict';
 import express = require('express');
-import { Readable } from 'node:stream';
+import { Readable, pipeline } from 'node:stream';
 import crypto = require('crypto');
 import db = require('../db');
 import cfg = require('../../config');
@@ -35,7 +35,7 @@ const { buildAquariumSystemPrompt, chatWithAquarium } = ai_chat_serviceModule;
 const router = express.Router();
 
 // Schutz gegen parallele Doppel-Submits (z. B. durch Doppelklicks oder Verbindungsverzögerungen)
-const recentAquariumCreates = new Map();
+const recentAquariumCreates = new Map<string, { result: Promise<{ id: number }>; timestamp: number }>();
 
 function cleanRecentCreates() {
   const now = Date.now();
@@ -84,13 +84,13 @@ router.post(
     if (error !== undefined) return res.status(400).json({ error });
 
     cleanRecentCreates();
-    const dedupKey = `${req.user.id}:${(value.name || '').trim().toLowerCase()}:${value.water_type}:${value.volume_l || ''}`;
+    const dedupKey = JSON.stringify([req.user.id, value]);
     const recent = recentAquariumCreates.get(dedupKey);
     if (recent && Date.now() - recent.timestamp < 3000) {
-      return res.json({ id: recent.id });
+      return res.json(await recent.result);
     }
 
-    const info = await db.aquariums.create({
+    const result = db.aquariums.create({
       user_id: req.user.id,
       name: value.name,
       volume_l: value.volume_l,
@@ -108,8 +108,13 @@ router.post(
       fertilize_cycle_day_of_week: value.fertilize_cycle_day_of_week,
       fertilize_reminder_mail: value.fertilize_reminder_mail,
     });
-    recentAquariumCreates.set(dedupKey, { id: info.id, timestamp: Date.now() });
-    res.json({ id: info.id });
+    if (recentAquariumCreates.size >= 1000) recentAquariumCreates.delete(recentAquariumCreates.keys().next().value!);
+    recentAquariumCreates.set(dedupKey, { result, timestamp: Date.now() });
+    try { res.json(await result); }
+    catch (error) {
+      if (recentAquariumCreates.get(dedupKey)?.result === result) recentAquariumCreates.delete(dedupKey);
+      throw error;
+    }
   })
 );
 
@@ -1081,6 +1086,10 @@ router.post(
   ownAquarium,
   wrap(async (req: Request, res: Response) => {
     const { messages, message, provider, stream, saveHistory } = req.body || {};
+    const controller = new AbortController();
+    let streaming = false;
+    const disconnect = () => { if (!res.writableFinished) controller.abort(); };
+    res.once('close', disconnect);
     try {
       const result = await chatWithAquarium({
         aquariumId: req.aq.id,
@@ -1091,14 +1100,19 @@ router.post(
         stream: Boolean(stream),
         customDb: db,
         saveHistory: saveHistory !== false,
+        signal: controller.signal,
       });
 
       if (stream && 'stream' in result && result.stream) {
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
+        streaming = true;
         // Node fetch ReadableStream weiterleiten
-        Readable.fromWeb(result.stream as import("node:stream/web").ReadableStream).pipe(res);
+        pipeline(Readable.fromWeb(result.stream as import("node:stream/web").ReadableStream), res, (error) => {
+          res.removeListener('close', disconnect);
+          if (error && !res.destroyed) res.destroy(error);
+        });
         return;
       }
 
@@ -1110,6 +1124,7 @@ router.post(
         usage: result.usage,
       });
     } catch (caught: unknown) {
+      if (controller.signal.aborted || res.destroyed) return;
       const err = asError(caught);
       const status = err.status || (err.code === 'NO_API_KEY' ? 400 : 500);
       res.status(status).json({
@@ -1118,6 +1133,8 @@ router.post(
         provider: err.provider || null,
         status,
       });
+    } finally {
+      if (!streaming) res.removeListener('close', disconnect);
     }
   })
 );

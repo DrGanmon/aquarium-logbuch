@@ -229,7 +229,8 @@ function isOpenAiReasoningModel(modelName?: any) {
 /**
  * OpenAI / ChatGPT Aufruf
  */
-async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message = null, stream = false }: any) {
+async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message = null, stream = false, signal = undefined }: any) {
+  const requestSignal = signal ? AbortSignal.any([signal, AbortSignal.timeout(60000)]) : AbortSignal.timeout(60000);
   const chatMessages = [{ role: 'system', content: systemPrompt }];
 
   if (Array.isArray(messages) && messages.length > 0) {
@@ -271,7 +272,7 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
       'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(60000),
+    signal: requestSignal,
   });
 
   // Fallback für modell- und proxy-spezifische Parameterinkompatibilitäten (z. B. temperature, max_completion_tokens)
@@ -310,7 +311,7 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
           'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify(retryPayload),
-        signal: AbortSignal.timeout(60000),
+        signal: requestSignal,
       });
 
       // Zweiter Fallback-Schritt bei kombinierten Inkompatibilitäten
@@ -348,7 +349,7 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
               'Authorization': `Bearer ${apiKey}`,
             },
             body: JSON.stringify(retryPayload),
-            signal: AbortSignal.timeout(60000),
+            signal: requestSignal,
           });
         }
       }
@@ -396,7 +397,8 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
 /**
  * Google Gemini Aufruf (Google AI Studio API)
  */
-async function callGemini({ apiKey, model, systemPrompt, messages = [], message = null }: any) {
+async function callGemini({ apiKey, model, systemPrompt, messages = [], message = null, signal = undefined }: any) {
+  const requestSignal = signal ? AbortSignal.any([signal, AbortSignal.timeout(60000)]) : AbortSignal.timeout(60000);
   const chosenModel = model || DEFAULT_GEMINI_MODEL;
   const contents = [];
 
@@ -437,7 +439,7 @@ async function callGemini({ apiKey, model, systemPrompt, messages = [], message 
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(60000),
+    signal: requestSignal,
   });
 
   if (!response.ok) {
@@ -480,7 +482,8 @@ async function callGemini({ apiKey, model, systemPrompt, messages = [], message 
 /**
  * Anthropic Claude Aufruf
  */
-async function callClaude({ apiKey, model, systemPrompt, messages = [], message = null }: any) {
+async function callClaude({ apiKey, model, systemPrompt, messages = [], message = null, signal = undefined }: any) {
+  const requestSignal = signal ? AbortSignal.any([signal, AbortSignal.timeout(60000)]) : AbortSignal.timeout(60000);
   const chosenModel = model || DEFAULT_CLAUDE_MODEL;
   const rawChatMessages = [];
 
@@ -552,7 +555,7 @@ async function callClaude({ apiKey, model, systemPrompt, messages = [], message 
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(60000),
+    signal: requestSignal,
   });
 
   if (!response.ok) {
@@ -643,18 +646,29 @@ function resolveProviderAndConfig(user?: Partial<Pick<UserRecord, 'ai_provider' 
  *   damit der Assistent weiß, was bereits besprochen/empfohlen wurde, ohne das Token-Limit zu sprengen.
  */
 function compressChatHistory(messages: unknown = [], options: CompressionOptions = {}): ChatMessage[] {
-  const maxRecent = options.maxRecent || 10;
-  const maxTotalChars = options.maxTotalChars || 12000;
+  const maxRecent = Math.min(100, Math.max(1, Math.trunc(options.maxRecent || 10)));
+  const maxTotalChars = Math.max(1, Math.trunc(options.maxTotalChars || 12000));
   const maxOldTurnChars = options.maxOldTurnChars || 220;
 
   if (!Array.isArray(messages) || messages.length === 0) return [];
 
   // Bereinigen & filtern
-  const valid: ChatMessage[] = messages.filter(isRecord)
+  const valid: ChatMessage[] = messages.slice(-100).filter(isRecord)
     .filter(message => (message.role === 'user' || message.role === 'assistant') && typeof message.content === 'string' && message.content.trim())
-    .map(message => ({ role: message.role === 'assistant' ? 'assistant' : 'user', content: String(message.content).trim() }));
+    .map(message => ({ role: message.role === 'assistant' ? 'assistant' : 'user', content: String(message.content).trim().slice(0, 8000) }));
 
   if (valid.length === 0) return [];
+  const bounded = (items: ChatMessage[]): ChatMessage[] => {
+    const result: ChatMessage[] = [];
+    let remaining = maxTotalChars;
+    for (let index = items.length - 1; index >= 0 && remaining > 0; index--) {
+      const item = items[index];
+      const content = item.content.slice(0, remaining);
+      result.unshift({ ...item, content });
+      remaining -= content.length;
+    }
+    return result;
+  };
 
   // Wenn Historie klein genug ist, direkt zurückgeben
   const totalLength = valid.reduce((sum: number, m: ChatMessage) => sum + m.content.length, 0);
@@ -668,7 +682,7 @@ function compressChatHistory(messages: unknown = [], options: CompressionOptions
   const recent = valid.slice(valid.length - recentCount);
 
   if (older.length === 0) {
-    return recent;
+    return bounded(recent);
   }
 
   // Ältere Nachrichten komprimieren zu einer kompakten Historien-Zusammenfassung
@@ -690,7 +704,7 @@ function compressChatHistory(messages: unknown = [], options: CompressionOptions
   ].join('\n');
 
   // Als initialen Kontext einbinden
-  return [
+  return bounded([
     { role: 'user', content: compressedSummary },
     {
       role: 'assistant',
@@ -698,7 +712,7 @@ function compressChatHistory(messages: unknown = [], options: CompressionOptions
         'Verstanden. Ich kenne den bisherigen Verlauf und die besprochenen Themen unseres Aquariums und beziehe dieses Vorwissen in meine Antworten ein.',
     },
     ...recent,
-  ];
+  ]);
 }
 
 /**
@@ -714,7 +728,9 @@ async function chatWithAquarium({
   customDb = null,
   saveHistory = true,
   includeHistory = true,
+  signal = undefined,
 }: any) {
+  signal?.throwIfAborted();
   const database = customDb || db;
   const dbUser = user?.id ? await database.users.findById(user.id) : null;
 
@@ -745,14 +761,14 @@ async function chatWithAquarium({
   // Bestimme die aktuelle Benutzereingabe
   let userMessageText = '';
   if (message && typeof message === 'string' && message.trim()) {
-    userMessageText = message.trim();
+    userMessageText = message.trim().slice(0, 8000);
   }
 
   let inputMessages = Array.isArray(messages) ? [...messages] : [];
   if (!userMessageText && inputMessages.length > 0) {
     const last = inputMessages[inputMessages.length - 1];
     if (last && last.role === 'user' && last.content) {
-      userMessageText = String(last.content).trim();
+      userMessageText = String(last.content).trim().slice(0, 8000);
     }
   }
 
@@ -804,13 +820,14 @@ async function chatWithAquarium({
 
   let result;
   if (activeProvider === 'gemini') {
-    result = await callGemini({ apiKey, model, systemPrompt, messages: optimizedMessages });
+    result = await callGemini({ apiKey, model, systemPrompt, messages: optimizedMessages, signal });
   } else if (activeProvider === 'claude') {
-    result = await callClaude({ apiKey, model, systemPrompt, messages: optimizedMessages });
+    result = await callClaude({ apiKey, model, systemPrompt, messages: optimizedMessages, signal });
   } else {
-    result = await callOpenAi({ apiKey, model, systemPrompt, messages: optimizedMessages, stream });
+    result = await callOpenAi({ apiKey, model, systemPrompt, messages: optimizedMessages, stream, signal });
   }
 
+  signal?.throwIfAborted();
   // Wenn die Antwort erfolgreich war und Historie gespeichert werden soll
   if (saveHistory && result && result.reply && database.aquariumChats) {
     try {

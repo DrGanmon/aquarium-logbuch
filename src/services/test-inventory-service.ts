@@ -25,11 +25,11 @@ class TestInventoryService {
     let parsed: unknown;
     try { parsed = typeof raw === 'string' ? JSON.parse(raw) as unknown : raw; } catch { return '{}'; }
     const source = asRecord(parsed);
-    const result: TestInventory = {};
+    const result: TestInventory = Object.create(null);
     for (const suite of this.suites.getSuites()) {
-      const saved = asRecord(source[suite.id]);
+      const saved = asRecord(Object.hasOwn(source, suite.id) ? source[suite.id] : undefined);
       for (const test of suite.tests.filter(isConsumable)) {
-        if (!isRecord(saved[test.key])) continue;
+        if (!Object.hasOwn(saved, test.key) || !isRecord(saved[test.key])) continue;
         const entry = asRecord(saved[test.key]);
         const clean = entryFor(test);
         if (typeof entry.used === 'number' && Number.isSafeInteger(entry.used) && entry.used >= 0) clean.used = entry.used;

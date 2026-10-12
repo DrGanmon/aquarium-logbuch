@@ -76,6 +76,7 @@ function createMockOidcServer(alg = 'RS256') {
             aud: entry.overrideAudience || 'test-client-id',
             sub: entry.sub,
             email: entry.email,
+            email_verified: entry.email_verified !== false,
             preferred_username: entry.username,
             nonce: entry.nonce,
             exp: entry.overrideExp || (Math.floor(Date.now() / 1000) + 3600),
@@ -259,6 +260,21 @@ test('OIDC: Login-Flow, Signaturen, Validierung, Verknüpfung und Unlink', async
     headers: { Cookie: `session=${callbackBob.cookies.session}` },
   });
   assert.strictEqual(meBobAfterUnlink.data.hasOidc, false);
+
+  // Gefälschter Link-Cookie darf ohne Bobs Session kein bestehendes Konto übernehmen.
+  const forgedInit = await env.request('/auth/login');
+  const forgedUrl = new URL(forgedInit.headers.get('location'));
+  oidcMock.setAuthCode('code-forged-link', {
+    sub: 'attacker-sub', email: 'attacker@example.com', username: 'attacker',
+    nonce: forgedUrl.searchParams.get('nonce'),
+  });
+  const forged = await env.request(`/auth/callback?code=code-forged-link&state=${forgedUrl.searchParams.get('state')}`, {
+    headers: { Cookie: `oidc_state=${forgedInit.cookies.oidc_state}; oidc_link_user=${localBob.id}` },
+  });
+  assert.ok(forged.headers.get('location').includes('auth_error'));
+  assert.equal(forged.cookies.session, undefined);
+  const meAfterAttack = await env.request('/api/me', { headers: { Cookie: `session=${callbackBob.cookies.session}` } });
+  assert.equal(meAfterAttack.data.hasOidc, false);
 
   // 6. Selbstverknüpfung via /auth/link
   const linkInit = await env.request('/auth/link', {

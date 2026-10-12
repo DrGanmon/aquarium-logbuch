@@ -42,42 +42,47 @@ async function usernameFromClaims(claims?: any, db?: any) {
 }
 
 async function userForClaims(claims?: any, db?: any) {
-  const sub = String(claims.sub);
+  if (typeof claims?.sub !== 'string' || !claims.sub.trim()) throw new Error('OIDC subject fehlt.');
+  const sub = claims.sub;
+  const verifiedEmail = claims.email_verified === true;
   const email = claims.email ? String(claims.email).trim().toLowerCase() : null;
   const existing = await db.users.findByOidcSub(sub);
   if (existing) {
-    if (email && existing.email !== email) {
-      await db.users.update(existing.id, { email });
+    if (verifiedEmail && email && (existing.email !== email || !existing.email_verified)) {
+      await db.users.update(existing.id, { email, email_verified: 1 });
+      existing.email_verified = 1;
       existing.email = email;
     }
     return existing;
   }
   // Lokales Konto mit gleicher E-Mail-Adresse automatisch zuordnen
-  if (email) {
+  if (verifiedEmail && email) {
     const localByEmail = await db.users.findByEmail(email);
     if (localByEmail && !localByEmail.oidc_sub) {
-      await db.users.update(localByEmail.id, { oidc_sub: sub, email_verified: 1 });
+      const linked = await db.users.update(localByEmail.id, { oidc_sub: sub, email_verified: 1 }, { oidc_sub: null, email: localByEmail.email });
+      if (!linked) return null;
       return { ...localByEmail, oidc_sub: sub, email_verified: 1 };
     }
   }
   // Optional: vorhandenes lokales Konto mit gleichem Benutzernamen übernehmen (Migration)
-  if (OIDC_LINK_BY_USERNAME && claims.preferred_username) {
+  if (OIDC_LINK_BY_USERNAME && verifiedEmail && email && claims.preferred_username) {
     const local = await db.users.findByUsername(String(claims.preferred_username));
-    if (local && !local.oidc_sub) {
-      await db.users.update(local.id, { oidc_sub: sub, email: email || local.email, email_verified: 1 });
+    if (local && !local.oidc_sub && local.email?.toLowerCase() === email) {
+      const linked = await db.users.update(local.id, { oidc_sub: sub, email, email_verified: 1 }, { oidc_sub: null, email: local.email });
+      if (!linked) return null;
       return { ...local, oidc_sub: sub, email: email || local.email, email_verified: 1 };
     }
   }
-  if (!ALLOW_REGISTRATION || registrationService.getConfig().isClosed) return null;
+  if (!ALLOW_REGISTRATION || (registrationService.getConfig().isClosed || registrationService.getConfig().isInviteOnly)) return null;
   const username = await usernameFromClaims(claims, db);
   const user = await db.users.create({
     username,
     password_hash: '',
     oidc_sub: sub,
     email,
-    email_verified: 1,
+    email_verified: verifiedEmail ? 1 : 0,
   });
-  return { id: user.id, username, email };
+  return { ...user, email_verified: verifiedEmail ? 1 : 0 };
 }
 
 export = {

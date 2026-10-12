@@ -11,6 +11,7 @@ export function useLazyResource<T>(initial: T, fetchData: (signal: AbortSignal) 
   let pending: Promise<void> | undefined;
   let disposed = false;
   async function load(force = false): Promise<void> {
+    if (disposed) return;
     active.value = true;
     if (!force && loaded.value && !error.value) return;
     if (!force && pending) return pending;
@@ -29,6 +30,8 @@ export function useLazyResource<T>(initial: T, fetchData: (signal: AbortSignal) 
       } catch (e) {
         if (!disposed && controller === request && !request.signal.aborted) error.value = errorMessage(e);
       } finally {
+        // Defer cleanup so synchronous fetch errors cannot leave a stale pending promise.
+        await Promise.resolve();
         if (controller === request) { loading.value = false; pending = undefined; }
       }
     })();

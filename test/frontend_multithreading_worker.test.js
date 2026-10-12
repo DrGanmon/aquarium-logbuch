@@ -96,3 +96,11 @@ test("TypeScript worker statistics sort timestamps and evaluate the latest measu
   });
   await assert.rejects(tasks.executeTask("UNKNOWN", {}), /Unbekannter/);
 });
+
+test('TypeScript worker computes large histories in one pass without argument overflow', () => {
+  const result = tasks.handleComputeStats({ measurements: Array(150000).fill({ measured_at: '2026-10-12', values: { ph: 7 } }), parameters: [{ key: 'ph' }], thresholds: {} });
+  assert.equal(result.ph.count, 150000);
+  assert.equal(result.ph.min, 7);
+  assert.equal(result.ph.max, 7);
+  assert.equal(result.ph.latest, 7);
+});

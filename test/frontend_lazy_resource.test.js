@@ -53,3 +53,16 @@ test('Beim Verlassen der Ansicht werden laufende Anfragen abgebrochen', async ()
   const pending = state.load();dispose();assert.equal(signal.aborted, true);
   response.resolve(['late']);await pending;assert.deepEqual(state.data.value, []);
 });
+
+test('Synchrone Fetch-Fehler blockieren keinen erneuten Ladeversuch', async () => {
+  let calls = 0;
+  const { state } = resource(() => { if (++calls === 1) throw new Error('synchronous');return Promise.resolve(['retry']); });
+  await state.load();assert.equal(state.error.value, 'synchronous');
+  await state.load();assert.equal(calls, 2);assert.deepEqual(state.data.value, ['retry']);
+});
+
+test('Nach dem Verlassen der Ansicht startet kein weiterer Request', async () => {
+  let calls = 0;
+  const { state, dispose } = resource(async () => { calls++;return []; });
+  dispose();await state.load();assert.equal(calls, 0);
+});

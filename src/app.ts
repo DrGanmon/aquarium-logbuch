@@ -1,3 +1,4 @@
+import { isRecord } from './utils/validation';
 import { asError } from './utils/app-error';
 import type { Request, Response, NextFunction } from 'express';
 import { APP_ROOT } from './utils/paths';
@@ -27,9 +28,14 @@ if (process.env.TRUST_PROXY) {
   app.set('trust proxy', Number(process.env.TRUST_PROXY));
 }
 
-app.use(express.json({ limit: '50mb' }));
 app.use(securityHeaders);
+app.use(express.json({ limit: '50mb' }));
 app.use('/api', csrfProtection);
+app.use('/api', (req, res, next) => {
+  if (req.body !== undefined && !isRecord(req.body)) return res.status(400).json({ error: 'JSON-Objekt erwartet.' });
+  req.body ??= {};
+  next();
+});
 
 // API Routen
 app.use('/api', authRoutes);

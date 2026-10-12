@@ -1,3 +1,4 @@
+import { asRecord } from '../utils/validation';
 import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
 'use strict';
@@ -67,7 +68,7 @@ function serializeMe(u?: any) {
     }
   }
   const regConfig = registrationService.getConfig();
-  const isAdmin = isEmailAdmin(u.email);
+  const isAdmin = Boolean(u.email_verified) && isEmailAdmin(u.email);
 
   const rawOpenaiKey = (u.openai_api_key || '').trim();
   const rawGeminiKey = (u.gemini_api_key || '').trim();
@@ -145,6 +146,9 @@ router.post(
       return res.status(403).json({ error: 'Lokale Registrierung ist deaktiviert.' });
     }
 
+    const registerKey = `register|${req.ip}`;
+    if (tooManyAttempts(registerKey, 30)) return res.status(429).json({ error: 'Zu viele Registrierungsversuche. Bitte später erneut versuchen.' });
+    noteAttempt(registerKey, 30);
     const username = str(req.body.username, 40);
     const email = req.body.email ? str(req.body.email, 120).toLowerCase() : null;
     const password = typeof req.body.password === 'string' ? req.body.password : '';
@@ -199,9 +203,10 @@ router.post(
       }
     }
 
-    const isAdmin = isEmailAdmin(email);
-    const isMailInviteVerified = invitation && invitation.type === 'mail' && invitation.email && invitation.email.toLowerCase() === email.toLowerCase();
-    let emailVerified = (isAdmin || isMailInviteVerified) ? 1 : 0;
+    const inviter = invitation?.created_by ? await db.users.findById(invitation.created_by) : null;
+    const trustedInvite = inviter && inviter.email_verified && isEmailAdmin(inviter.email);
+    const isMailInviteVerified = trustedInvite && invitation && invitation.type === 'mail' && invitation.email && invitation.email.toLowerCase() === email.toLowerCase();
+    const emailVerified = isMailInviteVerified ? 1 : 0;
     let verifyToken = null;
     let verifyExpires = null;
 
@@ -212,21 +217,29 @@ router.post(
 
     const language = (req.body.language === 'en' || String(req.headers['x-language']).toLowerCase() === 'en' || (req.headers['accept-language'] && req.headers['accept-language'].startsWith('en'))) ? 'en' : 'de';
 
-    const user = await db.users.create({
+    const passwordHash = await hashPassword(password);
+    if (invitation && !(await db.invitations.use(invitation.id))) {
+      return res.status(400).json({ error: 'Dieser Einladungscode wurde bereits eingelöst oder ist abgelaufen.' });
+    }
+    let user;
+    try { user = await db.users.create({
       username,
-      password_hash: await hashPassword(password),
+      password_hash: passwordHash,
       email,
       email_verified: emailVerified,
       email_verify_token: verifyToken,
       email_verify_expires: verifyExpires,
       language,
-    });
-
-    if (invitation) {
-      await db.invitations.use(invitation.id);
+    }); } catch (error) {
+      if (invitation) await db.invitations.releaseUse(invitation.id);
+      const code = asRecord(error).code;
+      if (code === 11000 || code === 'SQLITE_CONSTRAINT_UNIQUE') {
+        return res.status(409).json({ error: 'Benutzername oder E-Mail-Adresse bereits vergeben.' });
+      }
+      throw error;
     }
 
-    if (isAdmin || emailVerified) {
+    if (emailVerified) {
       await startSession(res, db, user.id);
       return res.json({ id: user.id, username, email, needsVerification: false });
     }
@@ -250,23 +263,22 @@ router.post(
     if (!LOCAL_LOGIN) {
       return res.status(403).json({ error: `Bitte über ${OIDC_PROVIDER_NAME} anmelden.` });
     }
-    const username = str(req.body.username, 40);
+    const username = str(req.body.username, 120);
     const password = typeof req.body.password === 'string' ? req.body.password : '';
+    if (password.length > 200) return res.status(400).json({ error: 'Das Passwort darf höchstens 200 Zeichen enthalten.' });
     const key = `${req.ip}|${username.toLowerCase()}`;
     if (tooManyAttempts(key)) {
       return res.status(429).json({ error: 'Zu viele Versuche. Bitte in ein paar Minuten erneut probieren.' });
     }
+    noteAttempt(key); // Reserve before awaiting password verification to bound concurrent attempts.
     const user = (await db.users.findByUsername(username)) || (await db.users.findByEmail(username));
     const ok = (await verifyPassword(password, user ? user.password_hash : DUMMY_HASH)) && !!user;
     if (!ok) {
-      noteAttempt(key);
       return res.status(401).json({ error: 'Benutzername oder Passwort stimmt nicht.' });
     }
 
-    // E-Mail-Verifizierung prüfen (außer für Admins)
-    const isAdmin = isEmailAdmin(user.email);
-    if (!user.email_verified && !isAdmin) {
-      noteAttempt(key);
+    // Auch Administratoren müssen ihre E-Mail-Adresse bestätigen.
+    if (!user.email_verified) {
       return res.status(403).json({
         error: 'Bitte bestätige zuerst deine E-Mail-Adresse über den Link in deiner E-Mail.',
         unverified: true,
@@ -341,7 +353,10 @@ router.put(
       }
     }
 
+    const emailChanged = email !== user.email;
+    const verifyToken = emailChanged && email ? crypto.randomBytes(32).toString('hex') : null;
     await db.users.update(req.user.id, {
+      ...(emailChanged ? { email_verified: 0, email_verify_token: verifyToken, email_verify_expires: verifyToken ? Date.now() + 24 * 3600 * 1000 : null } : {}),
       username,
       first_name: firstName,
       last_name: lastName,
@@ -352,7 +367,8 @@ router.put(
     });
 
     const updated = await db.users.findById(req.user.id);
-    res.json({ ok: true, user: serializeMe(updated) });
+    if (verifyToken) mailService.sendVerificationEmail(updated, verifyToken, language);
+    res.json({ ok: true, user: serializeMe(updated), needsVerification: Boolean(verifyToken), ...(verifyToken ? { message: language === 'en' ? 'Profile saved. Please confirm your new email address using the email link.' : 'Profil gespeichert. Bitte bestätige deine neue E-Mail-Adresse über den Link in der E-Mail.' } : {}) });
   })
 );
 
@@ -900,7 +916,7 @@ router.get(
   '/me/invitations',
   auth,
   wrap(async (req: Request, res: Response) => {
-    const isAdmin = isEmailAdmin(req.user.email);
+    const isAdmin = req.user.isAdmin;
     if (!registrationService.canUserInvite(req.user, isAdmin)) {
       return res.json({ invitations: [], canInvite: false });
     }
@@ -934,7 +950,7 @@ router.post(
   '/me/invitations',
   auth,
   wrap(async (req: Request, res: Response) => {
-    const isAdmin = isEmailAdmin(req.user.email);
+    const isAdmin = req.user.isAdmin;
     if (!registrationService.canUserInvite(req.user, isAdmin)) {
       return res.status(403).json({ error: 'Einladungen sind derzeit für reguläre Benutzer nicht gestattet.' });
     }
@@ -1087,11 +1103,12 @@ router.all(
     if (user.email_verify_expires && user.email_verify_expires < Date.now()) {
       return res.status(400).json({ error: 'Dieser Bestätigungslink ist abgelaufen. Bitte fordere einen neuen an.' });
     }
-    await db.users.update(user.id, {
+    const verified = await db.users.update(user.id, {
       email_verified: 1,
       email_verify_token: null,
       email_verify_expires: null,
-    });
+    }, { email_verify_token: token, email: user.email });
+    if (!verified) return res.status(400).json({ error: 'Bestätigungslink bereits verwendet oder ersetzt.' });
     res.json({
       ok: true,
       message: 'Deine E-Mail-Adresse wurde erfolgreich bestätigt! Du kannst dich jetzt anmelden.',
@@ -1112,7 +1129,7 @@ router.post(
 
     if (identifier) {
       const user = (await db.users.findByEmail(identifier)) || (await db.users.findByUsername(identifier));
-      if (user && !user.email_verified && !isEmailAdmin(user.email) && user.email) {
+      if (user && !user.email_verified && user.email) {
         const token = crypto.randomBytes(32).toString('hex');
         const expires = Date.now() + 24 * 3600 * 1000;
         await db.users.update(user.id, {
@@ -1195,11 +1212,13 @@ router.post(
     }
 
     const passwordHash = await hashPassword(password);
-    await db.users.update(user.id, {
+    if (user.password_reset_expires && user.password_reset_expires < Date.now()) return res.status(400).json({ error: 'Dieser Link ist abgelaufen.' });
+    const changed = await db.users.update(user.id, {
       password_hash: passwordHash,
       password_reset_token: null,
       password_reset_expires: null,
-    });
+    }, { password_reset_token: token, password_reset_expires: user.password_reset_expires });
+    if (!changed) return res.status(400).json({ error: 'Dieser Link wurde bereits verwendet oder ersetzt.' });
 
     // Alle bestehenden Sitzungen des Benutzers beenden
     await db.sessions.deleteForUser(user.id);

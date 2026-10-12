@@ -217,6 +217,8 @@ function calculateCycleStatus(cycleConfig: CycleConfig = {}, lastActionDate: str
 
 class ReminderService {
   schedulerTimer: ReturnType<typeof setInterval> | null;
+  private initialTimer: ReturnType<typeof setTimeout> | null = null;
+  private pendingCheck: Promise<{ sent: number; checked: number }> | null = null;
 
   constructor() {
     this.schedulerTimer = null;
@@ -227,7 +229,8 @@ class ReminderService {
     logger.info(`Starte Zyklus-Erinnerungs-Scheduler (Prüfung alle ${intervalMinutes} Minuten)`, 'reminder');
 
     // Initiale Prüfung nach kurzem Anlauf
-    setTimeout(() => {
+    this.initialTimer = setTimeout(() => {
+      this.initialTimer = null;
       this.checkAndSendReminders().catch((err: any) => {
         logger.error(`Fehler bei initialer Erinnerungsprüfung: ${err.message}`, 'reminder');
       });
@@ -246,6 +249,8 @@ class ReminderService {
   }
 
   stopScheduler() {
+    if (this.initialTimer) clearTimeout(this.initialTimer);
+    this.initialTimer = null;
     if (this.schedulerTimer) {
       clearInterval(this.schedulerTimer);
       this.schedulerTimer = null;
@@ -255,7 +260,13 @@ class ReminderService {
   /**
    * Prüft alle Aquarien auf fällige Mess- und Düngzyklen und versendet bei Bedarf Erinnerungs-Mails.
    */
-  async checkAndSendReminders(dbInstance: any = null) {
+  checkAndSendReminders(dbInstance: any = null): Promise<{ sent: number; checked: number }> {
+    if (this.pendingCheck) return this.pendingCheck;
+    this.pendingCheck = this.runCheck(dbInstance).finally(() => { this.pendingCheck = null; });
+    return this.pendingCheck;
+  }
+
+  private async runCheck(dbInstance: any = null) {
     const db = dbInstance || require('../db');
     if (db?.users?.mutateTestInventory) {
       await require('./test-inventory-service').checkAllReminders(db);
@@ -276,7 +287,7 @@ class ReminderService {
       if (!hasMeasureMail && !hasFertilizeMail) continue;
 
       const user = await db.users.findById(aq.user_id);
-      if (!user || !user.email) continue;
+      if (!user || !user.email || !user.email_verified) continue;
       const userLang = user.language || 'de';
 
       // 1. Messzyklus prüfen
@@ -311,20 +322,23 @@ class ReminderService {
             }
           }
 
-          if (shouldSend) {
+          const previous = aq.last_measure_reminder_sent_at || null;
+          const claimedAt = now.toISOString();
+          if (shouldSend && await db.aquariums.updateReminderSent(aq.id, 'measure', claimedAt, previous)) {
             try {
-              mailService.sendMeasureReminderEmail({
+              const queued = mailService.sendMeasureReminderEmail({
                 user,
                 aquarium: aq,
                 cycleStatus: measureStatus,
                 lang: userLang,
               });
-              await db.aquariums.updateReminderSent(aq.id, 'measure', now.toISOString());
+              if (!queued.ok) throw new Error(queued.error || 'E-Mail konnte nicht eingereiht werden.');
               aq.last_measure_reminder_sent_at = now.toISOString();
               sentCount++;
               logger.info(`Messzyklus-Erinnerung versendet für Aquarium „${aq.name}“ an ${user.email} (Lang: ${userLang})`, 'reminder');
             } catch (caught: unknown) {
               const err = asError(caught);
+              await db.aquariums.updateReminderSent(aq.id, 'measure', previous, claimedAt);
               logger.error(`Fehler beim Senden der Messzyklus-Erinnerung für Aq #${aq.id}: ${err.message}`, 'reminder');
             }
           }
@@ -361,20 +375,23 @@ class ReminderService {
             }
           }
 
-          if (shouldSend) {
+          const previous = aq.last_fertilize_reminder_sent_at || null;
+          const claimedAt = now.toISOString();
+          if (shouldSend && await db.aquariums.updateReminderSent(aq.id, 'fertilize', claimedAt, previous)) {
             try {
-              mailService.sendFertilizeReminderEmail({
+              const queued = mailService.sendFertilizeReminderEmail({
                 user,
                 aquarium: aq,
                 cycleStatus: fertilizeStatus,
                 lang: userLang,
               });
-              await db.aquariums.updateReminderSent(aq.id, 'fertilize', now.toISOString());
+              if (!queued.ok) throw new Error(queued.error || 'E-Mail konnte nicht eingereiht werden.');
               aq.last_fertilize_reminder_sent_at = now.toISOString();
               sentCount++;
               logger.info(`Düngzyklus-Erinnerung versendet für Aquarium „${aq.name}“ an ${user.email} (Lang: ${userLang})`, 'reminder');
             } catch (caught: unknown) {
               const err = asError(caught);
+              await db.aquariums.updateReminderSent(aq.id, 'fertilize', previous, claimedAt);
               logger.error(`Fehler beim Senden der Düngzyklus-Erinnerung für Aq #${aq.id}: ${err.message}`, 'reminder');
             }
           }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onBeforeUnmount, ref, watch } from "vue";
 import { runWorkerTask } from "../worker-client";
 import AddSpeciesDialog from "../components/AddSpeciesDialog.vue";
 import SpeciesDetail from "../components/SpeciesDetail.vue";
@@ -21,6 +21,10 @@ const categories = computed(() => [
 ]);
 const shown = ref<Species[]>([]);
 let generation = 0;
+let loadRequest: AbortController | undefined;
+let detailRequest: AbortController | undefined;
+let disposed = false;
+onBeforeUnmount(() => { disposed = true; generation++; loadRequest?.abort(); detailRequest?.abort(); });
 watch(
   [species, search, water, category],
   async () => {
@@ -34,7 +38,7 @@ watch(
       });
       if (current === generation) shown.value = result.filtered;
     } catch (e) {
-      error.value = errorMessage(e);
+      if (!disposed && current === generation) error.value = errorMessage(e);
     }
   },
   { immediate: true },
@@ -42,23 +46,31 @@ watch(
 onMounted(load);
 watch(language, load);
 async function load() {
+  loadRequest?.abort();
+  const request = new AbortController();
+  loadRequest = request;
   try {
-    const result = await api<{ species: Species[] } | Species[]>("/species");
+    const result = await api<{ species: Species[] } | Species[]>("/species", { signal: request.signal });
+    if (request.signal.aborted) return;
     species.value = Array.isArray(result) ? result : result.species;
     const id = route.value.path.split("/")[2];
     if (id)
       selected.value = (await api<{ species: Species }>(
         `/species/${encodeURIComponent(decodeURIComponent(id))}`,
+        { signal: request.signal },
       )).species;
   } catch (e) {
-    error.value = errorMessage(e);
+    if (!request.signal.aborted) error.value = errorMessage(e);
   }
 }
 async function open(item: Species) {
+  detailRequest?.abort();
+  const request = new AbortController();
+  detailRequest = request;
   try {
-    selected.value = (await api<{ species: Species }>(`/species/${item.id}`)).species;
+    selected.value = (await api<{ species: Species }>(`/species/${encodeURIComponent(item.id)}`, { signal: request.signal })).species;
   } catch (e) {
-    error.value = errorMessage(e);
+    if (!request.signal.aborted) error.value = errorMessage(e);
   }
 }
 </script>

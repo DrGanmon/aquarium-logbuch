@@ -1,3 +1,5 @@
+import cryptoModule = require('../utils/crypto');
+const { sha } = cryptoModule;
 import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
 'use strict';
@@ -54,13 +56,18 @@ router.get('/callback', async (req: Request, res: Response) => {
     const email = claims.email ? String(claims.email).trim().toLowerCase() : null;
 
     if (linkUserId) {
+      const session = cookies.session ? await db.sessions.find(sha(cookies.session)) : null;
+      if (!session || session.expires_at < Date.now() || session.user_id !== linkUserId) {
+        return appRedirect(res, 'Für die Kontoverknüpfung ist eine gültige Sitzung des betreffenden Kontos erforderlich.');
+      }
       const targetUser = await db.users.findById(linkUserId);
       if (!targetUser) return appRedirect(res, 'Benutzerkonto nicht gefunden.');
       const conflict = await db.users.findByOidcSub(sub, linkUserId);
       if (conflict) {
         return appRedirect(res, `Diese ${OIDC_PROVIDER_NAME}-Kennung ist bereits mit dem Konto „${conflict.username}“ verknüpft.`);
       }
-      await db.users.update(linkUserId, { oidc_sub: sub, email: email || targetUser.email });
+      const verifiedEmail = email && claims.email_verified === true;
+      await db.users.update(linkUserId, { oidc_sub: sub, ...(verifiedEmail ? { email, email_verified: 1 } : {}) });
       await startSession(res, db, linkUserId, idToken);
       return res.redirect(302, `${APP_URL}/?oidc_linked=1`);
     }

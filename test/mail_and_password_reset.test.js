@@ -320,7 +320,7 @@ test('Auth: E-Mail-Verifizierung Workflow', async (t) => {
   assert.strictEqual(loginOk.data.username, 'frischer_benutzer');
   assert.ok(loginOk.cookies.session);
 
-  // 7. Admin-Registrierung ist sofort verifiziert (keine Bestätigungs-Mail notwendig)
+  // 7. Admin-Registrierung erfordert ebenfalls E-Mail-Verifizierung
   const adminReg = await env.request('/api/register', {
     method: 'POST',
     body: {
@@ -330,11 +330,12 @@ test('Auth: E-Mail-Verifizierung Workflow', async (t) => {
     },
   });
   assert.strictEqual(adminReg.status, 200);
-  assert.strictEqual(adminReg.data.needsVerification, false);
-  assert.ok(adminReg.cookies.session);
+  assert.strictEqual(adminReg.data.needsVerification, true);
+  assert.equal(adminReg.cookies.session, undefined);
 
   const adminInDb = await db.users.findByUsername('admin_chief');
-  assert.strictEqual(adminInDb.email_verified, 1);
+  assert.strictEqual(adminInDb.email_verified, 0);
+  assert.ok(adminInDb.email_verify_token);
 });
 
 test('Auth: Passwort-Reset Workflow und Token-Ablauf', async (t) => {

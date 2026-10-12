@@ -561,7 +561,7 @@ class SqliteAdapter {
           return { inventory, user, result };
         }).immediate();
       },
-      async update(id?: any, fields: any = {}) {
+      async update(id: number, fields: Partial<UserRecord> = {}, expected: Partial<UserRecord> = {}) {
         const setClauses = [];
         const params = [];
         const allowed = [
@@ -594,9 +594,9 @@ class SqliteAdapter {
         ];
 
         for (const k of allowed) {
-          if (fields[k] !== undefined) {
+          if (fields[k as keyof UserRecord] !== undefined) {
             setClauses.push(`${k} = ?`);
-            let val = fields[k];
+            let val = fields[k as keyof UserRecord];
             if (k === 'email_verified') val = val ? 1 : 0;
             params.push(val);
           }
@@ -604,7 +604,12 @@ class SqliteAdapter {
 
         if (setClauses.length === 0) return true;
         params.push(id);
-        const res = db.prepare(`UPDATE users SET ${setClauses.join(', ')} WHERE id = ?`).run(...params);
+        const conditions = Object.entries(expected).map(([key, value]) => {
+          if (!allowed.includes(key)) throw new Error('Ungültige Benutzer-Bedingung.');
+          params.push(value);
+          return `${key} IS ?`;
+        });
+        const res = db.prepare(`UPDATE users SET ${setClauses.join(', ')} WHERE id = ?${conditions.length ? ' AND ' + conditions.join(' AND ') : ''}`).run(...params);
         return res.changes > 0;
       },
       async delete(id?: any) {
@@ -659,7 +664,7 @@ class SqliteAdapter {
           db
             .prepare(
               `
-          SELECT s.token_hash, s.user_id, s.expires_at, s.id_token, u.username, u.email, u.language
+          SELECT s.token_hash, s.user_id, s.expires_at, s.id_token, u.username, u.email, u.email_verified, u.language
           FROM sessions s
           JOIN users u ON u.id = s.user_id
           WHERE s.token_hash = ?
@@ -815,9 +820,11 @@ class SqliteAdapter {
       async listAllRaw() {
         return db.prepare<Aquarium>('SELECT * FROM aquariums ORDER BY id ASC').all();
       },
-      async updateReminderSent(id?: any, type?: any, timestamp?: any) {
+      async updateReminderSent(id: number, type: 'measure' | 'fertilize', timestamp: string | null, expected?: string | null) {
         const col = type === 'measure' ? 'last_measure_reminder_sent_at' : 'last_fertilize_reminder_sent_at';
-        const res = db.prepare(`UPDATE aquariums SET ${col} = ? WHERE id = ?`).run(timestamp, Number(id));
+        const res = expected === undefined
+          ? db.prepare(`UPDATE aquariums SET ${col} = ? WHERE id = ?`).run(timestamp, Number(id))
+          : db.prepare(`UPDATE aquariums SET ${col} = ? WHERE id = ? AND ${col} IS ?`).run(timestamp, Number(id), expected);
         return res.changes > 0;
       },
       async updateImage(id?: any, filename?: any) {
@@ -826,16 +833,15 @@ class SqliteAdapter {
       },
       async delete(id?: any) {
         const numId = Number(id);
+        const aq = db.prepare<Aquarium>('SELECT image_file FROM aquariums WHERE id = ?').get(numId);
         const images = db.prepare<AquariumImage>('SELECT filename FROM aquarium_images WHERE aquarium_id = ?').all(numId);
-        for (const img of images) {
-          deleteImage(img.filename);
-        }
         const stocks = db.prepare<StockRecord>('SELECT image_file FROM stock WHERE aquarium_id = ?').all(numId);
-        for (const st of stocks) {
-          if (st.image_file) deleteImage(st.image_file);
-        }
         const res = db.prepare('DELETE FROM aquariums WHERE id = ?').run(numId);
-        return res.changes > 0;
+        if (!res.changes) return false;
+        deleteImage(aq?.image_file);
+        for (const img of images) deleteImage(img.filename);
+        for (const stock of stocks) deleteImage(stock.image_file);
+        return true;
       },
       async countForUser(userId?: any) {
         return db.prepare('SELECT COUNT(*) as n FROM aquariums WHERE user_id = ?').get(userId)?.n ?? 0;
@@ -1629,8 +1635,11 @@ class SqliteAdapter {
         return this.findById(info.lastInsertRowid);
       },
       async use(id?: any) {
-        const res = db.prepare('UPDATE invitations SET used_count = used_count + 1 WHERE id = ?').run(Number(id));
+        const res = db.prepare('UPDATE invitations SET used_count = used_count + 1 WHERE id = ? AND expires_at >= ? AND (max_uses IS NULL OR max_uses <= 0 OR used_count < max_uses)').run(Number(id), Date.now());
         return res.changes > 0;
+      },
+      async releaseUse(id: number) {
+        db.prepare('UPDATE invitations SET used_count = used_count - 1 WHERE id = ? AND used_count > 0').run(id);
       },
       async delete(id?: any, createdBy: any = null) {
         let res;
@@ -1654,10 +1663,10 @@ class SqliteAdapter {
           SELECT id, aquarium_id, user_id, role, content, provider, model, created_at
           FROM aquarium_chats
           WHERE aquarium_id = ?
-          ORDER BY id ASC
+          ORDER BY id DESC
           LIMIT ?
         `).all(Number(aquariumId), limit);
-        return rows;
+        return rows.reverse();
       },
       async create({ aquariumId, userId = null, role, content, provider = null, model = null, createdAt = null }: any) {
         const ts = createdAt || new Date().toISOString();

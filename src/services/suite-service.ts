@@ -79,7 +79,7 @@ class SuiteService {
   }
   getSuite(id?: string | null, lang = 'de'): TestSuite | null {
     const suite = id ? this.loadSuites().get(id) : undefined;
-    return suite ? this.localize(suite, lang) : this.getDefaultSuite(lang);
+    return suite ? this.localize(suite, lang) : id ? null : this.getDefaultSuite(lang);
   }
   getParameters(id: string | null = null, lang = 'de'): WaterTest[] { return this.getSuite(id, lang)?.tests || []; }
   getAllKnownParameters(lang = 'de'): WaterTest[] {

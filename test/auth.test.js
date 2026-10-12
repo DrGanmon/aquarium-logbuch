@@ -18,14 +18,16 @@ test('Auth: Registrierung, Validierung und Duplikate', async (t) => {
   assert.strictEqual(res1.data.needsVerification, true);
   assert.ok(res1.data.id > 0);
 
-  // 1b. Erfolgreiche Registrierung für Admin-E-Mail (wird sofort verifiziert & eingeloggt)
+  // 1b. Auch die Admin-E-Mail erfordert einen Besitznachweis
   const resAdmin = await env.request('/api/register', {
     method: 'POST',
     body: { username: 'adminuser', password: 'password123', email: 'admin@example.com' },
   });
   assert.strictEqual(resAdmin.status, 200);
-  assert.strictEqual(resAdmin.data.needsVerification, false);
-  assert.ok(resAdmin.cookies.session, 'Session-Cookie muss für Admin direkt gesetzt sein');
+  assert.strictEqual(resAdmin.data.needsVerification, true);
+  assert.equal(resAdmin.cookies.session, undefined);
+  const blockedAdmin = await env.request('/api/login', { method: 'POST', body: { username: 'adminuser', password: 'password123' } });
+  assert.equal(blockedAdmin.status, 403);
 
   // 2. Ungültiger Benutzername (zu kurz)
   const resShort = await env.request('/api/register', {

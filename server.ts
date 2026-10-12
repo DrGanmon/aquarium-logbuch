@@ -2,7 +2,7 @@ import { asError } from './src/utils/app-error';
 'use strict';
 import app = require('./src/app');
 import envModule = require('./src/config/env');
-const { PORT, WORKER_THREADS } = envModule;
+const { PORT } = envModule;
 import logger = require('./src/utils/logger');
 import supervisorModule = require('./src/services/supervisor');
 const { Supervisor } = supervisorModule;
@@ -52,7 +52,7 @@ function startServer(): void {
         const workerId = process.env.WORKER_ID ? `Worker ${process.env.WORKER_ID}/${process.env.WORKERS_TOTAL || '1'}` : 'Einzelprozess';
         const mode = isWorker ? `überwachten Modus (${workerId})` : 'Einzelprozess-Modus';
         logger.info(
-          `Aquarium-Logbuch läuft auf http://localhost:${PORT} (PID: ${process.pid}, ${mode}, DB: ${db.type}, Threads: ${WORKER_THREADS})`,
+          `Aquarium-Logbuch läuft auf http://localhost:${PORT} (PID: ${process.pid}, ${mode}, DB: ${db.type}, Threads: ${workerPool.numWorkers})`,
           'server'
         );
         if (typeof process.send === 'function') {

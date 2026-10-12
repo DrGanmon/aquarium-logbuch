@@ -1,3 +1,4 @@
+import { writeJsonFile } from './json-config-store';
 import { asError } from '../utils/app-error';
 'use strict';
 import path = require('path');
@@ -102,7 +103,7 @@ class BackupService {
         ? Boolean(newConfig.includeFiles)
         : current.includeFiles,
     };
-    fs.writeFileSync(this.configFile, JSON.stringify(merged, null, 2), 'utf8');
+    writeJsonFile(this.configFile, merged);
     if (newConfig.enabled !== undefined || newConfig.intervalHours !== undefined || newConfig.retentionCount !== undefined) {
       logger.info(
         `Backup-Konfiguration aktualisiert: Aktiv=${merged.enabled}, Intervall=${merged.intervalHours}h, Vorhalteanzahl=${merged.retentionCount}`,
@@ -256,6 +257,7 @@ class BackupService {
     while (this.isBackingUp) {
       await new Promise((resolve: any) => setTimeout(resolve, 50));
     }
+    if (this.isRestoring) throw new Error('Während einer Wiederherstellung kann kein Backup erstellt werden.');
     this.isBackingUp = true;
     try {
       this._ensureDirs();
@@ -726,7 +728,7 @@ class BackupService {
       if (Buffer.isBuffer(backupInput)) {
         // Prüfe ob GZIP (Magic Bytes 0x1f, 0x8b)
         if (backupInput.length >= 2 && backupInput[0] === 0x1f && backupInput[1] === 0x8b) {
-          const unzipped = await gunzipAsync(backupInput);
+          const unzipped = await gunzipAsync(backupInput, { maxOutputLength: 256 * 1024 * 1024 });
           rawObj = JSON.parse(unzipped.toString('utf8'));
         } else {
           rawObj = JSON.parse(backupInput.toString('utf8'));

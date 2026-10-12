@@ -28,7 +28,7 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **Umschaltbar & Persistiert:** Direkter 1-Klick-Schnellumschalter (`🌐 DE` / `🌐 EN`) in der Kopfzeile und im Anmeldebereich sowie dauerhafte Sprachauswahl im Benutzerprofil (`#/profile`).
   - **Nahtlose Lokalisierung:** Vollständige Lokalisierung aller Ansichten (Login/Registrierung, Beckenübersicht, Detailansicht, Messmaske, Logbuch, CSV-Import/Export, Artenkatalog, KI-Chat, Admin-Bereich und Rechtsseiten) inklusive sprachspezifischer Datums- und Zahlenformatierung (`Intl.DateTimeFormat` / `Intl.NumberFormat`).
 - **E-Mail-Verifizierung & Passwort-Reset:**
-  - **E-Mail-Verifizierung für neue Benutzer:** Neue Registrierungen (außer der Admin-E-Mail-Adresse) erhalten automatisch eine Bestätigungs-E-Mail mit Aktivierungslink. Nicht verifizierte Benutzer werden beim Login geschützt und können sich neue Bestätigungslinks anfordern.
+  - **E-Mail-Verifizierung für neue Benutzer:** Neue Registrierungen (auch mit der Admin-E-Mail-Adresse; Ausnahme: passende E-Mail-Einladung eines bestätigten Administrators) erhalten automatisch eine Bestätigungs-E-Mail mit Aktivierungslink. Nicht verifizierte Benutzer werden beim Login geschützt und können sich neue Bestätigungslinks anfordern.
   - **Passwort vergessen & Reset per E-Mail:** Über die Anmeldeseite kann ein zeitlich begrenzter Link zum sicheren Zurücksetzen des Passworts angefordert werden. Beim Zurücksetzen werden alle bestehenden Benutzersitzungen automatisch invalidiert.
 - Benutzerprofil zur Pflege von Profilbild (Avatar), Vorname, Nachname, Benutzername und „Über mich“-Bio sowie Passwortverwaltung, Erscheinungsbild und OIDC-Verknüpfung
 - Admin-Bereich mit Benutzerverwaltung für Administratoren (festgelegt anhand der E-Mail-Adresse in der Konfiguration) sowie integriertem System-Logbuch & Fehlerprotokoll
@@ -219,7 +219,7 @@ Der GitHub-Workflow baut das App-Image für `linux/amd64` und `linux/arm64` und 
 | `OIDC_SCOPES` | `openid profile email` | Angeforderte Scopes |
 | `OIDC_PROVIDER_NAME` | `Pocket ID` | Beschriftung des Anmelde-Buttons |
 | `LOCAL_LOGIN` | automatisch | Lokale Anmeldung mit Passwort. Standard: aus, wenn OIDC aktiv ist, sonst an |
-| `OIDC_LINK_BY_USERNAME` | false | `true` verknüpft beim ersten OIDC-Login ein vorhandenes lokales Konto mit gleichem Benutzernamen |
+| `OIDC_LINK_BY_USERNAME` | false | `true` verknüpft beim ersten OIDC-Login ein vorhandenes lokales Konto mit gleichem Benutzernamen und gleicher, vom Provider bestätigter E-Mail-Adresse |
 | `ADMIN_EMAIL` | (leer) | E-Mail-Adresse des Administrators (oder mehrere durch Komma getrennt) für den Admin-Bereich / Benutzerverwaltung |
 | `CONTACT_EMAIL` | `ADMIN_EMAIL` | Optionale Support- & Kontakt-E-Mail-Adresse für Impressum & Kontaktseite |
 | `IMPRINT_EMAIL` | `CONTACT_EMAIL` | Optionale E-Mail-Adresse für Anbieterkennzeichnung / Impressum gem. § 5 DDG |
@@ -266,9 +266,11 @@ Jeder angemeldete Benutzer kann über die Kopfzeile auf sein **Benutzerprofil** 
 
 Die Admin-Ansicht ist in fünf Tabs gegliedert: **Userverwaltung**, **Einladung & Registrierung** (Registrierungsmodi, Gültigkeiten, Einladungscodes und E-Mail-Einladungen), **Einstellungen** (Rechtliches sowie E-Mail/SMTP inklusive Testmail und Warteschlange), **Backups** und **Logs**.
 
-Der Administrator wird anhand der E-Mail-Adresse festgelegt. Dazu entweder in `config.ts` oder über die Umgebungsvariable `ADMIN_EMAIL` die gewünschte E-Mail-Adresse hinterlegen (z. B. `ADMIN_EMAIL=admin@example.com` bzw. kommagetrennt für mehrere).
+Für die erste lokale Administratorregistrierung muss der Mailversand bereits über `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` und `SMTP_FROM` eingerichtet sein, damit die Adresse bestätigt werden kann. Bei bestehenden unbestätigten Konten lässt sich der Bestätigungslink erneut anfordern.
 
-- Benutzer, deren E-Mail-Adresse (aus OIDC/Pocket ID oder lokaler Registrierung) mit `ADMIN_EMAIL` übereinstimmt, erhalten Administrator-Rechte.
+Der Administrator wird anhand der bestätigten E-Mail-Adresse festgelegt. Dazu entweder in `config.ts` oder über die Umgebungsvariable `ADMIN_EMAIL` die gewünschte E-Mail-Adresse hinterlegen (z. B. `ADMIN_EMAIL=admin@example.com` bzw. kommagetrennt für mehrere).
+
+- Benutzer erhalten Administratorrechte erst mit einer bestätigten E-Mail-Adresse, die mit `ADMIN_EMAIL` übereinstimmt. Das gilt auch nach Änderungen der Profiladresse. OIDC muss dafür `email_verified: true` liefern. E-Mail-Einladungen eines bereits bestätigten Administrators gelten als ausdrücklich freigegebene Konten; Einladungen anderer Benutzer erfordern eine zusätzliche E-Mail-Bestätigung.
 - Im Header erscheint der Button **Admin** (`#/admin`).
 - Administratoren können alle registrierten Benutzer einsehen, neue Benutzer anlegen, bestehende Benutzer bearbeiten (Benutzername, E-Mail, Passwort ändern) und Benutzer samt deren Daten löschen.
 - **Registrierungs-Modi & Einladungs-Verwaltung:**
@@ -313,7 +315,7 @@ sowie `iss`, `aud`, `exp` und `nonce`. Beim ersten Login wird automatisch ein Ko
 - **Selbstverknüpfung:** Angemeldete Benutzer können ihr Konto in der Kopfzeile über „Mit Pocket ID verknüpfen“ direkt mit Pocket ID verbinden.
 - **Automatisch per E-Mail:** Stimmt die im lokalen Konto hinterlegte E-Mail-Adresse mit der E-Mail-Adresse aus Pocket ID überein, wird das Konto beim OIDC-Login automatisch zugeordnet.
 - **Admin-Benutzerverwaltung:** Administratoren können in der Benutzerverwaltung die OIDC-Benutzer-ID (`sub`) für jedes Konto direkt eintragen, ändern oder löschen.
-- **Per Benutzername:** Mit `OIDC_LINK_BY_USERNAME=true` wird ein vorhandenes Konto beim ersten Pocket-ID-Login übernommen, wenn der Pocket-ID-Benutzername übereinstimmt (nur aktivieren, wenn Benutzer sich in Pocket ID keine beliebigen Namen vergeben können).
+- **Per Benutzername:** Mit `OIDC_LINK_BY_USERNAME=true` wird ein vorhandenes Konto beim ersten Pocket-ID-Login übernommen, wenn Benutzername und bestätigte E-Mail-Adresse übereinstimmen. Unbestätigte Provider-Adressen werden weder zur Kontoverknüpfung noch zur Vergabe von Administratorrechten verwendet.
 
 **App unter einem Unterpfad:** `APP_URL` darf einen Pfad enthalten (z. B. `https://example.com/aquarium`).
 Der Reverse Proxy muss diesen Präfix dann entfernen, bevor er an die App weiterleitet
@@ -429,3 +431,7 @@ Vollständiger Lizenztext: Siehe [LICENSE](LICENSE) sowie in der App unter `#/li
 - [ ] Automatischer E-Mail-Versand bei kritischen Grenzwert-Alarmen.
 - [ ] Social Bereich
 - [x] Wassertest-Verbrauch mit automatischer Zählung, Profilkorrektur, Rücksetzung und Nachkauferinnerung ab 75 %.
+
+## Codeprüfung und Betriebsgrenzen
+
+Die behobenen Sicherheits-, Nebenläufigkeits- und Ressourcenprobleme sowie Prüfergebnisse und verbleibende Betriebsgrenzen sind in [AUDIT.md](AUDIT.md) dokumentiert.

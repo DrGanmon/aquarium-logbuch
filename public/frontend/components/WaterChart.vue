@@ -51,17 +51,23 @@ function render() {
     .map((m) => ({
       x: new Date(m.measured_at).getTime(),
       y: m.values[props.parameter.key]!,
-    }));
-  const xs = points.map((point) => point.x);
-  let xMin = Math.min(...xs),
-    xMax = Math.max(...xs);
+    }))
+    .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y))
+    .sort((a, b) => a.x - b.x);
+  let xMin = Infinity, xMax = -Infinity;
+  let lo = props.range?.okMin ?? Infinity, hi = props.range?.okMax ?? -Infinity;
+  for (const point of points) {
+    xMin = Math.min(xMin, point.x); xMax = Math.max(xMax, point.x);
+    lo = Math.min(lo, point.y); hi = Math.max(hi, point.y);
+  }
+  if (!points.length) {
+    xMin = Date.now() - 86400e3; xMax = Date.now();
+    lo = props.parameter.min; hi = props.parameter.max;
+  }
   if (xMin === xMax) {
     xMin -= 12 * 3600e3;
     xMax += 12 * 3600e3;
   }
-  const ys = points.map((point) => point.y);
-  const lo = Math.min(...ys, props.range?.okMin ?? Infinity);
-  const hi = Math.max(...ys, props.range?.okMax ?? -Infinity);
   const pad = (hi - lo || Math.abs(hi) || 1) * 0.12;
   const color = dark.value ? "#38bdf8" : "#12343b";
   const text = dark.value ? "#cbd5e1" : "#52656b";

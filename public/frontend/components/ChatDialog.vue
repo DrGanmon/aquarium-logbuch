@@ -10,6 +10,8 @@ const emit = defineEmits<{ close: [] }>();
 const messages = ref<ChatMessage[]>([]);
 const input = ref("");
 const busy = ref(false);
+const historyLoading = ref(true);
+const lifecycle = new AbortController();
 const error = ref("");
 const container = ref<HTMLElement>();
 const context = ref("");
@@ -28,6 +30,7 @@ onMounted(() => {
   window.visualViewport?.addEventListener("scroll", updateViewport);
 });
 onBeforeUnmount(() => {
+  lifecycle.abort();
   window.visualViewport?.removeEventListener("resize", updateViewport);
   window.visualViewport?.removeEventListener("scroll", updateViewport);
 });
@@ -36,12 +39,13 @@ onMounted(async () => {
     messages.value = (
       await api<{ messages: ChatMessage[] }>(
         `/aquariums/${props.id}/chat/history`,
+        { signal: lifecycle.signal },
       )
     ).messages;
     await scroll();
   } catch (e) {
-    error.value = errorMessage(e);
-  }
+    if (!lifecycle.signal.aborted) error.value = errorMessage(e);
+  } finally { historyLoading.value = false; }
 });
 async function scroll() {
   await nextTick();
@@ -51,12 +55,13 @@ async function scroll() {
   });
 }
 async function send(prompt = input.value) {
-  if (busy.value || !prompt.trim()) return;
+  if (busy.value || historyLoading.value || lifecycle.signal.aborted || !prompt.trim()) return;
   busy.value = true;
   error.value = "";
   input.value = "";
   try {
     const result = await api<{ reply: string }>(`/aquariums/${props.id}/chat`, {
+      signal: lifecycle.signal,
       method: "POST",
       body: { message: prompt, provider: provider.value, saveHistory: true },
     });
@@ -75,20 +80,21 @@ async function send(prompt = input.value) {
 async function loadContext() {
   try {
     context.value = (
-      await api<{ systemPrompt: string }>(`/aquariums/${props.id}/chat/context`)
+      await api<{ systemPrompt: string }>(`/aquariums/${props.id}/chat/context`, { signal: lifecycle.signal })
     ).systemPrompt;
   } catch (e) {
     error.value = errorMessage(e);
   }
 }
 async function clear() {
-  if (!confirm("Chat-Verlauf löschen?")) return;
+  if (busy.value || historyLoading.value || !confirm("Chat-Verlauf löschen?")) return;
+  busy.value = true;
   try {
-    await api(`/aquariums/${props.id}/chat/history`, { method: "DELETE" });
+    await api(`/aquariums/${props.id}/chat/history`, { method: "DELETE", signal: lifecycle.signal });
     messages.value = [];
   } catch (e) {
-    error.value = errorMessage(e);
-  }
+    if (!lifecycle.signal.aborted) error.value = errorMessage(e);
+  } finally { busy.value = false; }
 }
 </script>
 <template>
@@ -105,7 +111,7 @@ async function clear() {
           <option v-if="session.user?.hasClaudeKey" value="claude">
             Claude
           </option></select
-        ><button v-if="!readonly" class="btn small ghost danger" @click="clear">
+        ><button v-if="!readonly" class="btn small ghost danger" :disabled="busy || historyLoading" @click="clear">
           {{ t("common.delete") }}
         </button>
       </div>
@@ -170,7 +176,7 @@ async function clear() {
           ]"
           :key="prompt"
           class="btn small ghost chat-prompt-chip"
-          :disabled="busy"
+          :disabled="busy || historyLoading"
           @click="send(prompt)"
         >
           {{ prompt }}
@@ -183,7 +189,7 @@ async function clear() {
           aria-label="Nachricht"
           required
           @keydown.enter.exact.prevent="send()"
-        /><button class="btn" :disabled="busy">Senden</button>
+        /><button class="btn" :disabled="busy || historyLoading">Senden</button>
       </form>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
       <p class="muted chat-disclaimer" style="font-size: 0.8rem">

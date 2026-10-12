@@ -41,7 +41,7 @@ router.get(
         oidcSub: u.oidc_sub || null,
         hasPassword: !!(u.password_hash && u.password_hash.includes(':')),
         hasOidc: !!u.oidc_sub,
-        isAdmin: isEmailAdmin(u.email),
+        isAdmin: Boolean(u.email_verified) && isEmailAdmin(u.email),
         aquariumCount: u.aquarium_count || 0,
         createdAt: u.created_at,
       }))
@@ -85,7 +85,7 @@ router.post(
       email,
       email_verified: emailVerified ? 1 : 0,
     });
-    res.json({ id: created.id, username, email, oidcSub, emailVerified: Boolean(created.email_verified), isAdmin: isEmailAdmin(email) });
+    res.json({ id: created.id, username, email, oidcSub, emailVerified: Boolean(created.email_verified), isAdmin: Boolean(created.email_verified) && isEmailAdmin(email) });
   })
 );
 
@@ -152,15 +152,6 @@ router.delete(
     }
     const user = await db.users.findById(id);
     if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
-    if (user.avatar_file) {
-      deleteImage(user.avatar_file);
-    }
-    const aqs = await db.aquariums.listForUser(id);
-    for (const a of aqs) {
-      if (a.image_file) {
-        deleteImage(a.image_file);
-      }
-    }
     await db.users.delete(id);
     res.json({ ok: true });
   })

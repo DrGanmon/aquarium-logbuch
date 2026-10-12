@@ -137,9 +137,17 @@ const logger: Record<string, any> = {
       if (!fs.existsSync(logPath)) {
         return [];
       }
-      const content = fs.readFileSync(logPath, 'utf8');
-      const lines = content.split(/\r?\n/).filter(Boolean);
-      return lines.slice(-maxLines);
+      const fd = fs.openSync(logPath, 'r');
+      try {
+        const size = fs.fstatSync(fd).size;
+        const start = Math.max(0, size - 4 * 1024 * 1024);
+        const buffer = Buffer.alloc(size - start);
+        const read = fs.readSync(fd, buffer, 0, buffer.length, start);
+        const lines = buffer.subarray(0, read).toString('utf8').split(/\r?\n/);
+        if (start > 0) lines.shift(); // Drop the first partial line.
+        const count = Math.min(5000, Math.max(1, Math.trunc(Number(maxLines)) || 200));
+        return lines.filter(Boolean).slice(-count);
+      } finally { fs.closeSync(fd); }
     } catch (caught: unknown) {
       const err = asError(caught);
       return [`[ERROR] Konnte Log-Datei nicht lesen: ${err.message}`];

@@ -99,11 +99,11 @@ function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'ope
     const aud = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
     if (claims.iss !== (await config()).issuer) throw new Error('ID-Token: falscher Aussteller (iss).');
     if (!aud.includes(clientId)) throw new Error('ID-Token: falsche Zielgruppe (aud).');
-    if (aud.length > 1 && claims.azp && claims.azp !== clientId) throw new Error('ID-Token: falscher azp.');
+    if (aud.length > 1 && claims.azp !== clientId) throw new Error('ID-Token: falscher azp.');
     if (typeof claims.exp !== 'number' || claims.exp + CLOCK_SKEW < now) throw new Error('ID-Token ist abgelaufen.');
     if (typeof claims.iat === 'number' && claims.iat - CLOCK_SKEW > now) throw new Error('ID-Token liegt in der Zukunft.');
     if (claims.nonce !== nonce) throw new Error('ID-Token: nonce stimmt nicht.');
-    if (!claims.sub) throw new Error('ID-Token ohne sub.');
+    if (typeof claims.sub !== 'string' || !claims.sub.trim()) throw new Error('ID-Token ohne gültigen sub.');
     return claims;
   }
 

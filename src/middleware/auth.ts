@@ -23,7 +23,7 @@ async function auth(req: Request, res: Response, next: NextFunction) {
       username: row.username,
       email: row.email || null,
       language: row.language || 'de',
-      isAdmin: isEmailAdmin(row.email),
+      isAdmin: Boolean(row.email_verified) && isEmailAdmin(row.email),
     };
     next();
   } catch (caught: unknown) {

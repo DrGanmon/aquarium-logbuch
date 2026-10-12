@@ -50,7 +50,10 @@ const completed = new Set(
     .filter(([, end]) => end <= now.value)
     .map(([key]) => key),
 );
-let interval: ReturnType<typeof setInterval>;
+const lifecycle = new AbortController();
+let disposed = false;
+let wakePending = false;
+let interval: ReturnType<typeof setInterval> | undefined;
 let wake: WakeLockSentinel | null = null;
 const activeTimers = computed(() =>
   Object.keys(timers).map((key) => ({
@@ -88,10 +91,14 @@ watch(
 watch(running, updateWake);
 async function updateWake() {
   try {
-    if (running.value && !wake && navigator.wakeLock) {
-      wake = await navigator.wakeLock.request("screen");
-      wake.addEventListener("release", () => {
-        wake = null;
+    if (disposed) return;
+    if (running.value && !wake && !wakePending && navigator.wakeLock) {
+      wakePending = true;
+      const acquired = await navigator.wakeLock.request("screen");
+      if (disposed || !running.value) { await acquired.release(); return; }
+      wake = acquired;
+      acquired.addEventListener("release", () => {
+        if (wake === acquired) wake = null;
       });
     } else if (!running.value && wake) {
       await wake.release();
@@ -99,14 +106,15 @@ async function updateWake() {
     }
   } catch {
     /* Wake lock may be unavailable or denied. */
-  }
+  } finally { wakePending = false; }
 }
 function visibility() {
   if (document.visibilityState === "visible") void updateWake();
 }
 onMounted(async () => {
   try {
-    detail.value = await api(`/aquariums/${props.id}`);
+    detail.value = await api(`/aquariums/${props.id}`, { signal: lifecycle.signal });
+    if (disposed) return;
     if (detail.value?.role === "view") {
       location.hash = `#/a/${props.id}`;
       return;
@@ -115,6 +123,7 @@ onMounted(async () => {
   } catch (e) {
     error.value = errorMessage(e);
   }
+  if (disposed) return;
   interval = setInterval(() => {
     now.value = Date.now();
     for (const timer of activeTimers.value)
@@ -131,9 +140,11 @@ onMounted(async () => {
   document.addEventListener("visibilitychange", visibility);
 });
 onBeforeUnmount(() => {
+  disposed = true;
+  lifecycle.abort();
   clearInterval(interval);
   document.removeEventListener("visibilitychange", visibility);
-  void wake?.release();
+  void wake?.release().catch(() => {});
 });
 function focusTest(key: string) {
   document.getElementById("in-" + key)?.focus();

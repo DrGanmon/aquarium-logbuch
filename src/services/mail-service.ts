@@ -1,3 +1,4 @@
+import { writeJsonFile } from './json-config-store';
 import type { MailConfig, MailMessage, QueuedMail, MailStats } from '../types/mail';
 import { asRecord } from '../utils/validation';
 import { asError } from '../utils/app-error';
@@ -44,7 +45,7 @@ class MailService {
   private isProcessing: boolean;
   private stats: MailStats;
 
-  constructor(configFile = CONFIG_FILE) {
+  constructor(configFile = CONFIG_FILE, private readonly maxQueueLength = 1000) {
     this.configFile = configFile;
     this.queue = [];
     this.isProcessing = false;
@@ -138,7 +139,7 @@ class MailService {
       updated.pass = String(newConfig.pass);
     }
 
-    fs.writeFileSync(this.configFile, JSON.stringify(updated, null, 2), 'utf8');
+    writeJsonFile(this.configFile, updated);
     logger.info(`SMTP-Konfiguration aktualisiert: Server=${updated.host}:${updated.port}, Aktiviert=${updated.enabled}`, 'mail');
     return this.getConfig();
   }
@@ -161,6 +162,7 @@ class MailService {
    * Reiht eine E-Mail in die Warteschlange ein.
    */
   enqueueMail({ to, subject, html, text }: MailMessage) {
+    if (this.queue.length >= this.maxQueueLength) return { ok: false, error: 'E-Mail-Warteschlange ist voll.' };
     const item: QueuedMail = {
       id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       to,
@@ -175,7 +177,7 @@ class MailService {
     logger.info(`E-Mail in Warteschlange eingereiht (ID: ${item.id}) an: ${to}`, 'mail');
 
     // Queue-Abarbeitung starten, falls nicht aktiv
-    this._processQueue();
+    void this._processQueue().catch(error => { logger.error(`Fehler bei der Mail-Warteschlange: ${asError(error).message}`, 'mail'); });
 
     return { ok: true, queueId: item.id, queued: true };
   }
@@ -187,50 +189,50 @@ class MailService {
     if (this.isProcessing) return;
     this.isProcessing = true;
 
-    while (this.queue.length > 0) {
-      const config = this.getRawConfig();
-      if (!config.enabled && !config.host) {
-        logger.warn('Mail-Service ist nicht konfiguriert/aktiviert. E-Mails verbleiben in der Queue oder werden ignoriert.', 'mail');
-        // Wenn Mail nicht aktiv ist, brechen wir die Queue ab, damit nichts blockiert
-        this.isProcessing = false;
-        return;
-      }
-
-      const item = this.queue.shift();
-      if (!item) break;
-
-      item.attempts += 1;
-      try {
-        await sendSmtpMail(config, {
-          from: config.from,
-          to: item.to,
-          subject: item.subject,
-          html: item.html,
-          text: item.text,
-        });
-
-        this.stats.sentCount += 1;
-        this.stats.lastSentAt = new Date().toISOString();
-        this.stats.lastError = null;
-        logger.info(`E-Mail erfolgreich versendet an: ${item.to} (Betreff: ${item.subject})`, 'mail');
-      } catch (caught: unknown) {
-        const err = asError(caught);
-        this.stats.failedCount += 1;
-        this.stats.lastError = err.message;
-        logger.error(`Fehler beim Versenden der E-Mail an ${item.to}: ${err.message}`, 'mail');
-
-        // Bis zu 2 Wiederholungsversuche bei temporären Fehlern
-        if (item.attempts < 3) {
-          this.queue.push(item);
+    try {
+      while (this.queue.length > 0) {
+        const config = this.getRawConfig();
+        if (!config.enabled || !config.host) {
+          logger.warn('Mail-Service ist nicht konfiguriert/aktiviert. E-Mails verbleiben in der Queue oder werden ignoriert.', 'mail');
+          // Wenn Mail nicht aktiv ist, brechen wir die Queue ab, damit nichts blockiert
+          return;
         }
+
+        const item = this.queue.shift();
+        if (!item) break;
+
+        item.attempts += 1;
+        try {
+          await sendSmtpMail(config, {
+            from: config.from,
+            to: item.to,
+            subject: item.subject,
+            html: item.html,
+            text: item.text,
+          });
+
+          this.stats.sentCount += 1;
+          this.stats.lastSentAt = new Date().toISOString();
+          this.stats.lastError = null;
+          logger.info(`E-Mail erfolgreich versendet an: ${item.to} (Betreff: ${item.subject})`, 'mail');
+        } catch (caught: unknown) {
+          const err = asError(caught);
+          this.stats.failedCount += 1;
+          this.stats.lastError = err.message;
+          logger.error(`Fehler beim Versenden der E-Mail an ${item.to}: ${err.message}`, 'mail');
+
+          // Bis zu 2 Wiederholungsversuche bei temporären Fehlern
+          if (item.attempts < 3) {
+            this.queue.push(item);
+          }
+        }
+
+        // Rate-Limiting: Pause zwischen E-Mails einlegen, um Überlastung zu verhindern
+        const delayMs = Math.max(100, Number(config.rateLimitMs) || 500);
+        await new Promise<void>(resolve => setTimeout(resolve, delayMs));
       }
 
-      // Rate-Limiting: Pause zwischen E-Mails einlegen, um Überlastung zu verhindern
-      const delayMs = Math.max(100, Number(config.rateLimitMs) || 500);
-      await new Promise<void>(resolve => setTimeout(resolve, delayMs));
-    }
-
-    this.isProcessing = false;
+    } finally { this.isProcessing = false; }
   }
 
   /**

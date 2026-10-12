@@ -3,7 +3,7 @@ import type { InventoryRepository } from './inventory';
 export type RepositoryContract<Base, Contract> = Omit<Base, keyof Contract> & Contract;
 export interface UserQueries extends InventoryRepository {
   create(input: Pick<UserRecord, 'username'> & Partial<Omit<UserRecord, 'id' | 'created_at'>>): Promise<Pick<UserRecord, 'id' | 'username' | 'email' | 'oidc_sub' | 'email_verified' | 'language'>>;
-  update(id: number, fields: Partial<Omit<UserRecord, 'id' | 'created_at'>>): Promise<boolean>;
+  update(id: number, fields: Partial<Omit<UserRecord, 'id' | 'created_at'>>, expected?: Partial<UserRecord>): Promise<boolean>;
   listForAdmin(): Promise<Pick<UserRecord, 'id' | 'username' | 'email' | 'oidc_sub' | 'password_hash' | 'created_at' | 'email_verified'>[]>;
   findById(id: number): Promise<UserRecord | null>;
   findByUsername(username: string, excludeId?: number | null): Promise<UserRecord | null>;

@@ -167,19 +167,24 @@ watch(autoRefresh, (value) => {
       if (tab.value === "logs") void load();
     }, 5000);
 });
-onBeforeUnmount(() => clearInterval(interval));
+onBeforeUnmount(() => { clearInterval(interval); loadController?.abort(); loadGeneration++; });
+let loadController: AbortController | undefined;
 let loadGeneration = 0;
 async function load() {
+  loadController?.abort();
+  const request = new AbortController();
+  loadController = request;
   const generation = ++loadGeneration;
   const section = tab.value;
   error.value = "";
   try {
     if (section === "users") {
-      const result = await api<AdminUser[]>("/admin/users");
+      const result = await api<AdminUser[]>("/admin/users", { signal: request.signal });
       if (generation === loadGeneration) users.value = result;
     } else if (section === "logs") {
       const result = await api<{ logs: string[] }>(
         `/admin/logs?${new URLSearchParams({ lines: String(logLines.value), level: logLevel.value, search: logSearch.value })}`,
+        { signal: request.signal },
       );
       if (generation !== loadGeneration) return;
       rawLogs.value = result.logs;
@@ -192,7 +197,7 @@ async function load() {
         )
         .join("\n");
     } else {
-      const result = await api<AdminResponse>("/admin/" + section);
+      const result = await api<AdminResponse>("/admin/" + section, { signal: request.signal });
       if (generation !== loadGeneration) return;
       for (const key of Object.keys(config)) delete config[key];
       Object.assign(config, result.config);
@@ -200,7 +205,7 @@ async function load() {
       if (result.queue) queue.value = result.queue;
     }
   } catch (e) {
-    error.value = errorMessage(e);
+    if (!request.signal.aborted && generation === loadGeneration) error.value = errorMessage(e);
   }
 }
 async function action(path: string, method: string, body?: unknown) {

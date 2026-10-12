@@ -7,10 +7,13 @@ import cryptoModule = require('./crypto');
 const { sha } = cryptoModule;
 
 function parseCookies(req: Request) {
-  const out: Record<string, string> = {};
+  const out: Record<string, string> = Object.create(null);
   (req.headers.cookie || '').split(';').forEach((p: any) => {
     const i = p.indexOf('=');
-    if (i > 0) out[p.slice(0, i).trim()] = decodeURIComponent(p.slice(i + 1).trim());
+    if (i > 0) {
+      const name = p.slice(0, i).trim();
+      try { out[name] = decodeURIComponent(p.slice(i + 1).trim()); } catch { /* Ignore malformed cookies rather than failing the request. */ }
+    }
   });
   return out;
 }

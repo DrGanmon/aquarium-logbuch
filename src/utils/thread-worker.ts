@@ -50,19 +50,16 @@ const TASK_HANDLERS: { [K in TaskName]: (payload: TaskPayloads[K]) => TaskResult
   computeStats: ({ measurements, params }: TaskPayloads['computeStats']) => {
     const stats: Record<string, Statistics> = {};
     for (const p of params) {
-      const values = [];
-      for (const m of measurements) {
-        if (m.values && m.values[p] !== undefined && m.values[p] !== null) {
-          values.push(Number(m.values[p]));
-        }
+      let count = 0, sum = 0, min = Infinity, max = -Infinity;
+      for (const measurement of measurements) {
+        const raw = measurement.values?.[p];
+        if (raw === undefined || raw === null) continue;
+        const value = Number(raw);
+        if (!Number.isFinite(value)) continue;
+        count++; sum += value;
+        min = Math.min(min, value); max = Math.max(max, value);
       }
-      if (values.length > 0) {
-        const sum = values.reduce((a: number, b: number) => a + b, 0);
-        const min = Math.min(...values);
-        const max = Math.max(...values);
-        const avg = sum / values.length;
-        stats[p] = { count: values.length, min, max, avg: Number(avg.toFixed(2)) };
-      }
+      if (count > 0) stats[p] = { count, min, max, avg: Number((sum / count).toFixed(2)) };
     }
     return stats;
   },

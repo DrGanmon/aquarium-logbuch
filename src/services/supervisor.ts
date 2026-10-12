@@ -23,6 +23,12 @@ class Supervisor {
   crashTimestamps: number[];
   startTime: number | null;
   _boundSignals: boolean;
+  private restartTimers = new Set<ReturnType<typeof setTimeout>>();
+  private generation = 0;
+  private stopPromise: Promise<void> | null = null;
+  private restartPromise: Promise<void> | null = null;
+  private readonly onSigint = () => this.handleSignal('SIGINT');
+  private readonly onSigterm = () => this.handleSignal('SIGTERM');
 
   constructor(options: SupervisorOptions = {}) {
     this.targetScript = options.targetScript || path.resolve(__dirname, '../../server.js');
@@ -37,7 +43,7 @@ class Supervisor {
     if (String(workersOpt).toLowerCase() === 'auto') {
       this.numWorkers = Math.max(1, os.availableParallelism ? os.availableParallelism() : os.cpus().length);
     } else {
-      this.numWorkers = Math.max(1, Number(workersOpt) || 1);
+      this.numWorkers = Math.min(64, Math.max(1, Math.trunc(Number(workersOpt)) || 1));
     }
 
     if (this.logFile) {
@@ -92,7 +98,7 @@ class Supervisor {
    * Startet einen Worker-Prozess für den angegebenen Slot.
    */
   _spawnWorker(slot: number = 0) {
-    if (this.isShuttingDown) return;
+    if (this.isShuttingDown || !this.isRunning) return;
 
     const childEnv: NodeJS.ProcessEnv = {
       ...process.env,
@@ -149,10 +155,11 @@ class Supervisor {
       logger.error(`Fehler im Anwendungsprozess${errPrefix}: ${err.stack || err.message}`, 'supervisor');
     });
 
+    const generation = this.generation;
     child.on('exit', (code: number | null, signal: NodeJS.Signals | null) => {
-      this.children.delete(slot);
+      if (this.children.get(slot) === child) this.children.delete(slot);
 
-      if (this.isShuttingDown) {
+      if (this.isShuttingDown || generation !== this.generation) {
         const exitPrefix = this.numWorkers > 1
           ? ` (Slot: ${slot + 1}, PID: ${childPid}, Code: ${code}, Signal: ${signal})`
           : ` (PID: ${childPid}, Code: ${code}, Signal: ${signal})`;
@@ -187,11 +194,13 @@ class Supervisor {
         delay = 500;
       }
 
-      setTimeout(() => {
-        if (!this.isShuttingDown) {
+      const restartTimer = setTimeout(() => {
+        this.restartTimers.delete(restartTimer);
+        if (!this.isShuttingDown && this.isRunning && generation === this.generation) {
           this._spawnWorker(slot);
         }
       }, delay);
+      this.restartTimers.add(restartTimer);
     });
   }
 
@@ -202,21 +211,31 @@ class Supervisor {
     if (this._boundSignals) return;
     this._boundSignals = true;
 
-    const onSignal = (sig: NodeJS.Signals) => {
-      logger.info(`Signal ${sig} empfangen. Beende Überwachungsprozess und Anwendung geordnet...`, 'supervisor');
-      this.stop().then(() => {
-        process.exit(0);
-      });
-    };
+    process.once('SIGINT', this.onSigint);
+    process.once('SIGTERM', this.onSigterm);
+  }
 
-    process.once('SIGINT', () => onSignal('SIGINT'));
-    process.once('SIGTERM', () => onSignal('SIGTERM'));
+  private handleSignal(sig: NodeJS.Signals) {
+    logger.info(`Signal ${sig} empfangen. Beende Überwachungsprozess und Anwendung geordnet...`, 'supervisor');
+    void this.stop().then(() => process.exit(0));
   }
 
   /**
    * Beendet alle überwachten Prozesse geordnet.
    */
-  async stop() {
+  stop(): Promise<void> {
+    this.generation++;
+    process.removeListener('SIGINT', this.onSigint);
+    process.removeListener('SIGTERM', this.onSigterm);
+    this._boundSignals = false;
+    if (this.stopPromise) return this.stopPromise;
+    this.stopPromise = this.stopChildren().finally(() => { this.stopPromise = null; });
+    return this.stopPromise;
+  }
+
+  private async stopChildren() {
+    for (const timer of this.restartTimers) clearTimeout(timer);
+    this.restartTimers.clear();
     this.isShuttingDown = true;
     this.isRunning = false;
 
@@ -230,20 +249,25 @@ class Supervisor {
     const stopPromises = currentChildren.map((child: ChildProcess) => {
       return new Promise<void>((resolve) => {
         let resolved = false;
+        let killTimer: ReturnType<typeof setTimeout> | undefined;
         const done = () => {
           if (!resolved) {
             resolved = true;
+            clearTimeout(killTimer);
+            child.removeListener('exit', done);
             resolve();
           }
         };
 
+        if (child.exitCode !== null || child.signalCode !== null) { done(); return; }
         child.once('exit', done);
 
         try {
           child.kill('SIGTERM');
         } catch (err) {}
 
-        const killTimer = setTimeout(() => {
+        if (resolved) return;
+        killTimer = setTimeout(() => {
           if (!resolved) {
             logger.warn(`Child-Prozess (PID: ${child.pid}) reagiert nicht auf SIGTERM, erzwinge Beenden (SIGKILL)...`, 'supervisor');
             try {
@@ -263,14 +287,15 @@ class Supervisor {
   /**
    * Startet alle Child-Prozesse geordnet neu.
    */
-  async restart() {
-    logger.info(`Manueller Neustart aller Anwendungsprozesse angefordert...`, 'supervisor');
-    await this.stop();
-    this.isShuttingDown = false;
-    this.isRunning = true;
-    for (let slot = 0; slot < this.numWorkers; slot++) {
-      this._spawnWorker(slot);
-    }
+  restart(): Promise<void> {
+    if (this.restartPromise) return this.restartPromise;
+    logger.info('Manueller Neustart aller Anwendungsprozesse angefordert...', 'supervisor');
+    const stopped = this.stop();
+    const generation = this.generation;
+    this.restartPromise = stopped.then(() => {
+      if (generation === this.generation) this.start();
+    }).finally(() => { this.restartPromise = null; });
+    return this.restartPromise;
   }
 
   /**

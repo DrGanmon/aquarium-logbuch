@@ -27,9 +27,11 @@ export async function runWorkerTask<K extends keyof WorkerTasks>(
     worker = new Worker(new URL("./worker.ts", import.meta.url), {
       type: "module",
     });
+    const instance = worker;
     worker.onmessage = (
       event: MessageEvent<{ id: number; result: unknown; error?: string }>,
     ) => {
+      if (worker !== instance) return;
       const request = pending.get(event.data.id);
       if (!request) return;
       clearTimeout(request.timer);
@@ -37,19 +39,25 @@ export async function runWorkerTask<K extends keyof WorkerTasks>(
       if (event.data.error) request.reject(new Error(event.data.error));
       else request.resolve(event.data.result);
     };
-    worker.onerror = () => disposeWorker();
+    worker.onerror = () => { if (worker === instance) disposeWorker(); };
   }
   const id = ++requestId;
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       pending.delete(id);
       reject(new Error("Worker-Zeitlimit überschritten."));
+      disposeWorker();
     }, 30000);
     pending.set(id, {
       resolve: (value) => resolve(value as WorkerTasks[K]["output"]),
       reject,
       timer,
     });
-    worker!.postMessage({ id, type, payload });
+    try { worker!.postMessage({ id, type, payload }); }
+    catch (error) {
+      clearTimeout(timer);
+      pending.delete(id);
+      reject(error instanceof Error ? error : new Error(String(error)));
+    }
   });
 }

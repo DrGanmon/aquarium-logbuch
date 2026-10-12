@@ -82,6 +82,13 @@ class MongoAdapter {
         this._setupRepositories();
         this._initialized = true;
         return this;
+      } catch (error) {
+        const client = this.client;
+        this.client = null;
+        this.db = null;
+        this._initialized = false;
+        await client?.close().catch(() => {});
+        throw error;
       } finally {
         this._initPromise = null;
       }
@@ -189,8 +196,9 @@ class MongoAdapter {
       // Dosing pumps
       await db.collection('dosing_pumps').createIndex({ id: 1 }, { unique: true });
       await db.collection('dosing_pumps').createIndex({ aquarium_id: 1, id: 1 });
-    } catch (e) {
-      // Index creation warnings in mock/memory environments ignored
+    } catch (error) {
+      // Missing uniqueness indexes would make account creation and linking unsafe.
+      throw asError(error);
     }
   }
 
@@ -467,7 +475,7 @@ class MongoAdapter {
         }
         throw new Error('Testverbrauch konnte wegen gleichzeitiger Änderungen nicht gespeichert werden.');
       },
-      async update(id?: any, fields: any = {}) {
+      async update(id: number, fields: Partial<UserRecord> = {}, expected: Partial<UserRecord> = {}) {
         const numId = Number(id);
         const updateFields: Record<string, any> = {};
         const allowed = [
@@ -500,15 +508,16 @@ class MongoAdapter {
         ];
 
         for (const k of allowed) {
-          if (fields[k] !== undefined) {
-            let val = fields[k];
+          if (fields[k as keyof UserRecord] !== undefined) {
+            let val = fields[k as keyof UserRecord];
             if (k === 'email_verified') val = val ? 1 : 0;
             updateFields[k] = val;
           }
         }
 
         if (Object.keys(updateFields).length === 0) return true;
-        const res = await db.collection('users').updateOne({ id: numId }, { $set: updateFields });
+        for (const key of Object.keys(expected)) if (!allowed.includes(key)) throw new Error('Ungültige Benutzer-Bedingung.');
+        const res = await db.collection('users').updateOne({ id: numId, ...expected }, { $set: updateFields });
         return res.matchedCount > 0;
       },
       async delete(id?: any) {
@@ -587,6 +596,7 @@ class MongoAdapter {
           id_token: s.id_token,
           username: u.username,
           email: u.email,
+          email_verified: u.email_verified,
           language: u.language || 'de',
         };
       },
@@ -737,10 +747,10 @@ class MongoAdapter {
       async listAllRaw() {
         return await db.collection<Aquarium & { _id?: number }>('aquariums').find({}).sort({ id: 1 }).toArray();
       },
-      async updateReminderSent(id?: any, type?: any, timestamp?: any) {
+      async updateReminderSent(id: number, type: 'measure' | 'fertilize', timestamp: string | null, expected?: string | null) {
         const numId = Number(id);
         const col = type === 'measure' ? 'last_measure_reminder_sent_at' : 'last_fertilize_reminder_sent_at';
-        const res = await db.collection('aquariums').updateOne({ id: numId }, { $set: { [col]: timestamp } });
+        const res = await db.collection('aquariums').updateOne({ id: numId, ...(expected === undefined ? {} : { [col]: expected }) }, { $set: { [col]: timestamp } });
         return res.matchedCount > 0;
       },
       async updateImage(id?: any, filename?: any) {
@@ -750,26 +760,19 @@ class MongoAdapter {
       },
       async delete(id?: any) {
         const numId = Number(id);
-        const images = await db.collection<AquariumImage & { _id?: number }>('aquarium_images').find({ aquarium_id: numId }).toArray();
-        for (const img of images) {
-          deleteImage(img.filename);
-        }
-        const stocks = await db.collection<StockRecord & { _id?: number }>('stock').find({ aquarium_id: numId }).toArray();
-        for (const st of stocks) {
-          if (st.image_file) deleteImage(st.image_file);
-        }
+        const [aq, images, stocks] = await Promise.all([
+          db.collection('aquariums').findOne({ id: numId }),
+          db.collection('aquarium_images').find({ aquarium_id: numId }).toArray(),
+          db.collection('stock').find({ aquarium_id: numId }).toArray(),
+        ]);
         const res = await db.collection('aquariums').deleteOne({ id: numId });
         if (res.deletedCount === 0) return false;
-
-        // Cascade cleanup
-        await db.collection('aquarium_images').deleteMany({ aquarium_id: numId });
-        await db.collection('stock').deleteMany({ aquarium_id: numId });
-        await db.collection('measurements').deleteMany({ aquarium_id: numId });
-        await db.collection('alerts').deleteMany({ aquarium_id: numId });
-        await db.collection('aquarium_shares').deleteMany({ aquarium_id: numId });
-        await db.collection('maintenance_logs').deleteMany({ aquarium_id: numId });
-        await db.collection('aquarium_chats').deleteMany({ aquarium_id: numId });
-        await db.collection('dosing_pumps').deleteMany({ aquarium_id: numId });
+        deleteImage(aq?.image_file);
+        for (const image of images) deleteImage(image.filename);
+        for (const stock of stocks) deleteImage(stock.image_file);
+        // Cascade cleanup: independent collections can be removed concurrently.
+        await Promise.all(['aquarium_images', 'stock', 'measurements', 'alerts', 'aquarium_shares', 'maintenance_logs', 'aquarium_chats', 'dosing_pumps']
+          .map(collection => db.collection(collection).deleteMany({ aquarium_id: numId })));
         return true;
       },
       async countForUser(userId?: any) {
@@ -1629,10 +1632,14 @@ class MongoAdapter {
       },
       async use(id?: any) {
         const res = await db.collection('invitations').updateOne(
-          { id: Number(id) },
-          { $inc: { used_count: 1 } }
+          { id: Number(id), expires_at: { $gte: Date.now() }, $or: [
+            { max_uses: null }, { max_uses: { $lte: 0 } }, { $expr: { $lt: ['$used_count', '$max_uses'] } },
+          ] }, { $inc: { used_count: 1 } },
         );
         return res.modifiedCount > 0;
+      },
+      async releaseUse(id: number) {
+        await db.collection('invitations').updateOne({ id, used_count: { $gt: 0 } }, { $inc: { used_count: -1 } });
       },
       async delete(id?: any, createdBy: any = null) {
         const filter: Record<string, any> = { id: Number(id) };
@@ -1652,11 +1659,11 @@ class MongoAdapter {
         const docs = await db
           .collection('aquarium_chats')
           .find({ aquarium_id: Number(aquariumId) })
-          .sort({ id: 1 })
+          .sort({ id: -1 })
           .limit(limit)
           .toArray();
 
-        return docs.map((d: any) => ({
+        return docs.reverse().map((d: any) => ({
           id: d.id,
           aquarium_id: d.aquarium_id,
           user_id: d.user_id != null ? d.user_id : null,

@@ -197,22 +197,21 @@ export function handleComputeStats(
 ): Record<string, Stats> {
   const result: Record<string, Stats> = {};
   for (const parameter of data.parameters) {
-    const points = data.measurements
-      .filter((m) => Number.isFinite(m.values[parameter.key]))
-      .sort(
-        (a, b) =>
-          new Date(a.measured_at).getTime() - new Date(b.measured_at).getTime(),
-      )
-      .map((m) => m.values[parameter.key]!);
-    if (!points.length) continue;
-    const latest = points.at(-1)!;
+    let count = 0, sum = 0, min = Infinity, max = -Infinity;
+    let latest = 0, first = 0, firstTime = Infinity, lastTime = -Infinity;
+    for (const measurement of data.measurements) {
+      const value = measurement.values[parameter.key];
+      const time = new Date(measurement.measured_at).getTime();
+      if (value == null || !Number.isFinite(value) || !Number.isFinite(time)) continue;
+      count++; sum += value;
+      min = Math.min(min, value); max = Math.max(max, value);
+      if (time < firstTime) { firstTime = time; first = value; }
+      if (time >= lastTime) { lastTime = time; latest = value; }
+    }
+    if (!count) continue;
     result[parameter.key] = {
-      count: points.length,
-      min: Math.min(...points),
-      max: Math.max(...points),
-      avg: points.reduce((sum, value) => sum + value, 0) / points.length,
-      latest,
-      trend: latest - points[0]!,
+      count, min, max, avg: sum / count, latest,
+      trend: latest - first,
       status: evaluate(data.thresholds[parameter.key], latest),
     };
   }
