@@ -1,0 +1,81 @@
+<dialog id="alt" aria-labelledby="alt-title">
+  <div class="dlg-head">
+    <h2 id="alt-title">Alternativen</h2>
+    <form id="alt-search" role="search">
+      <input name="q" type="search" placeholder="Eigene Commons-Suche, z. B. black molly" aria-label="Eigene Suche">
+      <button type="submit">Suchen</button>
+    </form>
+    <button type="button" data-close>Schließen</button>
+  </div>
+  <div class="dlg-body" id="alt-body"></div>
+</dialog>
+<script>
+// Review-Server: Alternativen laden, Bild wählen, verwerfen oder bestätigen.
+(function () {
+  const dlg = document.getElementById("alt");
+  const body = document.getElementById("alt-body");
+  const title = document.getElementById("alt-title");
+  const headers = { "Content-Type": "application/json", "X-Review": "1" };
+  let currentId = null;
+
+  function card(id) { return document.querySelector('figure[data-id="' + CSS.escape(id) + '"]'); }
+
+  async function loadAlternatives(id, query) {
+    currentId = id;
+    const fig = card(id);
+    title.textContent = "Alternativen: " + (fig ? fig.querySelector(".name").textContent : id);
+    body.innerHTML = '<div class="busy">Suche auf Wikimedia Commons läuft, das dauert einige Sekunden …</div>';
+    if (!dlg.open) dlg.showModal();
+    const url = "/api/candidates?id=" + encodeURIComponent(id) + (query ? "&q=" + encodeURIComponent(query) : "");
+    try {
+      const r = await fetch(url, { headers: { "X-Review": "1" } });
+      const text = await r.text();
+      if (r.ok) { body.innerHTML = text; } else { body.textContent = "Fehler " + r.status + ": " + text; }
+    } catch (e) { body.textContent = "Server nicht erreichbar: " + e; }
+  }
+
+  async function post(action, payload, button) {
+    const label = button ? button.textContent : "";
+    if (button) { button.disabled = true; button.textContent = "Bitte warten …"; }
+    try {
+      const r = await fetch("/api/" + action, { method: "POST", headers, body: JSON.stringify(payload) });
+      const data = await r.json();
+      if (!r.ok) { alert(data.error || ("Fehler " + r.status)); return; }
+      const tpl = document.createElement("template");
+      tpl.innerHTML = data.card.trim();
+      const old = card(payload.id);
+      if (old) old.replaceWith(tpl.content.firstElementChild);
+      for (const [status, n] of Object.entries(data.counts)) {
+        const el = document.querySelector('.filters button[data-status="' + status + '"] .n');
+        if (el) el.textContent = n;
+      }
+      if (dlg.open) dlg.close();
+      window.applyFilters();
+    } catch (e) {
+      alert("Fehler: " + e);
+    } finally {
+      if (button && button.isConnected) { button.disabled = false; button.textContent = label; }
+    }
+  }
+
+  document.addEventListener("click", ev => {
+    const b = ev.target.closest("[data-action]");
+    if (!b) return;
+    const id = b.dataset.id || currentId;
+    switch (b.dataset.action) {
+      case "alternatives": loadAlternatives(id); break;
+      case "select": post("select", { id, file: b.dataset.file }, b); break;
+      case "confirm": post("confirm", { id }, b); break;
+      case "reject":
+        if (confirm("Aktuelles Bild verwerfen und automatisch das nächstbeste suchen?")) post("reject", { id }, b);
+        break;
+    }
+  });
+  dlg.querySelector("[data-close]").addEventListener("click", () => dlg.close());
+  document.getElementById("alt-search").addEventListener("submit", ev => {
+    ev.preventDefault();
+    const q = ev.target.q.value.trim();
+    if (q && currentId) loadAlternatives(currentId, q);
+  });
+})();
+</script>
