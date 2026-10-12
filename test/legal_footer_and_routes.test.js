@@ -22,6 +22,9 @@ test('Footer, Impressum, EU AI Act, Datenschutz & Lizenzen Validierung', async (
   };
   const appJsPath = path.join(__dirname, '..', 'public/frontend/App.vue');
   const appJs = fs.readFileSync(appJsPath, 'utf8') + '\n' + (fs.existsSync(jsDir) ? readAllJs(jsDir) : '');
+  const legalView = fs.readFileSync(path.join(jsDir, 'views/LegalView.vue'), 'utf8');
+  const legalDe = require('../public/locales/de.json').legal.content;
+  const legalEn = require('../public/locales/en.json').legal.content;
 
   const styleCssPath = path.join(__dirname, '..', 'public', 'style.css');
   const styleCss = fs.readFileSync(styleCssPath, 'utf8');
@@ -53,23 +56,45 @@ test('Footer, Impressum, EU AI Act, Datenschutz & Lizenzen Validierung', async (
   });
 
   await t.test('viewLegal enthält EU AI Act Transparenzangaben gem. Art. 50', () => {
-    assert.ok(appJs.includes('Art. 50 EU AI Act'), 'Art. 50 EU AI Act Erwähnung vorhanden');
-    assert.ok(appJs.includes('2024/1689'), 'Verordnungsnummer 2024/1689 vorhanden');
-    assert.ok(appJs.includes('Künstlicher Intelligenz'), 'Hinweis auf generative KI vorhanden');
+    for (const content of [legalDe, legalEn]) {
+      assert.ok(content.transparencyHeading.includes('Art. 50 EU AI Act'));
+      assert.ok(content.transparencyHeading.includes('2024/1689'));
+      for (const tool of ['JetBrains Junie', 'OpenAI Codex', 'ChatGPT']) {
+        assert.ok(content.developmentNotice.includes(tool));
+      }
+    }
+    assert.ok(legalView.includes('t("legal.content.developmentNotice")'));
   });
 
   await t.test('viewLegal enthält Impressum gem. § 5 DDG und § 18 MStV', () => {
-    assert.ok(appJs.includes('§ 5 Digitale-Dienste-Gesetz (DDG)'), '§ 5 DDG Anbieterkennzeichnung');
-    assert.ok(appJs.includes('§ 18 Abs. 2 MStV'), '§ 18 Abs. 2 MStV Verantwortlichkeit');
+    assert.ok(legalDe.providerHeading.includes('§ 5 Digitale-Dienste-Gesetz (DDG)'), '§ 5 DDG Anbieterkennzeichnung');
+    assert.ok(legalDe.editorialHeading.includes('§ 18 Abs. 2 MStV'), '§ 18 Abs. 2 MStV Verantwortlichkeit');
+    assert.ok(legalEn.providerHeading.includes('§ 5'));
+    assert.ok(legalEn.editorialHeading.includes('MStV'));
     assert.ok(appJs.includes('ec.europa.eu/consumers/odr'), 'EU-Streitschlichtungsplattform');
   });
 
   await t.test('viewLegal enthält vollständige DSGVO-Datenschutzerklärung', () => {
-    assert.ok(appJs.includes('Datenschutz-Grundverordnung (DSGVO)'), 'DSGVO Erwähnung');
-    assert.ok(appJs.includes('Art. 6 Abs. 1'), 'Rechtsgrundlagen nach Art. 6 DSGVO');
-    assert.ok(appJs.includes('Art. 15 DSGVO'), 'Auskunftsrecht Art. 15');
-    assert.ok(appJs.includes('Art. 17 DSGVO'), 'Löschungsrecht Art. 17');
-    assert.ok(appJs.includes('Art. 20 DSGVO'), 'Datenübertragbarkeit Art. 20');
+    assert.ok(legalDe.privacyIntro.includes('Datenschutz-Grundverordnung (DSGVO)'), 'DSGVO Erwähnung');
+    assert.ok(legalDe.accountLabel.includes('Art. 6 Abs. 1'), 'Rechtsgrundlagen nach Art. 6 DSGVO');
+    for (const content of [legalDe, legalEn]) {
+      assert.ok(content.accessLabel.includes('Art. 15'));
+      assert.ok(content.erasureLabel.includes('Art. 17'));
+      assert.ok(content.portabilityLabel.includes('Art. 20'));
+    }
+  });
+
+  await t.test('Alle Rechtsseiten verwenden vollständige DE/EN-Übersetzungen', () => {
+    assert.deepEqual(Object.keys(legalDe).sort(), Object.keys(legalEn).sort());
+    const keys = [...legalView.matchAll(/t\("legal\.content\.([^"\)]+)"\)/g)].map((match) => match[1]);
+    for (const key of keys) {
+      assert.ok(legalDe[key]?.trim(), `Deutsche Übersetzung: ${key}`);
+      assert.ok(legalEn[key]?.trim(), `Englische Übersetzung: ${key}`);
+    }
+    for (const key of ['imprintHeading', 'privacyHeading', 'licensesHeading', 'contactHeading']) {
+      assert.ok(keys.includes(key), `Übersetzte Seite: ${key}`);
+      assert.notEqual(legalDe[key], legalEn[key]);
+    }
   });
 
   await t.test('viewLegal listet alle Module und Open-Source-Lizenzen auf', () => {

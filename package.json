@@ -10,7 +10,7 @@
     "dist": "npm run typecheck && vite build",
     "build:watch": "vite build --mode development --watch",
     "dist:watch": "vite build --watch",
-    "test": "node --test --test-concurrency=1 'test/**/*.test.js'",
+    "test": "node scripts/test.js",
     "dev": "vite",
     "typecheck": "vue-tsc --noEmit -p public/tsconfig.json"
   },
