@@ -139,7 +139,7 @@ for (const [name, createEnvironment] of [['SQLite', createTestEnvironment], ['Mo
 }
 
 test('Diagnose-KI: persönliche Konfiguration, validierter Kontext, alle Anbieter und keinerlei persistenter Chat-Verlauf', async (t) => {
-  const env = createTestEnvironment({ OPENAI_API_KEY: 'server-key-only' });
+  const env = createTestEnvironment({ OPENAI_API_KEY: 'server-key-only', OPENAI_MODEL: 'server-model', GEMINI_API_KEY: null, CLAUDE_API_KEY: null, DEFAULT_AI_PROVIDER: 'openai' });
   t.after(() => env.cleanup());
   const owner = await env.createUserAndLogin('health_ai_owner');
   const stranger = await env.createUserAndLogin('health_ai_stranger');
@@ -151,10 +151,17 @@ test('Diagnose-KI: persönliche Konfiguration, validierter Kontext, alle Anbiete
   const path = `/api/health/aquariums/${aquarium.id}/diagnosis`;
   const diagnose = answers => env.request(path, { method: 'POST', headers, body: { stockId: resident.id, answers } });
   const chat = body => env.request(path + '/chat', { method: 'POST', headers, body: { stockId: resident.id, message: 'Was sollte ich prüfen?', ...body } });
-  assert.equal((await diagnose([])).data.aiChat, null, 'Server keys alone must not enable this chat');
+  assert.deepEqual((await diagnose([])).data.aiChat, { provider: 'openai', model: 'server-model' }, 'Server configuration must work as in the profile');
+  await db.users.update(owner.id, { ai_provider: 'gemini' });
+  assert.equal((await diagnose([])).data.aiChat, null, 'Do not use another provider when the selected provider has no key');
   assert.equal((await chat({ answers: [] })).status, 400);
   await db.users.update(owner.id, { ai_provider: 'openai', openai_api_key: 'personal-openai', openai_model: '' });
-  assert.equal((await diagnose([])).data.aiChat, null, 'A personal key without a selected model is insufficient');
+  assert.deepEqual((await diagnose([])).data.aiChat, { provider: 'openai', model: 'server-model' }, 'Effective default model is already displayed in the profile');
+  for (const provider of ['openai', 'gemini', 'claude']) {
+    await db.users.update(owner.id, { ai_provider: null, openai_api_key: null, gemini_api_key: null, claude_api_key: null, [`${provider}_api_key`]: `personal-${provider}`, [`${provider}_model`]: `selected-${provider}` });
+    assert.deepEqual((await diagnose([])).data.aiChat, { provider, model: `selected-${provider}` }, 'Infer provider from stored key like /me');
+  }
+  await db.users.update(owner.id, { ai_provider: 'openai', openai_api_key: 'personal-openai' });
   await db.users.update(owner.id, { openai_model: 'selected-openai' });
   assert.equal((await chat({ answers: [] })).status, 409, 'Wizard must be complete');
   let answers = [];

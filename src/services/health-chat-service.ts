@@ -3,12 +3,18 @@ import type { DiagnosisOutcome, HealthContext } from '../types/health';
 import { healthService, healthLanguage } from './health-service';
 import { AppError } from '../utils/app-error';
 import { isRecord } from '../utils/validation';
+import aiChatService = require('./ai-chat-service');
+import env = require('../config/env');
 
 export function healthChatConfig(user: UserRecord | null | undefined): { provider: 'openai' | 'gemini' | 'claude'; apiKey: string; model: string } | null {
-  const provider = user?.ai_provider;
+  if (!user) return null;
+  // Match the effective provider displayed by /me, including older profiles
+  // that saved a key/model without explicitly saving ai_provider.
+  const selectedProvider = user.ai_provider || (user.claude_api_key?.trim() ? 'claude'
+    : user.gemini_api_key?.trim() ? 'gemini' : user.openai_api_key?.trim() ? 'openai'
+    : env.DEFAULT_AI_PROVIDER || 'openai');
+  const { provider, apiKey, model } = aiChatService.resolveProviderAndConfig(user, selectedProvider);
   if (provider !== 'openai' && provider !== 'gemini' && provider !== 'claude') return null;
-  const apiKey = user?.[`${provider}_api_key`]?.trim();
-  const model = user?.[`${provider}_model`]?.trim();
   return apiKey && model ? { provider, apiKey, model } : null;
 }
 

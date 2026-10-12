@@ -79,7 +79,7 @@ router.post('/aquariums/:id/diagnosis', auth, ownAquarium, wrap(async (req, res)
 
 router.post('/aquariums/:id/diagnosis/chat', auth, ownAquarium, wrap(async (req, res) => {
   const selectedAi = healthChatConfig(await db.users.findById(req.user.id));
-  if (!selectedAi) throw new AppError('Bitte im Profil für die ausgewählte KI einen persönlichen API-Key und ein Modell hinterlegen.', 400);
+  if (!selectedAi) throw new AppError('Bitte für die ausgewählte KI einen API-Key und ein Modell im Profil oder in der Serverkonfiguration hinterlegen.', 400);
   const messages = healthChatMessages(req.body.messages, req.body.message);
   const { context, outcome, resident, lang } = await diagnosisFor(req);
   const systemPrompt = healthChatPrompt(context, outcome, resident, req.aq, lang);
