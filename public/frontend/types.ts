@@ -23,6 +23,7 @@ export interface User {
   geminiModel?: string;
   claudeModel?: string;
   canInvite?: boolean;
+  registrationMode?: "open" | "invite_admin" | "invite_open" | "closed";
   hasOidc?: boolean;
   oidcEnabled?: boolean;
   oidcProviderName?: string;

@@ -403,6 +403,13 @@
     "goToProfile": "Zum Profil"
   },
   "profile": {
+    "tabs": {
+      "profile": "Profil",
+      "ui": "UI",
+      "ai": "KI",
+      "tests": "Wassertests",
+      "invites": "Invites"
+    },
     "title": "Benutzerprofil & Einstellungen",
     "avatarTitle": "Profilbild",
     "avatarUpload": "Neues Bild hochladen",

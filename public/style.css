@@ -299,7 +299,8 @@ table { border-collapse: collapse; width: 100%; font-size: .92rem; font-variant-
 th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
 
 /* Navigation Tabs (z. B. Aquarien-Übersicht) */
-.admin-tabs {
+.admin-tabs,
+.profile-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: .5rem;
@@ -307,7 +308,8 @@ th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid var(--
   border-bottom: 2px solid var(--line);
 }
 
-.admin-tabs [role="tab"][aria-selected="true"] {
+.admin-tabs [role="tab"][aria-selected="true"],
+.profile-tabs [role="tab"][aria-selected="true"] {
   background: var(--btn-primary-bg);
   color: var(--btn-primary-text);
   font-weight: 600;
