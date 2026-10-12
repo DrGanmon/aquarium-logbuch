@@ -1079,7 +1079,23 @@ dialog.wide { max-width: 640px; }
 }
 
 .chat-messages-container {
-  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  min-height: min(240px, 40dvh);
+  max-height: min(480px, 50dvh);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+}
+
+.chat-messages-container > * {
+  flex-shrink: 0;
+}
+
+.chat-context-body {
+  max-height: min(200px, 25dvh);
+  overflow-y: auto;
+  overflow-wrap: anywhere;
 }
 
 .chat-message {

@@ -52,7 +52,7 @@ onMounted(async () => {
     </nav>
     <p v-if="error" class="error">{{ error }}</p>
     <div v-if="page === 'impressum'" class="legal-box stack">
-      <h1>⚖️ Impressum &amp; Rechtliche Hinweise</h1>
+      <h1>{{ t("legal.content.imprintHeading") }}</h1>
       <div class="legal-badge-box stack" style="gap: 0.4rem">
         <h3
           style="
@@ -63,158 +63,96 @@ onMounted(async () => {
             color: var(--ink);
           "
         >
-          🤖 Transparenzpflicht nach Art. 50 EU AI Act (Verordnung (EU)
-          2024/1689)
+          {{ t("legal.content.transparencyHeading") }}
         </h3>
         <p style="margin: 0; font-size: 0.93rem">
-          Dieses Softwaresystem (Aquarium-Logbuch) wurde unter Einsatz
-          generativer Künstlicher Intelligenz (JetBrains Junie /
-          KI-Programmierassistenten) konzipiert, programmiert und strukturiert.
-          Der Programmcode, die Datenbankadapter, Frontend-Ansichten sowie
-          Hilfstexte wurden KI-gestützt generiert und qualitätsgesichert.
+          {{ t("legal.content.developmentNotice") }}
         </p>
         <p style="margin: 0; font-size: 0.9rem; color: var(--ink-soft)">
-          Wichtiger Fachhinweis: Die in der App hinterlegten Wasserwertgrenzen,
-          Richtwerte, Alarme, Pflegeregeln und Artendaten dienen der privaten
-          aquaristischen Orientierung. Sie stellen keine tiermedizinische oder
-          biologisch-chemische Fachberatung dar.
+          {{ t("legal.content.expertNotice") }}
         </p>
       </div>
-      <h2>1. Angaben gemäß § 5 Digitale-Dienste-Gesetz (DDG)</h2>
+      <h2>{{ t("legal.content.providerHeading") }}</h2>
       <p>
-        Aquarium-Logbuch – Webanwendung zur Verwaltung und Protokollierung von
-        Aquarien, Wasserwerten und Pflegemaßnahmen.<br /><strong
-          >Diensteanbieter / Betreiber:</strong
+        {{ t("legal.content.appDescription") }}<br /><strong
+          >{{ t("legal.content.providerLabel") }}</strong
         >
-        Betreiber der jeweiligen Server-Instanz / Administrator<br /><strong
-          >Kontakt-E-Mail (Impressum):</strong
+        {{ t("legal.content.providerValue") }}<br /><strong
+          >{{ t("legal.content.imprintEmailLabel") }}</strong
         >
         <a :href="`mailto:${imprintMail}`">{{ imprintMail }}</a
-        ><br /><strong>Hosting:</strong> Eigenbetriebene Instanz (Self-Hosted /
-        On-Premises)
+        ><br /><strong>{{ t("legal.content.hostingLabel") }}</strong> {{ t("legal.content.hostingValue") }}
       </p>
-      <h2>2. Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+      <h2>{{ t("legal.content.editorialHeading") }}</h2>
       <p>
-        Verantwortlich für redaktionelle Inhalte ist der jeweilige Betreiber
-        bzw. Administrator dieser Anwendungsinstanz.
+        {{ t("legal.content.editorialNotice") }}
       </p>
-      <h2>3. Haftung für Inhalte und Links</h2>
+      <h2>{{ t("legal.content.liabilityHeading") }}</h2>
       <p>
-        Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf
-        diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8
-        bis 10 DDG sind Diensteanbieter jedoch nicht verpflichtet, übermittelte
-        oder gespeicherte fremde Informationen ständig zu überwachen oder nach
-        Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
-        Verpflichtungen zur Entfernung oder Sperrung der Nutzung von
-        Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt.
+        {{ t("legal.content.contentLiability") }}
       </p>
       <p>
-        Diese Anwendung enthält ggf. Links zu externen Websites Dritter, auf
-        deren Inhalte kein Einfluss besteht. Deshalb kann für diese fremden
-        Inhalte auch keine Gewähr übernommen werden. Für die Inhalte der
-        verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der
-        Seiten verantwortlich.
+        {{ t("legal.content.linkLiability") }}
       </p>
-      <h2>4. EU-Streitschlichtung &amp; Verbraucherstreitbeilegung</h2>
+      <h2>{{ t("legal.content.disputesHeading") }}</h2>
       <p>
-        Die Europäische Kommission stellt eine Plattform zur
-        Online-Streitbeilegung (OS) bereit:
+        {{ t("legal.content.disputesPlatform") }}
         <a
           href="https://ec.europa.eu/consumers/odr/"
           target="_blank"
           rel="noopener noreferrer"
           >https://ec.europa.eu/consumers/odr/</a
-        ><br />Wir sind nicht bereit oder verpflichtet, an
-        Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle im
-        Sinne des Verbraucherstreitbeilegungsgesetzes (VSBG) teilzunehmen.
+        ><br />{{ t("legal.content.disputesNotice") }}
       </p>
     </div>
     <div v-if="page === 'datenschutz'" class="legal-box stack">
-      <h1>🔒 Datenschutzerklärung</h1>
+      <h1>{{ t("legal.content.privacyHeading") }}</h1>
       <p class="muted" style="margin: 0">
-        Informationen über die Verarbeitung personenbezogener Daten nach Art.
-        12, 13, 14 und 21 der Datenschutz-Grundverordnung (DSGVO).
+        {{ t("legal.content.privacyIntro") }}
       </p>
-      <h2>1. Verantwortliche Stelle</h2>
+      <h2>{{ t("legal.content.controllerHeading") }}</h2>
       <p>
-        Verantwortlich für die Datenverarbeitung im Sinne der DSGVO ist der
-        Administrator bzw. Betreiber dieser Serverinstanz.<br />Kontakt:
+        {{ t("legal.content.controllerNotice") }}<br />{{ t("legal.content.contactLabel") }}
         <a :href="`mailto:${contactMail}`">{{ contactMail }}</a>
       </p>
-      <h2>2. Erhobene Datenarten und Verarbeitungszwecke</h2>
+      <h2>{{ t("legal.content.dataHeading") }}</h2>
       <ul style="padding-left: 1.2rem; margin: 0.4rem 0">
         <li>
           <strong
-            >Benutzerkonto &amp; Registrierung (Art. 6 Abs. 1 lit. b DSGVO): </strong
-          >Bei der Registrierung werden Benutzername, E-Mail-Adresse und ein
-          kryptografischer Passwort-Hash gespeichert. Die E-Mail-Adresse dient
-          der Kontoaktivierung, Passwort-Wiederherstellung und
-          sicherheitsrelevanten Benachrichtigungen.
+            >{{ t("legal.content.accountLabel") }} </strong
+          >{{ t("legal.content.accountNotice") }}
         </li>
         <li>
           <strong
-            >Aquariendaten, Messwerte &amp; Fotos (Art. 6 Abs. 1 lit. b DSGVO): </strong
-          >Die von Ihnen eingegebenen Daten (Aquariennamen, Abmessungen,
-          Wasserparameter, Pflegemaßnahmen, Besatzlisten und hochgeladenen
-          Bilder) werden zur Bereitstellung der Protokollierungs- und
-          Auswertungsfunktionen in der Datenbank gespeichert.
+            >{{ t("legal.content.aquariumLabel") }} </strong
+          >{{ t("legal.content.aquariumNotice") }}
         </li>
         <li>
           <strong
-            >Sitzungs-Cookies &amp; Lokaler Speicher (Art. 6 Abs. 1 lit. f DSGVO
-            / § 25 Abs. 2 TDDDG): </strong
-          >Zur Benutzerauthentifizierung wird ein technisch zwingend
-          erforderliches, verschlüsseltes Session-Cookie
-          (<code>aquarium_session</code>, HttpOnly, SameSite=Lax) verwendet.
-          Lokale Anzeigeeinstellungen (z. B. Dark Mode oder Filtereinstellungen)
-          werden lokal im Browser (localStorage) abgelegt. Es werden keine
-          Werbe- oder Tracking-Cookies eingesetzt.
+            >{{ t("legal.content.storageLabel") }} </strong
+          >{{ t("legal.content.cookieIntro") }}<code>aquarium_session</code>{{ t("legal.content.cookieNotice") }}
         </li>
         <li>
-          <strong>E-Mail-Versand (Art. 6 Abs. 1 lit. b &amp; f DSGVO): </strong
-          >Für Systembenachrichtigungen (Verifizierungslinks, Passwort-Reset,
-          Freigabe-Einladungen, konfigurierte Mess-/Düngungserinnerungen) werden
-          E-Mails über den hinterlegten SMTP-Server versendet.
+          <strong>{{ t("legal.content.emailLabel") }} </strong
+          >{{ t("legal.content.emailNotice") }}
         </li>
         <li>
           <strong
-            >KI-Chat-Assistent &amp; Sprachmodelle (Art. 6 Abs. 1 lit. a &amp; b
-            DSGVO): </strong
-          >Die Nutzung des KI-Aquarium-Assistenten ist vollständig freiwillig
-          („Bring Your Own Key“). Wenn Sie im Profil einen persönlichen
-          API-Schlüssel für OpenAI (ChatGPT), Google Gemini oder Anthropic
-          Claude hinterlegen und eine Chat-Anfrage absenden, werden die
-          Stammdaten des Aquariums (Name, Volumen, Abmessungen, Technik,
-          Bodengrund), der Besatz (Pflanzen- und Tierarten) sowie die letzten
-          bis zu 10 Messungen als Kontext an den jeweiligen Anbieter
-          übermittelt, um fachbezogene Antworten zu generieren. API-Schlüssel
-          werden sicher in der Datenbank gespeichert, im Frontend nur maskiert
-          angezeigt und können im Benutzerprofil jederzeit restlos gelöscht
-          werden.
+            >{{ t("legal.content.aiLabel") }} </strong
+          >{{ t("legal.content.aiNotice") }}
         </li>
         <li>
-          <strong>Server-Logdateien (Art. 6 Abs. 1 lit. f DSGVO): </strong>Beim
-          Zugriff werden technische Serverprotokolle (IP-Adresse, Zeitstempel,
-          HTTP-Status, Fehlermeldungen) erfasst, um die Funktionsfähigkeit,
-          Verfügbarkeit und Sicherheit der Anwendung zu gewährleisten.
+          <strong>{{ t("legal.content.logsLabel") }} </strong>{{ t("legal.content.logsNotice") }}
         </li>
       </ul>
       <h2>
-        3. Lokale Verarbeitung, Keine externen Tracker &amp; Externe Dienste
+        {{ t("legal.content.localHeading") }}
       </h2>
       <p>
-        Diese Anwendung ist für den autarken Eigenbetrieb (Self-Hosting)
-        konzipiert. Es findet keinerlei Tracking oder Weitergabe
-        personenbezogener Daten an Dritte oder Werbenetzwerke statt. Alle
-        Bibliotheken (einschließlich Chart.js) und Schriftarten werden lokal vom
-        Server geladen – es bestehen keine externen Abhängigkeiten von
-        Drittanbieter-CDNs.
+        {{ t("legal.content.localNotice") }}
       </p>
       <div>
-        Sofern Sie freiwillig die KI-Chat-Funktion nutzen, erfolgt die
-        Kommunikation über die offizielle API des von Ihnen gewählten Anbieters.
-        Weitere Informationen zur Datenverarbeitung finden Sie in den
-        Datenschutzrichtlinien der Anbieter:
+        {{ t("legal.content.providerPrivacyNotice") }}
         <ul style="padding-left: 1.2rem; margin: 0.4rem 0">
           <li>
             <strong>OpenAI, L.L.C.: </strong
@@ -246,122 +184,90 @@ onMounted(async () => {
         </ul>
       </div>
       <h2>
-        4. Speicherdauer und vollständige Datenlöschung (Recht auf
-        Vergessenwerden)
+        {{ t("legal.content.retentionHeading") }}
       </h2>
       <p>
-        Ihre Daten werden so lange gespeichert, wie Ihr Benutzerkonto aktiv
-        ist.<br /><strong>2-Stufen-Kontolöschung: </strong>Sie können Ihr Konto
-        jederzeit im Profil (<code>#/profile</code>) über die
-        Kontolöschungsfunktion selbstständig und unwiderruflich löschen. Nach
-        Bestätigung per E-Mail werden alle mit dem Konto verknüpften Daten –
-        einschließlich aller eigenen Aquarien, Messwerte, Alarme, Pflegelogs und
-        hochgeladenen Fotos – kaskadierend und rückstandslos vom Server gelöscht
-        (Art. 17 DSGVO).
+        {{ t("legal.content.retentionNotice") }}<br /><strong>{{ t("legal.content.deletionLabel") }} </strong>{{ t("legal.content.deletionIntro") }}<code>#/profile</code>{{ t("legal.content.deletionNotice") }}
       </p>
-      <h2>5. Ihre Rechte als betroffene Person</h2>
+      <h2>{{ t("legal.content.rightsHeading") }}</h2>
       <p>
-        Sie haben nach der DSGVO folgende Rechte gegenüber dem Verantwortlichen:
+        {{ t("legal.content.rightsIntro") }}
       </p>
       <ul style="padding-left: 1.2rem; margin: 0.4rem 0">
         <li>
-          <strong>Auskunftsrecht (Art. 15 DSGVO): </strong>Sie können jederzeit
-          Auskunft über Ihre gespeicherten Daten verlangen.
+          <strong>{{ t("legal.content.accessLabel") }} </strong>{{ t("legal.content.accessNotice") }}
         </li>
         <li>
-          <strong>Berichtigungsrecht (Art. 16 DSGVO): </strong>Sie können
-          unrichtige Daten im Profil oder in den jeweiligen Aquarien
-          korrigieren.
+          <strong>{{ t("legal.content.rectificationLabel") }} </strong>{{ t("legal.content.rectificationNotice") }}
         </li>
         <li>
-          <strong>Löschungsrecht (Art. 17 DSGVO): </strong>Sie können die
-          vollständige Löschung Ihrer Daten veranlassen.
+          <strong>{{ t("legal.content.erasureLabel") }} </strong>{{ t("legal.content.erasureNotice") }}
         </li>
         <li>
-          <strong>Recht auf Datenübertragbarkeit (Art. 20 DSGVO): </strong>Sie
-          können Ihre Messwerte jederzeit über die integrierte
-          CSV/Excel-Exportfunktion in einem gängigen, maschinenlesbaren Format
-          herunterladen.
+          <strong>{{ t("legal.content.portabilityLabel") }} </strong>{{ t("legal.content.portabilityNotice") }}
         </li>
         <li>
           <strong
-            >Einschränkung der Verarbeitung (Art. 18 DSGVO) &amp; Widerspruch
-            (Art. 21 DSGVO): </strong
-          >Sie können der Datenverarbeitung im gesetzlichen Rahmen
-          widersprechen.
+            >{{ t("legal.content.restrictionLabel") }} </strong
+          >{{ t("legal.content.restrictionNotice") }}
         </li>
         <li>
-          <strong>Beschwerderecht (Art. 77 DSGVO): </strong>Sie haben das Recht
-          auf Beschwerde bei einer zuständigen Datenschutz-Aufsichtsbehörde.
+          <strong>{{ t("legal.content.complaintLabel") }} </strong>{{ t("legal.content.complaintNotice") }}
         </li>
       </ul>
     </div>
     <div v-if="page === 'licenses'" class="legal-box stack">
-      <h1>📜 Copyright &amp; Open-Source-Lizenzen der Module</h1>
+      <h1>{{ t("legal.content.licensesHeading") }}</h1>
       <p class="muted" style="margin: 0">
-        Diese Webanwendung basiert auf quelloffener Software (Open Source).
-        Nachfolgend sind alle verwendeten Module, Autoren und Lizenzbestimmungen
-        aufgeführt:
+        {{ t("legal.content.licensesIntro") }}
       </p>
       <div class="license-card stack" style="gap: 0.4rem">
         <div class="row between" style="align-items: center">
           <h3 style="margin: 0; font-size: 1.1rem">
-            🐠 Aquarium-Logbuch (Hauptanwendung)
+            {{ t("legal.content.mainAppHeading") }}
           </h3>
           <span class="chip ok"
             >CC BY-NC-SA 4.0 (Copyleft &amp; Non-Commercial)</span
           >
         </div>
         <p style="margin: 0; font-size: 0.92rem">
-          Copyright © 2026 Aquarium-Logbuch Projekt. Lizenz für private Nutzung
-          und Weiterentwicklung.
+          {{ t("legal.content.mainAppCopyright") }}
         </p>
         <p class="muted" style="margin: 0; font-size: 0.85rem">
-          Konzipiert und entwickelt unter Einsatz generativer KI (JetBrains
-          Junie) gem. EU AI Act.
+          {{ t("legal.content.mainAppAiNotice") }}
         </p>
         <div
           class="legal-badge-box"
           style="margin: 0.4rem 0 0 0; padding: 0.65rem 0.85rem"
         >
           <strong style="display: block; margin-bottom: 0.2rem"
-            >📜 Lizenzbedingungen für die Hauptanwendung (CC BY-NC-SA
-            4.0):</strong
+            >{{ t("legal.content.mainAppTermsHeading") }}</strong
           >
           <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.88rem">
             <li>
               <strong
-                >Nur privater &amp; nicht-kommerzieller Gebrauch
-                (NonCommercial): </strong
-              >Die kostenlose Nutzung und Modifikation ist ausschließlich für
-              persönliche, private und gemeinnützige Zwecke gestattet. Jede
-              kommerzielle Nutzung, der Weiterverkauf oder das Anbieten als
-              kostenpflichtiger Dienst (SaaS/Hosting) ist strengstens untersagt.
+                >{{ t("legal.content.noncommercialLabel") }} </strong
+              >{{ t("legal.content.noncommercialNotice") }}
             </li>
             <li>
               <strong
-                >Striktes Copyleft &amp; Weitergabe unter gleichen Bedingungen
-                (ShareAlike): </strong
-              >Bearbeitungen, Abwandlungen oder Weiterentwicklungen dürfen
-              AUSSCHLIESSLICH unter denselben Lizenzbedingungen (CC BY-NC-SA
-              4.0) weitergegeben werden.
+                >{{ t("legal.content.sharealikeLabel") }} </strong
+              >{{ t("legal.content.sharealikeNotice") }}
             </li>
             <li>
-              <strong>Namensnennung (Attribution): </strong>Der Urhebervermerk
-              und Verweis auf das Projekt sowie diese Lizenz müssen stets
-              unverändert beibehalten werden.
+              <strong>{{ t("legal.content.attributionLabel") }} </strong>{{ t("legal.content.attributionNotice") }}
             </li>
           </ul>
         </div>
       </div>
-      <h2>Verwendete Module &amp; Bibliotheken</h2>
+      <h2>{{ t("legal.content.modulesHeading") }}</h2>
       <div class="license-card stack" style="gap: 0.3rem">
         <div class="row between">
           <strong>express (v5.3.0)</strong
           ><span class="chip ok">MIT License</span>
         </div>
         <p class="muted" style="margin: 0; font-size: 0.88rem">
-          Schnelles, unaufdringliches Web-Framework und Routing für Node.js.
+          {{ t("legal.content.expressDescription") }}
         </p>
         <div class="muted" style="font-size: 0.82rem">
           Copyright (c) StrongLoop, Inc., Express contributors
@@ -373,7 +279,7 @@ onMounted(async () => {
           ><span class="chip ok">MIT License</span>
         </div>
         <p class="muted" style="margin: 0; font-size: 0.88rem">
-          Schnellster und einfachster C++ SQLite3-Treiber für Node.js.
+          {{ t("legal.content.sqliteDescription") }}
         </p>
         <div class="muted" style="font-size: 0.82rem">
           Copyright (c) Joshua Wise
@@ -385,7 +291,7 @@ onMounted(async () => {
           ><span class="chip ok">Apache License 2.0</span>
         </div>
         <p class="muted" style="margin: 0; font-size: 0.88rem">
-          Offizieller MongoDB-Treiber für Node.js zur NoSQL-Datenspeicherung.
+          {{ t("legal.content.mongoDescription") }}
         </p>
         <div class="muted" style="font-size: 0.82rem">
           Copyright (c) MongoDB, Inc.
@@ -397,7 +303,7 @@ onMounted(async () => {
           ><span class="chip ok">MIT License</span>
         </div>
         <p class="muted" style="margin: 0; font-size: 0.88rem">
-          Einfache, flexible HTML5-Canvas-Diagramme für Messwertverläufe.
+          {{ t("legal.content.chartDescription") }}
         </p>
         <div class="muted" style="font-size: 0.82rem">
           Copyright (c) Chart.js Contributors
@@ -410,8 +316,7 @@ onMounted(async () => {
           ><span class="chip ok">MIT License</span>
         </div>
         <p class="muted" style="margin: 0; font-size: 0.88rem">
-          Integrierte Laufzeitmodule für Verschlüsselung, Dateisystem und
-          Netzwerkprotokolle.
+          {{ t("legal.content.nodeDescription") }}
         </p>
         <div class="muted" style="font-size: 0.82rem">
           Copyright (c) Node.js contributors
@@ -442,7 +347,7 @@ onMounted(async () => {
           Copyright (c) Microsoft Corporation
         </div>
       </div>
-      <h2>Lizenztexte</h2>
+      <h2>{{ t("legal.content.licenseTextsHeading") }}</h2>
       <h3>
         Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
         (CC BY-NC-SA 4.0)
@@ -509,43 +414,38 @@ See the License for the specific language governing permissions and
 limitations under the License.</pre>
     </div>
     <div v-if="page === 'kontakt'" class="legal-box stack">
-      <h1>✉️ Kontakt &amp; Support</h1>
+      <h1>{{ t("legal.content.contactHeading") }}</h1>
       <p class="muted" style="margin: 0">
-        Haben Sie Fragen zur Anwendung, Feedback oder Anliegen bezüglich des
-        Datenschutzes?
+        {{ t("legal.content.contactIntro") }}
       </p>
       <div
         class="compat-box info stack"
         style="gap: 0.6rem; margin-top: 0.8rem"
       >
         <div>
-          <strong>📧 Kontakt &amp; Support:</strong><br /><a
+          <strong>{{ t("legal.content.supportLabel") }}</strong><br /><a
             :href="`mailto:${contactMail}`"
             style="font-size: 1.05rem; font-weight: 600"
             >{{ contactMail }}</a
           >
         </div>
         <div>
-          <strong>⚖️ Impressum &amp; Rechtliche Anfragen:</strong><br /><a
+          <strong>{{ t("legal.content.legalContactLabel") }}</strong><br /><a
             :href="`mailto:${imprintMail}`"
             style="font-size: 1rem; font-weight: 500"
             >{{ imprintMail }}</a
           >
         </div>
         <div>
-          <strong>🛠️ Technische Unterstützung:</strong>
+          <strong>{{ t("legal.content.technicalLabel") }}</strong>
           <p style="margin: 0.2rem 0 0; font-size: 0.92rem">
-            Bei Fragen zur Installation, Konfiguration (z. B. SMTP-Mailserver,
-            OIDC oder Backups) wenden Sie sich bitte an Ihren
-            Server-Administrator oder konsultieren Sie die Dokumentation.
+            {{ t("legal.content.technicalNotice") }}
           </p>
         </div>
         <div>
-          <strong>🔒 Datenschutz &amp; Auskunftsersuchen:</strong>
+          <strong>{{ t("legal.content.privacyContactLabel") }}</strong>
           <p style="margin: 0.2rem 0 0; font-size: 0.92rem">
-            Anfragen bezüglich gespeicherter Daten oder die Ausübung Ihrer
-            Betroffenenrechte nach der DSGVO können direkt an die oben genannte
-            Support-E-Mail-Adresse gerichtet werden.
+            {{ t("legal.content.privacyContactNotice") }}
           </p>
         </div>
       </div>
