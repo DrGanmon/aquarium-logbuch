@@ -1,7 +1,7 @@
 {
   "id": "invertebrates",
-  "name": "Wirbellose (Garnelen, Krebse & Schnecken)",
-  "description": "Zwerggarnelen, Großarm- & Fächergarnelen, Zwergflusskrebse und nützliche Aquarienschnecken",
+  "name": "Wirbellose (Garnelen, Krebse, Krabben & Schnecken)",
+  "description": "Zwerggarnelen, Fächer- und Großarmgarnelen, Zwergflusskrebse, Süßwasserkrabben und Aquarienschnecken",
   "species": [
     {
       "id": "neocaridina-davidi",
@@ -10,21 +10,47 @@
       "category": "Wirbellose",
       "waterType": "fresh",
       "profile": "garnelen",
-      "temp": { "min": 18, "max": 26, "idealMin": 20, "idealMax": 24 },
-      "ph": { "min": 6.5, "max": 8.0, "idealMin": 6.8, "idealMax": 7.5 },
-      "gh": { "min": 5, "max": 20, "idealMin": 6, "idealMax": 15 },
-      "kh": { "min": 2, "max": 14, "idealMin": 3, "idealMax": 10 },
+      "temp": {
+        "min": 18,
+        "max": 26,
+        "idealMin": 20,
+        "idealMax": 24
+      },
+      "ph": {
+        "min": 6.5,
+        "max": 8.0,
+        "idealMin": 6.8,
+        "idealMax": 7.5
+      },
+      "gh": {
+        "min": 5,
+        "max": 20,
+        "idealMin": 6,
+        "idealMax": 15
+      },
+      "kh": {
+        "min": 2,
+        "max": 14,
+        "idealMin": 3,
+        "idealMax": 10
+      },
       "minVolumeL": 20,
       "minTankLengthCm": 30,
       "tankRegion": "all",
       "socialType": "group",
       "minGroupCount": 10,
       "territorial": "none",
-      "tags": ["dwarf_shrimp", "peaceful", "sensitive_copper", "algae_eater"],
-      "diet": "herbivore",
+      "tags": [
+        "dwarf_shrimp",
+        "peaceful",
+        "sensitive_copper",
+        "algae_eater",
+        "prolific_breeder"
+      ],
+      "diet": "omnivore",
       "decorHints": "Moose (z. B. Javamoos), feinfiedrige Pflanzen, Laub (Seemandelbaum, Eiche/Buche) als Weidefläche.",
-      "behaviorNotes": "Sehr friedlich und gesellig (Startgruppe ab 10 Tieren). Äußerst empfindlich gegenüber Kupfer und Schwermetallen! Dient größeren Fischen (Skalare, Buntbarsche) als Lebendfutter.",
-      "description": "Die beliebteste Zwerggarnele in Deutschland (Red Fire, Sakura, Blue Dream, Yellow Fire). Sehr anpassungsfähig und vermehrungsfreudig."
+      "behaviorNotes": "Sehr friedlich und gesellig (Startgruppe ab 10 Tieren). Äußerst empfindlich gegenüber Kupfer und Schwermetallen. Größere Fische (Skalare, Buntbarsche, Barben) fressen Jungtiere und oft auch Alttiere. Verschiedene Farbformen kreuzen sich – die Nachkommen schlagen dann zur bräunlichen Wildfarbe zurück. Kreuzt sich nicht mit Caridina-Arten. Niemals aussetzen: Die Art hat sich in Deutschland bereits in einem wärmebelasteten Gewässer etabliert.",
+      "description": "Die beliebteste Zwerggarnele in Deutschland (Red Fire, Sakura, Blue Dream, Yellow Fire u. v. m.), ca. 2–3 cm, aus Ostasien. Sehr anpassungsfähig und vermehrungsfreudig; ernährt sich vor allem von Aufwuchs, Biofilm und Futterresten."
     },
     {
       "id": "caridina-multidentata",
@@ -33,21 +59,47 @@
       "category": "Wirbellose",
       "waterType": "fresh",
       "profile": "garnelen",
-      "temp": { "min": 20, "max": 27, "idealMin": 22, "idealMax": 25 },
-      "ph": { "min": 6.5, "max": 8.0, "idealMin": 6.8, "idealMax": 7.5 },
-      "gh": { "min": 4, "max": 20, "idealMin": 6, "idealMax": 15 },
-      "kh": { "min": 2, "max": 12, "idealMin": 3, "idealMax": 8 },
+      "temp": {
+        "min": 18,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 25
+      },
+      "ph": {
+        "min": 6.5,
+        "max": 8.0,
+        "idealMin": 6.8,
+        "idealMax": 7.5
+      },
+      "gh": {
+        "min": 4,
+        "max": 20,
+        "idealMin": 6,
+        "idealMax": 15
+      },
+      "kh": {
+        "min": 2,
+        "max": 12,
+        "idealMin": 3,
+        "idealMax": 8
+      },
       "minVolumeL": 54,
       "minTankLengthCm": 60,
       "tankRegion": "all",
       "socialType": "group",
       "minGroupCount": 5,
       "territorial": "none",
-      "tags": ["algae_eater", "peaceful", "sensitive_copper"],
-      "diet": "herbivore",
-      "decorHints": "Viel Struktur, Holz, Steine und Pflanzen zum Abweiden. Aquarium lückenlos abdecken (klettert gerne heraus).",
-      "behaviorNotes": "Hervorragender Fadenalgenvertilger. Sehr robust, friedlich und lebhaft. Larven benötigen zur Entwicklung Meerwasser (keine Vermehrung im Süßwasserbecken).",
-      "description": "Große Zwerggarnele mit transparentem Körper und Punkt- bzw. Strichelmuster. Einer der besten Algenfresser."
+      "tags": [
+        "algae_eater",
+        "peaceful",
+        "sensitive_copper",
+        "no_freshwater_breeding",
+        "escape_artist"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Viel Struktur, Holz, Steine und Pflanzen zum Abweiden. Aquarium lückenlos abdecken (klettert an Schläuchen heraus).",
+      "behaviorNotes": "Hervorragender Fadenalgenvertilger, robust, friedlich und lebhaft; stibitzt bei der Fütterung auch Fischfutter. Die Larven entwickeln sich nur in Brack- bis Meerwasser – keine Vermehrung im Süßwasserbecken. Handelstiere sind überwiegend Wildfänge.",
+      "description": "Größere Garnele (Weibchen ca. 5–6 cm, Männchen kleiner) aus Japan und Taiwan mit transparentem Körper und Punkt- bzw. Strichelmuster. Syn. Caridina japonica."
     },
     {
       "id": "caridina-logemanni",
@@ -56,67 +108,625 @@
       "category": "Wirbellose",
       "waterType": "fresh",
       "profile": "weichwasser",
-      "temp": { "min": 20, "max": 24, "idealMin": 21, "idealMax": 23 },
-      "ph": { "min": 5.8, "max": 6.8, "idealMin": 6.0, "idealMax": 6.5 },
-      "gh": { "min": 4, "max": 7, "idealMin": 5, "idealMax": 6 },
-      "kh": { "min": 0, "max": 2, "idealMin": 0, "idealMax": 1 },
+      "temp": {
+        "min": 18,
+        "max": 25,
+        "idealMin": 21,
+        "idealMax": 23
+      },
+      "ph": {
+        "min": 5.8,
+        "max": 6.8,
+        "idealMin": 6.0,
+        "idealMax": 6.5
+      },
+      "gh": {
+        "min": 4,
+        "max": 7,
+        "idealMin": 5,
+        "idealMax": 6
+      },
+      "kh": {
+        "min": 0,
+        "max": 2,
+        "idealMin": 0,
+        "idealMax": 1
+      },
       "minVolumeL": 20,
       "minTankLengthCm": 30,
       "tankRegion": "all",
       "socialType": "group",
       "minGroupCount": 10,
       "territorial": "none",
-      "tags": ["dwarf_shrimp", "softwater_obligate", "sensitive", "sensitive_copper"],
-      "diet": "herbivore",
+      "tags": [
+        "dwarf_shrimp",
+        "softwater_obligate",
+        "sensitive",
+        "sensitive_copper"
+      ],
+      "diet": "omnivore",
       "decorHints": "Aktiver Soil-Bodengrund, aufbereitetes Osmosewasser mit Mineralsalz (GH+), Moose und Laub.",
-      "behaviorNotes": "Strikter Weichwasserspezialist. Verträgt kein hartes Leitungswasser und keine hohen Sommertemperaturen (>25 °C).",
-      "description": "Faszinierend rot-weiß oder schwarz-weiß gebänderte Hochzucht-Zwerggarnele für Spezial-Aquarien."
+      "behaviorNotes": "Strikter Weichwasserspezialist. Verträgt kein hartes Leitungswasser und keine hohen Sommertemperaturen (über 25 °C). Hochzuchtformen sind empfindlicher als die Wildform. Kreuzt sich mit der Tigergarnele (Tiger-Bee/'Tibee'); Taiwan Bees gehen auf solche Kreuzungen zurück.",
+      "description": "Rot-weiß (Crystal Red) oder schwarz-weiß (Black Bee) gebänderte Zwerggarnele (ca. 2,5–3,5 cm) aus Südchina; erst 2014 als Caridina logemanni beschrieben, vorher als Caridina cf. cantonensis geführt."
+    },
+    {
+      "id": "caridina-mariae",
+      "name": "Tigergarnele",
+      "scientificName": "Caridina mariae",
+      "category": "Wirbellose",
+      "waterType": "fresh",
+      "profile": "weichwasser",
+      "temp": {
+        "min": 18,
+        "max": 25,
+        "idealMin": 20,
+        "idealMax": 23
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5,
+        "idealMin": 6.5,
+        "idealMax": 7.2
+      },
+      "gh": {
+        "min": 4,
+        "max": 12,
+        "idealMin": 5,
+        "idealMax": 8
+      },
+      "kh": {
+        "min": 0,
+        "max": 6,
+        "idealMin": 1,
+        "idealMax": 4
+      },
+      "minVolumeL": 20,
+      "minTankLengthCm": 30,
+      "tankRegion": "all",
+      "socialType": "group",
+      "minGroupCount": 10,
+      "territorial": "none",
+      "tags": [
+        "dwarf_shrimp",
+        "peaceful",
+        "sensitive_copper"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Moose, Laub, Wurzeln; weiches bis mittelhartes Wasser, Soil oder inerter Bodengrund.",
+      "behaviorNotes": "Friedlich; etwas toleranter gegenüber Wasserwerten als Bienengarnelen. Nicht mit Bienengarnelen halten, wenn reine Linien erhalten bleiben sollen (Kreuzung zu 'Tibee').",
+      "description": "Zwerggarnele (ca. 2,5–3 cm) aus Südchina mit feinen dunklen Querstreifen; Zuchtformen wie Orange Eyed Blue Tiger (OEBT) oder Red Tiger."
+    },
+    {
+      "id": "caridina-dennerli",
+      "name": "Kardinalsgarnele (Sulawesi)",
+      "scientificName": "Caridina dennerli",
+      "category": "Wirbellose",
+      "waterType": "fresh",
+      "profile": "sulawesi",
+      "temp": {
+        "min": 26,
+        "max": 30,
+        "idealMin": 27,
+        "idealMax": 29
+      },
+      "ph": {
+        "min": 7.5,
+        "max": 8.5,
+        "idealMin": 7.8,
+        "idealMax": 8.3
+      },
+      "gh": {
+        "min": 5,
+        "max": 10,
+        "idealMin": 6,
+        "idealMax": 8
+      },
+      "kh": {
+        "min": 2,
+        "max": 7,
+        "idealMin": 3,
+        "idealMax": 5
+      },
+      "minVolumeL": 30,
+      "minTankLengthCm": 40,
+      "tankRegion": "all",
+      "socialType": "group",
+      "minGroupCount": 10,
+      "territorial": "none",
+      "tags": [
+        "dwarf_shrimp",
+        "sensitive",
+        "sensitive_copper",
+        "sulawesi_specialist",
+        "species_tank_recommended",
+        "high_temp"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Inerter Bodengrund (kein pH-senkender Soil), poröses Gestein (z. B. Lava) als Aufwuchsfläche, aufgehärtetes Osmosewasser mit Sulawesi-Mineralsalz.",
+      "behaviorNotes": "Nur für erfahrene Garnelenhalter: braucht warmes, alkalisches und sehr stabiles Wasser. Nicht mit Neocaridina oder Bienengarnelen kombinierbar. Geeignete Mitbewohner sind Sulawesi-Schnecken (Tylomelania). Scheu bei hellem Licht.",
+      "description": "Sehr kleine (ca. 2 cm), rote Zwerggarnele mit weißen Punkten und weißen Scheren aus dem Matano-See (Sulawesi). In der Natur vom Aussterben bedroht."
+    },
+    {
+      "id": "atyopsis-moluccensis",
+      "name": "Molukken-Fächergarnele",
+      "scientificName": "Atyopsis moluccensis",
+      "category": "Wirbellose",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 24,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.5,
+        "max": 7.8,
+        "idealMin": 6.8,
+        "idealMax": 7.5
+      },
+      "gh": {
+        "min": 5,
+        "max": 15,
+        "idealMin": 6,
+        "idealMax": 12
+      },
+      "kh": {
+        "min": 2,
+        "max": 10,
+        "idealMin": 3,
+        "idealMax": 8
+      },
+      "minVolumeL": 100,
+      "minTankLengthCm": 80,
+      "tankRegion": "all",
+      "socialType": "group",
+      "minGroupCount": 1,
+      "territorial": "none",
+      "tags": [
+        "filter_feeder",
+        "high_flow",
+        "peaceful",
+        "sensitive_copper",
+        "no_freshwater_breeding"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Gut eingefahrenes Becken mit kräftiger Strömung und erhöhten Sitzplätzen (Wurzeln, Steine) direkt in der Strömung, dazu Verstecke für die Häutung.",
+      "behaviorNotes": "Völlig friedlicher Filtrierer, der Nahrung mit Fächern aus der Strömung fängt. Weidet sie den Boden mit den Fächern ab, findet sie zu wenig Schwebstoffe und hungert – dann gezielt mit Staubfutter füttern. Nicht mit Kugelfischen, großen Buntbarschen oder Schmerlen halten. Larven benötigen Brackwasser.",
+      "description": "Große Fächergarnele (ca. 8–12 cm) aus Südostasien; wird mit Atyopsis spinipes verwechselt."
+    },
+    {
+      "id": "atya-gabonensis",
+      "name": "Gabun-Fächergarnele",
+      "scientificName": "Atya gabonensis",
+      "category": "Wirbellose",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 24,
+        "max": 28,
+        "idealMin": 25,
+        "idealMax": 27
+      },
+      "ph": {
+        "min": 6.5,
+        "max": 8.0,
+        "idealMin": 7.0,
+        "idealMax": 7.5
+      },
+      "gh": {
+        "min": 6,
+        "max": 15,
+        "idealMin": 6,
+        "idealMax": 12
+      },
+      "kh": {
+        "min": 3,
+        "max": 10,
+        "idealMin": 4,
+        "idealMax": 8
+      },
+      "minVolumeL": 120,
+      "minTankLengthCm": 100,
+      "tankRegion": "all",
+      "socialType": "group",
+      "minGroupCount": 1,
+      "territorial": "none",
+      "tags": [
+        "filter_feeder",
+        "high_flow",
+        "peaceful",
+        "sensitive_copper",
+        "no_freshwater_breeding"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Große, gut eingefahrene Becken mit Strömung, erhöhten Sitzplätzen und Höhlen.",
+      "behaviorNotes": "Trotz ihrer Größe völlig harmloser Filtrierer; tagsüber oft versteckt. Braucht Strömung und Schwebstoffe bzw. gezielte Staubfütterung. Keine Vermehrung im Süßwasser.",
+      "description": "Bis ca. 15 cm große, blaugraue Fächergarnele aus Westafrika, auch als Vampirgarnele bekannt."
+    },
+    {
+      "id": "macrobrachium-dayanum",
+      "name": "Schokogarnele (Großarmgarnele)",
+      "scientificName": "Macrobrachium dayanum",
+      "category": "Wirbellose",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 23,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.5,
+        "max": 8.0,
+        "idealMin": 7.0,
+        "idealMax": 7.5
+      },
+      "gh": {
+        "min": 5,
+        "max": 20,
+        "idealMin": 6,
+        "idealMax": 15
+      },
+      "kh": {
+        "min": 3,
+        "max": 12,
+        "idealMin": 4,
+        "idealMax": 10
+      },
+      "minVolumeL": 60,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "group",
+      "minGroupCount": 3,
+      "territorial": "territorial_bottom",
+      "tags": [
+        "shrimp_predator",
+        "snail_eater",
+        "bottom_territory",
+        "sensitive_copper"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Viele Verstecke (Höhlen, Steine, Wurzeln), Laub; gut abdecken.",
+      "behaviorNotes": "Geschickter Jäger: frisst Zwerggarnelen und Schnecken und kann schlafende oder kleine Bodenfische angreifen. 1 Männchen mit 2 Weibchen, ca. 20 L pro Tier. Vermehrt sich im Süßwasser (große Eier, keine Larvenphase im Meer). Niemals aussetzen – in einem wärmebelasteten Gewässer in Deutschland bereits nachgewiesen.",
+      "description": "Ca. 7–8 cm große, braune Großarmgarnele aus Südasien; Männchen mit langen, kräftigen Scheren."
+    },
+    {
+      "id": "macrobrachium-lanchesteri",
+      "name": "Glasgarnele",
+      "scientificName": "Macrobrachium lanchesteri",
+      "category": "Wirbellose",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 23,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.5,
+        "max": 8.0,
+        "idealMin": 6.8,
+        "idealMax": 7.5
+      },
+      "gh": {
+        "min": 4,
+        "max": 20,
+        "idealMin": 6,
+        "idealMax": 15
+      },
+      "kh": {
+        "min": 2,
+        "max": 12,
+        "idealMin": 3,
+        "idealMax": 8
+      },
+      "minVolumeL": 30,
+      "minTankLengthCm": 40,
+      "tankRegion": "all",
+      "socialType": "group",
+      "minGroupCount": 5,
+      "territorial": "none",
+      "tags": [
+        "peaceful",
+        "sensitive_copper"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Bepflanztes Becken mit Moosen und Verstecken.",
+      "behaviorNotes": "Eine der friedlichsten Großarmgarnelen; gegenüber Fischen harmlos, kann aber Jungtiere von Zwerggarnelen erbeuten. Vermehrt sich problemlos im Süßwasser.",
+      "description": "Kleine (ca. 3–4 cm), fast durchsichtige Garnele aus Südostasien."
     },
     {
       "id": "cambarellus-patzcuarensis",
       "name": "Orangefarbener Zwergflusskrebs (CPO)",
-      "scientificName": "Cambarellus patzcuarensis sp. Orange",
+      "scientificName": "Cambarellus patzcuarensis (Zuchtform 'Orange')",
       "category": "Wirbellose",
       "waterType": "fresh",
       "profile": "hartwasser",
-      "temp": { "min": 20, "max": 26, "idealMin": 21, "idealMax": 24 },
-      "ph": { "min": 7.0, "max": 8.5, "idealMin": 7.2, "idealMax": 8.0 },
-      "gh": { "min": 8, "max": 20, "idealMin": 10, "idealMax": 15 },
-      "kh": { "min": 5, "max": 14, "idealMin": 6, "idealMax": 10 },
+      "temp": {
+        "min": 18,
+        "max": 26,
+        "idealMin": 20,
+        "idealMax": 24
+      },
+      "ph": {
+        "min": 7.0,
+        "max": 8.5,
+        "idealMin": 7.2,
+        "idealMax": 8.0
+      },
+      "gh": {
+        "min": 8,
+        "max": 20,
+        "idealMin": 10,
+        "idealMax": 15
+      },
+      "kh": {
+        "min": 5,
+        "max": 14,
+        "idealMin": 6,
+        "idealMax": 10
+      },
       "minVolumeL": 45,
       "minTankLengthCm": 50,
       "tankRegion": "bottom",
       "socialType": "group",
       "minGroupCount": 2,
       "territorial": "territorial_bottom",
-      "tags": ["crayfish_predator", "bottom_territory", "hardwater"],
+      "tags": [
+        "crayfish_predator",
+        "bottom_territory",
+        "hardwater"
+      ],
       "diet": "omnivore",
       "decorHints": "Sehr viele Versteckmöglichkeiten, Tonröhren, Steinhaufen und Laub (Schutz während der Häutung).",
-      "behaviorNotes": "Tagaktiver, leuchtend oranger Krebs. Kann bei Gelegenheit nach langsamen, bodenschlafenden Fischen oder langen Schleierflossen zwicken! Nicht mit langflossigen Grundfischen oder neugierigen Kampffischen vergesellschaften.",
-      "description": "Beliebter Zwergkrebs aus Mexiko mit intensiver oranger Färbung. Lässt Pflanzen meist völlig intakt."
+      "behaviorNotes": "Tagaktiver Zwergkrebs; 1 Männchen mit 2 Weibchen. Kann langsame, am Boden schlafende Fische, Jungfische, Zwerggarnelen und lange Schleierflossen angreifen. Nicht mit Kampffischen oder langflossigen Bodenfischen halten. Niemals in Teiche oder Gewässer aussetzen: Nordamerikanische Krebse können die Krebspest übertragen.",
+      "description": "Zwergkrebs (ca. 3–4 cm, selten 5 cm) aus dem Pátzcuaro-See in Mexiko; die graubraune Wildform gilt als stark gefährdet. Die orange Form ist im Aquarium entstanden und kommt in der Natur nicht vor. Lässt Pflanzen weitgehend in Ruhe."
+    },
+    {
+      "id": "cambarellus-shufeldtii",
+      "name": "Louisiana-Zwergflusskrebs",
+      "scientificName": "Cambarellus shufeldtii",
+      "category": "Wirbellose",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 15,
+        "max": 26,
+        "idealMin": 18,
+        "idealMax": 24
+      },
+      "ph": {
+        "min": 6.5,
+        "max": 8.0,
+        "idealMin": 7.0,
+        "idealMax": 7.8
+      },
+      "gh": {
+        "min": 6,
+        "max": 20,
+        "idealMin": 8,
+        "idealMax": 15
+      },
+      "kh": {
+        "min": 4,
+        "max": 14,
+        "idealMin": 5,
+        "idealMax": 10
+      },
+      "minVolumeL": 40,
+      "minTankLengthCm": 50,
+      "tankRegion": "bottom",
+      "socialType": "group",
+      "minGroupCount": 2,
+      "territorial": "territorial_bottom",
+      "tags": [
+        "crayfish_predator",
+        "bottom_territory"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Viele Verstecke, Röhren, Laub und dichte Bepflanzung.",
+      "behaviorNotes": "Friedlicher Zwergkrebs, auch für unbeheizte Becken geeignet. Erbeutet gelegentlich Zwerggarnelen und Jungfische. Niemals aussetzen (möglicher Krebspest-Überträger).",
+      "description": "Ca. 3–4 cm großer, graubrauner Zwergkrebs mit dunklen Längsbinden aus dem Südosten der USA; auch bläuliche Zuchtformen."
+    },
+    {
+      "id": "procambarus-alleni",
+      "name": "Blauer Floridakrebs",
+      "scientificName": "Procambarus alleni",
+      "category": "Wirbellose",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 18,
+        "max": 26,
+        "idealMin": 21,
+        "idealMax": 25
+      },
+      "ph": {
+        "min": 7.0,
+        "max": 8.2,
+        "idealMin": 7.2,
+        "idealMax": 7.8
+      },
+      "gh": {
+        "min": 8,
+        "max": 20,
+        "idealMin": 10,
+        "idealMax": 15
+      },
+      "kh": {
+        "min": 5,
+        "max": 15,
+        "idealMin": 6,
+        "idealMax": 10
+      },
+      "minVolumeL": 100,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "territorial_bottom",
+      "tags": [
+        "crayfish_predator",
+        "plant_eater",
+        "escape_artist",
+        "species_tank_recommended",
+        "bottom_territory"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Artbecken ab 80 cm mit vielen Höhlen, robusten oder künstlichen Pflanzen und dicht schließender Abdeckung.",
+      "behaviorNotes": "Frisst Pflanzen, Schnecken, Garnelen und alle Fische, die er erwischt – praktisch nur im Artbecken haltbar. Einzeln oder als Paar in großen Becken. Klettert über Kabel und Schläuche aus dem Becken. Niemals aussetzen: Verwandte Arten wie der Rote Amerikanische Sumpfkrebs und der Marmorkrebs stehen auf der EU-Liste invasiver Arten.",
+      "description": "Bis ca. 10–12 cm großer Flusskrebs aus Florida; die leuchtend blaue Form stammt aus der Zucht."
+    },
+    {
+      "id": "limnopilos-naiyanetri",
+      "name": "Thai-Mikrokrabbe",
+      "scientificName": "Limnopilos naiyanetri",
+      "category": "Wirbellose",
+      "waterType": "fresh",
+      "profile": "garnelen",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 23,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.5,
+        "max": 7.8,
+        "idealMin": 6.8,
+        "idealMax": 7.4
+      },
+      "gh": {
+        "min": 4,
+        "max": 12,
+        "idealMin": 5,
+        "idealMax": 8
+      },
+      "kh": {
+        "min": 1,
+        "max": 6,
+        "idealMin": 2,
+        "idealMax": 5
+      },
+      "minVolumeL": 20,
+      "minTankLengthCm": 30,
+      "tankRegion": "all",
+      "socialType": "group",
+      "minGroupCount": 6,
+      "territorial": "none",
+      "tags": [
+        "peaceful",
+        "filter_feeder",
+        "sensitive",
+        "sensitive_copper"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Moose, Wurzeln und Schwimmpflanzen mit hängenden Wurzeln als Sitzplatz; gedämpftes Licht, mäßige Strömung.",
+      "behaviorNotes": "Vollständig aquatische Krabbe – kein Landteil nötig. Friedlich und scheu; filtert Schwebstoffe mit behaarten Beinen und sucht Futterreste. Kann sehr kleine Garnelenjungtiere erbeuten. Nur mit kleinen, friedlichen Arten halten. Vermehrung im Aquarium selten.",
+      "description": "Winzige, durchscheinende Krabbe (Panzer ca. 1 cm) aus nur einem Flusssystem in Thailand."
     },
     {
       "id": "neritina-zebra",
       "name": "Zebra-Rennschnecke",
-      "scientificName": "Neritina zebra",
+      "scientificName": "Vittina natalensis",
       "category": "Schnecken",
       "waterType": "fresh",
       "profile": "allgemein",
-      "temp": { "min": 22, "max": 28, "idealMin": 23, "idealMax": 26 },
-      "ph": { "min": 7.0, "max": 8.5, "idealMin": 7.2, "idealMax": 8.0 },
-      "gh": { "min": 6, "max": 20, "idealMin": 8, "idealMax": 15 },
-      "kh": { "min": 4, "max": 15, "idealMin": 5, "idealMax": 10 },
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 23,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 7.0,
+        "max": 8.5,
+        "idealMin": 7.2,
+        "idealMax": 8.0
+      },
+      "gh": {
+        "min": 6,
+        "max": 20,
+        "idealMin": 8,
+        "idealMax": 15
+      },
+      "kh": {
+        "min": 4,
+        "max": 15,
+        "idealMin": 5,
+        "idealMax": 10
+      },
       "minVolumeL": 30,
       "minTankLengthCm": 40,
       "tankRegion": "all",
       "socialType": "group",
       "minGroupCount": 1,
       "territorial": "none",
-      "tags": ["snail", "algae_eater", "hardwater_preferred"],
+      "tags": [
+        "snail",
+        "algae_eater",
+        "hardwater_preferred",
+        "no_freshwater_breeding",
+        "sensitive_copper",
+        "escape_artist"
+      ],
       "diet": "herbivore",
-      "decorHints": "Scheiben und Steine mit Kiesel- oder Grünalgenbelag.",
-      "behaviorNotes": "Ausgezeichneter Algenfresser für Scheiben und Hardscape. Vermehrt sich im Süßwasser nicht (legt weiße Eikapseln ab). Schneckenfressende Fische (z. B. Prachtschmerlen, Kugelfische) meiden.",
-      "description": "Attraktive Wasserschnecke mit markantem Zebrastreifenmuster auf dem Gehäuse."
+      "decorHints": "Scheiben und Steine mit Kiesel- oder Grünalgenbelag; Abdeckung, da sie aus dem Wasser kriecht.",
+      "behaviorNotes": "Ausgezeichneter Algenfresser für Scheiben und Hardscape, lässt Pflanzen in Ruhe. Legt weiße Eikapseln ab, die sich im Süßwasser nicht entwickeln. Bei Algenmangel zufüttern. Nicht mit schneckenfressenden Arten (Prachtschmerlen, Kugelfische, Raubturmdeckelschnecken) halten. Weiches, saures Wasser schadet dem Gehäuse.",
+      "description": "Rennschnecke (ca. 2–2,5 cm) aus Ostafrika mit Zebramuster auf dem Gehäuse. Syn. Neritina natalensis; der Name Zebra-Rennschnecke wird auch für andere Arten verwendet."
+    },
+    {
+      "id": "clithon-corona",
+      "name": "Geweihschnecke",
+      "scientificName": "Clithon corona",
+      "category": "Schnecken",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 23,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 7.0,
+        "max": 8.5,
+        "idealMin": 7.2,
+        "idealMax": 8.0
+      },
+      "gh": {
+        "min": 6,
+        "max": 20,
+        "idealMin": 8,
+        "idealMax": 15
+      },
+      "kh": {
+        "min": 4,
+        "max": 15,
+        "idealMin": 5,
+        "idealMax": 10
+      },
+      "minVolumeL": 20,
+      "minTankLengthCm": 30,
+      "tankRegion": "all",
+      "socialType": "group",
+      "minGroupCount": 1,
+      "territorial": "none",
+      "tags": [
+        "snail",
+        "algae_eater",
+        "hardwater_preferred",
+        "no_freshwater_breeding",
+        "sensitive_copper",
+        "escape_artist"
+      ],
+      "diet": "herbivore",
+      "decorHints": "Steine, Holz und Scheiben mit Aufwuchs; Abdeckung.",
+      "behaviorNotes": "Friedlicher Algenfresser, geht nicht an Pflanzen. Eier entwickeln sich im Süßwasser nicht. Nicht mit Raubturmdeckelschnecken oder schneckenfressenden Fischen halten.",
+      "description": "Kleine (ca. 1,5–2 cm) Rennschnecke aus dem Indopazifik mit dornartigen Fortsätzen am Gehäuse."
     },
     {
       "id": "anentome-helena",
@@ -125,21 +735,46 @@
       "category": "Schnecken",
       "waterType": "fresh",
       "profile": "allgemein",
-      "temp": { "min": 22, "max": 27, "idealMin": 23, "idealMax": 26 },
-      "ph": { "min": 6.8, "max": 8.0, "idealMin": 7.0, "idealMax": 7.6 },
-      "gh": { "min": 6, "max": 18, "idealMin": 8, "idealMax": 14 },
-      "kh": { "min": 3, "max": 12, "idealMin": 4, "idealMax": 8 },
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 23,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.8,
+        "max": 8.0,
+        "idealMin": 7.0,
+        "idealMax": 7.6
+      },
+      "gh": {
+        "min": 6,
+        "max": 18,
+        "idealMin": 8,
+        "idealMax": 14
+      },
+      "kh": {
+        "min": 3,
+        "max": 12,
+        "idealMin": 4,
+        "idealMax": 8
+      },
       "minVolumeL": 30,
       "minTankLengthCm": 40,
       "tankRegion": "bottom",
       "socialType": "group",
-      "minGroupCount": 2,
+      "minGroupCount": 1,
       "territorial": "none",
-      "tags": ["snail_eater", "snail", "bottom_dwelling"],
+      "tags": [
+        "snail_eater",
+        "snail",
+        "bottom_dwelling",
+        "sensitive_copper"
+      ],
       "diet": "carnivore",
-      "decorHints": "Sandiger Bodengrund zum Vergraben auf der Lauer.",
-      "behaviorNotes": "Ernährt sich räuberisch von anderen Schnecken (Posthorn-, Blasenschnecken). Darf NICHT mit Zierschnecken (Rennschnecken, Geweihschnecken, Apfelschnecken) zusammen gehalten werden, da sie diese erbeutet!",
-      "description": "Gelb-schwarz geringelte Raubschnecke, die zur biologischen Schneckenkontrolle eingesetzt wird."
+      "decorHints": "Sandiger Bodengrund zum Eingraben.",
+      "behaviorNotes": "Ernährt sich räuberisch von anderen Schnecken (Posthorn-, Blasen-, Turmdeckelschnecken) und Aas. Darf NICHT mit Zierschnecken (Rennschnecken, Geweihschnecken, Sulawesi-Schnecken) gehalten werden. Fischen und gesunden Garnelen gegenüber in der Regel harmlos. Getrenntgeschlechtlich; legt einzelne Eikapseln und vermehrt sich langsam.",
+      "description": "Gelb-schwarz gebänderte Raubschnecke (ca. 2–2,5 cm) aus Südostasien zur biologischen Schneckenkontrolle."
     },
     {
       "id": "planorbella-duryi",
@@ -148,21 +783,193 @@
       "category": "Schnecken",
       "waterType": "fresh",
       "profile": "allgemein",
-      "temp": { "min": 18, "max": 28, "idealMin": 20, "idealMax": 25 },
-      "ph": { "min": 6.5, "max": 8.5, "idealMin": 7.0, "idealMax": 7.8 },
-      "gh": { "min": 6, "max": 25, "idealMin": 8, "idealMax": 18 },
-      "kh": { "min": 4, "max": 15, "idealMin": 5, "idealMax": 10 },
+      "temp": {
+        "min": 18,
+        "max": 28,
+        "idealMin": 20,
+        "idealMax": 25
+      },
+      "ph": {
+        "min": 6.5,
+        "max": 8.5,
+        "idealMin": 7.0,
+        "idealMax": 7.8
+      },
+      "gh": {
+        "min": 6,
+        "max": 25,
+        "idealMin": 8,
+        "idealMax": 18
+      },
+      "kh": {
+        "min": 4,
+        "max": 15,
+        "idealMin": 5,
+        "idealMax": 10
+      },
       "minVolumeL": 10,
       "minTankLengthCm": 20,
       "tankRegion": "all",
       "socialType": "group",
       "minGroupCount": 1,
       "territorial": "none",
-      "tags": ["snail", "peaceful", "algae_eater"],
-      "diet": "herbivore",
-      "decorHints": "Beliebiges Pflanzenaquarium.",
-      "behaviorNotes": "Sehr nützlicher Resteverwerter und Algenfresser. Geht nicht an gesunde Pflanzen.",
-      "description": "Klassische Gehäuseschnecke in schönen Zuchtformen (Rosa, Blau, Orange, Braun)."
+      "tags": [
+        "snail",
+        "peaceful",
+        "algae_eater",
+        "prolific_breeder",
+        "sensitive_copper"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Beliebiges Pflanzenaquarium; mittelhartes Wasser für stabile Gehäuse.",
+      "behaviorNotes": "Nützlicher Resteverwerter und Algenfresser, geht nicht an gesunde Pflanzen. Zwittrig und vermehrungsfreudig – die Bestandsgröße richtet sich nach dem Futterangebot. In weichem, saurem Wasser lösen sich die Gehäuse an.",
+      "description": "Gehäuseschnecke (ca. 1,5–2 cm) aus Florida in Zuchtformen wie Rot, Rosa, Blau und Braun; nicht mit der heimischen Großen Posthornschnecke (Planorbarius corneus) verwechseln."
+    },
+    {
+      "id": "melanoides-tuberculata",
+      "name": "Malaiische Turmdeckelschnecke",
+      "scientificName": "Melanoides tuberculata",
+      "category": "Schnecken",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 18,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.5,
+        "max": 8.5,
+        "idealMin": 7.0,
+        "idealMax": 8.0
+      },
+      "gh": {
+        "min": 5,
+        "max": 25,
+        "idealMin": 8,
+        "idealMax": 18
+      },
+      "kh": {
+        "min": 3,
+        "max": 15,
+        "idealMin": 4,
+        "idealMax": 10
+      },
+      "minVolumeL": 10,
+      "minTankLengthCm": 20,
+      "tankRegion": "bottom",
+      "socialType": "group",
+      "minGroupCount": 1,
+      "territorial": "none",
+      "tags": [
+        "snail",
+        "bottom_dwelling",
+        "burrowing",
+        "prolific_breeder",
+        "sensitive_copper"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Sand- oder Feinkiesboden, in dem sie sich eingräbt.",
+      "behaviorNotes": "Gräbt tagsüber im Bodengrund und lockert ihn dabei auf; nachts aktiv. Lebendgebärend und auch ohne Partner vermehrungsfähig – vermehrt sich bei viel Futter stark. Frisst Futterreste und Detritus, keine gesunden Pflanzen.",
+      "description": "Ca. 2–3 cm große, spitz gewundene Turmdeckelschnecke aus den Tropen Afrikas und Asiens, heute weltweit verschleppt."
+    },
+    {
+      "id": "physella-acuta",
+      "name": "Blasenschnecke",
+      "scientificName": "Physella acuta",
+      "category": "Schnecken",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 10,
+        "max": 28,
+        "idealMin": 18,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.5,
+        "max": 8.5,
+        "idealMin": 7.0,
+        "idealMax": 8.0
+      },
+      "gh": {
+        "min": 5,
+        "max": 25,
+        "idealMin": 6,
+        "idealMax": 18
+      },
+      "kh": {
+        "min": 3,
+        "max": 15,
+        "idealMin": 4,
+        "idealMax": 10
+      },
+      "minVolumeL": 5,
+      "minTankLengthCm": 20,
+      "tankRegion": "all",
+      "socialType": "group",
+      "minGroupCount": 1,
+      "territorial": "none",
+      "tags": [
+        "snail",
+        "peaceful",
+        "prolific_breeder",
+        "sensitive_copper"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Jedes Aquarium; gelangt meist unbemerkt mit Pflanzen ins Becken.",
+      "behaviorNotes": "Harmloser Resteverwerter. Starke Vermehrung zeigt Überfütterung an. Zwittrig; laicht in gallertigen Laichballen.",
+      "description": "Kleine (ca. 1 cm), linksgewundene Schnecke mit glänzend dünnem Gehäuse."
+    },
+    {
+      "id": "tylomelania-spp",
+      "name": "Sulawesi-Turmdeckelschnecke",
+      "scientificName": "Tylomelania spp.",
+      "category": "Schnecken",
+      "waterType": "fresh",
+      "profile": "sulawesi",
+      "temp": {
+        "min": 26,
+        "max": 30,
+        "idealMin": 27,
+        "idealMax": 29
+      },
+      "ph": {
+        "min": 7.2,
+        "max": 8.5,
+        "idealMin": 7.5,
+        "idealMax": 8.2
+      },
+      "gh": {
+        "min": 4,
+        "max": 12,
+        "idealMin": 6,
+        "idealMax": 9
+      },
+      "kh": {
+        "min": 3,
+        "max": 10,
+        "idealMin": 4,
+        "idealMax": 7
+      },
+      "minVolumeL": 60,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "group",
+      "minGroupCount": 1,
+      "territorial": "none",
+      "tags": [
+        "snail",
+        "sulawesi_specialist",
+        "bottom_dwelling",
+        "sensitive_copper",
+        "high_temp"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Warmes, alkalisches Becken mit Steinen, Sand und Laub; ideal mit Sulawesi-Garnelen.",
+      "behaviorNotes": "Friedlich; braucht dauerhaft hohe Temperaturen und alkalisches Wasser. Lebendgebärend mit wenigen, großen Jungtieren. Frisst Aufwuchs, Detritus und Futter, kann weiche Pflanzen anfressen.",
+      "description": "Große, oft farbig gezeichnete Turmdeckelschnecken (je nach Art ca. 4–12 cm) aus den Seen und Flüssen Sulawesis."
     }
   ]
 }

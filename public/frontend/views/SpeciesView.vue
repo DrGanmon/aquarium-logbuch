@@ -139,8 +139,8 @@ async function open(item: Species) {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="key in ['temp', 'ph', 'gh', 'kh'] as const" :key="key">
-                <td>{{ key }}</td>
+              <tr v-for="key in (['temp', 'ph', 'gh', 'kh', 'salinity'] as const).filter(key => key !== 'salinity' || selected?.salinity)" :key="key">
+                <td>{{ key === "salinity" ? "Salinität (‰)" : key }}</td>
                 <td>
                   {{ selected[key]?.min ?? "–" }} –
                   {{ selected[key]?.max ?? "–" }}

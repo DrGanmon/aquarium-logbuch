@@ -7,6 +7,125 @@ const CUSTOM_SPECIES_DIR = path.join(__dirname, '../../data/species');
 
 let cache = null;
 
+const SPECIES_ID_ALIASES = { 'symphysodon-spp': 'symphysodon-sp' };
+const SHRIMP_PREDATOR_TAGS = ['predator_small_prey', 'shrimp_predator', 'aggressive_to_shrimp'];
+
+const TAG_CARE_HINTS = {
+  "eats_small_fish": ["Frisst kleine Fische; passende Größe der Mitbewohner beachten.", "Eats small fish; consider the size of tankmates."],
+  "shrimp_predator": ["Erbeutet Garnelen; Vergesellschaftung sorgfältig prüfen.", "Preys on shrimp; assess tankmates carefully."],
+  "aggressive_to_shrimp": ["Kann Garnelen angreifen.", "May attack shrimp."],
+  "schooling": ["Schwarmhaltung und die angegebene Mindestgruppengröße beachten.", "Observe schooling requirements and the listed minimum group size."],
+  "shell_dweller": ["Geeignete leere Schneckenhäuser als Rückzugsorte bereitstellen.", "Provide suitable empty snail shells as shelter."],
+  "filter_feeder": [
+    "Fächert Schwebfutter aus dem Wasser; gezielt mit geeignetem feinem Futter versorgen.",
+    "Filters suspended food from the water; provide suitable fine food."
+  ],
+  "high_flow": [
+    "Benötigt gut mit Sauerstoff versorgtes Wasser und kräftige Strömung.",
+    "Requires oxygen-rich water and strong flow."
+  ],
+  "plant_eater": [
+    "Kann Aquarienpflanzen anfressen.",
+    "May eat aquarium plants."
+  ],
+  "escape_artist": [
+    "Becken ausbruchsicher abdecken und Öffnungen sichern.",
+    "Secure the tank cover and any openings against escape."
+  ],
+  "jumper": [
+    "Becken sicher abdecken; Sprunggefahr.",
+    "Use a secure tank cover; jumping risk."
+  ],
+  "no_freshwater_breeding": [
+    "Vollständige Nachzucht ist in reinem Süßwasser nicht möglich.",
+    "A complete breeding cycle is not possible in freshwater alone."
+  ],
+  "prolific_breeder": [
+    "Vermehrt sich leicht; Nachwuchs und Besatzentwicklung berücksichtigen.",
+    "Breeds readily; plan for offspring and increasing stock."
+  ],
+  "burrowing": [
+    "Benötigt geeigneten Bodengrund zum Eingraben.",
+    "Provide suitable substrate for burrowing."
+  ],
+  "digger": [
+    "Gräbt im Bodengrund; Aufbauten standsicher platzieren.",
+    "Digs in the substrate; secure rocks and decorations."
+  ],
+  "aufwuchs_eater": [
+    "Aufwuchs und Biofilm als natürliche Futterquelle bereitstellen.",
+    "Provide aufwuchs and biofilm as natural food sources."
+  ],
+  "species_tank_recommended": [
+    "Artenbecken empfohlen; Vergesellschaftung sorgfältig prüfen.",
+    "A species tank is recommended; assess tankmates carefully."
+  ],
+  "sulawesi_specialist": [
+    "Spezialisierte Sulawesi-Haltung mit stabilen Wasserwerten erforderlich.",
+    "Requires specialist Sulawesi care with stable water conditions."
+  ],
+  "high_temp": [
+    "Hohe Temperaturansprüche beachten; siehe artspezifischen Temperaturbereich.",
+    "Observe its warm-water requirements; see the species temperature range."
+  ],
+  "reef_safe": [
+    "Im Katalog als riffverträglich eingestuft.",
+    "Listed as reef safe in the catalog."
+  ],
+  "reef_safe_with_caution": [
+    "Nur bedingt riffverträglich; Korallen und Wirbellose beobachten.",
+    "Reef safe with caution; monitor corals and invertebrates."
+  ],
+  "mature_tank_required": [
+    "Benötigt ein biologisch gut eingefahrenes Aquarium.",
+    "Requires a biologically mature aquarium."
+  ],
+  "copepod_feeder": [
+    "Benötigt geeignete Kleinkrebse als Futter; Futterversorgung sicherstellen.",
+    "Requires suitable copepod food; ensure a reliable food supply."
+  ],
+  "frequent_feeding": [
+    "Benötigt häufige, passende Futtergaben.",
+    "Requires frequent suitable feedings."
+  ],
+  "sand_bed_required": [
+    "Benötigt ein geeignetes Sandbett.",
+    "Requires a suitable sand bed."
+  ],
+  "ich_prone": [
+    "Im Katalog als anfällig für Weißpünktchenkrankheiten beschrieben.",
+    "Listed as susceptible to white spot disease in the catalog."
+  ],
+  "nocturnal": [
+    "Nachtaktiv; Rückzugsorte und passende Fütterungszeiten berücksichtigen.",
+    "Nocturnal; provide shelter and suitable feeding times."
+  ],
+  "stinging": [
+    "Nesselnde Tiere mit ausreichendem Abstand zu anderen Bewohnern platzieren.",
+    "Keep stinging animals at sufficient distance from tankmates."
+  ],
+  "aiptasia_eater": [
+    "Kann Glasrosen fressen; keine Garantie für deren vollständige Entfernung.",
+    "May eat Aiptasia; complete removal is not guaranteed."
+  ],
+  "captive_bred_available": [
+    "Nachzuchten sind verfügbar; Herkunft beim Kauf prüfen.",
+    "Captive-bred specimens are available; check their origin."
+  ],
+  "mouthbrooder": [
+    "Maulbrüter; Brutpflege bei der Haltung berücksichtigen.",
+    "Mouthbrooder; account for parental care."
+  ],
+  "large_tank_required": [
+    "Benötigt ein großes Aquarium; Mindestvolumen und Beckenlänge beachten.",
+    "Requires a large aquarium; observe minimum volume and length."
+  ],
+  "very_large_tank_required": [
+    "Benötigt ein sehr großes Aquarium; Mindestvolumen und Beckenlänge beachten.",
+    "Requires a very large aquarium; observe minimum volume and length."
+  ]
+};
+
 const CATEGORY_TRANSLATIONS_EN = {
   'Labyrinthfische': 'Labyrinth Fish',
   'Salmler': 'Tetras & Characins',
@@ -465,6 +584,13 @@ function normalizeSpecies(s, lang = 'de') {
       idealMin: s.kh?.idealMin != null ? Number(s.kh.idealMin) : null,
       idealMax: s.kh?.idealMax != null ? Number(s.kh.idealMax) : null,
     },
+    // Optional salinity range is always expressed in per mille, never specific gravity.
+    salinity: s.salinity ? {
+      min: s.salinity.min != null ? Number(s.salinity.min) : null,
+      max: s.salinity.max != null ? Number(s.salinity.max) : null,
+      idealMin: s.salinity.idealMin != null ? Number(s.salinity.idealMin) : null,
+      idealMax: s.salinity.idealMax != null ? Number(s.salinity.idealMax) : null,
+    } : null,
     minVolumeL: s.minVolumeL != null ? Number(s.minVolumeL) : null,
     minTankLengthCm: s.minTankLengthCm != null ? Number(s.minTankLengthCm) : null,
     tankRegion: String(s.tankRegion || 'all').trim(),
@@ -547,7 +673,8 @@ function getAllSpecies(lang = 'de') {
 function getSpeciesById(id, lang = 'de') {
   if (!id) return null;
   const list = getAllSpecies(lang);
-  return list.find((s) => s.id === String(id).trim().toLowerCase()) || null;
+  const key = String(id).trim().toLowerCase();
+  return list.find((s) => s.id === (SPECIES_ID_ALIASES[key] || key)) || null;
 }
 
 function findSpeciesByName(name, lang = 'de') {
@@ -556,7 +683,7 @@ function findSpeciesByName(name, lang = 'de') {
   const list = getAllSpecies(lang);
 
   // 1. Exakter ID-Match
-  let match = list.find((s) => s.id === q);
+  let match = list.find((s) => s.id === (SPECIES_ID_ALIASES[q] || q));
   if (match) return match;
 
   // 2. Exakter Name-Match (deutsch oder englisch)
@@ -789,9 +916,9 @@ function analyzeStockCompatibility(aquarium, stockItems = [], lang = 'de') {
       }
 
       // D: Raubfische + Zwerggarnelen
-      if ((tagsA.includes('predator_small_prey') && tagsB.includes('dwarf_shrimp')) ||
-          (tagsB.includes('predator_small_prey') && tagsA.includes('dwarf_shrimp'))) {
-        const pred = tagsA.includes('predator_small_prey') ? a.name : b.name;
+      if ((SHRIMP_PREDATOR_TAGS.some((tag) => tagsA.includes(tag)) && tagsB.includes('dwarf_shrimp')) ||
+          (SHRIMP_PREDATOR_TAGS.some((tag) => tagsB.includes(tag)) && tagsA.includes('dwarf_shrimp'))) {
+        const pred = SHRIMP_PREDATOR_TAGS.some((tag) => tagsA.includes(tag)) ? a.name : b.name;
         const shrimp = tagsA.includes('dwarf_shrimp') ? a.name : b.name;
         warnings.push({
           type: 'predator_dwarf_shrimp',
@@ -906,6 +1033,10 @@ function analyzeStockCompatibility(aquarium, stockItems = [], lang = 'de') {
     const sp = entry.species;
     if (!sp) continue;
 
+    for (const tag of sp.tags || []) {
+      const hint = TAG_CARE_HINTS[tag];
+      if (hint) specialDecorHints.push(`„${entry.name}“: ${hint[isEn ? 1 : 0]}`);
+    }
     if (sp.tags.includes('requires_sand')) {
       specialDecorHints.push(isEn
         ? `"${entry.name}" requires fine, rounded sand substrate (protects sensitive barbels and allows digging).`

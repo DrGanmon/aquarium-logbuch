@@ -39,6 +39,17 @@ const PROFILES = {
       gh: { okMin: 10, okMax: 20, critMin: 6, critMax: 30 },
     },
   },
+  // Ranges derived from the supplied Sulawesi catalog entries (shared ideal range).
+  sulawesi: {
+    label: 'Sulawesi-Wirbellose (Kardinalsgarnele, Tylomelania)',
+    fresh: {
+      temp: { okMin: 27, okMax: 29, critMin: 26, critMax: 30 },
+      ph: { okMin: 7.8, okMax: 8.2, critMin: 7.5, critMax: 8.5 },
+      gh: { okMin: 6, okMax: 8, critMin: 5, critMax: 10 },
+      kh: { okMin: 4, okMax: 5, critMin: 3, critMax: 7 },
+      cu: { okMin: 0, okMax: 0.005, critMin: null, critMax: 0.02 },
+    },
+  },
   garnelen: {
     label: 'Garnelen und Wirbellose',
     fresh: {
@@ -89,7 +100,10 @@ function thresholdsFor(waterType, profileKeys, customParams = null) {
   const conflicts = [];
   const params = customParams || suiteService.getAllKnownParameters();
   for (const p of params) {
-    let range = { ...(p[type] || {}) };
+    const baseRange = type === 'fresh' && profileKeys.includes('sulawesi')
+      ? { ...(p[type] || {}), ...(PROFILES.sulawesi.fresh[p.key] || {}) }
+      : { ...(p[type] || {}) };
+    let range = { ...baseRange };
     if (type === 'fresh') {
       for (const key of new Set(profileKeys)) {
         const ov = PROFILES[key] && PROFILES[key].fresh && PROFILES[key].fresh[p.key];

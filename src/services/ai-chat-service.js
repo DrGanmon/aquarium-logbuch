@@ -54,6 +54,7 @@ async function buildAquariumSystemPrompt(aquariumId, customDb = null) {
       ph: sp?.ph || null,
       gh: sp?.gh || null,
       kh: sp?.kh || null,
+      salinity: sp?.salinity || null,
       minVolumeL: sp?.minVolumeL || null,
       socialType: sp?.socialType || null,
       minGroupCount: sp?.minGroupCount || 1,

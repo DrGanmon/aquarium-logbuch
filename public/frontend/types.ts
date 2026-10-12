@@ -92,6 +92,7 @@ export interface Species {
   ph?: SpeciesRange;
   gh?: SpeciesRange;
   kh?: SpeciesRange;
+  salinity?: SpeciesRange | null;
   tankRegion?: string;
   minTankLengthCm?: number;
   diet?: string;
