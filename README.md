@@ -143,15 +143,22 @@ npm start            # startet die App (Standard: SQLite unter http://localhost:
 
 ### 2. Betrieb mit MongoDB (Docker Compose)
 
-Eine Vorlage für alle Umgebungsvariablen befindet sich in `example.env`.
+Beide Compose-Dateien verwenden das [offizielle Container-Image](https://github.com/DrGanmon/aquarium-logbuch/pkgs/container/aquarium-logbuch) `ghcr.io/drganmon/aquarium-logbuch:latest`. Ein lokaler Build ist nicht erforderlich. Passe vor dem Start die Umgebungsvariablen in der jeweiligen Compose-Datei an (insbesondere `APP_URL`, `ADMIN_EMAIL` und das MongoDB-Passwort). Eine Vorlage für alle verfügbaren Umgebungsvariablen befindet sich in `example.env`.
 
 ```bash
-# Umgebungsvariablen kopieren und anpassen
-cp example.env .env
-
-# App samt MongoDB-Container starten
-docker compose up -d --build
+# Images herunterladen und App samt MongoDB-Container starten
+docker compose pull
+docker compose up -d
 ```
+
+Für den Betrieb mit SQLite ohne MongoDB:
+
+```bash
+docker compose -f docker-compose.sqlite.yml pull
+docker compose -f docker-compose.sqlite.yml up -d
+```
+
+Für Updates dieselben `pull`- und `up -d`-Befehle erneut ausführen. Die Daten bleiben in den benannten Volumes erhalten.
 
 ### 3. Konfigurationsvariablen
 

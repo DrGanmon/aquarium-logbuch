@@ -141,15 +141,22 @@ npm start            # Start app (default: SQLite at http://localhost:3000)
 
 ### 2. Running with MongoDB (Docker Compose)
 
-An environment variable template is provided in `example.env`.
+Both Compose files use the [official container image](https://github.com/DrGanmon/aquarium-logbuch/pkgs/container/aquarium-logbuch) `ghcr.io/drganmon/aquarium-logbuch:latest`. No local build is required. Before starting, adjust the environment variables in the respective Compose file (especially `APP_URL`, `ADMIN_EMAIL`, and the MongoDB password). A template for all available environment variables is provided in `example.env`.
 
 ```bash
-# Copy and adjust environment variables
-cp example.env .env
-
-# Start application and MongoDB container
-docker compose up -d --build
+# Download images and start the application and MongoDB container
+docker compose pull
+docker compose up -d
 ```
+
+To run with SQLite without MongoDB:
+
+```bash
+docker compose -f docker-compose.sqlite.yml pull
+docker compose -f docker-compose.sqlite.yml up -d
+```
+
+For updates, run the same `pull` and `up -d` commands again. Data is preserved in the named volumes.
 
 ### 3. Configuration Variables
 
