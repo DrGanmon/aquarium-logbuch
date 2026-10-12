@@ -127,7 +127,7 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 
 ## Automatische App-Version und Docker-Tags
 
-Das Format ist **`MAJOR.MINOR.REVISION[-PATCH]-ALPHA`**; `ALPHA` ist immer enthalten. Die Version steht rechts im Footer. Ausgangspunkt ist `1.0.0-ALPHA`, festgelegt in `version.json` mit einem Git-Basiscommit.
+Das Format ist **`MAJOR.MINOR.REVISION[-PATCH]-ALPHA`**; `ALPHA` ist immer enthalten. Die Version steht rechts im Footer. Ausgangspunkt ist `0.0.0-ALPHA`, festgelegt in `version.json` mit einem Git-Basiscommit.
 
 - Jeder Commit mit `feat:` oder `feat(bereich):` erhöht die **Revision** und setzt den Patch auf 0 zurück.
 - Jeder Commit mit `fix:` oder `fix(bereich):` erhöht den **Patch**. Patch 0 wird nicht angezeigt: `1.0.3-ALPHA` → Fix → `1.0.3-1-ALPHA` → Feature → `1.0.4-ALPHA`.

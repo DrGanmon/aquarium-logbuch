@@ -1,6 +1,6 @@
 {
   "name": "aquarium-logbuch",
-  "version": "1.0.0-ALPHA",
+  "version": "0.0.0-ALPHA",
   "description": "Mehrbenutzer-Webanwendung für Aquarien-Wasserwerte mit Graphen, Timern und Alarmen (SQLite)",
   "main": "server.js",
   "license": "CC-BY-NC-SA-4.0",

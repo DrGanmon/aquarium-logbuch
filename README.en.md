@@ -125,7 +125,7 @@ Login optionally local with password or via OAuth 2.0 / OpenID Connect against [
 
 ## Automatic app versions and Docker tags
 
-Versions use **`MAJOR.MINOR.REVISION[-PATCH]-ALPHA`**, always including `ALPHA`, and appear on the right of the footer. `version.json` records the initial `1.0.0-ALPHA` counters and Git baseline.
+Versions use **`MAJOR.MINOR.REVISION[-PATCH]-ALPHA`**, always including `ALPHA`, and appear on the right of the footer. `version.json` records the initial `0.0.0-ALPHA` counters and Git baseline.
 
 Each `feat:` / `feat(scope):` commit increments revision and resets patch. Each `fix:` / `fix(scope):` increments patch. Patch 0 is omitted: `1.0.3-ALPHA` → fix → `1.0.3-1-ALPHA` → feature → `1.0.4-ALPHA`. Other commit types do not increment counters; merge commits are excluded to prevent double counting. Breaking-change markers do not automatically change major/minor.
 
