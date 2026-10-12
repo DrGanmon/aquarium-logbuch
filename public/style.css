@@ -146,6 +146,7 @@ body {
   display: flex;
   flex-direction: column;
 }
+#vue-root { min-height: 100vh; display: flex; flex-direction: column; width: 100%; flex: 1; }
 h1, h2, h3 { line-height: 1.2; margin: 0 0 .5em; font-weight: 650; letter-spacing: -.01em; }
 h1 { font-size: 1.7rem; } h2 { font-size: 1.2rem; } h3 { font-size: 1rem; }
 a { color: var(--ink); }

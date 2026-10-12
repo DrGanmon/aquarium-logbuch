@@ -1,0 +1,8 @@
+{
+  "enabled": false,
+  "intervalHours": 24,
+  "retentionCount": 10,
+  "includeFiles": true,
+  "lastBackupAt": "2026-10-12T08:53:15.355Z",
+  "lastBackupFile": "aquarium-auto-backup-pre-migration-v0-2026-10-12_10-53-15.json.gz"
+}

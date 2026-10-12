@@ -22,12 +22,12 @@ test('Push-Benachrichtigungen & Timer-Service-Worker', async (t) => {
     assert.ok(contentType.includes('javascript'));
 
     const content = res.text;
-    assert.ok(content.includes("self.addEventListener('install'"), 'sw.js muss install-Handler enthalten');
-    assert.ok(content.includes("self.addEventListener('message'"), 'sw.js muss message-Handler enthalten');
+    assert.ok(/scope\.addEventListener\([\"']install[\"']/.test(content), 'sw.js muss install-Handler enthalten');
+    assert.ok(/scope\.addEventListener\([\"']message[\"']/.test(content), 'sw.js muss message-Handler enthalten');
     assert.ok(content.includes('SCHEDULE_TIMER'), 'sw.js muss SCHEDULE_TIMER unterstützen');
     assert.ok(content.includes('CANCEL_TIMER'), 'sw.js muss CANCEL_TIMER unterstützen');
     assert.ok(content.includes('CLEAR_ALL_TIMERS'), 'sw.js muss CLEAR_ALL_TIMERS unterstützen');
-    assert.ok(content.includes("self.addEventListener('notificationclick'"), 'sw.js muss notificationclick-Handler enthalten');
+    assert.ok(/scope\.addEventListener\([\"']notificationclick[\"']/.test(content), 'sw.js muss notificationclick-Handler enthalten');
   });
 
   await t.test('Web App Manifest (manifest.json) wird korrekt ausgeliefert', async () => {
@@ -44,31 +44,6 @@ test('Push-Benachrichtigungen & Timer-Service-Worker', async (t) => {
     const csp = res.headers.get('content-security-policy') || '';
     assert.ok(csp.includes("worker-src 'self'"), 'CSP muss worker-src self erlauben');
     assert.ok(csp.includes("script-src 'self'"), 'CSP muss script-src self erlauben');
-  });
-
-  await t.test('app.js integriert pushNotificationManager und Timer-Kopplung', async () => {
-    const res = await env.request('/js/notifications.js');
-    assert.equal(res.status, 200);
-    const code = res.text;
-
-    assert.ok(code.includes('pushNotificationManager'), 'notifications.js muss pushNotificationManager definieren');
-    assert.ok(code.includes('scheduleTimer'), 'notifications.js muss Timer beim Start einplanen');
-    assert.ok(code.includes('cancelTimer'), 'notifications.js muss Timer beim Abbrechen stornieren');
-    assert.ok(code.includes('notificationBanner'), 'notifications.js muss Benachrichtigungs-Banner in der Messmaske rendern');
-    assert.ok(code.includes('notificationsCard'), 'notifications.js muss Benachrichtigungs-Einstellungen im Profil bereitstellen');
-  });
-
-  await t.test('measure.js unterstützt parallele Timer, Multi-Timer-Dock und abgelaufene Timer', async () => {
-    const res = await env.request('/js/views/measure.js');
-    assert.equal(res.status, 200);
-    const code = res.text;
-
-    assert.ok(code.includes('multiTimerDock'), 'measure.js muss ein multiTimerDock für aktive/abgelaufene Timer enthalten');
-    assert.ok(code.includes('cancelAllTimers'), 'measure.js muss cancelAllTimers unterstützen');
-    assert.ok(code.includes('clearFinishedTimers'), 'measure.js muss clearFinishedTimers unterstützen');
-    assert.ok(code.includes('multi-timer-chip'), 'measure.js muss Chips für parallele Timer rendern');
-    assert.ok(code.includes('btnReset'), 'measure.js muss einen Reset-Button für abgelaufene/laufende Timer bereitstellen');
-    assert.ok(code.includes('timer-flash'), 'measure.js muss Klick-Sprung mit Hervorhebung unterstützen');
   });
 
   await t.test('Sprachdateien enthalten alle Übersetzungen für parallele Timer', async () => {

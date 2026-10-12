@@ -42,26 +42,19 @@ test('App-weiter modularer i18n Support (Deutsch & Englisch)', async (t) => {
     }
   });
 
-  await t.test('2. i18n Engine Modul und Translation Helper vorhanden', async () => {
-    const res = await env.request('/js/i18n.js');
-    assert.equal(res.status, 200);
-    const content = res.text;
-
-    assert.ok(content.includes('export function t('), 'i18n.js exportiert t()');
-    assert.ok(content.includes('export function setLanguage('), 'i18n.js exportiert setLanguage()');
-    assert.ok(content.includes('export function getLanguage('), 'i18n.js exportiert getLanguage()');
-    assert.ok(content.includes('export function initI18n('), 'i18n.js exportiert initI18n()');
-    assert.ok(content.includes('export function formatDate('), 'i18n.js exportiert formatDate()');
-    assert.ok(content.includes('export function formatNumber('), 'i18n.js exportiert formatNumber()');
+  await t.test('2. Vue i18n verwendet TypeScript und die bestehenden Sprachdateien', () => {
+    const source = fs.readFileSync(path.join(__dirname, '../public/frontend/state.ts'), 'utf8');
+    assert.match(source, /export function t\(/);
+    assert.match(source, /locales\/de.json/);
+    assert.match(source, /locales\/en.json/);
+    assert.match(source, /export function fmtDate/);
+    assert.match(source, /export function fmtNum/);
+    assert.ok(source.includes('aquarium_lang'));
   });
-
-  await t.test('3. HTML & Topbar enthalten Sprachumschalter und lang-Bootstrap', async () => {
-    const res = await env.request('/');
-    assert.equal(res.status, 200);
-    const html = res.text;
-
-    assert.ok(html.includes('id="btn-lang-topbar"'), 'HTML enthält id="btn-lang-topbar"');
-    assert.ok(html.includes('aquarium_lang'), 'HTML enthält Early-Init-Script für aquarium_lang');
+  await t.test('3. Sprachumschalter ist eine native Vue-Komponente', () => {
+    const source = fs.readFileSync(path.join(__dirname, '../public/frontend/components/Topbar.vue'), 'utf8');
+    assert.ok(source.includes('id="btn-lang-topbar"'));
+    assert.ok(source.includes('$emit(\'language\')'));
   });
 
   await t.test('4. Benutzerprofil API unterstützt Sprachspeicherung', async () => {

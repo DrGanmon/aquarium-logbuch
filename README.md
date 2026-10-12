@@ -8,20 +8,11 @@
   <strong>🇩🇪 Deutsch</strong> &nbsp;|&nbsp; <a href="README.en.md">🇬🇧 English</a>
 </p>
 
-Mehrbenutzer-Webanwendung für Aquarien-Wasserwerte. Node.js (ab Version 22), Express sowie wahlweise **SQLite** (lokal/leichtgewichtig) oder **MongoDB** (produktiv/skalierbar).
+Mehrbenutzer-Webanwendung für Aquarien-Wasserwerte und Pflegeaktivitäten.
 Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen [Pocket ID](https://pocket-id.org).
 
-## Funktionen
+## App-Funktionen
 
-- **Flexibles Dual-Datenbanksystem:**
-  - **SQLite (Standard lokal):** Dateibasierte, performante Zero-Setup-Datenbank (`data/aquarium.db`) mit WAL-Modus und `busy_timeout` für nebenläufige Zugriffe.
-  - **MongoDB (Produktiv):** Volle Unterstützung für MongoDB-Cluster/Container via `DB_TYPE=mongodb` und `MONGODB_URI`.
-- **Multithreading & Multi-Core Clustering:**
-  - **Frontend Web-Worker-Multithreading:** Dedizierter Web-Worker (`public/worker.js` / `dist/worker.min.js`) für rechenintensive clientseitige Operationen (CSV-Parsing & Trennzeichenerkennung großer Importdateien, Artenkatalog-Volltextsuche mit Fuzzy-Scoring, Besatzkompatibilitätsprüfung, statistische Zeitreihenberechnung sowie asynchrone Bildskalierung & -kompression via `OffscreenCanvas`), um den UI-Thread vollkommen flüssig (60/120 fps) und ruckelfrei zu halten.
-  - **Nicht-blockierende Kryptografie (Backend):** Passwort-Hashing und Verifizierung (Scrypt) werden asynchron über den Threadpool abgewickelt, sodass gleichzeitige Anmeldungen den Event-Loop nicht blockieren.
-  - **Backend Worker-Thread-Pool:** Dedizierter Worker-Pool für rechenintensive Hintergrund- und Inspektionsaufgaben.
-  - **Multi-Worker Clusterbetrieb:** Über `WORKERS=auto` (oder feste Anzahl) verteilt der Supervisor eingehende Anfragen auf mehrere Worker-Prozesse über alle CPU-Kerne hinweg.
-  - **Zustandsloses OIDC:** OIDC-Zustände werden kryptografisch signiert und funktionieren prozess- und instanzübergreifend.
 - Anmeldung über Pocket ID (OIDC) oder lokal mit Registrierung
 - **4 Registrierungs- & Einladungsmodi:**
   - **🟢 Offen:** Jeder Besucher kann sich direkt selbst registrieren.
@@ -33,21 +24,14 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **Systemstandard:** Verwendet standardmäßig die Farbschema-Einstellungen des Betriebssystems (`prefers-color-scheme`).
   - **Umschaltbar:** Schnell-Umschalter in der Kopfzeile und auf der Anmeldeseite sowie feste Auswahlmöglichkeit im Benutzerprofil.
   - **Chart-Anpassung:** Verlaufsdiagramme und Tooltips passen ihre Farbpalette dynamisch an das aktive Farbschema an.
-- **🌐 App-weiter modularer i18n & Mehrsprachigkeits-Support (Deutsch & Englisch):**
-  - **Standardisiertes JSON-Format:** Vollständig modulare Sprachdateien unter `public/locales/de.json` und `public/locales/en.json` mit strukturierter Verschachtelung und Token-Interpolation (`{count}`, `{name}`, `{days}` etc.).
+- **🌐 Mehrsprachigkeit (Deutsch & Englisch):**
   - **Umschaltbar & Persistiert:** Direkter 1-Klick-Schnellumschalter (`🌐 DE` / `🌐 EN`) in der Kopfzeile und im Anmeldebereich sowie dauerhafte Sprachauswahl im Benutzerprofil (`#/profile`).
   - **Nahtlose Lokalisierung:** Vollständige Lokalisierung aller Ansichten (Login/Registrierung, Beckenübersicht, Detailansicht, Messmaske, Logbuch, CSV-Import/Export, Artenkatalog, KI-Chat, Admin-Bereich und Rechtsseiten) inklusive sprachspezifischer Datums- und Zahlenformatierung (`Intl.DateTimeFormat` / `Intl.NumberFormat`).
-  - **Vollständig im Dist-Bundle integriert:** Automatische Bündelung und Minifizierung im esbuild-Dist-Prozess für minimale Ladezeiten und sofortige Verfügbarkeit ohne zusätzliche Netzwerk-Roundtrips.
-- **E-Mail-Verifizierung & Passwort-Reset via SMTP:**
+- **E-Mail-Verifizierung & Passwort-Reset:**
   - **E-Mail-Verifizierung für neue Benutzer:** Neue Registrierungen (außer der Admin-E-Mail-Adresse) erhalten automatisch eine Bestätigungs-E-Mail mit Aktivierungslink. Nicht verifizierte Benutzer werden beim Login geschützt und können sich neue Bestätigungslinks anfordern.
   - **Passwort vergessen & Reset per E-Mail:** Über die Anmeldeseite kann ein zeitlich begrenzter Link zum sicheren Zurücksetzen des Passworts angefordert werden. Beim Zurücksetzen werden alle bestehenden Benutzersitzungen automatisch invalidiert.
-  - **Modulare HTML-E-Mail-Templates (.tpl-Dateien):** Jede E-Mail besitzt eine eigene, frei anpassbare `.tpl`-Datei mit HTML-Code und dynamischen Tokens (z. B. `{{username}}`, `{{verifyUrl}}`, `{{resetUrl}}`, `{{expiresHours}}` etc.) unter `src/templates/mail/` (bzw. für eigene Vorlagen unter `data/mail-templates/`).
-  - **Rate-Limited Mail-Warteschlange (Queue):** E-Mails werden über eine FIFO-Warteschlange mit konfigurierbarer Verzögerung versendet, um SMTP-Server nicht zu überlasten und Spam-Filter-Trigger zu vermeiden.
-  - **SMTP-Konfiguration im Admin-Bereich:** Konfigurierbar über die Admin-Oberfläche (`#/admin`) oder via Umgebungsvariablen (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`) inklusive Versand von Test-E-Mails und Einsicht in den Warteschlangen-Status.
 - Benutzerprofil zur Pflege von Profilbild (Avatar), Vorname, Nachname, Benutzername und „Über mich“-Bio sowie Passwortverwaltung, Erscheinungsbild und OIDC-Verknüpfung
 - Admin-Bereich mit Benutzerverwaltung für Administratoren (festgelegt anhand der E-Mail-Adresse in der Konfiguration) sowie integriertem System-Logbuch & Fehlerprotokoll
-- **Überwachungsprozess & Ausfallsicherheit (Supervisor):** Ein übergeordneter Watchdog-Prozess überwacht die Anwendung, fängt ungeplante Abstürze oder Ausnahmen automatisch ab und startet den Worker-Prozess verzögerungsfrei neu
-- **Strukturiertes Fehler- und Ereignis-Logging:** Alle Serverfehler, Uncaught Exceptions, Stderr-Meldungen und Supervisor-Ereignisse werden mit Zeitstempel und Log-Level in eine `.log`-Datei (`data/aquarium.log`) protokolliert
 - **Aquarien-Verwaltung mit Motto, Beschreibung & Pflegezyklen:**
   - Aquarien flexibel anlegen und pflegen mit Name, individuellem Motto / Leitspruch, ausführlicher Beschreibung (Scape, Bepflanzung, Philosophie, Technik), Süß- oder Meerwasser, Volumen und Notizen.
   - **Unabhängige Mess- und Düngzyklen:**
@@ -84,13 +68,9 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **Datensparsamkeit & Sicherheit:** Keine Datenweitergabe an KI-Dienste ohne aktive Chatauslösung; API-Schlüssel werden sicher in der Datenbank gespeichert, im UI maskiert und können jederzeit vom Benutzer gelöscht werden.
 - Messmaske für 15 Parameter mit Timer pro Test (mehrere gleichzeitig, Ton und Vibration bei Ablauf,
   Bildschirm bleibt während der Timer an, wenn der Browser das erlaubt)
-- **PWA & Mobile App Icons (Home-Bildschirm Shortcut):**
+- **PWA & Installation auf dem Home-Bildschirm:**
   - **Optimiert für Mobilgeräte (iOS & Android):** Vollständige Unterstützung für Homescreen-Shortcuts und Web-App-Installation mit gestochen scharfem App-Icon (lila Fisch mit Blasen auf tiefviolettem Hintergrund).
-  - **iOS Apple Touch Icon:** 180×180 px Vollflächen-Icon ohne transparente Ecken für nahtloses, kantenfreies Rendern der Apple-typischen Squircle-Maske.
-  - **Android Adaptive & Maskable Icons:** Bereitstellung von 192×192 px und 512×512 px Icons im Standard- (`any`) sowie im adaptiven Maskable-Format (`maskable`), bei dem das Motiv sicher innerhalb der 80%-Safe-Zone liegt und von Android-Launchern (z. B. Kreis, Tropfen, Squircle) ohne abgeschnittene Ränder maskiert wird.
-  - **Multi-Resolution Favicons:** Favicons in 16×16, 32×32 sowie Standard `favicon.ico` für Browser-Tabs und Lesezeichen.
 - **Push-Benachrichtigungen für Timer:** Automatische System- und Push-Benachrichtigungen bei Ablauf der Reaktionszeiten:
-  - **Hintergrund-Timer:** Service Worker stellt sicher, dass Alarme auch dann pünktlich ankommen, wenn der Tab minimiert ist oder im Hintergrund liegt.
   - **Präzises Timing:** Verhindert das Überziehen von Reaktionszeiten und schützt vor Fehlinterpretationen bei Farbvergleichstests.
   - **Status & Testen:** Aktivierungsbanner in der Messmaske sowie Konfigurationskarte und 3-Sekunden-Test-Benachrichtigung im Benutzerprofil.
 - **CSV & Excel Export & Import mit Spaltenzuordnung:**
@@ -115,23 +95,51 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 - Warnungen (auffällig) und Alarme (kritisch) mit Handlungshinweis, zum Abhaken
 - Erinnerung, wenn die letzte Messung länger her ist als eingestellt
 
+## Technische Features
+
+- **Technischer Aufbau:** Node.js (ab Version 22.12), Express sowie wahlweise **SQLite** (lokal/leichtgewichtig) oder **MongoDB** (produktiv/skalierbar).
+- **Vue 3, Vite und TypeScript:** Das gesamte Frontend liegt unter `public/frontend/`. Vue-Komponenten verwalten alle Ansichten, Formulare, Dialoge und Timer. Die vorhandenen CSS-Regeln, Icons, Übersetzungen und API-Verträge bleiben die Grundlage. Anwendungscode und Worker sind in TypeScript geschrieben; alte JavaScript-Ansichten und Kompatibilitätslayer entfallen.
+- **Flexibles Dual-Datenbanksystem:**
+  - **SQLite (Standard lokal):** Dateibasierte, performante Zero-Setup-Datenbank (`data/aquarium.db`) mit WAL-Modus und `busy_timeout` für nebenläufige Zugriffe.
+  - **MongoDB (Produktiv):** Volle Unterstützung für MongoDB-Cluster/Container via `DB_TYPE=mongodb` und `MONGODB_URI`.
+- **Multithreading & Multi-Core Clustering:**
+  - **Frontend Web-Worker-Multithreading:** Dedizierter Web-Worker (`public/frontend/worker.ts` / `dist/worker.min.js`) für rechenintensive clientseitige Operationen (CSV-Parsing & Trennzeichenerkennung großer Importdateien, Artenkatalog-Volltextsuche mit Trefferbewertung, statistische Zeitreihenberechnung sowie asynchrone Bildskalierung & -kompression via `OffscreenCanvas`), um den UI-Thread vollkommen flüssig (60/120 fps) und ruckelfrei zu halten.
+  - **Nicht-blockierende Kryptografie (Backend):** Passwort-Hashing und Verifizierung (Scrypt) werden asynchron über den Threadpool abgewickelt, sodass gleichzeitige Anmeldungen den Event-Loop nicht blockieren.
+  - **Backend Worker-Thread-Pool:** Dedizierter Worker-Pool für rechenintensive Hintergrund- und Inspektionsaufgaben.
+  - **Multi-Worker Clusterbetrieb:** Über `WORKERS=auto` (oder feste Anzahl) verteilt der Supervisor eingehende Anfragen auf mehrere Worker-Prozesse über alle CPU-Kerne hinweg.
+  - **Zustandsloses OIDC:** OIDC-Zustände werden kryptografisch signiert und funktionieren prozess- und instanzübergreifend.
+- **Überwachungsprozess & Ausfallsicherheit (Supervisor):** Ein übergeordneter Watchdog-Prozess überwacht die Anwendung, fängt ungeplante Abstürze oder Ausnahmen automatisch ab und startet den Worker-Prozess verzögerungsfrei neu
+- **Strukturiertes Fehler- und Ereignis-Logging:** Alle Serverfehler, Uncaught Exceptions, Stderr-Meldungen und Supervisor-Ereignisse werden mit Zeitstempel und Log-Level in eine `.log`-Datei (`data/aquarium.log`) protokolliert
+- **Technische Umsetzung der Mehrsprachigkeit:**
+  - **Standardisiertes JSON-Format:** Vollständig modulare Sprachdateien unter `public/locales/de.json` und `public/locales/en.json` mit strukturierter Verschachtelung und Token-Interpolation (`{count}`, `{name}`, `{days}` etc.).
+  - **Vollständig im Dist-Bundle integriert:** Automatische Bündelung und Minifizierung im Vite-Build für minimale Ladezeiten und sofortige Verfügbarkeit ohne zusätzliche Netzwerk-Roundtrips.
+- **SMTP-Versand, E-Mail-Vorlagen & Warteschlange:**
+  - **Modulare HTML-E-Mail-Templates (.tpl-Dateien):** Jede E-Mail besitzt eine eigene, frei anpassbare `.tpl`-Datei mit HTML-Code und dynamischen Tokens (z. B. `{{username}}`, `{{verifyUrl}}`, `{{resetUrl}}`, `{{expiresHours}}` etc.) unter `src/templates/mail/` (bzw. für eigene Vorlagen unter `data/mail-templates/`).
+  - **Rate-Limited Mail-Warteschlange (Queue):** E-Mails werden über eine FIFO-Warteschlange mit konfigurierbarer Verzögerung versendet, um SMTP-Server nicht zu überlasten und Spam-Filter-Trigger zu vermeiden.
+  - **SMTP-Konfiguration im Admin-Bereich:** Konfigurierbar über die Admin-Oberfläche (`#/admin`) oder via Umgebungsvariablen (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`) inklusive Versand von Test-E-Mails und Einsicht in den Warteschlangen-Status.
+- **Service Worker für Timer-Benachrichtigungen:**
+  - **Hintergrund-Timer:** Service Worker stellt sicher, dass Alarme auch dann pünktlich ankommen, wenn der Tab minimiert ist oder im Hintergrund liegt.
+- **App-Icons & Favicons:**
+  - **iOS Apple Touch Icon:** 180×180 px Vollflächen-Icon ohne transparente Ecken für nahtloses, kantenfreies Rendern der Apple-typischen Squircle-Maske.
+  - **Android Adaptive & Maskable Icons:** Bereitstellung von 192×192 px und 512×512 px Icons im Standard- (`any`) sowie im adaptiven Maskable-Format (`maskable`), bei dem das Motiv sicher innerhalb der 80%-Safe-Zone liegt und von Android-Launchern (z. B. Kreis, Tropfen, Squircle) ohne abgeschnittene Ränder maskiert wird.
+  - **Multi-Resolution Favicons:** Favicons in 16×16, 32×32 sowie Standard `favicon.ico` für Browser-Tabs und Lesezeichen.
+
 ## Starten
 
 ### 1. Lokale Entwicklung (SQLite)
 
 ```bash
-npm ci               # Abhängigkeiten installieren (Node >= 22)
+npm ci               # Abhängigkeiten installieren (Node >= 22.12)
 npm run build        # Bündelt das Frontend unminifiziert für Entwicklung (public/dist/app.js)
 npm run dist         # Bündelt und minifiziert für Produktion (public/dist/app.min.js)
 npm test             # führt alle automatisierten Tests aus (SQLite & MongoDB)
 npm start            # startet die App (Standard: SQLite unter http://localhost:3000)
 ```
 
-- **Frontend-Builds (`npm run build` vs. `npm run dist`):**
-  - **`npm run build` (Unminified Entwicklungs-Bundle):** Kompiliert und bündelt sämtliche Frontend-Module schnell nach `public/dist/app.js` und `public/dist/style.css` (inkl. Source-Maps) ohne Minification, ideal für schnelles Debugging und Entwicklung.
-  - **`npm run dist` (Minified Produktions-Bundle):** Kompiliert, bündelt und minifiziert das gesamte Frontend hochoptimiert nach `public/dist/app.min.js` und `public/dist/style.min.css` (inkl. Source-Maps) für minimale Übertragungsgrößen im Produktivbetrieb.
-  - **Automatischer Server-Fallback:** Der Server (`src/app.js`) erkennt vorhandene Bundles automatisch (bevorzugt `dist/app.min.js`, danach `dist/app.js`, und fällt bei ungebautem Entwicklungsstand transparent auf die ungebündelten ES-Module `app.js` / `style.css` zurück).
-  - **Watch-Modi:** Mit `npm run build:watch` (unminified) oder `npm run dist:watch` (minified) werden Änderungen an Quelldateien automatisch in Echtzeit neu gebaut.
+- **Entwicklung:** `npm start` startet die Express-API (Port 3000); `npm run dev` startet in einem zweiten Terminal Vite mit Hot Reload unter http://127.0.0.1:5173. `/api`, `/auth` und `/sw.js` werden an Express weitergeleitet. Für eine andere Backend-Adresse kann `VITE_BACKEND_URL` gesetzt werden. OIDC verwendet die konfigurierte Backend-Adresse `APP_URL`.
+- **Prüfung:** `npm run typecheck` prüft alle Vue-Komponenten und TypeScript-Dateien mit strikter Typisierung. `npm test` führt die automatisierten Tests aus.
+- **Build:** `npm run build` erstellt das unminifizierte Entwicklungs-Bundle, `npm run dist` das minifizierte Produktions-Bundle unter `public/dist/`. Beide führen vorher die Typprüfung aus. Chart.js wird als Modul gebündelt. Vite baut den Rechen-Worker; der TypeScript-Service-Worker wird als `dist/sw.js` erzeugt und über `/sw.js` ausgeliefert.
+- **Betrieb:** Express wählt die gebauten Produktions- oder Entwicklungsdateien und unterstützt `APP_URL` mit Unterpfad. Ohne Build antwortet der Server mit HTTP 503 und einem Einrichtungshinweis. `npm run build:watch` / `npm run dist:watch` bauen bei Änderungen neu. Docker erstellt weiterhin den Produktions-Build beim Image-Bau.
 
 ### 2. Betrieb mit MongoDB (Docker Compose)
 

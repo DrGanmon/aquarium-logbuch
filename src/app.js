@@ -43,12 +43,14 @@ function getIndexHtml() {
   const hasDistMinCss = fs.existsSync(path.join(publicDir, 'dist', 'style.min.css'));
   const hasDistCss = fs.existsSync(path.join(publicDir, 'dist', 'style.css'));
 
-  let jsSrc = 'app.js';
+  let jsSrc = null;
   if (hasDistMinJs) {
     jsSrc = 'dist/app.min.js';
   } else if (hasDistJs) {
     jsSrc = 'dist/app.js';
   }
+
+  if (!jsSrc) return null;
 
   let cssSrc = 'style.css';
   if (hasDistMinCss) {
@@ -60,17 +62,19 @@ function getIndexHtml() {
   let html = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
 
   html = html.replace(/<script type="module" src="[^"]+"><\/script>/, `<script type="module" src="${jsSrc}"></script>`);
-  html = html.replace(/<link rel="stylesheet" href="[^"]*style[^"]*\.css">/, `<link rel="stylesheet" href="${cssSrc}">`);
+  html = html.replace(/<link rel="stylesheet" href="[^"]*style[^"]*\.css"\s*\/?>/, `<link rel="stylesheet" href="${cssSrc}">`);
 
   return html.replace('<head>', `<head>\n  <base href="${APP_PATH.replace(/["<>&]/g, '')}/">`);
 }
 
-const sendIndex = (req, res) => res.type('html').setHeader('Cache-Control', 'no-cache').send(getIndexHtml());
+const sendIndex = (req, res) => {
+  const html = getIndexHtml();
+  if (!html) return res.status(503).type('text').send('Frontend fehlt. Bitte npm run build oder npm run dist ausführen. Für Entwicklung: npm run dev.');
+  return res.type('html').setHeader('Cache-Control', 'no-cache').send(html);
+};
 
 app.get(['/', '/index.html'], sendIndex);
-app.get('/vendor/chart.js', (req, res) =>
-  res.sendFile(path.join(__dirname, '..', 'node_modules', 'chart.js', 'dist', 'chart.umd.js'))
-);
+app.get('/sw.js', (req, res) => res.setHeader('Cache-Control', 'no-cache').sendFile(path.join(publicDir, 'dist', 'sw.js')));
 app.use(express.static(publicDir, { maxAge: 0 }));
 
 // 404 Handler

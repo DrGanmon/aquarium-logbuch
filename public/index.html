@@ -1,76 +1,27 @@
 <!doctype html>
 <html lang="de">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#12343b" id="meta-theme-color">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Aquarium">
-  <meta name="application-name" content="Aquarium-Logbuch">
-  <title>Aquarium-Logbuch</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="dist/style.min.css">
-  <script>
-    (function() {
-      try {
-        var t = localStorage.getItem('aquarium_theme') || localStorage.getItem('theme');
-        if (t === 'light' || t === 'dark') {
-          document.documentElement.setAttribute('data-theme', t);
-        }
-        var l = localStorage.getItem('aquarium_lang');
-        if (l === 'de' || l === 'en') {
-          document.documentElement.setAttribute('lang', l);
-        }
-      } catch (e) {}
-    })();
-  </script>
-</head>
-<body>
-  <header class="topbar" id="topbar" hidden>
-    <a class="brand" href="#/">
-      <img src="favicon-32x32.png" alt="Logo" class="brand-logo" width="24" height="24">
-      <span id="topbar-brand-name">Aquarium-Logbuch</span>
-    </a>
-    <div class="topbar-right">
-      <a class="btn small ghost" id="btn-species" href="#/species">Artenkatalog</a>
-      <a class="btn small ghost topbar-user" id="btn-profile" href="#/profile" title="Mein Profil">
-        <img id="topbar-avatar" class="avatar-small" style="display:none" alt="Avatar">
-        <span id="whoami"></span>
-      </a>
-      <a class="btn small ghost" id="btn-admin" href="#/admin" hidden>Admin</a>
-      <button class="btn small ghost" id="btn-lang-topbar" type="button" title="Sprache wechseln" aria-label="Sprache wechseln">
-        <span id="topbar-lang-text">🌐 DE</span>
-      </button>
-      <button class="btn small ghost" id="btn-theme-topbar" type="button" title="Farbschema wechseln" aria-label="Farbschema wechseln">
-        <span id="topbar-theme-icon">🌓</span>
-      </button>
-      <button class="btn small ghost" id="btn-logout" type="button">Abmelden</button>
-    </div>
-  </header>
-  <main id="app" tabindex="-1"></main>
-  <footer class="site-footer" id="site-footer">
-    <div class="footer-container">
-      <div class="footer-brand">
-        <span class="footer-copy">© 2026 Aquarium-Logbuch</span>
-        <span class="footer-ai-badge" title="Hinweis gem. Art. 50 EU AI Act (Verordnung (EU) 2024/1689)">🤖 KI-erstellt (EU AI Act konform)</span>
-      </div>
-      <nav class="footer-nav" aria-label="Rechtliche Hinweise und Informationen">
-        <a class="footer-link" href="#/impressum">⚖️ Impressum &amp; KI-Hinweis</a>
-        <a class="footer-link" href="#/datenschutz">🔒 Datenschutz</a>
-        <a class="footer-link" href="#/lizenzen">📜 Lizenzen &amp; Copyright</a>
-        <a class="footer-link" href="#/kontakt">✉️ Kontakt</a>
-        <a class="footer-link" href="https://github.com/DrGanmon/aquarium-logbuch" target="_blank" rel="noopener noreferrer">🐙 GitHub</a>
-      </nav>
-    </div>
-  </footer>
-  <div id="toast" role="status" aria-live="polite"></div>
-  <script src="vendor/chart.js"></script>
-  <script type="module" src="dist/app.min.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#12343b" id="meta-theme-color" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Aquarium" />
+    <meta name="application-name" content="Aquarium-Logbuch" />
+    <title>Aquarium-Logbuch</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="stylesheet" href="dist/style.min.css" />
+  </head>
+  <body>
+    <div id="vue-root"></div>
+    <script type="module" src="dist/app.min.js"></script>
+  </body>
 </html>

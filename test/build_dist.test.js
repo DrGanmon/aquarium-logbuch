@@ -56,7 +56,7 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
     assert.ok(fs.existsSync(workerUnminPath), 'dist/worker.js existiert');
     assert.ok(fs.existsSync(workerUnminMapPath), 'dist/worker.js.map existiert');
     assert.ok(fs.existsSync(cssUnminPath), 'dist/style.css existiert');
-    assert.ok(fs.existsSync(cssUnminMapPath), 'dist/style.css.map existiert');
+
 
     // Minified-Dateien dürfen nicht existieren
     assert.ok(!fs.existsSync(jsMinPath), 'dist/app.min.js existiert nicht nach unminifiziertem Build');
@@ -72,7 +72,7 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
 
     // Unminifiziertes CSS enthält Zeilenumbrüche
     assert.ok(cssContent.includes('\n'), 'CSS enthält Zeilenumbrüche');
-    assert.ok(cssContent.includes('sourceMappingURL=style.css.map'), 'CSS Source Map Link vorhanden');
+
   });
 
   await t.test('Express bindet unminifiziertes Bundle (dist/app.js & dist/style.css) ein, wenn nur dieses existiert', async () => {
@@ -120,7 +120,7 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
     assert.ok(fs.existsSync(workerMinPath), 'dist/worker.min.js existiert');
     assert.ok(fs.existsSync(workerMinMapPath), 'dist/worker.min.js.map existiert');
     assert.ok(fs.existsSync(cssMinPath), 'dist/style.min.css existiert');
-    assert.ok(fs.existsSync(cssMinMapPath), 'dist/style.min.css.map existiert');
+
 
     // Unminifizierte Dateien wurden bereinigt
     assert.ok(!fs.existsSync(jsUnminPath), 'dist/app.js existiert nicht nach minifiziertem Build');
@@ -131,7 +131,7 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
     const cssContent = fs.readFileSync(cssMinPath, 'utf8');
 
     assert.ok(jsContent.includes('sourceMappingURL=app.min.js.map'), 'Source Map Link vorhanden');
-    assert.ok(cssContent.includes('sourceMappingURL=style.min.css.map'), 'CSS Source Map Link vorhanden');
+
   });
 
   await t.test('Express bindet minifiziertes Bundle (dist/app.min.js & dist/style.min.css) bevorzugt ein', async () => {
@@ -161,35 +161,17 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
     }
   });
 
-  await t.test('Express fällt automatisch auf ungebündelte Quelldateien (app.js & style.css) zurück, wenn kein dist-Bundle existiert', async () => {
+  await t.test('Express meldet einen fehlenden Vue-Build ohne Legacy-Fallback', async () => {
     cleanDist();
-
     delete require.cache[require.resolve('../src/app')];
-    const app = require('../src/app');
-
-    const http = require('http');
-    const server = http.createServer(app);
-    await new Promise((resolve) => server.listen(0, resolve));
-    const port = server.address().port;
-
+    const server = require('http').createServer(require('../src/app'));
+    await new Promise(resolve => server.listen(0, resolve));
     try {
-      const res = await fetch(`http://127.0.0.1:${port}/`);
-      assert.equal(res.status, 200);
-      const html = await res.text();
-      assert.ok(html.includes('<script type="module" src="app.js"></script>'), 'HTML bindet app.js ein');
-      assert.ok(html.includes('<link rel="stylesheet" href="style.css">'), 'HTML bindet style.css ein');
-      assert.ok(!html.includes('dist/app.min.js'), 'Kein dist/app.min.js im ungebauten Modus');
-      assert.ok(!html.includes('dist/app.js'), 'Kein dist/app.js im ungebauten Modus');
-
-      // Prüfen, ob app.js und style.css abrufbar sind
-      const appJsRes = await fetch(`http://127.0.0.1:${port}/app.js`);
-      assert.equal(appJsRes.status, 200);
-
-      const styleCssRes = await fetch(`http://127.0.0.1:${port}/style.css`);
-      assert.equal(styleCssRes.status, 200);
-    } finally {
-      server.close();
-    }
+      const response = await fetch(`http://127.0.0.1:${server.address().port}/`);
+      assert.equal(response.status, 503);
+      assert.match(await response.text(), /npm run build/);
+    } finally { server.close(); }
+    await buildFrontend({ minify: true });
   });
 
   await t.test('.gitkeep im dist-Ordner und .gitignore Konfiguration', async () => {

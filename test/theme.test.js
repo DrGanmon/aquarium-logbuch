@@ -30,32 +30,20 @@ test('Theme: Light, Dark und System-Modus Konfiguration & Frontend-Assets', asyn
     assert.ok(css.includes('.theme-options'), 'CSS enthält Klassen für Theme-Auswahl');
   });
 
-  await t.test('HTML: Frühe Theme-Initialisierung gegen FOUC und Topbar-Schalter', async () => {
+  await t.test('Vue-Shell bindet den Theme-Schalter und die Theme-Farbe ein', async () => {
     const res = await env.request('/');
     assert.equal(res.status, 200);
-    const html = res.text;
-
-    assert.ok(html.includes('data-theme'), 'HTML enthält Script zur Auswertung von data-theme');
-    assert.ok(html.includes('id="btn-theme-topbar"'), 'HTML enthält Topbar Theme-Toggle-Button');
-    assert.ok(html.includes('id="meta-theme-color"'), 'HTML enthält dynamische meta theme-color');
+    assert.ok(res.text.includes('id="vue-root"'));
+    assert.ok(res.text.includes('id="meta-theme-color"'));
+    const topbar = fs.readFileSync(path.join(__dirname, '../public/frontend/components/Topbar.vue'), 'utf8');
+    assert.ok(topbar.includes('id="btn-theme-topbar"'));
+    assert.ok(topbar.includes('@click="toggleTheme"'));
   });
-
-  await t.test('JavaScript: Theme-Logik und Umschaltfunktionen vorhanden', async () => {
-    const resTheme = await env.request('/js/theme.js');
-    assert.equal(resTheme.status, 200);
-    const jsTheme = resTheme.text;
-
-    const resProfile = await env.request('/js/views/profile.js');
-    assert.equal(resProfile.status, 200);
-    const jsProfile = resProfile.text;
-
-    const js = jsTheme + '\n' + jsProfile;
-
-    assert.ok(js.includes('applyTheme'), 'theme.js definiert applyTheme');
-    assert.ok(js.includes('toggleTheme'), 'theme.js definiert toggleTheme');
-    assert.ok(js.includes('getThemeSetting'), 'theme.js definiert getThemeSetting');
-    assert.ok(js.includes('isEffectiveDark'), 'theme.js definiert isEffectiveDark');
-    assert.ok(js.includes('prefers-color-scheme: dark'), 'theme.js reagiert auf Media-Query Event Listener');
-    assert.ok(js.includes('Erscheinungsbild / Farbschema'), 'profile.js enthält Theme-Sektion im Profil');
+  await t.test('Theme-Zustand ist reaktiv, persistent und folgt dem Systemstandard', () => {
+    const source = fs.readFileSync(path.join(__dirname, '../public/frontend/state.ts'), 'utf8');
+    assert.ok(source.includes('prefers-color-scheme: dark'));
+    assert.ok(source.includes('aquarium_theme'));
+    assert.ok(source.includes('export function toggleTheme'));
+    assert.ok(source.includes('document.documentElement.dataset.theme'));
   });
 });

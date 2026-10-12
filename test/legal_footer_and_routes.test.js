@@ -7,27 +7,27 @@ const path = require('node:path');
 
 test('Footer, Impressum, EU AI Act, Datenschutz & Lizenzen Validierung', async (t) => {
   const indexPath = path.join(__dirname, '..', 'public', 'index.html');
-  const indexHtml = fs.readFileSync(indexPath, 'utf8');
+  const indexHtml = fs.readFileSync(path.join(__dirname, '..', 'public/frontend/components/SiteFooter.vue'), 'utf8') + fs.readFileSync(path.join(__dirname, '..', 'public/locales/de.json'), 'utf8');
 
-  const jsDir = path.join(__dirname, '..', 'public', 'js');
+  const jsDir = path.join(__dirname, '..', 'public', 'frontend');
   const readAllJs = (dir) => {
     let out = '';
     const entries = fs.readdirSync(dir, { withFileTypes: true });
     for (const ent of entries) {
       const full = path.join(dir, ent.name);
       if (ent.isDirectory()) out += '\n' + readAllJs(full);
-      else if (ent.name.endsWith('.js')) out += '\n' + fs.readFileSync(full, 'utf8');
+      else if (/\.(ts|vue)$/.test(ent.name)) out += '\n' + fs.readFileSync(full, 'utf8');
     }
     return out;
   };
-  const appJsPath = path.join(__dirname, '..', 'public', 'app.js');
+  const appJsPath = path.join(__dirname, '..', 'public/frontend/App.vue');
   const appJs = fs.readFileSync(appJsPath, 'utf8') + '\n' + (fs.existsSync(jsDir) ? readAllJs(jsDir) : '');
 
   const styleCssPath = path.join(__dirname, '..', 'public', 'style.css');
   const styleCss = fs.readFileSync(styleCssPath, 'utf8');
 
   await t.test('index.html enthält den Site-Footer mit allen vorgeschriebenen Links', () => {
-    assert.ok(indexHtml.includes('<footer class="site-footer" id="site-footer">'), 'Footer-Element muss existieren');
+    assert.ok(/<footer\s+class="site-footer"\s+id="site-footer"/.test(indexHtml), 'Footer-Element muss existieren');
     assert.ok(indexHtml.includes('href="#/impressum"'), 'Link zu Impressum muss vorhanden sein');
     assert.ok(indexHtml.includes('href="#/datenschutz"'), 'Link zu Datenschutz muss vorhanden sein');
     assert.ok(indexHtml.includes('href="#/lizenzen"'), 'Link zu Lizenzen & Copyright muss vorhanden sein');
@@ -49,7 +49,7 @@ test('Footer, Impressum, EU AI Act, Datenschutz & Lizenzen Validierung', async (
     assert.ok(appJs.includes('datenschutz'), 'Route datenschutz registriert');
     assert.ok(appJs.includes('lizenzen'), 'Route lizenzen registriert');
     assert.ok(appJs.includes('kontakt'), 'Route kontakt registriert');
-    assert.ok(appJs.includes('viewLegal'), 'Funktion viewLegal implementiert');
+    assert.ok(appJs.includes('LegalView'), 'Funktion viewLegal implementiert');
   });
 
   await t.test('viewLegal enthält EU AI Act Transparenzangaben gem. Art. 50', () => {

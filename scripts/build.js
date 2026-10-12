@@ -1,134 +1,37 @@
 #!/usr/bin/env node
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-const esbuild = require('esbuild');
-
-const rootDir = path.resolve(__dirname, '..');
-const publicDir = path.join(rootDir, 'public');
-const distDir = path.join(publicDir, 'dist');
-
+"use strict";
+const fs = require("node:fs");
+const path = require("node:path");
 async function buildFrontend(options = {}) {
-  const isWatch = options.watch || process.argv.includes('--watch') || process.argv.includes('-w');
-  const isMinify = options.minify !== undefined
-    ? Boolean(options.minify)
-    : (process.argv.includes('--minify') || process.argv.includes('--dist') || process.argv.includes('-m') || process.argv.includes('dist'));
-
-  const startTime = Date.now();
-
-  if (!fs.existsSync(distDir)) {
-    fs.mkdirSync(distDir, { recursive: true });
-  }
-
-  const jsEntryPoint = path.join(publicDir, 'app.js');
-  const cssEntryPoint = path.join(publicDir, 'style.css');
-  const workerEntryPoint = path.join(publicDir, 'worker.js');
-
-  const jsFileName = isMinify ? 'app.min.js' : 'app.js';
-  const cssFileName = isMinify ? 'style.min.css' : 'style.css';
-  const workerFileName = isMinify ? 'worker.min.js' : 'worker.js';
-
-  const jsOutputFile = path.join(distDir, jsFileName);
-  const cssOutputFile = path.join(distDir, cssFileName);
-  const workerOutputFile = path.join(distDir, workerFileName);
-
-  // Veraltete Bundles des jeweils anderen Modus bereinigen
-  const oppositeJs = path.join(distDir, isMinify ? 'app.js' : 'app.min.js');
-  const oppositeJsMap = path.join(distDir, isMinify ? 'app.js.map' : 'app.min.js.map');
-  const oppositeCss = path.join(distDir, isMinify ? 'style.css' : 'style.min.css');
-  const oppositeCssMap = path.join(distDir, isMinify ? 'style.css.map' : 'style.min.css.map');
-  const oppositeWorker = path.join(distDir, isMinify ? 'worker.js' : 'worker.min.js');
-  const oppositeWorkerMap = path.join(distDir, isMinify ? 'worker.js.map' : 'worker.min.js.map');
-
-  if (fs.existsSync(oppositeJs)) fs.unlinkSync(oppositeJs);
-  if (fs.existsSync(oppositeJsMap)) fs.unlinkSync(oppositeJsMap);
-  if (fs.existsSync(oppositeCss)) fs.unlinkSync(oppositeCss);
-  if (fs.existsSync(oppositeCssMap)) fs.unlinkSync(oppositeCssMap);
-  if (fs.existsSync(oppositeWorker)) fs.unlinkSync(oppositeWorker);
-  if (fs.existsSync(oppositeWorkerMap)) fs.unlinkSync(oppositeWorkerMap);
-
-  console.log(`🚀 Starte Frontend-${isMinify ? 'Dist (Minified)' : 'Build (Unminified)'}...`);
-
-  // JS Bundle Build Config
-  const jsConfig = {
-    entryPoints: [jsEntryPoint],
-    bundle: true,
-    minify: isMinify,
-    sourcemap: true,
-    target: ['es2022'],
-    format: 'esm',
-    outfile: jsOutputFile,
-    logLevel: 'info',
-    legalComments: isMinify ? 'inline' : 'eof',
+  const { build } = await import("vite");
+  const isMinify = options.minify ?? process.argv.includes("--minify");
+  const watch = options.watch ?? process.argv.includes("--watch");
+  const rootDir = path.resolve(__dirname, "..");
+  const result = await build({
+    configFile: path.join(rootDir, "vite.config.mts"),
+    mode: isMinify ? "production" : "development",
+    build: { watch: watch ? {} : null },
+  });
+  if (watch) return result;
+  const suffix = isMinify ? ".min" : "";
+  const files = {
+    jsFile: `app${suffix}.js`,
+    workerFile: `worker${suffix}.js`,
+    cssFile: `style${suffix}.css`,
   };
-
-  // Web Worker Build Config
-  const workerConfig = {
-    entryPoints: [workerEntryPoint],
-    bundle: true,
-    minify: isMinify,
-    sourcemap: true,
-    target: ['es2022'],
-    format: 'iife',
-    outfile: workerOutputFile,
-    logLevel: 'info',
-    legalComments: isMinify ? 'inline' : 'eof',
-  };
-
-  // CSS Minification Build Config
-  const cssConfig = {
-    entryPoints: [cssEntryPoint],
-    bundle: true,
-    minify: isMinify,
-    sourcemap: true,
-    outfile: cssOutputFile,
-    logLevel: 'info',
-  };
-
-  if (isWatch) {
-    const jsCtx = await esbuild.context(jsConfig);
-    const workerCtx = await esbuild.context(workerConfig);
-    const cssCtx = await esbuild.context(cssConfig);
-    await Promise.all([jsCtx.watch(), workerCtx.watch(), cssCtx.watch()]);
-    console.log(`👀 Watch-Modus aktiv (${isMinify ? 'minified' : 'unminified'}). Überwache Änderungen...`);
-    return { jsCtx, workerCtx, cssCtx, isMinify };
-  }
-
-  // Einmaliger Build
-  await Promise.all([
-    esbuild.build(jsConfig),
-    esbuild.build(workerConfig),
-    esbuild.build(cssConfig),
-  ]);
-
-  const jsStat = fs.statSync(jsOutputFile);
-  const workerStat = fs.statSync(workerOutputFile);
-  const cssStat = fs.statSync(cssOutputFile);
-  const duration = Date.now() - startTime;
-
-  console.log(`✅ ${isMinify ? 'Dist-Build (Minified)' : 'Build (Unminified)'} erfolgreich abgeschlossen in ${duration}ms!`);
-  console.log(`📦 JS Bundle:     dist/${jsFileName}      (${(jsStat.size / 1024).toFixed(1)} KB)`);
-  console.log(`⚡ Worker Bundle: dist/${workerFileName}  (${(workerStat.size / 1024).toFixed(1)} KB)`);
-  console.log(`🎨 CSS Bundle:    dist/${cssFileName}    (${(cssStat.size / 1024).toFixed(1)} KB)`);
-
+  const size = (name) =>
+    fs.statSync(path.join(rootDir, "public/dist", name)).size;
   return {
     isMinify,
-    jsFile: jsFileName,
-    workerFile: workerFileName,
-    cssFile: cssFileName,
-    jsSize: jsStat.size,
-    workerSize: workerStat.size,
-    cssSize: cssStat.size,
-    duration,
+    ...files,
+    jsSize: size(files.jsFile),
+    workerSize: size(files.workerFile),
+    cssSize: size(files.cssFile),
   };
 }
-
-if (require.main === module) {
-  buildFrontend().catch((err) => {
-    console.error('❌ Build fehlgeschlagen:', err);
-    process.exit(1);
+if (require.main === module)
+  buildFrontend().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
   });
-}
-
 module.exports = { buildFrontend };

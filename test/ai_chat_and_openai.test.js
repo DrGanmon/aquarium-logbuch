@@ -701,8 +701,8 @@ test('KI-Chat UI: Benutzer-Avatar & Profilbild-Einbindung im Frontend', () => {
   const fs = require('node:fs');
   const path = require('node:path');
 
-  const chatJs = fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'views', 'ai-chat.js'), 'utf8');
-  assert.ok(chatJs.includes('ME?.hasAvatar'), 'Chat prüft ob Benutzer ein Avatar-Bild besitzt');
+  const chatJs = fs.readFileSync(path.join(__dirname, '..', 'public/frontend/components/ChatDialog.vue'), 'utf8');
+  assert.ok(chatJs.includes('session.user?.hasAvatar'), 'Chat prüft ob Benutzer ein Avatar-Bild besitzt');
   assert.ok(chatJs.includes('api/me/avatar'), 'Chat bindet Benutzer-Avatar-URL ein');
   assert.ok(chatJs.includes('chat-avatar-img'), 'Chat verwendet chat-avatar-img Klasse für das Benutzerbild');
 

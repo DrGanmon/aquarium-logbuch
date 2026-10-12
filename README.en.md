@@ -8,20 +8,11 @@
   <a href="README.md">🇩🇪 Deutsch</a> &nbsp;|&nbsp; <strong>🇬🇧 English</strong>
 </p>
 
-Multi-user web application for aquarium water parameters and maintenance. Node.js (version 22+), Express, and either **SQLite** (local/lightweight) or **MongoDB** (production/scalable).
+Multi-user web application for aquarium water parameters and maintenance.
 Login optionally local with password or via OAuth 2.0 / OpenID Connect against [Pocket ID](https://pocket-id.org).
 
-## Features
+## App Features
 
-- **Flexible Dual-Database System:**
-  - **SQLite (Default local):** File-based, high-performance zero-setup database (`data/aquarium.db`) with WAL mode and `busy_timeout` for concurrent access.
-  - **MongoDB (Production):** Full support for MongoDB clusters/containers via `DB_TYPE=mongodb` and `MONGODB_URI`.
-- **Multithreading & Multi-Core Clustering:**
-  - **Frontend Web Worker Multithreading:** Dedicated Web Worker (`public/worker.js` / `dist/worker.min.js`) for compute-heavy client-side tasks (CSV parsing & delimiter detection for large imports, full-text species catalog search with fuzzy scoring, stocking compatibility checks, statistical time series calculations, and asynchronous image resizing & compression via `OffscreenCanvas`) to keep the UI thread completely smooth (60/120 fps) and lag-free.
-  - **Non-blocking Cryptography (Backend):** Password hashing and verification (Scrypt) are handled asynchronously via the Node.js thread pool so concurrent logins never block the event loop.
-  - **Backend Worker Thread Pool:** Dedicated worker pool for heavy background and inspection tasks.
-  - **Multi-Worker Cluster Mode:** Using `WORKERS=auto` (or a fixed count), the supervisor distributes incoming requests across multiple worker processes spanning all CPU cores.
-  - **Stateless OIDC:** OIDC states are cryptographically signed and function seamlessly across processes and cluster instances.
 - Login via Pocket ID (OIDC) or local credentials with registration.
 - **4 Registration & Invitation Modes:**
   - **🟢 Open:** Any visitor can register directly.
@@ -33,21 +24,14 @@ Login optionally local with password or via OAuth 2.0 / OpenID Connect against [
   - **System Default:** Automatically matches operating system preferences (`prefers-color-scheme`).
   - **Switchable:** Fast toggle in the top navigation bar and on the login page, plus permanent preference in the user profile.
   - **Adaptive Charts:** Water parameter charts and tooltips dynamically adjust their palette to the active theme.
-- **🌐 App-wide Modular i18n & Multilingual Support (German & English):**
-  - **Standardized JSON Format:** Fully modular locale files located at `public/locales/de.json` and `public/locales/en.json` with structured namespacing and token interpolation (`{count}`, `{name}`, `{days}`, etc.).
+- **🌐 Multilingual Support (German & English):**
   - **Switchable & Persisted:** Instant 1-click quick switcher (`🌐 DE` / `🌐 EN`) in the header and login area, plus persistent language setting in user profile (`#/profile`).
   - **Seamless Localization:** Complete localization across all views (login/registration, tank overview, detail views, measurement mask, timeline, CSV import/export, species catalog, AI chat, admin panel, and legal pages) including locale-aware date and number formatting (`Intl.DateTimeFormat` / `Intl.NumberFormat`).
-  - **Integrated into Dist Bundle:** Automatically bundled and minified in the esbuild distribution pipeline for minimal transfer size and zero extra network roundtrips.
-- **Email Verification & Password Reset via SMTP:**
+- **Email Verification & Password Reset:**
   - **Email Verification for New Users:** New registrations (except the admin address) automatically receive a confirmation email with an activation link. Unverified accounts are protected at login and can request new confirmation links.
   - **Forgot Password & Reset via Email:** Request a time-limited secure password reset link from the login page. Resetting automatically invalidates all existing user sessions.
-  - **Modular HTML Email Templates (.tpl files):** Every email utilizes its own customizable `.tpl` file with HTML styling and dynamic tokens (e.g., `{{username}}`, `{{verifyUrl}}`, `{{resetUrl}}`, `{{expiresHours}}`, etc.) under `src/templates/mail/` (or in `data/mail-templates/` for custom overrides) with localized `.en.tpl` versions.
-  - **Rate-Limited Mail Queue:** Emails are dispatched through a FIFO queue with configurable delays to protect SMTP servers from load spikes and avoid spam filter triggers.
-  - **SMTP Configuration in Admin Panel:** Configurable via Web UI (`#/admin`) or environment variables (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`) with live test mail sending and queue status monitoring.
 - User profile for managing avatar (profile picture), first name, last name, username, "About me" bio, password change, appearance, and OIDC account linking.
 - Admin dashboard with user management for administrators (defined by admin email address in configuration) plus integrated system logbook & error inspector.
-- **Supervisor & Resilience Watchdog:** A master watchdog process monitors the application, catches unexpected crashes or exceptions, and restarts worker processes with zero downtime.
-- **Structured Error & Event Logging:** All server errors, uncaught exceptions, stderr logs, and supervisor events are recorded with timestamps and log levels in `data/aquarium.log`.
 - **Aquarium Management with Motto, Description & Maintenance Cycles:**
   - Create and manage aquariums with name, custom motto/tagline, detailed description (aquascape, plants, philosophy, equipment), fresh or saltwater, volume, and notes.
   - **Independent Testing & Fertilization Cycles:**
@@ -82,13 +66,9 @@ Login optionally local with password or via OAuth 2.0 / OpenID Connect against [
   - **Live Connection Test & Quick Starter Prompts:** Built-in key validation directly in profile settings plus quick question chips (*"Evaluate my water parameters"*, *"Can I add new fish?"*, *"Algae prevention tips"*).
   - **Privacy & Security:** Zero background data transmission; data is sent to the respective AI provider only when the user explicitly sends a chat message or tests a key in their profile. API keys are stored securely on the server and masked in the UI.
 - Measurement mask for 15 parameters with interactive timers per test (multiple simultaneous timers, audio and vibration on completion, wake lock to keep screen on when supported).
-- **PWA & Mobile App Icons (Home Screen Shortcut):**
+- **PWA & Home Screen Installation:**
   - **Mobile Optimized (iOS & Android):** Full support for home screen installation and standalone web app mode with crisp icons (purple fish with bubbles on a deep violet background).
-  - **iOS Apple Touch Icon:** 180×180 px full-bleed icon for seamless edge-to-edge Apple squircle masking.
-  - **Android Adaptive & Maskable Icons:** 192×192 px and 512×512 px standard and adaptive maskable icons with safe-zone padding for any launcher shape.
-  - **Multi-Resolution Favicons:** 16×16, 32×32, and standard `favicon.ico` for browser tabs and bookmarks.
 - **Push & Background Notifications for Timers:**
-  - **Background Timers:** Service Worker ensures alerts trigger reliably even if the tab is minimized or in the background.
   - **Accurate Timing:** Prevents overrunning chemical reaction times and avoids inaccurate color test readings.
   - **Notification Controls:** In-app test notification and permission management directly in the user profile.
 - **CSV & Excel Export & Import with Interactive Mapping:**
@@ -113,23 +93,51 @@ Login optionally local with password or via OAuth 2.0 / OpenID Connect against [
 - Warnings (attention) and alarms (critical) with actionable recommendations and checkbox resolution.
 - Reminders when the last measurement exceeds the configured interval.
 
+## Technical Features
+
+- **Technical Stack:** Node.js (version 22.12+), Express, and either **SQLite** (local/lightweight) or **MongoDB** (production/scalable).
+- **Vue 3, Vite and TypeScript:** The complete frontend lives in `public/frontend/`. Vue components own all views, forms, dialogs and timers. The existing stylesheet, icons, translations and API contracts are preserved. All frontend application and worker code uses TypeScript; no legacy JavaScript views or compatibility layer remain.
+- **Flexible Dual-Database System:**
+  - **SQLite (Default local):** File-based, high-performance zero-setup database (`data/aquarium.db`) with WAL mode and `busy_timeout` for concurrent access.
+  - **MongoDB (Production):** Full support for MongoDB clusters/containers via `DB_TYPE=mongodb` and `MONGODB_URI`.
+- **Multithreading & Multi-Core Clustering:**
+  - **Frontend Web Worker Multithreading:** Dedicated Web Worker (`public/frontend/worker.ts` / `dist/worker.min.js`) for compute-heavy client-side tasks (CSV parsing & delimiter detection for large imports, full-text species catalog search with ranked matches, statistical time series calculations, and asynchronous image resizing & compression via `OffscreenCanvas`) to keep the UI thread completely smooth (60/120 fps) and lag-free.
+  - **Non-blocking Cryptography (Backend):** Password hashing and verification (Scrypt) are handled asynchronously via the Node.js thread pool so concurrent logins never block the event loop.
+  - **Backend Worker Thread Pool:** Dedicated worker pool for heavy background and inspection tasks.
+  - **Multi-Worker Cluster Mode:** Using `WORKERS=auto` (or a fixed count), the supervisor distributes incoming requests across multiple worker processes spanning all CPU cores.
+  - **Stateless OIDC:** OIDC states are cryptographically signed and function seamlessly across processes and cluster instances.
+- **Supervisor & Resilience Watchdog:** A master watchdog process monitors the application, catches unexpected crashes or exceptions, and restarts worker processes with zero downtime.
+- **Structured Error & Event Logging:** All server errors, uncaught exceptions, stderr logs, and supervisor events are recorded with timestamps and log levels in `data/aquarium.log`.
+- **Technical Implementation of Localization:**
+  - **Standardized JSON Format:** Fully modular locale files located at `public/locales/de.json` and `public/locales/en.json` with structured namespacing and token interpolation (`{count}`, `{name}`, `{days}`, etc.).
+  - **Integrated into Dist Bundle:** Automatically bundled and minified in the Vite build pipeline for minimal transfer size and zero extra network roundtrips.
+- **SMTP Delivery, Email Templates & Queue:**
+  - **Modular HTML Email Templates (.tpl files):** Every email utilizes its own customizable `.tpl` file with HTML styling and dynamic tokens (e.g., `{{username}}`, `{{verifyUrl}}`, `{{resetUrl}}`, `{{expiresHours}}`, etc.) under `src/templates/mail/` (or in `data/mail-templates/` for custom overrides) with localized `.en.tpl` versions.
+  - **Rate-Limited Mail Queue:** Emails are dispatched through a FIFO queue with configurable delays to protect SMTP servers from load spikes and avoid spam filter triggers.
+  - **SMTP Configuration in Admin Panel:** Configurable via Web UI (`#/admin`) or environment variables (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`) with live test mail sending and queue status monitoring.
+- **Service Worker for Timer Notifications:**
+  - **Background Timers:** Service Worker ensures alerts trigger reliably even if the tab is minimized or in the background.
+- **App Icons & Favicons:**
+  - **iOS Apple Touch Icon:** 180×180 px full-bleed icon for seamless edge-to-edge Apple squircle masking.
+  - **Android Adaptive & Maskable Icons:** 192×192 px and 512×512 px standard and adaptive maskable icons with safe-zone padding for any launcher shape.
+  - **Multi-Resolution Favicons:** 16×16, 32×32, and standard `favicon.ico` for browser tabs and bookmarks.
+
 ## Getting Started
 
 ### 1. Local Development (SQLite)
 
 ```bash
-npm ci               # Install dependencies (Node >= 22)
+npm ci               # Install dependencies (Node >= 22.12)
 npm run build        # Build unminified frontend for development (public/dist/app.js)
 npm run dist         # Build minified frontend for production (public/dist/app.min.js)
 npm test             # Run automated test suite (SQLite & MongoDB)
 npm start            # Start app (default: SQLite at http://localhost:3000)
 ```
 
-- **Frontend Builds (`npm run build` vs. `npm run dist`):**
-  - **`npm run build` (Unminified Dev Bundle):** Compiles and bundles all frontend modules to `public/dist/app.js` and `public/dist/style.css` (with source maps) without minification for easy debugging.
-  - **`npm run dist` (Minified Production Bundle):** Compiles, bundles, and minifies the complete frontend to `public/dist/app.min.js` and `public/dist/style.min.css` (with source maps) for optimal production performance.
-  - **Automatic Server Fallback:** The server (`src/app.js`) automatically detects existing bundles (`dist/app.min.js` → `dist/app.js` → unbundled ES modules `app.js` / `style.css` in raw dev mode).
-  - **Watch Modes:** Use `npm run build:watch` (unminified) or `npm run dist:watch` (minified) to recompile automatically on file changes.
+- **Development:** Run `npm start` for the Express API (port 3000) and `npm run dev` in a second terminal for Vite with hot reload (http://127.0.0.1:5173). The dev server proxies `/api`, `/auth` and `/sw.js` to Express. Set `VITE_BACKEND_URL` for another backend address. OIDC uses the backend's configured `APP_URL`.
+- **Validation:** `npm run typecheck` checks all Vue components and TypeScript files with strict typing. `npm test` runs the automated tests.
+- **Build:** `npm run build` produces an unminified development bundle; `npm run dist` produces the minified production bundle in `public/dist/`. Both run the type check first. Chart.js is bundled as a module; Vite builds the computation worker, and the TypeScript service worker is emitted as `dist/sw.js` and served at `/sw.js`.
+- **Hosting:** Express selects the built production or development assets and supports an `APP_URL` with a subpath. A missing build returns HTTP 503 with setup instructions. `npm run build:watch` / `npm run dist:watch` rebuild on changes. Docker continues to run the production build during image creation.
 
 ### 2. Running with MongoDB (Docker Compose)
 
