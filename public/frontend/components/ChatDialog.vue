@@ -4,8 +4,12 @@ import Modal from "./Modal.vue";
 import MarkdownText from "./MarkdownText.vue";
 import { api } from "../api";
 import { t, errorMessage, session } from "../state";
+import type { AnswerInput } from '../health-types';
 import type { ChatMessage } from "../types";
-const props = defineProps<{ id: string; name: string; readonly: boolean }>();
+const props = defineProps<{
+  id: string; name: string; readonly: boolean;
+  diagnosis?: { stockId: number; answers: AnswerInput[]; provider: string; model: string; context: string };
+}>();
 const emit = defineEmits<{ close: [] }>();
 const messages = ref<ChatMessage[]>([]);
 const input = ref("");
@@ -14,8 +18,8 @@ const historyLoading = ref(true);
 const lifecycle = new AbortController();
 const error = ref("");
 const container = ref<HTMLElement>();
-const context = ref("");
-const provider = ref(session.user?.aiProvider || "openai");
+const context = ref(props.diagnosis?.context || "");
+const provider = ref(props.diagnosis?.provider || session.user?.aiProvider || "openai");
 const viewportStyle = ref<Record<string, string>>({});
 function updateViewport() {
   const viewport = window.visualViewport;
@@ -35,6 +39,7 @@ onBeforeUnmount(() => {
   window.visualViewport?.removeEventListener("scroll", updateViewport);
 });
 onMounted(async () => {
+  if (props.diagnosis) { historyLoading.value = false; return; }
   try {
     messages.value = (
       await api<{ messages: ChatMessage[] }>(
@@ -54,23 +59,40 @@ async function scroll() {
     behavior: "smooth",
   });
 }
+function temporaryHistory() {
+  const history: { role: ChatMessage['role']; content: string }[] = [];
+  let remaining = 40000;
+  for (const item of messages.value.slice(-100).reverse()) {
+    const content = item.content.slice(0, Math.min(8000, remaining));
+    if (!content) break;
+    history.unshift({ role: item.role, content });
+    remaining -= content.length;
+  }
+  return history;
+}
 async function send(prompt = input.value) {
   if (busy.value || historyLoading.value || lifecycle.signal.aborted || !prompt.trim()) return;
   busy.value = true;
   error.value = "";
   input.value = "";
   try {
-    const result = await api<{ reply: string }>(`/aquariums/${props.id}/chat`, {
+    const result = await api<{ reply: string }>(props.diagnosis ? `/health/aquariums/${props.id}/diagnosis/chat` : `/aquariums/${props.id}/chat`, {
       signal: lifecycle.signal,
       method: "POST",
-      body: { message: prompt, provider: provider.value, saveHistory: true },
+      body: props.diagnosis ? {
+        stockId: props.diagnosis.stockId, answers: props.diagnosis.answers, message: prompt,
+        messages: temporaryHistory(),
+      } : { message: prompt, provider: provider.value, saveHistory: true },
     });
+    if (lifecycle.signal.aborted) return;
     messages.value.push(
       { role: "user", content: prompt },
       { role: "assistant", content: result.reply },
     );
+    if (props.diagnosis && messages.value.length > 100) messages.value = messages.value.slice(-100);
     await scroll();
   } catch (e) {
+    if (lifecycle.signal.aborted) return;
     error.value = errorMessage(e);
     input.value = prompt;
   } finally {
@@ -87,7 +109,7 @@ async function loadContext() {
   }
 }
 async function clear() {
-  if (busy.value || historyLoading.value || !confirm("Chat-Verlauf löschen?")) return;
+  if (props.diagnosis || busy.value || historyLoading.value || !confirm("Chat-Verlauf löschen?")) return;
   busy.value = true;
   try {
     await api(`/aquariums/${props.id}/chat/history`, { method: "DELETE", signal: lifecycle.signal });
@@ -98,10 +120,11 @@ async function clear() {
 }
 </script>
 <template>
-  <Modal :title="`🤖 Aquarium-Assistent · ${name}`" wide dialog-class="aquarium-chat-modal" :dialog-style="viewportStyle" @close="emit('close')"
+  <Modal :title="diagnosis ? `${t('health.aiChat')} · ${name}` : `🤖 Aquarium-Assistent · ${name}`" wide dialog-class="aquarium-chat-modal" :dialog-style="viewportStyle" @close="emit('close')"
     ><div class="stack chat-dialog">
       <div class="row between chat-toolbar">
-        <select v-model="provider">
+        <span v-if="diagnosis" class="muted">{{ diagnosis.provider }} · {{ diagnosis.model }}</span>
+        <select v-else v-model="provider">
           <option v-if="session.user?.hasOpenaiKey" value="openai">
             OpenAI
           </option>
@@ -111,20 +134,21 @@ async function clear() {
           <option v-if="session.user?.hasClaudeKey" value="claude">
             Claude
           </option></select
-        ><button v-if="!readonly" class="btn small ghost danger" :disabled="busy || historyLoading" @click="clear">
+        ><button v-if="!readonly && !diagnosis" class="btn small ghost danger" :disabled="busy || historyLoading" @click="clear">
           {{ t("common.delete") }}
         </button>
       </div>
+      <p v-if="diagnosis" class="compat-box warn chat-disclaimer">{{ t("health.chatNotSaved") }}</p>
       <details
         class="chat-context-details"
         @toggle="
           (event) => {
-            if ((event.target as HTMLDetailsElement).open && !context)
+            if (!diagnosis && (event.target as HTMLDetailsElement).open && !context)
               loadContext();
           }
         "
       >
-        <summary>Beckenkontext</summary>
+        <summary>{{ diagnosis ? t("health.chatContext") : "Beckenkontext" }}</summary>
         <pre class="chat-context-body" style="white-space: pre-wrap">{{
           context
         }}</pre>
@@ -169,7 +193,7 @@ async function clear() {
       </div>
       <div class="chat-quick-prompts">
         <button
-          v-for="prompt in [
+          v-for="prompt in diagnosis ? [t('health.chatPrompt')] : [
             'Bewerte meine Wasserwerte',
             'Passen neue Fische dazu?',
             'Tipps gegen Algen',
@@ -186,10 +210,10 @@ async function clear() {
         <textarea
           v-model="input"
           rows="2"
-          aria-label="Nachricht"
+          :aria-label="diagnosis ? t('health.chatMessage') : 'Nachricht'"
           required
           @keydown.enter.exact.prevent="send()"
-        /><button class="btn" :disabled="busy || historyLoading">Senden</button>
+        /><button class="btn" :disabled="busy || historyLoading">{{ diagnosis ? t("health.chatSend") : "Senden" }}</button>
       </form>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
       <p class="muted chat-disclaimer" style="font-size: 0.8rem">

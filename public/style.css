@@ -1514,3 +1514,4 @@ dialog.aquarium-chat-modal {
 .health-context > * { margin-block: 0; }
 .health-water-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); }
 @media (max-width: 650px) { .health-water-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.health-chat-offer { padding: 1rem; border-radius: var(--radius); background: var(--water-soft); border: 1px solid var(--water); }

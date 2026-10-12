@@ -163,6 +163,14 @@ export class HealthService {
       evidence: [...evidence.values()], missing: [...missing] };
   }
 
+  answeredQuestions(context: HealthContext, answers: AnswerInput[], language = 'de') {
+    // Replay the validated path to retain the exact wording, including partial water questions.
+    return answers.map((answer, index) => {
+      const previous = this.diagnose(context, answers.slice(0, index), language);
+      return { ...answer, text: previous.question?.text || answer.questionId };
+    });
+  }
+
   diagnose(context: HealthContext, input: unknown = [], language = 'de'): DiagnosisOutcome {
     const bundle = this.bundle(context.waterType, language);
     const document = bundle.diagnosis;

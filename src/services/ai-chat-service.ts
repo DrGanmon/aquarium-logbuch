@@ -857,6 +857,20 @@ async function chatWithAquarium({
   return result;
 }
 
+/** Stateless requests never read or write aquarium chat history. */
+async function chatWithContext({ apiKey, model, provider, systemPrompt, messages, signal }: {
+  apiKey: string; model: string; provider: 'openai' | 'gemini' | 'claude';
+  systemPrompt: string; messages: ChatMessage[]; signal?: AbortSignal;
+}) {
+  signal?.throwIfAborted();
+  const optimizedMessages = compressChatHistory(messages);
+  const options = { apiKey, model, systemPrompt, messages: optimizedMessages, signal };
+  const result = provider === 'gemini' ? await callGemini(options)
+    : provider === 'claude' ? await callClaude(options) : await callOpenAi(options);
+  signal?.throwIfAborted();
+  return result;
+}
+
 /**
  * Ruft die verfügbaren Modelle von OpenAI ab.
  */
@@ -1341,6 +1355,7 @@ export = {
   buildAquariumSystemPrompt,
   compressChatHistory,
   chatWithAquarium,
+  chatWithContext,
   fetchOpenAiModels,
   fetchGeminiModels,
   fetchClaudeModels,

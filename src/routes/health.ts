@@ -6,6 +6,8 @@ import authModule = require('../middleware/auth');
 import { AppError } from '../utils/app-error';
 import { asRecord } from '../utils/validation';
 import type { Request, RequestHandler } from 'express';
+import aiChatService = require('../services/ai-chat-service');
+import { healthChatConfig, healthChatMessages, healthChatPrompt } from '../services/health-chat-service';
 import type { HealthMeasurement, SpeciesRanges } from '../types/health';
 import type { StockRecord, WaterType } from '../types/domain';
 const { auth, ownAquarium } = authModule;
@@ -48,7 +50,7 @@ router.get('/aquariums/:id/residents', auth, ownAquarium, wrap(async (req, res) 
     residents: stock.map(item => { const { ranges, ...resident } = residentProfile(item, req.aq.water_type, lang); return resident; }) });
 }));
 
-router.post('/aquariums/:id/diagnosis', auth, ownAquarium, wrap(async (req, res) => {
+async function diagnosisFor(req: Request) {
   const stockId = req.body.stockId;
   if (typeof stockId !== 'number' || !Number.isSafeInteger(stockId) || stockId < 1) throw new AppError('Bitte einen Bewohner auswählen.', 400);
   const stock = await db.stock.findById(stockId);
@@ -62,10 +64,32 @@ router.post('/aquariums/:id/diagnosis', auth, ownAquarium, wrap(async (req, res)
     const value = asRecord(raw);
     if (typeof value.value === 'number' && Number.isFinite(value.value) && typeof value.measured_at === 'string') measurements[parameter] = { value: value.value, measured_at: value.measured_at };
   }
-  const outcome = healthService.diagnose({ waterType: req.aq.water_type, speciesId: resident.speciesId, species: resident.ranges, measurements }, req.body.answers ?? [], lang);
-  res.json({ ...outcome, aquarium: { id: req.aq.id, name: req.aq.name, waterType: req.aq.water_type },
+  const context = { waterType: req.aq.water_type, speciesId: resident.speciesId, species: resident.ranges, measurements };
+  const outcome = healthService.diagnose(context, req.body.answers ?? [], lang);
+  return { context, outcome, resident, lang };
+}
+
+router.post('/aquariums/:id/diagnosis', auth, ownAquarium, wrap(async (req, res) => {
+  const { context, outcome, resident } = await diagnosisFor(req);
+  const selectedAi = healthChatConfig(await db.users.findById(req.user.id));
+  res.json({ ...outcome, aiChat: selectedAi ? { provider: selectedAi.provider, model: selectedAi.model } : null, aquarium: { id: req.aq.id, name: req.aq.name, waterType: req.aq.water_type },
     resident: { stockId: resident.stockId, name: resident.name, speciesId: resident.speciesId, speciesName: resident.speciesName },
-    measurements: Object.entries(measurements).map(([parameter, measured]) => ({ parameter, ...measured })) });
+    measurements: Object.entries(context.measurements).map(([parameter, measured]) => ({ parameter, ...measured })) });
+}));
+
+router.post('/aquariums/:id/diagnosis/chat', auth, ownAquarium, wrap(async (req, res) => {
+  const selectedAi = healthChatConfig(await db.users.findById(req.user.id));
+  if (!selectedAi) throw new AppError('Bitte im Profil für die ausgewählte KI einen persönlichen API-Key und ein Modell hinterlegen.', 400);
+  const messages = healthChatMessages(req.body.messages, req.body.message);
+  const { context, outcome, resident, lang } = await diagnosisFor(req);
+  const systemPrompt = healthChatPrompt(context, outcome, resident, req.aq, lang);
+  const controller = new AbortController();
+  const disconnect = () => { if (!res.writableFinished) controller.abort(); };
+  res.once('close', disconnect);
+  try {
+    const result = await aiChatService.chatWithContext({ ...selectedAi, systemPrompt, messages, signal: controller.signal });
+    res.json({ reply: result.reply, provider: selectedAi.provider, model: selectedAi.model });
+  } finally { res.removeListener('close', disconnect); }
 }));
 
 export = router;

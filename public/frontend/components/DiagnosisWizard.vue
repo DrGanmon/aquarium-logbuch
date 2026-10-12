@@ -5,6 +5,8 @@ import { t, language, errorMessage, fmtDate, session } from '../state';
 import type { Aquarium } from '../types';
 import type { AnswerInput, DiagnosisResponse, HealthResident, ResidentResponse } from '../health-types';
 import DiseaseDetail from './DiseaseDetail.vue';
+import ChatDialog from './ChatDialog.vue';
+const showHealthChat = ref(false);
 const props = defineProps<{ initialAquariumId?: string; initialStockId?: string }>();
 const aquariums = ref<Aquarium[]>([]);
 const aquariumsLoading = ref(true);
@@ -16,7 +18,14 @@ const busy = ref(false);
 const error = ref('');
 const outcome = ref<DiagnosisResponse>();
 const answers = ref<AnswerInput[]>([]);
+watch(() => outcome.value?.complete, complete => { if (!complete) showHealthChat.value = false; });
 const answerHistory = ref<{ questionId: string; text: string; answer: AnswerInput['answer'] }[]>([]);
+const chatDiagnosis = computed(() => outcome.value?.complete && outcome.value.aiChat ? {
+  stockId: Number(stockId.value), answers: [...answers.value], ...outcome.value.aiChat,
+  context: JSON.stringify({ aquarium: outcome.value.aquarium, resident: outcome.value.resident,
+    measurements: outcome.value.measurements, answers: [...outcome.value.automaticAnswers, ...answerHistory.value],
+    probableDiagnoses: outcome.value.results, disclaimer: outcome.value.disclaimer }, null, 2),
+} : undefined);
 const selectionStep = ref(props.initialAquariumId ? 2 : 1);
 const currentStep = computed(() => outcome.value ? 3 : selectionStep.value);
 const steps = computed(() => [t('health.aquarium'), t('health.resident'), t('health.symptoms')]);
@@ -156,10 +165,17 @@ const urgent = computed(() => outcome.value?.automaticAnswers.some(item => item.
           <p v-if="result.diseaseId === '_none'">{{ t('health.noneNote') }}</p>
           <template v-else><p v-if="result.susceptibility" class="muted">{{ t('health.susceptibility') }}: {{ result.susceptibility }}</p><ul v-if="result.signs.length"><li v-for="sign in result.signs" :key="sign">{{ sign }}</li></ul><button class="btn small ghost" type="button" @click="selectedDisease = result.diseaseId">{{ t('health.diseaseDetails') }}</button></template>
         </div>
+        <div v-if="chatDiagnosis" class="health-chat-offer stack">
+          <h3>{{ t('health.aiChat') }}</h3>
+          <p>{{ t('health.chatIntro') }}</p>
+          <p class="muted">{{ t('health.chatNotSaved') }}</p>
+          <button class="btn" type="button" @click="showHealthChat = true">{{ t('health.openChat') }}</button>
+        </div>
         <p v-for="caution in outcome.caution" :key="caution" class="compat-box warn">{{ caution }}</p>
       </div>
       <div class="row"><button class="btn ghost" type="button" :disabled="busy || !answers.length" @click="back">{{ t('common.back') }}</button><button class="btn ghost" type="button" :disabled="busy" @click="evaluate([])">{{ t('health.restart') }}</button><a class="btn ghost" :href="`#/a/${aquariumId}/messen`">{{ t('health.measureNow') }}</a></div>
     </template>
+    <ChatDialog v-if="showHealthChat && chatDiagnosis" :id="aquariumId" :name="outcome?.resident.name || outcome?.resident.speciesName || ''" :readonly="true" :diagnosis="chatDiagnosis" @close="showHealthChat = false" />
     <DiseaseDetail v-if="selectedDisease" :disease-id="selectedDisease" :species-id="selectedResident?.speciesId" @close="selectedDisease = undefined" />
   </section>
 </template>

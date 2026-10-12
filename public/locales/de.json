@@ -799,6 +799,14 @@
     "outdated": "Nicht aktuell · wird nicht automatisch verwendet",
     "noWaterValues": "Noch keine Wasserwerte vorhanden.",
     "answersSoFar": "Bisherige Antworten",
-    "noAnswersYet": "Deine Antworten erscheinen hier während des Checks."
+    "noAnswersYet": "Deine Antworten erscheinen hier während des Checks.",
+    "aiChat": "KI zum Gesundheitscheck befragen",
+    "chatIntro": "Besprich die bisherigen Antworten und Verdachtsdiagnosen mit deiner im Profil ausgewählten KI. Aquarium, Bewohner, letzte Wasserwerte und Wizard-Ergebnisse werden als Kontext mitgegeben.",
+    "chatNotSaved": "Dieser Chat wird in der App nicht gespeichert. Beim Schließen wird der Verlauf verworfen. Beim Senden werden Nachrichten und Diagnosekontext an deinen ausgewählten KI-Anbieter übermittelt; dort gelten dessen Speicherregeln.",
+    "openChat": "Mit meiner KI chatten",
+    "chatContext": "Kontext des Gesundheitschecks",
+    "chatPrompt": "Wie ordnest du die Verdachtsdiagnosen ein und was sollte ich als Nächstes prüfen?",
+    "chatMessage": "Nachricht",
+    "chatSend": "Senden"
   }
 }

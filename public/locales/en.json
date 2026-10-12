@@ -799,6 +799,14 @@
     "outdated": "Outdated · not used automatically",
     "noWaterValues": "No water readings available yet.",
     "answersSoFar": "Answers so far",
-    "noAnswersYet": "Your answers will appear here during the check."
+    "noAnswersYet": "Your answers will appear here during the check.",
+    "aiChat": "Ask AI about this health check",
+    "chatIntro": "Discuss the answers and suspected diagnoses with the AI selected in your profile. Aquarium, resident, latest water readings and wizard results are included as context.",
+    "chatNotSaved": "This chat is not saved in the app. Closing it discards the conversation. Sending shares messages and diagnosis context with your selected AI provider; its retention policies apply there.",
+    "openChat": "Chat with my AI",
+    "chatContext": "Health check context",
+    "chatPrompt": "How do you interpret the suspected diagnoses, and what should I check next?",
+    "chatMessage": "Message",
+    "chatSend": "Send"
   }
 }
