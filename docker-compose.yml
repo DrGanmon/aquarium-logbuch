@@ -1,6 +1,6 @@
 services:
   aquarium:
-    image: ghcr.io/drganmon/aquarium-logbuch:latest
+    image: ghcr.io/drganmon/aquarium-logbuch:${AQUARIUM_VERSION:-latest}
     restart: unless-stopped
     ports:
       - "3000:3000"

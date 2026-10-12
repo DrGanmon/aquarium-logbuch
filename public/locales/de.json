@@ -82,6 +82,7 @@
     "langToggle": "Sprache wechseln (DE/EN)"
   },
   "footer": {
+    "version": "Version",
     "copyright": "© 2026 Aquarium-Logbuch",
     "aiBadge": "🤖 KI-erstellt (EU AI Act konform)",
     "aiBadgeTitle": "Hinweis gem. Art. 50 EU AI Act (Verordnung (EU) 2024/1689)",

@@ -4,15 +4,19 @@ WORKDIR /app
 COPY package.json bun.lock .npmrc ./
 RUN bun install --frozen-lockfile --ignore-scripts
 COPY . .
+ARG APP_VERSION
+ENV APP_VERSION=${APP_VERSION}
 RUN bun run dist:bun
 
 FROM oven/bun:1.4.3-slim AS production
 WORKDIR /app
 COPY package.json bun.lock .npmrc ./
 RUN bun install --frozen-lockfile --production --ignore-scripts
-COPY --from=build /app/server.js /app/config.js /app/oidc.js /app/LICENSE ./
+COPY --from=build /app/server.js /app/config.js /app/oidc.js /app/version.json /app/LICENSE ./
 COPY --from=build /app/src ./src
 COPY --from=build /app/public ./public
+ARG APP_VERSION
+LABEL org.opencontainers.image.version="${APP_VERSION}"
 ENV NODE_ENV=production PORT=3000 DATA_DIR=/data
 RUN mkdir -p /data && chown bun:bun /data
 VOLUME /data

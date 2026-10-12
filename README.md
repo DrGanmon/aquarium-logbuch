@@ -125,6 +125,19 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
   - **Android Adaptive & Maskable Icons:** Bereitstellung von 192×192 px und 512×512 px Icons im Standard- (`any`) sowie im adaptiven Maskable-Format (`maskable`), bei dem das Motiv sicher innerhalb der 80%-Safe-Zone liegt und von Android-Launchern (z. B. Kreis, Tropfen, Squircle) ohne abgeschnittene Ränder maskiert wird.
   - **Multi-Resolution Favicons:** Favicons in 16×16, 32×32 sowie Standard `favicon.ico` für Browser-Tabs und Lesezeichen.
 
+## Automatische App-Version und Docker-Tags
+
+Das Format ist **`MAJOR.MINOR.REVISION[-PATCH]-ALPHA`**; `ALPHA` ist immer enthalten. Die Version steht rechts im Footer. Ausgangspunkt ist `1.0.0-ALPHA`, festgelegt in `version.json` mit einem Git-Basiscommit.
+
+- Jeder Commit mit `feat:` oder `feat(bereich):` erhöht die **Revision** und setzt den Patch auf 0 zurück.
+- Jeder Commit mit `fix:` oder `fix(bereich):` erhöht den **Patch**. Patch 0 wird nicht angezeigt: `1.0.3-ALPHA` → Fix → `1.0.3-1-ALPHA` → Feature → `1.0.4-ALPHA`.
+- Andere Commit-Typen ändern die Nummer nicht. Merge-Commits werden nicht doppelt gezählt. Auch `feat!:` und `fix!:` erhöhen ausschließlich Revision bzw. Patch; Major und Minor bleiben manuell.
+- **Major/Minor manuell:** `npm run version:major` bzw. `npm run version:minor` (mit Bun: `bun run version:major:bun` / `bun run version:minor:bun`). Diese Befehle setzen Revision/Patch zurück und speichern einen neuen Basiscommit. Danach die geänderten Versionsdateien beispielsweise mit `chore: manuelle Minor-Version erhöhen` committen. Ein Major-Sprung setzt zusätzlich Minor auf 0.
+- `node scripts/version.js` bzw. `bun run version:current:bun` zeigt die berechnete Version. Lokale Builds und Vite berechnen sie automatisch aus der vollständigen Git-Historie. Ein Commit erhöht die Nummer erst beim nächsten Build/Neustart des Vite-Servers; bloße Dateiänderungen tun das nicht.
+- Die Docker-Pipeline berechnet die Nummer einmal und verwendet denselben Wert für Footer, Backup-Metadaten, OCI-Label und den vollständigen Image-Tag, etwa `ghcr.io/drganmon/aquarium-logbuch:1.0.4-2-ALPHA`. Die Versions-Tags werden auf dem Default-Branch und bei passenden `v…`-Release-Tags veröffentlicht; `latest`, Branch- und SHA-Tags bleiben verfügbar. Pull Requests veröffentlichen keine Images.
+- **Compose fest auf eine Version setzen:** `AQUARIUM_VERSION=1.0.4-2-ALPHA docker compose up -d`; alternativ `AQUARIUM_VERSION` in `.env` setzen. Ohne Angabe wird weiterhin `latest` verwendet.
+- **Lokales Docker-Image:** `APP_VERSION=$(node scripts/version.js)` und danach `docker build --build-arg APP_VERSION="$APP_VERSION" -t "aquarium-logbuch:$APP_VERSION" .`. Ohne Git-Historie und ohne explizites `APP_VERSION` wird nur der in `version.json` hinterlegte Ausgangswert verwendet. Eine unvollständige Historie in einem Git-Checkout verursacht einen Fehler statt einer falschen Versionsnummer.
+
 ## Starten
 
 ### 1. Lokale Entwicklung (SQLite)

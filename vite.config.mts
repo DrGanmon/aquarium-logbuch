@@ -4,9 +4,11 @@ import { fileURLToPath } from "node:url";
 import { readFileSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import ts from "typescript";
+import versioning from "./scripts/version.js";
 
 const publicRoot = fileURLToPath(new URL("./public", import.meta.url));
 export default defineConfig(({ mode }) => {
+  const appVersion = versioning.resolveVersion();
   const minify = mode === "production";
   const suffix = minify ? ".min" : "";
   let building = false;
@@ -15,6 +17,7 @@ export default defineConfig(({ mode }) => {
     publicDir: false,
     base: "./",
     define: {
+      __APP_VERSION__: JSON.stringify(appVersion),
       "process.env.NODE_ENV": JSON.stringify(
         minify ? "production" : "development",
       ),
@@ -48,6 +51,7 @@ export default defineConfig(({ mode }) => {
           }
         },
         generateBundle() {
+          this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify({ version: appVersion }) + "\n" });
           const source = readFileSync(
             join(publicRoot, "frontend/service-worker.ts"),
             "utf8",

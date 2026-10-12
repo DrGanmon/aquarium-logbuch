@@ -18,7 +18,7 @@ const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
 const CONFIG_FILE = path.join(DATA_DIR, 'backup-config.json');
 
 const CURRENT_SCHEMA_VERSION = 2;
-const APP_VERSION = '1.0.0';
+const APP_VERSION = require('./version-service').getAppVersion();
 
 const DEFAULT_CONFIG = {
   enabled: false,

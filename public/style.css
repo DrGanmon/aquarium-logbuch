@@ -1456,3 +1456,5 @@ dialog.aquarium-chat-modal {
   .aquarium-chat-modal .chat-context-body { max-height: min(140px, 20dvh); margin-bottom: 0; }
   .aquarium-chat-modal .chat-disclaimer { font-size: .7rem !important; }
 }
+
+.footer-version { margin-left: auto; white-space: nowrap; flex-shrink: 0; font-size: .78rem; font-variant-numeric: tabular-nums; }

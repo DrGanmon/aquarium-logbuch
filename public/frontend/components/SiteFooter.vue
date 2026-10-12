@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Translate } from "../types";
 defineProps<{ t: Translate }>();
+const version = __APP_VERSION__;
 </script>
 
 <template>
@@ -30,6 +31,7 @@ defineProps<{ t: Translate }>();
           >{{ t("footer.repo") }}</a
         >
       </nav>
+      <span class="footer-version" :aria-label="`${t('footer.version')}: ${version}`">{{ version }}</span>
     </div>
   </footer>
 </template>

@@ -16,8 +16,40 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Calculate revision and patch from commits
+        id: version
+        run: node scripts/version.js --github-output
+      - name: Check explicit release tag
+        if: github.ref_type == 'tag'
+        env:
+          APP_VERSION: ${{ steps.version.outputs.version }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if [ "$RELEASE_TAG" != "v$APP_VERSION" ]; then
+            echo "Release tag must match v$APP_VERSION"
+            exit 1
+          fi
+
   runtime-check:
+    needs: version
+    env:
+      APP_VERSION: ${{ needs.version.outputs.version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -50,7 +82,7 @@ jobs:
           fi
 
   build-and-push:
-    needs: runtime-check
+    needs: [version, runtime-check]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -81,11 +113,14 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          labels: |
+            org.opencontainers.image.version=${{ needs.version.outputs.version }}
+          flavor: |
+            latest=false
           tags: |
             type=ref,event=branch
             type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=${{ needs.version.outputs.version }},priority=1000,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) || github.ref_type == 'tag' }}
             type=sha,format=short
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
 
@@ -94,6 +129,8 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
+          build-args: |
+            APP_VERSION=${{ needs.version.outputs.version }}
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}

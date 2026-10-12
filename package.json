@@ -1,6 +1,6 @@
 {
   "name": "aquarium-logbuch",
-  "version": "1.0.0",
+  "version": "1.0.0-ALPHA",
   "description": "Mehrbenutzer-Webanwendung für Aquarien-Wasserwerte mit Graphen, Timern und Alarmen (SQLite)",
   "main": "server.js",
   "license": "CC-BY-NC-SA-4.0",
@@ -20,7 +20,13 @@
     "dist:bun": "bun scripts/build.js --minify",
     "build:watch:bun": "bun scripts/build.js --watch",
     "dist:watch:bun": "bun scripts/build.js --minify --watch",
-    "dev:bun": "bun --bun node_modules/vite/bin/vite.js"
+    "dev:bun": "bun --bun node_modules/vite/bin/vite.js",
+    "version:current": "node scripts/version.js",
+    "version:major": "node scripts/version.js --major",
+    "version:minor": "node scripts/version.js --minor",
+    "version:current:bun": "bun scripts/version.js",
+    "version:major:bun": "bun scripts/version.js --major",
+    "version:minor:bun": "bun scripts/version.js --minor"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
