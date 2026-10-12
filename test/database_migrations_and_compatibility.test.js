@@ -5,10 +5,10 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const Database = require('better-sqlite3');
-const SqliteAdapter = require('../src/db/sqlite-adapter');
-const migrator = require('../src/db/migrator');
-const { backupService } = require('../src/services/backup-service');
-const logger = require('../src/utils/logger');
+const SqliteAdapter = require('../dist/backend/src/db/sqlite-adapter');
+const migrator = require('../dist/backend/src/db/migrator');
+const { backupService } = require('../dist/backend/src/services/backup-service');
+const logger = require('../dist/backend/src/utils/logger');
 const { createMongoTestEnvironment } = require('./helpers/env');
 
 test('Database Migrations & Backward Compatibility', async (t) => {
@@ -200,7 +200,7 @@ test('Database Migrations & Backward Compatibility', async (t) => {
 
     try {
       await mongoEnv.start();
-      const mongoAdapter = require('../src/db');
+      const mongoAdapter = require('../dist/backend/src/db');
       const rawDb = mongoAdapter.getRawDb();
 
       // 1. Schema-Version prüfen
@@ -368,7 +368,7 @@ test('Database Migrations & Backward Compatibility', async (t) => {
     const bestandDb = new Database(legacyBestandDbPath);
 
     // Initialisiere v0 Schema direkt
-    const baseMigration = require('../src/db/migrations/000_base_schema');
+    const baseMigration = require('../dist/backend/src/db/migrations/000_base_schema');
     baseMigration.up(bestandDb);
 
     // Füge Bestandsdaten ein (vor Dosierpumpe)
@@ -524,7 +524,7 @@ test('Database Migrations & Backward Compatibility', async (t) => {
   });
 
   await t.test('7. Mandatory pre-migration backup & info logging (MongoDB)', async () => {
-    const MongoAdapter = require('../src/db/mongo-adapter');
+    const MongoAdapter = require('../dist/backend/src/db/mongo-adapter');
     const mongoEnv = await createMongoTestEnvironment('mongo_migration_backup_log_test');
     if (!mongoEnv) return;
 

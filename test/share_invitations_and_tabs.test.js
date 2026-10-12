@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const { createTestEnvironment } = require('./helpers/env');
-const { loadTemplate, createShareAquariumMail } = require('../src/services/mail-template');
+const { loadTemplate, createShareAquariumMail } = require('../dist/backend/src/services/mail-template');
 
 test('E-Mail-Template: share-aquarium.tpl Vorlage und Token-Ersetzung', () => {
   const tplContent = loadTemplate('share-aquarium');

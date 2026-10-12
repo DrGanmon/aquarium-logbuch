@@ -3,9 +3,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createTestEnvironment } = require('./helpers/env');
-const { calculateCycleStatus, reminderService } = require('../src/services/reminder-service');
-const { loadTemplate, createMeasureReminderMail, createFertilizeReminderMail } = require('../src/services/mail-template');
-const { mailService } = require('../src/services/mail-service');
+const { calculateCycleStatus, reminderService } = require('../dist/backend/src/services/reminder-service');
+const { loadTemplate, createMeasureReminderMail, createFertilizeReminderMail } = require('../dist/backend/src/services/mail-template');
+const { mailService } = require('../dist/backend/src/services/mail-service');
 
 test('Zyklus-Berechnung: calculateCycleStatus Logik für Tage, Wochen und Wochentage', () => {
   // 1. Nicht konfigurierter Zyklus
@@ -227,7 +227,7 @@ test('Reminder-Service: checkAndSendReminders generiert Erinnerungs-E-Mails bei 
   const aqId = createAq.data.id;
 
   // Rückdatiere das Aquarium in der DB, sodass Zyklen sofort fällig sind
-  const db = require('../src/db');
+  const db = require('../dist/backend/src/db');
   const rawDb = db.getRawDb();
   rawDb.prepare("UPDATE aquariums SET created_at = datetime('now', '-20 days') WHERE id = ?").run(aqId);
 

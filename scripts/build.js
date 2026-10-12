@@ -33,7 +33,7 @@ if (require.main === module) {
   const { typecheck } = require('./typecheck');
   const code = typecheck();
   if (code) process.exitCode = code;
-  else buildFrontend().catch((error) => {
+  else Promise.resolve().then(() => require('./build-backend').buildBackend()).then(() => buildFrontend()).catch((error) => {
     console.error(error);
     process.exitCode = 1;
   });

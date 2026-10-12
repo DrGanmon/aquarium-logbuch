@@ -7,8 +7,8 @@ const os = require('os');
 const http = require('http');
 
 const { createTestEnvironment } = require('./helpers/env');
-const logger = require('../src/utils/logger');
-const { Supervisor } = require('../src/services/supervisor');
+const logger = require('../dist/backend/src/utils/logger');
+const { Supervisor } = require('../dist/backend/src/services/supervisor');
 
 test('Logging & Überwachungsprozess (Supervisor)', async (t) => {
   let env;

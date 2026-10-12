@@ -30,5 +30,9 @@ function typecheck(project = path.join(__dirname, '../public/tsconfig.json')) {
   }
   return diagnostics.some((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error) ? 1 : 0;
 }
-if (require.main === module) process.exitCode = typecheck(process.argv[2]);
+if (require.main === module) {
+  const frontendCode = typecheck(process.argv[2]);
+  const backendCode = process.argv[2] ? 0 : require('./build-backend').checkBackend();
+  process.exitCode = frontendCode || backendCode;
+}
 module.exports = { typecheck };

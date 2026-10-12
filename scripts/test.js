@@ -5,6 +5,9 @@ const path = require('node:path');
 const fs = require('node:fs');
 const os = require('node:os');
 
+try { require('./build-backend').buildBackend(); }
+catch (error) { console.error(error.message); process.exit(1); }
+
 const args = process.argv.slice(2);
 const info = args.includes('--info');
 const forwarded = args.filter((arg) => arg !== '--info');

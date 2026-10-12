@@ -12,7 +12,7 @@ test('MongoDB: Vollständiger Lebenszyklus, Authentifizierung, Aquarien, Freigab
     await env.cleanup();
   });
 
-  const db = require('../src/db');
+  const db = require('../dist/backend/src/db');
   await db.init();
   assert.equal(db.type, 'mongodb', 'DB-Typ sollte mongodb sein');
 

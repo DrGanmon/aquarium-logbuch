@@ -79,8 +79,8 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
     cleanDist();
     await buildFrontend({ minify: false });
 
-    delete require.cache[require.resolve('../src/app')];
-    const app = require('../src/app');
+    delete require.cache[require.resolve('../dist/backend/src/app')];
+    const app = require('../dist/backend/src/app');
 
     const http = require('http');
     const server = http.createServer(app);
@@ -138,8 +138,8 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
     cleanDist();
     await buildFrontend({ minify: true });
 
-    delete require.cache[require.resolve('../src/app')];
-    const app = require('../src/app');
+    delete require.cache[require.resolve('../dist/backend/src/app')];
+    const app = require('../dist/backend/src/app');
 
     const http = require('http');
     const server = http.createServer(app);
@@ -163,8 +163,8 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
 
   await t.test('Express meldet einen fehlenden Vue-Build ohne Legacy-Fallback', async () => {
     cleanDist();
-    delete require.cache[require.resolve('../src/app')];
-    const server = require('http').createServer(require('../src/app'));
+    delete require.cache[require.resolve('../dist/backend/src/app')];
+    const server = require('http').createServer(require('../dist/backend/src/app'));
     await new Promise(resolve => server.listen(0, resolve));
     try {
       const response = await fetch(`http://127.0.0.1:${server.address().port}/`);

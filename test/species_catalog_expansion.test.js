@@ -3,8 +3,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const service = require('../src/services/species-service');
-const cfg = require('../config');
+const service = require('../dist/backend/src/services/species-service');
+const cfg = require('../dist/backend/config.js');
 
 test('Erweiterte Kataloge enthalten eindeutige IDs und behalten bisherige Arten', () => {
   const catalogs = ['freshwater-popular', 'cichlids', 'invertebrates', 'saltwater'];

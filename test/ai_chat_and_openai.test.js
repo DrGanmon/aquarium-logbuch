@@ -2,7 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createTestEnvironment } = require('./helpers/env');
-const { buildAquariumSystemPrompt, testOpenAiConnection, compressChatHistory } = require('../src/services/ai-chat-service');
+const { buildAquariumSystemPrompt, testOpenAiConnection, compressChatHistory } = require('../dist/backend/src/services/ai-chat-service');
 
 test('KI-Chat Service: System-Prompt Generierung mit Beckendaten, Besatz und 10 Messwerten', async (t) => {
   const env = createTestEnvironment();
@@ -79,7 +79,7 @@ test('KI-Chat Service: System-Prompt Generierung mit Beckendaten, Besatz und 10 
   });
 
   // System-Prompt bauen und prüfen
-  const db = require('../src/db');
+  const db = require('../dist/backend/src/db');
   const promptData = await buildAquariumSystemPrompt(aqId, db);
   assert.ok(promptData.systemPrompt);
   assert.strictEqual(promptData.aquarium.name, 'Amazonas Biotop 240');
@@ -903,4 +903,28 @@ test('OpenAI Chat Service: Automatischer Fallback bei 400 Fehler wegen unsupport
   } finally {
     global.fetch = originalFetch;
   }
+});
+
+test('KI-Streaming leitet Fetch-Webstreams als SSE weiter', async (t) => {
+  const env = createTestEnvironment();
+  t.after(() => env.cleanup());
+  const user = await env.createUserAndLogin('stream_tester');
+  const headers = { Cookie: user.cookie };
+  const aquarium = await env.request('/api/aquariums', { method: 'POST', headers, body: { name: 'Streaming', water_type: 'fresh', volume_l: 100 } });
+  const key = await env.request('/api/me/openai', { method: 'PUT', headers, body: { apiKey: 'sk-test-streaming-key', model: 'gpt-4o-mini', setAsActive: true } });
+  assert.equal(key.status, 200);
+  const payload = 'data: {"choices":[{"delta":{"content":"Hallo"}}]}\n\ndata: [DONE]\n\n';
+  const originalFetch = global.fetch;
+  global.fetch = async (url, options) => {
+    if (String(url).startsWith('https://api.openai.com/')) {
+      assert.equal(JSON.parse(options.body).stream, true);
+      return new Response(payload, { headers: { 'Content-Type': 'text/event-stream' } });
+    }
+    return originalFetch(url, options);
+  };
+  t.after(() => { global.fetch = originalFetch; });
+  const response = await env.request(`/api/aquariums/${aquarium.data.id}/chat`, { method: 'POST', headers, body: { message: 'Hallo', stream: true } });
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /text\/event-stream/);
+  assert.equal(response.text, payload);
 });

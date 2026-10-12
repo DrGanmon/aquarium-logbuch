@@ -98,7 +98,8 @@ Anmeldung wahlweise lokal mit Passwort oder per OAuth 2.0 / OpenID Connect gegen
 
 ## Technische Features
 
-- **Technischer Aufbau:** Node.js (ab Version 22.12) oder Bun (ab Version 1.4.3), Express sowie wahlweise **SQLite** (lokal/leichtgewichtig) oder **MongoDB** (produktiv/skalierbar).
+- **Technischer Aufbau:** Express mit TypeScript im Backend, Node.js (ab Version 22.12) oder Bun (ab Version 1.4.3), Express sowie wahlweise **SQLite** (lokal/leichtgewichtig) oder **MongoDB** (produktiv/skalierbar).
+- **TypeScript-Backend:** Die Quellen liegen in `server.ts`, `config.ts`, `oidc.ts` und `src/**/*.ts`. `tsconfig.backend.json` erzeugt CommonJS-JavaScript für Node und Bun. Kataloge und Mailvorlagen werden in den Backend-Build kopiert; `data/` und `public/` bleiben im Projektstamm. `server.js`, `config.js` und `oidc.js` sind kleine Einstiegspunkte für bestehende Aufrufe.
 - **Vue 3, Vite und TypeScript:** Das gesamte Frontend liegt unter `public/frontend/`. Vue-Komponenten verwalten alle Ansichten, Formulare, Dialoge und Timer. Die vorhandenen CSS-Regeln, Icons, Übersetzungen und API-Verträge bleiben die Grundlage. Anwendungscode und Worker sind in TypeScript geschrieben; alte JavaScript-Ansichten und Kompatibilitätslayer entfallen.
 - **Flexibles Dual-Datenbanksystem:**
   - **SQLite (Standard lokal):** Dateibasierte, performante Zero-Setup-Datenbank (`data/aquarium.db`) mit WAL-Modus und `busy_timeout` für nebenläufige Zugriffe.
@@ -144,16 +145,16 @@ Das Format ist **`MAJOR.MINOR.REVISION[-PATCH]-ALPHA`**; `ALPHA` ist immer entha
 
 ```bash
 npm ci               # Abhängigkeiten installieren (Node >= 22.12)
-npm run build        # Bündelt das Frontend unminifiziert für Entwicklung (public/dist/app.js)
-npm run dist         # Bündelt und minifiziert für Produktion (public/dist/app.min.js)
+npm run build        # Kompiliert das Backend und bündelt das Frontend für Entwicklung
+npm run dist         # Kompiliert das Backend und minifiziert das Frontend für Produktion
 npm test             # führt alle automatisierten Tests aus (SQLite & MongoDB)
 npm start            # startet die App (Standard: SQLite unter http://localhost:3000)
 ```
 
-- **Entwicklung:** `npm start` startet die Express-API (Port 3000); `npm run dev` startet in einem zweiten Terminal Vite mit Hot Reload unter http://127.0.0.1:5173. `/api`, `/auth` und `/sw.js` werden an Express weitergeleitet. Für eine andere Backend-Adresse kann `VITE_BACKEND_URL` gesetzt werden. OIDC verwendet die konfigurierte Backend-Adresse `APP_URL`.
-- **Prüfung:** `npm run typecheck` prüft alle Vue-Komponenten und TypeScript-Dateien mit strikter Typisierung. `npm test` führt die automatisierten Tests mit kompakter Zusammenfassung aus. Eine Fortschrittsanzeige zeigt die aktuelle Testdatei von insgesamt ausgewählten Dateien und den Namen des laufenden Tests; im Terminal wird dieselbe Zeile aktualisiert, in umgeleiteten Ausgaben stehen die Fortschritte zeilenweise. Bei Fehlern werden Fehlerdetails und die letzten Testausgaben angezeigt. `npm test -- --info` zeigt zusätzlich alle Testergebnisse und vollständige Logs. Einzelne Testdateien lassen sich etwa mit `npm test -- test/auth.test.js` ausführen; `--info` kann damit kombiniert werden. Die Integrationstests benötigen lokale HTTP-Ports und für MongoDB eine MongoDB-Testbinary (beim ersten Lauf gegebenenfalls ein Download).
-- **Build:** `npm run build` erstellt das unminifizierte Entwicklungs-Bundle, `npm run dist` das minifizierte Produktions-Bundle unter `public/dist/`. Beide führen vorher die Typprüfung aus. Chart.js wird als Modul gebündelt. Vite baut den Rechen-Worker; der TypeScript-Service-Worker wird als `dist/sw.js` erzeugt und über `/sw.js` ausgeliefert.
-- **Betrieb:** Express wählt die gebauten Produktions- oder Entwicklungsdateien und unterstützt `APP_URL` mit Unterpfad. Ohne Build antwortet der Server mit HTTP 503 und einem Einrichtungshinweis. `npm run build:watch` / `npm run dist:watch` bauen bei Änderungen neu. Docker erstellt weiterhin den Produktions-Build beim Image-Bau.
+- **Entwicklung:** Nach `npm run build` startet `npm start` die Express-API (Port 3000); `npm run dev` startet in einem zweiten Terminal Vite mit Hot Reload unter http://127.0.0.1:5173. `/api`, `/auth` und `/sw.js` werden an Express weitergeleitet. Für eine andere Backend-Adresse kann `VITE_BACKEND_URL` gesetzt werden. OIDC verwendet die konfigurierte Backend-Adresse `APP_URL`.
+- **Prüfung:** `npm run typecheck` prüft Frontend und Backend. `npm run typecheck:backend` prüft nur das Backend. Der Backend-Compiler verwendet `strict` und verhindert Builds mit Typfehlern; dynamische Datenbankzeilen, externe JSON-Daten und bestehende Fehlerobjekte behalten an den jeweiligen Grenzen teilweise flexible Typen. Repository-Methoden und Express-Anfragen besitzen geprüfte Typverträge. `npm test` führt die automatisierten Tests mit kompakter Zusammenfassung aus. Eine Fortschrittsanzeige zeigt die aktuelle Testdatei von insgesamt ausgewählten Dateien und den Namen des laufenden Tests; im Terminal wird dieselbe Zeile aktualisiert, in umgeleiteten Ausgaben stehen die Fortschritte zeilenweise. Bei Fehlern werden Fehlerdetails und die letzten Testausgaben angezeigt. `npm test -- --info` zeigt zusätzlich alle Testergebnisse und vollständige Logs. Einzelne Testdateien lassen sich etwa mit `npm test -- test/auth.test.js` ausführen; `--info` kann damit kombiniert werden. Die Integrationstests benötigen lokale HTTP-Ports und für MongoDB eine MongoDB-Testbinary (beim ersten Lauf gegebenenfalls ein Download).
+- **Build:** `npm run build` und `npm run dist` kompilieren zuerst das TypeScript-Backend nach `dist/backend/` und erzeugen danach das Entwicklungs- bzw. Produktions-Bundle unter `public/dist/`. Beide führen vorher die Typprüfung aus. `npm run build:backend` baut nur das Backend; nach Backend-Änderungen neu bauen und den Server neu starten. `npm test` baut das Backend vor den Tests automatisch neu. Chart.js wird als Modul gebündelt. Vite baut den Rechen-Worker; der TypeScript-Service-Worker wird als `dist/sw.js` erzeugt und über `/sw.js` ausgeliefert.
+- **Betrieb:** Express wählt die gebauten Produktions- oder Entwicklungsdateien und unterstützt `APP_URL` mit Unterpfad. Der stabile Einstiegspunkt `server.js` lädt das kompilierte `server.ts`. Ohne Backend-Build erscheint ein Einrichtungshinweis beim Start; fehlt nur das Frontend, antwortet dessen Seite mit HTTP 503. Im Betrieb werden weder der TypeScript-Compiler noch Entwicklungsabhängigkeiten benötigt. `npm run build:watch` / `npm run dist:watch` beobachten Frontendänderungen; das Backend wird beim Start dieser Befehle einmal kompiliert. Docker erstellt weiterhin den Produktions-Build beim Image-Bau.
 
 ### Bun: Installation, Build, Tests und Start
 
@@ -168,8 +169,9 @@ bun run start:bun          # Server mit Supervisor
 bun run dev:bun            # Vite mit Hot Reload (zweites Terminal)
 ```
 
-- `bun run typecheck:bun` prüft Vue-Scripts, Templates und TypeScript über die Compiler-API ohne den Node-spezifischen Ladepatch von `vue-tsc`. Es werden keine Typfehler unterdrückt.
-- `bun run build:watch:bun` und `bun run dist:watch:bun` beobachten Änderungen. Die Typprüfung erfolgt vor Beginn des Watch-Modus; für erneute Typprüfungen `bun run typecheck:bun` ausführen.
+- `bun run typecheck:bun` prüft Vue-Scripts, Templates und das TypeScript-Backend über die Compiler-API ohne den Node-spezifischen Ladepatch von `vue-tsc`. Es werden keine Typfehler unterdrückt.
+- `bun run build:backend:bun` baut ausschließlich das Backend; `bun run typecheck:backend:bun` prüft dessen Typen.
+- `bun run build:watch:bun` und `bun run dist:watch:bun` beobachten Frontendänderungen und kompilieren das Backend zu Beginn einmal. Die Typprüfung erfolgt vor Beginn des Watch-Modus; für erneute Typprüfungen `bun run typecheck:bun` ausführen.
 - `bun run test:bun --info` zeigt vollständige Testlogs; einzelne Dateien lassen sich mit `bun run test:bun test/auth.test.js` auswählen. Der Bun-Teststarter zeigt Datei- und Untertest-Ergebnisse sowie eine Gesamtsumme. Zusätzliche native Bun-Testoptionen werden direkt mit `bun test` verwendet. Der Starter setzt temporäre Datenverzeichnisse und isoliert jede Testdatei in einem eigenen Prozess.
 - `bun.lock` fixiert die Bun-Abhängigkeiten; `package-lock.json` bleibt für Node/npm erhalten. Installationsskripte von Abhängigkeiten bleiben deaktiviert (`trustedDependencies: []`, `--ignore-scripts`). SQLite nutzt weiterhin `better-sqlite3` 13 mit mitgelieferten Node-API-Binaries.
 - Der Supervisor nutzt `node:cluster`, damit mehrere Worker denselben HTTP-Port unter Node und Bun bedienen können. Datenbankmigrationen werden vor dem Start der Worker abgeschlossen. Mehrprozess-Betrieb ist unter Linux geprüft.
@@ -263,7 +265,7 @@ Jeder angemeldete Benutzer kann über die Kopfzeile auf sein **Benutzerprofil** 
 
 Die Admin-Ansicht ist in fünf Tabs gegliedert: **Userverwaltung**, **Einladung & Registrierung** (Registrierungsmodi, Gültigkeiten, Einladungscodes und E-Mail-Einladungen), **Einstellungen** (Rechtliches sowie E-Mail/SMTP inklusive Testmail und Warteschlange), **Backups** und **Logs**.
 
-Der Administrator wird anhand der E-Mail-Adresse festgelegt. Dazu entweder in `config.js` oder über die Umgebungsvariable `ADMIN_EMAIL` die gewünschte E-Mail-Adresse hinterlegen (z. B. `ADMIN_EMAIL=admin@example.com` bzw. kommagetrennt für mehrere).
+Der Administrator wird anhand der E-Mail-Adresse festgelegt. Dazu entweder in `config.ts` oder über die Umgebungsvariable `ADMIN_EMAIL` die gewünschte E-Mail-Adresse hinterlegen (z. B. `ADMIN_EMAIL=admin@example.com` bzw. kommagetrennt für mehrere).
 
 - Benutzer, deren E-Mail-Adresse (aus OIDC/Pocket ID oder lokaler Registrierung) mit `ADMIN_EMAIL` übereinstimmt, erhalten Administrator-Rechte.
 - Im Header erscheint der Button **Admin** (`#/admin`).
@@ -385,7 +387,7 @@ Der Besatz wird über modulare **JSON-Artenkataloge** unter `src/config/species/
 
 ## Wartezeiten und Grenzwerte prüfen
 
-Die Testparameter und Standardwerte liegen in `src/config/suites/jbl-pro-aquatest.json` und `config.js`.
+Die Testparameter und Standardwerte liegen in `src/config/suites/jbl-pro-aquatest.json` und `config.ts`.
 
 - **Wartezeiten:** Alle Zeiten im Standard-Set basieren auf der JBL Testlab-Gebrauchsanweisung (`verified: true`). Eigene Testsuiten können jederzeit als JSON ergänzt werden.
 - **Grenzwerte:** Richtwerte für Süß- und Meerwasser. Prüfe sie für dein Becken und passe sie an.

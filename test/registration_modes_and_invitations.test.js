@@ -209,7 +209,7 @@ test('Registrierungs-Modi & Einladungen: Umfassender Workflow (SQLite)', async (
     assert.ok(Array.isArray(adminList.data.invitations));
 
     // Export aller Daten inklusive Einladungen
-    const db = require('../src/db');
+    const db = require('../dist/backend/src/db');
     const exported = await db.exportAllData();
     assert.ok(Array.isArray(exported.invitations));
     assert.ok(exported.invitations.length > 0);
@@ -262,7 +262,7 @@ test('Registrierungs-Modi & Einladungen: MongoDB Kompatibilität', async (t) => 
   assert.strictEqual(regRes2.status, 400);
 
   // Backup Export/Import Test
-  const db = require('../src/db');
+  const db = require('../dist/backend/src/db');
   const exported = await db.exportAllData();
   assert.ok(Array.isArray(exported.invitations));
   assert.ok(exported.invitations.length > 0);

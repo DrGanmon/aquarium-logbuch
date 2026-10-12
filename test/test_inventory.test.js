@@ -8,9 +8,9 @@ for (const backend of ['sqlite', 'mongodb']) {
     const env = backend === 'mongodb' ? await createMongoTestEnvironment() : createTestEnvironment({ DB_TYPE: 'sqlite' });
     t.after(() => env.cleanup());
     await env.start();
-    const db = require('../src/db');
-    const inventory = require('../src/services/test-inventory-service');
-    const { mailService } = require('../src/services/mail-service');
+    const db = require('../dist/backend/src/db');
+    const inventory = require('../dist/backend/src/services/test-inventory-service');
+    const { mailService } = require('../dist/backend/src/services/mail-service');
     const sent = [];
     let smtpEnabled = true;
     t.mock.method(mailService, 'getConfig', () => ({ enabled: smtpEnabled, host: smtpEnabled ? 'mock.local' : '' }));
@@ -95,7 +95,7 @@ for (const backend of ['sqlite', 'mongodb']) {
       smtpEnabled = false;
       await update('po4', { used: 38 });
       smtpEnabled = true;
-      const { reminderService } = require('../src/services/reminder-service');
+      const { reminderService } = require('../dist/backend/src/services/reminder-service');
       await reminderService.checkAndSendReminders(db);
       assert.equal(sent.length, 2);
       assert.equal(sent[1].test.key, 'po4');
@@ -167,7 +167,7 @@ for (const backend of ['sqlite', 'mongodb']) {
 
     await t.test('Backup & Restore erhält Verbrauch, Varianten und Erinnerungssperre', async () => {
       const before = await read();
-      const { backupService } = require('../src/services/backup-service');
+      const { backupService } = require('../dist/backend/src/services/backup-service');
       const backup = await backupService.generateBackupData({ includeFiles: false, dbAdapter: db });
       await update('no2', { reset: true });
       await backupService.restoreBackup(backup);
@@ -178,8 +178,8 @@ for (const backend of ['sqlite', 'mongodb']) {
 }
 
 test('Nachkauferinnerung: Deutsch/Englisch, Testname, Zähler und HTML-Escaping', (t) => {
-  const { createTestRefillReminderMail } = require('../src/services/mail-template');
-  const { mailService } = require('../src/services/mail-service');
+  const { createTestRefillReminderMail } = require('../dist/backend/src/services/mail-template');
+  const { mailService } = require('../dist/backend/src/services/mail-service');
   const queued = [];
   t.mock.method(mailService, 'enqueueMail', (mail) => { queued.push(mail); return { ok: true }; });
   for (const lang of ['de', 'en']) {

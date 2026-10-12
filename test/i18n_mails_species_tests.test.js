@@ -15,10 +15,10 @@ const {
   createShareAquariumMail,
   createMeasureReminderMail,
   createFertilizeReminderMail,
-} = require('../src/services/mail-template');
-const { MailService } = require('../src/services/mail-service');
-const { suiteService } = require('../config');
-const { speciesService } = require('../config');
+} = require('../dist/backend/src/services/mail-template');
+const { MailService } = require('../dist/backend/src/services/mail-service');
+const { suiteService } = require('../dist/backend/config.js');
+const { speciesService } = require('../dist/backend/config.js');
 
 test('i18n: Mails, Besatz (Species) und Testsuiten (Deutsch & Englisch)', async (t) => {
   const env = createTestEnvironment();

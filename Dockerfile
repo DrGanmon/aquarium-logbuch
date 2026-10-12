@@ -13,7 +13,7 @@ WORKDIR /app
 COPY package.json bun.lock .npmrc ./
 RUN bun install --frozen-lockfile --production --ignore-scripts
 COPY --from=build /app/server.js /app/config.js /app/oidc.js /app/version.json /app/LICENSE ./
-COPY --from=build /app/src ./src
+COPY --from=build /app/dist/backend ./dist/backend
 COPY --from=build /app/public ./public
 ARG APP_VERSION
 LABEL org.opencontainers.image.version="${APP_VERSION}"

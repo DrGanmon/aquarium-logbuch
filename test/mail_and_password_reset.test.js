@@ -3,7 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const net = require('net');
 const { createTestEnvironment, createMongoTestEnvironment } = require('./helpers/env');
-const { sendSmtpMail, createMimeMessage, extractEmail } = require('../src/utils/smtp');
+const { sendSmtpMail, createMimeMessage, extractEmail } = require('../dist/backend/src/utils/smtp');
 const {
   getTemplatePath,
   loadTemplate,
@@ -13,8 +13,8 @@ const {
   createEmailVerificationMail,
   createPasswordResetMail,
   createTestEmailMail,
-} = require('../src/services/mail-template');
-const { MailService } = require('../src/services/mail-service');
+} = require('../dist/backend/src/services/mail-template');
+const { MailService } = require('../dist/backend/src/services/mail-service');
 
 /**
  * Erzeugt einen einfachen In-Memory Mock SMTP Server für Tests.
@@ -255,7 +255,7 @@ test('Auth: E-Mail-Verifizierung Workflow', async (t) => {
     ADMIN_EMAIL: 'admin@aquarium.test',
   });
   t.after(async () => await env.cleanup());
-  const db = require('../src/db');
+  const db = require('../dist/backend/src/db');
 
   // 1. Neuer regulärer Benutzer registriert sich
   const regRes = await env.request('/api/register', {
@@ -342,7 +342,7 @@ test('Auth: Passwort-Reset Workflow und Token-Ablauf', async (t) => {
     ADMIN_EMAIL: 'admin@aquarium.test',
   });
   t.after(async () => await env.cleanup());
-  const db = require('../src/db');
+  const db = require('../dist/backend/src/db');
 
   const user = await env.createUserAndLogin('reset_target', 'originalpassword123', 'reset@aquarium.test');
 
@@ -489,7 +489,7 @@ test('MongoDB: E-Mail-Verifizierung und Passwort-Reset Parität', async (t) => {
     ADMIN_EMAIL: 'mongo_admin@aquarium.test',
   });
   t.after(async () => await env.cleanup());
-  const db = require('../src/db');
+  const db = require('../dist/backend/src/db');
 
   // Registrierung & Verifizierung unter MongoDB
   const reg = await env.request('/api/register', {

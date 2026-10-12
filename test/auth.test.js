@@ -90,7 +90,7 @@ test('Auth: Login und Brute-Force Rate Limiting', async (t) => {
     method: 'POST',
     body: { username: 'logintest', password: 'correctpassword', email: 'logintest@example.com' },
   });
-  const db = require('../src/db');
+  const db = require('../dist/backend/src/db');
   const u = await db.users.findByUsername('logintest');
   if (u && u.email_verify_token) {
     await env.request('/api/verify-email', {

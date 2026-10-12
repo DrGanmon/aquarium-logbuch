@@ -7,10 +7,10 @@ const os = require('os');
 const http = require('http');
 
 const { createTestEnvironment } = require('./helpers/env');
-const { WorkerPool } = require('../src/utils/worker-pool');
-const { hashPassword, verifyPassword, hashPasswordSync, verifyPasswordSync } = require('../src/utils/crypto');
-const { Supervisor } = require('../src/services/supervisor');
-const { createOidc } = require('../oidc');
+const { WorkerPool } = require('../dist/backend/src/utils/worker-pool');
+const { hashPassword, verifyPassword, hashPasswordSync, verifyPasswordSync } = require('../dist/backend/src/utils/crypto');
+const { Supervisor } = require('../dist/backend/src/services/supervisor');
+const { createOidc } = require('../dist/backend/oidc.js');
 
 test('Multithreading & Nebenläufigkeit (Concurrency)', async (t) => {
   let env;

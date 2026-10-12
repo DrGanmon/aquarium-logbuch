@@ -123,7 +123,7 @@ test('Footer, Impressum, EU AI Act, Datenschutz & Lizenzen Validierung', async (
   });
 
   await t.test('legalConfigService speichert und liefert konfigurierte E-Mail-Adressen', () => {
-    const { legalConfigService } = require('../src/services/legal-config-service');
+    const { legalConfigService } = require('../dist/backend/src/services/legal-config-service');
     const initial = legalConfigService.getConfig();
     assert.ok(initial.contactEmail, 'contactEmail vorhanden');
     assert.ok(initial.imprintEmail, 'imprintEmail vorhanden');

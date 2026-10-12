@@ -2,7 +2,7 @@
 const { test, describe, before, after } = require('node:test');
 const assert = require('node:assert');
 const { createTestEnvironment } = require('./helpers/env');
-const cfg = require('../config');
+const cfg = require('../dist/backend/config.js');
 
 describe('JSON-Testsuiten & Benutzerauswahl', () => {
   let env;

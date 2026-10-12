@@ -45,7 +45,7 @@ function createTestEnvironment(customEnv = {}) {
     if (baseUrl) return baseUrl;
     if (startPromise) return startPromise;
     startPromise = (async () => {
-      const db = require('../../src/db');
+      const db = require('../../dist/backend/src/db');
       await db.init();
       return new Promise((resolve, reject) => {
         server = http.createServer(app);
@@ -145,7 +145,7 @@ function createTestEnvironment(customEnv = {}) {
     let sessionToken = regRes.cookies?.session;
 
     if (regRes.data?.needsVerification) {
-      const db = require('../../src/db');
+      const db = require('../../dist/backend/src/db');
       const u = await db.users.findByUsername(username);
       if (u && u.email_verify_token) {
         await request('/api/verify-email', {
@@ -200,7 +200,7 @@ async function createMongoTestEnvironment(customEnv = {}) {
   const originalCleanup = env.cleanup;
   env.cleanup = async () => {
     try {
-      const db = require('../../src/db');
+      const db = require('../../dist/backend/src/db');
       await db.close();
     } catch (e) {}
     await originalCleanup();

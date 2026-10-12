@@ -161,7 +161,7 @@ test('Konto-Löschung: Zweistufiger Ablauf mit App- und E-Mail-Bestätigung (SQL
   assert.ok(validReq.data.message.includes('Bestätigungs-E-Mail'));
 
   // Token aus DB holen
-  const db = require('../src/db');
+  const db = require('../dist/backend/src/db');
   await db.init();
   const rawDb = db.getRawDb();
   const dbUser = rawDb.prepare('SELECT * FROM users WHERE id = ?').get(user1.id);
@@ -277,7 +277,7 @@ test('Konto-Löschung: Zweistufiger Ablauf unter MongoDB', async (t) => {
   }
   t.after(async () => await env.cleanup());
 
-  const db = require('../src/db');
+  const db = require('../dist/backend/src/db');
   await db.init();
   const rawDb = db.getRawDb();
 

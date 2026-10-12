@@ -25,3 +25,6 @@ data/backups/**
 public/dist/**
 !public/dist/**/
 !public/dist/**/.gitkeep
+
+# Compiled TypeScript backend
+dist/backend/

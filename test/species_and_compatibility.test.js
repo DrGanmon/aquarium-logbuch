@@ -2,7 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createTestEnvironment } = require('./helpers/env');
-const speciesService = require('../src/services/species-service');
+const speciesService = require('../dist/backend/src/services/species-service');
 
 test('Artenkatalog & Besatz-Kompatibilität', async (t) => {
   const env = createTestEnvironment();

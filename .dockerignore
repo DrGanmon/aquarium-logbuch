@@ -1,3 +1,6 @@
 node_modules
 data
 .git
+
+# Rebuild generated backend files inside the image
+dist/backend

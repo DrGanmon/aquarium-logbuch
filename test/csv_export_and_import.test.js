@@ -2,7 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createTestEnvironment, createMongoTestEnvironment } = require('./helpers/env');
-const csvService = require('../src/services/measurement-csv-service');
+const csvService = require('../dist/backend/src/services/measurement-csv-service');
 
 test('CSV-Service: Unit-Tests für Delimiter-Erkennung, Parsing, Datums-/Zahlenkonvertierung und Mapping', async () => {
   // 1. Delimiter-Erkennung
