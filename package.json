@@ -6,13 +6,21 @@
   "license": "CC-BY-NC-SA-4.0",
   "scripts": {
     "start": "node server.js",
-    "build": "npm run typecheck && vite build --mode development",
-    "dist": "npm run typecheck && vite build",
-    "build:watch": "vite build --mode development --watch",
-    "dist:watch": "vite build --watch",
+    "build": "node scripts/build.js",
+    "dist": "node scripts/build.js --minify",
+    "build:watch": "node scripts/build.js --watch",
+    "dist:watch": "node scripts/build.js --minify --watch",
     "test": "node scripts/test.js",
     "dev": "vite",
-    "typecheck": "vue-tsc --noEmit -p public/tsconfig.json"
+    "typecheck": "node scripts/typecheck.js",
+    "start:bun": "bun server.js",
+    "test:bun": "bun scripts/test.js",
+    "typecheck:bun": "bun scripts/typecheck.js",
+    "build:bun": "bun scripts/build.js",
+    "dist:bun": "bun scripts/build.js --minify",
+    "build:watch:bun": "bun scripts/build.js --watch",
+    "dist:watch:bun": "bun scripts/build.js --minify --watch",
+    "dev:bun": "bun --bun node_modules/vite/bin/vite.js"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
@@ -23,13 +31,17 @@
   },
   "private": true,
   "engines": {
-    "node": ">=22.12"
+    "node": ">=22.12",
+    "bun": ">=1.4.3"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.10",
     "mongodb-memory-server": "^11.3.0",
     "typescript": "^5.9.3",
     "vite": "^8.3.4",
-    "vue-tsc": "^3.3.13"
-  }
+    "vue-tsc": "^3.3.13",
+    "@vue/language-core": "3.3.13",
+    "@volar/typescript": "2.4.28"
+  },
+  "trustedDependencies": []
 }

@@ -17,7 +17,40 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  runtime-check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [node, bun]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: oven-sh/setup-bun@v2
+        if: matrix.runtime == 'bun'
+        with:
+          bun-version: '1.4.3'
+      - name: Install dependencies
+        run: |
+          if [ "${{ matrix.runtime }}" = "bun" ]; then
+            bun install --frozen-lockfile --ignore-scripts
+          else
+            npm ci
+          fi
+      - name: Build and test
+        run: |
+          if [ "${{ matrix.runtime }}" = "bun" ]; then
+            bun run dist:bun
+            bun run test:bun
+          else
+            npm run dist
+            npm test
+          fi
+
   build-and-push:
+    needs: runtime-check
     runs-on: ubuntu-latest
     permissions:
       contents: read

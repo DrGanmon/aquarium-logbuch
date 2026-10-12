@@ -1,5 +1,5 @@
 'use strict';
-const { fork } = require('child_process');
+const cluster = require('node:cluster');
 const path = require('path');
 const os = require('os');
 const logger = require('../utils/logger');
@@ -83,10 +83,14 @@ class Supervisor {
       WORKERS_TOTAL: String(this.numWorkers),
     };
 
-    const child = fork(this.targetScript, this.args, {
-      env: childEnv,
+    // Cluster enables shared HTTP ports on Node and Bun. Plain fork() leaves
+    // Bun's http.Server without SO_REUSEPORT, even when listen() requests it.
+    cluster.setupPrimary({
+      exec: this.targetScript,
+      args: this.args,
       stdio: ['inherit', 'pipe', 'pipe', 'ipc'],
     });
+    const child = cluster.fork(childEnv).process;
 
     this.children.set(slot, child);
     const childPid = child.pid;

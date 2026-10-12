@@ -95,7 +95,7 @@ Login optionally local with password or via OAuth 2.0 / OpenID Connect against [
 
 ## Technical Features
 
-- **Technical Stack:** Node.js (version 22.12+), Express, and either **SQLite** (local/lightweight) or **MongoDB** (production/scalable).
+- **Technical Stack:** Node.js (version 22.12+) or Bun (version 1.4.3+), Express, and either **SQLite** (local/lightweight) or **MongoDB** (production/scalable).
 - **Vue 3, Vite and TypeScript:** The complete frontend lives in `public/frontend/`. Vue components own all views, forms, dialogs and timers. The existing stylesheet, icons, translations and API contracts are preserved. All frontend application and worker code uses TypeScript; no legacy JavaScript views or compatibility layer remain.
 - **Flexible Dual-Database System:**
   - **SQLite (Default local):** File-based, high-performance zero-setup database (`data/aquarium.db`) with WAL mode and `busy_timeout` for concurrent access.
@@ -138,6 +138,27 @@ npm start            # Start app (default: SQLite at http://localhost:3000)
 - **Validation:** `npm run typecheck` checks all Vue components and TypeScript files with strict typing. `npm test` runs the automated tests with a compact summary. A progress indicator shows the current test file out of the selected total and the name of the running test; terminals update the same line, while redirected output records progress on separate lines. Failures show error details and the most recent test output. `npm test -- --info` also shows all test results and full logs. Run individual files with, for example, `npm test -- test/auth.test.js`; this can be combined with `--info`. Integration tests require local HTTP ports and a MongoDB test binary for MongoDB (which may be downloaded on the first run).
 - **Build:** `npm run build` produces an unminified development bundle; `npm run dist` produces the minified production bundle in `public/dist/`. Both run the type check first. Chart.js is bundled as a module; Vite builds the computation worker, and the TypeScript service worker is emitted as `dist/sw.js` and served at `/sw.js`.
 - **Hosting:** Express selects the built production or development assets and supports an `APP_URL` with a subpath. A missing build returns HTTP 503 with setup instructions. `npm run build:watch` / `npm run dist:watch` rebuild on changes. Docker continues to run the production build during image creation.
+
+### Bun: install, build, test and start
+
+Bun **1.4.3 or newer** is supported throughout; Node is not required for this workflow:
+
+```bash
+bun install --frozen-lockfile --ignore-scripts
+bun run build:bun          # Development build including Vue/TypeScript checking
+bun run dist:bun           # Production build including type checking
+bun run test:bun           # Isolated SQLite and MongoDB tests
+bun run start:bun          # Server with supervisor
+bun run dev:bun            # Vite hot reload in a second terminal
+```
+
+- `bun run typecheck:bun` checks Vue scripts, templates and TypeScript via the compiler API, avoiding vue-tsc's Node-specific loading patch without suppressing type errors.
+- `bun run build:watch:bun` and `bun run dist:watch:bun` watch changes. Type checking runs before watch mode starts; run `bun run typecheck:bun` to check again.
+- `bun run test:bun --info` displays full test logs. Select individual files with `bun run test:bun test/auth.test.js`. The wrapper reports files, subtest results and totals, and runs each file in its own process with temporary data. Use `bun test` directly for additional native Bun test options.
+- `bun.lock` pins Bun dependencies; `package-lock.json` remains for Node/npm. Dependency lifecycle scripts are disabled (`trustedDependencies: []`, `--ignore-scripts`). SQLite continues to use better-sqlite3 13 with its bundled Node-API binaries.
+- The supervisor uses `node:cluster` so multiple workers can share the HTTP port on Node and Bun. Database migrations finish before workers start. Multi-process operation is tested on Linux.
+- The default Dockerfile uses Bun 1.4.3 for build and production, as the unprivileged `bun` user. Build the alternative Node image with `docker build -f Dockerfile.node -t aquarium-logbuch:node .`. Existing Compose configurations remain usable.
+- CI checks both runtimes, production builds and the full test suite before publishing the container image.
 
 ### 2. Running with MongoDB (Docker Compose)
 

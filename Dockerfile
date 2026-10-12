@@ -1,14 +1,21 @@
-FROM node:22-bookworm-slim
+# The build and production runtime both use Bun; no Node helper is required.
+FROM oven/bun:1.4.3-slim AS build
 WORKDIR /app
-COPY package.json package-lock.json .npmrc ./
-# better-sqlite3 bringt fertige Binaries mit, es wird nichts kompiliert
-RUN npm ci
+COPY package.json bun.lock .npmrc ./
+RUN bun install --frozen-lockfile --ignore-scripts
 COPY . .
-RUN npm run dist
-RUN npm prune --omit=dev
+RUN bun run dist:bun
+
+FROM oven/bun:1.4.3-slim AS production
+WORKDIR /app
+COPY package.json bun.lock .npmrc ./
+RUN bun install --frozen-lockfile --production --ignore-scripts
+COPY --from=build /app/server.js /app/config.js /app/oidc.js /app/LICENSE ./
+COPY --from=build /app/src ./src
+COPY --from=build /app/public ./public
 ENV NODE_ENV=production PORT=3000 DATA_DIR=/data
-RUN mkdir -p /data && chown node:node /data
+RUN mkdir -p /data && chown bun:bun /data
 VOLUME /data
 EXPOSE 3000
-USER node
-CMD ["node", "server.js"]
+USER bun
+CMD ["bun", "server.js"]

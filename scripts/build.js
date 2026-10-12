@@ -29,9 +29,13 @@ async function buildFrontend(options = {}) {
     cssSize: size(files.cssFile),
   };
 }
-if (require.main === module)
-  buildFrontend().catch((error) => {
+if (require.main === module) {
+  const { typecheck } = require('./typecheck');
+  const code = typecheck();
+  if (code) process.exitCode = code;
+  else buildFrontend().catch((error) => {
     console.error(error);
     process.exitCode = 1;
   });
+}
 module.exports = { buildFrontend };

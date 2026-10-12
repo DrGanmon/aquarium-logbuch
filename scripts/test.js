@@ -22,29 +22,40 @@ env.AQUARIUM_TEST_PROGRESS_TTY = process.stdout.isTTY ? '1' : '0';
 env.AQUARIUM_TEST_PROGRESS_COLUMNS = String(process.stdout.columns || 80);
 delete env.LOG_FILE;
 const cleanup = () => fs.rmSync(dataDir, { recursive: true, force: true });
-const child = spawn(process.execPath, [
-  '--test',
-  '--test-concurrency=1',
-  `--test-reporter=${info ? 'spec' : path.join(__dirname, 'test-reporter.js')}`,
-  ...forwarded,
-  ...(hasFiles ? [] : ['test/**/*.test.js']),
-], {
-  cwd: rootDir,
-  stdio: 'inherit',
-  env,
-});
-child.on('error', (error) => {
-  cleanup();
-  console.error(error);
-  process.exitCode = 1;
-});
-child.on('exit', (code, signal) => {
-  cleanup();
-  if (signal) {
-    process.removeAllListeners(signal);
-    process.kill(process.pid, signal);
-  } else process.exitCode = code ?? 1;
-});
-for (const signal of ['SIGINT', 'SIGTERM']) {
-  process.on(signal, () => child.kill(signal));
+if (process.versions.bun) {
+  Object.assign(process.env, env);
+  const { runBunTests } = require('./bun-test-runner');
+  runBunTests(files.map((file) => path.resolve(rootDir, file)), {
+    info, options: forwarded.filter((arg) => !/\.(?:js|mjs|cjs)$/.test(arg)),
+  }).then((code) => { process.exitCode = code; })
+    .catch((error) => { console.error(error); process.exitCode = 1; })
+    .finally(cleanup);
+} else {
+  const child = spawn(process.execPath, [
+    '--test',
+    '--test-concurrency=1',
+    `--test-reporter=${info ? 'spec' : path.join(__dirname, 'test-reporter.js')}`,
+    ...forwarded,
+    ...(hasFiles ? [] : ['test/**/*.test.js']),
+  ], {
+    cwd: rootDir,
+    stdio: 'inherit',
+    env,
+  });
+  child.on('error', (error) => {
+    cleanup();
+    console.error(error);
+    process.exitCode = 1;
+  });
+  child.on('exit', (code, signal) => {
+    cleanup();
+    if (signal) {
+      process.removeAllListeners(signal);
+      process.kill(process.pid, signal);
+    } else process.exitCode = code ?? 1;
+  });
+  for (const signal of ['SIGINT', 'SIGTERM']) {
+    process.on(signal, () => child.kill(signal));
+  }
+
 }

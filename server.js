@@ -40,6 +40,7 @@ if (require.main === module) {
         reminderService.startScheduler();
       }
 
+      // The supervisor's cluster workers share this port on Node and Bun.
       const server = app.listen(PORT, () => {
         const workerId = process.env.WORKER_ID ? `Worker ${process.env.WORKER_ID}/${process.env.WORKERS_TOTAL || '1'}` : 'Einzelprozess';
         const mode = isWorker ? `überwachten Modus (${workerId})` : 'Einzelprozess-Modus';
@@ -81,7 +82,16 @@ if (require.main === module) {
     const supervisor = new Supervisor({
       targetScript: __filename,
     });
-    supervisor.start();
+    // Finish migrations once before children open the same database concurrently.
+    (async () => {
+      try {
+        await require('./src/db').init();
+        supervisor.start();
+      } catch (err) {
+        logger.fatal(`Datenbank-Initialisierung fehlgeschlagen: ${err.stack || err.message}`, 'db');
+        process.exit(1);
+      }
+    })();
   }
 }
 
