@@ -688,5 +688,19 @@
       "strong": "Stark revierbildend",
       "solitary_aggressive": "Strikte Einzelhaltung wegen Aggression"
     }
+  },
+  "speciesAdd": {
+    "title": "Zum Aquarium hinzufügen",
+    "aquarium": "Aquarium",
+    "choose": "Aquarium auswählen",
+    "namesOptional": "Individuelle Namen vergeben (optional)",
+    "namesHelp": "Leere Namen sind erlaubt. Unbenannte Tiere werden als Gruppe gespeichert.",
+    "animalName": "Name für Tier {number} (optional)",
+    "namePlaceholder": "z. B. Bubbles",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "page": "Seite {page} von {pages}",
+    "noAquariums": "Kein passendes Aquarium mit Schreibzugriff vorhanden. Lege zuerst ein Aquarium mit der passenden Wasserart an.",
+    "saved": "{count} × {species} zum Aquarium hinzugefügt."
   }
 }

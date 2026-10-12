@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { runWorkerTask } from "../worker-client";
+import AddSpeciesDialog from "../components/AddSpeciesDialog.vue";
 import SpeciesDetail from "../components/SpeciesDetail.vue";
 import { api } from "../api";
 import { t, errorMessage, language } from "../state";
@@ -11,6 +12,7 @@ const search = ref("");
 const water = ref("all");
 const category = ref("all");
 const selected = ref<Species>();
+const adding = ref<Species>();
 const error = ref("");
 const categories = computed(() => [
   ...new Set(
@@ -92,7 +94,7 @@ async function open(item: Species) {
         :class="item.waterType"
         tabindex="0"
         @click="open(item)"
-        @keydown.enter="open(item)"
+        @keydown.enter.self="open(item)"
       >
         <h3>{{ item.name }}</h3>
         <div class="muted" style="font-style: italic">
@@ -104,11 +106,15 @@ async function open(item: Species) {
           ><span class="tag info">{{ item.minGroupCount }} Tiere</span>
         </div>
         <p>{{ item.description }}</p>
-        <button class="btn small ghost" @click.stop="open(item)">
-          {{ t("common.details") }}
-        </button>
+        <div class="row">
+          <button class="btn small ghost" @click.stop="open(item)">{{ t("common.details") }}</button>
+          <button class="btn small" @click.stop="adding = item">{{ t("speciesAdd.title") }}</button>
+        </div>
       </article>
     </div>
-    <SpeciesDetail v-if="selected" :species="selected" @close="selected = undefined" />
+    <SpeciesDetail v-if="selected" :species="selected" @close="selected = undefined">
+      <button class="btn" @click="adding = selected">{{ t("speciesAdd.title") }}</button>
+    </SpeciesDetail>
+    <AddSpeciesDialog v-if="adding" :key="adding.id" :species="adding" @close="adding = undefined" @added="adding = undefined" />
   </div>
 </template>

@@ -79,13 +79,13 @@ class MongoAdapter {
     return this.schemaVersion;
   }
 
-  async getNextSequence(name) {
+  async getNextSequence(name, amount = 1) {
     const res = await this.db.collection('counters').findOneAndUpdate(
       { _id: name },
-      { $inc: { seq: 1 } },
+      { $inc: { seq: amount } },
       { upsert: true, returnDocument: 'after' }
     );
-    return res?.seq ?? res?.value?.seq ?? 1;
+    return res?.seq ?? res?.value?.seq ?? amount;
   }
 
   async _createIndexes() {
@@ -911,6 +911,21 @@ class MongoAdapter {
         };
         await db.collection('stock').insertOne(doc);
         return { id };
+      },
+      async createMany(rows) {
+        if (!rows.length) return [];
+        const end = await self.getNextSequence('stock', rows.length);
+        const docs = rows.map((row, index) => {
+          const id = end - rows.length + index + 1;
+          return { ...row, _id: id, id, aquarium_id: Number(row.aquarium_id), image_file: null };
+        });
+        try { await db.collection('stock').insertMany(docs, { ordered: true }); }
+        catch (error) {
+          // Remove only this request's reserved IDs if a bulk insert fails halfway.
+          await db.collection('stock').deleteMany({ _id: { $in: docs.map((row) => row._id) } });
+          throw error;
+        }
+        return docs.map(({ id }) => ({ id }));
       },
       async update(id, fields = {}) {
         const numId = Number(id);

@@ -688,5 +688,19 @@
       "strong": "Strongly territorial",
       "solitary_aggressive": "Strict solitary keeping due to aggression"
     }
+  },
+  "speciesAdd": {
+    "title": "Add to aquarium",
+    "aquarium": "Aquarium",
+    "choose": "Choose an aquarium",
+    "namesOptional": "Give individual names (optional)",
+    "namesHelp": "Names can be left empty. Unnamed animals are saved as a group.",
+    "animalName": "Name for animal {number} (optional)",
+    "namePlaceholder": "e.g. Bubbles",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page} of {pages}",
+    "noAquariums": "No matching aquarium with write access is available. Create an aquarium with the matching water type first.",
+    "saved": "Added {count} × {species} to the aquarium."
   }
 }

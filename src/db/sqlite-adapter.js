@@ -720,6 +720,12 @@ class SqliteAdapter {
         const info = db.prepare('INSERT INTO stock (aquarium_id, species, count, profile, name, image_file) VALUES (?, ?, ?, ?, ?, ?)').run(aquarium_id, species, count, profile, name, image_file);
         return { id: Number(info.lastInsertRowid) };
       },
+      async createMany(rows) {
+        const insert = db.prepare('INSERT INTO stock (aquarium_id, species, count, profile, name, image_file) VALUES (?, ?, ?, ?, ?, ?)');
+        return db.transaction(() => rows.map((row) => ({
+          id: Number(insert.run(row.aquarium_id, row.species, row.count, row.profile, row.name || null, null).lastInsertRowid),
+        })))();
+      },
       async update(id, fields = {}) {
         const setClauses = [];
         const params = [];

@@ -41,6 +41,7 @@ function safeLink(value?: string) {
 <template>
   <Modal :title="species.name" wide @close="emit('close')">
     <div class="species-detail stack">
+      <slot />
       <div class="species-detail-identity">
         <em>{{ species.scientificName }}</em>
         <div class="row">

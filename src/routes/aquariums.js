@@ -462,6 +462,25 @@ router.get('/:id/stock', auth, ownAquarium, wrap(async (req, res) => {
   res.json(enrichStock(await db.stock.listForAquarium(req.aq.id), lang));
 }));
 
+router.post('/:id/stock/catalog', auth, writeAquarium, wrap(async (req, res) => {
+  const species = cfg.speciesService.getSpeciesById(req.body.speciesId);
+  if (!species) return res.status(400).json({ error: 'Art nicht im Katalog gefunden.' });
+  if (species.waterType !== req.aq.water_type) return res.status(400).json({ error: 'Die Wasserart des Aquariums passt nicht zu dieser Art.' });
+  const count = Number(req.body.count);
+  if (!Number.isInteger(count) || count < 1 || count > 10000) return res.status(400).json({ error: 'Anzahl: 1–10000 ganze Tiere.' });
+  const names = req.body.names ?? [];
+  if (!Array.isArray(names) || (names.length && names.length !== count) || names.some((name) => typeof name !== 'string' || name.trim().length > 80)) {
+    return res.status(400).json({ error: 'Namen müssen zur Anzahl passen und dürfen maximal 80 Zeichen lang sein.' });
+  }
+  const named = names.map((name) => name.trim()).filter(Boolean);
+  const common = { aquarium_id: req.aq.id, species: species.name, profile: species.profile };
+  const rows = named.map((name) => ({ ...common, count: 1, name }));
+  const unnamed = count - named.length;
+  if (unnamed) rows.push({ ...common, count: unnamed, name: null });
+  const entries = await db.stock.createMany(rows);
+  res.json({ added: count, entries });
+}));
+
 router.post(
   '/:id/stock',
   auth,
