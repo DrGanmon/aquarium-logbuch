@@ -790,6 +790,15 @@
     "susceptibility": "Susceptibility according to source",
     "measureNow": "Measure water values",
     "background": "Background & pathogen",
-    "forSpecies": "Diseases in this species"
+    "forSpecies": "Diseases in this species",
+    "symptoms": "Symptoms",
+    "noAquariums": "Create an aquarium first to start the health check.",
+    "changeAquarium": "Change aquarium",
+    "changeResident": "Change resident",
+    "latestWater": "Latest water readings",
+    "outdated": "Outdated · not used automatically",
+    "noWaterValues": "No water readings available yet.",
+    "answersSoFar": "Answers so far",
+    "noAnswersYet": "Your answers will appear here during the check."
   }
 }

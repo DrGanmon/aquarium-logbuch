@@ -1475,3 +1475,42 @@ dialog.aquarium-chat-modal {
 .health-answer-buttons .btn { flex: 1; min-width: 90px; }
 .health-wizard details summary { cursor: pointer; font-weight: 600; }
 @media (max-width: 650px) { .health-filter-grid, .health-select-grid { grid-template-columns: minmax(0, 1fr); } }
+
+.health-steps { display: flex; list-style: none; padding: 0; margin: 0; gap: .75rem; }
+.health-steps li { display: flex; align-items: center; gap: .6rem; flex: 1; padding: .8rem; border-radius: var(--radius); color: var(--ink-soft); background: var(--glass); }
+.health-steps li > span { display: grid; place-items: center; width: 1.8rem; height: 1.8rem; flex-shrink: 0; border: 1px solid var(--line); border-radius: 50%; }
+.health-steps li.active { background: var(--water-soft); color: var(--ink); font-weight: 700; box-shadow: inset 0 -3px var(--water); }
+.health-steps li.done > span { background: var(--kelp-bg); color: var(--kelp); border-color: var(--kelp); }
+.health-selection h2, .health-context h2, .health-context h3 { margin: 0; }
+.health-choice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: .8rem; }
+.health-choice { display: flex; flex-direction: column; align-items: flex-start; gap: .45rem; padding: 1.1rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); color: var(--ink); text-align: left; font: inherit; cursor: pointer; overflow-wrap: anywhere; }
+.health-choice:hover:not(:disabled), .health-choice.selected { border-color: var(--water); background: var(--water-soft); }
+.health-choice.selected { box-shadow: inset 0 0 0 1px var(--water); }
+.health-choice:focus-visible { outline: 2px solid var(--water); outline-offset: 3px; }
+.health-choice:disabled { opacity: .55; cursor: not-allowed; }
+.health-context { border-top: 3px solid var(--water); }
+.health-context .row > div { min-width: 0; overflow-wrap: anywhere; }
+.health-water-grid { display: grid; gap: .65rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); }
+.health-water-value { display: flex; flex-direction: column; gap: .3rem; padding: .8rem; border-radius: var(--radius); background: var(--water-soft); overflow-wrap: anywhere; }
+.health-water-value strong { font-size: 1.2rem; }
+.health-water-value small, .health-water-value time { font-size: .8rem; font-weight: 400; }
+.health-water-value.stale { background: var(--amber-bg); }
+.health-stale-label { color: var(--amber); font-size: .8rem; }
+.health-context-note { margin: 0; font-size: .85rem; }
+.health-answer-history { list-style: none; padding: 0; margin: 0; }
+.health-answer-history li { display: flex; align-items: flex-start; justify-content: space-between; gap: .8rem; padding: .7rem 0; border-bottom: 1px solid var(--line); }
+.health-answer-history li:last-child { border-bottom: 0; }
+.health-answer-history li > span { min-width: 0; overflow-wrap: anywhere; }
+.health-answer-history small { display: block; color: var(--ink-soft); margin-top: .25rem; }
+.health-answer-history .chip { flex-shrink: 0; }
+.health-question { border: 1px solid var(--water); background: linear-gradient(135deg, var(--water-soft), var(--paper)); padding: 1.5rem; }
+@media (max-width: 650px) {
+  .health-steps { gap: .35rem; }
+  .health-steps li { flex-direction: column; gap: .4rem; padding: .6rem .25rem; font-size: .8rem; text-align: center; }
+  .health-question { padding: 1rem; }
+  .health-water-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.health-context { display: flex; flex-direction: column; gap: 1rem; }
+.health-context > * { margin-block: 0; }
+.health-water-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); }
+@media (max-width: 650px) { .health-water-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

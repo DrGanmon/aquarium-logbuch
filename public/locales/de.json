@@ -790,6 +790,15 @@
     "susceptibility": "Anfälligkeit laut Datenquelle",
     "measureNow": "Wasserwerte messen",
     "background": "Hintergrund & Erreger",
-    "forSpecies": "Krankheiten dieser Art"
+    "forSpecies": "Krankheiten dieser Art",
+    "symptoms": "Symptome",
+    "noAquariums": "Lege zuerst ein Aquarium an, um den Gesundheitscheck zu starten.",
+    "changeAquarium": "Aquarium ändern",
+    "changeResident": "Bewohner ändern",
+    "latestWater": "Letzte Wasserwerte",
+    "outdated": "Nicht aktuell · wird nicht automatisch verwendet",
+    "noWaterValues": "Noch keine Wasserwerte vorhanden.",
+    "answersSoFar": "Bisherige Antworten",
+    "noAnswersYet": "Deine Antworten erscheinen hier während des Checks."
   }
 }
