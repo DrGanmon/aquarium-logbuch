@@ -1458,3 +1458,20 @@ dialog.aquarium-chat-modal {
 }
 
 .footer-version { margin-left: auto; white-space: nowrap; flex-shrink: 0; font-size: .78rem; font-variant-numeric: tabular-nums; }
+
+/* Health catalog and diagnosis assistant */
+.health-filter-grid, .health-select-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.health-filter-grid { grid-template-columns: minmax(130px, .7fr) minmax(180px, 1.3fr) minmax(160px, 1fr); }
+.health-filter-grid label, .health-select-grid label { min-width: 0; }
+.health-filter-grid select, .health-select-grid select { width: 100%; min-width: 0; }
+.health-disease-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr)); }
+.health-disease-grid h2, .health-question h2 { margin: 0; font-size: 1.25rem; }
+.health-disease-grid ul, .health-auto-answer ul { margin-block: .25rem; }
+.health-disease-grid .btn { margin-top: auto; }
+.health-result, .health-auto-answer, .health-substance { padding: 1rem 0; border-bottom: 1px solid var(--line); }
+.health-result:last-child, .health-auto-answer:last-child, .health-substance:last-child { border-bottom: 0; }
+.health-result.primary { padding: 1rem; border: 1px solid var(--water); border-radius: 10px; }
+.health-result h3 { margin: 0; }
+.health-answer-buttons .btn { flex: 1; min-width: 90px; }
+.health-wizard details summary { cursor: pointer; font-weight: 600; }
+@media (max-width: 650px) { .health-filter-grid, .health-select-grid { grid-template-columns: minmax(0, 1fr); } }

@@ -237,6 +237,7 @@ async function leave() {
           >
         </div>
         <div class="row">
+          <a class="btn ghost" :href="`#/health?wizard=1&aquariumId=${encodeURIComponent(id)}`">🩺 {{ t("health.wizard") }}</a>
           <template v-if="!readonly"
             ><a class="btn ghost" :href="`#/a/${id}/messen`">{{
               t("detail.btnMeasure")

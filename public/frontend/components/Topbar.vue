@@ -35,6 +35,7 @@ const avatar = computed(() =>
       <a class="btn small ghost" id="btn-species" href="#/species">{{
         t("nav.species")
       }}</a>
+      <a class="btn small ghost" href="#/health">🩺 {{ t("nav.health") }}</a>
       <a
         class="btn small ghost topbar-user"
         id="btn-profile"

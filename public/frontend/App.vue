@@ -8,6 +8,7 @@ import AquariumView from "./views/AquariumView.vue";
 import MeasureView from "./views/MeasureView.vue";
 import ProfileView from "./views/ProfileView.vue";
 import SpeciesView from "./views/SpeciesView.vue";
+import HealthView from "./views/HealthView.vue";
 import AdminView from "./views/AdminView.vue";
 import LegalView from "./views/LegalView.vue";
 import ShareView from "./views/ShareView.vue";
@@ -62,6 +63,7 @@ onMounted(initialize);
       v-else-if="route.path.startsWith('/species')"
       :key="route.path"
     />
+    <HealthView v-else-if="route.path === '/health'" :key="route.query.toString()" />
     <AdminView v-else-if="route.path === '/admin' && session.user.isAdmin" />
     <MeasureView
       v-else-if="/^\/a\/[^/]+\/messen$/.test(route.path)"

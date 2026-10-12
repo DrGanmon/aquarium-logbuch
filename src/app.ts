@@ -19,6 +19,7 @@ import aquariumRoutes = require('./routes/aquariums');
 import shareRoutes = require('./routes/shares');
 import adminRoutes = require('./routes/admin');
 import oidcRoutes = require('./routes/oidc');
+import healthRoutes = require('./routes/health');
 
 const app = express();
 app.disable('x-powered-by');
@@ -43,6 +44,7 @@ app.use('/api', configRoutes);
 app.use('/api/shares', shareRoutes);
 app.use('/api/aquariums', aquariumRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/health', healthRoutes);
 app.use('/auth', oidcRoutes);
 
 // Frontend: index.html mit <base href>, damit die App auch unter einem Unterpfad (APP_URL mit Pfad) läuft

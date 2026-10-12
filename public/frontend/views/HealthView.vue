@@ -1,0 +1,50 @@
+<script setup lang="ts">
+import { ref, computed, watch, onBeforeUnmount } from 'vue';
+import { api } from '../api';
+import { language, t, errorMessage } from '../state';
+import { route } from '../router';
+import type { HealthCatalog } from '../health-types';
+import DiseaseDetail from '../components/DiseaseDetail.vue';
+import DiagnosisWizard from '../components/DiagnosisWizard.vue';
+const tab = ref(route.value.query.get('wizard') === '1' ? 'wizard' : 'catalog');
+const water = ref('all');
+const species = ref(route.value.query.get('speciesId') || '');
+const search = ref('');
+const catalog = ref<HealthCatalog>();
+const error = ref('');
+const loading = ref(false);
+const selected = ref<string>();
+const shown = computed(() => {
+  const query = search.value.trim().toLocaleLowerCase();
+  return catalog.value?.diseases.filter(item => !query || [item.name, item.category, ...item.synonyms, ...item.keySigns, ...item.speciesSigns].join(' ').toLocaleLowerCase().includes(query)) || [];
+});
+let request: AbortController | undefined;
+onBeforeUnmount(() => request?.abort());
+watch(water, () => { species.value = ''; });
+watch([water, species, language], async () => {
+  request?.abort(); const current = new AbortController(); request = current;
+  loading.value = true; error.value = '';
+  try {
+    const query = new URLSearchParams({ waterType: water.value, speciesId: species.value });
+    const result = await api<HealthCatalog>(`/health/catalog?${query}`, { signal: current.signal });
+    if (!current.signal.aborted) catalog.value = result;
+  } catch (caught) { if (!current.signal.aborted) error.value = errorMessage(caught); }
+  finally { if (request === current) loading.value = false; }
+}, { immediate: true });
+</script>
+<template>
+  <div class="stack">
+    <div class="row between"><h1>{{ t('health.title') }}</h1><a class="btn small ghost" href="#/">{{ t('common.back') }}</a></div>
+    <div class="row" role="tablist" :aria-label="t('health.title')"><button id="health-catalog-tab" class="btn" :class="{ ghost: tab !== 'catalog' }" role="tab" :aria-selected="tab === 'catalog'" aria-controls="health-catalog-panel" @click="tab = 'catalog'">{{ t('health.catalog') }}</button><button id="health-wizard-tab" class="btn" :class="{ ghost: tab !== 'wizard' }" role="tab" :aria-selected="tab === 'wizard'" aria-controls="health-wizard-panel" @click="tab = 'wizard'">{{ t('health.wizard') }}</button></div>
+    <DiagnosisWizard v-if="tab === 'wizard'" id="health-wizard-panel" role="tabpanel" aria-labelledby="health-wizard-tab" :initial-aquarium-id="route.query.get('aquariumId') || undefined" :initial-stock-id="route.query.get('stockId') || undefined" />
+    <section v-else id="health-catalog-panel" class="stack" role="tabpanel" aria-labelledby="health-catalog-tab">
+      <p class="muted">{{ t('health.catalogIntro') }}</p>
+      <div class="card health-filter-grid"><label>{{ t('health.waterType') }}<select v-model="water"><option value="all">{{ t('common.all') }}</option><option value="fresh">{{ t('health.fresh') }}</option><option value="salt">{{ t('health.salt') }}</option></select></label><label>{{ t('health.species') }}<select v-model="species"><option value="">{{ t('health.allSpecies') }}</option><option v-for="item in catalog?.species || []" :key="item.id" :value="item.id">{{ item.name }} · {{ item.scientificName }}</option></select></label><label>{{ t('health.search') }}<input v-model="search" type="search" :placeholder="t('health.searchPlaceholder')" /></label></div>
+      <p v-if="error" class="error" role="alert">{{ error }}</p><p v-if="loading" role="status">{{ t('common.loading') }}</p>
+      <template v-else><p class="muted" role="status">{{ shown.length }} {{ t('health.entries') }}</p><p v-if="!shown.length" class="card">{{ t('health.noMatches') }}</p>
+        <div class="health-disease-grid"><article v-for="item in shown" :key="item.id" class="card stack"><div class="row"><span class="chip">{{ item.waterType === 'salt' ? t('health.salt') : t('health.fresh') }}</span><span class="chip">{{ item.category }}</span></div><h2>{{ item.name }}</h2><ul><li v-for="sign in (item.speciesSigns.length ? item.speciesSigns : item.keySigns)" :key="sign">{{ sign }}</li></ul><p v-if="item.susceptibility" class="muted">{{ t('health.susceptibility') }}: {{ item.susceptibility }}</p><span v-if="item.contagious.zoonotic" class="chip warn">{{ t('health.zoonoticShort') }}</span><button class="btn ghost" type="button" @click="selected = item.id">{{ t('health.diseaseDetails') }}</button></article></div>
+      </template>
+    </section>
+    <DiseaseDetail v-if="selected" :disease-id="selected" :species-id="species || undefined" @close="selected = undefined" />
+  </div>
+</template>

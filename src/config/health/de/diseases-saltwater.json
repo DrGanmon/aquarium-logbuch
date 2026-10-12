@@ -1,0 +1,3793 @@
+{
+  "id": "diseases-saltwater",
+  "name": "Krankheiten – Meerwasser",
+  "description": "Häufige Krankheiten der Arten aus saltwater.json mit Zuordnung zu jeder Art.",
+  "version": "2026-10-12",
+  "disclaimer": "Informationssammlung, kein Ersatz für eine tierärztliche Diagnose. Viele Krankheiten sehen ähnlich aus; eine sichere Diagnose gelingt oft nur per Mikroskop. Medikamente immer nach Packungsbeilage bzw. tierärztlicher Anweisung anwenden.",
+  "legalNotes": [
+    "Antibiotika und andere antimikrobiell wirksame Tierarzneimittel (z. B. Metronidazol) sind seit 28.01.2022 EU-weit verschreibungspflichtig (Art. 34 Abs. 1 Buchst. c VO (EU) 2019/6) – Bezug nur über Tierarzt bzw. Apotheke.",
+    "Malachitgrün ist bei Lebensmittel liefernden Tieren in der EU nicht zulässig; die Angaben beziehen sich ausschließlich auf Zierfische.",
+    "Lebende Tiere, Aquarienwasser und Pflanzen nie in Gewässer entsorgen (Krankheitserreger, invasive Arten)."
+  ],
+  "fieldNotes": {
+    "susceptibility": "Anfälligkeit der Art laut Quellen bzw. Gruppe: gering, mittel, hoch; bei Krebspest 'Träger möglich' (Tier selbst meist symptomlos).",
+    "contagious.status": "ja = von Tier zu Tier übertragbar; bedingt = Erreger überall vorhanden, Erkrankung v. a. bei geschwächten Tieren; nein = nicht übertragbar.",
+    "contagious.zoonotic": "true = auf den Menschen übertragbar.",
+    "activeSubstances.prescriptionRequired": "true = verschreibungspflichtig; null = je nach Präparat bzw. nicht eindeutig.",
+    "activeSubstances.invertebrateSafe": "false = für Wirbellose giftig; null = Herstellerangabe prüfen."
+  },
+  "diseaseCount": 12,
+  "speciesCount": 31,
+  "diseases": [
+    {
+      "id": "cryptocaryoniasis",
+      "name": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+      "synonyms": [
+        "Marine Ich",
+        "Marine White Spot Disease",
+        "Cryptocaryoniasis"
+      ],
+      "pathogen": {
+        "type": "Parasit – Wimpertierchen (Ciliat)",
+        "scientificName": "Cryptocaryon irritans"
+      },
+      "category": "parasitär",
+      "contagious": {
+        "status": "ja",
+        "zoonotic": false,
+        "transmission": "Direkter Lebenszyklus: Zysten (Tomonten) am Boden setzen infektiöse Schwärmer (Theronten) frei, die aktiv Fische suchen.",
+        "notes": "Einer der häufigsten Parasiten in Meerwasseraquarien; ohne Fische stirbt der Parasit nach einiger Zeit ab."
+      },
+      "description": "Cryptocaryon irritans ist das Meerwasser-Gegenstück zu Ichthyophthirius. Er befällt Wild- und Zuchtfische bei 15–30 °C; das Wachstum ist bei 23–30 °C am stärksten. Der Lebenszyklus besteht aus Trophont (in der Haut), Tomont (Zyste am Boden) und Theront (Schwärmer). Die Empfänglichkeit unterscheidet sich je nach Fischart. Ein reiner Kiemenbefall kann ohne sichtbare Punkte verlaufen – fehlende Punkte schließen Cryptocaryon nicht aus.",
+      "generalSigns": [
+        "Kleine weiße Punkte, Knötchen oder Flecken auf Flossen, Haut und Kiemen",
+        "Scheuern, schnelle Atmung, Appetitlosigkeit",
+        "Trübe Augen, ausgefranste Flossen",
+        "Bei Kiemenbefall Atemnot ohne sichtbare Punkte"
+      ],
+      "keySigns": [
+        "Weiße Punkte wie Zuckerkörner",
+        "Scheuern",
+        "schnelle Atmung"
+      ],
+      "predisposingFactors": [
+        "Keine Quarantäne",
+        "Transportstress",
+        "Temperaturschwankungen"
+      ],
+      "diagnosis": "Mikroskopisch per Haut- oder Kiemenabstrich.",
+      "treatment": {
+        "summary": "Behandlung aller Fische im Quarantänebecken (Kupfer, Hyposalinität oder tierärztlich verordnete Mittel); Schaubecken mehrere Wochen ohne Fische laufen lassen.",
+        "steps": [
+          "Alle Fische aus dem Schaubecken ins Quarantänebecken setzen – im Riffbecken mit Wirbellosen nie mit Kupfer behandeln.",
+          "Kupfer auf 0,15–0,20 mg/L freies Kupfer einstellen und mit Test täglich kontrollieren (UF/IFAS FA165), oder",
+          "Hyposalinität (stark abgesenkte Salinität) als in der Literatur beschriebene Kontrollmaßnahme – nicht jede Art verträgt sie, Wirbellose nie.",
+          "Schaubecken ohne Fische laufen lassen, damit die Zysten absterben; die Zyklusdauer hängt von Stamm und Temperatur ab.",
+          "Weitere Wirkstoffe wie Chloroquin nur über Fischtierarzt."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Kupfer (freies Cu²⁺, therapeutisch 0,15–0,20 mg/L laut UF/IFAS)",
+            "prescriptionRequired": false,
+            "invertebrateSafe": false,
+            "notes": "Nur im Quarantänebecken ohne Wirbellose, Kalkgestein und Sand; täglich mit Kupfertest kontrollieren. Manche Fischarten sind empfindlich (z. B. Zwergkaiser). Für Wirbellose tödlich."
+          },
+          {
+            "substance": "Chloroquin",
+            "prescriptionRequired": true,
+            "invertebrateSafe": false,
+            "notes": "Nur über Tierarzt."
+          },
+          {
+            "substance": "Formalin",
+            "prescriptionRequired": false,
+            "invertebrateSafe": false,
+            "notes": "Bäder im Quarantänebecken."
+          }
+        ],
+        "prognosis": "Gut bei konsequenter Behandlung aller Fische und fischfreiem Schaubecken."
+      },
+      "prevention": [
+        "Quarantäne aller neuen Fische",
+        "Keine Fische ohne Behandlung ins Riffbecken",
+        "Stressarme Haltung"
+      ],
+      "sources": [
+        "ufifas-fa164",
+        "ufifas-fa165",
+        "colorni-burgess-1997"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "amyloodiniosis",
+      "name": "Meerwasser-Samtkrankheit (Amyloodinium)",
+      "synonyms": [
+        "Marine Velvet",
+        "Korallenfischkrankheit",
+        "Amyloodiniose"
+      ],
+      "pathogen": {
+        "type": "Parasit – Dinoflagellat",
+        "scientificName": "Amyloodinium ocellatum"
+      },
+      "category": "parasitär",
+      "contagious": {
+        "status": "ja",
+        "zoonotic": false,
+        "transmission": "Über frei schwimmende Dinosporen bei direktem Kontakt; schneller, einfacher Lebenszyklus ohne Zwischenwirt.",
+        "notes": "Einer der wichtigsten Parasiten von Meerwasserfischen; kann innerhalb kurzer Zeit tödlich verlaufen."
+      },
+      "description": "Amyloodinium ocellatum zählt zu den wichtigsten krankmachenden Parasiten von Meer- und Brackwasserfischen. Der Befall erzeugt ein pudriges, samtartiges Aussehen. Der Lebenszyklus ähnelt dem von Cryptocaryon, verläuft aber schneller. Isolate vertragen eine breite Spanne von Salzgehalt und Temperatur. Häufig ist das erste Anzeichen ein plötzliches Sterben, weil der Parasit zunächst die Kiemen befällt.",
+      "generalSigns": [
+        "Feiner, pudriger Belag (oft erst im Streiflicht)",
+        "Sehr schnelle Atmung, Fische stehen an der Strömung",
+        "Scheuern, Appetitlosigkeit",
+        "Plötzliche Todesfälle"
+      ],
+      "keySigns": [
+        "Feiner Puderbelag",
+        "sehr schnelle Atmung",
+        "plötzlicher Tod"
+      ],
+      "predisposingFactors": [
+        "Wildfänge ohne Quarantäne",
+        "Stress, hohe Besatzdichte"
+      ],
+      "diagnosis": "Mikroskopisch (Kiemen- und Hautabstrich).",
+      "treatment": {
+        "summary": "Sofortige Behandlung im Quarantänebecken mit Kupfer; Süßwasserbad lindert kurzfristig, heilt allein aber nicht.",
+        "steps": [
+          "Fische sofort ins Quarantänebecken.",
+          "Kupfer 0,15–0,20 mg/L freies Kupfer, täglich testen (UF/IFAS FA165).",
+          "Süßwasserbad tötet freie Stadien auf dem Fisch, ist allein aber keine wirksame Behandlung (UF/IFAS VM90).",
+          "Chloroquin nur über Fischtierarzt.",
+          "Schaubecken mehrere Wochen ohne Fische laufen lassen."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Kupfer (freies Cu²⁺, therapeutisch 0,15–0,20 mg/L laut UF/IFAS)",
+            "prescriptionRequired": false,
+            "invertebrateSafe": false,
+            "notes": "Nur im Quarantänebecken ohne Wirbellose, Kalkgestein und Sand; täglich mit Kupfertest kontrollieren. Manche Fischarten sind empfindlich (z. B. Zwergkaiser). Für Wirbellose tödlich."
+          },
+          {
+            "substance": "Chloroquin",
+            "prescriptionRequired": true,
+            "invertebrateSafe": false,
+            "notes": "Nur über Tierarzt."
+          }
+        ],
+        "prognosis": "Ernst; nur bei sehr früher Behandlung gut."
+      },
+      "prevention": [
+        "Strikte Quarantäne",
+        "Geräte nicht zwischen Becken teilen"
+      ],
+      "sources": [
+        "srac-amyloodinium",
+        "ufifas-vm90",
+        "ufifas-fa165"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "brooklynellosis",
+      "name": "Clownfischkrankheit (Brooklynellose)",
+      "synonyms": [
+        "Clownfish disease",
+        "Brooklynella"
+      ],
+      "pathogen": {
+        "type": "Parasit – Wimpertierchen (Ciliat)",
+        "scientificName": "Brooklynella hostilis"
+      },
+      "category": "parasitär",
+      "contagious": {
+        "status": "ja",
+        "zoonotic": false,
+        "transmission": "Direkt von Fisch zu Fisch; Ausbrüche hängen mit Stress, Verletzungen, Ammonium, hohen Temperaturen und Überbesatz zusammen.",
+        "notes": "Verläuft sehr schnell."
+      },
+      "description": "Brooklynella hostilis ist ein Ciliat, der Haut und Kiemen tropischer Meerwasserfische befällt; anfangs vor allem die Kiemen. Beschrieben wurden Verluste u. a. bei Anemonenfischen, Seepferdchen und weiteren Arten in öffentlichen Aquarien und bei Importeuren. Typisch ist eine starke Schleimbildung, die sich in Fetzen ablöst.",
+      "generalSigns": [
+        "Starke, weißliche Schleimbildung, Haut löst sich in Fetzen",
+        "Schnelle Atmung, Farbverlust",
+        "Teilnahmslosigkeit, Futterverweigerung",
+        "Rascher Tod"
+      ],
+      "keySigns": [
+        "Dicke Schleimschicht, Hautfetzen",
+        "Atemnot"
+      ],
+      "predisposingFactors": [
+        "Wildfänge",
+        "Transportstress, hohe Ammoniumwerte",
+        "Hohe Temperaturen, Überbesatz"
+      ],
+      "diagnosis": "Mikroskopisch (Haut- und Kiemenabstrich).",
+      "treatment": {
+        "summary": "Süßwasserbäder oder Formalinbäder im Quarantänebecken (Blasiola 1983).",
+        "steps": [
+          "Fisch sofort isolieren.",
+          "Formalin- bzw. Süßwasserbäder nach Fachanleitung (Blasiola 1983) – Fischtierarzt einbinden.",
+          "Haltungsbedingungen verbessern."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Formalin",
+            "prescriptionRequired": false,
+            "invertebrateSafe": false,
+            "notes": "Bäder im separaten Gefäß; gut belüften."
+          }
+        ],
+        "prognosis": "Bei frühem Eingreifen gut, sonst schlecht."
+      },
+      "prevention": [
+        "Nachzuchten statt Wildfänge",
+        "Quarantäne"
+      ],
+      "sources": [
+        "blasiola-1983",
+        "noga-2010"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "uronemosis",
+      "name": "Uronema-Infektion (Scuticociliatose)",
+      "synonyms": [
+        "Uronema",
+        "Scuticociliatosis"
+      ],
+      "pathogen": {
+        "type": "Parasit – Wimpertierchen (Scuticociliat)",
+        "scientificName": "Uronema marinum u. a."
+      },
+      "category": "parasitär",
+      "contagious": {
+        "status": "ja",
+        "zoonotic": false,
+        "transmission": "Fakultativer Parasit aus dem Wasser; befällt geschwächte Fische und kann ins Gewebe einwandern.",
+        "notes": "Oft in Verbindung mit schlechter Wasserqualität."
+      },
+      "description": "Uronema ist ein normalerweise frei lebender Ciliat, der bei geschwächten Fischen Haut und Muskulatur befällt und systemisch werden kann. Das Bild ähnelt Brooklynella, typisch sind aber rötliche, offene Hautschäden.",
+      "generalSigns": [
+        "Rötliche, offene Hautstellen und Geschwüre",
+        "Schuppenverlust",
+        "Schnelle Atmung, Apathie"
+      ],
+      "keySigns": [
+        "Rötliche Hautgeschwüre"
+      ],
+      "predisposingFactors": [
+        "Schlechte Wasserqualität",
+        "Stress, Verletzungen"
+      ],
+      "diagnosis": "Mikroskopisch.",
+      "treatment": {
+        "summary": "Wasserqualität verbessern und Fischtierarzt einbinden; Hautbefall spricht auf Formalin an, systemischer Befall ist schwer behandelbar.",
+        "steps": [
+          "Isolieren.",
+          "Formalin nach Anleitung.",
+          "Fischtierarzt für weitere Therapie."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Formalin",
+            "prescriptionRequired": false,
+            "invertebrateSafe": false,
+            "notes": null
+          }
+        ],
+        "prognosis": "Bei systemischem Befall schlecht."
+      },
+      "prevention": [
+        "Gute Wasserqualität",
+        "Quarantäne"
+      ],
+      "sources": [
+        "noga-2010"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "monogenea-marine",
+      "name": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+      "synonyms": [
+        "Skin flukes",
+        "Gill flukes",
+        "Neobenedenia",
+        "Benedenia"
+      ],
+      "pathogen": {
+        "type": "Parasit – Plattwurm (Monogenea)",
+        "scientificName": "u. a. Neobenedenia spp., Benedenia spp., Kiemenwürmer"
+      },
+      "category": "parasitär",
+      "contagious": {
+        "status": "ja",
+        "zoonotic": false,
+        "transmission": "Direkter Lebenszyklus; Eier haften an Einrichtung und schlüpfen später.",
+        "notes": "Breites Wirtsspektrum."
+      },
+      "description": "Monogenea sind kleine Plattwürmer an Haut, Augen und Kiemen. In geschlossenen Systemen vermehren sie sich stark. Hautwürmer sind oft fast durchsichtig und werden erst im Süßwasserbad sichtbar, wenn sie sich weiß verfärben und ablösen.",
+      "generalSigns": [
+        "Scheuern, trübe Augen",
+        "Schnelle Atmung, abgespreizte Kiemendeckel",
+        "Hautrötungen, Schuppenverlust"
+      ],
+      "keySigns": [
+        "Scheuern",
+        "trübe Augen",
+        "Atemnot"
+      ],
+      "predisposingFactors": [
+        "Neue Fische",
+        "Hohe Besatzdichte"
+      ],
+      "diagnosis": "Mikroskopisch; im Süßwasserbad lösen sich Hautwürmer sichtbar.",
+      "treatment": {
+        "summary": "Praziquantel im Quarantänebecken; wegen der Eier wiederholt behandeln. Süßwasserbäder zur Entlastung.",
+        "steps": [
+          "Praziquantel-Präparat nach Packungsbeilage im Quarantänebecken.",
+          "Behandlung nach Herstellerangabe wiederholen.",
+          "Kurzes Süßwasserbad (temperatur- und pH-angepasst) zur Entlastung."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Praziquantel",
+            "prescriptionRequired": false,
+            "invertebrateSafe": null,
+            "notes": "Verträglichkeit für Wirbellose laut Hersteller prüfen."
+          }
+        ],
+        "prognosis": "Gut."
+      },
+      "prevention": [
+        "Quarantäne"
+      ],
+      "sources": [
+        "ufifas-fa033",
+        "noga-2010"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "black-spot-disease",
+      "name": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+      "synonyms": [
+        "Black Ich",
+        "Tang Turbellarian Disease",
+        "Black Spot Disease"
+      ],
+      "pathogen": {
+        "type": "Parasit – Strudelwurm (Turbellaria)",
+        "scientificName": "Paravortex sp."
+      },
+      "category": "parasitär",
+      "contagious": {
+        "status": "ja",
+        "zoonotic": false,
+        "transmission": "Würmer verlassen den Fisch, wachsen am Boden weiter und setzen bis zu 160 Jungwürmer frei, die sofort neue Fische befallen.",
+        "notes": "Lebenszyklus ca. 10 Tage bei 24,5 °C."
+      },
+      "description": "Ein parasitischer Strudelwurm, der in Meerwasseraquarien vor allem den Gelben Segelflossendoktor befällt (Kent & Olson 1986). Die Würmer erscheinen als kleine schwarze Punkte. Nach drei Generationen wurden bis zu 4500 Würmer pro Fisch gezählt; stark befallene Fische entwickelten eine Hautentzündung mit begleitender Vibrio-Infektion. Ein Formalinbad war wirksam; Neongrundeln als Putzer halfen nicht und wurden selbst befallen.",
+      "generalSigns": [
+        "Kleine schwarze Punkte auf Körper und Flossen",
+        "Scheuern",
+        "Bei starkem Befall Hautentzündung, Farbverlust"
+      ],
+      "keySigns": [
+        "Schwarze Punkte auf dem Körper"
+      ],
+      "predisposingFactors": [
+        "Neue Doktorfische ohne Quarantäne"
+      ],
+      "diagnosis": "Mikroskopisch (Würmer mit Augenflecken).",
+      "treatment": {
+        "summary": "Formalinbad (Kent & Olson 1986); in der Praxis auch Praziquantel und Süßwasserbäder im Quarantänebecken.",
+        "steps": [
+          "Fisch im Quarantänebecken behandeln.",
+          "Formalinbad nach Anleitung.",
+          "Behandlung wiederholen, um nachschlüpfende Würmer zu erfassen (Zyklus ca. 10 Tage)."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Formalin",
+            "prescriptionRequired": false,
+            "invertebrateSafe": false,
+            "notes": null
+          },
+          {
+            "substance": "Praziquantel",
+            "prescriptionRequired": false,
+            "invertebrateSafe": null,
+            "notes": "Gegen verwandte Turbellarien beschrieben (Justine et al. 2009)."
+          }
+        ],
+        "prognosis": "Gut."
+      },
+      "prevention": [
+        "Quarantäne neuer Doktorfische"
+      ],
+      "sources": [
+        "kent-olson-1986",
+        "justine-2009"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "hlle",
+      "name": "Kopf- und Seitenlinienerosion (HLLE)",
+      "synonyms": [
+        "Head and Lateral Line Erosion",
+        "Lochkrankheit (Meerwasser)"
+      ],
+      "pathogen": {
+        "type": "Nicht abschließend geklärt – Haltungsfaktoren",
+        "scientificName": "u. a. Aktivkohle (Braunkohle-basiert), Ernährung, Wasserqualität"
+      },
+      "category": "nicht infektiös",
+      "contagious": {
+        "status": "nein",
+        "zoonotic": false,
+        "transmission": "Keine Übertragung nachgewiesen.",
+        "notes": null
+      },
+      "description": "Bei HLLE bilden sich Gruben und Hautdefekte am Kopf und entlang der Seitenlinie. Die Ursache ist nicht vollständig geklärt. In einer Studie mit Doktorfischen (Acanthurus bahianus) entwickelten Tiere mit Braunkohle-Aktivkohle im Filter HLLE, Tiere mit pelletierter Kohle nicht (Hemdal & Odum 2011); eine zweite Studie bestätigt den Zusammenhang mit Vollstrom-Kohlefilterung (Stamper et al. 2011). Selten tödlich, aber entstellend.",
+      "generalSigns": [
+        "Gruben und helle Hautdefekte am Kopf (um die Augen)",
+        "Ausbreitung entlang der Seitenlinie",
+        "Fisch frisst meist normal"
+      ],
+      "keySigns": [
+        "Gruben am Kopf",
+        "Defekte entlang der Seitenlinie"
+      ],
+      "predisposingFactors": [
+        "Braunkohle-basierte Aktivkohle",
+        "Einseitige Ernährung",
+        "Schlechte Wasserqualität"
+      ],
+      "diagnosis": "Klinisches Bild; Ausschluss anderer Ursachen.",
+      "treatment": {
+        "summary": "Braunkohle-basierte Aktivkohle entfernen, große Wasserwechsel, ausgewogene Ernährung; Läsionen können sich zurückbilden.",
+        "steps": [
+          "Aktivkohle (v. a. auf Braunkohlebasis) entfernen oder auf gewaschene, pelletierte Kohle umstellen.",
+          "Große Teilwasserwechsel.",
+          "Abwechslungsreiche Ernährung mit Algen."
+        ],
+        "activeSubstances": [],
+        "prognosis": "Gut, wenn die Ursache entfernt wird; Narben bleiben teils."
+      },
+      "prevention": [
+        "Keine Braunkohle-Aktivkohle bei empfindlichen Arten",
+        "Ausgewogene Ernährung"
+      ],
+      "sources": [
+        "hemdal-odum-2011",
+        "stamper-2011"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "lymphocystis-marine",
+      "name": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+      "synonyms": [
+        "Lymphocystis disease"
+      ],
+      "pathogen": {
+        "type": "Virus (Iridoviridae)",
+        "scientificName": "Lymphocystis disease virus (LCDV)"
+      },
+      "category": "viral",
+      "contagious": {
+        "status": "ja",
+        "zoonotic": false,
+        "transmission": "Über Wasser und Kontakt; symptomlose Träger möglich.",
+        "notes": "Meist gutartig, selbstbegrenzend."
+      },
+      "description": "Das Lymphocystis-Virus verursacht blumenkohlartige weiße Knoten an Flossen und Haut. Über 125 Arten aus Süß- und Meerwasser sind betroffen, darunter Clownfische (Infektionen bei A. ocellaris beschrieben). Die Knoten bilden sich meist nach Wochen bis Monaten zurück.",
+      "generalSigns": [
+        "Weiße, körnige Knoten an Flossen und Haut",
+        "Fisch meist munter"
+      ],
+      "keySigns": [
+        "Blumenkohlartige Knoten"
+      ],
+      "predisposingFactors": [
+        "Stress",
+        "Verletzungen"
+      ],
+      "diagnosis": "Typisches Bild; Histologie oder PCR.",
+      "treatment": {
+        "summary": "Keine spezifische Therapie; Haltung optimieren, Fisch isolieren.",
+        "steps": [
+          "Isolieren.",
+          "Stress reduzieren, Wasserqualität verbessern."
+        ],
+        "activeSubstances": [],
+        "prognosis": "Meist gut."
+      },
+      "prevention": [
+        "Quarantäne"
+      ],
+      "sources": [
+        "borrego-2017",
+        "volpatti-2022"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "mycobacteriosis-marine",
+      "name": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+      "synonyms": [
+        "Fish TB",
+        "Mykobakteriose"
+      ],
+      "pathogen": {
+        "type": "Bakterium",
+        "scientificName": "Mycobacterium marinum u. a."
+      },
+      "category": "bakteriell",
+      "contagious": {
+        "status": "ja",
+        "zoonotic": true,
+        "transmission": "Über Fressen infizierter Fische, Kot, Wasser und Biofilme.",
+        "notes": "ZOONOSE: Hautinfektionen beim Menschen („Fischbecken-Granulom“) – Handschuhe tragen. Der erste Nachweis 1897 stammte von einem Meerwasser-Aquarienfisch."
+      },
+      "description": "Chronische, auszehrende Infektion mit Knötchen in den inneren Organen. Keine Behandlung mit verlässlicher Heilung; Diagnose meist nur durch Sektion.",
+      "generalSigns": [
+        "Abmagerung trotz Fressen",
+        "Geschwüre, Farbverlust",
+        "Einzelne Todesfälle über lange Zeit"
+      ],
+      "keySigns": [
+        "Langsame Abmagerung",
+        "Geschwüre"
+      ],
+      "predisposingFactors": [
+        "Hohe organische Last",
+        "Alte Fische"
+      ],
+      "diagnosis": "Sektion, Ziehl-Neelsen-Färbung, PCR.",
+      "treatment": {
+        "summary": "Keine verlässliche Heilung; erkrankte Fische tierschutzgerecht töten, Hygiene.",
+        "steps": [
+          "Tote Fische sofort entfernen.",
+          "Handschuhe tragen.",
+          "Bei Häufung Fischtierarzt."
+        ],
+        "activeSubstances": [],
+        "prognosis": "Schlecht."
+      },
+      "prevention": [
+        "Quarantäne",
+        "Hygiene"
+      ],
+      "sources": [
+        "srac-4706",
+        "glumpak-matanovic",
+        "delghandi-2020"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "vibriosis",
+      "name": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+      "synonyms": [
+        "Vibriose",
+        "Flossenfäule (Meerwasser)"
+      ],
+      "pathogen": {
+        "type": "Bakterien (oft Sekundärkeime)",
+        "scientificName": "Vibrio spp. u. a."
+      },
+      "category": "bakteriell",
+      "contagious": {
+        "status": "bedingt",
+        "zoonotic": true,
+        "transmission": "Keime aus dem Wasser befallen verletzte oder geschwächte Fische.",
+        "notes": "Manche Vibrio-Arten können beim Menschen Wundinfektionen verursachen."
+      },
+      "description": "Vibrionen gehören zur normalen Meerwasserflora und befallen vor allem verletzte oder durch Parasiten geschwächte Fische. So begleiteten Vibrio-Infektionen die Hautentzündungen bei starkem Paravortex-Befall (Kent & Olson 1986).",
+      "generalSigns": [
+        "Rötungen und Blutungen",
+        "Geschwüre",
+        "Ausgefranste Flossen",
+        "Apathie"
+      ],
+      "keySigns": [
+        "Rote Stellen, Geschwüre"
+      ],
+      "predisposingFactors": [
+        "Verletzungen, Parasitenbefall",
+        "Schlechte Wasserqualität"
+      ],
+      "diagnosis": "Bakteriologische Untersuchung beim Fischtierarzt.",
+      "treatment": {
+        "summary": "Ursache beheben, Fischtierarzt einbinden; Antibiotika verschreibungspflichtig.",
+        "steps": [
+          "Wasserqualität verbessern.",
+          "Isolieren.",
+          "Fischtierarzt."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Antibiotika nach Tierarzt",
+            "prescriptionRequired": true,
+            "invertebrateSafe": null,
+            "notes": "Antibiotika und andere antimikrobiell wirksame Tierarzneimittel (z. B. Metronidazol) sind in der EU seit 28.01.2022 verschreibungspflichtig (Art. 34 VO (EU) 2019/6) – nur über Tierarzt bzw. Fischtierarzt."
+          }
+        ],
+        "prognosis": "Gut bei früher Behandlung."
+      },
+      "prevention": [
+        "Verletzungen und Parasiten vermeiden"
+      ],
+      "sources": [
+        "msd-bacterial",
+        "kent-olson-1986",
+        "bmel-zzf-2022"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "invertebrate-copper-toxicity-marine",
+      "name": "Vergiftung durch Kupfer und Fischmedikamente (Meerwasser-Wirbellose)",
+      "synonyms": [
+        "Kupfervergiftung"
+      ],
+      "pathogen": {
+        "type": "Nicht infektiös – Vergiftung",
+        "scientificName": "Kupfer und viele Fischmedikamente"
+      },
+      "category": "nicht infektiös",
+      "contagious": {
+        "status": "nein",
+        "zoonotic": false,
+        "transmission": "Keine Übertragung.",
+        "notes": null
+      },
+      "description": "Die meisten Wirbellosen sind hochempfindlich gegenüber Kupfer. Bei den therapeutischen 0,15–0,20 mg/L sterben sie; zurückgesetzt werden sollten sie erst bei höchstens 0,01 mg/L, besser 0 mg/L (UF/IFAS FA165). Deshalb Fische immer im separaten Quarantänebecken behandeln.",
+      "generalSigns": [
+        "Garnelen und Krebse sterben plötzlich",
+        "Anemonen schrumpfen",
+        "Schnecken fallen ab"
+      ],
+      "keySigns": [
+        "Plötzliches Sterben nach Behandlung"
+      ],
+      "predisposingFactors": [
+        "Behandlung im Riffbecken"
+      ],
+      "diagnosis": "Kupfertest, zeitlicher Zusammenhang.",
+      "treatment": {
+        "summary": "Sofort große Wasserwechsel und kupferbindende Adsorber.",
+        "steps": [
+          "Wasserwechsel.",
+          "Adsorber einsetzen.",
+          "Überlebende umsetzen."
+        ],
+        "activeSubstances": [],
+        "prognosis": "Dosisabhängig."
+      },
+      "prevention": [
+        "Nie im Riffbecken mit Kupfer behandeln"
+      ],
+      "sources": [
+        "ufifas-fa165"
+      ],
+      "affectedSpeciesCount": 11,
+      "affectedSpecies": [
+        "lysmata-amboinensis",
+        "lysmata-debelius",
+        "lysmata-wurdemanni",
+        "stenopus-hispidus",
+        "thor-amboinensis",
+        "mithraculus-sculptus",
+        "clibanarius-tricolor",
+        "paguristes-cadenati",
+        "trochus-spp",
+        "nassarius-spp",
+        "entacmaea-quadricolor"
+      ]
+    },
+    {
+      "id": "anemone-bleaching",
+      "name": "Ausbleichen von Anemonen (Zooxanthellen-Verlust)",
+      "synonyms": [
+        "Bleaching"
+      ],
+      "pathogen": {
+        "type": "Nicht infektiös – Umweltstress",
+        "scientificName": "Verlust symbiotischer Algen durch Hitze und Licht"
+      },
+      "category": "nicht infektiös",
+      "contagious": {
+        "status": "nein",
+        "zoonotic": false,
+        "transmission": "Keine Übertragung.",
+        "notes": null
+      },
+      "description": "Anemonen mit Zooxanthellen verlieren bei Hitzestress ihre symbiotischen Algen und werden weiß. Versuche mit Wirtsanemonen zeigten Ausbleichen bereits ab 27 °C; bei 29 °C starben teils Tiere, wobei starkes Licht die Schäden verstärkte.",
+      "generalSigns": [
+        "Weiße bis durchscheinende Färbung",
+        "Schrumpfen, Fressunlust",
+        "Wandern im Becken"
+      ],
+      "keySigns": [
+        "Weiß ausgeblichen",
+        "schrumpft"
+      ],
+      "predisposingFactors": [
+        "Temperaturen über ca. 27 °C",
+        "Zu starkes oder plötzlich verändertes Licht"
+      ],
+      "diagnosis": "Klinisches Bild.",
+      "treatment": {
+        "summary": "Temperatur senken, Licht anpassen, gezielt füttern.",
+        "steps": [
+          "Temperatur in den empfohlenen Bereich (24–26 °C) bringen.",
+          "Licht nicht abrupt ändern.",
+          "Gezielt füttern."
+        ],
+        "activeSubstances": [],
+        "prognosis": "Bei kurzem Stress gut."
+      },
+      "prevention": [
+        "Kühlung im Sommer",
+        "Stabile Lichtverhältnisse"
+      ],
+      "sources": [
+        "anemone-bleaching"
+      ],
+      "affectedSpeciesCount": 1,
+      "affectedSpecies": [
+        "entacmaea-quadricolor"
+      ]
+    }
+  ],
+  "speciesIndex": {
+    "amphiprion-ocellaris": {
+      "name": "Falscher Clownfisch (Anemonenfisch)",
+      "scientificName": "Amphiprion ocellaris",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Feiner Belag, sehr schnelle Atmung",
+            "stehen an der Oberfläche oder Strömung"
+          ],
+          "note": "Clownfische werden in der Literatur unter den stark betroffenen Arten genannt.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Dicke, weißliche Schleimschicht, Hautfetzen",
+            "Farbverlust, schnelle Atmung, steht an einer Stelle"
+          ],
+          "note": "Vor allem Wildfänge; Nachzuchten seltener betroffen.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Knoten an den Flossen"
+          ],
+          "note": "Bei Clownfischen beschrieben.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "amphiprion-percula": {
+      "name": "Orangeringel-Anemonenfisch",
+      "scientificName": "Amphiprion percula",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Feiner Belag, sehr schnelle Atmung",
+            "stehen an der Oberfläche oder Strömung"
+          ],
+          "note": "Clownfische werden in der Literatur unter den stark betroffenen Arten genannt.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Dicke, weißliche Schleimschicht, Hautfetzen",
+            "Farbverlust, schnelle Atmung, steht an einer Stelle"
+          ],
+          "note": "Vor allem Wildfänge; Nachzuchten seltener betroffen.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Knoten an den Flossen"
+          ],
+          "note": "Bei Clownfischen beschrieben.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "gramma-loreto": {
+      "name": "Königs-Feenbarsch",
+      "scientificName": "Gramma loreto",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "chromis-viridis": {
+      "name": "Grünes Schwalbenschwänzchen",
+      "scientificName": "Chromis viridis",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "chrysiptera-parasema": {
+      "name": "Gelbschwanz-Demoiselle",
+      "scientificName": "Chrysiptera parasema",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "pseudanthias-squamipinnis": {
+      "name": "Juwelen-Fahnenbarsch",
+      "scientificName": "Pseudanthias squamipinnis",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "synchiropus-splendidus": {
+      "name": "Mandarinfisch",
+      "scientificName": "Synchiropus splendidus",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "elacatinus-oceanops": {
+      "name": "Neongrundel",
+      "scientificName": "Elacatinus oceanops",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "nemateleotris-magnifica": {
+      "name": "Feuer-Schwertgrundel",
+      "scientificName": "Nemateleotris magnifica",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "salarias-fasciatus": {
+      "name": "Algen-Schleimfisch",
+      "scientificName": "Salarias fasciatus",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "ecsenius-bicolor": {
+      "name": "Zweifarben-Schleimfisch",
+      "scientificName": "Ecsenius bicolor",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "centropyge-loricula": {
+      "name": "Flammen-Zwergkaiserfisch",
+      "scientificName": "Centropyge loricula",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte, Scheuern"
+          ],
+          "note": "Zwergkaiser sind kupferempfindlich – Kupfertherapie vorsichtig und nur mit Tierarzt.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Puderbelag, Atemnot"
+          ],
+          "note": "Kupferempfindlich – Behandlung mit Tierarzt.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Schleimbildung, Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Trübe Augen, Scheuern, Schuppenverlust"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Gruben am Kopf"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen.",
+        "Zwergkaiser sind kupferempfindlich – Kupfertherapie nur mit Fischtierarzt."
+      ]
+    },
+    "pterapogon-kauderni": {
+      "name": "Banggai-Kardinalbarsch",
+      "scientificName": "Pterapogon kauderni",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "sphaeramia-nematoptera": {
+      "name": "Pyjama-Kardinalbarsch",
+      "scientificName": "Sphaeramia nematoptera",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "pseudochromis-fridmani": {
+      "name": "Orchideen-Zwergbarsch",
+      "scientificName": "Pseudochromis fridmani",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "opistognathus-aurifrons": {
+      "name": "Brunnenbauer",
+      "scientificName": "Opistognathus aurifrons",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "halichoeres-chrysus": {
+      "name": "Kanarien-Lippfisch",
+      "scientificName": "Halichoeres chrysus",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Weiße Punkte wie Zuckerkörner",
+            "Scheuern",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "trübe Augen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Schwarze Punkte auf dem Körper"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "gering",
+          "signs": [
+            "Gruben am Kopf",
+            "Defekte entlang der Seitenlinie"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "zebrasoma-flavescens": {
+      "name": "Gelber Segelflossen-Doktorfisch (Hawaii-Doktor)",
+      "scientificName": "Zebrasoma flavescens",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Punkte auf gelbem Grund schwer zu sehen – auf Scheuern, Atemfrequenz und trübe Flossen achten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Trübe Augen, Scheuern, Schuppenverlust"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Kleine schwarze Punkte, auf dem gelben Körper sehr auffällig",
+            "Scheuern an Steinen"
+          ],
+          "note": "Hauptwirt laut Kent & Olson 1986.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Gruben über den Augen",
+            "helle Linie entlang der Seitenlinie"
+          ],
+          "note": "Doktorfische sind besonders betroffen.",
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "paracanthurus-hepatus": {
+      "name": "Paletten-Doktorfisch",
+      "scientificName": "Paracanthurus hepatus",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Weiße Punkte zuerst auf den dunklen Flossen gut sichtbar",
+            "Scheuern, schnelle Atmung, Farbverlust"
+          ],
+          "note": "Doktorfische gelten als besonders anfällig.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Trübe Augen, Scheuern, Schuppenverlust"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Schwarze Punkte, Scheuern"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Gruben über den Augen",
+            "helle Linie entlang der Seitenlinie"
+          ],
+          "note": "Doktorfische sind besonders betroffen.",
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "acanthurus-leucosternon": {
+      "name": "Weißkehl-Doktorfisch",
+      "scientificName": "Acanthurus leucosternon",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Meerwasser-Weißpünktchenkrankheit (Cryptocaryon)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Weiße Punkte zuerst auf den dunklen Flossen gut sichtbar",
+            "Scheuern, schnelle Atmung, Farbverlust"
+          ],
+          "note": "Doktorfische gelten als besonders anfällig.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Meerwasser-Samtkrankheit (Amyloodinium)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feiner Puderbelag",
+            "sehr schnelle Atmung",
+            "plötzlicher Tod"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfischkrankheit (Brooklynellose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Dicke Schleimschicht, Hautfetzen",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema-Infektion (Scuticociliatose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rötliche Hautgeschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Haut- und Kiemenwürmer im Meerwasser (Monogenea)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Trübe Augen, Scheuern, Schuppenverlust"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Schwarzpunktkrankheit (Paravortex, „Black Ich“)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Schwarze Punkte, Scheuern"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Kopf- und Seitenlinienerosion (HLLE)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Gruben über den Augen",
+            "helle Linie entlang der Seitenlinie"
+          ],
+          "note": "Doktorfische sind besonders betroffen.",
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“, Meerwasser)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige Knoten"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fischtuberkulose (Mykobakteriose, Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Langsame Abmagerung",
+            "Geschwüre"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bakterielle Geschwüre und Flossenfäule (Vibrio u. a.)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Stellen, Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Medikamente, besonders Kupfer, nur im Quarantänebecken anwenden – nie im Riffbecken mit Wirbellosen."
+      ]
+    },
+    "lysmata-amboinensis": {
+      "name": "Weißband-Putzergarnele",
+      "scientificName": "Lysmata amboinensis",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Vergiftung durch Kupfer und Fischmedikamente (Meerwasser-Wirbellose)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Plötzliches Sterben nach Behandlung"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Kupfer und viele Fischmedikamente sind für diese Art tödlich – Fische nie im gemeinsamen Becken behandeln (UF/IFAS FA165)."
+      ]
+    },
+    "lysmata-debelius": {
+      "name": "Blutstriemen-Putzergarnele",
+      "scientificName": "Lysmata debelius",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Vergiftung durch Kupfer und Fischmedikamente (Meerwasser-Wirbellose)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Plötzliches Sterben nach Behandlung"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Kupfer und viele Fischmedikamente sind für diese Art tödlich – Fische nie im gemeinsamen Becken behandeln (UF/IFAS FA165)."
+      ]
+    },
+    "lysmata-wurdemanni": {
+      "name": "Peppermint-Garnele",
+      "scientificName": "Lysmata wurdemanni (Artkomplex)",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Vergiftung durch Kupfer und Fischmedikamente (Meerwasser-Wirbellose)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Plötzliches Sterben nach Behandlung"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Kupfer und viele Fischmedikamente sind für diese Art tödlich – Fische nie im gemeinsamen Becken behandeln (UF/IFAS FA165)."
+      ]
+    },
+    "stenopus-hispidus": {
+      "name": "Gebänderte Scherengarnele",
+      "scientificName": "Stenopus hispidus",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Vergiftung durch Kupfer und Fischmedikamente (Meerwasser-Wirbellose)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Plötzliches Sterben nach Behandlung"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Kupfer und viele Fischmedikamente sind für diese Art tödlich – Fische nie im gemeinsamen Becken behandeln (UF/IFAS FA165)."
+      ]
+    },
+    "thor-amboinensis": {
+      "name": "Anemonengarnele",
+      "scientificName": "Thor amboinensis",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Vergiftung durch Kupfer und Fischmedikamente (Meerwasser-Wirbellose)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Plötzliches Sterben nach Behandlung"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Kupfer und viele Fischmedikamente sind für diese Art tödlich – Fische nie im gemeinsamen Becken behandeln (UF/IFAS FA165)."
+      ]
+    },
+    "mithraculus-sculptus": {
+      "name": "Smaragdkrabbe",
+      "scientificName": "Mithraculus sculptus",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Vergiftung durch Kupfer und Fischmedikamente (Meerwasser-Wirbellose)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Plötzliches Sterben nach Behandlung"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Kupfer und viele Fischmedikamente sind für diese Art tödlich – Fische nie im gemeinsamen Becken behandeln (UF/IFAS FA165)."
+      ]
+    },
+    "clibanarius-tricolor": {
+      "name": "Blaufuß-Einsiedlerkrebs",
+      "scientificName": "Clibanarius tricolor",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Vergiftung durch Kupfer und Fischmedikamente (Meerwasser-Wirbellose)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Plötzliches Sterben nach Behandlung"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Kupfer und viele Fischmedikamente sind für diese Art tödlich – Fische nie im gemeinsamen Becken behandeln (UF/IFAS FA165)."
+      ]
+    },
+    "paguristes-cadenati": {
+      "name": "Rotfuß-Einsiedlerkrebs",
+      "scientificName": "Paguristes cadenati",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Vergiftung durch Kupfer und Fischmedikamente (Meerwasser-Wirbellose)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Plötzliches Sterben nach Behandlung"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Kupfer und viele Fischmedikamente sind für diese Art tödlich – Fische nie im gemeinsamen Becken behandeln (UF/IFAS FA165)."
+      ]
+    },
+    "trochus-spp": {
+      "name": "Kreiselschnecke (Trochus)",
+      "scientificName": "Trochus spp.",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Vergiftung durch Kupfer und Fischmedikamente (Meerwasser-Wirbellose)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Plötzliches Sterben nach Behandlung"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Kupfer und viele Fischmedikamente sind für diese Art tödlich – Fische nie im gemeinsamen Becken behandeln (UF/IFAS FA165)."
+      ]
+    },
+    "nassarius-spp": {
+      "name": "Nassarius-Schnecke",
+      "scientificName": "Nassarius spp.",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Vergiftung durch Kupfer und Fischmedikamente (Meerwasser-Wirbellose)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Plötzliches Sterben nach Behandlung"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Kupfer und viele Fischmedikamente sind für diese Art tödlich – Fische nie im gemeinsamen Becken behandeln (UF/IFAS FA165)."
+      ]
+    },
+    "entacmaea-quadricolor": {
+      "name": "Blasenanemone",
+      "scientificName": "Entacmaea quadricolor",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Vergiftung durch Kupfer und Fischmedikamente (Meerwasser-Wirbellose)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Plötzliches Sterben nach Behandlung"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "anemone-bleaching",
+          "disease": "Ausbleichen von Anemonen (Zooxanthellen-Verlust)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Weiß ausgeblichen",
+            "schrumpft"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Kupfer und viele Fischmedikamente sind für diese Art tödlich – Fische nie im gemeinsamen Becken behandeln (UF/IFAS FA165)."
+      ]
+    }
+  },
+  "sources": {
+    "anemone-bleaching": {
+      "type": "Originalarbeit (peer-reviewed)",
+      "title": "The influence of irradiance on the severity of thermal bleaching in sea anemones that host anemonefish",
+      "url": "https://opus.lib.uts.edu.au/handle/10453/18070"
+    },
+    "blasiola-1983": {
+      "type": "Tagungsbeitrag (Veterinärmedizin, IAAAM)",
+      "authors": "Blasiola GC",
+      "year": 1983,
+      "title": "A Review of Brooklynella Parasitization in Marine Fishes: Diagnosis, Pathology and Chemotherapy",
+      "publisher": "IAAAM Proceedings",
+      "url": "https://vin.com/doc/?id=3980099"
+    },
+    "bmel-zzf-2022": {
+      "type": "Rechtsauskunft (Bundesministerium)",
+      "authors": "BMEL",
+      "year": 2022,
+      "title": "Schreiben des BMEL an den ZZF zum Tierarzneimittelgesetz (Verschreibungspflicht antimikrobiell wirksamer Tierarzneimittel nach Art. 34 VO (EU) 2019/6)",
+      "publisher": "Zentralverband Zoologischer Fachbetriebe (ZZF)",
+      "url": "https://www.zzf.de/fileadmin/user_upload/pressemitteilungen/migration/intranet/BMEL-Zoofachhandel_Sachkundenachweis.pdf"
+    },
+    "borrego-2017": {
+      "type": "Review (peer-reviewed)",
+      "authors": "Borrego JJ, Valverde EJ, Labella AM, Castro D",
+      "year": 2017,
+      "title": "Lymphocystis disease virus: its importance in aquaculture",
+      "publisher": "Reviews in Aquaculture 9:179-193",
+      "doi": "10.1111/raq.12131",
+      "url": "https://hdl.handle.net/10630/33194"
+    },
+    "colorni-burgess-1997": {
+      "type": "Review (peer-reviewed)",
+      "authors": "Colorni A, Burgess P",
+      "year": 1997,
+      "title": "Cryptocaryon irritans Brown 1951, the cause of 'white spot disease' in marine fish: an update",
+      "note": "zitiert in UF/IFAS FA164"
+    },
+    "delghandi-2020": {
+      "type": "Review (peer-reviewed)",
+      "year": 2020,
+      "title": "Mycobacteriosis and Infections with Non-tuberculous Mycobacteria in Aquatic Organisms: A Review",
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7564596/"
+    },
+    "glumpak-matanovic": {
+      "type": "Fachartikel (Veterinärmedizin)",
+      "authors": "Glumpak H, Matanović K",
+      "title": "Mycobacteriosis in a Marine Aquarium – Fish Tuberculosis with Zoonotic Potential",
+      "publisher": "Veterinarska stanica (Zagreb)",
+      "url": "https://hrcak.srce.hr/clanak/503571"
+    },
+    "hemdal-odum-2011": {
+      "type": "Originalarbeit (peer-reviewed)",
+      "authors": "Hemdal J, Odum RA",
+      "year": 2011,
+      "title": "The Role of Activated Lignite Carbon in the Development of Head and Lateral Line Erosion in the Ocean Surgeon",
+      "publisher": "North American Journal of Aquaculture 73(4):489-492",
+      "doi": "10.1080/15222055.2011.635781"
+    },
+    "justine-2009": {
+      "type": "Originalarbeit (peer-reviewed)",
+      "authors": "Justine JL, Leblanc P, Keller F, Lester RJG",
+      "year": 2009,
+      "title": "Turbellarian black spot disease in bluespine unicornfish Naso unicornis in New Caledonia, caused by the parasitic turbellarian Piscinquilinus sp.",
+      "publisher": "Diseases of Aquatic Organisms 85:245-249",
+      "doi": "10.3354/dao02082",
+      "url": "https://int-res.com/abstracts/dao/v85/n3/p245-249"
+    },
+    "kent-olson-1986": {
+      "type": "Originalarbeit (peer-reviewed)",
+      "authors": "Kent ML, Olson AC",
+      "year": 1986,
+      "title": "Interrelationships of a Parasitic Turbellarian (Paravortex sp.) (Graffillidae, Rhabdocoela) and its Marine Fish Hosts",
+      "publisher": "Fish Pathology 21(2):65-72",
+      "url": "https://www.jstage.jst.go.jp/article/jsfp1966/21/2/21_2_65/_article"
+    },
+    "msd-bacterial": {
+      "type": "Veterinärmedizinisches Fachhandbuch",
+      "title": "Bacterial Diseases in Aquaculture (Aeromonas, Vibrio, Flavobacterium u. a.)",
+      "publisher": "MSD/Merck Veterinary Manual",
+      "url": "https://www.msdvetmanual.com/exotic-and-laboratory-animals/aquaculture/bacterial-diseases-in-aquaculture"
+    },
+    "noga-2010": {
+      "type": "Fachbuch (Standardwerk Fischmedizin)",
+      "authors": "Noga EJ",
+      "year": 2010,
+      "title": "Fish Disease: Diagnosis and Treatment, 2nd edition",
+      "publisher": "Wiley-Blackwell"
+    },
+    "srac-4706": {
+      "type": "Fachpublikation (Southern Regional Aquaculture Center)",
+      "authors": "Francis-Floyd R",
+      "title": "Mycobacterial Infections of Fish (SRAC Publication No. 4706)",
+      "publisher": "SRAC",
+      "url": "https://srac.tamu.edu/fact-sheets/serve/231"
+    },
+    "srac-amyloodinium": {
+      "type": "Fachpublikation (Southern Regional Aquaculture Center)",
+      "authors": "Francis-Floyd R, Floyd MR",
+      "title": "Amyloodinium ocellatum, an Important Parasite of Cultured Marine Fish",
+      "publisher": "SRAC",
+      "url": "https://srac.tamu.edu/fact-sheets/serve/227"
+    },
+    "stamper-2011": {
+      "type": "Originalarbeit (peer-reviewed)",
+      "authors": "Stamper MA, Kittell MM, Patel EE, Corwin AL",
+      "year": 2011,
+      "title": "Effects of full-stream carbon filtration on the development of head and lateral line erosion syndrome (HLLES) in ocean surgeon",
+      "publisher": "Journal of Aquatic Animal Health 23(3):111-116",
+      "doi": "10.1080/08997659.2011.608608"
+    },
+    "ufifas-fa033": {
+      "type": "Fachpublikation (Universität/Veterinärmedizin)",
+      "authors": "Francis-Floyd R, Klinger R, Petty D, Pouder D",
+      "title": "Monogenean Parasites of Fish (FA033)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "doi": "10.32473/edis-fa033-2012",
+      "url": "https://edis.ifas.ufl.edu/publication/FA033"
+    },
+    "ufifas-fa164": {
+      "type": "Fachpublikation (Universität/Veterinärmedizin)",
+      "authors": "Yanong RPE",
+      "year": 2009,
+      "title": "Cryptocaryon irritans Infections (Marine White Spot Disease) in Fish (FA164)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "url": "https://edis.ifas.ufl.edu/publication/FA164"
+    },
+    "ufifas-fa165": {
+      "type": "Fachpublikation (Universität/Veterinärmedizin)",
+      "authors": "Yanong RPE",
+      "year": 2009,
+      "title": "Use of Copper in Marine Aquaculture and Aquarium Systems (FA165)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "url": "https://edis.ifas.ufl.edu/publication/FA165"
+    },
+    "ufifas-vm90": {
+      "type": "Fachpublikation (Universität/Veterinärmedizin)",
+      "authors": "Reed P, Francis-Floyd R",
+      "title": "Amyloodinium Infections of Marine Fish (VM90)",
+      "publisher": "UF/IFAS Extension",
+      "url": "https://extension.rwfm.tamu.edu/wp-content/uploads/sites/8/2013/09/Amyloodinium-Infections-of-Marine-Fish.pdf"
+    },
+    "volpatti-2022": {
+      "type": "Buchkapitel (Review)",
+      "authors": "Volpatti D",
+      "year": 2022,
+      "title": "Lymphocystis virus disease",
+      "url": "https://air.uniud.it/handle/11390/1239920"
+    }
+  }
+}

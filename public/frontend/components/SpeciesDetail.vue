@@ -42,6 +42,7 @@ function safeLink(value?: string) {
   <Modal :title="species.name" wide @close="emit('close')">
     <div class="species-detail stack">
       <slot />
+      <a class="btn small ghost" :href="`#/health?speciesId=${encodeURIComponent(species.id)}`" @click="emit('close')">🩺 {{ t("health.forSpecies") }}</a>
       <div class="species-detail-identity">
         <em>{{ species.scientificName }}</em>
         <div class="row">

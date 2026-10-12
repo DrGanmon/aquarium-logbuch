@@ -1,0 +1,3794 @@
+{
+  "id": "diseases-saltwater",
+  "name": "Diseases – Marine",
+  "description": "Common diseases of the species in saltwater.json, mapped to each species.",
+  "language": "en",
+  "version": "2026-10-12",
+  "disclaimer": "Information collection, not a substitute for a veterinary diagnosis. Many diseases look similar; a reliable diagnosis is often only possible with a microscope. Always use medication according to the package insert or veterinary instructions.",
+  "legalNotes": [
+    "Antibiotics and other antimicrobial veterinary medicines (e.g. metronidazole) have required a prescription throughout the EU since 28 January 2022 (Art. 34(1)(c) Regulation (EU) 2019/6) – obtain only via a veterinarian or pharmacy.",
+    "Malachite green is not permitted in food-producing animals in the EU; the information refers exclusively to ornamental fish.",
+    "Never dispose of live animals, aquarium water or plants into natural waters (pathogens, invasive species)."
+  ],
+  "fieldNotes": {
+    "susceptibility": "Susceptibility of the species according to sources or group: low, medium, high, very high; for crayfish plague 'possible carrier' (the animal itself usually shows no symptoms).",
+    "contagious.status": "yes = transmissible from animal to animal; conditional = pathogen present everywhere, disease mainly in weakened animals; no = not transmissible.",
+    "contagious.zoonotic": "true = transmissible to humans.",
+    "activeSubstances.prescriptionRequired": "true = prescription-only; null = depends on the product or not clear-cut.",
+    "activeSubstances.invertebrateSafe": "false = toxic to invertebrates; null = check manufacturer's information."
+  },
+  "diseaseCount": 12,
+  "speciesCount": 31,
+  "diseases": [
+    {
+      "id": "cryptocaryoniasis",
+      "name": "Marine White Spot Disease (Cryptocaryon)",
+      "synonyms": [
+        "Marine Ich",
+        "Marine White Spot Disease",
+        "Cryptocaryoniasis"
+      ],
+      "pathogen": {
+        "type": "Parasite – ciliate",
+        "scientificName": "Cryptocaryon irritans"
+      },
+      "category": "parasitic",
+      "contagious": {
+        "status": "yes",
+        "zoonotic": false,
+        "transmission": "Direct life cycle: cysts (tomonts) on the substrate release infective theronts that actively seek out fish.",
+        "notes": "One of the most common parasites in marine aquariums; without fish the parasite dies off after a while."
+      },
+      "description": "Cryptocaryon irritans is the marine counterpart of Ichthyophthirius. It infects wild and cultured fish at 15–30 °C; growth is strongest at 23–30 °C. The life cycle consists of trophont (in the skin), tomont (cyst on the substrate) and theront (swarmer). Susceptibility differs between fish species. Gill-only infection can occur without visible spots – the absence of spots does not rule out Cryptocaryon.",
+      "generalSigns": [
+        "Small white spots, nodules or patches on fins, skin and gills",
+        "Flashing, rapid breathing, loss of appetite",
+        "Cloudy eyes, frayed fins",
+        "With gill infection respiratory distress without visible spots"
+      ],
+      "keySigns": [
+        "White spots like sugar grains",
+        "flashing",
+        "rapid breathing"
+      ],
+      "predisposingFactors": [
+        "No quarantine",
+        "Transport stress",
+        "Temperature fluctuations"
+      ],
+      "diagnosis": "Microscopically by skin or gill smear.",
+      "treatment": {
+        "summary": "Treat all fish in a quarantine tank (copper, hyposalinity or veterinary-prescribed remedies); leave the display tank without fish for several weeks.",
+        "steps": [
+          "Move all fish from the display tank to the quarantine tank – never treat a reef tank with invertebrates with copper.",
+          "Set copper to 0.15–0.20 mg/L free copper and check daily with a test kit (UF/IFAS FA165), or",
+          "Hyposalinity (strongly reduced salinity) as a control measure described in the literature – not every species tolerates it, invertebrates never.",
+          "Run the display tank without fish so the cysts die off; the length of the cycle depends on strain and temperature.",
+          "Other substances such as chloroquine only via a fish veterinarian."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Copper (free Cu²⁺, therapeutic 0.15–0.20 mg/L according to UF/IFAS)",
+            "prescriptionRequired": false,
+            "invertebrateSafe": false,
+            "notes": "Only in a quarantine tank without invertebrates, calcareous rock and sand; test daily with a copper test kit. Some fish species are sensitive (e.g. dwarf angelfish). Lethal to invertebrates."
+          },
+          {
+            "substance": "Chloroquine",
+            "prescriptionRequired": true,
+            "invertebrateSafe": false,
+            "notes": "Only via a veterinarian."
+          },
+          {
+            "substance": "Formalin",
+            "prescriptionRequired": false,
+            "invertebrateSafe": false,
+            "notes": "Baths in the quarantine tank."
+          }
+        ],
+        "prognosis": "Good with consistent treatment of all fish and a fish-free display tank."
+      },
+      "prevention": [
+        "Quarantine all new fish",
+        "No untreated fish into the reef tank",
+        "Low-stress husbandry"
+      ],
+      "sources": [
+        "ufifas-fa164",
+        "ufifas-fa165",
+        "colorni-burgess-1997"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "amyloodiniosis",
+      "name": "Marine Velvet Disease (Amyloodinium)",
+      "synonyms": [
+        "Marine Velvet",
+        "Coral fish disease",
+        "Amyloodiniosis"
+      ],
+      "pathogen": {
+        "type": "Parasite – dinoflagellate",
+        "scientificName": "Amyloodinium ocellatum"
+      },
+      "category": "parasitic",
+      "contagious": {
+        "status": "yes",
+        "zoonotic": false,
+        "transmission": "Via free-swimming dinospores through direct contact; fast, simple life cycle without intermediate host.",
+        "notes": "One of the most important parasites of marine fish; can be fatal within a short time."
+      },
+      "description": "Amyloodinium ocellatum is one of the most important pathogenic parasites of marine and brackish-water fish. The infestation produces a powdery, velvety appearance. The life cycle resembles that of Cryptocaryon but runs faster. Isolates tolerate a wide range of salinity and temperature. Often the first sign is sudden mortality, because the parasite first attacks the gills.",
+      "generalSigns": [
+        "Fine, powdery coating (often only visible in oblique light)",
+        "Very rapid breathing, fish stay in the current",
+        "Flashing, loss of appetite",
+        "Sudden deaths"
+      ],
+      "keySigns": [
+        "Fine powdery coating",
+        "very rapid breathing",
+        "sudden death"
+      ],
+      "predisposingFactors": [
+        "Wild-caught fish without quarantine",
+        "Stress, high stocking density"
+      ],
+      "diagnosis": "Microscopically (gill and skin smear).",
+      "treatment": {
+        "summary": "Immediate treatment in a quarantine tank with copper; a freshwater dip gives short-term relief but does not cure on its own.",
+        "steps": [
+          "Move fish to the quarantine tank immediately.",
+          "Copper 0.15–0.20 mg/L free copper, test daily (UF/IFAS FA165).",
+          "A freshwater dip kills free stages on the fish but is not an effective treatment on its own (UF/IFAS VM90).",
+          "Chloroquine only via a fish veterinarian.",
+          "Run the display tank without fish for several weeks."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Copper (free Cu²⁺, therapeutic 0.15–0.20 mg/L according to UF/IFAS)",
+            "prescriptionRequired": false,
+            "invertebrateSafe": false,
+            "notes": "Only in a quarantine tank without invertebrates, calcareous rock and sand; test daily with a copper test kit. Some fish species are sensitive (e.g. dwarf angelfish). Lethal to invertebrates."
+          },
+          {
+            "substance": "Chloroquine",
+            "prescriptionRequired": true,
+            "invertebrateSafe": false,
+            "notes": "Only via a veterinarian."
+          }
+        ],
+        "prognosis": "Serious; good only with very early treatment."
+      },
+      "prevention": [
+        "Strict quarantine",
+        "Do not share equipment between tanks"
+      ],
+      "sources": [
+        "srac-amyloodinium",
+        "ufifas-vm90",
+        "ufifas-fa165"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "brooklynellosis",
+      "name": "Clownfish Disease (Brooklynellosis)",
+      "synonyms": [
+        "Clownfish disease",
+        "Brooklynella"
+      ],
+      "pathogen": {
+        "type": "Parasite – ciliate",
+        "scientificName": "Brooklynella hostilis"
+      },
+      "category": "parasitic",
+      "contagious": {
+        "status": "yes",
+        "zoonotic": false,
+        "transmission": "Directly from fish to fish; outbreaks are associated with stress, injuries, ammonia, high temperatures and overstocking.",
+        "notes": "Progresses very quickly."
+      },
+      "description": "Brooklynella hostilis is a ciliate that infects the skin and gills of tropical marine fish, initially mainly the gills. Losses have been described in anemonefish, seahorses and other species at public aquariums and importers. Typical is heavy mucus production that peels off in shreds.",
+      "generalSigns": [
+        "Heavy, whitish mucus production, skin peels off in shreds",
+        "Rapid breathing, colour loss",
+        "Lethargy, refusal of food",
+        "Rapid death"
+      ],
+      "keySigns": [
+        "Thick mucus layer, skin shreds",
+        "respiratory distress"
+      ],
+      "predisposingFactors": [
+        "Wild-caught fish",
+        "Transport stress, high ammonia levels",
+        "High temperatures, overstocking"
+      ],
+      "diagnosis": "Microscopically (skin and gill smear).",
+      "treatment": {
+        "summary": "Freshwater dips or formalin baths in a quarantine tank (Blasiola 1983).",
+        "steps": [
+          "Isolate the fish immediately.",
+          "Formalin or freshwater dips according to expert instructions (Blasiola 1983) – involve a fish veterinarian.",
+          "Improve husbandry conditions."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Formalin",
+            "prescriptionRequired": false,
+            "invertebrateSafe": false,
+            "notes": "Baths in a separate container; aerate well."
+          }
+        ],
+        "prognosis": "Good with early intervention, otherwise poor."
+      },
+      "prevention": [
+        "Captive-bred instead of wild-caught fish",
+        "Quarantine"
+      ],
+      "sources": [
+        "blasiola-1983",
+        "noga-2010"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "uronemosis",
+      "name": "Uronema Infection (Scuticociliatosis)",
+      "synonyms": [
+        "Uronema",
+        "Scuticociliatosis"
+      ],
+      "pathogen": {
+        "type": "Parasite – ciliate (scuticociliate)",
+        "scientificName": "Uronema marinum and others"
+      },
+      "category": "parasitic",
+      "contagious": {
+        "status": "yes",
+        "zoonotic": false,
+        "transmission": "Facultative parasite from the water; infects weakened fish and can invade the tissue.",
+        "notes": "Often associated with poor water quality."
+      },
+      "description": "Uronema is a normally free-living ciliate that infects the skin and musculature of weakened fish and can become systemic. The picture resembles Brooklynella, but reddish, open skin lesions are typical.",
+      "generalSigns": [
+        "Reddish, open skin lesions and ulcers",
+        "Scale loss",
+        "Rapid breathing, lethargy"
+      ],
+      "keySigns": [
+        "Reddish skin ulcers"
+      ],
+      "predisposingFactors": [
+        "Poor water quality",
+        "Stress, injuries"
+      ],
+      "diagnosis": "Microscopically.",
+      "treatment": {
+        "summary": "Improve water quality and involve a fish veterinarian; skin infection responds to formalin, systemic infection is difficult to treat.",
+        "steps": [
+          "Isolate.",
+          "Formalin according to instructions.",
+          "Fish veterinarian for further therapy."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Formalin",
+            "prescriptionRequired": false,
+            "invertebrateSafe": false,
+            "notes": null
+          }
+        ],
+        "prognosis": "Poor with systemic infection."
+      },
+      "prevention": [
+        "Good water quality",
+        "Quarantine"
+      ],
+      "sources": [
+        "noga-2010"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "monogenea-marine",
+      "name": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+      "synonyms": [
+        "Skin flukes",
+        "Gill flukes",
+        "Neobenedenia",
+        "Benedenia"
+      ],
+      "pathogen": {
+        "type": "Parasite – flatworm (Monogenea)",
+        "scientificName": "incl. Neobenedenia spp., Benedenia spp., gill flukes"
+      },
+      "category": "parasitic",
+      "contagious": {
+        "status": "yes",
+        "zoonotic": false,
+        "transmission": "Direct life cycle; eggs stick to decoration and hatch later.",
+        "notes": "Broad host range."
+      },
+      "description": "Monogeneans are small flatworms on the skin, eyes and gills. They multiply strongly in closed systems. Skin flukes are often almost transparent and only become visible in a freshwater dip, when they turn white and detach.",
+      "generalSigns": [
+        "Flashing, cloudy eyes",
+        "Rapid breathing, flared gill covers",
+        "Skin reddening, scale loss"
+      ],
+      "keySigns": [
+        "Flashing",
+        "cloudy eyes",
+        "respiratory distress"
+      ],
+      "predisposingFactors": [
+        "New fish",
+        "High stocking density"
+      ],
+      "diagnosis": "Microscopically; skin flukes detach visibly in a freshwater dip.",
+      "treatment": {
+        "summary": "Praziquantel in a quarantine tank; repeat because of the eggs. Freshwater dips for relief.",
+        "steps": [
+          "Praziquantel remedy according to the package insert in a quarantine tank.",
+          "Repeat the treatment according to the manufacturer.",
+          "Short freshwater dip (temperature- and pH-matched) for relief."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Praziquantel",
+            "prescriptionRequired": false,
+            "invertebrateSafe": null,
+            "notes": "Check tolerance for invertebrates with the manufacturer."
+          }
+        ],
+        "prognosis": "Good."
+      },
+      "prevention": [
+        "Quarantine"
+      ],
+      "sources": [
+        "ufifas-fa033",
+        "noga-2010"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "black-spot-disease",
+      "name": "Black Spot Disease (Paravortex, 'Black Ich')",
+      "synonyms": [
+        "Black Ich",
+        "Tang Turbellarian Disease",
+        "Black Spot Disease"
+      ],
+      "pathogen": {
+        "type": "Parasite – turbellarian flatworm",
+        "scientificName": "Paravortex sp."
+      },
+      "category": "parasitic",
+      "contagious": {
+        "status": "yes",
+        "zoonotic": false,
+        "transmission": "Worms leave the fish, continue to grow on the substrate and release up to 160 young worms that immediately infect new fish.",
+        "notes": "Life cycle approx. 10 days at 24.5 °C."
+      },
+      "description": "A parasitic turbellarian that in marine aquariums mainly infects the yellow tang (Kent & Olson 1986). The worms appear as small black spots. After three generations, up to 4500 worms per fish were counted; heavily infected fish developed dermatitis with an accompanying Vibrio infection. A formalin bath was effective; neon gobies as cleaners did not help and became infected themselves.",
+      "generalSigns": [
+        "Small black spots on body and fins",
+        "Flashing",
+        "With heavy infestation dermatitis, colour loss"
+      ],
+      "keySigns": [
+        "Black spots on the body"
+      ],
+      "predisposingFactors": [
+        "New tangs without quarantine"
+      ],
+      "diagnosis": "Microscopically (worms with eye spots).",
+      "treatment": {
+        "summary": "Formalin bath (Kent & Olson 1986); in practice also praziquantel and freshwater dips in a quarantine tank.",
+        "steps": [
+          "Treat the fish in a quarantine tank.",
+          "Formalin bath according to instructions.",
+          "Repeat the treatment to catch newly hatching worms (cycle approx. 10 days)."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Formalin",
+            "prescriptionRequired": false,
+            "invertebrateSafe": false,
+            "notes": null
+          },
+          {
+            "substance": "Praziquantel",
+            "prescriptionRequired": false,
+            "invertebrateSafe": null,
+            "notes": "Described against related turbellarians (Justine et al. 2009)."
+          }
+        ],
+        "prognosis": "Good."
+      },
+      "prevention": [
+        "Quarantine new tangs"
+      ],
+      "sources": [
+        "kent-olson-1986",
+        "justine-2009"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "hlle",
+      "name": "Head and Lateral Line Erosion (HLLE)",
+      "synonyms": [
+        "Head and Lateral Line Erosion",
+        "Hole-in-the-head (marine)"
+      ],
+      "pathogen": {
+        "type": "Not fully resolved – husbandry factors",
+        "scientificName": "incl. activated carbon (lignite-based), diet, water quality"
+      },
+      "category": "non-infectious",
+      "contagious": {
+        "status": "no",
+        "zoonotic": false,
+        "transmission": "No transmission demonstrated.",
+        "notes": null
+      },
+      "description": "In HLLE, pits and skin lesions form on the head and along the lateral line. The cause is not fully understood. In a study with surgeonfish (Acanthurus bahianus), fish with lignite-based activated carbon in the filter developed HLLE, fish with pelleted carbon did not (Hemdal & Odum 2011); a second study confirms the link with full-stream carbon filtration (Stamper et al. 2011). Rarely fatal, but disfiguring.",
+      "generalSigns": [
+        "Pits and pale skin lesions on the head (around the eyes)",
+        "Spreading along the lateral line",
+        "Fish usually eats normally"
+      ],
+      "keySigns": [
+        "Pits on the head",
+        "lesions along the lateral line"
+      ],
+      "predisposingFactors": [
+        "Lignite-based activated carbon",
+        "Unbalanced diet",
+        "Poor water quality"
+      ],
+      "diagnosis": "Clinical appearance; exclusion of other causes.",
+      "treatment": {
+        "summary": "Remove lignite-based activated carbon, large water changes, balanced diet; lesions can regress.",
+        "steps": [
+          "Remove activated carbon (especially lignite-based) or switch to washed, pelleted carbon.",
+          "Large water changes.",
+          "Varied diet including algae."
+        ],
+        "activeSubstances": [],
+        "prognosis": "Good if the cause is removed; scars partly remain."
+      },
+      "prevention": [
+        "No lignite-based activated carbon with sensitive species",
+        "Balanced diet"
+      ],
+      "sources": [
+        "hemdal-odum-2011",
+        "stamper-2011"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "lymphocystis-marine",
+      "name": "Lymphocystis ('Cauliflower Disease', marine)",
+      "synonyms": [
+        "Lymphocystis disease"
+      ],
+      "pathogen": {
+        "type": "Virus (Iridoviridae)",
+        "scientificName": "Lymphocystis disease virus (LCDV)"
+      },
+      "category": "viral",
+      "contagious": {
+        "status": "yes",
+        "zoonotic": false,
+        "transmission": "Via water and contact; symptom-free carriers possible.",
+        "notes": "Usually benign, self-limiting."
+      },
+      "description": "The lymphocystis virus causes cauliflower-like white nodules on fins and skin. More than 125 species from fresh and salt water are affected, including clownfish (infections described in A. ocellaris). The nodules usually regress after weeks to months.",
+      "generalSigns": [
+        "White, granular nodules on fins and skin",
+        "Fish usually lively"
+      ],
+      "keySigns": [
+        "Cauliflower-like nodules"
+      ],
+      "predisposingFactors": [
+        "Stress",
+        "Injuries"
+      ],
+      "diagnosis": "Typical appearance; histology or PCR.",
+      "treatment": {
+        "summary": "No specific therapy; optimise husbandry, isolate the fish.",
+        "steps": [
+          "Isolate.",
+          "Reduce stress, improve water quality."
+        ],
+        "activeSubstances": [],
+        "prognosis": "Usually good."
+      },
+      "prevention": [
+        "Quarantine"
+      ],
+      "sources": [
+        "borrego-2017",
+        "volpatti-2022"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "mycobacteriosis-marine",
+      "name": "Fish Tuberculosis (Mycobacteriosis, marine)",
+      "synonyms": [
+        "Fish TB",
+        "Mycobacteriosis"
+      ],
+      "pathogen": {
+        "type": "Bacterium",
+        "scientificName": "Mycobacterium marinum and others"
+      },
+      "category": "bacterial",
+      "contagious": {
+        "status": "yes",
+        "zoonotic": true,
+        "transmission": "Via eating infected fish, faeces, water and biofilms.",
+        "notes": "ZOONOSIS: skin infections in humans ('fish tank granuloma') – wear gloves. The first detection in 1897 came from a marine aquarium fish."
+      },
+      "description": "Chronic, wasting infection with nodules in the internal organs. No treatment with a reliable cure; diagnosis usually only by laboratory examination after death.",
+      "generalSigns": [
+        "Weight loss despite eating",
+        "Ulcers, colour loss",
+        "Individual deaths over a long period"
+      ],
+      "keySigns": [
+        "Gradual weight loss",
+        "ulcers"
+      ],
+      "predisposingFactors": [
+        "High organic load",
+        "Old fish"
+      ],
+      "diagnosis": "Laboratory examination (Ziehl-Neelsen staining, PCR) via a fish veterinarian.",
+      "treatment": {
+        "summary": "No reliable cure; humanely euthanise sick fish, hygiene.",
+        "steps": [
+          "Remove dead fish immediately.",
+          "Wear gloves.",
+          "Fish veterinarian if cases accumulate."
+        ],
+        "activeSubstances": [],
+        "prognosis": "Poor."
+      },
+      "prevention": [
+        "Quarantine",
+        "Hygiene"
+      ],
+      "sources": [
+        "srac-4706",
+        "glumpak-matanovic",
+        "delghandi-2020"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "vibriosis",
+      "name": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+      "synonyms": [
+        "Vibriosis",
+        "Fin rot (marine)"
+      ],
+      "pathogen": {
+        "type": "Bacteria (often secondary)",
+        "scientificName": "Vibrio spp. and others"
+      },
+      "category": "bacterial",
+      "contagious": {
+        "status": "conditional",
+        "zoonotic": true,
+        "transmission": "Bacteria from the water infect injured or weakened fish.",
+        "notes": "Some Vibrio species can cause wound infections in humans."
+      },
+      "description": "Vibrios are part of the normal marine flora and mainly infect injured fish or fish weakened by parasites. Vibrio infections accompanied the dermatitis in heavy Paravortex infestations (Kent & Olson 1986).",
+      "generalSigns": [
+        "Reddening and haemorrhages",
+        "Ulcers",
+        "Frayed fins",
+        "Lethargy"
+      ],
+      "keySigns": [
+        "Red patches, ulcers"
+      ],
+      "predisposingFactors": [
+        "Injuries, parasite infestation",
+        "Poor water quality"
+      ],
+      "diagnosis": "Bacteriological examination by a fish veterinarian.",
+      "treatment": {
+        "summary": "Eliminate the cause, involve a fish veterinarian; antibiotics require a prescription.",
+        "steps": [
+          "Improve water quality.",
+          "Isolate.",
+          "Fish veterinarian."
+        ],
+        "activeSubstances": [
+          {
+            "substance": "Antibiotics as prescribed by a veterinarian",
+            "prescriptionRequired": true,
+            "invertebrateSafe": null,
+            "notes": "Antibiotics and other antimicrobial veterinary medicines (e.g. metronidazole) have required a veterinary prescription throughout the EU since 28 January 2022 (Art. 34 Regulation (EU) 2019/6) – obtain only via a (fish) veterinarian."
+          }
+        ],
+        "prognosis": "Good with early treatment."
+      },
+      "prevention": [
+        "Avoid injuries and parasites"
+      ],
+      "sources": [
+        "msd-bacterial",
+        "kent-olson-1986",
+        "bmel-zzf-2022"
+      ],
+      "affectedSpeciesCount": 20,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon"
+      ]
+    },
+    {
+      "id": "invertebrate-copper-toxicity-marine",
+      "name": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+      "synonyms": [
+        "Copper poisoning"
+      ],
+      "pathogen": {
+        "type": "Non-infectious – poisoning",
+        "scientificName": "Copper and many fish medications"
+      },
+      "category": "non-infectious",
+      "contagious": {
+        "status": "no",
+        "zoonotic": false,
+        "transmission": "No transmission.",
+        "notes": null
+      },
+      "description": "Most invertebrates are highly sensitive to copper. At the therapeutic 0.15–0.20 mg/L they die; they should only be returned at no more than 0.01 mg/L, ideally 0 mg/L (UF/IFAS FA165). Therefore always treat fish in a separate quarantine tank.",
+      "generalSigns": [
+        "Shrimp and crabs die suddenly",
+        "Anemones shrink",
+        "Snails drop off"
+      ],
+      "keySigns": [
+        "Sudden deaths after treatment"
+      ],
+      "predisposingFactors": [
+        "Treatment in the reef tank"
+      ],
+      "diagnosis": "Copper test, temporal link.",
+      "treatment": {
+        "summary": "Immediately large water changes and copper-binding adsorbers.",
+        "steps": [
+          "Water change.",
+          "Use adsorbers.",
+          "Move survivors."
+        ],
+        "activeSubstances": [],
+        "prognosis": "Dose-dependent."
+      },
+      "prevention": [
+        "Never treat the reef tank with copper"
+      ],
+      "sources": [
+        "ufifas-fa165"
+      ],
+      "affectedSpeciesCount": 11,
+      "affectedSpecies": [
+        "lysmata-amboinensis",
+        "lysmata-debelius",
+        "lysmata-wurdemanni",
+        "stenopus-hispidus",
+        "thor-amboinensis",
+        "mithraculus-sculptus",
+        "clibanarius-tricolor",
+        "paguristes-cadenati",
+        "trochus-spp",
+        "nassarius-spp",
+        "entacmaea-quadricolor"
+      ]
+    },
+    {
+      "id": "anemone-bleaching",
+      "name": "Anemone Bleaching (Loss of Zooxanthellae)",
+      "synonyms": [
+        "Bleaching"
+      ],
+      "pathogen": {
+        "type": "Non-infectious – environmental stress",
+        "scientificName": "Loss of symbiotic algae due to heat and light"
+      },
+      "category": "non-infectious",
+      "contagious": {
+        "status": "no",
+        "zoonotic": false,
+        "transmission": "No transmission.",
+        "notes": null
+      },
+      "description": "Anemones with zooxanthellae lose their symbiotic algae under heat stress and turn white. Experiments with host anemones showed bleaching from 27 °C; at 29 °C some animals died, with strong light intensifying the damage.",
+      "generalSigns": [
+        "White to translucent colouration",
+        "Shrinking, reluctance to feed",
+        "Wandering in the tank"
+      ],
+      "keySigns": [
+        "Bleached white",
+        "shrinks"
+      ],
+      "predisposingFactors": [
+        "Temperatures above approx. 27 °C",
+        "Too strong or suddenly changed lighting"
+      ],
+      "diagnosis": "Clinical appearance.",
+      "treatment": {
+        "summary": "Lower the temperature, adjust lighting, target-feed.",
+        "steps": [
+          "Bring the temperature into the recommended range (24–26 °C).",
+          "Do not change lighting abruptly.",
+          "Target-feed."
+        ],
+        "activeSubstances": [],
+        "prognosis": "Good with short-term stress."
+      },
+      "prevention": [
+        "Cooling in summer",
+        "Stable lighting conditions"
+      ],
+      "sources": [
+        "anemone-bleaching"
+      ],
+      "affectedSpeciesCount": 1,
+      "affectedSpecies": [
+        "entacmaea-quadricolor"
+      ]
+    }
+  ],
+  "speciesIndex": {
+    "amphiprion-ocellaris": {
+      "name": "Ocellaris Clownfish",
+      "scientificName": "Amphiprion ocellaris",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "high",
+          "signs": [
+            "Fine coating, very rapid breathing",
+            "stay at the surface or in the current"
+          ],
+          "note": "Clownfish are named in the literature among the strongly affected species.",
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "high",
+          "signs": [
+            "Thick, whitish mucus layer, skin shreds",
+            "colour loss, rapid breathing, stays in one place"
+          ],
+          "note": "Mainly wild-caught fish; captive-bred fish are affected less often.",
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "White nodules on the fins"
+          ],
+          "note": "Described in clownfish.",
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "amphiprion-percula": {
+      "name": "Percula Clownfish",
+      "scientificName": "Amphiprion percula",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "high",
+          "signs": [
+            "Fine coating, very rapid breathing",
+            "stay at the surface or in the current"
+          ],
+          "note": "Clownfish are named in the literature among the strongly affected species.",
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "high",
+          "signs": [
+            "Thick, whitish mucus layer, skin shreds",
+            "colour loss, rapid breathing, stays in one place"
+          ],
+          "note": "Mainly wild-caught fish; captive-bred fish are affected less often.",
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "White nodules on the fins"
+          ],
+          "note": "Described in clownfish.",
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "gramma-loreto": {
+      "name": "Royal Gramma",
+      "scientificName": "Gramma loreto",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "chromis-viridis": {
+      "name": "Blue-green Chromis",
+      "scientificName": "Chromis viridis",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "chrysiptera-parasema": {
+      "name": "Yellowtail Damselfish",
+      "scientificName": "Chrysiptera parasema",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "pseudanthias-squamipinnis": {
+      "name": "Lyretail Anthias",
+      "scientificName": "Pseudanthias squamipinnis",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "synchiropus-splendidus": {
+      "name": "Mandarin Dragonet",
+      "scientificName": "Synchiropus splendidus",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "elacatinus-oceanops": {
+      "name": "Neon Goby",
+      "scientificName": "Elacatinus oceanops",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "nemateleotris-magnifica": {
+      "name": "Firefish Goby",
+      "scientificName": "Nemateleotris magnifica",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "salarias-fasciatus": {
+      "name": "Lawnmower Blenny",
+      "scientificName": "Salarias fasciatus",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "ecsenius-bicolor": {
+      "name": "Bicolor Blenny",
+      "scientificName": "Ecsenius bicolor",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "centropyge-loricula": {
+      "name": "Flame Angelfish",
+      "scientificName": "Centropyge loricula",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots, flashing"
+          ],
+          "note": "Dwarf angelfish are copper-sensitive – copper therapy cautiously and only with a veterinarian.",
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Powdery coating, respiratory distress"
+          ],
+          "note": "Copper-sensitive – treat with a veterinarian.",
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "medium",
+          "signs": [
+            "Mucus production, respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Cloudy eyes, flashing, scale loss"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "medium",
+          "signs": [
+            "Pits on the head"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates.",
+        "Dwarf angelfish are copper-sensitive – copper therapy only with a fish veterinarian."
+      ]
+    },
+    "pterapogon-kauderni": {
+      "name": "Banggai Cardinalfish",
+      "scientificName": "Pterapogon kauderni",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "sphaeramia-nematoptera": {
+      "name": "Pajama Cardinalfish",
+      "scientificName": "Sphaeramia nematoptera",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "pseudochromis-fridmani": {
+      "name": "Orchid Dottyback",
+      "scientificName": "Pseudochromis fridmani",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "opistognathus-aurifrons": {
+      "name": "Yellowhead Jawfish",
+      "scientificName": "Opistognathus aurifrons",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "halichoeres-chrysus": {
+      "name": "Canary Wrasse",
+      "scientificName": "Halichoeres chrysus",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "medium",
+          "signs": [
+            "White spots like sugar grains",
+            "flashing",
+            "rapid breathing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Flashing",
+            "cloudy eyes",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "low",
+          "signs": [
+            "Black spots on the body"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "low",
+          "signs": [
+            "Pits on the head",
+            "lesions along the lateral line"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "zebrasoma-flavescens": {
+      "name": "Yellow Tang",
+      "scientificName": "Zebrasoma flavescens",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "high",
+          "signs": [
+            "Spots hard to see on the yellow body – watch for flashing, breathing rate and cloudy fins"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Cloudy eyes, flashing, scale loss"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "high",
+          "signs": [
+            "Small black spots, very conspicuous on the yellow body",
+            "rubbing against rocks"
+          ],
+          "note": "Main host according to Kent & Olson 1986.",
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "high",
+          "signs": [
+            "Pits above the eyes",
+            "pale line along the lateral line"
+          ],
+          "note": "Surgeonfish are particularly affected.",
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "paracanthurus-hepatus": {
+      "name": "Palette Surgeonfish (Blue Tang)",
+      "scientificName": "Paracanthurus hepatus",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "high",
+          "signs": [
+            "White spots clearly visible first on the dark fins",
+            "flashing, rapid breathing, colour loss"
+          ],
+          "note": "Surgeonfish are considered particularly susceptible.",
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Cloudy eyes, flashing, scale loss"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "medium",
+          "signs": [
+            "Black spots, flashing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "high",
+          "signs": [
+            "Pits above the eyes",
+            "pale line along the lateral line"
+          ],
+          "note": "Surgeonfish are particularly affected.",
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "acanthurus-leucosternon": {
+      "name": "Powder Blue Tang",
+      "scientificName": "Acanthurus leucosternon",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "susceptibility": "high",
+          "signs": [
+            "White spots clearly visible first on the dark fins",
+            "flashing, rapid breathing, colour loss"
+          ],
+          "note": "Surgeonfish are considered particularly susceptible.",
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "susceptibility": "medium",
+          "signs": [
+            "Fine powdery coating",
+            "very rapid breathing",
+            "sudden death"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Thick mucus layer, skin shreds",
+            "respiratory distress"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "susceptibility": "low",
+          "signs": [
+            "Reddish skin ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "susceptibility": "medium",
+          "signs": [
+            "Cloudy eyes, flashing, scale loss"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "susceptibility": "medium",
+          "signs": [
+            "Black spots, flashing"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "hlle",
+          "disease": "Head and Lateral Line Erosion (HLLE)",
+          "susceptibility": "high",
+          "signs": [
+            "Pits above the eyes",
+            "pale line along the lateral line"
+          ],
+          "note": "Surgeonfish are particularly affected.",
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-marine",
+          "disease": "Lymphocystis ('Cauliflower Disease', marine)",
+          "susceptibility": "low",
+          "signs": [
+            "Cauliflower-like nodules"
+          ],
+          "contagious": "yes",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "susceptibility": "medium",
+          "signs": [
+            "Gradual weight loss",
+            "ulcers"
+          ],
+          "contagious": "yes",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "susceptibility": "medium",
+          "signs": [
+            "Red patches, ulcers"
+          ],
+          "contagious": "conditional",
+          "zoonotic": true
+        }
+      ],
+      "treatmentCautions": [
+        "Use medication, especially copper, only in a quarantine tank – never in a reef tank with invertebrates."
+      ]
+    },
+    "lysmata-amboinensis": {
+      "name": "Skunk Cleaner Shrimp",
+      "scientificName": "Lysmata amboinensis",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+          "susceptibility": "high",
+          "signs": [
+            "Sudden deaths after treatment"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Copper and many fish medications are lethal to this species – never treat fish in a shared tank (UF/IFAS FA165)."
+      ]
+    },
+    "lysmata-debelius": {
+      "name": "Blood Red Fire Shrimp",
+      "scientificName": "Lysmata debelius",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+          "susceptibility": "high",
+          "signs": [
+            "Sudden deaths after treatment"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Copper and many fish medications are lethal to this species – never treat fish in a shared tank (UF/IFAS FA165)."
+      ]
+    },
+    "lysmata-wurdemanni": {
+      "name": "Peppermint Shrimp",
+      "scientificName": "Lysmata wurdemanni (Artkomplex)",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+          "susceptibility": "high",
+          "signs": [
+            "Sudden deaths after treatment"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Copper and many fish medications are lethal to this species – never treat fish in a shared tank (UF/IFAS FA165)."
+      ]
+    },
+    "stenopus-hispidus": {
+      "name": "Banded Coral Shrimp",
+      "scientificName": "Stenopus hispidus",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+          "susceptibility": "high",
+          "signs": [
+            "Sudden deaths after treatment"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Copper and many fish medications are lethal to this species – never treat fish in a shared tank (UF/IFAS FA165)."
+      ]
+    },
+    "thor-amboinensis": {
+      "name": "Sexy Shrimp",
+      "scientificName": "Thor amboinensis",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+          "susceptibility": "high",
+          "signs": [
+            "Sudden deaths after treatment"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Copper and many fish medications are lethal to this species – never treat fish in a shared tank (UF/IFAS FA165)."
+      ]
+    },
+    "mithraculus-sculptus": {
+      "name": "Emerald Crab",
+      "scientificName": "Mithraculus sculptus",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+          "susceptibility": "high",
+          "signs": [
+            "Sudden deaths after treatment"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Copper and many fish medications are lethal to this species – never treat fish in a shared tank (UF/IFAS FA165)."
+      ]
+    },
+    "clibanarius-tricolor": {
+      "name": "Blue-leg Hermit Crab",
+      "scientificName": "Clibanarius tricolor",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+          "susceptibility": "high",
+          "signs": [
+            "Sudden deaths after treatment"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Copper and many fish medications are lethal to this species – never treat fish in a shared tank (UF/IFAS FA165)."
+      ]
+    },
+    "paguristes-cadenati": {
+      "name": "Scarlet Reef Hermit Crab",
+      "scientificName": "Paguristes cadenati",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+          "susceptibility": "high",
+          "signs": [
+            "Sudden deaths after treatment"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Copper and many fish medications are lethal to this species – never treat fish in a shared tank (UF/IFAS FA165)."
+      ]
+    },
+    "trochus-spp": {
+      "name": "Trochus Snail",
+      "scientificName": "Trochus spp.",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+          "susceptibility": "high",
+          "signs": [
+            "Sudden deaths after treatment"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Copper and many fish medications are lethal to this species – never treat fish in a shared tank (UF/IFAS FA165)."
+      ]
+    },
+    "nassarius-spp": {
+      "name": "Nassarius Snail",
+      "scientificName": "Nassarius spp.",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+          "susceptibility": "high",
+          "signs": [
+            "Sudden deaths after treatment"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Copper and many fish medications are lethal to this species – never treat fish in a shared tank (UF/IFAS FA165)."
+      ]
+    },
+    "entacmaea-quadricolor": {
+      "name": "Bubble-tip Anemone",
+      "scientificName": "Entacmaea quadricolor",
+      "collections": [
+        "saltwater"
+      ],
+      "diseases": [
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+          "susceptibility": "high",
+          "signs": [
+            "Sudden deaths after treatment"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "anemone-bleaching",
+          "disease": "Anemone Bleaching (Loss of Zooxanthellae)",
+          "susceptibility": "high",
+          "signs": [
+            "Bleached white",
+            "shrinks"
+          ],
+          "contagious": "no",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Copper and many fish medications are lethal to this species – never treat fish in a shared tank (UF/IFAS FA165)."
+      ]
+    }
+  },
+  "sources": {
+    "anemone-bleaching": {
+      "type": "Original research (peer-reviewed)",
+      "title": "The influence of irradiance on the severity of thermal bleaching in sea anemones that host anemonefish",
+      "url": "https://opus.lib.uts.edu.au/handle/10453/18070"
+    },
+    "blasiola-1983": {
+      "type": "Conference paper (veterinary, IAAAM)",
+      "authors": "Blasiola GC",
+      "year": 1983,
+      "title": "A Review of Brooklynella Parasitization in Marine Fishes: Diagnosis, Pathology and Chemotherapy",
+      "publisher": "IAAAM Proceedings",
+      "url": "https://vin.com/doc/?id=3980099"
+    },
+    "bmel-zzf-2022": {
+      "type": "Legal information (German Federal Ministry)",
+      "authors": "BMEL",
+      "year": 2022,
+      "title": "Letter from the German Federal Ministry of Food and Agriculture (BMEL) to the ZZF on the Veterinary Medicines Act (prescription requirement for antimicrobial veterinary medicines under Art. 34 Regulation (EU) 2019/6) – document in German",
+      "publisher": "Zentralverband Zoologischer Fachbetriebe (ZZF, German pet trade association)",
+      "url": "https://www.zzf.de/fileadmin/user_upload/pressemitteilungen/migration/intranet/BMEL-Zoofachhandel_Sachkundenachweis.pdf"
+    },
+    "borrego-2017": {
+      "type": "Review (peer-reviewed)",
+      "authors": "Borrego JJ, Valverde EJ, Labella AM, Castro D",
+      "year": 2017,
+      "title": "Lymphocystis disease virus: its importance in aquaculture",
+      "publisher": "Reviews in Aquaculture 9:179-193",
+      "doi": "10.1111/raq.12131",
+      "url": "https://hdl.handle.net/10630/33194"
+    },
+    "colorni-burgess-1997": {
+      "type": "Review (peer-reviewed)",
+      "authors": "Colorni A, Burgess P",
+      "year": 1997,
+      "title": "Cryptocaryon irritans Brown 1951, the cause of 'white spot disease' in marine fish: an update",
+      "note": "cited in UF/IFAS FA164"
+    },
+    "delghandi-2020": {
+      "type": "Review (peer-reviewed)",
+      "year": 2020,
+      "title": "Mycobacteriosis and Infections with Non-tuberculous Mycobacteria in Aquatic Organisms: A Review",
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7564596/"
+    },
+    "glumpak-matanovic": {
+      "type": "Professional article (veterinary medicine)",
+      "authors": "Glumpak H, Matanović K",
+      "title": "Mycobacteriosis in a Marine Aquarium – Fish Tuberculosis with Zoonotic Potential",
+      "publisher": "Veterinarska stanica (Zagreb)",
+      "url": "https://hrcak.srce.hr/clanak/503571"
+    },
+    "hemdal-odum-2011": {
+      "type": "Original research (peer-reviewed)",
+      "authors": "Hemdal J, Odum RA",
+      "year": 2011,
+      "title": "The Role of Activated Lignite Carbon in the Development of Head and Lateral Line Erosion in the Ocean Surgeon",
+      "publisher": "North American Journal of Aquaculture 73(4):489-492",
+      "doi": "10.1080/15222055.2011.635781"
+    },
+    "justine-2009": {
+      "type": "Original research (peer-reviewed)",
+      "authors": "Justine JL, Leblanc P, Keller F, Lester RJG",
+      "year": 2009,
+      "title": "Turbellarian black spot disease in bluespine unicornfish Naso unicornis in New Caledonia, caused by the parasitic turbellarian Piscinquilinus sp.",
+      "publisher": "Diseases of Aquatic Organisms 85:245-249",
+      "doi": "10.3354/dao02082",
+      "url": "https://int-res.com/abstracts/dao/v85/n3/p245-249"
+    },
+    "kent-olson-1986": {
+      "type": "Original research (peer-reviewed)",
+      "authors": "Kent ML, Olson AC",
+      "year": 1986,
+      "title": "Interrelationships of a Parasitic Turbellarian (Paravortex sp.) (Graffillidae, Rhabdocoela) and its Marine Fish Hosts",
+      "publisher": "Fish Pathology 21(2):65-72",
+      "url": "https://www.jstage.jst.go.jp/article/jsfp1966/21/2/21_2_65/_article"
+    },
+    "msd-bacterial": {
+      "type": "Veterinary reference manual",
+      "title": "Bacterial Diseases in Aquaculture (Aeromonas, Vibrio, Flavobacterium u. a.)",
+      "publisher": "MSD/Merck Veterinary Manual",
+      "url": "https://www.msdvetmanual.com/exotic-and-laboratory-animals/aquaculture/bacterial-diseases-in-aquaculture"
+    },
+    "noga-2010": {
+      "type": "Textbook (standard reference in fish medicine)",
+      "authors": "Noga EJ",
+      "year": 2010,
+      "title": "Fish Disease: Diagnosis and Treatment, 2nd edition",
+      "publisher": "Wiley-Blackwell"
+    },
+    "srac-4706": {
+      "type": "Extension publication (Southern Regional Aquaculture Center)",
+      "authors": "Francis-Floyd R",
+      "title": "Mycobacterial Infections of Fish (SRAC Publication No. 4706)",
+      "publisher": "SRAC",
+      "url": "https://srac.tamu.edu/fact-sheets/serve/231"
+    },
+    "srac-amyloodinium": {
+      "type": "Extension publication (Southern Regional Aquaculture Center)",
+      "authors": "Francis-Floyd R, Floyd MR",
+      "title": "Amyloodinium ocellatum, an Important Parasite of Cultured Marine Fish",
+      "publisher": "SRAC",
+      "url": "https://srac.tamu.edu/fact-sheets/serve/227"
+    },
+    "stamper-2011": {
+      "type": "Original research (peer-reviewed)",
+      "authors": "Stamper MA, Kittell MM, Patel EE, Corwin AL",
+      "year": 2011,
+      "title": "Effects of full-stream carbon filtration on the development of head and lateral line erosion syndrome (HLLES) in ocean surgeon",
+      "publisher": "Journal of Aquatic Animal Health 23(3):111-116",
+      "doi": "10.1080/08997659.2011.608608"
+    },
+    "ufifas-fa033": {
+      "type": "Extension publication (university/veterinary)",
+      "authors": "Francis-Floyd R, Klinger R, Petty D, Pouder D",
+      "title": "Monogenean Parasites of Fish (FA033)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "doi": "10.32473/edis-fa033-2012",
+      "url": "https://edis.ifas.ufl.edu/publication/FA033"
+    },
+    "ufifas-fa164": {
+      "type": "Extension publication (university/veterinary)",
+      "authors": "Yanong RPE",
+      "year": 2009,
+      "title": "Cryptocaryon irritans Infections (Marine White Spot Disease) in Fish (FA164)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "url": "https://edis.ifas.ufl.edu/publication/FA164"
+    },
+    "ufifas-fa165": {
+      "type": "Extension publication (university/veterinary)",
+      "authors": "Yanong RPE",
+      "year": 2009,
+      "title": "Use of Copper in Marine Aquaculture and Aquarium Systems (FA165)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "url": "https://edis.ifas.ufl.edu/publication/FA165"
+    },
+    "ufifas-vm90": {
+      "type": "Extension publication (university/veterinary)",
+      "authors": "Reed P, Francis-Floyd R",
+      "title": "Amyloodinium Infections of Marine Fish (VM90)",
+      "publisher": "UF/IFAS Extension",
+      "url": "https://extension.rwfm.tamu.edu/wp-content/uploads/sites/8/2013/09/Amyloodinium-Infections-of-Marine-Fish.pdf"
+    },
+    "volpatti-2022": {
+      "type": "Book chapter (review)",
+      "authors": "Volpatti D",
+      "year": 2022,
+      "title": "Lymphocystis virus disease",
+      "url": "https://air.uniud.it/handle/11390/1239920"
+    }
+  }
+}

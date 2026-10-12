@@ -90,6 +90,7 @@ async function remove(stock: Stock) {
           </div>
         </div>
         <div class="row">
+          <a class="btn small ghost" :href="`#/health?wizard=1&aquariumId=${encodeURIComponent(id)}&stockId=${encodeURIComponent(String(item.id))}`">🩺 {{ t("health.wizard") }}</a>
           <button v-if="item.speciesId" class="btn small ghost" :disabled="speciesBusy === item.speciesId" @click="showSpecies(item, $event)">{{ speciesBusy === item.speciesId ? t('common.loading') : t('detail.residentDetails') }}</button>
           <span v-if="!item.speciesId" class="muted">{{ t('detail.noSpeciesDetails') }}</span>
           <template v-if="!readonly">
