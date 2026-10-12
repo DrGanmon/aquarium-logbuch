@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { runWorkerTask } from "../worker-client";
-import Modal from "../components/Modal.vue";
+import SpeciesDetail from "../components/SpeciesDetail.vue";
 import { api } from "../api";
 import { t, errorMessage, language } from "../state";
 import { route } from "../router";
@@ -45,16 +45,16 @@ async function load() {
     species.value = Array.isArray(result) ? result : result.species;
     const id = route.value.path.split("/")[2];
     if (id)
-      selected.value = await api(
+      selected.value = (await api<{ species: Species }>(
         `/species/${encodeURIComponent(decodeURIComponent(id))}`,
-      );
+      )).species;
   } catch (e) {
     error.value = errorMessage(e);
   }
 }
 async function open(item: Species) {
   try {
-    selected.value = await api(`/species/${item.id}`);
+    selected.value = (await api<{ species: Species }>(`/species/${item.id}`)).species;
   } catch (e) {
     error.value = errorMessage(e);
   }
@@ -109,73 +109,6 @@ async function open(item: Species) {
         </button>
       </article>
     </div>
-    <Modal
-      v-if="selected"
-      :title="selected.name"
-      wide
-      @close="selected = undefined"
-      ><div class="stack">
-        <em class="muted">{{ selected.scientificName }}</em>
-        <div class="row">
-          <span class="tag">{{ selected.category }}</span
-          ><span class="tag">ab {{ selected.minVolumeL }} L</span
-          ><span class="tag"
-            >{{ selected.minGroupCount }} Tiere ·
-            {{ selected.socialType }}</span
-          ><span class="tag">{{ selected.territorial }}</span>
-        </div>
-        <p>{{ selected.description }}</p>
-        <div v-if="selected.behaviorNotes" class="compat-box info">
-          {{ selected.behaviorNotes }}
-        </div>
-        <p>{{ selected.decorHints }}</p>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Wasserwert</th>
-                <th>Bereich</th>
-                <th>Ideal</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="key in (['temp', 'ph', 'gh', 'kh', 'salinity'] as const).filter(key => key !== 'salinity' || selected?.salinity)" :key="key">
-                <td>{{ key === "salinity" ? "Salinität (‰)" : key }}</td>
-                <td>
-                  {{ selected[key]?.min ?? "–" }} –
-                  {{ selected[key]?.max ?? "–" }}
-                </td>
-                <td>
-                  {{ selected[key]?.idealMin ?? "–" }} –
-                  {{ selected[key]?.idealMax ?? "–" }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="muted">
-          {{ selected.tankRegion }} · {{ selected.diet }} ·
-          {{ selected.minTankLengthCm }} cm
-        </div>
-        <div v-if="selected.parameters" class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Parameter</th>
-                <th>Minimum</th>
-                <th>Maximum</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(value, key) in selected.parameters" :key="key">
-                <td>{{ key }}</td>
-                <td>{{ value.okMin }}</td>
-                <td>{{ value.okMax }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div></Modal
-    >
+    <SpeciesDetail v-if="selected" :species="selected" @close="selected = undefined" />
   </div>
 </template>

@@ -78,3 +78,24 @@ test('Dubletten übernehmen neue Popular-Werte und behalten ergänzende Cichlide
   assert.ok(discus.tags.includes('high_temp'));
   assert.ok(discus.tags.includes('high_temp_required'));
 });
+
+test('Lokale Artenbilder bleiben eindeutig zugeordnet und behalten Bildnachweise', () => {
+  const imageRoot = path.join(__dirname, '../public/species-images');
+  const manifest = JSON.parse(fs.readFileSync(path.join(imageRoot, 'manifest.json')));
+  const original = JSON.parse(fs.readFileSync(path.join(imageRoot, 'attribution.json')));
+  assert.equal(Object.keys(manifest).length, 146);
+  for (const [id, image] of Object.entries(manifest)) {
+    assert.ok(service.getSpeciesById(id), id);
+    assert.deepEqual(service.getSpeciesById(id).image, image);
+    assert.ok(image.width <= 768 && image.height <= 768, id);
+    const filename = path.join(imageRoot, `${id}.webp`);
+    const bytes = fs.readFileSync(filename);
+    assert.equal(bytes.subarray(8, 12).toString(), 'WEBP');
+    const source = original.images.find((item) => item.id === id);
+    for (const key of ['author', 'authorUrl', 'license', 'licenseUrl', 'sourceUrl', 'originalSource', 'originalSourceUrl', 'requiredAttribution']) {
+      assert.equal(image[key], source[key] || '', `${id}: ${key}`);
+    }
+    assert.ok(image.modifications.includes('WebP'));
+  }
+  assert.equal(service.getSpeciesById('nannostomus-beckfordi').image, null);
+});

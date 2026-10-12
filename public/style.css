@@ -1372,3 +1372,37 @@ dialog.wide { max-width: 640px; }
     font-size: 1.5rem;
   }
 }
+
+/* Readable, mobile-first species details and image attribution. */
+.species-detail { gap: 1.25rem; min-width: 0; overflow-wrap: anywhere; }
+.species-detail-identity { display: grid; gap: .6rem; color: var(--muted); }
+.species-detail-photo { position: relative; margin: 0; width: 100%; aspect-ratio: 3 / 2; background: var(--log-details-bg); border-radius: var(--radius); overflow: hidden; }
+.species-detail-photo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.species-photo-credit { position: absolute; right: .6rem; bottom: .6rem; width: 44px; height: 44px; max-width: 20%; max-height: 20%; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.65); border-radius: 50%; background: rgba(0,0,0,.7); color: white; cursor: pointer; }
+.species-photo-credit svg { width: 22px; height: 22px; }
+.species-photo-credit:focus-visible { outline: 3px solid var(--water); outline-offset: 3px; }
+.species-detail-description, .species-detail-section p { margin: 0; line-height: 1.65; }
+.species-detail-section h3 { margin: 0; font-size: 1.05rem; }
+.species-detail-no-photo { margin: 0; padding: 1rem; background: var(--log-details-bg); border-radius: var(--radius); }
+.species-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; margin: 0; }
+.species-facts > div { background: var(--log-details-bg); border: 1px solid var(--line); border-radius: 10px; padding: .8rem; }
+.species-facts dt, .species-credit-list dt { color: var(--muted); font-size: .85rem; margin-bottom: .35rem; }
+.species-facts dd, .species-credit-list dd { margin: 0; font-weight: 600; line-height: 1.4; }
+.species-facts small { display: block; margin-top: .25rem; color: var(--muted); }
+.species-water-list { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.species-water-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .75rem; padding: .85rem; align-items: center; }
+.species-water-row + .species-water-row { border-top: 1px solid var(--line); }
+.species-water-row > div { display: grid; gap: .2rem; font-size: .9rem; }
+.species-water-row span { color: var(--muted); font-size: .8rem; }
+.species-water-row b { color: var(--kelp); }
+.species-detail-footnote { font-size: .82rem; margin: 0; line-height: 1.5; }
+.species-credit-list { display: grid; gap: 1rem; margin: 0; }
+.species-credit-list > div { display: grid; gap: .25rem; }
+.species-credit-list p, .species-image-credits p { margin: 0; line-height: 1.55; }
+.species-image-credits { overflow-wrap: anywhere; }
+.species-credit-list small { color: var(--muted); }
+@media (max-width: 420px) {
+  .species-water-row { grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .species-water-row > strong { grid-column: 1 / -1; }
+  .species-facts > div { padding: .65rem; }
+}

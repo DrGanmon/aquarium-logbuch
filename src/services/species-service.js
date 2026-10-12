@@ -5,6 +5,8 @@ const path = require('path');
 const BUILTIN_SPECIES_DIR = path.join(__dirname, '../config/species');
 const CUSTOM_SPECIES_DIR = path.join(__dirname, '../../data/species');
 
+const speciesImages = require('../../public/species-images/manifest.json');
+
 let cache = null;
 
 const SPECIES_ID_ALIASES = { 'symphysodon-spp': 'symphysodon-sp' };
@@ -554,6 +556,7 @@ function normalizeSpecies(s, lang = 'de') {
     name: isEn ? nameEn : nameDe,
     name_de: nameDe,
     name_en: nameEn,
+    image: speciesImages[id] || null,
     scientificName: String(s.scientificName || '').trim(),
     category: isEn ? categoryEn : categoryDe,
     category_de: categoryDe,
