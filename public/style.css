@@ -1072,6 +1072,24 @@ dialog.wide { max-width: 640px; }
 }
 
 /* ---------- KI-Assistent & Aquarium-Chat ---------- */
+.test-inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 1rem;
+}
+
+.test-inventory-item {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.test-inventory-item h3 { margin: 0; }
+.test-inventory-item progress { width: 100%; height: .65rem; accent-color: var(--water); }
+.test-inventory-item progress::-webkit-progress-bar { background: var(--line); border-radius: 8px; }
+.test-inventory-item progress::-webkit-progress-value { background: var(--water); border-radius: 8px; }
+
 .ai-quick-card {
   background: linear-gradient(135deg, var(--paper) 0%, var(--water-soft) 100%);
   border: 1px solid var(--water);

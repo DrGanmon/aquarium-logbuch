@@ -289,6 +289,27 @@ Die Wassertests sind modular als **JSON-Dateien** unter `src/config/suites/` (bz
 - **Weitere Suiten:** Beliebig erweiterbar (z. B. `jbl-easy-7in1.json` für Teststreifen).
 - **Benutzerauswahl:** Jeder Anwender kann sowohl im Profil (`#/profile`) als auch direkt bei der Messung (`#/a/:id/messen`) auswählen, welche Testsuite er nutzt und welche Tests er besitzt/durchführen möchte. Die Auswahl wird dauerhaft im Benutzerkonto und im Browser gespeichert.
 
+### Verbrauchszähler und Nachkauferinnerung für JBL-Tröpfchentests
+
+Im Profil unter **Wassertest-Verbrauch & Nachkaufen** lassen sich pro vorhandenem Test der bisherige Verbrauch und die Gesamtreichweite einer Nachfüllung einstellen. **Neue Nachfüllung / Zähler zurücksetzen** setzt den Verbrauch auf 0 und gibt die Nachkauferinnerung für diesen Test wieder frei. Vorhandene Messhistorie wird nicht rückwirkend gezählt; trage den Verbrauch deiner aktuellen Flasche einmalig ein.
+
+Jeder neu gespeicherte Messwert zählt als **ein Test**, auch `0`, auch beim CSV-Import und über mehrere Aquarien hinweg. Gezählt wird beim eintragenden Benutzer, auch bei geteilten Aquarien. Leere, ungültige oder abgewiesene Werte zählen nicht. Das Löschen einer Messung stellt verbrauchtes Reagens nicht wieder her. Ein Thermometer und aus pH/KH berechnetes CO₂ verbrauchen kein eigenes Reagens. Die gewählte Testsuite bestimmt, welche Tests gezählt werden; Teststreifen werden nicht als einzelne JBL-Tröpfchentests gezählt.
+
+Hinterlegte Reichweiten sind Hersteller-Richtwerte pro Test-Set bzw. Nachfüllung (recherchiert am 12.10.2026):
+
+| JBL PROAQUATEST | Messungen (ca.) | Quelle |
+|---|---:|---|
+| pH 3,0–10,0 | 50 | [JBL-Testübersicht](https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32) |
+| pH 6,0–7,6 / 7,4–9,0 | 80 | [JBL pH 6,0–7,6](https://www.jbl.de/de/produkte/detail/8643/jbl-proaquatest-ph-60-76?country=de&cpref=824), [JBL pH 7,4–9,0](https://www.jbl.de/de-de/productsv2/detail/25161373) |
+| NH₄, NO₂, PO₄ Sensitive, Fe, Cu, SiO₂ | 50 je Test | [JBL-Testübersicht](https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32) |
+| NO₃ | 40 | [JBL Nitrat](https://www.jbl.de/de-de/productsv2/detail/25211652) |
+| O₂ | 40 | [JBL Sauerstoff](https://www.jbl.de/de-lu/productsv2/detail/25169665) |
+| K | 25 | [JBL Kalium](https://www.jbl.de/fr-mg/productsv2/detail/25211514) |
+| Mg Fresh water | 60 | [JBL-PROAQUATEST-Katalog (PDF)](https://pm-aquaristik.de/jbl-pdf/jbl-pro-aquatest-katalog.pdf) |
+| KH, GH, Ca, Mg-Ca (Meerwasser), CO₂ Direct | variabel, eigene Schätzung erforderlich | [JBL Calcium / Titrationstests](https://www.jbl.de/de/produkte/detail/8682/jbl-proaquatest-ca-calcium?country=de&cpref=736), [JBL CO₂ Direct](https://www.jbl.de/de/produkte/detail/8691/jbl-proaquatest-co2-direct?country=de&cpref=384) |
+
+Die Reichweite bleibt anpassbar, etwa für eine andere Packungsgröße oder den individuellen Tropfenverbrauch. Im Profil können die pH- und Magnesium-Variante sowie CO₂ Direct oder berechnetes CO₂ ausgewählt werden. Ab **75 % Verbrauch** wird einmal pro Nachfüllung eine E-Mail mit Testname und Restmenge eingereiht, sofern die Erinnerung aktiviert ist, die E-Mail-Adresse verifiziert wurde und SMTP eingerichtet ist. Die Grenze wird auf ganze Tests aufgerundet: bei 50 Tests ab Test 38, bei 25 ab Test 19. Nach dem Einrichten von SMTP prüft der Erinnerungs-Scheduler bisher offene Erinnerungen ebenfalls (alle 30 Minuten). Vorlagen: `test-refill-reminder.tpl` und `test-refill-reminder.en.tpl`; eigene Vorlagen unter `data/mail-templates/`. Verbrauch und Erinnerungsstatus bleiben bei Backup/Restore mit SQLite und MongoDB erhalten.
+
 ## Artenkatalog und Besatz-Kompatibilitätsprüfung
 
 Der Besatz wird über modulare **JSON-Artenkataloge** unter `src/config/species/` (bzw. für eigene Erweiterungen unter `data/species/`) gesteuert:
@@ -347,4 +368,4 @@ Vollständiger Lizenztext: Siehe [LICENSE](LICENSE) sowie in der App unter `#/li
 - [x] Dünger-Dosierung & Dosierpumpen (beliebige Dünger, Dosiermengen in ml, frei konfigurierbare Intervalle, Protokollierung im Logbuch und Lazy Loading)
 - [ ] Automatischer E-Mail-Versand bei kritischen Grenzwert-Alarmen.
 - [ ] Social Bereich
-- [ ] Test verbrauch und erinnerung an neu Beschafung
+- [x] Wassertest-Verbrauch mit automatischer Zählung, Profilkorrektur, Rücksetzung und Nachkauferinnerung ab 75 %.

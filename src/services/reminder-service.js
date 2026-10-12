@@ -251,6 +251,9 @@ class ReminderService {
    */
   async checkAndSendReminders(dbInstance = null) {
     const db = dbInstance || require('../db');
+    if (db?.users?.mutateTestInventory) {
+      await require('./test-inventory-service').checkAllReminders(db);
+    }
     if (!db || !db.aquariums) return { sent: 0, checked: 0 };
 
     const aquariums = await db.aquariums.listAllRaw();

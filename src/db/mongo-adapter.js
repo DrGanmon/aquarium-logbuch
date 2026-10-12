@@ -247,6 +247,21 @@ class MongoAdapter {
         await db.collection('users').insertOne(doc);
         return { id, username, email, oidc_sub, email_verified: email_verified ? 1 : 0, language: doc.language };
       },
+      async mutateTestInventory(id, mutate) {
+        const users = db.collection('users');
+        for (let attempt = 0; attempt < 50; attempt++) {
+          const user = await users.findOne({ id: Number(id) });
+          if (!user) return null;
+          const inventory = JSON.parse(user.test_inventory || '{}');
+          const result = mutate(inventory, user);
+          const updated = await users.updateOne(
+            { id: user.id, test_inventory: user.test_inventory ?? null },
+            { $set: { test_inventory: JSON.stringify(inventory) } },
+          );
+          if (updated.matchedCount) return { inventory, user, result };
+        }
+        throw new Error('Testverbrauch konnte wegen gleichzeitiger Änderungen nicht gespeichert werden.');
+      },
       async update(id, fields = {}) {
         const numId = Number(id);
         const updateFields = {};
@@ -1002,7 +1017,7 @@ class MongoAdapter {
       async findLastForAquarium(aquariumId) {
         return (await db.collection('measurements').findOne({ aquarium_id: Number(aquariumId) }, { sort: { measured_at: -1 } })) || null;
       },
-      async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [] }) {
+      async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [], suite_id = null }) {
         const measId = await self.getNextSequence('measurements');
         const doc = {
           _id: measId,
@@ -1031,6 +1046,7 @@ class MongoAdapter {
           });
         }
 
+        if (created_by) await require('../services/test-inventory-service').recordUsage(self, created_by, values, suite_id);
         return { id: measId };
       },
       async delete(id, aquariumId = null) {

@@ -148,6 +148,16 @@ class SqliteAdapter {
           language: language === 'en' ? 'en' : 'de',
         };
       },
+      async mutateTestInventory(id, mutate) {
+        return db.transaction(() => {
+          const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+          if (!user) return null;
+          const inventory = JSON.parse(user.test_inventory || '{}');
+          const result = mutate(inventory, user);
+          db.prepare('UPDATE users SET test_inventory = ? WHERE id = ?').run(JSON.stringify(inventory), id);
+          return { inventory, user, result };
+        }).immediate();
+      },
       async update(id, fields = {}) {
         const setClauses = [];
         const params = [];
@@ -854,7 +864,7 @@ class SqliteAdapter {
         for (const v of vals) values[v.param] = v.value;
         return { ...m, values };
       },
-      async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [] }) {
+      async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [], suite_id = null }) {
         const insertMeas = db.prepare('INSERT INTO measurements (aquarium_id, measured_at, note, created_by) VALUES (?, ?, ?, ?)');
         const insertVal = db.prepare('INSERT INTO measurement_values (measurement_id, param, value) VALUES (?, ?, ?)');
         const insertAlert = db.prepare(
@@ -871,9 +881,18 @@ class SqliteAdapter {
           for (const a of alerts) {
             insertAlert.run(aquarium_id, measId, a.param, a.level, a.value, a.message);
           }
+          if (created_by) {
+            const user = db.prepare('SELECT * FROM users WHERE id = ?').get(created_by);
+            if (user) {
+              const inventory = JSON.parse(user.test_inventory || '{}');
+              require('../services/test-inventory-service').applyUsage(inventory, user, values, suite_id);
+              db.prepare('UPDATE users SET test_inventory = ? WHERE id = ?').run(JSON.stringify(inventory), created_by);
+            }
+          }
         });
 
         tx();
+        if (created_by) await require('../services/test-inventory-service').checkUserReminders(self, created_by);
         return { id: measId };
       },
       async delete(id, aquariumId = null) {
@@ -1432,6 +1451,7 @@ class SqliteAdapter {
           u.password_reset_expires || null,
           u.created_at || new Date().toISOString()
         );
+        db.prepare('UPDATE users SET test_inventory = ? WHERE id = ?').run(u.test_inventory || '{}', u.id);
       }
 
       // Aktive Sessions für vorhandene Benutzer wiederherstellen

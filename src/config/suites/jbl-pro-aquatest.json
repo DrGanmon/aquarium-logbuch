@@ -36,7 +36,32 @@
       "hint": "5 ml Probewasser mit Reagens versetzen (z. B. 4 Tropfen 3,0–10 / 7,4–9,0 bzw. 3 Tropfen 6,0–7,6), mischen und nach 3 min mit der Farbkarte abgleichen.",
       "hint_en": "Add reagent to 5 ml sample water, mix, and compare with color chart after 3 min.",
       "fresh": { "okMin": 6.5, "okMax": 7.5, "critMin": 5.5, "critMax": 8.5 },
-      "salt": { "okMin": 8.0, "okMax": 8.4, "critMin": 7.6, "critMax": 8.7 }
+      "salt": { "okMin": 8.0, "okMax": 8.4, "critMin": 7.6, "critMax": 8.7 },
+      "consumable": {
+        "capacity": 80,
+        "approximate": true,
+        "source": "https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32",
+        "checkedAt": "2026-10-12",
+        "note": "JBL-Richtwert pro Test-Set bzw. Nachfüllung. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate JBL capacity per test kit or refill. Adjust for a different pack size.",
+        "variants": [
+          {
+            "id": "6-7.6",
+            "name": "pH 6,0–7,6",
+            "capacity": 80
+          },
+          {
+            "id": "3-10",
+            "name": "pH 3,0–10,0",
+            "capacity": 50
+          },
+          {
+            "id": "7.4-9",
+            "name": "pH 7,4–9,0",
+            "capacity": 80
+          }
+        ]
+      }
     },
     {
       "key": "kh",
@@ -52,7 +77,15 @@
       "hint": "5 ml Probewasser in die Küvette füllen. Reagens tropfenweise zugeben und schwenken, bis die Farbe von Blau nach Gelb umschlägt. Anzahl der Tropfen = °dKH.",
       "hint_en": "Fill 5 ml sample water into cuvette. Add reagent drop by drop and swirl until color turns from blue to yellow. Number of drops = °dKH.",
       "fresh": { "okMin": 3, "okMax": 10, "critMin": 1, "critMax": 20 },
-      "salt": { "okMin": 6.5, "okMax": 9.5, "critMin": 5, "critMax": 13 }
+      "salt": { "okMin": 6.5, "okMax": 9.5, "critMin": 5, "critMax": 13 },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32",
+        "checkedAt": "2026-10-12",
+        "note": "Keine feste Testanzahl: Die Reichweite hängt von der Tropfenzahl und dem Messwert ab. Eigene geschätzte Reichweite eintragen.",
+        "note_en": "No fixed number of tests: capacity depends on the number of drops and measured value. Enter your estimated capacity."
+      }
     },
     {
       "key": "gh",
@@ -68,7 +101,15 @@
       "hint": "5 ml Probewasser in die Küvette füllen. Reagens tropfenweise zugeben und schwenken, bis die Farbe von Rot nach Grün umschlägt. Anzahl der Tropfen = °dGH.",
       "hint_en": "Fill 5 ml sample water into cuvette. Add reagent drop by drop and swirl until color turns from red to green. Number of drops = °dGH.",
       "fresh": { "okMin": 6, "okMax": 14, "critMin": 3, "critMax": 25 },
-      "salt": { "okMin": null, "okMax": null, "critMin": null, "critMax": null }
+      "salt": { "okMin": null, "okMax": null, "critMin": null, "critMax": null },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32",
+        "checkedAt": "2026-10-12",
+        "note": "Keine feste Testanzahl: Die Reichweite hängt von der Tropfenzahl und dem Messwert ab. Eigene geschätzte Reichweite eintragen.",
+        "note_en": "No fixed number of tests: capacity depends on the number of drops and measured value. Enter your estimated capacity."
+      }
     },
     {
       "key": "nh4",
@@ -84,7 +125,15 @@
       "hint": "5 ml Probewasser: 4 Tropfen Reagens 1 (schwenken), 4 Tropfen Reagens 2 (schwenken), 5 Tropfen Reagens 3 (schwenken). 10 Minuten warten und im Komparatorblock ablesen.",
       "hint_en": "5 ml sample water: 4 drops reagent 1, 4 drops reagent 2, 5 drops reagent 3 (swirl after each). Wait 10 min and read in comparator block.",
       "fresh": { "okMin": 0, "okMax": 0.1, "critMin": null, "critMax": 0.5 },
-      "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.25 }
+      "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.25 },
+      "consumable": {
+        "capacity": 50,
+        "approximate": true,
+        "source": "https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32",
+        "checkedAt": "2026-10-12",
+        "note": "JBL-Richtwert pro Test-Set bzw. Nachfüllung. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate JBL capacity per test kit or refill. Adjust for a different pack size."
+      }
     },
     {
       "key": "no2",
@@ -100,7 +149,15 @@
       "hint": "5 ml Probewasser: 5 Tropfen Reagens 1 und 5 Tropfen Reagens 2 zugeben, nach jeder Zugabe schwenken. 5 Minuten warten und im Komparatorblock ablesen.",
       "hint_en": "5 ml sample water: 5 drops reagent 1 and 5 drops reagent 2, swirl after each. Wait 5 min and read in comparator block.",
       "fresh": { "okMin": 0, "okMax": 0.1, "critMin": null, "critMax": 0.5 },
-      "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.2 }
+      "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.2 },
+      "consumable": {
+        "capacity": 50,
+        "approximate": true,
+        "source": "https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32",
+        "checkedAt": "2026-10-12",
+        "note": "JBL-Richtwert pro Test-Set bzw. Nachfüllung. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate JBL capacity per test kit or refill. Adjust for a different pack size."
+      }
     },
     {
       "key": "no3",
@@ -116,7 +173,15 @@
       "hint": "10 ml Probewasser: 2 große Messlöffel Reagens 1 und 6 Tropfen Reagens 2 zugeben. 1 Minute kräftig schütteln, 10 Minuten stehen lassen und im Komparatorblock ablesen.",
       "hint_en": "10 ml sample water: 2 large scoops reagent 1 and 6 drops reagent 2. Shake vigorously for 1 min, let stand 10 min and read in comparator block.",
       "fresh": { "okMin": 0, "okMax": 25, "critMin": null, "critMax": 100 },
-      "salt": { "okMin": 0, "okMax": 10, "critMin": null, "critMax": 40 }
+      "salt": { "okMin": 0, "okMax": 10, "critMin": null, "critMax": 40 },
+      "consumable": {
+        "capacity": 40,
+        "approximate": true,
+        "source": "https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32",
+        "checkedAt": "2026-10-12",
+        "note": "JBL-Richtwert pro Test-Set bzw. Nachfüllung. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate JBL capacity per test kit or refill. Adjust for a different pack size."
+      }
     },
     {
       "key": "po4",
@@ -132,7 +197,15 @@
       "hint": "10 ml Probewasser: 1 kleinen Messlöffel Reagens 1 lösen, 10 Tropfen Reagens 2 zugeben, schwenken. 10 Minuten warten und im Komparatorblock ablesen.",
       "hint_en": "10 ml sample water: 1 small scoop reagent 1 (swirl to dissolve), 10 drops reagent 2 (mix). Wait 10 min and read in comparator block.",
       "fresh": { "okMin": 0, "okMax": 0.5, "critMin": null, "critMax": 2 },
-      "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.3 }
+      "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.3 },
+      "consumable": {
+        "capacity": 50,
+        "approximate": true,
+        "source": "https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32",
+        "checkedAt": "2026-10-12",
+        "note": "JBL-Richtwert pro Test-Set bzw. Nachfüllung. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate JBL capacity per test kit or refill. Adjust for a different pack size."
+      }
     },
     {
       "key": "fe",
@@ -148,7 +221,15 @@
       "hint": "5 ml Probewasser: 5 Tropfen Reagens Fe zugeben und schwenken. 10 Minuten warten und im Komparatorblock ablesen.",
       "hint_en": "5 ml sample water: 5 drops reagent Fe, mix and wait 10 min. Read in comparator block.",
       "fresh": { "okMin": 0, "okMax": 0.2, "critMin": null, "critMax": 1 },
-      "salt": { "okMin": 0, "okMax": 0.02, "critMin": null, "critMax": 0.1 }
+      "salt": { "okMin": 0, "okMax": 0.02, "critMin": null, "critMax": 0.1 },
+      "consumable": {
+        "capacity": 50,
+        "approximate": true,
+        "source": "https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32",
+        "checkedAt": "2026-10-12",
+        "note": "JBL-Richtwert pro Test-Set bzw. Nachfüllung. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate JBL capacity per test kit or refill. Adjust for a different pack size."
+      }
     },
     {
       "key": "k",
@@ -164,7 +245,15 @@
       "hint": "15 ml Probewasser: 10 Tropfen Reagens 1 (schwenken), 1 gestrichenen großen Messlöffel Reagens 2 zugeben, 30 s leicht schwenken, 1 min stehen lassen. Trübung im Messröhrchen über dem Kreuz ablesen. Meerwasser: Probe 1:30 verdünnen und Wert x30.",
       "hint_en": "15 ml sample water: 10 drops reagent 1 (mix), 1 large scoop reagent 2, swirl for 30 s and let stand 60 s. Read turbidity over cross in measuring tube.",
       "fresh": { "okMin": 5, "okMax": 30, "critMin": 2, "critMax": 40 },
-      "salt": { "okMin": 380, "okMax": 400, "critMin": 300, "critMax": 450 }
+      "salt": { "okMin": 380, "okMax": 400, "critMin": 300, "critMax": 450 },
+      "consumable": {
+        "capacity": 25,
+        "approximate": true,
+        "source": "https://www.jbl.de/fr-mg/productsv2/detail/25211514",
+        "checkedAt": "2026-10-12",
+        "note": "JBL-Richtwert pro Test-Set bzw. Nachfüllung. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate JBL capacity per test kit or refill. Adjust for a different pack size."
+      }
     },
     {
       "key": "mg",
@@ -180,7 +269,28 @@
       "hint": "Süßwasser: 5 ml Probe, 7 Tropfen Reagens 1 (schwenken, 1 min warten), dann Reagens 2 tropfenweise bis Umschlag von Rot über Braun/Grau nach Grün. Tropfen x 100 = mg/l (oder Farbvergleich).",
       "hint_en": "Freshwater: 5 ml sample, 7 drops reagent 1 (wait 1 min), then reagent 2 dropwise until color turns from red to green. Drops x 100 = mg/l.",
       "fresh": { "okMin": 5, "okMax": 30, "critMin": 2, "critMax": 60 },
-      "salt": { "okMin": 1250, "okMax": 1400, "critMin": 1050, "critMax": 1600 }
+      "salt": { "okMin": 1250, "okMax": 1400, "critMin": 1050, "critMax": 1600 },
+      "consumable": {
+        "capacity": 60,
+        "approximate": true,
+        "source": "https://pm-aquaristik.de/jbl-pdf/jbl-pro-aquatest-katalog.pdf",
+        "checkedAt": "2026-10-12",
+        "note": "JBL-Richtwert pro Test-Set bzw. Nachfüllung. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate JBL capacity per test kit or refill. Adjust for a different pack size.",
+        "variants": [
+          {
+            "id": "fresh",
+            "name": "Mg Fresh water",
+            "capacity": 60
+          },
+          {
+            "id": "marine",
+            "name": "Mg-Ca (Meerwasser)",
+            "name_en": "Mg-Ca (marine water)",
+            "capacity": null
+          }
+        ]
+      }
     },
     {
       "key": "ca",
@@ -196,7 +306,15 @@
       "hint": "5 ml Probe: 5 Tropfen Reagens 1 (schwenken, 1 min warten), 1 kleinen Messlöffel Reagens 2 lösen. Reagens 3 tropfenweise zugeben bis Umschlag von Rosa nach Blau. Tropfen x 20 = mg/l Ca.",
       "hint_en": "5 ml sample: 5 drops reagent 1 (wait 1 min), 1 small scoop reagent 2. Add reagent 3 dropwise until pink turns blue. Drops x 20 = mg/l Ca.",
       "fresh": { "okMin": 20, "okMax": 80, "critMin": 10, "critMax": 150 },
-      "salt": { "okMin": 400, "okMax": 450, "critMin": 340, "critMax": 500 }
+      "salt": { "okMin": 400, "okMax": 450, "critMin": 340, "critMax": 500 },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://www.jbl.de/de/produkte/detail/8682/jbl-proaquatest-ca-calcium?country=de&cpref=736",
+        "checkedAt": "2026-10-12",
+        "note": "Keine feste Testanzahl: Die Reichweite hängt von der Tropfenzahl und dem Messwert ab. Eigene geschätzte Reichweite eintragen.",
+        "note_en": "No fixed number of tests: capacity depends on the number of drops and measured value. Enter your estimated capacity."
+      }
     },
     {
       "key": "cu",
@@ -212,7 +330,15 @@
       "hint": "5 ml Probewasser: 5 Tropfen Reagens 1 (schwenken), 5 Tropfen Reagens 2 (schwenken). 15 Minuten warten und im Komparatorblock ablesen.",
       "hint_en": "5 ml sample water: 5 drops reagent 1, 5 drops reagent 2. Wait 15 min and read in comparator block.",
       "fresh": { "okMin": 0, "okMax": 0.02, "critMin": null, "critMax": 0.1 },
-      "salt": { "okMin": 0, "okMax": 0.01, "critMin": null, "critMax": 0.05 }
+      "salt": { "okMin": 0, "okMax": 0.01, "critMin": null, "critMax": 0.05 },
+      "consumable": {
+        "capacity": 50,
+        "approximate": true,
+        "source": "https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32",
+        "checkedAt": "2026-10-12",
+        "note": "JBL-Richtwert pro Test-Set bzw. Nachfüllung. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate JBL capacity per test kit or refill. Adjust for a different pack size."
+      }
     },
     {
       "key": "sio2",
@@ -228,7 +354,15 @@
       "hint": "10 ml Probewasser: 10 Tropfen Reagens 1 (3 min warten), 10 Tropfen Reagens 2 (3 min warten), 1 kleinen Löffel Reagens 3 (3 min warten, im Komparator ablesen).",
       "hint_en": "10 ml sample water: 10 drops reagent 1 (wait 3 min), 10 drops reagent 2 (wait 3 min), 1 scoop reagent 3 (wait 3 min, read in comparator).",
       "fresh": { "okMin": 0, "okMax": 1.2, "critMin": null, "critMax": 3.0 },
-      "salt": { "okMin": 0, "okMax": 0.5, "critMin": null, "critMax": 2.0 }
+      "salt": { "okMin": 0, "okMax": 0.5, "critMin": null, "critMax": 2.0 },
+      "consumable": {
+        "capacity": 50,
+        "approximate": true,
+        "source": "https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32",
+        "checkedAt": "2026-10-12",
+        "note": "JBL-Richtwert pro Test-Set bzw. Nachfüllung. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate JBL capacity per test kit or refill. Adjust for a different pack size."
+      }
     },
     {
       "key": "o2",
@@ -244,7 +378,15 @@
       "hint": "Gefäß randvoll füllen: 6 Tropfen Reagens 1 und 6 Tropfen Reagens 2 zugeben, blasenfrei verschließen und 30 s schütteln. Nach 10 min 6 Tropfen Reagens 3 zugeben, schütteln und mit Farbkarte abgleichen.",
       "hint_en": "Fill vessel completely: 6 drops reagent 1, 6 drops reagent 2, seal and shake 30 s. After 10 min add 6 drops reagent 3, shake and compare with color chart.",
       "fresh": { "okMin": 6, "okMax": null, "critMin": 3, "critMax": null },
-      "salt": { "okMin": 6, "okMax": null, "critMin": 4, "critMax": null }
+      "salt": { "okMin": 6, "okMax": null, "critMin": 4, "critMax": null },
+      "consumable": {
+        "capacity": 40,
+        "approximate": true,
+        "source": "https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32",
+        "checkedAt": "2026-10-12",
+        "note": "JBL-Richtwert pro Test-Set bzw. Nachfüllung. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate JBL capacity per test kit or refill. Adjust for a different pack size."
+      }
     },
     {
       "key": "co2",
@@ -260,7 +402,29 @@
       "hint": "Direkttest: 20 ml Probe, 5 Tropfen Reagens 1, dann Reagens 2 tropfenweise unter Schwenken zugeben, bis eine schwache Rosafärbung für 60 s stabil bleibt. Tropfen x 2 = mg/l CO2.",
       "hint_en": "Direct test: 20 ml sample, 5 drops reagent 1, then reagent 2 dropwise until faint pink color remains stable for 60 s. Drops x 2 = mg/l CO2.",
       "fresh": { "okMin": 10, "okMax": 30, "critMin": null, "critMax": 60 },
-      "salt": { "okMin": null, "okMax": null, "critMin": null, "critMax": null }
+      "salt": { "okMin": null, "okMax": null, "critMin": null, "critMax": null },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://www.jbl.de/de/themenwelt/essential_section/132?country=de&cpref=32",
+        "checkedAt": "2026-10-12",
+        "note": "Keine feste Testanzahl: Die Reichweite hängt von der Tropfenzahl und dem Messwert ab. Eigene geschätzte Reichweite eintragen.",
+        "note_en": "No fixed number of tests: capacity depends on the number of drops and measured value. Enter your estimated capacity.",
+        "variants": [
+          {
+            "id": "direct",
+            "name": "CO₂ Direct",
+            "capacity": null
+          },
+          {
+            "id": "calculated",
+            "name": "Berechnet aus pH/KH (kein Reagens)",
+            "name_en": "Calculated from pH/KH (no reagent)",
+            "capacity": null,
+            "trackUsage": false
+          }
+        ]
+      }
     }
   ]
 }

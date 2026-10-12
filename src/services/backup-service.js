@@ -468,6 +468,7 @@ class BackupService {
         avatar_file: u.avatar_file ? path.basename(String(u.avatar_file)) : null,
         selected_suite: u.selected_suite ? String(u.selected_suite) : null,
         selected_tests: u.selected_tests ? String(u.selected_tests) : null,
+        test_inventory: require('./test-inventory-service').normalizeInventory(u.test_inventory),
         email_verified: u.email_verified !== undefined ? (u.email_verified ? 1 : 0) : 1,
         email_verify_token: u.email_verify_token ? String(u.email_verify_token) : null,
         email_verify_expires: u.email_verify_expires ? Number(u.email_verify_expires) : null,

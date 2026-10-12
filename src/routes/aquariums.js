@@ -620,6 +620,9 @@ router.post(
       cleanValues[p.key] = v;
     }
     if (Object.keys(cleanValues).length === 0) return res.status(400).json({ error: 'Bitte mindestens einen Wert eintragen.' });
+    if (req.body.suiteId && !cfg.suiteService.getSuite(req.body.suiteId)) {
+      return res.status(400).json({ error: 'Unbekannte Testsuite.' });
+    }
 
     let measuredAt = new Date();
     if (req.body.measured_at) {
@@ -648,6 +651,7 @@ router.post(
       created_by: req.user.id,
       values: cleanValues,
       alerts: alertsToCreate,
+      suite_id: req.body.suiteId || null,
     });
 
     res.json({ id: info.id, alerts: alertsToCreate });

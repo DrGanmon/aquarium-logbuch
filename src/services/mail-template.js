@@ -802,6 +802,27 @@ Dein Aquarium-Logbuch Team`;
   return { subject, html, text };
 }
 
+function createTestRefillReminderMail({ username, testName, used, capacity, profileUrl, lang = 'de' }) {
+  const isEn = String(lang).toLowerCase().startsWith('en');
+  const remaining = Math.max(0, capacity - used);
+  const subject = isEn ? `🧪 Refill needed: ${testName}` : `🧪 Wassertest nachkaufen: ${testName}`;
+  const intro = isEn ? `Hello ${username},` : `Hallo ${username},`;
+  const numbersText = isEn
+    ? `You have used ${used} of approximately ${capacity} tests for ${testName}. Approximately ${remaining} tests remain.`
+    : `Du hast für ${testName} bereits ${used} von ungefähr ${capacity} Tests verwendet. Es bleiben ungefähr ${remaining} Tests.`;
+  const refillText = isEn
+    ? `At least 75% of this test has been used. Please buy a refill for ${testName}.`
+    : `Mindestens 75 % dieses Tests sind verbraucht. Bitte kaufe den Test bzw. die Nachfüllreagenzien für ${testName} nach.`;
+  const hint = isEn
+    ? 'After refilling, reset this test’s usage counter in your profile. Capacity is approximate and depends on your test kit.'
+    : 'Setze nach dem Nachfüllen den Verbrauchszähler dieses Tests im Profil zurück. Die Reichweite ist ein Richtwert und hängt von deinem Test-Set ab.';
+  const html = renderTemplate('test-refill-reminder', {
+    title: subject, headline: subject, intro, numbersText, refillText, hint,
+    ctaText: isEn ? 'Manage water tests' : 'Wassertests verwalten', ctaUrl: profileUrl,
+  }, lang);
+  return { subject, html, text: `${intro}\n\n${numbersText}\n\n${refillText}\n\n${hint}\n\n${profileUrl}` };
+}
+
 module.exports = {
   getTemplatePath,
   loadTemplate,
@@ -816,4 +837,5 @@ module.exports = {
   createShareAquariumMail,
   createMeasureReminderMail,
   createFertilizeReminderMail,
+  createTestRefillReminderMail,
 };

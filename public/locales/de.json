@@ -580,5 +580,22 @@
       "privacyContactLabel": "🔒 Datenschutz & Auskunftsersuchen:",
       "privacyContactNotice": "Anfragen bezüglich gespeicherter Daten oder die Ausübung Ihrer Betroffenenrechte nach der DSGVO können direkt an die oben genannte Support-E-Mail-Adresse gerichtet werden."
     }
+  },
+  "testInventory": {
+    "title": "🧪 Wassertest-Verbrauch & Nachkaufen",
+    "description": "Jeder neu gespeicherte Messwert (auch 0) zählt als ein verwendeter Test. Die Zähler gelten für deine Tests über alle Aquarien hinweg, auch für CSV-Importe. Trage bisherigen Verbrauch ein und setze den jeweiligen Zähler nach dem Nachfüllen zurück. Thermometer verbrauchen kein Reagens.",
+    "variant": "Testvariante",
+    "used": "Bereits verwendete Tests",
+    "capacity": "Gesamtreichweite pro Nachfüllung (ca.)",
+    "unknownCapacity": "Eigene Schätzung",
+    "capacityHint": "Trage eine geschätzte Gesamtreichweite ein, damit die 75-%-Erinnerung funktioniert. Bei Tropfenzähltests hängt die Reichweite vom Messwert ab.",
+    "reminder": "E-Mail-Erinnerung ab 75 % Verbrauch",
+    "reminderSent": "Die Nachkauferinnerung wurde für diese Nachfüllung bereits eingereiht.",
+    "noReagent": "Dieser Wert wird berechnet und verbraucht kein eigenes Reagens.",
+    "source": "JBL-Angaben zur Reichweite",
+    "reset": "Neue Nachfüllung / Zähler zurücksetzen",
+    "resetConfirm": "Verbrauch von {{name}} auf 0 zurücksetzen? Die Nachkauferinnerung wird für die neue Nachfüllung wieder aktiviert.",
+    "progress": "Verbrauch für {{name}}",
+    "status": "{{used}} / ca. {{capacity}} verwendet ({{percent}} %), ca. {{remaining}} verbleibend."
   }
 }

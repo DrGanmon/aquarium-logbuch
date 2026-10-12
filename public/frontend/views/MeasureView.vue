@@ -205,6 +205,7 @@ async function save() {
       method: "POST",
       body: {
         values: parsed,
+        suiteId: suite.value,
         measured_at: new Date(when.value).toISOString(),
         note: note.value,
       },

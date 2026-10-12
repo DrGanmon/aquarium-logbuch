@@ -50,6 +50,22 @@ export interface Parameter {
   wait: number;
   hint?: string;
 }
+export interface TestInventoryItem {
+  key: string;
+  name: string;
+  used: number | string;
+  capacity: number | string | null;
+  variant: string | null;
+  reminderEnabled: boolean;
+  reminderSentAt: string | null;
+  tracksUsage: boolean;
+  consumable: {
+    capacity: number | null;
+    note: string;
+    source: string;
+    variants: { id: string; name: string; capacity: number | null; trackUsage?: boolean }[];
+  };
+}
 export interface SpeciesRange {
   min?: number;
   max?: number;

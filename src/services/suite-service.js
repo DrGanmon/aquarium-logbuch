@@ -35,6 +35,14 @@ function normalizeTest(t, lang = 'de') {
     hint: isEn ? hintEn : hintDe,
     hint_de: hintDe,
     hint_en: hintEn,
+    consumable: t.consumable ? {
+      ...t.consumable,
+      note: isEn ? (t.consumable.note_en || t.consumable.note) : t.consumable.note,
+      variants: (t.consumable.variants || []).map((variant) => ({
+        ...variant,
+        name: isEn ? (variant.name_en || variant.name) : variant.name,
+      })),
+    } : null,
     fresh: {
       okMin: t.fresh?.okMin != null ? Number(t.fresh.okMin) : null,
       okMax: t.fresh?.okMax != null ? Number(t.fresh.okMax) : null,

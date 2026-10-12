@@ -5,6 +5,7 @@ const { auth } = require('../middleware/auth');
 const db = require('../db');
 const { wrap, str } = require('../utils/helpers');
 const { legalConfigService } = require('../services/legal-config-service');
+const testInventory = require('../services/test-inventory-service');
 
 const router = express.Router();
 
@@ -157,6 +158,28 @@ router.get('/suites/:id', auth, (req, res) => {
   }
   res.json({ suite });
 });
+
+router.get('/me/test-inventory', auth, wrap(async (req, res) => {
+  const user = await db.users.findById(req.user.id);
+  const suiteId = req.query.suiteId || user.selected_suite || cfg.suiteService.getDefaultSuite().id;
+  const lang = req.headers['x-language'] || user.language || 'de';
+  const items = testInventory.inventoryItems(user, suiteId, lang);
+  if (!items) return res.status(400).json({ error: 'Unbekannte Testsuite.' });
+  res.json({ suiteId, items });
+}));
+
+router.put('/me/test-inventory/:key', auth, wrap(async (req, res) => {
+  const user = await db.users.findById(req.user.id);
+  const suiteId = req.body.suiteId || user.selected_suite || cfg.suiteService.getDefaultSuite().id;
+  try {
+    await testInventory.updateInventory(db, user.id, suiteId, req.params.key, req.body);
+  } catch (error) {
+    if (error.status === 400) return res.status(400).json({ error: error.message });
+    throw error;
+  }
+  const updated = await db.users.findById(user.id);
+  res.json({ suiteId, items: testInventory.inventoryItems(updated, suiteId, req.headers['x-language'] || user.language || 'de') });
+}));
 
 router.put(
   '/me/tests',

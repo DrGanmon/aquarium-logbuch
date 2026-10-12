@@ -580,5 +580,22 @@
       "privacyContactLabel": "🔒 Data protection & access requests:",
       "privacyContactNotice": "Requests about stored data or the exercise of your rights as a data subject under the GDPR can be sent directly to the support email address listed above."
     }
+  },
+  "testInventory": {
+    "title": "🧪 Water test usage & refills",
+    "description": "Every newly saved measurement value (including 0) counts as one test used. Your counters apply across all aquariums, including CSV imports. Enter previous usage and reset each counter after refilling. Thermometers do not use reagents.",
+    "variant": "Test variant",
+    "used": "Tests already used",
+    "capacity": "Total capacity per refill (approx.)",
+    "unknownCapacity": "Your estimate",
+    "capacityHint": "Enter an estimated total capacity to enable the 75% reminder. For drop-count tests, capacity depends on the measured value.",
+    "reminder": "Email reminder at 75% usage",
+    "reminderSent": "The refill reminder has already been queued for this refill.",
+    "noReagent": "This value is calculated and does not use its own reagent.",
+    "source": "JBL capacity information",
+    "reset": "New refill / reset counter",
+    "resetConfirm": "Reset usage for {{name}} to 0? This enables the refill reminder again for the new refill.",
+    "progress": "Usage for {{name}}",
+    "status": "{{used}} / approx. {{capacity}} used ({{percent}}%), approx. {{remaining}} remaining."
   }
 }

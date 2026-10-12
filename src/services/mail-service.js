@@ -14,6 +14,7 @@ const {
   createFertilizeReminderMail,
 } = require('./mail-template');
 const logger = require('../utils/logger');
+const { createTestRefillReminderMail } = require('./mail-template');
 
 const CONFIG_FILE = path.join(DATA_DIR, 'mail-config.json');
 
@@ -358,6 +359,18 @@ class MailService {
   /**
    * Sendet eine Erinnerungs-E-Mail für einen fälligen Messzyklus.
    */
+  sendTestRefillReminderEmail({ user, test }) {
+    const mail = createTestRefillReminderMail({
+      username: user.username,
+      testName: test.variantName ? `${test.name} (${test.variantName})` : test.name,
+      used: test.used,
+      capacity: test.capacity,
+      profileUrl: `${APP_URL || 'http://localhost:3000'}/#/profile`,
+      lang: user.language || 'de',
+    });
+    return this.enqueueMail({ to: user.email, ...mail });
+  }
+
   sendMeasureReminderEmail({ user, aquarium, cycleStatus, lang = null }) {
     const userLang = lang || user?.language || 'de';
     const isEn = String(userLang).toLowerCase().startsWith('en');

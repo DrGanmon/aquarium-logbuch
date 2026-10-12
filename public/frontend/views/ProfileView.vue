@@ -3,6 +3,7 @@ import { computed, reactive, ref, onMounted } from "vue";
 import Fields from "../components/Fields.vue";
 import ProviderSettings from "../components/ProviderSettings.vue";
 import Invitations from "../components/Invitations.vue";
+import TestInventory from "../components/TestInventory.vue";
 import { api, refreshSession } from "../api";
 import { session, t, errorMessage, toast, theme, language } from "../state";
 import { readImage, enableNotifications } from "../composables/media";
@@ -402,6 +403,7 @@ async function saveRange() {
         {{ t("common.save") }}
       </button>
     </section>
+    <TestInventory :suite-id="suite" :selected-tests="tests" />
     <section class="card stack">
       <h2>🔑 Passwort & Anmeldung</h2>
       <form class="stack" @submit.prevent="password">
