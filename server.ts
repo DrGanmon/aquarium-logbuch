@@ -1,3 +1,4 @@
+import { asError } from './src/utils/app-error';
 'use strict';
 import app = require('./src/app');
 import envModule = require('./src/config/env');
@@ -31,7 +32,8 @@ function startServer(): void {
       const db = require('./src/db');
       try {
         await db.init();
-      } catch (err) {
+      } catch (caught: unknown) {
+        const err = asError(caught);
         logger.fatal(`Datenbank-Initialisierung fehlgeschlagen: ${err.stack || err.message}`, 'db');
         process.exit(1);
       }
@@ -92,7 +94,8 @@ function startServer(): void {
       try {
         await require('./src/db').init();
         supervisor.start();
-      } catch (err) {
+      } catch (caught: unknown) {
+        const err = asError(caught);
         logger.fatal(`Datenbank-Initialisierung fehlgeschlagen: ${err.stack || err.message}`, 'db');
         process.exit(1);
       }

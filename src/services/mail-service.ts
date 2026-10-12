@@ -1,3 +1,6 @@
+import type { MailConfig, MailMessage, QueuedMail, MailStats } from '../types/mail';
+import { asRecord } from '../utils/validation';
+import { asError } from '../utils/app-error';
 'use strict';
 import path = require('path');
 import fs = require('fs');
@@ -21,7 +24,7 @@ const { createTestRefillReminderMail } = mail_templateModule;
 
 const CONFIG_FILE = path.join(DATA_DIR, 'mail-config.json');
 
-const DEFAULT_CONFIG: Record<string, any> = {
+const DEFAULT_CONFIG: MailConfig = {
   enabled: false,
   host: process.env.SMTP_HOST || '',
   port: Number(process.env.SMTP_PORT) || 587,
@@ -36,13 +39,13 @@ const DEFAULT_CONFIG: Record<string, any> = {
 };
 
 class MailService {
-  configFile: any;
-  queue: any;
-  isProcessing: any;
-  stats: any;
+  readonly configFile: string;
+  private queue: QueuedMail[];
+  private isProcessing: boolean;
+  private stats: MailStats;
 
-  constructor() {
-    this.configFile = CONFIG_FILE;
+  constructor(configFile = CONFIG_FILE) {
+    this.configFile = configFile;
     this.queue = [];
     this.isProcessing = false;
     this.stats = {
@@ -65,28 +68,26 @@ class MailService {
   /**
    * Lädt die interne SMTP-Konfiguration (inklusive Passwort).
    */
-  getRawConfig() {
+  getRawConfig(): MailConfig {
     this._ensureDirs();
-    let fileConfig: Record<string, any> = {};
+    let fileConfig: Record<string, unknown> = {};
     if (fs.existsSync(this.configFile)) {
       try {
-        fileConfig = JSON.parse(fs.readFileSync(this.configFile, 'utf8'));
-      } catch (err) {
+        fileConfig = asRecord(JSON.parse(fs.readFileSync(this.configFile, 'utf8')) as unknown);
+      } catch (caught: unknown) {
+        const err = asError(caught);
         logger.error(`Fehler beim Lesen der Mail-Konfiguration: ${err.message}`, 'mail');
       }
     }
 
-    const merged: Record<string, any> = {
-      ...DEFAULT_CONFIG,
-      ...fileConfig,
+    const raw = { ...DEFAULT_CONFIG, ...fileConfig };
+    return {
+      enabled: fileConfig.enabled === undefined && Boolean(process.env.SMTP_HOST) || Boolean(raw.enabled),
+      host: String(raw.host || ''), port: Number(raw.port) || 587, secure: Boolean(raw.secure),
+      requireTls: Boolean(raw.requireTls), ignoreTls: Boolean(raw.ignoreTls), rejectUnauthorized: raw.rejectUnauthorized !== false,
+      user: String(raw.user || ''), pass: String(raw.pass || ''), from: String(raw.from || ''),
+      rateLimitMs: Math.max(100, Math.min(60000, Number(raw.rateLimitMs) || 500)),
     };
-
-    // Falls in Umgebungsvariablen SMTP_HOST definiert ist und Datei noch leer, aktivieren
-    if (fileConfig.enabled === undefined && process.env.SMTP_HOST) {
-      merged.enabled = true;
-    }
-
-    return merged;
   }
 
   /**
@@ -112,10 +113,11 @@ class MailService {
   /**
    * Speichert neue SMTP-Einstellungen.
    */
-  saveConfig(newConfig: any = {}) {
+  saveConfig(input: unknown = {}) {
+    const newConfig = asRecord(input);
     this._ensureDirs();
     const current = this.getRawConfig();
-    const updated: Record<string, any> = {
+    const updated: MailConfig = {
       ...current,
       enabled: newConfig.enabled !== undefined ? Boolean(newConfig.enabled) : current.enabled,
       host: newConfig.host !== undefined ? String(newConfig.host).trim() : current.host,
@@ -158,8 +160,8 @@ class MailService {
   /**
    * Reiht eine E-Mail in die Warteschlange ein.
    */
-  enqueueMail({ to, subject, html, text }: any) {
-    const item: Record<string, any> = {
+  enqueueMail({ to, subject, html, text }: MailMessage) {
+    const item: QueuedMail = {
       id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       to,
       subject,
@@ -211,7 +213,8 @@ class MailService {
         this.stats.lastSentAt = new Date().toISOString();
         this.stats.lastError = null;
         logger.info(`E-Mail erfolgreich versendet an: ${item.to} (Betreff: ${item.subject})`, 'mail');
-      } catch (err) {
+      } catch (caught: unknown) {
+        const err = asError(caught);
         this.stats.failedCount += 1;
         this.stats.lastError = err.message;
         logger.error(`Fehler beim Versenden der E-Mail an ${item.to}: ${err.message}`, 'mail');
@@ -224,7 +227,7 @@ class MailService {
 
       // Rate-Limiting: Pause zwischen E-Mails einlegen, um Überlastung zu verhindern
       const delayMs = Math.max(100, Number(config.rateLimitMs) || 500);
-      await new Promise((resolve: any) => setTimeout(resolve, delayMs));
+      await new Promise<void>(resolve => setTimeout(resolve, delayMs));
     }
 
     this.isProcessing = false;
@@ -233,7 +236,7 @@ class MailService {
   /**
    * Sendet eine E-Mail direkt ohne Queue (z. B. für den Admin-Testbutton).
    */
-  async sendDirect({ to, subject, html, text }: any) {
+  async sendDirect({ to, subject, html, text }: MailMessage) {
     const config = this.getRawConfig();
     if (!config.host) {
       throw new Error('Kein SMTP-Host konfiguriert.');

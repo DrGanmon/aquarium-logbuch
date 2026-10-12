@@ -1,10 +1,12 @@
+interface CycleConfig { interval?: number | string | null; unit?: string | null; day_of_week?: number | string | null; reminder_mail?: number | boolean | string | null }
+import { asError } from '../utils/app-error';
 'use strict';
 
 import mail_serviceModule = require('./mail-service');
 const { mailService } = mail_serviceModule;
 import logger = require('../utils/logger');
 
-const WEEKDAY_NAMES_DE: Record<string, any> = {
+const WEEKDAY_NAMES_DE: Record<number, string> = {
   1: 'Montag',
   2: 'Dienstag',
   3: 'Mittwoch',
@@ -14,7 +16,7 @@ const WEEKDAY_NAMES_DE: Record<string, any> = {
   7: 'Sonntag',
 };
 
-const WEEKDAY_SHORT_DE: Record<string, any> = {
+const WEEKDAY_SHORT_DE: Record<number, string> = {
   1: 'Mo.',
   2: 'Di.',
   3: 'Mi.',
@@ -24,7 +26,7 @@ const WEEKDAY_SHORT_DE: Record<string, any> = {
   7: 'So.',
 };
 
-const WEEKDAY_NAMES_EN: Record<string, any> = {
+const WEEKDAY_NAMES_EN: Record<number, string> = {
   1: 'Monday',
   2: 'Tuesday',
   3: 'Wednesday',
@@ -34,7 +36,7 @@ const WEEKDAY_NAMES_EN: Record<string, any> = {
   7: 'Sunday',
 };
 
-const WEEKDAY_SHORT_EN: Record<string, any> = {
+const WEEKDAY_SHORT_EN: Record<number, string> = {
   1: 'Mon',
   2: 'Tue',
   3: 'Wed',
@@ -50,7 +52,7 @@ const WEEKDAY_SHORT = WEEKDAY_SHORT_DE;
 /**
  * Wandelt ein Javascript Date in den ISO-Wochentag (1 = Montag, ..., 7 = Sonntag) um.
  */
-function getIsoDay(date?: any) {
+function getIsoDay(date: Date) {
   const d = date.getDay();
   return d === 0 ? 7 : d;
 }
@@ -64,7 +66,7 @@ function getIsoDay(date?: any) {
  * @param {Date} [nowDate] - Aktueller Zeitpunkt (für Tests injizierbar)
  * @param {string} [lang] - Sprache ('de' oder 'en')
  */
-function calculateCycleStatus(cycleConfig: any = {}, lastActionDate: any = null, fallbackDate: any = null, nowDate: any = new Date(), lang: any = 'de') {
+function calculateCycleStatus(cycleConfig: CycleConfig = {}, lastActionDate: string | Date | null = null, fallbackDate: string | Date | null = null, nowDate: Date = new Date(), lang: string = 'de') {
   const isEn = String(lang).toLowerCase().startsWith('en');
   const weekdayNames = isEn ? WEEKDAY_NAMES_EN : WEEKDAY_NAMES_DE;
   const weekdayShort = isEn ? WEEKDAY_SHORT_EN : WEEKDAY_SHORT_DE;
@@ -214,13 +216,13 @@ function calculateCycleStatus(cycleConfig: any = {}, lastActionDate: any = null,
 }
 
 class ReminderService {
-  schedulerTimer: any;
+  schedulerTimer: ReturnType<typeof setInterval> | null;
 
   constructor() {
     this.schedulerTimer = null;
   }
 
-  startScheduler(intervalMinutes: any = 30) {
+  startScheduler(intervalMinutes: number = 30) {
     if (this.schedulerTimer) return;
     logger.info(`Starte Zyklus-Erinnerungs-Scheduler (Prüfung alle ${intervalMinutes} Minuten)`, 'reminder');
 
@@ -235,7 +237,8 @@ class ReminderService {
     this.schedulerTimer = setInterval(async () => {
       try {
         await this.checkAndSendReminders();
-      } catch (err) {
+      } catch (caught: unknown) {
+        const err = asError(caught);
         logger.error(`Fehler beim Zyklus-Erinnerungsdurchlauf: ${err.message}`, 'reminder');
       }
     }, intervalMs);
@@ -320,7 +323,8 @@ class ReminderService {
               aq.last_measure_reminder_sent_at = now.toISOString();
               sentCount++;
               logger.info(`Messzyklus-Erinnerung versendet für Aquarium „${aq.name}“ an ${user.email} (Lang: ${userLang})`, 'reminder');
-            } catch (err) {
+            } catch (caught: unknown) {
+              const err = asError(caught);
               logger.error(`Fehler beim Senden der Messzyklus-Erinnerung für Aq #${aq.id}: ${err.message}`, 'reminder');
             }
           }
@@ -369,7 +373,8 @@ class ReminderService {
               aq.last_fertilize_reminder_sent_at = now.toISOString();
               sentCount++;
               logger.info(`Düngzyklus-Erinnerung versendet für Aquarium „${aq.name}“ an ${user.email} (Lang: ${userLang})`, 'reminder');
-            } catch (err) {
+            } catch (caught: unknown) {
+              const err = asError(caught);
               logger.error(`Fehler beim Senden der Düngzyklus-Erinnerung für Aq #${aq.id}: ${err.message}`, 'reminder');
             }
           }

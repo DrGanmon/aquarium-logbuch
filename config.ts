@@ -1,3 +1,5 @@
+import type { WaterType } from './src/types/domain';
+import type { WaterTest, Thresholds } from './src/types/catalog';
 'use strict';
 /*
  * Testparameter, Wartezeiten (Timer) und Grenzwerte.
@@ -21,7 +23,7 @@ const PARAMETERS = suiteService.getAllKnownParameters();
  * Sind mehrere Profile im Becken, wird der Schnitt der Bereiche verwendet.
  * Ist der Schnitt leer, zeigt die App den Hinweis "Besatz passt nicht zusammen".
  */
-const PROFILES: Record<string, any> = {
+const PROFILES: Record<string, { label: string; fresh: Record<string, Partial<Thresholds>> }> = {
   allgemein: { label: 'Allgemein (Gesellschaftsfische)', fresh: {} },
   weichwasser: {
     label: 'Weichwasserfische (z. B. Neon, Diskus, Kardinal)',
@@ -66,7 +68,7 @@ const PROFILES: Record<string, any> = {
 function getSpeciesSuggestions() {
   const loaded = speciesService.getAllSpecies();
   if (loaded && loaded.length) {
-    return loaded.map((s: any) => [s.name, s.profile]);
+    return loaded.map((s) => [s.name, s.profile]);
   }
   return [
     ['Siamesischer Kampffisch', 'weichwasser'],
@@ -81,29 +83,29 @@ function getSpeciesSuggestions() {
 
 const SPECIES = getSpeciesSuggestions();
 
-const WATER_TYPES: Record<string, any> = { fresh: 'Süßwasser', salt: 'Meerwasser' };
+const WATER_TYPES: Record<WaterType, string> = { fresh: 'Süßwasser', salt: 'Meerwasser' };
 
-function isBounded(r?: any) {
+function isBounded(r: Partial<Thresholds> | null | undefined) {
   return r && (r.okMin != null || r.okMax != null || r.critMin != null || r.critMax != null);
 }
 
-const maxN = (a?: any, b?: any) => (a == null ? b : b == null ? a : Math.max(a, b));
-const minN = (a?: any, b?: any) => (a == null ? b : b == null ? a : Math.min(a, b));
+const maxN = (a: number | null | undefined, b: number | null | undefined) => (a == null ? b ?? null : b == null ? a : Math.max(a, b));
+const minN = (a: number | null | undefined, b: number | null | undefined) => (a == null ? b ?? null : b == null ? a : Math.min(a, b));
 
 /**
  * Grenzwerte für ein Becken berechnen (Wassertyp + Besatzprofile).
  * Gibt { thresholds: {param: range}, conflicts: [param keys] } zurück.
  */
-function thresholdsFor(waterType?: any, profileKeys?: any, customParams: any = null) {
+function thresholdsFor(waterType: WaterType, profileKeys: string[], customParams: WaterTest[] | null = null) {
   const type = waterType === 'salt' ? 'salt' : 'fresh';
-  const thresholds: Record<string, any> = {};
+  const thresholds: Record<string, Thresholds> = {};
   const conflicts = [];
   const params = customParams || suiteService.getAllKnownParameters();
   for (const p of params) {
     const baseRange = type === 'fresh' && profileKeys.includes('sulawesi')
       ? { ...(p[type] || {}), ...(PROFILES.sulawesi.fresh[p.key] || {}) }
       : { ...(p[type] || {}) };
-    let range: Record<string, any> = { ...baseRange };
+    let range: Thresholds = { ...baseRange };
     if (type === 'fresh') {
       for (const key of new Set<string>(profileKeys)) {
         const ov = PROFILES[key] && PROFILES[key].fresh && PROFILES[key].fresh[p.key];
@@ -125,8 +127,8 @@ function thresholdsFor(waterType?: any, profileKeys?: any, customParams: any = n
 }
 
 /** Bewertet einen Wert: 'ok' | 'warn' | 'crit' (oder null, wenn keine Grenzen existieren). */
-function evaluate(range?: any, value?: any) {
-  if (!isBounded(range)) return null;
+function evaluate(range: Partial<Thresholds> | null | undefined, value: number): 'ok' | 'warn' | 'crit' | null {
+  if (!range || !isBounded(range)) return null;
   if ((range.critMin != null && value < range.critMin) || (range.critMax != null && value > range.critMax)) return 'crit';
   if ((range.okMin != null && value < range.okMin) || (range.okMax != null && value > range.okMax)) return 'warn';
   return 'ok';

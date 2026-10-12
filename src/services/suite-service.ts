@@ -1,184 +1,96 @@
 import { APP_ROOT } from '../utils/paths';
-'use strict';
-import fs = require('fs');
-import path = require('path');
-
+import fs from 'node:fs';
+import path from 'node:path';
+import { asRecord, isRecord, errorMessage } from '../utils/validation';
+import type { Thresholds, WaterTest, TestSuite, StoredTestSuite } from '../types/catalog';
 const BUILTIN_SUITES_DIR = path.join(__dirname, '../config/suites');
 const CUSTOM_SUITES_DIR = path.join(APP_ROOT, 'data/suites');
-
-let cache: Record<string, any> | null = null;
-
-function ensureDirs() {
-  if (!fs.existsSync(BUILTIN_SUITES_DIR)) {
-    fs.mkdirSync(BUILTIN_SUITES_DIR, { recursive: true });
-  }
+function thresholds(value: unknown): Thresholds {
+  const range = asRecord(value);
+  const number = (key: keyof Thresholds) => range[key] != null ? Number(range[key]) : null;
+  return { okMin: number('okMin'), okMax: number('okMax'), critMin: number('critMin'), critMax: number('critMax') };
 }
-
-function normalizeTest(t?: any, lang: any = 'de') {
-  const isEn = String(lang).toLowerCase().startsWith('en');
-  const nameDe = String(t.name_de || t.name || t.key || '');
-  const nameEn = String(t.name_en || t.name || t.key || '');
-  const hintDe = String(t.hint_de || t.hint || '');
-  const hintEn = String(t.hint_en || t.hint || '');
-
+function normalizeTest(raw: Record<string, unknown>, lang: string): WaterTest {
+  const english = lang.toLowerCase().startsWith('en');
+  const nameDe = String(raw.name_de || raw.name || raw.key || '');
+  const nameEn = String(raw.name_en || raw.name || raw.key || '');
+  const hintDe = String(raw.hint_de || raw.hint || '');
+  const hintEn = String(raw.hint_en || raw.hint || '');
+  const consumable = isRecord(raw.consumable) ? raw.consumable : null;
   return {
-    key: String(t.key || '').trim().toLowerCase(),
-    name: isEn ? nameEn : nameDe,
-    name_de: nameDe,
-    name_en: nameEn,
-    unit: t.unit != null ? String(t.unit) : '',
-    decimals: Number.isInteger(t.decimals) ? t.decimals : 1,
-    step: Number(t.step) || 0.1,
-    min: t.min != null ? Number(t.min) : 0,
-    max: t.max != null ? Number(t.max) : 100,
-    wait: Number(t.wait) || 0,
-    verified: Boolean(t.verified),
-    hint: isEn ? hintEn : hintDe,
-    hint_de: hintDe,
-    hint_en: hintEn,
-    consumable: t.consumable ? {
-      ...t.consumable,
-      note: isEn ? (t.consumable.note_en || t.consumable.note) : t.consumable.note,
-      variants: (t.consumable.variants || []).map((variant: any) => ({
-        ...variant,
-        name: isEn ? (variant.name_en || variant.name) : variant.name,
+    key: String(raw.key || '').trim().toLowerCase(), name: english ? nameEn : nameDe, name_de: nameDe, name_en: nameEn,
+    unit: raw.unit != null ? String(raw.unit) : '', decimals: typeof raw.decimals === 'number' && Number.isInteger(raw.decimals) ? raw.decimals : 1,
+    step: Number(raw.step) || 0.1, min: raw.min != null ? Number(raw.min) : 0, max: raw.max != null ? Number(raw.max) : 100,
+    wait: Number(raw.wait) || 0, verified: Boolean(raw.verified), hint: english ? hintEn : hintDe, hint_de: hintDe, hint_en: hintEn,
+    fresh: thresholds(raw.fresh), salt: thresholds(raw.salt),
+    consumable: consumable ? {
+      ...consumable, capacity: consumable.capacity != null ? Number(consumable.capacity) : null,
+      note: String((english ? consumable.note_en || consumable.note : consumable.note) || ''),
+      variants: (Array.isArray(consumable.variants) ? consumable.variants : []).filter(isRecord).map(variant => ({
+        ...variant, id: String(variant.id || ''), name: String((english ? variant.name_en || variant.name : variant.name) || ''),
+        ...(typeof variant.name_en === 'string' ? { name_en: variant.name_en } : {}),
+        capacity: variant.capacity != null ? Number(variant.capacity) : null,
+        ...(typeof variant.trackUsage === 'boolean' ? { trackUsage: variant.trackUsage } : {}),
       })),
     } : null,
-    fresh: {
-      okMin: t.fresh?.okMin != null ? Number(t.fresh.okMin) : null,
-      okMax: t.fresh?.okMax != null ? Number(t.fresh.okMax) : null,
-      critMin: t.fresh?.critMin != null ? Number(t.fresh.critMin) : null,
-      critMax: t.fresh?.critMax != null ? Number(t.fresh.critMax) : null,
-    },
-    salt: {
-      okMin: t.salt?.okMin != null ? Number(t.salt.okMin) : null,
-      okMax: t.salt?.okMax != null ? Number(t.salt.okMax) : null,
-      critMin: t.salt?.critMin != null ? Number(t.salt.critMin) : null,
-      critMax: t.salt?.critMax != null ? Number(t.salt.critMax) : null,
-    },
   };
 }
-
-function loadSuites(forceReload: any = false) {
-  if (cache && !forceReload) {
-    return cache;
-  }
-
-  ensureDirs();
-  const suites = new Map();
-
-  const scanDir = (dir: any) => {
-    if (!fs.existsSync(dir)) return;
-    const files = fs.readdirSync(dir);
-    for (const file of files) {
-      if (!file.endsWith('.json')) continue;
-      const fullPath = path.join(dir, file);
-      try {
-        const raw = fs.readFileSync(fullPath, 'utf8');
-        const data = JSON.parse(raw);
-        if (!data || !data.id || !Array.isArray(data.tests)) continue;
-
-        const suite: Record<string, any> = {
-          id: String(data.id).trim(),
-          name: String(data.name || data.id).trim(),
-          name_de: String(data.name_de || data.name || data.id).trim(),
-          name_en: String(data.name_en || data.name || data.id).trim(),
-          description: String(data.description || '').trim(),
-          description_de: String(data.description_de || data.description || '').trim(),
-          description_en: String(data.description_en || data.description || '').trim(),
-          isDefault: Boolean(data.isDefault || data.id === 'jbl-pro'),
-          rawTests: data.tests,
-          tests: data.tests.map((t: any) => normalizeTest(t, 'de')).filter((t: any) => t.key),
-          file: file,
-        };
-        suite.testCount = suite.tests.length;
-        suites.set(suite.id, suite);
-      } catch (err) {
-        console.error(`[SuiteService] Fehler beim Laden von ${fullPath}:`, err.message);
+/** Owns the catalog cache; directory injection keeps instances and tests independent. */
+class SuiteService {
+  private cache: Map<string, StoredTestSuite> | null = null;
+  constructor(private readonly builtinDir = BUILTIN_SUITES_DIR, private readonly customDir = CUSTOM_SUITES_DIR) {}
+  loadSuites(forceReload = false): Map<string, StoredTestSuite> {
+    if (this.cache && !forceReload) return this.cache;
+    fs.mkdirSync(this.builtinDir, { recursive: true });
+    const suites = new Map<string, StoredTestSuite>();
+    for (const dir of [this.builtinDir, this.customDir]) {
+      if (!fs.existsSync(dir)) continue;
+      for (const file of fs.readdirSync(dir).filter(name => name.endsWith('.json'))) {
+        const filename = path.join(dir, file);
+        try {
+          const data = asRecord(JSON.parse(fs.readFileSync(filename, 'utf8')) as unknown);
+          if (!data.id || !Array.isArray(data.tests)) continue;
+          const rawTests = data.tests.filter(isRecord);
+          const tests = rawTests.map(raw => normalizeTest(raw, 'de')).filter(test => test.key);
+          const suite: StoredTestSuite = {
+            id: String(data.id).trim(), name: String(data.name || data.id).trim(), name_de: String(data.name_de || data.name || data.id).trim(), name_en: String(data.name_en || data.name || data.id).trim(),
+            description: String(data.description || '').trim(), description_de: String(data.description_de || data.description || '').trim(), description_en: String(data.description_en || data.description || '').trim(),
+            isDefault: Boolean(data.isDefault || data.id === 'jbl-pro'), tests, testCount: tests.length, rawTests, file,
+          };
+          suites.set(suite.id, suite);
+        } catch (error) { console.error(`[SuiteService] Fehler beim Laden von ${filename}:`, errorMessage(error)); }
       }
     }
-  };
-
-  scanDir(BUILTIN_SUITES_DIR);
-  scanDir(CUSTOM_SUITES_DIR);
-
-  cache = suites;
-  return cache;
-}
-
-function localizeSuite(suite?: any, lang: any = 'de') {
-  if (!suite) return null;
-  const isEn = String(lang).toLowerCase().startsWith('en');
-  const localizedTests = (suite.rawTests || suite.tests).map((t: any) => normalizeTest(t, lang)).filter((t: any) => t.key);
-  return {
-    id: suite.id,
-    name: isEn ? (suite.name_en || suite.name) : (suite.name_de || suite.name),
-    name_de: suite.name_de || suite.name,
-    name_en: suite.name_en || suite.name,
-    description: isEn ? (suite.description_en || suite.description) : (suite.description_de || suite.description),
-    description_de: suite.description_de || suite.description,
-    description_en: suite.description_en || suite.description,
-    isDefault: suite.isDefault,
-    testCount: localizedTests.length,
-    tests: localizedTests,
-  };
-}
-
-function getSuites(lang: any = 'de') {
-  const map = loadSuites();
-  return Array.from(map.values()).map((s: any) => localizeSuite(s, lang)).filter((s): s is NonNullable<typeof s> => s !== null);
-}
-
-function getDefaultSuite(lang: any = 'de') {
-  const map = loadSuites();
-  for (const s of map.values()) {
-    if (s.isDefault) return localizeSuite(s, lang);
+    this.cache = suites;
+    return suites;
   }
-  if (map.has('jbl-pro')) return localizeSuite(map.get('jbl-pro'), lang);
-  const first = map.values().next().value;
-  return first ? localizeSuite(first, lang) : null;
-}
-
-function getSuite(id?: any, lang: any = 'de') {
-  const map = loadSuites();
-  if (id && map.has(id)) return localizeSuite(map.get(id), lang);
-  return getDefaultSuite(lang);
-}
-
-function getParameters(suiteId: any = null, lang: any = 'de') {
-  const suite = suiteId ? getSuite(suiteId, lang) : getDefaultSuite(lang);
-  if (suite && Array.isArray(suite.tests) && suite.tests.length) {
-    return suite.tests;
+  private localize(suite: StoredTestSuite, lang: string): TestSuite {
+    const english = lang.toLowerCase().startsWith('en');
+    const tests = suite.rawTests.map(raw => normalizeTest(raw, lang)).filter(test => test.key);
+    return { id: suite.id, name: english ? suite.name_en : suite.name_de, name_de: suite.name_de, name_en: suite.name_en,
+      description: english ? suite.description_en : suite.description_de, description_de: suite.description_de, description_en: suite.description_en,
+      isDefault: suite.isDefault, testCount: tests.length, tests };
   }
-  return [];
-}
-
-function getAllKnownParameters(lang: any = 'de') {
-  const map = loadSuites();
-  const paramsMap = new Map();
-  // Standard-Suite zuerst
-  const def = getDefaultSuite(lang);
-  if (def) {
-    for (const t of def.tests) paramsMap.set(t.key, t);
+  getSuites(lang = 'de'): TestSuite[] { return [...this.loadSuites().values()].map(suite => this.localize(suite, lang)); }
+  getDefaultSuite(lang = 'de'): TestSuite | null {
+    const suites = this.loadSuites();
+    const suite = [...suites.values()].find(entry => entry.isDefault) || suites.get('jbl-pro') || suites.values().next().value;
+    return suite ? this.localize(suite, lang) : null;
   }
-  for (const s of map.values()) {
-    const loc = localizeSuite(s, lang);
-    for (const t of loc?.tests || []) {
-      if (!paramsMap.has(t.key)) {
-        paramsMap.set(t.key, t);
-      }
-    }
+  getSuite(id?: string | null, lang = 'de'): TestSuite | null {
+    const suite = id ? this.loadSuites().get(id) : undefined;
+    return suite ? this.localize(suite, lang) : this.getDefaultSuite(lang);
   }
-  return Array.from(paramsMap.values());
+  getParameters(id: string | null = null, lang = 'de'): WaterTest[] { return this.getSuite(id, lang)?.tests || []; }
+  getAllKnownParameters(lang = 'de'): WaterTest[] {
+    const parameters = new Map<string, WaterTest>();
+    for (const test of this.getDefaultSuite(lang)?.tests || []) parameters.set(test.key, test);
+    for (const suite of this.getSuites(lang)) for (const test of suite.tests) if (!parameters.has(test.key)) parameters.set(test.key, test);
+    return [...parameters.values()];
+  }
 }
-
-export = {
-  loadSuites,
-  getSuites,
-  getSuite,
-  getDefaultSuite,
-  getParameters,
-  getAllKnownParameters,
-  BUILTIN_SUITES_DIR,
-  CUSTOM_SUITES_DIR,
-};
+const suiteService = new SuiteService();
+export = { SuiteService, suiteService,
+  loadSuites: suiteService.loadSuites.bind(suiteService), getSuites: suiteService.getSuites.bind(suiteService), getSuite: suiteService.getSuite.bind(suiteService),
+  getDefaultSuite: suiteService.getDefaultSuite.bind(suiteService), getParameters: suiteService.getParameters.bind(suiteService), getAllKnownParameters: suiteService.getAllKnownParameters.bind(suiteService),
+  BUILTIN_SUITES_DIR, CUSTOM_SUITES_DIR };

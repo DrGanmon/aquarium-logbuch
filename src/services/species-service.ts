@@ -1,3 +1,6 @@
+import type { SpeciesCatalogDescriptor } from '../types/catalog';
+import { asRecord, isRecord } from '../utils/validation';
+import { asError } from '../utils/app-error';
 import { APP_ROOT } from '../utils/paths';
 'use strict';
 import fs = require('fs');
@@ -6,14 +9,14 @@ import path = require('path');
 const BUILTIN_SPECIES_DIR = path.join(__dirname, '../config/species');
 const CUSTOM_SPECIES_DIR = path.join(APP_ROOT, 'data/species');
 
-const speciesImages = JSON.parse(fs.readFileSync(path.join(APP_ROOT, 'public/species-images/manifest.json'), 'utf8')); 
+const speciesImages = asRecord(JSON.parse(fs.readFileSync(path.join(APP_ROOT, 'public/species-images/manifest.json'), 'utf8')) as unknown);
 
-let cache: Record<string, any> | null = null;
 
-const SPECIES_ID_ALIASES: Record<string, any> = { 'symphysodon-spp': 'symphysodon-sp' };
+
+const SPECIES_ID_ALIASES: Record<string, string> = { 'symphysodon-spp': 'symphysodon-sp' };
 const SHRIMP_PREDATOR_TAGS = ['predator_small_prey', 'shrimp_predator', 'aggressive_to_shrimp'];
 
-const TAG_CARE_HINTS: Record<string, any> = {
+const TAG_CARE_HINTS: Record<string, [string, string]> = {
   "eats_small_fish": ["Frisst kleine Fische; passende Größe der Mitbewohner beachten.", "Eats small fish; consider the size of tankmates."],
   "shrimp_predator": ["Erbeutet Garnelen; Vergesellschaftung sorgfältig prüfen.", "Preys on shrimp; assess tankmates carefully."],
   "aggressive_to_shrimp": ["Kann Garnelen angreifen.", "May attack shrimp."],
@@ -129,7 +132,7 @@ const TAG_CARE_HINTS: Record<string, any> = {
   ]
 };
 
-const CATEGORY_TRANSLATIONS_EN: Record<string, any> = {
+const CATEGORY_TRANSLATIONS_EN: Record<string, string> = {
   'Labyrinthfische': 'Labyrinth Fish',
   'Salmler': 'Tetras & Characins',
   'Bärblinge & Karpfenartige': 'Rasboras, Danios & Barbs',
@@ -152,7 +155,7 @@ const CATEGORY_TRANSLATIONS_EN: Record<string, any> = {
   'Benutzerdefiniert': 'Custom',
 };
 
-const SPECIES_TRANSLATIONS_EN: Record<string, any> = {
+const SPECIES_TRANSLATIONS_EN: Record<string, Record<string, string>> = {
   'betta-splendens': {
     name: 'Siamese Fighting Fish',
     category: 'Labyrinth Fish',
@@ -526,13 +529,12 @@ const SPECIES_TRANSLATIONS_EN: Record<string, any> = {
   },
 };
 
-function ensureDirs() {
-  if (!fs.existsSync(BUILTIN_SPECIES_DIR)) {
-    fs.mkdirSync(BUILTIN_SPECIES_DIR, { recursive: true });
-  }
+function normalizeRange(value: unknown) {
+  const range = asRecord(value);
+  const number = (key: string) => range[key] != null ? Number(range[key]) : null;
+  return { min: number('min'), max: number('max'), idealMin: number('idealMin'), idealMax: number('idealMax') };
 }
-
-function normalizeSpecies(s?: any, lang: any = 'de') {
+function normalizeSpecies(s: Record<string, unknown>, lang: string = 'de') {
   const isEn = String(lang).toLowerCase().startsWith('en');
   const id = String(s.id || '').trim().toLowerCase();
   const tr = SPECIES_TRANSLATIONS_EN[id] || {};
@@ -564,44 +566,19 @@ function normalizeSpecies(s?: any, lang: any = 'de') {
     category_en: categoryEn,
     waterType: s.waterType === 'salt' ? 'salt' : 'fresh',
     profile: String(s.profile || 'allgemein').trim().toLowerCase(),
-    temp: {
-      min: s.temp?.min != null ? Number(s.temp.min) : null,
-      max: s.temp?.max != null ? Number(s.temp.max) : null,
-      idealMin: s.temp?.idealMin != null ? Number(s.temp.idealMin) : null,
-      idealMax: s.temp?.idealMax != null ? Number(s.temp.idealMax) : null,
-    },
-    ph: {
-      min: s.ph?.min != null ? Number(s.ph.min) : null,
-      max: s.ph?.max != null ? Number(s.ph.max) : null,
-      idealMin: s.ph?.idealMin != null ? Number(s.ph.idealMin) : null,
-      idealMax: s.ph?.idealMax != null ? Number(s.ph.idealMax) : null,
-    },
-    gh: {
-      min: s.gh?.min != null ? Number(s.gh.min) : null,
-      max: s.gh?.max != null ? Number(s.gh.max) : null,
-      idealMin: s.gh?.idealMin != null ? Number(s.gh.idealMin) : null,
-      idealMax: s.gh?.idealMax != null ? Number(s.gh.idealMax) : null,
-    },
-    kh: {
-      min: s.kh?.min != null ? Number(s.kh.min) : null,
-      max: s.kh?.max != null ? Number(s.kh.max) : null,
-      idealMin: s.kh?.idealMin != null ? Number(s.kh.idealMin) : null,
-      idealMax: s.kh?.idealMax != null ? Number(s.kh.idealMax) : null,
-    },
+    temp: normalizeRange(s.temp),
+    ph: normalizeRange(s.ph),
+    gh: normalizeRange(s.gh),
+    kh: normalizeRange(s.kh),
     // Optional salinity range is always expressed in per mille, never specific gravity.
-    salinity: s.salinity ? {
-      min: s.salinity.min != null ? Number(s.salinity.min) : null,
-      max: s.salinity.max != null ? Number(s.salinity.max) : null,
-      idealMin: s.salinity.idealMin != null ? Number(s.salinity.idealMin) : null,
-      idealMax: s.salinity.idealMax != null ? Number(s.salinity.idealMax) : null,
-    } : null,
+    salinity: s.salinity ? normalizeRange(s.salinity) : null,
     minVolumeL: s.minVolumeL != null ? Number(s.minVolumeL) : null,
     minTankLengthCm: s.minTankLengthCm != null ? Number(s.minTankLengthCm) : null,
     tankRegion: String(s.tankRegion || 'all').trim(),
     socialType: String(s.socialType || 'group').trim(), // solitary | pair | harem | school | group
     minGroupCount: s.minGroupCount != null ? Number(s.minGroupCount) : 1,
     territorial: String(s.territorial || 'none').trim(), // none | mild | breeding | territorial_bottom | strong | solitary_aggressive
-    tags: Array.isArray(s.tags) ? s.tags.map((t: any) => String(t).trim().toLowerCase()) : [],
+    tags: Array.isArray(s.tags) ? s.tags.map((t: unknown) => String(t).trim().toLowerCase()) : [],
     diet: String(s.diet || 'omnivore').trim(),
     decorHints: isEn ? decorEn : decorDe,
     decorHints_de: decorDe,
@@ -615,123 +592,136 @@ function normalizeSpecies(s?: any, lang: any = 'de') {
   };
 }
 
-function loadSpecies(forceReload: any = false) {
-  if (cache && !forceReload) {
-    return cache;
+class SpeciesCatalog {
+  private cache: { rawList: Record<string, unknown>[]; catalogList: SpeciesCatalogDescriptor[] } | null = null;
+  constructor(private readonly builtinDir = BUILTIN_SPECIES_DIR, private readonly customDir = CUSTOM_SPECIES_DIR) {}
+  load(forceReload = false) {
+    if (this.cache && !forceReload) {
+      return this.cache;
+    }
+
+    fs.mkdirSync(this.builtinDir, { recursive: true });
+    const rawList: Record<string, unknown>[] = [];
+    const catalogList: SpeciesCatalogDescriptor[] = [];
+
+    const scanDir = (dir: string) => {
+      if (!fs.existsSync(dir)) return;
+      const files = fs.readdirSync(dir);
+      for (const file of files) {
+        if (!file.endsWith('.json')) continue;
+        const fullPath = path.join(dir, file);
+        try {
+          const raw = fs.readFileSync(fullPath, 'utf8');
+          const data = asRecord(JSON.parse(raw) as unknown);
+          if (!data || !data.id || !Array.isArray(data.species)) continue;
+
+          catalogList.push({
+            id: String(data.id).trim(),
+            name: String(data.name || data.id).trim(),
+            description: String(data.description || '').trim(),
+            count: data.species.length,
+            file,
+          });
+
+          for (const rawItem of data.species) {
+            if (isRecord(rawItem)) rawList.push(rawItem);
+          }
+        } catch (caught: unknown) {
+          const err = asError(caught);
+          console.error(`[SpeciesService] Fehler beim Laden von ${fullPath}:`, err.message);
+        }
+      }
+    };
+
+    scanDir(this.builtinDir);
+    scanDir(this.customDir);
+
+    this.cache = {
+      rawList,
+      catalogList,
+    };
+    return this.cache;
   }
 
-  ensureDirs();
-  const rawList: Record<string, any>[] = [];
-  const catalogList: Record<string, any>[] = [];
-
-  const scanDir = (dir: any) => {
-    if (!fs.existsSync(dir)) return;
-    const files = fs.readdirSync(dir);
-    for (const file of files) {
-      if (!file.endsWith('.json')) continue;
-      const fullPath = path.join(dir, file);
-      try {
-        const raw = fs.readFileSync(fullPath, 'utf8');
-        const data = JSON.parse(raw);
-        if (!data || !data.id || !Array.isArray(data.species)) continue;
-
-        catalogList.push({
-          id: String(data.id).trim(),
-          name: String(data.name || data.id).trim(),
-          description: String(data.description || '').trim(),
-          count: data.species.length,
-          file,
-        });
-
-        for (const rawItem of data.species) {
-          rawList.push(rawItem);
-        }
-      } catch (err) {
-        console.error(`[SpeciesService] Fehler beim Laden von ${fullPath}:`, err.message);
+  getAllSpecies(lang: string = 'de') {
+    const { rawList } = this.load();
+    const map = new Map<string, ReturnType<typeof normalizeSpecies>>();
+    for (const item of rawList) {
+      const s = normalizeSpecies(item, lang);
+      if (s.id && !map.has(s.id)) {
+        map.set(s.id, s);
       }
     }
-  };
+    return Array.from(map.values());
+  }
 
-  scanDir(BUILTIN_SPECIES_DIR);
-  scanDir(CUSTOM_SPECIES_DIR);
+  getSpeciesById(id: unknown, lang: string = 'de') {
+    if (!id) return null;
+    const list = this.getAllSpecies(lang);
+    const key = String(id).trim().toLowerCase();
+    return list.find((s) => s.id === (SPECIES_ID_ALIASES[key] || key)) || null;
+  }
 
-  cache = {
-    rawList,
-    catalogList,
-  };
-  return cache;
-}
+  findSpeciesByName(name: unknown, lang: string = 'de') {
+    if (!name) return null;
+    const q = String(name).trim().toLowerCase();
+    const list = this.getAllSpecies(lang);
 
-function getAllSpecies(lang: any = 'de') {
-  const { rawList } = loadSpecies();
-  const map = new Map();
-  for (const item of rawList) {
-    const s = normalizeSpecies(item, lang);
-    if (s.id && !map.has(s.id)) {
-      map.set(s.id, s);
+    // 1. Exakter ID-Match
+    let match = list.find((s) => s.id === (SPECIES_ID_ALIASES[q] || q));
+    if (match) return match;
+
+    // 2. Exakter Name-Match (deutsch oder englisch)
+    match = list.find((s) => s.name.toLowerCase() === q || s.name_de.toLowerCase() === q || s.name_en.toLowerCase() === q);
+    if (match) return match;
+
+    // 3. Exakter Wissenschaftlicher Name Match
+    match = list.find((s) => s.scientificName.toLowerCase() === q);
+    if (match) return match;
+
+    // 4. Teilstring Match im Namen
+    match = list.find((s) =>
+      s.name.toLowerCase().includes(q) ||
+      s.name_de.toLowerCase().includes(q) ||
+      s.name_en.toLowerCase().includes(q) ||
+      q.includes(s.name.toLowerCase())
+    );
+    if (match) return match;
+
+    // 5. Match nach Anfangswort
+    match = list.find((s) =>
+      s.name.toLowerCase().startsWith(q) ||
+      s.name_de.toLowerCase().startsWith(q) ||
+      s.name_en.toLowerCase().startsWith(q) ||
+      s.scientificName.toLowerCase().startsWith(q)
+    );
+    return match || null;
+  }
+
+  getCategories(lang: string = 'de') {
+    const list = this.getAllSpecies(lang);
+    const set = new Set<string>();
+    for (const s of list) {
+      if (s.category) set.add(s.category);
     }
+    return Array.from(set).sort();
   }
-  return Array.from(map.values());
+
 }
+const speciesCatalog = new SpeciesCatalog();
+const loadSpecies = speciesCatalog.load.bind(speciesCatalog);
+const getAllSpecies = speciesCatalog.getAllSpecies.bind(speciesCatalog);
+const getSpeciesById = speciesCatalog.getSpeciesById.bind(speciesCatalog);
+const findSpeciesByName = speciesCatalog.findSpeciesByName.bind(speciesCatalog);
+const getCategories = speciesCatalog.getCategories.bind(speciesCatalog);
 
-function getSpeciesById(id?: any, lang: any = 'de') {
-  if (!id) return null;
-  const list = getAllSpecies(lang);
-  const key = String(id).trim().toLowerCase();
-  return list.find((s: any) => s.id === (SPECIES_ID_ALIASES[key] || key)) || null;
-}
-
-function findSpeciesByName(name?: any, lang: any = 'de') {
-  if (!name) return null;
-  const q = String(name).trim().toLowerCase();
-  const list = getAllSpecies(lang);
-
-  // 1. Exakter ID-Match
-  let match = list.find((s: any) => s.id === (SPECIES_ID_ALIASES[q] || q));
-  if (match) return match;
-
-  // 2. Exakter Name-Match (deutsch oder englisch)
-  match = list.find((s: any) => s.name.toLowerCase() === q || s.name_de.toLowerCase() === q || s.name_en.toLowerCase() === q);
-  if (match) return match;
-
-  // 3. Exakter Wissenschaftlicher Name Match
-  match = list.find((s: any) => s.scientificName.toLowerCase() === q);
-  if (match) return match;
-
-  // 4. Teilstring Match im Namen
-  match = list.find((s: any) =>
-    s.name.toLowerCase().includes(q) ||
-    s.name_de.toLowerCase().includes(q) ||
-    s.name_en.toLowerCase().includes(q) ||
-    q.includes(s.name.toLowerCase())
-  );
-  if (match) return match;
-
-  // 5. Match nach Anfangswort
-  match = list.find((s: any) =>
-    s.name.toLowerCase().startsWith(q) ||
-    s.name_de.toLowerCase().startsWith(q) ||
-    s.name_en.toLowerCase().startsWith(q) ||
-    s.scientificName.toLowerCase().startsWith(q)
-  );
-  return match || null;
-}
-
-function getCategories(lang: any = 'de') {
-  const list = getAllSpecies(lang);
-  const set = new Set();
-  for (const s of list) {
-    if (s.category) set.add(s.category);
-  }
-  return Array.from(set).sort();
-}
 
 /**
  * Prüft den gesamten Besatz eines Aquariums auf Kompatibilität,
  * Wasserparameter-Überschneidungen, Beckengrößen, Mindestgruppengrößen,
  * Territorialverhalten und Vergesellschaftungskonflikte in Deutsch oder Englisch.
  */
-function analyzeStockCompatibility(aquarium?: any, stockItems: any = [], lang: any = 'de') {
+function analyzeStockCompatibility(aquarium: { water_type?: string; volume_l?: number | null } | null | undefined, stockItems: { species: string; count?: number; profile?: string | null }[] = [], lang: string = 'de') {
   const isEn = String(lang).toLowerCase().startsWith('en');
   const issues = [];
   const warnings = [];
@@ -740,7 +730,7 @@ function analyzeStockCompatibility(aquarium?: any, stockItems: any = [], lang: a
   const aqWaterType = aquarium?.water_type === 'salt' ? 'salt' : 'fresh';
   const aqVolume = aquarium?.volume_l != null ? Number(aquarium.volume_l) : null;
 
-  const aggregated = new Map();
+  const aggregated = new Map<string, { item: typeof stockItems[number]; count: number; species: (Partial<ReturnType<typeof normalizeSpecies>> & Pick<ReturnType<typeof normalizeSpecies>, 'id' | 'name' | 'tags' | 'minGroupCount' | 'profile' | 'waterType'>) | null; name: string }>();
   for (const item of stockItems) {
     const matched = findSpeciesByName(item.species, lang) || (item.profile ? {
       id: item.species.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
@@ -764,7 +754,7 @@ function analyzeStockCompatibility(aquarium?: any, stockItems: any = [], lang: a
         name: matched?.name || item.species,
       });
     }
-    aggregated.get(key).count += Number(item.count) || 1;
+    aggregated.get(key)!.count += Number(item.count) || 1;
   }
 
   const speciesDataList = Array.from(aggregated.values());
@@ -1080,11 +1070,13 @@ function analyzeStockCompatibility(aquarium?: any, stockItems: any = [], lang: a
     infos,
     decorHints: Array.from(new Set(specialDecorHints)),
     speciesCount: speciesDataList.length,
-    totalSpecimens: speciesDataList.reduce((acc?: any, s?: any) => acc + s.count, 0),
+    totalSpecimens: speciesDataList.reduce((acc: number, s: typeof speciesDataList[number]) => acc + s.count, 0),
   };
 }
 
 export = {
+  SpeciesCatalog,
+  speciesCatalog,
   loadSpecies,
   getAllSpecies,
   getSpeciesById,

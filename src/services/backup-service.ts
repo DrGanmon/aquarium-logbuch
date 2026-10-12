@@ -1,3 +1,4 @@
+import { asError } from '../utils/app-error';
 'use strict';
 import path = require('path');
 import fs = require('fs');
@@ -32,11 +33,11 @@ const DEFAULT_CONFIG: Record<string, any> = {
 };
 
 class BackupService {
-  backupsDir: any;
-  configFile: any;
-  schedulerTimer: any;
-  isBackingUp: any;
-  isRestoring: any;
+  backupsDir: string;
+  configFile: string;
+  schedulerTimer: ReturnType<typeof setInterval> | null;
+  isBackingUp: boolean;
+  isRestoring: boolean;
 
   constructor() {
     this.backupsDir = BACKUPS_DIR;
@@ -74,7 +75,8 @@ class BackupService {
         retentionCount: Math.max(1, Math.min(100, Number(data.retentionCount) || 10)),
         includeFiles: data.includeFiles !== false,
       };
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       logger.error(`Fehler beim Lesen der Backup-Konfiguration: ${err.message}`, 'backup');
       return { ...DEFAULT_CONFIG };
     }
@@ -126,7 +128,8 @@ class BackupService {
           const buf = fs.readFileSync(fullPath);
           files[safe] = buf.toString('base64');
         }
-      } catch (err) {
+      } catch (caught: unknown) {
+        const err = asError(caught);
         logger.warn(`Datei ${safe} konnte nicht für Backup gelesen werden: ${err.message}`, 'backup');
       }
     }
@@ -157,7 +160,8 @@ class BackupService {
       try {
         const buf = Buffer.from(base64Data, 'base64');
         fs.writeFileSync(fullPath, buf);
-      } catch (err) {
+      } catch (caught: unknown) {
+        const err = asError(caught);
         logger.error(`Fehler beim Wiederherstellen der Datei ${safe}: ${err.message}`, 'backup');
       }
     }
@@ -178,7 +182,8 @@ class BackupService {
       try {
         rawData = await dbAdapter.exportAllData();
         dbType = dbAdapter.type || 'sqlite';
-      } catch (err) {
+      } catch (caught: unknown) {
+        const err = asError(caught);
         logger.warn(`Fehler beim Export über Adapter für Backup: ${err.message}`, 'backup');
       }
     } else if (rawDb) {
@@ -194,7 +199,8 @@ class BackupService {
               rawData[col.name] = [];
             }
           }
-        } catch (e) {
+        } catch (caught: unknown) {
+          const e = asError(caught);
           logger.warn(`Fehler beim Auslesen von MongoDB-Collections für Backup: ${e.message}`, 'backup');
         }
       } else if (typeof rawDb.prepare === 'function') {
@@ -211,7 +217,8 @@ class BackupService {
               rawData[table] = [];
             }
           }
-        } catch (e) {
+        } catch (caught: unknown) {
+          const e = asError(caught);
           logger.warn(`Fehler beim Auslesen von SQLite-Tabellen für Backup: ${e.message}`, 'backup');
         }
       }
@@ -221,7 +228,8 @@ class BackupService {
         try {
           rawData = await activeDb.exportAllData();
           dbType = activeDb.type || 'sqlite';
-        } catch (err) {
+        } catch (caught: unknown) {
+          const err = asError(caught);
           logger.warn(`Fehler beim Export über Default-DB für Backup: ${err.message}`, 'backup');
         }
       }
@@ -341,11 +349,13 @@ class BackupService {
             fs.unlinkSync(fullPath);
             logger.info(`Altes Backup entfernt (Retention-Pruning): ${item.filename}`, 'backup');
           }
-        } catch (err) {
+        } catch (caught: unknown) {
+          const err = asError(caught);
           logger.warn(`Fehler beim Löschen des alten Backups ${item.filename}: ${err.message}`, 'backup');
         }
       }
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       logger.error(`Fehler beim Backup-Pruning: ${err.message}`, 'backup');
     }
   }
@@ -788,7 +798,8 @@ class BackupService {
           logger.info(`Automatisches Backup fällig (Intervall: ${cfg.intervalHours}h). Starte Backup...`, 'backup');
           await this.createBackup({ isAuto: true });
         }
-      } catch (err) {
+      } catch (caught: unknown) {
+        const err = asError(caught);
         logger.error(`Fehler im automatischen Backup-Scheduler: ${err.message}`, 'backup');
       }
     }, checkIntervalMs);

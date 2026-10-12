@@ -1,3 +1,4 @@
+import { asError } from '../utils/app-error';
 'use strict';
 import path = require('path');
 import fs = require('fs');
@@ -10,7 +11,7 @@ fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
 
-function detectImageFormat(buf?: any) {
+function detectImageFormat(buf: Buffer | null | undefined) {
   if (!buf || buf.length < 12) return null;
   // JPEG
   if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) {
@@ -34,7 +35,7 @@ function detectImageFormat(buf?: any) {
   return null;
 }
 
-function saveImage(aquariumId?: any, base64Data?: any, oldFilename?: any) {
+function saveImage(aquariumId?: number, base64Data?: unknown, oldFilename?: unknown) {
   if (!base64Data || typeof base64Data !== 'string') {
     return { error: 'Keine Bilddaten übermittelt.' };
   }
@@ -60,7 +61,7 @@ function saveImage(aquariumId?: any, base64Data?: any, oldFilename?: any) {
   return { value: { filename, mime: fmt.mime } };
 }
 
-function deleteImage(filename?: any) {
+function deleteImage(filename?: unknown) {
   if (!filename || typeof filename !== 'string') return;
   const safeName = path.basename(filename);
   const fullPath = path.join(UPLOADS_DIR, safeName);
@@ -68,20 +69,21 @@ function deleteImage(filename?: any) {
     if (fs.existsSync(fullPath)) {
       fs.unlinkSync(fullPath);
     }
-  } catch (e) {
+  } catch (caught: unknown) {
+    const e = asError(caught);
     console.error('Fehler beim Löschen der Bilddatei:', e);
   }
 }
 
-function getImagePath(filename?: any) {
+function getImagePath(filename?: unknown) {
   if (!filename || typeof filename !== 'string') return null;
   const safeName = path.basename(filename);
   const fullPath = path.join(UPLOADS_DIR, safeName);
   return fs.existsSync(fullPath) ? fullPath : null;
 }
 
-function getMimeType(filename?: any) {
-  if (!filename) return 'application/octet-stream';
+function getMimeType(filename?: unknown) {
+  if (typeof filename !== 'string' || !filename) return 'application/octet-stream';
   const ext = path.extname(filename).toLowerCase();
   if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg';
   if (ext === '.png') return 'image/png';
@@ -90,7 +92,7 @@ function getMimeType(filename?: any) {
   return 'application/octet-stream';
 }
 
-function saveAvatar(userId?: any, base64Data?: any, oldFilename?: any) {
+function saveAvatar(userId?: number, base64Data?: unknown, oldFilename?: unknown) {
   if (!base64Data || typeof base64Data !== 'string') {
     return { error: 'Keine Bilddaten übermittelt.' };
   }
@@ -116,7 +118,7 @@ function saveAvatar(userId?: any, base64Data?: any, oldFilename?: any) {
   return { value: { filename, mime: fmt.mime } };
 }
 
-function saveStockImage(stockId?: any, base64Data?: any, oldFilename?: any) {
+function saveStockImage(stockId?: number, base64Data?: unknown, oldFilename?: unknown) {
   if (!base64Data || typeof base64Data !== 'string') {
     return { error: 'Keine Bilddaten übermittelt.' };
   }
@@ -142,7 +144,7 @@ function saveStockImage(stockId?: any, base64Data?: any, oldFilename?: any) {
   return { value: { filename, mime: fmt.mime } };
 }
 
-function saveAquariumImage(aquariumId?: any, base64Data?: any) {
+function saveAquariumImage(aquariumId?: number, base64Data?: unknown) {
   if (!base64Data || typeof base64Data !== 'string') {
     return { error: 'Keine Bilddaten übermittelt.' };
   }

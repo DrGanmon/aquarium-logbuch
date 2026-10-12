@@ -1,3 +1,6 @@
+import type { ChildProcess } from 'node:child_process';
+import { asRecord } from '../utils/validation';
+interface SupervisorOptions { targetScript?: string; args?: string[]; env?: NodeJS.ProcessEnv; logFile?: string; gracefulTimeout?: number; maxCrashWindowMs?: number; maxCrashesInWindow?: number; numWorkers?: number | 'auto' }
 'use strict';
 import cluster from 'node:cluster';
 import path = require('path');
@@ -5,23 +8,23 @@ import os = require('os');
 import logger = require('../utils/logger');
 
 class Supervisor {
-  targetScript: any;
-  args: any;
-  env: any;
-  logFile: any;
-  gracefulTimeout: any;
-  maxCrashWindowMs: any;
-  maxCrashesInWindow: any;
-  numWorkers: any;
-  children: any;
-  isRunning: any;
-  isShuttingDown: any;
-  restartCount: any;
-  crashTimestamps: any;
-  startTime: any;
-  _boundSignals: any;
+  targetScript: string;
+  args: string[];
+  env: NodeJS.ProcessEnv;
+  logFile: string | null;
+  gracefulTimeout: number;
+  maxCrashWindowMs: number;
+  maxCrashesInWindow: number;
+  numWorkers: number;
+  children: Map<number, ChildProcess>;
+  isRunning: boolean;
+  isShuttingDown: boolean;
+  restartCount: number;
+  crashTimestamps: number[];
+  startTime: number | null;
+  _boundSignals: boolean;
 
-  constructor(options: any = {}) {
+  constructor(options: SupervisorOptions = {}) {
     this.targetScript = options.targetScript || path.resolve(__dirname, '../../server.js');
     this.args = options.args || process.argv.slice(2);
     this.env = options.env || {};
@@ -55,7 +58,7 @@ class Supervisor {
     return this.children.get(0) || this.children.values().next().value || null;
   }
 
-  set child(val: any) {
+  set child(val: ChildProcess | null) {
     if (!val) {
       this.children.clear();
     } else {
@@ -88,10 +91,10 @@ class Supervisor {
   /**
    * Startet einen Worker-Prozess für den angegebenen Slot.
    */
-  _spawnWorker(slot: any = 0) {
+  _spawnWorker(slot: number = 0) {
     if (this.isShuttingDown) return;
 
-    const childEnv: Record<string, any> = {
+    const childEnv: NodeJS.ProcessEnv = {
       ...process.env,
       ...this.env,
       IS_SUPERVISED_WORKER: '1',
@@ -116,7 +119,7 @@ class Supervisor {
 
     // Stdout weiterleiten und erfassen
     if (child.stdout) {
-      child.stdout.on('data', (chunk: any) => {
+      child.stdout.on('data', (chunk: Buffer) => {
         const text = chunk.toString();
         process.stdout.write(text);
       });
@@ -124,7 +127,7 @@ class Supervisor {
 
     // Stderr erfassen und als ERROR in die .log Datei loggen
     if (child.stderr) {
-      child.stderr.on('data', (chunk: any) => {
+      child.stderr.on('data', (chunk: Buffer) => {
         const text = chunk.toString();
         process.stderr.write(text);
         const tag = this.numWorkers > 1 ? `worker-${slot + 1}-stderr` : 'worker-stderr';
@@ -133,19 +136,20 @@ class Supervisor {
     }
 
     // IPC-Nachrichten (falls vorhanden)
-    child.on('message', (msg: any) => {
+    child.on('message', (message: unknown) => {
+      const msg = asRecord(message);
       if (msg && msg.type === 'ready') {
         const readyPrefix = this.numWorkers > 1 ? ` (Slot: ${slot + 1}, PID: ${childPid})` : ` (PID: ${childPid})`;
         logger.info(`Anwendungsprozess signalisiert Betriebsbereitschaft${readyPrefix}`, 'supervisor');
       }
     });
 
-    child.on('error', (err: any) => {
+    child.on('error', (err: Error) => {
       const errPrefix = this.numWorkers > 1 ? ` (Slot: ${slot + 1}, PID: ${childPid})` : ` (PID: ${childPid})`;
       logger.error(`Fehler im Anwendungsprozess${errPrefix}: ${err.stack || err.message}`, 'supervisor');
     });
 
-    child.on('exit', (code?: any, signal?: any) => {
+    child.on('exit', (code: number | null, signal: NodeJS.Signals | null) => {
       this.children.delete(slot);
 
       if (this.isShuttingDown) {
@@ -160,7 +164,7 @@ class Supervisor {
       this.restartCount++;
       const now = Date.now();
       this.crashTimestamps.push(now);
-      this.crashTimestamps = this.crashTimestamps.filter((t: any) => now - t <= this.maxCrashWindowMs);
+      this.crashTimestamps = this.crashTimestamps.filter((t: number) => now - t <= this.maxCrashWindowMs);
 
       const crashPrefix = this.numWorkers > 1 ? ` (Slot: ${slot + 1}, PID: ${childPid})` : ` (PID: ${childPid})`;
       const restartTarget = this.numWorkers > 1 ? ` für Slot ${slot + 1}` : '';
@@ -198,7 +202,7 @@ class Supervisor {
     if (this._boundSignals) return;
     this._boundSignals = true;
 
-    const onSignal = (sig: any) => {
+    const onSignal = (sig: NodeJS.Signals) => {
       logger.info(`Signal ${sig} empfangen. Beende Überwachungsprozess und Anwendung geordnet...`, 'supervisor');
       this.stop().then(() => {
         process.exit(0);
@@ -223,8 +227,8 @@ class Supervisor {
     const currentChildren = Array.from(this.children.values());
     this.children.clear();
 
-    const stopPromises = currentChildren.map((child: any) => {
-      return new Promise((resolve: any) => {
+    const stopPromises = currentChildren.map((child: ChildProcess) => {
+      return new Promise<void>((resolve) => {
         let resolved = false;
         const done = () => {
           if (!resolved) {
@@ -273,7 +277,7 @@ class Supervisor {
    * Gibt den aktuellen Status des Supervisors zurück.
    */
   getStatus() {
-    const workerPids = Array.from(this.children.values()).map((c: any) => c.pid);
+    const workerPids = Array.from(this.children.values()).map((c: ChildProcess) => c.pid);
     return {
       running: this.isRunning,
       supervisorPid: process.pid,

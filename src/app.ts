@@ -1,3 +1,4 @@
+import { asError } from './utils/app-error';
 import type { Request, Response, NextFunction } from 'express';
 import { APP_ROOT } from './utils/paths';
 'use strict';
@@ -86,7 +87,8 @@ app.use('/api', (req: Request, res: Response) => res.status(404).json({ error: '
 app.use((req: Request, res: Response) => (req.method === 'GET' ? sendIndex(req, res) : res.status(404).end()));
 
 // Globaler Express-Fehlerbehandler: Protokolliert Fehler in die .log-Datei und sendet 500
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
+  const err = asError(error);
   logger.error(`Express-Fehler bei ${req.method} ${req.originalUrl || req.url}: ${err.stack || err.message}`, 'express');
   if (res.headersSent) {
     return next(err);

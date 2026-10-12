@@ -1,3 +1,6 @@
+import type { UserRecord, Aquarium, AccessRole, StockRecord, Measurement, DosingPump, AquariumImage, AquariumShare, Invitation } from '../types/domain';
+import type { SqliteConnection } from '../types/database-driver';
+import type { RepositoryContract, UserQueries, AquariumQueries, StockRepository, PumpRepository, MeasurementQueries } from '../types/repositories';
 import type { DatabaseOptions } from '../types/domain';
 'use strict';
 import path = require('path');
@@ -20,21 +23,21 @@ class SqliteAdapter {
   dataDir: string;
   dbPath: string;
   /** Dynamic rows/documents are validated by services; schemas differ across adapters. */
-  db: any;
+  db: SqliteConnection | null;
   _initialized: boolean;
   _initPromise: Promise<this> | null = null;
-  users: ReturnType<SqliteAdapter['build_users']>;
-  sessions: ReturnType<SqliteAdapter['build_sessions']>;
-  aquariums: ReturnType<SqliteAdapter['build_aquariums']>;
-  aquariumImages: ReturnType<SqliteAdapter['build_aquariumImages']>;
-  shares: ReturnType<SqliteAdapter['build_shares']>;
-  stock: ReturnType<SqliteAdapter['build_stock']>;
-  measurements: ReturnType<SqliteAdapter['build_measurements']>;
-  alerts: ReturnType<SqliteAdapter['build_alerts']>;
-  maintenance: ReturnType<SqliteAdapter['build_maintenance']>;
-  invitations: ReturnType<SqliteAdapter['build_invitations']>;
-  aquariumChats: ReturnType<SqliteAdapter['build_aquariumChats']>;
-  dosingPumps: ReturnType<SqliteAdapter['build_dosingPumps']>;
+  users!: RepositoryContract<ReturnType<SqliteAdapter['build_users']>, UserQueries>;
+  sessions!: ReturnType<SqliteAdapter['build_sessions']>;
+  aquariums!: RepositoryContract<ReturnType<SqliteAdapter['build_aquariums']>, AquariumQueries>;
+  aquariumImages!: ReturnType<SqliteAdapter['build_aquariumImages']>;
+  shares!: ReturnType<SqliteAdapter['build_shares']>;
+  stock!: RepositoryContract<ReturnType<SqliteAdapter['build_stock']>, StockRepository>;
+  measurements!: RepositoryContract<ReturnType<SqliteAdapter['build_measurements']>, MeasurementQueries>;
+  alerts!: ReturnType<SqliteAdapter['build_alerts']>;
+  maintenance!: ReturnType<SqliteAdapter['build_maintenance']>;
+  invitations!: ReturnType<SqliteAdapter['build_invitations']>;
+  aquariumChats!: ReturnType<SqliteAdapter['build_aquariumChats']>;
+  dosingPumps!: RepositoryContract<ReturnType<SqliteAdapter['build_dosingPumps']>, PumpRepository>;
 
   constructor(options: DatabaseOptions = {}) {
     this.type = 'sqlite';
@@ -93,8 +96,13 @@ class SqliteAdapter {
     return this.db;
   }
 
+  private connection(): SqliteConnection {
+    if (!this.db) throw new Error('Datenbank ist nicht initialisiert.');
+    return this.db;
+  }
+
   _setupRepositories() {
-    const db = this.db;
+    const db = this.connection();
 
     this.users = this.build_users();
 
@@ -125,7 +133,7 @@ class SqliteAdapter {
 
   async exportAllData() {
     if (!this._initialized && !this.db) await this.init();
-    const db = this.db;
+    const db = this.connection();
 
     const safeGetAll = (table?: any, order: any = 'id ASC') => {
       try {
@@ -182,7 +190,7 @@ class SqliteAdapter {
 
   async importAllData(data: any = {}) {
     if (!this._initialized) await this.init();
-    const db = this.db;
+    const db = this.connection();
 
     const users = Array.isArray(data.users) ? data.users : [];
     const aquariums = Array.isArray(data.aquariums) ? data.aquariums : [];
@@ -463,45 +471,45 @@ class SqliteAdapter {
   }
 
   private build_users() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async findById(id?: any) {
         if (!id) return null;
-        return db.prepare('SELECT * FROM users WHERE id = ?').get(id) || null;
+        return db.prepare<UserRecord>('SELECT * FROM users WHERE id = ?').get(id) || null;
       },
       async findByUsername(username?: any, excludeId: any = null) {
         if (!username) return null;
         if (excludeId != null) {
-          return db.prepare('SELECT * FROM users WHERE username = ? AND id != ?').get(username, excludeId) || null;
+          return db.prepare<UserRecord>('SELECT * FROM users WHERE username = ? AND id != ?').get(username, excludeId) || null;
         }
-        return db.prepare('SELECT * FROM users WHERE username = ?').get(username) || null;
+        return db.prepare<UserRecord>('SELECT * FROM users WHERE username = ?').get(username) || null;
       },
       async findByEmail(email?: any, excludeId: any = null) {
         if (!email) return null;
         if (excludeId != null) {
-          return db.prepare('SELECT * FROM users WHERE email = ? AND id != ?').get(email, excludeId) || null;
+          return db.prepare<UserRecord>('SELECT * FROM users WHERE email = ? AND id != ?').get(email, excludeId) || null;
         }
-        return db.prepare('SELECT * FROM users WHERE email = ?').get(email) || null;
+        return db.prepare<UserRecord>('SELECT * FROM users WHERE email = ?').get(email) || null;
       },
       async findByOidcSub(oidcSub?: any, excludeId: any = null) {
         if (!oidcSub) return null;
         if (excludeId != null) {
-          return db.prepare('SELECT * FROM users WHERE oidc_sub = ? AND id != ?').get(oidcSub, excludeId) || null;
+          return db.prepare<UserRecord>('SELECT * FROM users WHERE oidc_sub = ? AND id != ?').get(oidcSub, excludeId) || null;
         }
-        return db.prepare('SELECT * FROM users WHERE oidc_sub = ?').get(oidcSub) || null;
+        return db.prepare<UserRecord>('SELECT * FROM users WHERE oidc_sub = ?').get(oidcSub) || null;
       },
       async findByEmailVerifyToken(token?: any) {
         if (!token) return null;
-        return db.prepare('SELECT * FROM users WHERE email_verify_token = ?').get(token) || null;
+        return db.prepare<UserRecord>('SELECT * FROM users WHERE email_verify_token = ?').get(token) || null;
       },
       async findByPasswordResetToken(token?: any) {
         if (!token) return null;
-        return db.prepare('SELECT * FROM users WHERE password_reset_token = ?').get(token) || null;
+        return db.prepare<UserRecord>('SELECT * FROM users WHERE password_reset_token = ?').get(token) || null;
       },
       async findByDeleteToken(token?: any) {
         if (!token) return null;
-        return db.prepare('SELECT * FROM users WHERE account_delete_token = ?').get(token) || null;
+        return db.prepare<UserRecord>('SELECT * FROM users WHERE account_delete_token = ?').get(token) || null;
       },
       async create({
         username,
@@ -545,7 +553,7 @@ class SqliteAdapter {
       },
       async mutateTestInventory(id?: any, mutate?: any) {
         return db.transaction(() => {
-          const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+          const user = db.prepare<UserRecord>('SELECT * FROM users WHERE id = ?').get(id);
           if (!user) return null;
           const inventory = JSON.parse(user.test_inventory || '{}');
           const result = mutate(inventory, user);
@@ -601,11 +609,11 @@ class SqliteAdapter {
       },
       async delete(id?: any) {
         const numId = Number(id);
-        const user = db.prepare('SELECT * FROM users WHERE id = ?').get(numId);
+        const user = db.prepare<UserRecord>('SELECT * FROM users WHERE id = ?').get(numId);
         if (user && user.avatar_file) {
           deleteImage(user.avatar_file);
         }
-        const userAqs = db.prepare('SELECT id FROM aquariums WHERE user_id = ?').all(numId);
+        const userAqs = db.prepare<Aquarium>('SELECT id FROM aquariums WHERE user_id = ?').all(numId);
         for (const aq of userAqs) {
           await self.aquariums.delete(aq.id);
         }
@@ -618,7 +626,7 @@ class SqliteAdapter {
       },
       async listForAdmin() {
         return db
-          .prepare(
+          .prepare<UserRecord>(
             `
           SELECT u.id, u.username, u.email, u.oidc_sub, u.password_hash, u.created_at, u.email_verified,
                  COUNT(a.id) AS aquarium_count
@@ -631,13 +639,13 @@ class SqliteAdapter {
           .all();
       },
       async count() {
-        return db.prepare('SELECT COUNT(*) as n FROM users').get().n;
+        return db.prepare('SELECT COUNT(*) as n FROM users').get()?.n ?? 0;
       },
     };
   }
 
   private build_sessions() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async create(tokenHash?: any, userId?: any, expiresAt?: any, idToken: any = null) {
@@ -674,12 +682,12 @@ class SqliteAdapter {
   }
 
   private build_aquariums() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForUser(userId?: any) {
         const ownRows = db
-          .prepare(
+          .prepare<Aquarium>(
             `
           SELECT a.*, u.username as owner_username, 'owner' as role
           FROM aquariums a
@@ -691,7 +699,7 @@ class SqliteAdapter {
           .all(userId);
 
         const sharedRows = db
-          .prepare(
+          .prepare<AquariumShare>(
             `
           SELECT a.*, u.username as owner_username, s.role as role
           FROM aquarium_shares s
@@ -711,7 +719,7 @@ class SqliteAdapter {
         if (!Number.isInteger(numId)) return null;
         return (
           db
-            .prepare(
+            .prepare<Aquarium>(
               `
           SELECT a.*, u.username AS owner_username, u.email AS owner_email
           FROM aquariums a
@@ -805,7 +813,7 @@ class SqliteAdapter {
         return res.changes > 0;
       },
       async listAllRaw() {
-        return db.prepare('SELECT * FROM aquariums ORDER BY id ASC').all();
+        return db.prepare<Aquarium>('SELECT * FROM aquariums ORDER BY id ASC').all();
       },
       async updateReminderSent(id?: any, type?: any, timestamp?: any) {
         const col = type === 'measure' ? 'last_measure_reminder_sent_at' : 'last_fertilize_reminder_sent_at';
@@ -818,11 +826,11 @@ class SqliteAdapter {
       },
       async delete(id?: any) {
         const numId = Number(id);
-        const images = db.prepare('SELECT filename FROM aquarium_images WHERE aquarium_id = ?').all(numId);
+        const images = db.prepare<AquariumImage>('SELECT filename FROM aquarium_images WHERE aquarium_id = ?').all(numId);
         for (const img of images) {
           deleteImage(img.filename);
         }
-        const stocks = db.prepare('SELECT image_file FROM stock WHERE aquarium_id = ?').all(numId);
+        const stocks = db.prepare<StockRecord>('SELECT image_file FROM stock WHERE aquarium_id = ?').all(numId);
         for (const st of stocks) {
           if (st.image_file) deleteImage(st.image_file);
         }
@@ -830,9 +838,9 @@ class SqliteAdapter {
         return res.changes > 0;
       },
       async countForUser(userId?: any) {
-        return db.prepare('SELECT COUNT(*) as n FROM aquariums WHERE user_id = ?').get(userId).n;
+        return db.prepare('SELECT COUNT(*) as n FROM aquariums WHERE user_id = ?').get(userId)?.n ?? 0;
       },
-      async getAccess(aquariumId?: any, user?: any) {
+      async getAccess(aquariumId: number | string, user: { id: number; isAdmin?: boolean }): Promise<{ aq: Aquarium; role: AccessRole } | null> {
         const id = Number(aquariumId);
         if (!Number.isInteger(id)) return null;
         const aq = await self.aquariums.findById(id);
@@ -851,7 +859,7 @@ class SqliteAdapter {
         return null;
       },
       getSummary(aq?: any, role: any = null) {
-        const last = db.prepare('SELECT measured_at FROM measurements WHERE aquarium_id = ? ORDER BY measured_at DESC LIMIT 1').get(aq.id);
+        const last = db.prepare<Measurement>('SELECT measured_at FROM measurements WHERE aquarium_id = ? ORDER BY measured_at DESC LIMIT 1').get(aq.id);
         const lastWaterChange = db
           .prepare("SELECT logged_at, percentage FROM maintenance_logs WHERE aquarium_id = ? AND type = 'water_change' ORDER BY logged_at DESC LIMIT 1")
           .get(aq.id);
@@ -913,12 +921,12 @@ class SqliteAdapter {
   }
 
   private build_aquariumImages() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any) {
         const numId = Number(aquariumId);
-        const rows = db.prepare('SELECT * FROM aquarium_images WHERE aquarium_id = ? ORDER BY is_primary DESC, id ASC').all(numId);
+        const rows = db.prepare<AquariumImage>('SELECT * FROM aquarium_images WHERE aquarium_id = ? ORDER BY is_primary DESC, id ASC').all(numId);
         return rows.map((r: any) => ({
           ...r,
           is_primary: Boolean(r.is_primary),
@@ -926,7 +934,7 @@ class SqliteAdapter {
         }));
       },
       async findById(id?: any) {
-        const row = db.prepare('SELECT * FROM aquarium_images WHERE id = ?').get(Number(id));
+        const row = db.prepare<AquariumImage>('SELECT * FROM aquarium_images WHERE id = ?').get(Number(id));
         if (!row) return null;
         return {
           ...row,
@@ -936,7 +944,7 @@ class SqliteAdapter {
       },
       async create({ aquarium_id, filename, caption = null, is_primary = 0 }: any) {
         const numAqId = Number(aquarium_id);
-        const count = db.prepare('SELECT COUNT(*) as n FROM aquarium_images WHERE aquarium_id = ?').get(numAqId).n;
+        const count = db.prepare('SELECT COUNT(*) as n FROM aquarium_images WHERE aquarium_id = ?').get(numAqId)?.n ?? 0;
         const makePrimary = is_primary ? 1 : count === 0 ? 1 : 0;
         if (makePrimary) {
           db.prepare('UPDATE aquarium_images SET is_primary = 0 WHERE aquarium_id = ?').run(numAqId);
@@ -950,7 +958,7 @@ class SqliteAdapter {
       async setPrimary(id?: any, aquariumId?: any) {
         const numId = Number(id);
         const numAqId = Number(aquariumId);
-        const img = db.prepare('SELECT * FROM aquarium_images WHERE id = ? AND aquarium_id = ?').get(numId, numAqId);
+        const img = db.prepare<AquariumImage>('SELECT * FROM aquarium_images WHERE id = ? AND aquarium_id = ?').get(numId, numAqId);
         if (!img) return false;
         db.prepare('UPDATE aquarium_images SET is_primary = 0 WHERE aquarium_id = ?').run(numAqId);
         db.prepare('UPDATE aquarium_images SET is_primary = 1 WHERE id = ?').run(numId);
@@ -964,11 +972,11 @@ class SqliteAdapter {
       async delete(id?: any, aquariumId?: any) {
         const numId = Number(id);
         const numAqId = Number(aquariumId);
-        const img = db.prepare('SELECT * FROM aquarium_images WHERE id = ? AND aquarium_id = ?').get(numId, numAqId);
+        const img = db.prepare<AquariumImage>('SELECT * FROM aquarium_images WHERE id = ? AND aquarium_id = ?').get(numId, numAqId);
         if (!img) return false;
         deleteImage(img.filename);
         const res = db.prepare('DELETE FROM aquarium_images WHERE id = ?').run(numId);
-        const nextImg = db.prepare('SELECT * FROM aquarium_images WHERE aquarium_id = ? ORDER BY is_primary DESC, id ASC LIMIT 1').get(numAqId);
+        const nextImg = db.prepare<AquariumImage>('SELECT * FROM aquarium_images WHERE aquarium_id = ? ORDER BY is_primary DESC, id ASC LIMIT 1').get(numAqId);
         if (nextImg) {
           if (!nextImg.is_primary) {
             db.prepare('UPDATE aquarium_images SET is_primary = 1 WHERE id = ?').run(nextImg.id);
@@ -981,7 +989,7 @@ class SqliteAdapter {
       },
       async deleteAllForAquarium(aquariumId?: any) {
         const numAqId = Number(aquariumId);
-        const rows = db.prepare('SELECT filename FROM aquarium_images WHERE aquarium_id = ?').all(numAqId);
+        const rows = db.prepare<AquariumImage>('SELECT filename FROM aquarium_images WHERE aquarium_id = ?').all(numAqId);
         for (const r of rows) {
           deleteImage(r.filename);
         }
@@ -991,12 +999,12 @@ class SqliteAdapter {
   }
 
   private build_shares() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any) {
         return db
-          .prepare(
+          .prepare<AquariumShare>(
             `
           SELECT s.aquarium_id, s.user_id, s.role, s.status, s.token, s.token_expires, s.created_at, s.accepted_at, u.username, u.email
           FROM aquarium_shares s
@@ -1009,7 +1017,7 @@ class SqliteAdapter {
       },
       async listPendingForUser(userId?: any) {
         return db
-          .prepare(
+          .prepare<AquariumShare>(
             `
           SELECT s.aquarium_id, s.user_id, s.role, s.status, s.token, s.token_expires, s.created_at,
                  a.name AS aquarium_name, a.water_type, a.volume_l,
@@ -1024,13 +1032,13 @@ class SqliteAdapter {
           .all(Number(userId));
       },
       async find(aquariumId?: any, userId?: any) {
-        return db.prepare('SELECT * FROM aquarium_shares WHERE aquarium_id = ? AND user_id = ?').get(Number(aquariumId), Number(userId)) || null;
+        return db.prepare<AquariumShare>('SELECT * FROM aquarium_shares WHERE aquarium_id = ? AND user_id = ?').get(Number(aquariumId), Number(userId)) || null;
       },
       async findByToken(token?: any) {
         if (!token) return null;
         return (
           db
-            .prepare(
+            .prepare<AquariumShare>(
               `
           SELECT s.*,
                  a.name AS aquarium_name, a.water_type, a.volume_l,
@@ -1109,11 +1117,11 @@ class SqliteAdapter {
   }
 
   private build_stock() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any) {
-        const rows = db.prepare('SELECT id, aquarium_id, species, count, profile, name, image_file FROM stock WHERE aquarium_id = ? ORDER BY species, id').all(Number(aquariumId));
+        const rows = db.prepare<StockRecord>('SELECT id, aquarium_id, species, count, profile, name, image_file FROM stock WHERE aquarium_id = ? ORDER BY species, id').all(Number(aquariumId));
         return rows.map((s: any) => ({
           ...s,
           has_image: !!s.image_file,
@@ -1121,7 +1129,7 @@ class SqliteAdapter {
         }));
       },
       async findById(id?: any) {
-        const s = db.prepare('SELECT id, aquarium_id, species, count, profile, name, image_file FROM stock WHERE id = ?').get(Number(id));
+        const s = db.prepare<StockRecord>('SELECT id, aquarium_id, species, count, profile, name, image_file FROM stock WHERE id = ?').get(Number(id));
         if (!s) return null;
         return {
           ...s,
@@ -1160,7 +1168,7 @@ class SqliteAdapter {
       },
       async delete(id?: any, aquariumId: any = null) {
         const numId = Number(id);
-        const s = db.prepare('SELECT * FROM stock WHERE id = ?').get(numId);
+        const s = db.prepare<StockRecord>('SELECT * FROM stock WHERE id = ?').get(numId);
         if (s?.image_file) {
           deleteImage(s.image_file);
         }
@@ -1174,7 +1182,7 @@ class SqliteAdapter {
       },
       async deleteAllForAquarium(aquariumId?: any) {
         const numAqId = Number(aquariumId);
-        const rows = db.prepare('SELECT image_file FROM stock WHERE aquarium_id = ?').all(numAqId);
+        const rows = db.prepare<StockRecord>('SELECT image_file FROM stock WHERE aquarium_id = ?').all(numAqId);
         for (const r of rows) {
           if (r.image_file) deleteImage(r.image_file);
         }
@@ -1184,7 +1192,7 @@ class SqliteAdapter {
   }
 
   private build_measurements() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any, options: any = {}) {
@@ -1272,7 +1280,7 @@ class SqliteAdapter {
         return result;
       },
       async findById(id?: any) {
-        const m = db.prepare('SELECT * FROM measurements WHERE id = ?').get(id);
+        const m = db.prepare<Measurement>('SELECT * FROM measurements WHERE id = ?').get(id);
         if (!m) return null;
         const vals = db.prepare('SELECT param, value FROM measurement_values WHERE measurement_id = ?').all(id);
         const values: Record<string, any> = {};
@@ -1280,7 +1288,7 @@ class SqliteAdapter {
         return { ...m, values };
       },
       async findLastForAquarium(aquariumId?: any) {
-        const m = db.prepare('SELECT * FROM measurements WHERE aquarium_id = ? ORDER BY measured_at DESC LIMIT 1').get(Number(aquariumId));
+        const m = db.prepare<Measurement>('SELECT * FROM measurements WHERE aquarium_id = ? ORDER BY measured_at DESC LIMIT 1').get(Number(aquariumId));
         if (!m) return null;
         const vals = db.prepare('SELECT param, value FROM measurement_values WHERE measurement_id = ?').all(m.id);
         const values: Record<string, any> = {};
@@ -1305,7 +1313,7 @@ class SqliteAdapter {
             insertAlert.run(aquarium_id, measId, a.param, a.level, a.value, a.message);
           }
           if (created_by) {
-            const user = db.prepare('SELECT * FROM users WHERE id = ?').get(created_by);
+            const user = db.prepare<UserRecord>('SELECT * FROM users WHERE id = ?').get(created_by);
             if (user) {
               const inventory = JSON.parse(user.test_inventory || '{}');
               require('../services/test-inventory-service').applyUsage(inventory, user, values, suite_id);
@@ -1329,7 +1337,7 @@ class SqliteAdapter {
       },
       async getLatestValues(aquariumId?: any, thresholds: any = {}) {
         const rows = db
-          .prepare(
+          .prepare<{ param: string; value: number; measured_at: string }>(
             `
           SELECT mv.param, mv.value, m.measured_at FROM measurement_values mv
           JOIN measurements m ON m.id = mv.measurement_id
@@ -1354,7 +1362,7 @@ class SqliteAdapter {
   }
 
   private build_alerts() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listOpenForAquarium(aquariumId?: any) {
@@ -1391,7 +1399,7 @@ class SqliteAdapter {
   }
 
   private build_maintenance() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any, options: any = {}) {
@@ -1543,13 +1551,13 @@ class SqliteAdapter {
   }
 
   private build_invitations() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async findById(id?: any) {
         if (!id) return null;
         return (
-          db.prepare(`
+          db.prepare<Invitation>(`
             SELECT i.*, u.username as created_by_username
             FROM invitations i
             LEFT JOIN users u ON u.id = i.created_by
@@ -1560,7 +1568,7 @@ class SqliteAdapter {
       async findByCode(code?: any) {
         if (!code) return null;
         return (
-          db.prepare(`
+          db.prepare<Invitation>(`
             SELECT i.*, u.username as created_by_username
             FROM invitations i
             LEFT JOIN users u ON u.id = i.created_by
@@ -1570,7 +1578,7 @@ class SqliteAdapter {
       },
       async findByEmail(email?: any) {
         if (!email) return [];
-        return db.prepare(`
+        return db.prepare<Invitation>(`
           SELECT i.*, u.username as created_by_username
           FROM invitations i
           LEFT JOIN users u ON u.id = i.created_by
@@ -1579,7 +1587,7 @@ class SqliteAdapter {
         `).all(String(email).trim());
       },
       async listAll() {
-        return db.prepare(`
+        return db.prepare<Invitation>(`
           SELECT i.*, u.username as created_by_username
           FROM invitations i
           LEFT JOIN users u ON u.id = i.created_by
@@ -1587,7 +1595,7 @@ class SqliteAdapter {
         `).all();
       },
       async listForUser(userId?: any) {
-        return db.prepare(`
+        return db.prepare<Invitation>(`
           SELECT i.*, u.username as created_by_username
           FROM invitations i
           LEFT JOIN users u ON u.id = i.created_by
@@ -1637,7 +1645,7 @@ class SqliteAdapter {
   }
 
   private build_aquariumChats() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any, options: any = {}) {
@@ -1688,15 +1696,15 @@ class SqliteAdapter {
   }
 
   private build_dosingPumps() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any) {
-        return db.prepare('SELECT * FROM dosing_pumps WHERE aquarium_id = ? ORDER BY id ASC').all(Number(aquariumId));
+        return db.prepare<DosingPump>('SELECT * FROM dosing_pumps WHERE aquarium_id = ? ORDER BY id ASC').all(Number(aquariumId));
       },
       async findById(id?: any) {
         if (!id) return null;
-        return db.prepare('SELECT * FROM dosing_pumps WHERE id = ?').get(Number(id)) || null;
+        return db.prepare<DosingPump>('SELECT * FROM dosing_pumps WHERE id = ?').get(Number(id)) || null;
       },
       async create({
         aquarium_id,

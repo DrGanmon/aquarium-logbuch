@@ -1,3 +1,4 @@
+import { asError } from './app-error';
 import { APP_ROOT } from './paths';
 'use strict';
 import fs = require('fs');
@@ -20,7 +21,8 @@ function ensureLogDir(filePath?: any) {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-  } catch (err) {
+  } catch (caught: unknown) {
+    const err = asError(caught);
     // Falls Fehler beim Erstellen auftreten, auf Konsole ausgeben
     console.error('Konnte Log-Verzeichnis nicht erstellen:', err.message);
   }
@@ -48,7 +50,8 @@ function writeToFile(line?: any, filePath: any = getLogPath()) {
   try {
     ensureLogDir(filePath);
     fs.appendFileSync(filePath, line + '\n', 'utf8');
-  } catch (err) {
+  } catch (caught: unknown) {
+    const err = asError(caught);
     console.error('Fehler beim Schreiben in Log-Datei:', err.message);
   }
 }
@@ -137,7 +140,8 @@ const logger: Record<string, any> = {
       const content = fs.readFileSync(logPath, 'utf8');
       const lines = content.split(/\r?\n/).filter(Boolean);
       return lines.slice(-maxLines);
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       return [`[ERROR] Konnte Log-Datei nicht lesen: ${err.message}`];
     }
   },
@@ -152,7 +156,8 @@ const logger: Record<string, any> = {
       fs.writeFileSync(logPath, '', 'utf8');
       this.info('Log-Datei wurde bereinigt.', 'system');
       return true;
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       console.error('Konnte Log-Datei nicht leeren:', err.message);
       return false;
     }

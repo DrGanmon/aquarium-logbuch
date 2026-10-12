@@ -1,12 +1,16 @@
+import type { Aquarium, AquariumInput, AccessRole, CycleUnit, ValidationResult } from '../types/domain';
+import { asRecord } from '../utils/validation';
+interface CycleSettings { interval: number | null; unit: CycleUnit; day_of_week: number | null; reminder_mail: 0 | 1 }
 'use strict';
 import helpersModule = require('../utils/helpers');
 const { str } = helpersModule;
 import reminder_serviceModule = require('./reminder-service');
 const { calculateCycleStatus } = reminder_serviceModule;
 
-function parseCycleParams(body?: any, prefix?: any) {
-  let interval = body[`${prefix}_cycle_interval`];
-  if (interval === '' || interval === null || interval === undefined) {
+function parseCycleParams(body: Record<string, unknown>, prefix: 'measure' | 'fertilize'): ValidationResult<CycleSettings> {
+  const rawInterval = body[`${prefix}_cycle_interval`];
+  let interval: number | null = Number(rawInterval);
+  if (rawInterval === '' || rawInterval === null || rawInterval === undefined) {
     interval = null;
   } else {
     interval = Math.round(Number(interval));
@@ -16,11 +20,11 @@ function parseCycleParams(body?: any, prefix?: any) {
     if (interval === 0) interval = null;
   }
 
-  let unit = body[`${prefix}_cycle_unit`];
-  unit = unit === 'weeks' ? 'weeks' : 'days';
+  const unit: CycleUnit = body[`${prefix}_cycle_unit`] === 'weeks' ? 'weeks' : 'days';
 
-  let dayOfWeek = body[`${prefix}_cycle_day_of_week`];
-  if (dayOfWeek === '' || dayOfWeek === null || dayOfWeek === undefined || dayOfWeek === '0' || dayOfWeek === 0) {
+  const rawDay = body[`${prefix}_cycle_day_of_week`];
+  let dayOfWeek: number | null = Number(rawDay);
+  if (rawDay === '' || rawDay === null || rawDay === undefined || rawDay === '0' || rawDay === 0) {
     dayOfWeek = null;
   } else {
     dayOfWeek = Math.round(Number(dayOfWeek));
@@ -41,7 +45,8 @@ function parseCycleParams(body?: any, prefix?: any) {
   };
 }
 
-function aquariumInput(body?: any) {
+function aquariumInput(input: unknown): ValidationResult<AquariumInput> {
+  const body = asRecord(input);
   const name = str(body.name, 80);
   if (!name) return { error: 'Bitte einen Namen eingeben.' };
   const water_type = body.water_type === 'salt' ? 'salt' : 'fresh';
@@ -94,7 +99,7 @@ function aquariumInput(body?: any) {
   };
 }
 
-function isOverdue(aq?: any, last?: any) {
+function isOverdue(aq: Aquarium, last?: { measured_at: string } | null) {
   if (aq.measure_cycle_interval) {
     const status = calculateCycleStatus(
       {
@@ -112,7 +117,7 @@ function isOverdue(aq?: any, last?: any) {
   return Date.now() - new Date(last.measured_at).getTime() > aq.reminder_days * 86400000;
 }
 
-async function aquariumSummary(aq?: any, db?: any, role: any = null) {
+async function aquariumSummary(aq: Aquarium, db?: { aquariums?: { getSummary(aquarium: Aquarium, role: AccessRole | null): Promise<unknown> } }, role: AccessRole | null = null) {
   if (db && db.aquariums && typeof db.aquariums.getSummary === 'function') {
     return await db.aquariums.getSummary(aq, role);
   }

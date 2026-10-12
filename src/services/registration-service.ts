@@ -1,3 +1,6 @@
+import { JsonConfigStore } from './json-config-store';
+import { asRecord } from '../utils/validation';
+import { asError } from '../utils/app-error';
 'use strict';
 import path = require('path');
 import fs = require('fs');
@@ -8,19 +11,24 @@ import logger = require('../utils/logger');
 
 const CONFIG_FILE = path.join(DATA_DIR, 'registration-config.json');
 
-const VALID_MODES = ['open', 'invite_admin', 'invite_open', 'closed'];
+const VALID_MODES = ['open', 'invite_admin', 'invite_open', 'closed'] as const;
+type RegistrationMode = typeof VALID_MODES[number];
+interface RegistrationSettings { mode: RegistrationMode; userCodeMaxDays: number; mailInviteMaxDays: number }
+function isMode(value: unknown): value is RegistrationMode { return typeof value === 'string' && VALID_MODES.some(mode => mode === value); }
 
-const DEFAULT_CONFIG: Record<string, any> = {
+const DEFAULT_CONFIG: RegistrationSettings = {
   mode: ALLOW_REGISTRATION ? 'open' : 'closed',
   userCodeMaxDays: 7, // Usercodes sollen maximal 7 Tage gültig sein (vom Admin umstellbar)
   mailInviteMaxDays: 14, // Mail sind maximal 14 Tage gültig
 };
 
 class RegistrationService {
-  configFile: any;
+  readonly configFile: string;
+  private readonly store: JsonConfigStore<RegistrationSettings>;
 
-  constructor() {
-    this.configFile = CONFIG_FILE;
+  constructor(configFile = CONFIG_FILE) {
+    this.configFile = configFile;
+    this.store = new JsonConfigStore(configFile, message => logger.error(`Fehler beim Lesen der Registrierungs-Konfiguration: ${message}`, 'registration'));
     this._ensureDirs();
   }
 
@@ -37,19 +45,10 @@ class RegistrationService {
    */
   getConfig() {
     this._ensureDirs();
-    let fileConfig: Record<string, any> = {};
-    if (fs.existsSync(this.configFile)) {
-      try {
-        fileConfig = JSON.parse(fs.readFileSync(this.configFile, 'utf8'));
-      } catch (err) {
-        logger.error(`Fehler beim Lesen der Registrierungs-Konfiguration: ${err.message}`, 'registration');
-      }
-    }
+    const fileConfig = this.store.read();
 
-    let mode = fileConfig.mode || DEFAULT_CONFIG.mode;
-    if (!VALID_MODES.includes(mode)) {
-      mode = 'open';
-    }
+    const rawMode = fileConfig.mode || DEFAULT_CONFIG.mode;
+    const mode: RegistrationMode = isMode(rawMode) ? rawMode : 'open';
 
     const userCodeMaxDays = Math.max(1, Math.min(365, Number(fileConfig.userCodeMaxDays) || DEFAULT_CONFIG.userCodeMaxDays));
     const mailInviteMaxDays = Math.max(1, Math.min(14, Number(fileConfig.mailInviteMaxDays) || DEFAULT_CONFIG.mailInviteMaxDays));
@@ -70,17 +69,18 @@ class RegistrationService {
   /**
    * Speichert neue Einstellungen für die Registrierung.
    */
-  saveConfig(newConfig: any = {}) {
+  saveConfig(input: unknown = {}) {
+    const newConfig = asRecord(input);
     this._ensureDirs();
     const current = this.getConfig();
 
     let targetMode = newConfig.mode !== undefined ? String(newConfig.mode).trim().toLowerCase() : current.mode;
-    if (!VALID_MODES.includes(targetMode)) {
+    if (!isMode(targetMode)) {
       targetMode = current.mode;
     }
 
-    const updated: Record<string, any> = {
-      mode: targetMode,
+    const updated: RegistrationSettings = {
+      mode: isMode(targetMode) ? targetMode : current.mode,
       userCodeMaxDays: newConfig.userCodeMaxDays !== undefined
         ? Math.max(1, Math.min(365, Number(newConfig.userCodeMaxDays) || 7))
         : current.userCodeMaxDays,
@@ -89,7 +89,7 @@ class RegistrationService {
         : current.mailInviteMaxDays,
     };
 
-    fs.writeFileSync(this.configFile, JSON.stringify(updated, null, 2), 'utf8');
+    this.store.write(updated);
     logger.info(
       `Registrierungs-Konfiguration aktualisiert: Modus=${updated.mode}, UserCodeMaxDays=${updated.userCodeMaxDays}, MailMaxDays=${updated.mailInviteMaxDays}`,
       'registration'
@@ -101,7 +101,7 @@ class RegistrationService {
   /**
    * Prüft, ob ein Benutzer (oder Gast) Berechtigung hat, Einladungen zu erstellen.
    */
-  canUserInvite(user?: any, isAdmin: any = false) {
+  canUserInvite(user?: object | null, isAdmin: boolean = false) {
     const config = this.getConfig();
     if (config.isClosed) return false;
     if (isAdmin) return true;
@@ -112,7 +112,7 @@ class RegistrationService {
   /**
    * Generiert einen kryptografisch sicheren, gut lesbaren Einladungscode (z. B. AQU-9F2A-88CD).
    */
-  generateInviteCode(prefix: any = 'AQU') {
+  generateInviteCode(prefix: string = 'AQU') {
     const part1 = crypto.randomBytes(2).toString('hex').toUpperCase();
     const part2 = crypto.randomBytes(2).toString('hex').toUpperCase();
     return `${prefix}-${part1}-${part2}`;
@@ -129,6 +129,7 @@ class RegistrationService {
 const registrationService = new RegistrationService();
 
 export = {
+  RegistrationService,
   registrationService,
   VALID_MODES,
 };

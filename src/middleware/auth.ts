@@ -1,3 +1,5 @@
+import type { Aquarium, AccessRole, SessionUser } from '../types/domain';
+import { asError } from '../utils/app-error';
 import type { Request, Response, NextFunction } from 'express';
 'use strict';
 import db = require('../db');
@@ -17,14 +19,15 @@ async function auth(req: Request, res: Response, next: NextFunction) {
       return res.status(401).json({ error: 'Sitzung abgelaufen.' });
     }
     req.user = {
-      id: row.user_id || row.id,
+      id: row.user_id,
       username: row.username,
       email: row.email || null,
       language: row.language || 'de',
       isAdmin: isEmailAdmin(row.email),
     };
     next();
-  } catch (e) {
+  } catch (caught: unknown) {
+    const e = asError(caught);
     next(e);
   }
 }
@@ -36,12 +39,12 @@ function requireAdmin(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-async function getAquariumAccess(aquariumId?: any, user?: any) {
+async function getAquariumAccess(aquariumId: number | string, user: SessionUser): Promise<{ aq: Aquarium; role: AccessRole } | null> {
   return await db.aquariums.getAccess(aquariumId, user);
 }
 
-function requireAquariumAccess(minRole: any = 'view') {
-  const roleHierarchy: Record<string, any> = { view: 1, write: 2, owner: 3 };
+function requireAquariumAccess(minRole: AccessRole = 'view') {
+  const roleHierarchy: Record<AccessRole, number> = { view: 1, write: 2, owner: 3 };
   const requiredLevel = roleHierarchy[minRole] || 1;
 
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -58,7 +61,8 @@ function requireAquariumAccess(minRole: any = 'view') {
       req.aq = access.aq;
       req.accessRole = access.role;
       next();
-    } catch (e) {
+    } catch (caught: unknown) {
+      const e = asError(caught);
       next(e);
     }
   };

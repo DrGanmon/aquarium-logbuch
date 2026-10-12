@@ -1,3 +1,4 @@
+import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
 'use strict';
 import express = require('express');
@@ -23,7 +24,7 @@ router.get(
   auth,
   wrap(async (req: Request, res: Response) => {
     const user = req.user?.id ? await db.users.findById(req.user.id) : null;
-    const lang = req.query.lang || req.headers['x-language'] || user?.language || 'de';
+    const lang = String(req.query.lang || req.headers['x-language'] || user?.language || 'de');
     const suites = cfg.suiteService.getSuites(lang);
     const defaultSuite = cfg.suiteService.getDefaultSuite(lang);
     const selectedSuiteId = user?.selected_suite || defaultSuite?.id || 'jbl-pro';
@@ -98,7 +99,7 @@ router.get(
 );
 
 router.get('/species', auth, (req: Request, res: Response) => {
-  const lang = req.query.lang || req.headers['x-language'] || req.user?.language || 'de';
+  const lang = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de');
   let list = cfg.speciesService.getAllSpecies(lang);
   const waterType = req.query.water_type || req.query.waterType;
   const category = req.query.category;
@@ -131,14 +132,14 @@ router.get('/species', auth, (req: Request, res: Response) => {
 });
 
 router.get('/species/categories', auth, (req: Request, res: Response) => {
-  const lang = req.query.lang || req.headers['x-language'] || req.user?.language || 'de';
+  const lang = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de');
   res.json({
     categories: cfg.speciesService.getCategories(lang),
   });
 });
 
 router.get('/species/:id', auth, (req: Request, res: Response) => {
-  const lang = req.query.lang || req.headers['x-language'] || req.user?.language || 'de';
+  const lang = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de');
   const sp = cfg.speciesService.getSpeciesById(req.params.id, lang) || cfg.speciesService.findSpeciesByName(req.params.id, lang);
   if (!sp) {
     return res.status(404).json({ error: 'Art nicht gefunden.' });
@@ -147,7 +148,7 @@ router.get('/species/:id', auth, (req: Request, res: Response) => {
 });
 
 router.get('/suites', auth, (req: Request, res: Response) => {
-  const lang = req.query.lang || req.headers['x-language'] || req.user?.language || 'de';
+  const lang = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de');
   res.json({
     suites: cfg.suiteService.getSuites(lang),
     defaultSuite: cfg.suiteService.getDefaultSuite(lang),
@@ -155,8 +156,8 @@ router.get('/suites', auth, (req: Request, res: Response) => {
 });
 
 router.get('/suites/:id', auth, (req: Request, res: Response) => {
-  const lang = req.query.lang || req.headers['x-language'] || req.user?.language || 'de';
-  const suite = cfg.suiteService.getSuite(req.params.id, lang);
+  const lang = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de');
+  const suite = cfg.suiteService.getSuite(String(req.params.id), lang);
   if (!suite) {
     return res.status(404).json({ error: 'Testsuite nicht gefunden.' });
   }
@@ -165,8 +166,9 @@ router.get('/suites/:id', auth, (req: Request, res: Response) => {
 
 router.get('/me/test-inventory', auth, wrap(async (req: Request, res: Response) => {
   const user = await db.users.findById(req.user.id);
-  const suiteId = req.query.suiteId || user.selected_suite || cfg.suiteService.getDefaultSuite()?.id || 'jbl-pro';
-  const lang = req.headers['x-language'] || user.language || 'de';
+  if (!user) return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
+  const suiteId = String(req.query.suiteId || user.selected_suite || cfg.suiteService.getDefaultSuite()?.id || 'jbl-pro');
+  const lang = String(req.headers['x-language'] || user.language || 'de');
   const items = testInventory.inventoryItems(user, suiteId, lang);
   if (!items) return res.status(400).json({ error: 'Unbekannte Testsuite.' });
   res.json({ suiteId, items });
@@ -174,15 +176,18 @@ router.get('/me/test-inventory', auth, wrap(async (req: Request, res: Response) 
 
 router.put('/me/test-inventory/:key', auth, wrap(async (req: Request, res: Response) => {
   const user = await db.users.findById(req.user.id);
+  if (!user) return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
   const suiteId = req.body.suiteId || user.selected_suite || cfg.suiteService.getDefaultSuite()?.id || 'jbl-pro';
   try {
-    await testInventory.updateInventory(db, user.id, suiteId, req.params.key, req.body);
-  } catch (error) {
+    await testInventory.updateInventory(db, user.id, String(suiteId), String(req.params.key), req.body);
+  } catch (caught: unknown) {
+    const error = asError(caught);
     if (error.status === 400) return res.status(400).json({ error: error.message });
     throw error;
   }
   const updated = await db.users.findById(user.id);
-  res.json({ suiteId, items: testInventory.inventoryItems(updated, suiteId, req.headers['x-language'] || user.language || 'de') });
+  if (!updated) return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
+  res.json({ suiteId, items: testInventory.inventoryItems(updated, String(suiteId), String(req.headers['x-language'] || user.language || 'de')) });
 }));
 
 router.put(
@@ -190,6 +195,7 @@ router.put(
   auth,
   wrap(async (req: Request, res: Response) => {
     const user = await db.users.findById(req.user.id);
+  if (!user) return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
     if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
 
     let selectedSuite = req.body.suiteId || req.body.selectedSuite || null;
@@ -209,6 +215,7 @@ router.put(
     await db.users.update(req.user.id, updateFields);
 
     const updated = await db.users.findById(req.user.id);
+    if (!updated) return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
     let parsed = null;
     if (updated.selected_tests) {
       try {

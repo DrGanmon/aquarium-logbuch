@@ -1,3 +1,4 @@
+import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
 'use strict';
 import express = require('express');
@@ -118,7 +119,7 @@ router.get(
   ownAquarium,
   wrap(async (req: Request, res: Response) => {
     const aq = req.aq;
-    const lang = req.query.lang || req.headers['x-language'] || req.user?.language || 'de';
+    const lang = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de');
     const stockRows = await db.stock.listForAquarium(aq.id);
     const compact = req.query.summary === 'true';
     const stock = compact ? [] : enrichStock(stockRows, lang);
@@ -303,7 +304,7 @@ router.delete(
   '/:id/shares/:userId',
   auth,
   wrap(async (req: Request, res: Response) => {
-    const access = await getAquariumAccess(req.params.id, req.user);
+    const access = await getAquariumAccess(String(req.params.id), req.user);
     if (!access) return res.status(404).json({ error: 'Aquarium nicht gefunden.' });
     const targetUserId = Number(req.params.userId);
     if (access.role !== 'owner' && req.user.id !== targetUserId) {
@@ -469,7 +470,7 @@ router.delete(
 
 // ---------- Besatz & Bewohner ----------
 router.get('/:id/stock', auth, ownAquarium, wrap(async (req: Request, res: Response) => {
-  const lang = req.query.lang || req.headers['x-language'] || req.user?.language || 'de';
+  const lang = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de');
   res.json(enrichStock(await db.stock.listForAquarium(req.aq.id), lang));
 }));
 
@@ -484,7 +485,7 @@ router.post('/:id/stock/catalog', auth, writeAquarium, wrap(async (req: Request,
     return res.status(400).json({ error: 'Namen müssen zur Anzahl passen und dürfen maximal 80 Zeichen lang sein.' });
   }
   const named = names.map((name: any) => name.trim()).filter(Boolean);
-  const common: Record<string, any> = { aquarium_id: req.aq.id, species: species.name, profile: species.profile };
+  const common = { aquarium_id: req.aq.id, species: species.name, profile: species.profile };
   const rows = named.map((name: any) => ({ ...common, count: 1, name }));
   const unnamed = count - named.length;
   if (unnamed) rows.push({ ...common, count: unnamed, name: null });
@@ -581,7 +582,7 @@ router.get(
   auth,
   ownAquarium,
   wrap(async (req: Request, res: Response) => {
-    const s = await db.stock.findById(req.params.sid);
+    const s = await db.stock.findById(Number(req.params.sid));
     if (!s || s.aquarium_id !== req.aq.id || !s.image_file) {
       return res.status(404).json({ error: 'Kein Foto für diesen Bewohner vorhanden.' });
     }
@@ -1108,7 +1109,8 @@ router.post(
         provider: result.provider,
         usage: result.usage,
       });
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       const status = err.status || (err.code === 'NO_API_KEY' ? 400 : 500);
       res.status(status).json({
         error: err.message,

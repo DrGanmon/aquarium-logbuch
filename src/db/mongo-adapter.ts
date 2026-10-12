@@ -1,3 +1,7 @@
+import type { UserRecord, Aquarium, AccessRole, StockRecord, Measurement, AquariumImage, AquariumShare, Invitation } from '../types/domain';
+import type { MongoConnection } from '../types/database-driver';
+import type { RepositoryContract, UserQueries, AquariumQueries, StockRepository, PumpRepository, MeasurementQueries } from '../types/repositories';
+import { asError } from '../utils/app-error';
 import type { DatabaseOptions } from '../types/domain';
 'use strict';
 import { MongoClient } from 'mongodb';
@@ -23,22 +27,22 @@ class MongoAdapter {
   dbName: string;
   client: MongoClient | null;
   /** Dynamic rows/documents are validated by services; schemas differ across adapters. */
-  db: any;
+  db: MongoConnection | null;
   _initialized: boolean;
   schemaVersion: number;
   _initPromise: Promise<this> | null = null;
-  users: ReturnType<MongoAdapter['build_users']>;
-  sessions: ReturnType<MongoAdapter['build_sessions']>;
-  aquariums: ReturnType<MongoAdapter['build_aquariums']>;
-  aquariumImages: ReturnType<MongoAdapter['build_aquariumImages']>;
-  shares: ReturnType<MongoAdapter['build_shares']>;
-  stock: ReturnType<MongoAdapter['build_stock']>;
-  measurements: ReturnType<MongoAdapter['build_measurements']>;
-  alerts: ReturnType<MongoAdapter['build_alerts']>;
-  maintenance: ReturnType<MongoAdapter['build_maintenance']>;
-  invitations: ReturnType<MongoAdapter['build_invitations']>;
-  aquariumChats: ReturnType<MongoAdapter['build_aquariumChats']>;
-  dosingPumps: ReturnType<MongoAdapter['build_dosingPumps']>;
+  users!: RepositoryContract<ReturnType<MongoAdapter['build_users']>, UserQueries>;
+  sessions!: ReturnType<MongoAdapter['build_sessions']>;
+  aquariums!: RepositoryContract<ReturnType<MongoAdapter['build_aquariums']>, AquariumQueries>;
+  aquariumImages!: ReturnType<MongoAdapter['build_aquariumImages']>;
+  shares!: ReturnType<MongoAdapter['build_shares']>;
+  stock!: RepositoryContract<ReturnType<MongoAdapter['build_stock']>, StockRepository>;
+  measurements!: RepositoryContract<ReturnType<MongoAdapter['build_measurements']>, MeasurementQueries>;
+  alerts!: ReturnType<MongoAdapter['build_alerts']>;
+  maintenance!: ReturnType<MongoAdapter['build_maintenance']>;
+  invitations!: ReturnType<MongoAdapter['build_invitations']>;
+  aquariumChats!: ReturnType<MongoAdapter['build_aquariumChats']>;
+  dosingPumps!: RepositoryContract<ReturnType<MongoAdapter['build_dosingPumps']>, PumpRepository>;
 
   constructor(options: DatabaseOptions = {}) {
     this.type = 'mongodb';
@@ -108,16 +112,16 @@ class MongoAdapter {
   }
 
   async getNextSequence(name: string, amount: number = 1) {
-    const res = await this.db.collection('counters').findOneAndUpdate(
+    const res = await this.connection().collection<{ _id: string; seq: number }>('counters').findOneAndUpdate(
       { _id: name },
       { $inc: { seq: amount } },
       { upsert: true, returnDocument: 'after' }
     );
-    return res?.seq ?? res?.value?.seq ?? amount;
+    return res?.seq ?? amount;
   }
 
   async _createIndexes() {
-    const db = this.db;
+    const db = this.connection();
     try {
       // Users
       await db.collection('users').createIndex(
@@ -190,8 +194,13 @@ class MongoAdapter {
     }
   }
 
+  private connection(): MongoConnection {
+    if (!this.db) throw new Error('Datenbank ist nicht initialisiert.');
+    return this.db;
+  }
+
   _setupRepositories() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
 
     this.users = this.build_users();
@@ -221,7 +230,7 @@ class MongoAdapter {
 
   async exportAllData() {
     if (!this._initialized && !this.db) await this.init();
-    const db = this.db;
+    const db = this.connection();
     if (!db) return {};
 
     const stripId = (docs: any) =>
@@ -268,7 +277,7 @@ class MongoAdapter {
 
   async importAllData(data: any = {}) {
     if (!this._initialized && !this.db) await this.init();
-    const db = this.db;
+    const db = this.connection();
 
     const users = Array.isArray(data.users) ? data.users : [];
     const aquariums = Array.isArray(data.aquariums) ? data.aquariums : [];
@@ -360,43 +369,43 @@ class MongoAdapter {
   }
 
   private build_users() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async findById(id?: any) {
         if (!id) return null;
-        const u = await db.collection('users').findOne({ id: Number(id) });
+        const u = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: Number(id) });
         return u || null;
       },
       async findByUsername(username?: any, excludeId: any = null) {
         if (!username) return null;
         const filter: Record<string, any> = { username: { $regex: new RegExp(`^${escapeRegex(username)}$`, 'i') } };
         if (excludeId != null) filter.id = { $ne: Number(excludeId) };
-        return (await db.collection('users').findOne(filter)) || null;
+        return (await db.collection<UserRecord & { _id?: number }>('users').findOne(filter)) || null;
       },
       async findByEmail(email?: any, excludeId: any = null) {
         if (!email) return null;
         const filter: Record<string, any> = { email: { $regex: new RegExp(`^${escapeRegex(email)}$`, 'i') } };
         if (excludeId != null) filter.id = { $ne: Number(excludeId) };
-        return (await db.collection('users').findOne(filter)) || null;
+        return (await db.collection<UserRecord & { _id?: number }>('users').findOne(filter)) || null;
       },
       async findByOidcSub(oidcSub?: any, excludeId: any = null) {
         if (!oidcSub) return null;
         const filter: Record<string, any> = { oidc_sub: String(oidcSub) };
         if (excludeId != null) filter.id = { $ne: Number(excludeId) };
-        return (await db.collection('users').findOne(filter)) || null;
+        return (await db.collection<UserRecord & { _id?: number }>('users').findOne(filter)) || null;
       },
       async findByEmailVerifyToken(token?: any) {
         if (!token) return null;
-        return (await db.collection('users').findOne({ email_verify_token: String(token) })) || null;
+        return (await db.collection<UserRecord & { _id?: number }>('users').findOne({ email_verify_token: String(token) })) || null;
       },
       async findByPasswordResetToken(token?: any) {
         if (!token) return null;
-        return (await db.collection('users').findOne({ password_reset_token: String(token) })) || null;
+        return (await db.collection<UserRecord & { _id?: number }>('users').findOne({ password_reset_token: String(token) })) || null;
       },
       async findByDeleteToken(token?: any) {
         if (!token) return null;
-        return (await db.collection('users').findOne({ account_delete_token: String(token) })) || null;
+        return (await db.collection<UserRecord & { _id?: number }>('users').findOne({ account_delete_token: String(token) })) || null;
       },
       async create({
         username,
@@ -444,7 +453,7 @@ class MongoAdapter {
         return { id, username, email, oidc_sub, email_verified: email_verified ? 1 : 0, language: doc.language };
       },
       async mutateTestInventory(id?: any, mutate?: any) {
-        const users = db.collection('users');
+        const users = db.collection<UserRecord & { _id?: number }>('users');
         for (let attempt = 0; attempt < 50; attempt++) {
           const user = await users.findOne({ id: Number(id) });
           if (!user) return null;
@@ -504,7 +513,7 @@ class MongoAdapter {
       },
       async delete(id?: any) {
         const numId = Number(id);
-        const user = await db.collection('users').findOne({ id: numId });
+        const user = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: numId });
         if (user && user.avatar_file) {
           deleteImage(user.avatar_file);
         }
@@ -513,7 +522,7 @@ class MongoAdapter {
 
         // Cascade cleanup
         await db.collection('sessions').deleteMany({ user_id: numId });
-        const aqs = await db.collection('aquariums').find({ user_id: numId }).toArray();
+        const aqs = await db.collection<Aquarium & { _id?: number }>('aquariums').find({ user_id: numId }).toArray();
         for (const aq of aqs) {
           await self.aquariums.delete(aq.id);
         }
@@ -523,7 +532,7 @@ class MongoAdapter {
         return true;
       },
       async listForAdmin() {
-        const users = await db.collection('users').find({}).sort({ created_at: 1, id: 1 }).toArray();
+        const users = await db.collection<UserRecord & { _id?: number }>('users').find({}).sort({ created_at: 1, id: 1 }).toArray();
         const aqCounts = await db
           .collection('aquariums')
           .aggregate([{ $group: { _id: '$user_id', count: { $sum: 1 } } }])
@@ -548,7 +557,7 @@ class MongoAdapter {
   }
 
   private build_sessions() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async create(tokenHash?: any, userId?: any, expiresAt?: any, idToken: any = null) {
@@ -569,7 +578,7 @@ class MongoAdapter {
         if (!tokenHash) return null;
         const s = await db.collection('sessions').findOne({ token_hash: tokenHash });
         if (!s) return null;
-        const u = await db.collection('users').findOne({ id: s.user_id });
+        const u = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: s.user_id });
         if (!u) return null;
         return {
           token_hash: s.token_hash,
@@ -595,12 +604,12 @@ class MongoAdapter {
   }
 
   private build_aquariums() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForUser(userId?: any) {
         const numUserId = Number(userId);
-        const ownRows = await db.collection('aquariums').find({ user_id: numUserId }).sort({ name: 1 }).toArray();
+        const ownRows = await db.collection<Aquarium & { _id?: number }>('aquariums').find({ user_id: numUserId }).sort({ name: 1 }).toArray();
         const shareRows = await db
           .collection('aquarium_shares')
           .find({ user_id: numUserId, $or: [{ status: 'accepted' }, { status: { $exists: false } }] })
@@ -608,7 +617,7 @@ class MongoAdapter {
 
         const sharedAqs = [];
         for (const s of shareRows) {
-          const aq = await db.collection('aquariums').findOne({ id: s.aquarium_id });
+          const aq = await db.collection<Aquarium & { _id?: number }>('aquariums').findOne({ id: s.aquarium_id });
           if (aq) {
             sharedAqs.push({ ...aq, role: s.role });
           }
@@ -621,8 +630,8 @@ class MongoAdapter {
 
         // Owner-Benutzernamen ermitteln
         const userIds = Array.from(new Set(all.map((a: any) => a.user_id)));
-        const users = await db.collection('users').find({ id: { $in: userIds } }).toArray();
-        const userMap = new Map<number, { username: string; email?: string }>(users.map((u: any) => [u.id, u.username]));
+        const users = await db.collection<UserRecord & { _id?: number }>('users').find({ id: { $in: userIds } }).toArray();
+        const userMap = new Map<number, string>(users.map(u => [u.id, u.username]));
 
         const results = [];
         for (const aq of all) {
@@ -636,9 +645,9 @@ class MongoAdapter {
       async findById(id?: any) {
         const numId = Number(id);
         if (!Number.isInteger(numId)) return null;
-        const aq = await db.collection('aquariums').findOne({ id: numId });
+        const aq = await db.collection<Aquarium & { _id?: number }>('aquariums').findOne({ id: numId });
         if (!aq) return null;
-        const owner = await db.collection('users').findOne({ id: aq.user_id });
+        const owner = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: aq.user_id });
         return {
           ...aq,
           owner_username: owner?.username || null,
@@ -726,7 +735,7 @@ class MongoAdapter {
         return res.matchedCount > 0;
       },
       async listAllRaw() {
-        return await db.collection('aquariums').find({}).sort({ id: 1 }).toArray();
+        return await db.collection<Aquarium & { _id?: number }>('aquariums').find({}).sort({ id: 1 }).toArray();
       },
       async updateReminderSent(id?: any, type?: any, timestamp?: any) {
         const numId = Number(id);
@@ -741,11 +750,11 @@ class MongoAdapter {
       },
       async delete(id?: any) {
         const numId = Number(id);
-        const images = await db.collection('aquarium_images').find({ aquarium_id: numId }).toArray();
+        const images = await db.collection<AquariumImage & { _id?: number }>('aquarium_images').find({ aquarium_id: numId }).toArray();
         for (const img of images) {
           deleteImage(img.filename);
         }
-        const stocks = await db.collection('stock').find({ aquarium_id: numId }).toArray();
+        const stocks = await db.collection<StockRecord & { _id?: number }>('stock').find({ aquarium_id: numId }).toArray();
         for (const st of stocks) {
           if (st.image_file) deleteImage(st.image_file);
         }
@@ -766,7 +775,7 @@ class MongoAdapter {
       async countForUser(userId?: any) {
         return await db.collection('aquariums').countDocuments({ user_id: Number(userId) });
       },
-      async getAccess(aquariumId?: any, user?: any) {
+      async getAccess(aquariumId: number | string, user: { id: number; isAdmin?: boolean }): Promise<{ aq: Aquarium; role: AccessRole } | null> {
         const id = Number(aquariumId);
         if (!Number.isInteger(id)) return null;
         const aq = await self.aquariums.findById(id);
@@ -785,7 +794,7 @@ class MongoAdapter {
         return null;
       },
       async getSummary(aq?: any, role: any = null) {
-        const last = await db.collection('measurements').findOne({ aquarium_id: aq.id }, { sort: { measured_at: -1 } });
+        const last = await db.collection<Measurement & { _id?: number }>('measurements').findOne({ aquarium_id: aq.id }, { sort: { measured_at: -1 } });
         const lastWaterChange = await db
           .collection('maintenance_logs')
           .findOne({ aquarium_id: aq.id, type: 'water_change' }, { sort: { logged_at: -1 } });
@@ -849,12 +858,12 @@ class MongoAdapter {
   }
 
   private build_aquariumImages() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any) {
         const numAqId = Number(aquariumId);
-        const rows = await db.collection('aquarium_images').find({ aquarium_id: numAqId }).sort({ is_primary: -1, id: 1 }).toArray();
+        const rows = await db.collection<AquariumImage & { _id?: number }>('aquarium_images').find({ aquarium_id: numAqId }).sort({ is_primary: -1, id: 1 }).toArray();
         return rows.map((r: any) => ({
           ...r,
           is_primary: Boolean(r.is_primary),
@@ -862,7 +871,7 @@ class MongoAdapter {
         }));
       },
       async findById(id?: any) {
-        const row = await db.collection('aquarium_images').findOne({ id: Number(id) });
+        const row = await db.collection<AquariumImage & { _id?: number }>('aquarium_images').findOne({ id: Number(id) });
         if (!row) return null;
         return {
           ...row,
@@ -894,7 +903,7 @@ class MongoAdapter {
       async setPrimary(id?: any, aquariumId?: any) {
         const numId = Number(id);
         const numAqId = Number(aquariumId);
-        const img = await db.collection('aquarium_images').findOne({ id: numId, aquarium_id: numAqId });
+        const img = await db.collection<AquariumImage & { _id?: number }>('aquarium_images').findOne({ id: numId, aquarium_id: numAqId });
         if (!img) return false;
         await db.collection('aquarium_images').updateMany({ aquarium_id: numAqId }, { $set: { is_primary: 0 } });
         await db.collection('aquarium_images').updateOne({ id: numId }, { $set: { is_primary: 1 } });
@@ -911,11 +920,11 @@ class MongoAdapter {
       async delete(id?: any, aquariumId?: any) {
         const numId = Number(id);
         const numAqId = Number(aquariumId);
-        const img = await db.collection('aquarium_images').findOne({ id: numId, aquarium_id: numAqId });
+        const img = await db.collection<AquariumImage & { _id?: number }>('aquarium_images').findOne({ id: numId, aquarium_id: numAqId });
         if (!img) return false;
         deleteImage(img.filename);
         const res = await db.collection('aquarium_images').deleteOne({ id: numId });
-        const nextImg = await db.collection('aquarium_images').findOne({ aquarium_id: numAqId }, { sort: { is_primary: -1, id: 1 } });
+        const nextImg = await db.collection<AquariumImage & { _id?: number }>('aquarium_images').findOne({ aquarium_id: numAqId }, { sort: { is_primary: -1, id: 1 } });
         if (nextImg) {
           if (!nextImg.is_primary) {
             await db.collection('aquarium_images').updateOne({ id: nextImg.id }, { $set: { is_primary: 1 } });
@@ -928,7 +937,7 @@ class MongoAdapter {
       },
       async deleteAllForAquarium(aquariumId?: any) {
         const numAqId = Number(aquariumId);
-        const rows = await db.collection('aquarium_images').find({ aquarium_id: numAqId }).toArray();
+        const rows = await db.collection<AquariumImage & { _id?: number }>('aquarium_images').find({ aquarium_id: numAqId }).toArray();
         for (const r of rows) {
           deleteImage(r.filename);
         }
@@ -938,14 +947,14 @@ class MongoAdapter {
   }
 
   private build_shares() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any) {
-        const shares = await db.collection('aquarium_shares').find({ aquarium_id: Number(aquariumId) }).sort({ created_at: 1 }).toArray();
+        const shares = await db.collection<AquariumShare & { _id?: number }>('aquarium_shares').find({ aquarium_id: Number(aquariumId) }).sort({ created_at: 1 }).toArray();
         if (shares.length === 0) return [];
         const userIds = shares.map((s: any) => s.user_id);
-        const users = await db.collection('users').find({ id: { $in: userIds } }).toArray();
+        const users = await db.collection<UserRecord & { _id?: number }>('users').find({ id: { $in: userIds } }).toArray();
         const userMap = new Map<number, { username: string; email?: string }>(users.map((u: any) => [u.id, u]));
 
         return shares.map((s: any) => {
@@ -975,9 +984,9 @@ class MongoAdapter {
 
         const results = [];
         for (const s of shares) {
-          const aq = await db.collection('aquariums').findOne({ id: s.aquarium_id });
+          const aq = await db.collection<Aquarium & { _id?: number }>('aquariums').findOne({ id: s.aquarium_id });
           if (!aq) continue;
-          const owner = await db.collection('users').findOne({ id: aq.user_id });
+          const owner = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: aq.user_id });
           results.push({
             aquarium_id: s.aquarium_id,
             user_id: s.user_id,
@@ -996,16 +1005,16 @@ class MongoAdapter {
         return results;
       },
       async find(aquariumId?: any, userId?: any) {
-        return (await db.collection('aquarium_shares').findOne({ aquarium_id: Number(aquariumId), user_id: Number(userId) })) || null;
+        return (await db.collection<AquariumShare & { _id?: number }>('aquarium_shares').findOne({ aquarium_id: Number(aquariumId), user_id: Number(userId) })) || null;
       },
       async findByToken(token?: any) {
         if (!token) return null;
-        const s = await db.collection('aquarium_shares').findOne({ token: String(token) });
+        const s = await db.collection<AquariumShare & { _id?: number }>('aquarium_shares').findOne({ token: String(token) });
         if (!s) return null;
-        const aq = await db.collection('aquariums').findOne({ id: s.aquarium_id });
+        const aq = await db.collection<Aquarium & { _id?: number }>('aquariums').findOne({ id: s.aquarium_id });
         if (!aq) return null;
-        const owner = await db.collection('users').findOne({ id: aq.user_id });
-        const targetUser = await db.collection('users').findOne({ id: s.user_id });
+        const owner = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: aq.user_id });
+        const targetUser = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: s.user_id });
         return {
           ...s,
           aquarium_name: aq.name,
@@ -1093,11 +1102,11 @@ class MongoAdapter {
   }
 
   private build_stock() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any) {
-        const rows = await db.collection('stock').find({ aquarium_id: Number(aquariumId) }).sort({ species: 1, id: 1 }).toArray();
+        const rows = await db.collection<StockRecord & { _id?: number }>('stock').find({ aquarium_id: Number(aquariumId) }).sort({ species: 1, id: 1 }).toArray();
         return rows.map((s: any) => ({
           ...s,
           has_image: !!s.image_file,
@@ -1105,7 +1114,7 @@ class MongoAdapter {
         }));
       },
       async findById(id?: any) {
-        const s = await db.collection('stock').findOne({ id: Number(id) });
+        const s = await db.collection<StockRecord & { _id?: number }>('stock').findOne({ id: Number(id) });
         if (!s) return null;
         return {
           ...s,
@@ -1136,7 +1145,8 @@ class MongoAdapter {
           return { ...row, _id: id, id, aquarium_id: Number(row.aquarium_id), image_file: null };
         });
         try { await db.collection('stock').insertMany(docs, { ordered: true }); }
-        catch (error) {
+        catch (caught: unknown) {
+          const error = asError(caught);
           // Remove only this request's reserved IDs if a bulk insert fails halfway.
           await db.collection('stock').deleteMany({ _id: { $in: docs.map((row: any) => row._id) } });
           throw error;
@@ -1163,7 +1173,7 @@ class MongoAdapter {
       async delete(id?: any, aquariumId: any = null) {
         const filter: Record<string, any> = { id: Number(id) };
         if (aquariumId != null) filter.aquarium_id = Number(aquariumId);
-        const s = await db.collection('stock').findOne(filter);
+        const s = await db.collection<StockRecord & { _id?: number }>('stock').findOne(filter);
         if (s?.image_file) {
           deleteImage(s.image_file);
         }
@@ -1172,7 +1182,7 @@ class MongoAdapter {
       },
       async deleteAllForAquarium(aquariumId?: any) {
         const numAqId = Number(aquariumId);
-        const rows = await db.collection('stock').find({ aquarium_id: numAqId }).toArray();
+        const rows = await db.collection<StockRecord & { _id?: number }>('stock').find({ aquarium_id: numAqId }).toArray();
         for (const r of rows) {
           if (r.image_file) deleteImage(r.image_file);
         }
@@ -1182,7 +1192,7 @@ class MongoAdapter {
   }
 
   private build_measurements() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any, options: any = {}) {
@@ -1212,7 +1222,7 @@ class MongoAdapter {
           dateFilter.$lte = until;
         }
 
-        let query = db.collection('measurements').find({
+        let query = db.collection<Measurement & { _id?: number }>('measurements').find({
           aquarium_id: Number(aquariumId),
           measured_at: dateFilter,
         }).sort({ measured_at: -1 });
@@ -1226,8 +1236,8 @@ class MongoAdapter {
 
         const measIds = ms.map((m: any) => m.id);
         const creatorIds = Array.from(new Set(ms.map((m: any) => m.created_by).filter(Boolean)));
-        const users = creatorIds.length > 0 ? await db.collection('users').find({ id: { $in: creatorIds } }).toArray() : [];
-        const userMap = new Map<number, { username: string; email?: string }>(users.map((u: any) => [u.id, u.username]));
+        const users = creatorIds.length > 0 ? await db.collection<UserRecord & { _id?: number }>('users').find({ id: { $in: creatorIds } }).toArray() : [];
+        const userMap = new Map<number, string>(users.map(u => [u.id, u.username]));
 
         const alerts = await db.collection('alerts').find({ measurement_id: { $in: measIds } }).toArray();
         const alertsByMeas = new Map();
@@ -1247,10 +1257,10 @@ class MongoAdapter {
         }));
       },
       async findById(id?: any) {
-        return (await db.collection('measurements').findOne({ id: Number(id) })) || null;
+        return (await db.collection<Measurement & { _id?: number }>('measurements').findOne({ id: Number(id) })) || null;
       },
       async findLastForAquarium(aquariumId?: any) {
-        return (await db.collection('measurements').findOne({ aquarium_id: Number(aquariumId) }, { sort: { measured_at: -1 } })) || null;
+        return (await db.collection<Measurement & { _id?: number }>('measurements').findOne({ aquarium_id: Number(aquariumId) }, { sort: { measured_at: -1 } })) || null;
       },
       async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [], suite_id = null }: any) {
         const measId = await self.getNextSequence('measurements');
@@ -1296,7 +1306,7 @@ class MongoAdapter {
         return false;
       },
       async getLatestValues(aquariumId?: any, thresholds: any = {}) {
-        const ms = await db.collection('measurements').find({ aquarium_id: Number(aquariumId) }).sort({ measured_at: -1 }).toArray();
+        const ms = await db.collection<Measurement & { _id?: number }>('measurements').find({ aquarium_id: Number(aquariumId) }).sort({ measured_at: -1 }).toArray();
         const latest: Record<string, any> = {};
         for (const m of ms) {
           for (const [param, val] of Object.entries(m.values || {})) {
@@ -1304,7 +1314,7 @@ class MongoAdapter {
               latest[param] = {
                 value: val,
                 measured_at: m.measured_at,
-                status: cfg.evaluate(thresholds[param], val),
+                status: cfg.evaluate(thresholds[param], Number(val)),
               };
             }
           }
@@ -1315,7 +1325,7 @@ class MongoAdapter {
   }
 
   private build_alerts() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listOpenForAquarium(aquariumId?: any) {
@@ -1370,7 +1380,7 @@ class MongoAdapter {
   }
 
   private build_maintenance() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any, options: any = {}) {
@@ -1391,8 +1401,8 @@ class MongoAdapter {
         if (logs.length === 0) return [];
 
         const creatorIds = Array.from(new Set(logs.map((l: any) => l.created_by).filter(Boolean)));
-        const users = creatorIds.length > 0 ? await db.collection('users').find({ id: { $in: creatorIds } }).toArray() : [];
-        const userMap = new Map<number, { username: string; email?: string }>(users.map((u: any) => [u.id, u.username]));
+        const users = creatorIds.length > 0 ? await db.collection<UserRecord & { _id?: number }>('users').find({ id: { $in: creatorIds } }).toArray() : [];
+        const userMap = new Map<number, string>(users.map(u => [u.id, u.username]));
 
         return logs.map((l: any) => ({
           ...l,
@@ -1465,8 +1475,8 @@ class MongoAdapter {
 
           const maintRows = await db.collection('maintenance_logs').find(filter).sort({ logged_at: -1 }).toArray();
           const creatorIds = Array.from(new Set(maintRows.map((r: any) => r.created_by).filter(Boolean)));
-          const users = creatorIds.length > 0 ? await db.collection('users').find({ id: { $in: creatorIds } }).toArray() : [];
-          const userMap = new Map<number, { username: string; email?: string }>(users.map((u: any) => [u.id, u.username]));
+          const users = creatorIds.length > 0 ? await db.collection<UserRecord & { _id?: number }>('users').find({ id: { $in: creatorIds } }).toArray() : [];
+          const userMap = new Map<number, string>(users.map(u => [u.id, u.username]));
 
           for (const row of maintRows) {
             const typeDef = cfg.maintenanceService.MAINTENANCE_TYPES[row.type] || { label: row.type, icon: '📝' };
@@ -1532,59 +1542,59 @@ class MongoAdapter {
   }
 
   private build_invitations() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async findById(id?: any) {
         if (!id) return null;
-        const inv = await db.collection('invitations').findOne({ id: Number(id) });
+        const inv = await db.collection<Invitation & { _id?: number }>('invitations').findOne({ id: Number(id) });
         if (!inv) return null;
         if (inv.created_by) {
-          const u = await db.collection('users').findOne({ id: inv.created_by });
+          const u = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: inv.created_by });
           inv.created_by_username = u ? u.username : null;
         }
         return inv;
       },
       async findByCode(code?: any) {
         if (!code) return null;
-        const inv = await db.collection('invitations').findOne(
+        const inv = await db.collection<Invitation & { _id?: number }>('invitations').findOne(
           { code: { $regex: new RegExp(`^${escapeRegex(String(code).trim())}$`, 'i') } }
         );
         if (!inv) return null;
         if (inv.created_by) {
-          const u = await db.collection('users').findOne({ id: inv.created_by });
+          const u = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: inv.created_by });
           inv.created_by_username = u ? u.username : null;
         }
         return inv;
       },
       async findByEmail(email?: any) {
         if (!email) return [];
-        const invs = await db.collection('invitations').find(
+        const invs = await db.collection<Invitation & { _id?: number }>('invitations').find(
           { email: { $regex: new RegExp(`^${escapeRegex(String(email).trim())}$`, 'i') } }
         ).sort({ id: -1 }).toArray();
         for (const inv of invs) {
           if (inv.created_by) {
-            const u = await db.collection('users').findOne({ id: inv.created_by });
+            const u = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: inv.created_by });
             inv.created_by_username = u ? u.username : null;
           }
         }
         return invs;
       },
       async listAll() {
-        const invs = await db.collection('invitations').find({}).sort({ id: -1 }).toArray();
+        const invs = await db.collection<Invitation & { _id?: number }>('invitations').find({}).sort({ id: -1 }).toArray();
         for (const inv of invs) {
           if (inv.created_by) {
-            const u = await db.collection('users').findOne({ id: inv.created_by });
+            const u = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: inv.created_by });
             inv.created_by_username = u ? u.username : null;
           }
         }
         return invs;
       },
       async listForUser(userId?: any) {
-        const invs = await db.collection('invitations').find({ created_by: Number(userId) }).sort({ id: -1 }).toArray();
+        const invs = await db.collection<Invitation & { _id?: number }>('invitations').find({ created_by: Number(userId) }).sort({ id: -1 }).toArray();
         for (const inv of invs) {
           if (inv.created_by) {
-            const u = await db.collection('users').findOne({ id: inv.created_by });
+            const u = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: inv.created_by });
             inv.created_by_username = u ? u.username : null;
           }
         }
@@ -1634,7 +1644,7 @@ class MongoAdapter {
   }
 
   private build_aquariumChats() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any, options: any = {}) {
@@ -1694,7 +1704,7 @@ class MongoAdapter {
   }
 
   private build_dosingPumps() {
-    const db = this.db;
+    const db = this.connection();
     const self = this;
     return {
       async listForAquarium(aquariumId?: any) {
@@ -1708,7 +1718,7 @@ class MongoAdapter {
           interval_days: r.interval_days,
           time_of_day: r.time_of_day || null,
           last_dosed_at: r.last_dosed_at || null,
-          is_active: r.is_active !== undefined ? (r.is_active ? 1 : 0) : 1,
+          is_active: (r.is_active !== undefined ? (r.is_active ? 1 : 0) : 1) as 0 | 1,
           note: r.note || null,
           created_at: r.created_at,
         }));
@@ -1725,7 +1735,7 @@ class MongoAdapter {
           interval_days: r.interval_days,
           time_of_day: r.time_of_day || null,
           last_dosed_at: r.last_dosed_at || null,
-          is_active: r.is_active !== undefined ? (r.is_active ? 1 : 0) : 1,
+          is_active: (r.is_active !== undefined ? (r.is_active ? 1 : 0) : 1) as 0 | 1,
           note: r.note || null,
           created_at: r.created_at,
         };
@@ -1751,7 +1761,7 @@ class MongoAdapter {
           interval_days: Number(interval_days) || 1,
           time_of_day: time_of_day ? String(time_of_day).trim() : null,
           last_dosed_at: null,
-          is_active: is_active ? 1 : 0,
+          is_active: (is_active ? 1 : 0) as 0 | 1,
           note: note ? String(note).trim() : null,
           created_at: new Date().toISOString(),
         };

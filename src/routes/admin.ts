@@ -1,3 +1,4 @@
+import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
 'use strict';
 import express = require('express');
@@ -332,7 +333,8 @@ router.post(
       const lang = req.body?.language || req.user.language || 'de';
       const result = await mailService.sendTestEmail(toEmail, req.user.username, lang);
       res.json({ ok: true, message: `Test-E-Mail erfolgreich an ${toEmail} gesendet.`, result });
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       res.status(500).json({ error: `SMTP-Fehler: ${err.message}` });
     }
   })
@@ -421,6 +423,7 @@ router.post(
         expires_at: expiresAt,
         note,
       });
+    if (!inv) return res.status(500).json({ error: 'Einladung konnte nicht geladen werden.' });
 
       const inviteLang = req.body.language || req.user.language || 'de';
       const expiresDateStr = new Date(expiresAt).toLocaleDateString(inviteLang === 'en' ? 'en-US' : 'de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -471,6 +474,7 @@ router.post(
       expires_at: expiresAt,
       note,
     });
+    if (!inv) return res.status(500).json({ error: 'Einladung konnte nicht geladen werden.' });
 
     res.json({
       ok: true,
@@ -525,7 +529,8 @@ router.put(
     try {
       const updated = legalConfigService.saveConfig(req.body || {});
       res.json({ ok: true, config: updated });
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       res.status(400).json({ error: err.message });
     }
   })

@@ -1,145 +1,107 @@
-'use strict';
-import { Worker } from 'worker_threads';
-import path = require('path');
-import os = require('os');
-import thread_workerModule = require('./thread-worker');
-const { TASK_HANDLERS } = thread_workerModule;
-
+import { Worker } from 'node:worker_threads';
+import path from 'node:path';
+import os from 'node:os';
+import { asError } from './app-error';
+import threadWorker = require('./thread-worker');
+import type { TaskName, TaskPayloads, TaskResults, WorkerReply } from '../types/worker';
+interface PoolWorker extends Worker { poolIndex: number; isBusy: boolean; taskId?: number }
+interface PendingTask { id: number; name: TaskName; payload: TaskPayloads[TaskName]; resolve: (value: unknown) => void; reject: (error: Error) => void }
+interface WorkerPoolOptions { numWorkers?: number; workerPath?: string }
 class WorkerPool {
-  numWorkers: any;
-  workerPath: any;
-  workers: any;
-  freeWorkers: any;
-  queue: any;
-  taskId: any;
-  pendingTasks: any;
-  isTerminated: any;
-  _initialized: any;
-
-  constructor(options: any = {}) {
-    const defaultWorkers = Math.min(4, Math.max(1, (os.availableParallelism ? os.availableParallelism() : os.cpus().length)));
+  readonly numWorkers: number;
+  readonly workerPath: string;
+  private workers = new Map<number, PoolWorker>();
+  private freeWorkers: PoolWorker[] = [];
+  private queue: PendingTask[] = [];
+  private taskId = 0;
+  private pendingTasks = new Map<number, PendingTask>();
+  private isTerminated = false;
+  private _initialized = false;
+  constructor(options: WorkerPoolOptions = {}) {
+    const defaultWorkers = Math.min(4, Math.max(1, os.availableParallelism ? os.availableParallelism() : os.cpus().length));
     this.numWorkers = Number(options.numWorkers || process.env.WORKER_THREADS || defaultWorkers);
     this.workerPath = options.workerPath || path.resolve(__dirname, './thread-worker.js');
-    this.workers = [];
-    this.freeWorkers = [];
-    this.queue = [];
-    this.taskId = 0;
-    this.pendingTasks = new Map();
-    this.isTerminated = false;
-    this._initialized = false;
   }
-
-  init() {
+  init(): this {
     if (this._initialized || this.isTerminated) return this;
-    for (let i = 0; i < this.numWorkers; i++) {
-      this._createWorker(i);
-    }
+    for (let index = 0; index < this.numWorkers; index++) this._createWorker(index);
     this._initialized = true;
     return this;
   }
-
-  _createWorker(index?: any) {
+  private _createWorker(index: number): void {
     if (this.isTerminated) return;
     try {
-      const worker = new Worker(this.workerPath) as InstanceType<typeof Worker> & { poolIndex: number; isBusy: boolean };
+      const worker = new Worker(this.workerPath) as PoolWorker;
       worker.poolIndex = index;
       worker.isBusy = false;
       worker.unref();
-
-      worker.on('message', (msg: any) => {
-        const { id, success, result, error } = msg;
-        const task = this.pendingTasks.get(id);
+      worker.on('message', (message: WorkerReply) => {
+        const task = this.pendingTasks.get(message.id);
         if (task) {
-          this.pendingTasks.delete(id);
-          if (success) {
-            task.resolve(result);
-          } else {
-            task.reject(new Error(error));
-          }
+          this.pendingTasks.delete(message.id);
+          if (message.success) task.resolve(message.result);
+          else task.reject(new Error(message.error));
         }
+        worker.taskId = undefined;
         worker.isBusy = false;
         worker.unref();
         this.freeWorkers.push(worker);
         this._dispatchNext();
       });
-
-      worker.on('error', (err: any) => {
-        console.error(`Worker Thread #${index} Fehler:`, err.message);
+      worker.on('error', (error: Error) => {
+        console.error(`Worker Thread #${index} Fehler:`, error.message);
         this._replaceWorker(worker, index);
       });
-
-      worker.on('exit', (code: any) => {
-        if (!this.isTerminated && code !== 0) {
-          console.warn(`Worker Thread #${index} unerwartet beendet mit Code ${code}`);
-          this._replaceWorker(worker, index);
-        }
+      worker.on('exit', (code: number) => {
+        if (!this.isTerminated && code !== 0) this._replaceWorker(worker, index);
       });
-
-      this.workers[index] = worker;
+      this.workers.set(index, worker);
       this.freeWorkers.push(worker);
-    } catch (err) {
-      console.warn(`Worker Threads nicht verfügbar: ${err.message}. Verwende Fallback.`);
-    }
+      this._dispatchNext();
+    } catch (error) { console.warn(`Worker Threads nicht verfügbar: ${asError(error).message}. Verwende Fallback.`); }
   }
-
-  _replaceWorker(oldWorker?: any, index?: any) {
-    const idx = this.freeWorkers.indexOf(oldWorker);
-    if (idx !== -1) this.freeWorkers.splice(idx, 1);
-    try {
-      oldWorker.terminate();
-    } catch (e) {}
+  private _replaceWorker(oldWorker: PoolWorker, index: number): void {
+    // error and exit can report the same failure; replace each worker once.
+    if (this.workers.get(index) !== oldWorker || this.isTerminated) return;
+    this.workers.delete(index);
+    this.freeWorkers = this.freeWorkers.filter(worker => worker !== oldWorker);
+    if (oldWorker.taskId !== undefined) {
+      this.pendingTasks.get(oldWorker.taskId)?.reject(new Error('Worker wurde während des Auftrags beendet.'));
+      this.pendingTasks.delete(oldWorker.taskId);
+    }
+    void oldWorker.terminate();
     this._createWorker(index);
   }
-
-  _dispatchNext() {
-    if (this.isTerminated || this.queue.length === 0 || this.freeWorkers.length === 0) {
-      return;
-    }
-    const worker = this.freeWorkers.pop();
-    const task = this.queue.shift();
+  private _dispatchNext(): void {
+    if (this.isTerminated || !this.queue.length || !this.freeWorkers.length) return;
+    const worker = this.freeWorkers.pop()!;
+    const task = this.queue.shift()!;
     worker.isBusy = true;
+    worker.taskId = task.id;
     worker.ref();
     this.pendingTasks.set(task.id, task);
     worker.postMessage({ id: task.id, task: task.name, payload: task.payload });
   }
-
-  async exec(taskName?: any, payload: any = {}) {
-    // Falls WorkerPool noch nicht initialisiert oder keine Worker Threads verfügbar: Fallback auf Direktaufruf
-    if (!this._initialized && !this.isTerminated) {
-      this.init();
-    }
-
-    if (this.isTerminated || this.workers.length === 0) {
-      const handler = TASK_HANDLERS[taskName];
-      if (!handler) throw new Error(`Unbekannter Task: ${taskName}`);
-      return handler(payload);
-    }
-
+  async exec<K extends TaskName>(name: K, payload: TaskPayloads[K]): Promise<TaskResults[K]> {
+    if (!this._initialized && !this.isTerminated) this.init();
+    if (this.isTerminated || !this.workers.size) return threadWorker.executeTask(name, payload);
     const id = ++this.taskId;
-    return new Promise((resolve?: any, reject?: any) => {
-      this.queue.push({ id, name: taskName, payload, resolve, reject });
+    return new Promise<TaskResults[K]>((resolve, reject) => {
+      this.queue.push({ id, name, payload, resolve: result => resolve(result as TaskResults[K]), reject });
       this._dispatchNext();
     });
   }
-
-  async terminate() {
+  async terminate(): Promise<void> {
     this.isTerminated = true;
-    for (const [, task] of this.pendingTasks) {
-      task.reject(new Error('WorkerPool wurde beendet.'));
-    }
+    for (const task of [...this.pendingTasks.values(), ...this.queue]) task.reject(new Error('WorkerPool wurde beendet.'));
     this.pendingTasks.clear();
     this.queue = [];
-    const termPromises = this.workers.map((w: any) => w.terminate());
-    this.workers = [];
+    const workers = [...this.workers.values()];
+    this.workers.clear();
     this.freeWorkers = [];
     this._initialized = false;
-    await Promise.allSettled(termPromises);
+    await Promise.allSettled(workers.map(worker => worker.terminate()));
   }
 }
-
-const defaultPool = new WorkerPool();
-
-export = {
-  WorkerPool,
-  workerPool: defaultPool,
-};
+const workerPool = new WorkerPool();
+export = { WorkerPool, workerPool };

@@ -1,3 +1,4 @@
+import { asError } from './app-error';
 import type { RequestHandler, Request, Response } from 'express';
 import logger = require('./logger');
 
@@ -10,7 +11,8 @@ function reportError(error: unknown, req: Request, res: Response): void {
 const wrap = (fn: RequestHandler): RequestHandler => (req, res, next) => {
   try {
     Promise.resolve(fn(req, res, next)).catch((error: unknown) => reportError(error, req, res));
-  } catch (error) { reportError(error, req, res); }
+  } catch (caught: unknown) {
+    const error = asError(caught); reportError(error, req, res); }
 };
 const str = (value: unknown, max: number): string => typeof value === 'string' ? value.trim().slice(0, max) : '';
 function fmt(parameter: { decimals: number; unit?: string }, value: number): string {

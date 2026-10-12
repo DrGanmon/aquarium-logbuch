@@ -1,3 +1,8 @@
+import type { UserRecord, StockRecord } from '../types/domain';
+import type { WaterTest } from '../types/catalog';
+import { isRecord } from '../utils/validation';
+interface ChatMessage { role: 'user' | 'assistant'; content: string }
+interface CompressionOptions { maxRecent?: number; maxTotalChars?: number; maxOldTurnChars?: number }
 'use strict';
 import db = require('../db');
 import cfg = require('../../config');
@@ -17,13 +22,13 @@ const DEFAULT_GEMINI_MODEL = GEMINI_MODEL || 'gemini-2.5-flash';
 const DEFAULT_CLAUDE_MODEL = CLAUDE_MODEL || 'claude-3-5-haiku-20241022';
 const OPENAI_URL_BASE = (OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
 
-const AI_PROVIDERS: Record<string, any> = {
+const AI_PROVIDERS: Record<string, string> = {
   OPENAI: 'openai',
   GEMINI: 'gemini',
   CLAUDE: 'claude',
 };
 
-function formatValue(p?: any, val?: any) {
+function formatValue(p: Pick<WaterTest, 'decimals'> | null | undefined, val: number | null | undefined) {
   if (val == null || Number.isNaN(val)) return '–';
   const decimals = p?.decimals != null ? p.decimals : 1;
   return Number(val).toLocaleString('de-DE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
@@ -32,7 +37,7 @@ function formatValue(p?: any, val?: any) {
 /**
  * Erstellt den strukturierten Kontext und System-Prompt für ein Aquarium.
  */
-async function buildAquariumSystemPrompt(aquariumId?: any, customDb: any = null) {
+async function buildAquariumSystemPrompt(aquariumId: number, customDb: typeof db | null = null) {
   const database = customDb || db;
   const aq = await database.aquariums.findById(aquariumId);
   if (!aq) {
@@ -41,7 +46,7 @@ async function buildAquariumSystemPrompt(aquariumId?: any, customDb: any = null)
 
   // Besatz abrufen
   const stockRows = await database.stock.listForAquarium(aquariumId);
-  const stockDetails = stockRows.map((s: any) => {
+  const stockDetails = stockRows.map((s: StockRecord) => {
     const sp = cfg.speciesService.findSpeciesByName(s.species) || cfg.speciesService.getSpeciesById(s.species);
     return {
       name: s.name || s.species,
@@ -74,7 +79,7 @@ async function buildAquariumSystemPrompt(aquariumId?: any, customDb: any = null)
   }
 
   // Profile und Grenzwerte berechnen
-  const profileKeys = stockRows.map((s: any) => s.profile || 'allgemein');
+  const profileKeys = stockRows.map((s: StockRecord) => s.profile || 'allgemein');
   const { thresholds } = cfg.thresholdsFor(aq.water_type, profileKeys);
 
   // Letzte 10 Messungen abrufen
@@ -597,7 +602,7 @@ async function callClaude({ apiKey, model, systemPrompt, messages = [], message 
 /**
  * Löst den aktiven Provider, Key und Modell für den Chat auf.
  */
-function resolveProviderAndConfig(user?: any, requestedProvider: any = null) {
+function resolveProviderAndConfig(user?: Partial<Pick<UserRecord, 'ai_provider' | 'openai_api_key' | 'openai_model' | 'gemini_api_key' | 'gemini_model' | 'claude_api_key' | 'claude_model'>> | null, requestedProvider: string | null = null) {
   let provider = (requestedProvider || user?.ai_provider || '').toLowerCase().trim();
 
   // Wenn kein Provider gewählt ist, anhand vorhandener Keys automatisch bestimmen
@@ -637,7 +642,7 @@ function resolveProviderAndConfig(user?: any, requestedProvider: any = null) {
  * - Fasst ältere Gesprächsrunden zu einer kompakten, strukturierten Zusammenfassung zusammen,
  *   damit der Assistent weiß, was bereits besprochen/empfohlen wurde, ohne das Token-Limit zu sprengen.
  */
-function compressChatHistory(messages: any = [], options: any = {}) {
+function compressChatHistory(messages: unknown = [], options: CompressionOptions = {}): ChatMessage[] {
   const maxRecent = options.maxRecent || 10;
   const maxTotalChars = options.maxTotalChars || 12000;
   const maxOldTurnChars = options.maxOldTurnChars || 220;
@@ -645,20 +650,14 @@ function compressChatHistory(messages: any = [], options: any = {}) {
   if (!Array.isArray(messages) || messages.length === 0) return [];
 
   // Bereinigen & filtern
-  const valid = messages
-    .filter(
-      (m: any) =>
-        m &&
-        (m.role === 'user' || m.role === 'assistant') &&
-        typeof m.content === 'string' &&
-        m.content.trim()
-    )
-    .map((m: any) => ({ role: m.role, content: m.content.trim() }));
+  const valid: ChatMessage[] = messages.filter(isRecord)
+    .filter(message => (message.role === 'user' || message.role === 'assistant') && typeof message.content === 'string' && message.content.trim())
+    .map(message => ({ role: message.role === 'assistant' ? 'assistant' : 'user', content: String(message.content).trim() }));
 
   if (valid.length === 0) return [];
 
   // Wenn Historie klein genug ist, direkt zurückgeben
-  const totalLength = valid.reduce((sum?: any, m?: any) => sum + m.content.length, 0);
+  const totalLength = valid.reduce((sum: number, m: ChatMessage) => sum + m.content.length, 0);
   if (valid.length <= maxRecent && totalLength <= maxTotalChars) {
     return valid;
   }

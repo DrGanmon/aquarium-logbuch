@@ -1,3 +1,4 @@
+import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
 'use strict';
 import express = require('express');
@@ -19,7 +20,8 @@ router.get('/login', async (req: Request, res: Response) => {
     const { url, state } = await oidc.startLogin();
     setCookie(res, 'oidc_state', state, 600);
     res.redirect(302, url);
-  } catch (e) {
+  } catch (caught: unknown) {
+    const e = asError(caught);
     console.error('OIDC-Login fehlgeschlagen:', e.message);
     appRedirect(res, `${OIDC_PROVIDER_NAME} ist nicht erreichbar.`);
   }
@@ -32,7 +34,8 @@ router.get('/link', auth, async (req: Request, res: Response) => {
     setCookie(res, 'oidc_state', state, 600);
     setCookie(res, 'oidc_link_user', String(req.user.id), 600);
     res.redirect(302, url);
-  } catch (e) {
+  } catch (caught: unknown) {
+    const e = asError(caught);
     console.error('OIDC-Link fehlgeschlagen:', e.message);
     appRedirect(res, `${OIDC_PROVIDER_NAME} ist nicht erreichbar.`);
   }
@@ -68,7 +71,8 @@ router.get('/callback', async (req: Request, res: Response) => {
     }
     await startSession(res, db, user.id, idToken);
     appRedirect(res);
-  } catch (e) {
+  } catch (caught: unknown) {
+    const e = asError(caught);
     console.error('OIDC-Callback fehlgeschlagen:', e.message);
     appRedirect(res, e.message.startsWith('Anmeldung abgebrochen') ? e.message : 'Die Anmeldung ist fehlgeschlagen. Bitte erneut versuchen.');
   }

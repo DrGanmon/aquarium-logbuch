@@ -1,3 +1,5 @@
+import type { TaskPayloads, TaskResults, TaskName, WorkerRequest, WorkerReply, Statistics } from '../types/worker';
+import { asError } from './app-error';
 'use strict';
 import { parentPort } from 'worker_threads';
 import crypto = require('crypto');
@@ -5,14 +7,14 @@ import { promisify } from 'util';
 
 const scryptAsync = promisify(crypto.scrypt) as (password: crypto.BinaryLike, salt: crypto.BinaryLike, keylen: number) => Promise<Buffer>;
 
-const TASK_HANDLERS: Record<string, any> = {
-  hashPassword: async ({ pw, saltHex }: any) => {
+const TASK_HANDLERS: { [K in TaskName]: (payload: TaskPayloads[K]) => TaskResults[K] | Promise<TaskResults[K]> } = {
+  hashPassword: async ({ pw, saltHex }: TaskPayloads['hashPassword']) => {
     const salt = saltHex ? Buffer.from(saltHex, 'hex') : crypto.randomBytes(16);
     const hash = await scryptAsync(pw, salt, 64);
     return `${salt.toString('hex')}:${hash.toString('hex')}`;
   },
 
-  verifyPassword: async ({ pw, stored }: any) => {
+  verifyPassword: async ({ pw, stored }: TaskPayloads['verifyPassword']) => {
     const [saltHex, hashHex] = String(stored || '').split(':');
     if (!saltHex || !hashHex) return false;
     try {
@@ -23,7 +25,7 @@ const TASK_HANDLERS: Record<string, any> = {
     }
   },
 
-  inspectImage: ({ buffer }: any) => {
+  inspectImage: ({ buffer }: TaskPayloads['inspectImage']) => {
     const buf = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
     if (!buf || buf.length < 12) return null;
 
@@ -45,8 +47,8 @@ const TASK_HANDLERS: Record<string, any> = {
     return null;
   },
 
-  computeStats: ({ measurements, params }: any) => {
-    const stats: Record<string, any> = {};
+  computeStats: ({ measurements, params }: TaskPayloads['computeStats']) => {
+    const stats: Record<string, Statistics> = {};
     for (const p of params) {
       const values = [];
       for (const m of measurements) {
@@ -55,7 +57,7 @@ const TASK_HANDLERS: Record<string, any> = {
         }
       }
       if (values.length > 0) {
-        const sum = values.reduce((a?: any, b?: any) => a + b, 0);
+        const sum = values.reduce((a: number, b: number) => a + b, 0);
         const min = Math.min(...values);
         const max = Math.max(...values);
         const avg = sum / values.length;
@@ -66,20 +68,23 @@ const TASK_HANDLERS: Record<string, any> = {
   },
 };
 
+async function executeTask<K extends TaskName>(name: K, payload: TaskPayloads[K]): Promise<TaskResults[K]> {
+  const handler = TASK_HANDLERS[name] as (value: TaskPayloads[K]) => TaskResults[K] | Promise<TaskResults[K]>;
+  if (!handler) throw new Error(`Unbekannter Worker-Task: ${name}`);
+  return handler(payload);
+}
+
 if (parentPort) {
-  parentPort.on('message', async (msg: any) => {
+  parentPort.on('message', async (msg: WorkerRequest) => {
     const { id, task, payload } = msg;
     try {
-      const handler = TASK_HANDLERS[task];
-      if (!handler) {
-        throw new Error(`Unbekannter Worker-Task: ${task}`);
-      }
-      const result = await handler(payload);
+      const result = await executeTask(task, payload);
       parentPort?.postMessage({ id, success: true, result });
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       parentPort?.postMessage({ id, success: false, error: err.message || String(err) });
     }
   });
 }
 
-export = { TASK_HANDLERS };
+export = { TASK_HANDLERS, executeTask };

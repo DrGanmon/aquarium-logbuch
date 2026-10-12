@@ -89,3 +89,17 @@ test('Produktionslayout läuft ohne TypeScript-Quellen oder Compiler', (t) => {
   assert.ifError(result.error);
   assert.equal(result.status, 0, result.stderr || result.stdout);
 });
+
+test('Repository- und Worker-Verträge erkennen falsche Nutzdaten', (t) => {
+  const result = checkFixture(t, `import type { StockRepository } from '${path.join(root, 'src/types/repositories')}';
+    import { WorkerPool } from '${path.join(root, 'src/utils/worker-pool')}';
+    declare const stock: StockRepository;
+    stock.create({ aquarium_id: 1, species: 'Guppy', count: 'three' });
+    const pool = new WorkerPool();
+    pool.exec('hashPassword', { pw: 123 });
+    pool.exec('missingTask', {});`);
+  assert.ifError(result.error);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /TS2322/);
+  assert.match(result.stderr, /missingTask/);
+});

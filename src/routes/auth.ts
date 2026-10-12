@@ -1,3 +1,4 @@
+import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
 'use strict';
 import express = require('express');
@@ -563,7 +564,8 @@ router.post(
     try {
       const result = await testOpenAiConnection(keyToTest, modelToTest);
       res.json(result);
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       res.status(400).json({ error: err.message });
     }
   })
@@ -581,7 +583,8 @@ router.post(
     try {
       const models = await fetchOpenAiModels(keyToUse);
       res.json({ ok: true, provider: 'openai', models });
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       res.status(400).json({ error: err.message });
     }
   })
@@ -661,7 +664,8 @@ router.post(
     try {
       const result = await testGeminiConnection(keyToTest, modelToTest);
       res.json(result);
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       res.status(400).json({ error: err.message });
     }
   })
@@ -679,7 +683,8 @@ router.post(
     try {
       const models = await fetchGeminiModels(keyToUse);
       res.json({ ok: true, provider: 'gemini', models });
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       res.status(400).json({ error: err.message });
     }
   })
@@ -759,7 +764,8 @@ router.post(
     try {
       const result = await testClaudeConnection(keyToTest, modelToTest);
       res.json(result);
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       res.status(400).json({ error: err.message });
     }
   })
@@ -777,7 +783,8 @@ router.post(
     try {
       const models = await fetchClaudeModels(keyToUse);
       res.json({ ok: true, provider: 'claude', models });
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       res.status(400).json({ error: err.message });
     }
   })
@@ -805,7 +812,8 @@ router.post(
     try {
       const result = await testAiConnection({ provider, apiKey, model });
       res.json(result);
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       res.status(400).json({ error: err.message });
     }
   })
@@ -832,7 +840,8 @@ router.post(
     try {
       const models = await fetchProviderModels({ provider, apiKey });
       res.json({ ok: true, provider, models });
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       res.status(400).json({ error: err.message });
     }
   })
@@ -958,6 +967,7 @@ router.post(
         expires_at: expiresAt,
         note,
       });
+    if (!inv) return res.status(500).json({ error: 'Einladung konnte nicht geladen werden.' });
 
       const expiresDateStr = new Date(expiresAt).toLocaleDateString(req.user.language === 'en' ? 'en-US' : 'de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
       const inviteLang = req.body.language || req.user.language || 'de';
@@ -1004,6 +1014,7 @@ router.post(
       expires_at: expiresAt,
       note,
     });
+    if (!inv) return res.status(500).json({ error: 'Einladung konnte nicht geladen werden.' });
 
     res.json({
       ok: true,
@@ -1045,6 +1056,7 @@ router.post(
     }
     const { current, next } = req.body;
     const user = await db.users.findById(req.user.id);
+    if (!user) return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
     if (!String(user.password_hash).includes(':')) {
       return res.status(400).json({ error: 'Dieses Konto hat kein lokales Passwort.' });
     }

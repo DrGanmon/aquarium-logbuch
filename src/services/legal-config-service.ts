@@ -1,3 +1,7 @@
+import { JsonConfigStore } from './json-config-store';
+import { asRecord } from '../utils/validation';
+interface LegalSettings { contactEmail: string | null; imprintEmail: string | null }
+import { asError } from '../utils/app-error';
 'use strict';
 import path = require('path');
 import fs = require('fs');
@@ -7,7 +11,7 @@ import logger = require('../utils/logger');
 
 const CONFIG_FILE = path.join(DATA_DIR, 'legal-config.json');
 
-const APP_LICENSE: Record<string, any> = {
+const APP_LICENSE = {
   identifier: 'CC-BY-NC-SA-4.0',
   name: 'Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)',
   summary: 'Lizenz für private Nutzung und Weiterentwicklung. Erlaubt die private, persönliche Nutzung und Modifikation. Modifikationen und Weiterentwicklungen müssen unter derselben Lizenz (Copyleft / ShareAlike) und mit Urhebernennung veröffentlicht werden. Jegliche kommerzielle Nutzung ist vollständig untersagt.',
@@ -19,10 +23,12 @@ const APP_LICENSE: Record<string, any> = {
 };
 
 class LegalConfigService {
-  configFile: any;
+  readonly configFile: string;
+  private readonly store: JsonConfigStore<LegalSettings>;
 
-  constructor() {
-    this.configFile = CONFIG_FILE;
+  constructor(configFile = CONFIG_FILE) {
+    this.configFile = configFile;
+    this.store = new JsonConfigStore(configFile, message => logger.error(`Fehler beim Lesen der Legal-Konfiguration: ${message}`, 'legal'));
     this._ensureDirs();
   }
 
@@ -39,30 +45,26 @@ class LegalConfigService {
    */
   getConfig() {
     this._ensureDirs();
-    let fileConfig: Record<string, any> = {};
-    if (fs.existsSync(this.configFile)) {
-      try {
-        fileConfig = JSON.parse(fs.readFileSync(this.configFile, 'utf8'));
-      } catch (err) {
-        logger.error(`Fehler beim Lesen der Legal-Konfiguration: ${err.message}`, 'legal');
-      }
-    }
+    const fileConfig = this.store.read();
+    const configuredContact = typeof fileConfig.contactEmail === 'string' ? fileConfig.contactEmail : '';
+    const configuredImprint = typeof fileConfig.imprintEmail === 'string' ? fileConfig.imprintEmail : '';
 
-    const contactEmail = (fileConfig.contactEmail || ENV_CONTACT_EMAIL || 'dr@ganmon.org').trim();
-    const imprintEmail = (fileConfig.imprintEmail || ENV_IMPRINT_EMAIL || contactEmail || 'dr@ganmon.org').trim();
+    const contactEmail = (configuredContact || ENV_CONTACT_EMAIL || 'dr@ganmon.org').trim();
+    const imprintEmail = (configuredImprint || ENV_IMPRINT_EMAIL || contactEmail || 'dr@ganmon.org').trim();
 
     return {
       contactEmail,
       imprintEmail,
       license: APP_LICENSE,
-      hasCustomConfig: !!(fileConfig.contactEmail || fileConfig.imprintEmail),
+      hasCustomConfig: !!(configuredContact || configuredImprint),
     };
   }
 
   /**
    * Speichert neue Einstellungen für Impressums- und Kontakt-E-Mails.
    */
-  saveConfig(newConfig: any = {}) {
+  saveConfig(input: unknown = {}) {
+    const newConfig = asRecord(input);
     this._ensureDirs();
 
     let contactEmail = newConfig.contactEmail !== undefined
@@ -80,12 +82,12 @@ class LegalConfigService {
     }
 
     const current = this.getConfig();
-    const toSave: Record<string, any> = {
+    const toSave: LegalSettings = {
       contactEmail: contactEmail !== undefined ? contactEmail : (current.hasCustomConfig ? current.contactEmail : null),
       imprintEmail: imprintEmail !== undefined ? imprintEmail : (current.hasCustomConfig ? current.imprintEmail : null),
     };
 
-    fs.writeFileSync(this.configFile, JSON.stringify(toSave, null, 2), 'utf8');
+    this.store.write(toSave);
     logger.info(
       `Rechtliche Konfiguration aktualisiert: Kontakt=${toSave.contactEmail}, Impressum=${toSave.imprintEmail}`,
       'legal'
@@ -98,6 +100,7 @@ class LegalConfigService {
 const legalConfigService = new LegalConfigService();
 
 export = {
+  LegalConfigService,
   legalConfigService,
   APP_LICENSE,
 };

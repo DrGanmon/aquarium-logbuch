@@ -20,8 +20,8 @@
     "esModuleInterop": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
-    "strictPropertyInitialization": false,
-    "useUnknownInCatchVariables": false
+    "strictPropertyInitialization": true,
+    "useUnknownInCatchVariables": true
   },
   "include": [
     "server.ts",

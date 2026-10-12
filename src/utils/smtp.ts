@@ -1,3 +1,4 @@
+import { asError } from './app-error';
 'use strict';
 import net = require('net');
 import tls = require('tls');
@@ -355,7 +356,8 @@ function sendSmtpMail(config?: any, mailOptions?: any) {
         socket = net.createConnection({ host, port }, onConnect);
       }
       attachSocketListeners();
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       cleanup();
       reject(err);
     }

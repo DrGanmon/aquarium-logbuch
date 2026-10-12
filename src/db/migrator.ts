@@ -1,3 +1,4 @@
+import { asError } from '../utils/app-error';
 'use strict';
 import path = require('path');
 import fs = require('fs');
@@ -149,7 +150,8 @@ function loadMigrations(migrationsDir?: any) {
         file,
         path: fullPath,
       });
-    } catch (err) {
+    } catch (caught: unknown) {
+      const err = asError(caught);
       throw new Error(`Fehler beim Laden der Migration '${file}': ${err.message}`);
     }
   }
