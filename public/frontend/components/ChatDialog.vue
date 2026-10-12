@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, nextTick } from "vue";
+import { onMounted, onBeforeUnmount, ref, nextTick } from "vue";
 import Modal from "./Modal.vue";
 import MarkdownText from "./MarkdownText.vue";
 import { api } from "../api";
@@ -14,6 +14,23 @@ const error = ref("");
 const container = ref<HTMLElement>();
 const context = ref("");
 const provider = ref(session.user?.aiProvider || "openai");
+const viewportStyle = ref<Record<string, string>>({});
+function updateViewport() {
+  const viewport = window.visualViewport;
+  if (viewport) viewportStyle.value = {
+    "--chat-viewport-height": `${viewport.height}px`,
+    "--chat-viewport-top": `${viewport.offsetTop}px`,
+  };
+}
+onMounted(() => {
+  updateViewport();
+  window.visualViewport?.addEventListener("resize", updateViewport);
+  window.visualViewport?.addEventListener("scroll", updateViewport);
+});
+onBeforeUnmount(() => {
+  window.visualViewport?.removeEventListener("resize", updateViewport);
+  window.visualViewport?.removeEventListener("scroll", updateViewport);
+});
 onMounted(async () => {
   try {
     messages.value = (
@@ -75,9 +92,9 @@ async function clear() {
 }
 </script>
 <template>
-  <Modal :title="`🤖 Aquarium-Assistent · ${name}`" wide @close="emit('close')"
+  <Modal :title="`🤖 Aquarium-Assistent · ${name}`" wide dialog-class="aquarium-chat-modal" :dialog-style="viewportStyle" @close="emit('close')"
     ><div class="stack chat-dialog">
-      <div class="row between">
+      <div class="row between chat-toolbar">
         <select v-model="provider">
           <option v-if="session.user?.hasOpenaiKey" value="openai">
             OpenAI
@@ -159,7 +176,7 @@ async function clear() {
           {{ prompt }}
         </button>
       </div>
-      <form class="row" @submit.prevent="send()">
+      <form class="row chat-input-form" @submit.prevent="send()">
         <textarea
           v-model="input"
           rows="2"
@@ -169,7 +186,7 @@ async function clear() {
         /><button class="btn" :disabled="busy">Senden</button>
       </form>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
-      <p class="muted" style="font-size: 0.8rem">
+      <p class="muted chat-disclaimer" style="font-size: 0.8rem">
         KI-Antworten können Fehler enthalten. Beim Senden werden Beckendaten an
         den ausgewählten Anbieter übermittelt.
       </p>

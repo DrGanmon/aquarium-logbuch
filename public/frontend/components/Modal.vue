@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, type CSSProperties } from "vue";
 import { t } from "../state";
-defineProps<{ title: string; wide?: boolean }>();
+defineProps<{ title: string; wide?: boolean; dialogClass?: string; dialogStyle?: CSSProperties }>();
 const emit = defineEmits<{ close: [] }>();
 const dialog = ref<HTMLDialogElement>();
 onMounted(() => dialog.value?.showModal());
@@ -10,7 +10,8 @@ onMounted(() => dialog.value?.showModal());
   <Teleport to="body"
     ><dialog
       ref="dialog"
-      :class="{ wide }"
+      :class="[{ wide }, dialogClass]"
+      :style="dialogStyle"
       @cancel.prevent="emit('close')"
       @click="
         (event) => {
