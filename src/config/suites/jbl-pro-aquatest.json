@@ -122,8 +122,8 @@
       "max": 10,
       "wait": 900,
       "verified": true,
-      "hint": "5 ml Probewasser: 4 Tropfen Reagens 1 (schwenken), 4 Tropfen Reagens 2 (schwenken), 5 Tropfen Reagens 3 (schwenken). 10 Minuten warten und im Komparatorblock ablesen.",
-      "hint_en": "5 ml sample water: 4 drops reagent 1, 4 drops reagent 2, 5 drops reagent 3 (swirl after each). Wait 10 min and read in comparator block.",
+      "hint": "5 ml Probewasser: 4 Tropfen Reagens 1 (schwenken), 4 Tropfen Reagens 2 (schwenken), 5 Tropfen Reagens 3 (schwenken). 15 Minuten warten und im Komparatorblock ablesen.",
+      "hint_en": "5 ml sample water: 4 drops reagent 1, 4 drops reagent 2, 5 drops reagent 3 (swirl after each). Wait 15 min and read in comparator block.",
       "fresh": { "okMin": 0, "okMax": 0.1, "critMin": null, "critMax": 0.5 },
       "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.25 },
       "consumable": {
