@@ -51,7 +51,6 @@ jobs:
     env:
       APP_VERSION: ${{ needs.version.outputs.version }}
       AQUARIUM_TEST_JOBS: '2'
-      MONGOMS_DOWNLOAD_DIR: ${{ runner.temp }}/aquarium-mongodb-binaries
       MONGOMS_USE_ARCHIVE_NAME_FOR_BINARY_NAME: 'true'
     runs-on: ubuntu-latest
     strategy:
@@ -67,6 +66,8 @@ jobs:
         if: matrix.runtime == 'bun'
         with:
           bun-version: '1.4.3'
+      - name: Set MongoDB test cache directory
+        run: echo "MONGOMS_DOWNLOAD_DIR=$RUNNER_TEMP/aquarium-mongodb-binaries" >> "$GITHUB_ENV"
       - name: Cache MongoDB test binaries
         uses: actions/cache@v4
         with:
