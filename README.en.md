@@ -30,6 +30,8 @@ In the optional AI chat, you interact with an AI system; its responses are autom
 - **Use on mobile:** German/English, light/dark/system themes, home-screen installation and timer notifications.
 - **Stay up to date:** A popup offers to reload when a newer frontend version is available.
 
+- **Social community:** Public photo feed with captions, avatars, likes, comments and share links; uploads are resized server-side to 1600 pixels. [Details](docs/en/social.md).
+
 ## Technical features
 
 - Vue 3, Vite and TypeScript frontend; Express and TypeScript backend.
@@ -74,7 +76,7 @@ For SQLite, use `docker compose -f docker-compose.sqlite.yml up -d` instead. Adj
 
 ## Limits and roadmap
 
-Target ranges and suspected diagnoses provide guidance and do not replace professional examination. Timer notifications depend on browser and operating system behavior; the app does not offer a complete offline mode. Dosing pump plans do not control hardware. Automatic emails for critical threshold alarms and a social area are planned.
+Target ranges and suspected diagnoses provide guidance and do not replace professional examination. Timer notifications depend on browser and operating system behavior; the app does not offer a complete offline mode. Dosing pump plans do not control hardware. Automatic emails for critical threshold alarms are planned.
 
 ## License
 

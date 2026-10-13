@@ -15,3 +15,4 @@ Dieses Handbuch beschreibt Bedienung, Modulabläufe, Konfiguration und Betrieb. 
 - [Architektur, Build und Entwicklung](architecture.md)
 - [Versionen, Commits und Updates](versioning.md)
 - [Rechtsseiten und Lizenzen](legal.md)
+- [Social: öffentlicher Feed, Likes und Kommentare](social.md)

@@ -9,6 +9,7 @@ import AquariumView from "./views/AquariumView.vue";
 import MeasureView from "./views/MeasureView.vue";
 import ProfileView from "./views/ProfileView.vue";
 import SpeciesView from "./views/SpeciesView.vue";
+import SocialView from "./views/SocialView.vue";
 import HealthView from "./views/HealthView.vue";
 import AdminView from "./views/AdminView.vue";
 import LegalView from "./views/LegalView.vue";
@@ -40,6 +41,7 @@ onMounted(initialize);
 </script>
 <template>
   <Topbar
+    :public-view="route.path.startsWith('/social')"
     :user="session.user"
     :language="language"
     :t="t"
@@ -55,6 +57,7 @@ onMounted(initialize);
       v-else-if="route.path === '/share/invite'"
       :token="route.query.get('token') || ''"
     />
+    <SocialView v-else-if="route.path === '/social' || route.path.startsWith('/social/')" />
     <AuthView
       v-else-if="!session.user || publicAuth"
       :key="route.path + route.query.toString()"

@@ -30,6 +30,8 @@ Im optionalen KI-Chat interagierst du mit einem KI-System; dessen Antworten sind
 - **Mobil verwenden:** Deutsch/Englisch, helles/dunkles/systemabhängiges Design, Homescreen-Installation und Timer-Benachrichtigungen.
 - **Aktuell bleiben:** Popup bei neuerer Frontend-Version mit Angebot zum Neuladen.
 
+- **Social-Community:** Öffentlicher Bilderfeed mit Texten, Profilbildern, Likes, Kommentaren und Teilen-Links; Uploads werden serverseitig auf 1600 Pixel begrenzt. [Details](docs/de/social.md).
+
 ## Technische Features
 
 - Vue 3, Vite und TypeScript im Frontend; Express und TypeScript im Backend.
@@ -74,7 +76,7 @@ Für SQLite stattdessen `docker compose -f docker-compose.sqlite.yml up -d` verw
 
 ## Grenzen und Ausblick
 
-Grenzwerte und Verdachtsdiagnosen sind Orientierungshilfen und ersetzen keine fachliche Untersuchung. Timer-Benachrichtigungen hängen von Browser und Betriebssystem ab; die App bietet keinen vollständigen Offline-Modus. Dosierpumpenpläne steuern keine Hardware. Automatische E-Mails bei kritischen Grenzwert-Alarmen und ein Social-Bereich sind geplant.
+Grenzwerte und Verdachtsdiagnosen sind Orientierungshilfen und ersetzen keine fachliche Untersuchung. Timer-Benachrichtigungen hängen von Browser und Betriebssystem ab; die App bietet keinen vollständigen Offline-Modus. Dosierpumpenpläne steuern keine Hardware. Automatische E-Mails bei kritischen Grenzwert-Alarmen sind geplant.
 
 ## Lizenz
 

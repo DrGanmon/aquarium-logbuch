@@ -107,6 +107,7 @@ onMounted(async () => {
     </div>
     <div v-if="page === 'datenschutz'" class="legal-box stack">
       <h1>{{ t("legal.content.privacyHeading") }}</h1>
+      <section class="card stack"><h2>{{ t("social.privacyTitle") }}</h2><p>{{ t("social.privacyText") }}</p></section>
       <p class="muted" style="margin: 0">
         {{ t("legal.content.privacyIntro") }}
       </p>
@@ -221,6 +222,7 @@ onMounted(async () => {
       <p class="muted" style="margin: 0">
         {{ t("legal.content.licensesIntro") }}
       </p>
+      <div class="license-card stack"><div class="row between"><strong>sharp (v0.35.5)</strong><span class="chip ok">Apache License 2.0</span></div><p>{{ t("social.imageLicense") }}</p><p class="muted">Copyright © Lovell Fuller and contributors · <a href="https://github.com/lovell/sharp/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">Apache-2.0</a></p></div>
       <div class="license-card stack" style="gap: 0.4rem">
         <div class="row between" style="align-items: center">
           <h3 style="margin: 0; font-size: 1.1rem">

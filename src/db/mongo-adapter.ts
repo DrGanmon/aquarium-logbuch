@@ -1,3 +1,4 @@
+import { SocialRepository } from "./social-repository";
 import type { UserRecord, Aquarium, AccessRole, StockRecord, Measurement, AquariumImage, AquariumShare, Invitation } from '../types/domain';
 import type { MongoConnection } from '../types/database-driver';
 import type { RepositoryContract, UserQueries, AquariumQueries, StockRepository, PumpRepository, MeasurementQueries } from '../types/repositories';
@@ -42,6 +43,7 @@ class MongoAdapter {
   maintenance!: ReturnType<MongoAdapter['build_maintenance']>;
   invitations!: ReturnType<MongoAdapter['build_invitations']>;
   aquariumChats!: ReturnType<MongoAdapter['build_aquariumChats']>;
+  social!: SocialRepository;
   dosingPumps!: RepositoryContract<ReturnType<MongoAdapter['build_dosingPumps']>, PumpRepository>;
 
   constructor(options: DatabaseOptions = {}) {
@@ -234,6 +236,7 @@ class MongoAdapter {
     this.aquariumChats = this.build_aquariumChats();
 
     this.dosingPumps = this.build_dosingPumps();
+    this.social = new SocialRepository(this.type, this.connection(), name => this.getNextSequence(name));
   }
 
   async exportAllData() {
@@ -280,6 +283,9 @@ class MongoAdapter {
       invitations,
       aquarium_chats,
       dosing_pumps,
+      social_posts: await safeGetDocs('social_posts'),
+      social_comments: await safeGetDocs('social_comments'),
+      social_likes: await safeGetDocs('social_likes'),
     };
   }
 
@@ -302,6 +308,7 @@ class MongoAdapter {
     const userIds = users.map((u: any) => u.id);
     const currentSessions = await db.collection('sessions').find({ expires_at: { $gt: Date.now() } }).toArray();
 
+    await this.social.clear();
     // Collections leeren
     await Promise.all([
       db.collection('users').deleteMany({}),
@@ -373,6 +380,7 @@ class MongoAdapter {
     const migRes = await runMigrationsMongo(db);
     this.schemaVersion = migRes.currentVersion;
 
+    await this.social.importData(data);
     return true;
   }
 
@@ -522,6 +530,7 @@ class MongoAdapter {
       },
       async delete(id?: any) {
         const numId = Number(id);
+        await self.social.deleteUser(numId);
         const user = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: numId });
         if (user && user.avatar_file) {
           deleteImage(user.avatar_file);

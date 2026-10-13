@@ -21,7 +21,7 @@ const gunzipAsync = promisify(zlib.gunzip);
 const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
 const CONFIG_FILE = path.join(DATA_DIR, 'backup-config.json');
 
-const CURRENT_SCHEMA_VERSION = 2;
+const CURRENT_SCHEMA_VERSION = 3;
 const APP_VERSION = require('./version-service').getAppVersion();
 
 const DEFAULT_CONFIG: Record<string, any> = {
@@ -681,6 +681,21 @@ class BackupService {
       };
     }).filter(Boolean);
 
+    // Social data from v3 backups; old backups have an empty public feed.
+    const validId = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value > 0;
+    const socialPosts = (Array.isArray(data.social_posts) ? data.social_posts : []).filter((post: any) =>
+      validId(post.id) && validUserIds.has(post.user_id) && typeof post.filename === 'string'
+      && typeof post.text === 'string' && post.width > 0 && post.width <= 1600 && post.height > 0 && post.height <= 1600)
+      .map((post: any) => ({ id: post.id, user_id: post.user_id, filename: path.basename(post.filename), width: post.width,
+        height: post.height, text: post.text.slice(0, 2200), created_at: post.created_at || new Date().toISOString() }));
+    const socialIds = new Set(socialPosts.map((post: any) => post.id));
+    const socialComments = (Array.isArray(data.social_comments) ? data.social_comments : []).filter((comment: any) =>
+      validId(comment.id) && socialIds.has(comment.post_id) && validUserIds.has(comment.user_id) && typeof comment.text === 'string')
+      .map((comment: any) => ({ id: comment.id, post_id: comment.post_id, user_id: comment.user_id,
+        text: comment.text.slice(0, 1000), created_at: comment.created_at || new Date().toISOString() }));
+    const socialLikes = (Array.isArray(data.social_likes) ? data.social_likes : []).filter((like: any) => socialIds.has(like.post_id) && validUserIds.has(like.user_id))
+      .map((like: any) => ({ post_id: like.post_id, user_id: like.user_id }));
+
     // Bereinige Files (Path Traversal Protection)
     const cleanFiles: Record<string, any> = {};
     if (files && typeof files === 'object') {
@@ -706,6 +721,9 @@ class BackupService {
         alerts: normalizedAlerts,
         maintenance_logs: normalizedMaint,
         dosing_pumps: normalizedDosingPumps,
+        social_posts: socialPosts,
+        social_comments: socialComments,
+        social_likes: socialLikes,
       },
       files: cleanFiles,
     };

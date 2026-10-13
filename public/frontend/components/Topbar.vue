@@ -4,6 +4,7 @@ import { themeIcon, toggleTheme } from "../state";
 import type { User, Translate } from "../types";
 const props = defineProps<{
   user: User | null;
+  publicView?: boolean;
   language: string;
   t: Translate;
 }>();
@@ -20,7 +21,7 @@ const avatar = computed(() =>
 </script>
 
 <template>
-  <header class="topbar" id="topbar" :hidden="!user">
+  <header class="topbar" id="topbar" :hidden="!user && !publicView">
     <a class="brand" href="#/">
       <img
         src="favicon-32x32.png"
@@ -32,11 +33,14 @@ const avatar = computed(() =>
       <span id="topbar-brand-name">{{ t("common.appName") }}</span>
     </a>
     <div class="topbar-right">
-      <a class="btn small ghost" id="btn-species" href="#/species">{{
+      <a class="btn small ghost" v-if="user" id="btn-species" href="#/species">{{
         t("nav.species")
       }}</a>
-      <a class="btn small ghost" href="#/health">🩺 {{ t("nav.health") }}</a>
+      <a class="btn small ghost" v-if="user" href="#/health">🩺 {{ t("nav.health") }}</a>
+      <a class="btn small ghost" href="#/social">{{ t("social.title") }}</a>
+      <a v-if="!user" class="btn small ghost" href="#/">{{ t("auth.loginBtn") }}</a>
       <a
+        v-if="user"
         class="btn small ghost topbar-user"
         id="btn-profile"
         href="#/profile"
@@ -82,6 +86,7 @@ const avatar = computed(() =>
       </button>
       <button
         class="btn small ghost"
+        v-if="user"
         id="btn-logout"
         type="button"
         @click="$emit('logout')"

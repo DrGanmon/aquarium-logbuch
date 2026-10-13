@@ -1,3 +1,4 @@
+import { SocialRepository } from "./social-repository";
 import type { UserRecord, Aquarium, AccessRole, StockRecord, Measurement, DosingPump, AquariumImage, AquariumShare, Invitation } from '../types/domain';
 import type { SqliteConnection } from '../types/database-driver';
 import type { RepositoryContract, UserQueries, AquariumQueries, StockRepository, PumpRepository, MeasurementQueries } from '../types/repositories';
@@ -37,6 +38,7 @@ class SqliteAdapter {
   maintenance!: ReturnType<SqliteAdapter['build_maintenance']>;
   invitations!: ReturnType<SqliteAdapter['build_invitations']>;
   aquariumChats!: ReturnType<SqliteAdapter['build_aquariumChats']>;
+  social!: SocialRepository;
   dosingPumps!: RepositoryContract<ReturnType<SqliteAdapter['build_dosingPumps']>, PumpRepository>;
 
   constructor(options: DatabaseOptions = {}) {
@@ -129,6 +131,7 @@ class SqliteAdapter {
     this.aquariumChats = this.build_aquariumChats();
 
     this.dosingPumps = this.build_dosingPumps();
+    this.social = new SocialRepository(this.type, this.connection());
   }
 
   async exportAllData() {
@@ -185,6 +188,9 @@ class SqliteAdapter {
       invitations,
       aquarium_chats,
       dosing_pumps,
+      social_posts: safeGetAll('social_posts'),
+      social_comments: safeGetAll('social_comments'),
+      social_likes: safeGetAll('social_likes', 'post_id ASC, user_id ASC'),
     };
   }
 
@@ -210,6 +216,7 @@ class SqliteAdapter {
     const runImport = db.transaction(() => {
       db.pragma('foreign_keys = OFF');
 
+      this.social.clearSqlite();
       db.exec('DELETE FROM dosing_pumps');
       db.exec('DELETE FROM aquarium_chats');
       db.exec('DELETE FROM invitations');
@@ -463,6 +470,7 @@ class SqliteAdapter {
         }
       }
 
+      this.social.importSqliteData(data);
       db.pragma('foreign_keys = ON');
     });
 
@@ -614,6 +622,7 @@ class SqliteAdapter {
       },
       async delete(id?: any) {
         const numId = Number(id);
+        await self.social.deleteUser(numId);
         const user = db.prepare<UserRecord>('SELECT * FROM users WHERE id = ?').get(numId);
         if (user && user.avatar_file) {
           deleteImage(user.avatar_file);
