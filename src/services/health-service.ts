@@ -2,10 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { AppError } from '../utils/app-error';
 import { asRecord, isRecord } from '../utils/validation';
+import speciesModule = require('./species-service');
 import type { WaterType } from '../types/domain';
 import type {
   AnswerInput, AutomaticAnswer, DiagnosisDocument, DiagnosisNode, DiagnosisOutcome, DiagnosisTree,
-  Disease, DiseaseDocument, HealthContext, HealthLanguage, HealthMeasurement, HealthQuestion, SpeciesRanges,
+  Disease, DiseaseDocument, HealthContext, HealthLanguage, HealthMeasurement, HealthQuestion, SpeciesRanges, MedicationDocument,
 } from '../types/health';
 
 const DATA_DIRECTORY = path.join(__dirname, '../config/health');
@@ -21,8 +22,8 @@ interface CheckedMeasurement { answer?: boolean; evidence: AutomaticAnswer['evid
 /** Read-only, versioned disease database; no user data is stored in this shared cache. */
 export class HealthService {
   private readonly bundles = new Map<string, HealthBundle>();
-  private ranges: Map<string, SpeciesRanges> | null = null;
-  constructor(private readonly directory = DATA_DIRECTORY) {}
+  private readonly medicationDocuments = new Map<HealthLanguage, MedicationDocument>();
+  constructor(private readonly directory = DATA_DIRECTORY, private readonly species = speciesModule.speciesCatalog) {}
 
   private read(filename: string): Record<string, unknown> {
     const data: unknown = JSON.parse(fs.readFileSync(path.join(this.directory, filename), 'utf8'));
@@ -41,10 +42,18 @@ export class HealthService {
       || !isRecord(diagnosis.species) || !isRecord(diagnosis.questions) || !isRecord(diagnosis.trees)) throw new Error('Unvollständige Gesundheitsdaten.');
     const diseaseIds = new Set(diseases.diseases.map(disease => disease.id));
     if (diseaseIds.size !== diseases.diseases.length) throw new Error('Doppelte Krankheits-IDs.');
+    for (const [id, association] of Object.entries(diseases.speciesIndex)) {
+      const species = this.species.getSpeciesById(id, lang);
+      if (!species) throw new Error(`Unbekannte Gesundheitsart: ${id}`);
+      association.name = species.name; association.scientificName = species.scientificName;
+    }
     for (const disease of diseases.diseases) {
       if (!disease.id || !disease.name || !Array.isArray(disease.affectedSpecies) || disease.sources.some(id => !own(diseases.sources, id))) throw new Error(`Ungültige Krankheit: ${disease.id}`);
     }
     for (const [speciesId, species] of Object.entries(diagnosis.species)) {
+      const catalogSpecies = this.species.getSpeciesById(speciesId, lang);
+      if (!catalogSpecies) throw new Error(`Unbekannte Diagnoseart: ${speciesId}`);
+      species.name = catalogSpecies.name; species.scientificName = catalogSpecies.scientificName;
       const tree = own(diagnosis.trees, species.treeId);
       if (!tree || !own(diseases.speciesIndex, speciesId) || species.candidates.some(candidate => !diseaseIds.has(candidate.diseaseId) || candidate.priorWeight <= 0)) throw new Error(`Ungültiger Diagnosebaum: ${speciesId}`);
       const validateNode = (node: DiagnosisNode, depth = 0): void => {
@@ -69,16 +78,54 @@ export class HealthService {
   }
 
   speciesRanges(speciesId: string): SpeciesRanges | null {
-    if (!this.ranges) {
-      this.ranges = new Map();
-      for (const file of ['freshwater-popular', 'cichlids', 'invertebrates', 'saltwater']) {
-        const data = this.read(`species/${file}.json`);
-        for (const raw of Array.isArray(data.species) ? data.species : []) {
-          if (isRecord(raw) && typeof raw.id === 'string') this.ranges.set(canonicalHealthSpeciesId(raw.id), raw as unknown as SpeciesRanges);
-        }
+    const species = this.species.getSpeciesById(canonicalHealthSpeciesId(speciesId));
+    return species ? { id: species.id, name: species.name, scientificName: species.scientificName,
+      waterType: species.waterType === 'salt' ? 'salt' : 'fresh', temp: species.temp, ph: species.ph, gh: species.gh, kh: species.kh } : null;
+  }
+
+  private medicationDocument(language = 'de'): MedicationDocument {
+    const lang = healthLanguage(language);
+    const cached = this.medicationDocuments.get(lang);
+    if (cached) return cached;
+    const document = this.read(`${lang}/medications.json`) as unknown as MedicationDocument;
+    if (!Array.isArray(document.medications) || !Array.isArray(document.supplies) || !isRecord(document.sources)) throw new Error('Unvollständige Medikamentendaten.');
+    const ids = new Set<string>();
+    const diseaseIds = new Set(['fresh', 'salt'].flatMap(water => this.bundle(water as WaterType, lang).diseases.diseases.map(disease => disease.id)));
+    for (const item of [...document.medications, ...document.supplies]) {
+      if (!item.id || ids.has(item.id) || !item.name || !Array.isArray(item.indications) || !Array.isArray(item.sources)
+        || item.sources.some(id => !own(document.sources, id)) || item.indications.some(indication => !diseaseIds.has(indication.diseaseId))
+        || !['otc', 'rx', 'not_a_medicine'].includes(item.legalStatus) || item.waterTypes.some(water => !['fresh', 'salt'].includes(water))) {
+        throw new Error(`Ungültiges Medikament: ${item.id}`);
       }
+      ids.add(item.id);
     }
-    return this.ranges.get(canonicalHealthSpeciesId(speciesId)) || null;
+    for (const water of ['fresh', 'salt'] as const) for (const disease of this.bundle(water, lang).diseases.diseases) {
+      if (disease.recommendedMedications.some(item => !ids.has(item.medicationId))) throw new Error(`Unbekannte Medikamentenzuordnung: ${disease.id}`);
+    }
+    this.medicationDocuments.set(lang, document);
+    return document;
+  }
+
+  medications(options: { waterType?: WaterType; diseaseId?: string; query?: string; legalStatus?: string; language?: string } = {}) {
+    const document = this.medicationDocument(options.language);
+    const query = (options.query || '').trim().toLocaleLowerCase();
+    const items = [...document.medications.map(item => ({ ...item, kind: 'medication' as const })),
+      ...document.supplies.map(item => ({ ...item, kind: 'supply' as const }))].filter(item =>
+      (!options.waterType || item.waterTypes.includes(options.waterType))
+      && (!options.diseaseId || item.indications.some(indication => indication.diseaseId === options.diseaseId))
+      && (!options.legalStatus || item.legalStatus === options.legalStatus)
+      && (!query || [item.name, item.category, ...item.activeSubstances, ...item.productExamples.map(product => product.name)].join(' ').toLocaleLowerCase().includes(query)));
+    return { items, total: items.length, version: document.version, description: document.description, disclaimer: document.disclaimer,
+      homePharmacyScale: document.homePharmacyScale, homePharmacyCriteria: document.homePharmacyCriteria,
+      legalNotes: document.legalNotes, legalStatusVerifiedNote: document.legalStatusVerifiedNote };
+  }
+
+  medication(id: string, language = 'de') {
+    const document = this.medicationDocument(language);
+    const item = this.medications({ language }).items.find(item => item.id === id);
+    return item ? { ...item, disclaimer: document.disclaimer, legalNotes: document.legalNotes,
+      legalStatusVerifiedNote: document.legalStatusVerifiedNote,
+      sourceDetails: item.sources.map(id => ({ id, ...document.sources[id] })) } : null;
   }
 
   catalog(options: { waterType?: WaterType; speciesId?: string; query?: string; language?: string } = {}) {
@@ -114,6 +161,7 @@ export class HealthService {
       const association = speciesId ? own(diseases.speciesIndex, canonicalHealthSpeciesId(speciesId)) : undefined;
       const affectedSpecies = [...new Set(disease.affectedSpecies.map(canonicalHealthSpeciesId))];
       return { ...disease, waterType, affectedSpecies, affectedSpeciesCount: affectedSpecies.length,
+        medications: disease.recommendedMedications.map(recommendation => ({ ...this.medication(recommendation.medicationId, language)!, role: recommendation.role, roleLabel: recommendation.roleLabel })),
         sourceDetails: disease.sources.map(source => ({ id: source, ...diseases.sources[source] })),
         speciesSigns: association?.diseases.find(item => item.diseaseId === id)?.signs || [],
         treatmentCautions: association?.treatmentCautions || [], disclaimer: diseases.disclaimer, legalNotes: diseases.legalNotes,

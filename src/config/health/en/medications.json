@@ -1,0 +1,1567 @@
+{
+  "id": "medications-en",
+  "name": "Medications and Home Pharmacy for Ornamental Fish",
+  "language": "en",
+  "version": "2026-10-13",
+  "description": "The most common medications and supplies for aquarium fish, mapped to the diseases in diseases-freshwater.json and diseases-saltwater.json.",
+  "homePharmacyScale": "Home pharmacy rating: 1 = unimportant, 10 = very important. Separately for freshwater and marine; null = not relevant for this water type.",
+  "homePharmacyCriteria": [
+    "How common is the disease?",
+    "Is fast action required (no time to obtain it)?",
+    "Freely available and safe for use by laypeople?",
+    "Shelf life and storage"
+  ],
+  "legalNotes": [
+    "Legal situation in Germany. Ornamental fish medicines without prescription-only substances are exempt from marketing authorisation under § 4 TAMG and freely available.",
+    "Antimicrobial veterinary medicines (antibiotics, metronidazole) are prescription-only under Art. 34 Regulation (EU) 2019/6.",
+    "The status may differ in other countries."
+  ],
+  "legalStatusVerifiedNote": "legalStatusVerified = true: status confirmed in the EU product database, by law or by the manufacturer; false: plausible but not individually checked.",
+  "disclaimer": "No dosage information – always follow the package insert or veterinary instructions. Product examples are not a recommendation of a particular brand.",
+  "legalStatusLabels": {
+    "otc": "available without prescription (pet trade)",
+    "rx": "prescription-only (veterinarian)",
+    "not_a_medicine": "not a medicine – freely available (shops, pharmacy, drugstore)"
+  },
+  "roleLabels": {
+    "first_choice": "first choice",
+    "alternative": "alternative",
+    "supportive": "supportive",
+    "euthanasia": "humane euthanasia",
+    "vet_only": "only as prescribed by a veterinarian"
+  },
+  "medicationCount": 20,
+  "supplyCount": 4,
+  "medications": [
+    {
+      "id": "malachite-green-formaldehyde",
+      "name": "Malachite green + formaldehyde (combination product)",
+      "category": "Antiparasitic (protozoa) and antifungal",
+      "activeSubstances": [
+        "malachite green oxalate",
+        "formaldehyde"
+      ],
+      "productExamples": [
+        {
+          "name": "sera Costapur F",
+          "manufacturer": "sera",
+          "sourceId": "eu-upd-costapur"
+        },
+        {
+          "name": "sera Pond Omnisan F (Teich)",
+          "manufacturer": "sera",
+          "sourceId": "eu-upd-costapur"
+        }
+      ],
+      "legalStatus": "otc",
+      "legalStatusLabel": "available without prescription (pet trade)",
+      "legalStatusVerified": true,
+      "legalNote": "Ornamental fish medicines without prescription-only substances are exempt from marketing authorisation under § 4 TAMG and freely available.",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": false,
+      "indications": [
+        {
+          "diseaseId": "ichthyophthiriasis",
+          "disease": "White Spot Disease (Ichthyophthiriasis)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "skin-protozoa",
+          "disease": "Skin and Gill Clouding by Protozoa (Costia, Chilodonella, Trichodina)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "saprolegniasis",
+          "disease": "Fungal Infection (Saprolegniasis)",
+          "role": "alternative",
+          "roleLabel": "alternative"
+        },
+        {
+          "diseaseId": "piscinoodiniosis",
+          "disease": "Velvet Disease (Piscinoodiniosis, 'Oodinium')",
+          "role": "alternative",
+          "roleLabel": "alternative"
+        },
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "role": "alternative",
+          "roleLabel": "alternative"
+        },
+        {
+          "diseaseId": "brooklynellosis",
+          "disease": "Clownfish Disease (Brooklynellosis)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "uronemosis",
+          "disease": "Uronema Infection (Scuticociliatosis)",
+          "role": "alternative",
+          "roleLabel": "alternative"
+        }
+      ],
+      "cautions": [
+        "Not for cartilaginous fish (e.g. rays) and invertebrates (according to the package leaflet).",
+        "Loaches, catfish and knifefish are considered very sensitive to malachite green.",
+        "Formaldehyde lowers oxygen levels – aerate strongly.",
+        "Malachite green is light-sensitive – store in the dark."
+      ],
+      "use": "Dosage and duration strictly according to the package insert; remove activated carbon during treatment and use it afterwards to remove residues.",
+      "homePharmacy": {
+        "freshwater": 9,
+        "saltwater": 6,
+        "reason": "Covers the most common aquarium disease (white spot) and other skin parasites, freely available, fast action is crucial."
+      },
+      "sources": [
+        "eu-upd-costapur",
+        "sera-costapur-leaflet",
+        "ufifas-fa006"
+      ]
+    },
+    {
+      "id": "malachite-green-methylene-blue-ethacridine",
+      "name": "Malachite green + methylene blue + ethacridine (combination product)",
+      "category": "Antiparasitic (protozoa), antifungal, antiseptic",
+      "activeSubstances": [
+        "malachite green oxalate",
+        "methylthioninium chloride (methylene blue)",
+        "ethacridine lactate"
+      ],
+      "productExamples": [
+        {
+          "name": "Exit",
+          "manufacturer": "Sea Horse IPC (eSHa)",
+          "sourceId": "eu-upd-exit"
+        },
+        {
+          "name": "PROTOMOR",
+          "manufacturer": "Aquarium Münster Pahlsmeier",
+          "sourceId": "eu-upd-protomor"
+        }
+      ],
+      "legalStatus": "otc",
+      "legalStatusLabel": "available without prescription (pet trade)",
+      "legalStatusVerified": true,
+      "legalNote": "Ornamental fish medicines without prescription-only substances are exempt from marketing authorisation under § 4 TAMG and freely available.",
+      "waterTypes": [
+        "fresh"
+      ],
+      "invertebrateSafe": false,
+      "indications": [
+        {
+          "diseaseId": "ichthyophthiriasis",
+          "disease": "White Spot Disease (Ichthyophthiriasis)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "skin-protozoa",
+          "disease": "Skin and Gill Clouding by Protozoa (Costia, Chilodonella, Trichodina)",
+          "role": "alternative",
+          "roleLabel": "alternative"
+        },
+        {
+          "diseaseId": "saprolegniasis",
+          "disease": "Fungal Infection (Saprolegniasis)",
+          "role": "alternative",
+          "roleLabel": "alternative"
+        },
+        {
+          "diseaseId": "piscinoodiniosis",
+          "disease": "Velvet Disease (Piscinoodiniosis, 'Oodinium')",
+          "role": "alternative",
+          "roleLabel": "alternative"
+        }
+      ],
+      "cautions": [
+        "Stains silicone, decoration and water.",
+        "Scaleless species react sensitively.",
+        "Do not combine with other remedies."
+      ],
+      "use": "Dosage and duration strictly according to the package insert; remove activated carbon during treatment and use it afterwards to remove residues.",
+      "homePharmacy": {
+        "freshwater": 7,
+        "saltwater": null,
+        "reason": "Equivalent alternative to the malachite green/formaldehyde product; one of the two is enough in the home pharmacy."
+      },
+      "sources": [
+        "eu-upd-exit",
+        "eu-upd-protomor",
+        "ufifas-fa006"
+      ]
+    },
+    {
+      "id": "copper-antiseptic-combination",
+      "name": "Copper sulfate + acriflavine + ethacridine + methylene blue (combination product)",
+      "category": "Antifungal and antiseptic",
+      "activeSubstances": [
+        "copper sulfate",
+        "acriflavinium chloride",
+        "ethacridine lactate",
+        "methylthioninium chloride"
+      ],
+      "productExamples": [
+        {
+          "name": "OASE AntiPilz",
+          "manufacturer": "Aquarium Münster Pahlsmeier",
+          "sourceId": "eu-upd-antipilz"
+        },
+        {
+          "name": "TetraMedica FungiStop plus",
+          "manufacturer": "Tetra",
+          "sourceId": "eu-upd-antipilz"
+        }
+      ],
+      "legalStatus": "otc",
+      "legalStatusLabel": "available without prescription (pet trade)",
+      "legalStatusVerified": true,
+      "legalNote": "Ornamental fish medicines without prescription-only substances are exempt from marketing authorisation under § 4 TAMG and freely available.",
+      "waterTypes": [
+        "fresh"
+      ],
+      "invertebrateSafe": false,
+      "indications": [
+        {
+          "diseaseId": "saprolegniasis",
+          "disease": "Fungal Infection (Saprolegniasis)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "aeromonas-fin-rot",
+          "disease": "Fin Rot and Bacterial Ulcers (Aeromonas, Pseudomonas)",
+          "role": "supportive",
+          "roleLabel": "supportive"
+        }
+      ],
+      "cautions": [
+        "Contains copper – considerably more toxic in soft water with low KH (UF/IFAS FA008).",
+        "Lethal to invertebrates."
+      ],
+      "use": "Dosage and duration strictly according to the package insert; remove activated carbon during treatment and use it afterwards to remove residues.",
+      "homePharmacy": {
+        "freshwater": 6,
+        "saltwater": null,
+        "reason": "Helps with fungal infection and as wound protection; fungal infection is usually secondary, hence medium priority."
+      },
+      "sources": [
+        "eu-upd-antipilz",
+        "ufifas-fa008"
+      ]
+    },
+    {
+      "id": "copper-marine",
+      "name": "Copper product for marine aquariums (copper therapy)",
+      "category": "Antiparasitic (protozoa)",
+      "activeSubstances": [
+        "copper (Cu²⁺, e.g. as sulfate or citrate)"
+      ],
+      "productExamples": [],
+      "legalStatus": "otc",
+      "legalStatusLabel": "available without prescription (pet trade)",
+      "legalStatusVerified": false,
+      "legalNote": "Available in specialist shops as an ornamental fish remedy or water additive; check the legal status of the specific product.",
+      "waterTypes": [
+        "salt"
+      ],
+      "invertebrateSafe": false,
+      "indications": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        }
+      ],
+      "cautions": [
+        "Therapeutic range 0.15–0.20 mg/L free copper; check daily with a copper test (UF/IFAS FA165).",
+        "Only in a quarantine tank without invertebrates, calcareous rock and sand.",
+        "Dwarf angelfish and some other species are copper-sensitive.",
+        "Return invertebrates only at no more than 0.01 mg/L copper."
+      ],
+      "use": "Dose only with a copper test; keep the concentration in the therapeutic range for the entire treatment.",
+      "homePharmacy": {
+        "freshwater": null,
+        "saltwater": 8,
+        "reason": "Standard therapy against the two most dangerous marine parasites – but only useful together with a copper test and quarantine tank."
+      },
+      "sources": [
+        "ufifas-fa165",
+        "ufifas-fa164",
+        "srac-amyloodinium"
+      ]
+    },
+    {
+      "id": "praziquantel",
+      "name": "Praziquantel",
+      "category": "Anthelmintic (flatworms)",
+      "activeSubstances": [
+        "Praziquantel"
+      ],
+      "productExamples": [
+        {
+          "name": "sera med Professional Tremazol",
+          "manufacturer": "sera",
+          "sourceId": "sera-tremazol"
+        }
+      ],
+      "legalStatus": "otc",
+      "legalStatusLabel": "available without prescription (pet trade)",
+      "legalStatusVerified": false,
+      "legalNote": "Freely available in the pet trade (manufacturer: water treatment for ornamental fish).",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": null,
+      "indications": [
+        {
+          "diseaseId": "monogenea-fw",
+          "disease": "Skin and Gill Flukes (Monogenea: Gyrodactylus, Dactylogyrus)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "monogenea-marine",
+          "disease": "Skin and Gill Flukes in Marine Fish (Monogenea)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "cestodiasis",
+          "disease": "Tapeworms (Cestodiasis)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "black-spot-disease",
+          "disease": "Black Spot Disease (Paravortex, 'Black Ich')",
+          "role": "alternative",
+          "roleLabel": "alternative"
+        }
+      ],
+      "cautions": [
+        "Check tolerance for invertebrates with the manufacturer.",
+        "Repeat treatment for egg-laying gill flukes."
+      ],
+      "use": "Dosage and duration strictly according to the package insert; remove activated carbon during treatment and use it afterwards to remove residues.",
+      "homePharmacy": {
+        "freshwater": 8,
+        "saltwater": 8,
+        "reason": "Skin and gill flukes are common, especially in new fish; well tolerated and freely available."
+      },
+      "sources": [
+        "sera-tremazol",
+        "ufifas-fa033"
+      ]
+    },
+    {
+      "id": "emamectin-nematol",
+      "name": "Emamectin (nematodes)",
+      "category": "Anthelmintic (roundworms)",
+      "activeSubstances": [
+        "Emamectin"
+      ],
+      "productExamples": [
+        {
+          "name": "sera med Professional Nematol",
+          "manufacturer": "sera",
+          "sourceId": "sera-nematol"
+        }
+      ],
+      "legalStatus": "otc",
+      "legalStatusLabel": "available without prescription (pet trade)",
+      "legalStatusVerified": true,
+      "legalNote": "According to the manufacturer, the first freely available ornamental fish remedy against nematodes; other substances (levamisole, fenbendazole) are prescription-only.",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": false,
+      "indications": [
+        {
+          "diseaseId": "camallanus",
+          "disease": "Red Intestinal Worms (Camallanosis)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "capillariasis",
+          "disease": "Capillaria Worms (Capillariasis)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        }
+      ],
+      "cautions": [
+        "Shrimp and crayfish do not tolerate the treatment (manufacturer)."
+      ],
+      "use": "Dosage and duration strictly according to the package insert; remove activated carbon during treatment and use it afterwards to remove residues.",
+      "homePharmacy": {
+        "freshwater": 7,
+        "saltwater": 4,
+        "reason": "Camallanus is common in livebearers; the only freely available remedy against roundworms."
+      },
+      "sources": [
+        "sera-nematol",
+        "angfa-worms"
+      ]
+    },
+    {
+      "id": "emamectin-argulol",
+      "name": "Emamectin benzoate + denatonium benzoate (parasitic crustaceans)",
+      "category": "Remedy against parasitic crustaceans",
+      "activeSubstances": [
+        "emamectin benzoate",
+        "denatonium benzoate"
+      ],
+      "productExamples": [
+        {
+          "name": "sera med Professional Argulol",
+          "manufacturer": "sera",
+          "sourceId": "sera-argulol"
+        }
+      ],
+      "legalStatus": "otc",
+      "legalStatusLabel": "available without prescription (pet trade)",
+      "legalStatusVerified": true,
+      "legalNote": "According to the manufacturer freely available; previous remedies against parasitic crustaceans were prescription-only or toxic.",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": false,
+      "indications": [
+        {
+          "diseaseId": "argulosis",
+          "disease": "Fish Lice (Argulosis)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "lernaeosis",
+          "disease": "Anchor Worms (Lernaeosis)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        }
+      ],
+      "cautions": [
+        "Snails, mussels, crayfish and insect larvae do not tolerate the treatment.",
+        "Sturgeons react sensitively.",
+        "Repeat treatment after about 3 weeks."
+      ],
+      "use": "Dosage and duration strictly according to the package insert; remove activated carbon during treatment and use it afterwards to remove residues.",
+      "homePharmacy": {
+        "freshwater": 3,
+        "saltwater": 2,
+        "reason": "Rarely needed in aquariums, but important for garden ponds."
+      },
+      "sources": [
+        "sera-argulol",
+        "ufifas-fa184",
+        "ufifas-fa185"
+      ]
+    },
+    {
+      "id": "diflubenzuron",
+      "name": "Diflubenzuron (parasitic crustaceans, pond)",
+      "category": "Remedy against parasitic crustaceans",
+      "activeSubstances": [
+        "Diflubenzuron"
+      ],
+      "productExamples": [
+        {
+          "name": "OASE AntiArgulus",
+          "manufacturer": "Aquarium Münster Pahlsmeier",
+          "sourceId": "oase-antiargulus"
+        }
+      ],
+      "legalStatus": "otc",
+      "legalStatusLabel": "available without prescription (pet trade)",
+      "legalStatusVerified": false,
+      "legalNote": "Sold as a medicine for ornamental fish in garden ponds; exemption status not checked in the EU database.",
+      "waterTypes": [
+        "fresh"
+      ],
+      "invertebrateSafe": false,
+      "indications": [
+        {
+          "diseaseId": "argulosis",
+          "disease": "Fish Lice (Argulosis)",
+          "role": "alternative",
+          "roleLabel": "alternative"
+        },
+        {
+          "diseaseId": "lernaeosis",
+          "disease": "Anchor Worms (Lernaeosis)",
+          "role": "alternative",
+          "roleLabel": "alternative"
+        }
+      ],
+      "cautions": [
+        "Moulting inhibitor – kills all crustaceans.",
+        "Switch off UV clarifiers during treatment (manufacturer)."
+      ],
+      "use": "Dosage and duration strictly according to the package insert; remove activated carbon during treatment and use it afterwards to remove residues.",
+      "homePharmacy": {
+        "freshwater": 2,
+        "saltwater": null,
+        "reason": "Pond product; hardly needed in aquariums."
+      },
+      "sources": [
+        "oase-antiargulus"
+      ]
+    },
+    {
+      "id": "sodium-chloride",
+      "name": "Sodium chloride (pure salt)",
+      "category": "Supply (salt bath, nitrite protection)",
+      "activeSubstances": [
+        "sodium chloride"
+      ],
+      "productExamples": [],
+      "legalStatus": "not_a_medicine",
+      "legalStatusLabel": "not a medicine – freely available (shops, pharmacy, drugstore)",
+      "legalStatusVerified": true,
+      "legalNote": "Not a medicine; use salt without iodine and without anti-caking agents.",
+      "waterTypes": [
+        "fresh"
+      ],
+      "invertebrateSafe": null,
+      "indications": [
+        {
+          "diseaseId": "ammonia-nitrite-poisoning",
+          "disease": "Ammonia and Nitrite Poisoning",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "ichthyophthiriasis",
+          "disease": "White Spot Disease (Ichthyophthiriasis)",
+          "role": "supportive",
+          "roleLabel": "supportive"
+        },
+        {
+          "diseaseId": "skin-protozoa",
+          "disease": "Skin and Gill Clouding by Protozoa (Costia, Chilodonella, Trichodina)",
+          "role": "supportive",
+          "roleLabel": "supportive"
+        },
+        {
+          "diseaseId": "monogenea-fw",
+          "disease": "Skin and Gill Flukes (Monogenea: Gyrodactylus, Dactylogyrus)",
+          "role": "supportive",
+          "roleLabel": "supportive"
+        },
+        {
+          "diseaseId": "saprolegniasis",
+          "disease": "Fungal Infection (Saprolegniasis)",
+          "role": "supportive",
+          "roleLabel": "supportive"
+        },
+        {
+          "diseaseId": "piscinoodiniosis",
+          "disease": "Velvet Disease (Piscinoodiniosis, 'Oodinium')",
+          "role": "supportive",
+          "roleLabel": "supportive"
+        }
+      ],
+      "cautions": [
+        "Not all fish species and plants tolerate salt.",
+        "For nitrite: 10 mg/L chloride per 1 mg/L nitrite (UF/IFAS FA16)."
+      ],
+      "use": "As a prolonged or short bath; adjust the concentration to the fish species.",
+      "homePharmacy": {
+        "freshwater": 9,
+        "saltwater": null,
+        "reason": "Cheap, long shelf life, versatile – first aid for nitrite poisoning and supportive for skin parasites."
+      },
+      "sources": [
+        "ufifas-fa006",
+        "ufifas-fa16",
+        "srac-nitrite"
+      ]
+    },
+    {
+      "id": "potassium-permanganate",
+      "name": "Potassium permanganate",
+      "category": "Oxidising agent (bath against skin parasites)",
+      "activeSubstances": [
+        "potassium permanganate"
+      ],
+      "productExamples": [],
+      "legalStatus": "not_a_medicine",
+      "legalStatusLabel": "not a medicine – freely available (shops, pharmacy, drugstore)",
+      "legalStatusVerified": false,
+      "legalNote": "Chemical, not an approved ornamental fish medicine.",
+      "waterTypes": [
+        "fresh"
+      ],
+      "invertebrateSafe": false,
+      "indications": [
+        {
+          "diseaseId": "skin-protozoa",
+          "disease": "Skin and Gill Clouding by Protozoa (Costia, Chilodonella, Trichodina)",
+          "role": "alternative",
+          "roleLabel": "alternative"
+        },
+        {
+          "diseaseId": "monogenea-fw",
+          "disease": "Skin and Gill Flukes (Monogenea: Gyrodactylus, Dactylogyrus)",
+          "role": "alternative",
+          "roleLabel": "alternative"
+        },
+        {
+          "diseaseId": "lernaeosis",
+          "disease": "Anchor Worms (Lernaeosis)",
+          "role": "supportive",
+          "roleLabel": "supportive"
+        }
+      ],
+      "cautions": [
+        "Strong oxidiser – gill damage on overdose.",
+        "Organic load consumes the active substance; the required amount varies greatly.",
+        "Wear gloves and safety glasses."
+      ],
+      "use": "Only with experience or expert guidance.",
+      "homePharmacy": {
+        "freshwater": 2,
+        "saltwater": null,
+        "reason": "Effective but hard to dose and risky – unsuitable for the home pharmacy."
+      },
+      "sources": [
+        "ufifas-kmno4",
+        "ufifas-fa185"
+      ]
+    },
+    {
+      "id": "clove-oil",
+      "name": "Clove oil (eugenol)",
+      "category": "Anaesthesia and humane euthanasia",
+      "activeSubstances": [
+        "Eugenol"
+      ],
+      "productExamples": [],
+      "legalStatus": "not_a_medicine",
+      "legalStatusLabel": "not a medicine – freely available (shops, pharmacy, drugstore)",
+      "legalStatusVerified": true,
+      "legalNote": "Not a veterinary medicine; available in pharmacies and drugstores. Killing vertebrates requires a reasonable cause and expertise – if in doubt, ask a veterinarian.",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": null,
+      "indications": [
+        {
+          "diseaseId": "neon-tetra-disease",
+          "disease": "Neon Tetra Disease (Pleistophorosis)",
+          "role": "euthanasia",
+          "roleLabel": "humane euthanasia"
+        },
+        {
+          "diseaseId": "mycobacteriosis",
+          "disease": "Fish Tuberculosis (Mycobacteriosis)",
+          "role": "euthanasia",
+          "roleLabel": "humane euthanasia"
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "role": "euthanasia",
+          "roleLabel": "humane euthanasia"
+        },
+        {
+          "diseaseId": "dgiv-isknv",
+          "disease": "Dwarf Gourami Iridovirus (DGIV / ISKNV)",
+          "role": "euthanasia",
+          "roleLabel": "humane euthanasia"
+        },
+        {
+          "diseaseId": "tetrahymenosis",
+          "disease": "Guppy Disease (Tetrahymenosis)",
+          "role": "euthanasia",
+          "roleLabel": "humane euthanasia"
+        },
+        {
+          "diseaseId": "dropsy",
+          "disease": "Dropsy (Syndrome)",
+          "role": "euthanasia",
+          "roleLabel": "humane euthanasia"
+        },
+        {
+          "diseaseId": "microsporidiosis-crustacea",
+          "disease": "Porcelain Disease (Microsporidiosis in Crustaceans)",
+          "role": "euthanasia",
+          "roleLabel": "humane euthanasia"
+        }
+      ],
+      "cautions": [
+        "According to the AVMA guidelines 'acceptable with conditions' for fish – use a product with a known eugenol content and ensure death with a second method.",
+        "Dissolve in alcohol first, as clove oil is poorly soluble in water."
+      ],
+      "use": "For incurably ill animals (e.g. neon tetra disease, fish tuberculosis, DGIV).",
+      "homePharmacy": {
+        "freshwater": 7,
+        "saltwater": 7,
+        "reason": "Several diseases are incurable; quick, humane euthanasia prevents suffering and stops infection."
+      },
+      "sources": [
+        "msd-euthanasia"
+      ]
+    },
+    {
+      "id": "metronidazole",
+      "name": "Metronidazole",
+      "category": "Antiprotozoal / antibiotic",
+      "activeSubstances": [
+        "metronidazole"
+      ],
+      "productExamples": [],
+      "legalStatus": "rx",
+      "legalStatusLabel": "prescription-only (veterinarian)",
+      "legalStatusVerified": true,
+      "legalNote": "Antimicrobial veterinary medicines have been prescription-only since 28 Jan 2022 under Art. 34 Regulation (EU) 2019/6.",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": null,
+      "indications": [
+        {
+          "diseaseId": "spironucleosis",
+          "disease": "Hole-in-the-Head Disease (Spironucleosis, 'Hexamitiasis')",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        },
+        {
+          "diseaseId": "dropsy",
+          "disease": "Dropsy (Syndrome)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        }
+      ],
+      "cautions": [
+        "Only available via a veterinarian."
+      ],
+      "use": "Only after diagnosis and prescription by a (fish) veterinarian; antibiotics preferably after sensitivity testing.",
+      "homePharmacy": {
+        "freshwater": 2,
+        "saltwater": 1,
+        "reason": "Important for hole-in-the-head disease, but prescription-only – do not stockpile."
+      },
+      "sources": [
+        "bmel-zzf-2022",
+        "paull-matthews-2001",
+        "sangmaneedet-smith-1999"
+      ]
+    },
+    {
+      "id": "enrofloxacin",
+      "name": "Enrofloxacin",
+      "category": "Antibiotic (fluoroquinolone)",
+      "activeSubstances": [
+        "Enrofloxacin"
+      ],
+      "productExamples": [],
+      "legalStatus": "rx",
+      "legalStatusLabel": "prescription-only (veterinarian)",
+      "legalStatusVerified": true,
+      "legalNote": "Antimicrobial veterinary medicines have been prescription-only since 28 Jan 2022 under Art. 34 Regulation (EU) 2019/6.",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": null,
+      "indications": [
+        {
+          "diseaseId": "aeromonas-fin-rot",
+          "disease": "Fin Rot and Bacterial Ulcers (Aeromonas, Pseudomonas)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        },
+        {
+          "diseaseId": "columnaris",
+          "disease": "Columnaris (Cotton Mouth, Saddleback)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        }
+      ],
+      "cautions": [
+        "Reserve antibiotic – use sparingly and only after sensitivity testing."
+      ],
+      "use": "Only after diagnosis and prescription by a (fish) veterinarian; antibiotics preferably after sensitivity testing.",
+      "homePharmacy": {
+        "freshwater": 1,
+        "saltwater": 1,
+        "reason": "Antibiotics do not belong in the home pharmacy (resistance, prescription requirement)."
+      },
+      "sources": [
+        "bmel-zzf-2022",
+        "msd-bacterial"
+      ]
+    },
+    {
+      "id": "oxytetracycline",
+      "name": "Oxytetracycline",
+      "category": "Antibiotic (tetracycline)",
+      "activeSubstances": [
+        "oxytetracycline"
+      ],
+      "productExamples": [],
+      "legalStatus": "rx",
+      "legalStatusLabel": "prescription-only (veterinarian)",
+      "legalStatusVerified": true,
+      "legalNote": "Antimicrobial veterinary medicines have been prescription-only since 28 Jan 2022 under Art. 34 Regulation (EU) 2019/6.",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": null,
+      "indications": [
+        {
+          "diseaseId": "aeromonas-fin-rot",
+          "disease": "Fin Rot and Bacterial Ulcers (Aeromonas, Pseudomonas)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        },
+        {
+          "diseaseId": "columnaris",
+          "disease": "Columnaris (Cotton Mouth, Saddleback)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        }
+      ],
+      "cautions": [
+        "Binds to calcium/magnesium – less effective in hard water and seawater."
+      ],
+      "use": "Only after diagnosis and prescription by a (fish) veterinarian; antibiotics preferably after sensitivity testing.",
+      "homePharmacy": {
+        "freshwater": 1,
+        "saltwater": 1,
+        "reason": "Prescription-only, only targeted after diagnosis."
+      },
+      "sources": [
+        "bmel-zzf-2022",
+        "msd-bacterial"
+      ]
+    },
+    {
+      "id": "sulfonamide-trimethoprim",
+      "name": "Sulfonamide + trimethoprim",
+      "category": "Antibiotic (combination)",
+      "activeSubstances": [
+        "sulfonamide (e.g. sulfadimidine)",
+        "Trimethoprim"
+      ],
+      "productExamples": [],
+      "legalStatus": "rx",
+      "legalStatusLabel": "prescription-only (veterinarian)",
+      "legalStatusVerified": true,
+      "legalNote": "Antimicrobial veterinary medicines have been prescription-only since 28 Jan 2022 under Art. 34 Regulation (EU) 2019/6.",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": null,
+      "indications": [
+        {
+          "diseaseId": "aeromonas-fin-rot",
+          "disease": "Fin Rot and Bacterial Ulcers (Aeromonas, Pseudomonas)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        },
+        {
+          "diseaseId": "vibriosis",
+          "disease": "Bacterial Ulcers and Fin Rot (Vibrio and others)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        }
+      ],
+      "cautions": [],
+      "use": "Only after diagnosis and prescription by a (fish) veterinarian; antibiotics preferably after sensitivity testing.",
+      "homePharmacy": {
+        "freshwater": 1,
+        "saltwater": 1,
+        "reason": "Prescription-only, only targeted after diagnosis."
+      },
+      "sources": [
+        "bmel-zzf-2022",
+        "msd-bacterial"
+      ]
+    },
+    {
+      "id": "nitrofurans",
+      "name": "Nitrofurans (e.g. nifurpirinol, furazolidone)",
+      "category": "Antibiotic (nitrofuran)",
+      "activeSubstances": [
+        "Nifurpirinol",
+        "furazolidone"
+      ],
+      "productExamples": [],
+      "legalStatus": "rx",
+      "legalStatusLabel": "prescription-only (veterinarian)",
+      "legalStatusVerified": true,
+      "legalNote": "Antimicrobial veterinary medicines have been prescription-only since 28 Jan 2022 under Art. 34 Regulation (EU) 2019/6.",
+      "waterTypes": [
+        "fresh"
+      ],
+      "invertebrateSafe": null,
+      "indications": [
+        {
+          "diseaseId": "aeromonas-fin-rot",
+          "disease": "Fin Rot and Bacterial Ulcers (Aeromonas, Pseudomonas)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        },
+        {
+          "diseaseId": "columnaris",
+          "disease": "Columnaris (Cotton Mouth, Saddleback)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        }
+      ],
+      "cautions": [
+        "Prohibited in food-producing animals in the EU; only for ornamental fish and only on prescription."
+      ],
+      "use": "Only after diagnosis and prescription by a (fish) veterinarian; antibiotics preferably after sensitivity testing.",
+      "homePharmacy": {
+        "freshwater": 1,
+        "saltwater": null,
+        "reason": "Prescription-only, do not stockpile."
+      },
+      "sources": [
+        "bmel-zzf-2022"
+      ]
+    },
+    {
+      "id": "chloroquine",
+      "name": "Chloroquine",
+      "category": "Antiparasitic (human medicine)",
+      "activeSubstances": [
+        "chloroquine phosphate"
+      ],
+      "productExamples": [],
+      "legalStatus": "rx",
+      "legalStatusLabel": "prescription-only (veterinarian)",
+      "legalStatusVerified": false,
+      "legalNote": "Human medicine, prescription-only; use in fish only via a veterinarian (off-label).",
+      "waterTypes": [
+        "salt"
+      ],
+      "invertebrateSafe": false,
+      "indications": [
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        }
+      ],
+      "cautions": [
+        "Toxic to invertebrates."
+      ],
+      "use": "Only after diagnosis and prescription by a (fish) veterinarian; antibiotics preferably after sensitivity testing.",
+      "homePharmacy": {
+        "freshwater": null,
+        "saltwater": 2,
+        "reason": "Effective against marine velvet, but only via a veterinarian."
+      },
+      "sources": [
+        "ufifas-fa164",
+        "ufifas-vm90"
+      ]
+    },
+    {
+      "id": "fenbendazole",
+      "name": "Fenbendazole",
+      "category": "Anthelmintic (benzimidazole)",
+      "activeSubstances": [
+        "fenbendazole"
+      ],
+      "productExamples": [
+        {
+          "name": "Panacur (für Hund/Katze zugelassen)",
+          "manufacturer": "Intervet",
+          "sourceId": "eu-upd-panacur"
+        }
+      ],
+      "legalStatus": "rx",
+      "legalStatusLabel": "prescription-only (veterinarian)",
+      "legalStatusVerified": true,
+      "legalNote": "Prescription-only in Germany; for fish only via a veterinarian (off-label).",
+      "waterTypes": [
+        "fresh"
+      ],
+      "invertebrateSafe": false,
+      "indications": [
+        {
+          "diseaseId": "camallanus",
+          "disease": "Red Intestinal Worms (Camallanosis)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        },
+        {
+          "diseaseId": "capillariasis",
+          "disease": "Capillaria Worms (Capillariasis)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        }
+      ],
+      "cautions": [
+        "Harmful to snails.",
+        "According to the product information a hazard to fish and other aquatic organisms in the environment – not into wastewater."
+      ],
+      "use": "Only after diagnosis and prescription by a (fish) veterinarian; antibiotics preferably after sensitivity testing.",
+      "homePharmacy": {
+        "freshwater": 1,
+        "saltwater": null,
+        "reason": "Freely available alternative (emamectin) exists."
+      },
+      "sources": [
+        "eu-upd-panacur",
+        "angfa-worms"
+      ]
+    },
+    {
+      "id": "levamisole",
+      "name": "Levamisole",
+      "category": "Anthelmintic (roundworms)",
+      "activeSubstances": [
+        "levamisole"
+      ],
+      "productExamples": [],
+      "legalStatus": "rx",
+      "legalStatusLabel": "prescription-only (veterinarian)",
+      "legalStatusVerified": false,
+      "legalNote": "No freely available ornamental fish product known (according to sera, Nematol was the first freely available nematode remedy); obtain via a veterinarian.",
+      "waterTypes": [
+        "fresh"
+      ],
+      "invertebrateSafe": null,
+      "indications": [
+        {
+          "diseaseId": "camallanus",
+          "disease": "Red Intestinal Worms (Camallanosis)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        },
+        {
+          "diseaseId": "capillariasis",
+          "disease": "Capillaria Worms (Capillariasis)",
+          "role": "vet_only",
+          "roleLabel": "only as prescribed by a veterinarian"
+        }
+      ],
+      "cautions": [
+        "According to ANGFA acts on free larvae and parasitic stages of Camallanus."
+      ],
+      "use": "Only after diagnosis and prescription by a (fish) veterinarian; antibiotics preferably after sensitivity testing.",
+      "homePharmacy": {
+        "freshwater": 1,
+        "saltwater": null,
+        "reason": "Freely available alternative (emamectin) exists."
+      },
+      "sources": [
+        "angfa-worms",
+        "sera-nematol"
+      ]
+    },
+    {
+      "id": "tricaine",
+      "name": "Tricaine methanesulfonate (MS-222)",
+      "category": "Fish anaesthetic",
+      "activeSubstances": [
+        "tricaine methanesulfonate"
+      ],
+      "productExamples": [],
+      "legalStatus": "rx",
+      "legalStatusLabel": "prescription-only (veterinarian)",
+      "legalStatusVerified": false,
+      "legalNote": "Veterinary medicine, use by or via a veterinarian.",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": null,
+      "indications": [
+        {
+          "diseaseId": "neon-tetra-disease",
+          "disease": "Neon Tetra Disease (Pleistophorosis)",
+          "role": "euthanasia",
+          "roleLabel": "humane euthanasia"
+        },
+        {
+          "diseaseId": "mycobacteriosis",
+          "disease": "Fish Tuberculosis (Mycobacteriosis)",
+          "role": "euthanasia",
+          "roleLabel": "humane euthanasia"
+        },
+        {
+          "diseaseId": "mycobacteriosis-marine",
+          "disease": "Fish Tuberculosis (Mycobacteriosis, marine)",
+          "role": "euthanasia",
+          "roleLabel": "humane euthanasia"
+        },
+        {
+          "diseaseId": "dgiv-isknv",
+          "disease": "Dwarf Gourami Iridovirus (DGIV / ISKNV)",
+          "role": "euthanasia",
+          "roleLabel": "humane euthanasia"
+        },
+        {
+          "diseaseId": "tetrahymenosis",
+          "disease": "Guppy Disease (Tetrahymenosis)",
+          "role": "euthanasia",
+          "roleLabel": "humane euthanasia"
+        },
+        {
+          "diseaseId": "dropsy",
+          "disease": "Dropsy (Syndrome)",
+          "role": "euthanasia",
+          "roleLabel": "humane euthanasia"
+        }
+      ],
+      "cautions": [
+        "Use buffered (otherwise lowers pH)."
+      ],
+      "use": "Only after diagnosis and prescription by a (fish) veterinarian; antibiotics preferably after sensitivity testing.",
+      "homePharmacy": {
+        "freshwater": 1,
+        "saltwater": 1,
+        "reason": "For veterinary procedures; clove oil is sufficient in the home pharmacy."
+      },
+      "sources": [
+        "msd-euthanasia"
+      ]
+    }
+  ],
+  "supplies": [
+    {
+      "id": "water-test-kit",
+      "name": "Water test kits (ammonium, nitrite, nitrate, pH, GH, KH)",
+      "category": "Diagnostic supply",
+      "activeSubstances": [],
+      "productExamples": [],
+      "legalStatus": "not_a_medicine",
+      "legalStatusLabel": "not a medicine – freely available (shops, pharmacy, drugstore)",
+      "legalStatusVerified": true,
+      "legalNote": "Not a medicine.",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": true,
+      "indications": [
+        {
+          "diseaseId": "ammonia-nitrite-poisoning",
+          "disease": "Ammonia and Nitrite Poisoning",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammonia and Nitrite Poisoning (marine)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        }
+      ],
+      "cautions": [
+        "Drop tests are usually more accurate than test strips; observe the expiry date."
+      ],
+      "use": "Measure first whenever disease is suspected; use the values for the measurable questions in the diagnosis tree.",
+      "homePharmacy": {
+        "freshwater": 10,
+        "saltwater": 10,
+        "reason": "Basis of every diagnosis – many diseases start with poor water."
+      },
+      "sources": [
+        "ufifas-fa16"
+      ]
+    },
+    {
+      "id": "copper-test-kit",
+      "name": "Copper test kit",
+      "category": "Diagnostic supply",
+      "activeSubstances": [],
+      "productExamples": [],
+      "legalStatus": "not_a_medicine",
+      "legalStatusLabel": "not a medicine – freely available (shops, pharmacy, drugstore)",
+      "legalStatusVerified": true,
+      "legalNote": "Not a medicine.",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": true,
+      "indications": [
+        {
+          "diseaseId": "invertebrate-medication-toxicity",
+          "disease": "Poisoning by Copper and Fish Medication (Invertebrates)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "role": "supportive",
+          "roleLabel": "supportive"
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "role": "supportive",
+          "roleLabel": "supportive"
+        }
+      ],
+      "cautions": [],
+      "use": "Mandatory with any copper therapy; check before returning invertebrates.",
+      "homePharmacy": {
+        "freshwater": 5,
+        "saltwater": 9,
+        "reason": "Prerequisite for copper therapy in marine tanks; for monitoring in invertebrate tanks."
+      },
+      "sources": [
+        "ufifas-fa165"
+      ]
+    },
+    {
+      "id": "activated-carbon",
+      "name": "Activated carbon (washed, granular)",
+      "category": "Filter supply",
+      "activeSubstances": [],
+      "productExamples": [],
+      "legalStatus": "not_a_medicine",
+      "legalStatusLabel": "not a medicine – freely available (shops, pharmacy, drugstore)",
+      "legalStatusVerified": true,
+      "legalNote": "Not a medicine.",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": true,
+      "indications": [
+        {
+          "diseaseId": "invertebrate-medication-toxicity",
+          "disease": "Poisoning by Copper and Fish Medication (Invertebrates)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        },
+        {
+          "diseaseId": "invertebrate-copper-toxicity-marine",
+          "disease": "Poisoning by Copper and Fish Medication (Marine Invertebrates)",
+          "role": "first_choice",
+          "roleLabel": "first choice"
+        }
+      ],
+      "cautions": [
+        "Remove during medication.",
+        "Do not use lignite-based carbon permanently with surgeonfish (HLLE risk)."
+      ],
+      "use": "Remove medication residues after treatment; use immediately in case of poisoning.",
+      "homePharmacy": {
+        "freshwater": 9,
+        "saltwater": 9,
+        "reason": "Needed after every treatment and first aid for poisoning."
+      },
+      "sources": [
+        "ufifas-fa165",
+        "hemdal-odum-2011"
+      ]
+    },
+    {
+      "id": "quarantine-tank",
+      "name": "Quarantine tank (with heater, air pump, sponge filter)",
+      "category": "Equipment",
+      "activeSubstances": [],
+      "productExamples": [],
+      "legalStatus": "not_a_medicine",
+      "legalStatusLabel": "not a medicine – freely available (shops, pharmacy, drugstore)",
+      "legalStatusVerified": true,
+      "legalNote": "Not a medicine.",
+      "waterTypes": [
+        "fresh",
+        "salt"
+      ],
+      "invertebrateSafe": true,
+      "indications": [
+        {
+          "diseaseId": "ichthyophthiriasis",
+          "disease": "White Spot Disease (Ichthyophthiriasis)",
+          "role": "supportive",
+          "roleLabel": "supportive"
+        },
+        {
+          "diseaseId": "cryptocaryoniasis",
+          "disease": "Marine White Spot Disease (Cryptocaryon)",
+          "role": "supportive",
+          "roleLabel": "supportive"
+        },
+        {
+          "diseaseId": "amyloodiniosis",
+          "disease": "Marine Velvet Disease (Amyloodinium)",
+          "role": "supportive",
+          "roleLabel": "supportive"
+        },
+        {
+          "diseaseId": "invertebrate-medication-toxicity",
+          "disease": "Poisoning by Copper and Fish Medication (Invertebrates)",
+          "role": "supportive",
+          "roleLabel": "supportive"
+        }
+      ],
+      "cautions": [
+        "Run the sponge filter in the main tank so it is cycled in an emergency."
+      ],
+      "use": "Quarantine new animals for 3–4 weeks; treatments without risk to invertebrates and plants.",
+      "homePharmacy": {
+        "freshwater": 9,
+        "saltwater": 10,
+        "reason": "Allows treatment without endangering the main tank; practically indispensable for marine tanks."
+      },
+      "sources": [
+        "ufifas-fa006",
+        "ufifas-fa164"
+      ]
+    }
+  ],
+  "sources": {
+    "angfa-worms": {
+      "type": "Specialist association (not peer-reviewed, with literature references)",
+      "title": "Disease prevention and control: Worms (Camallanus)",
+      "publisher": "Australia New Guinea Fishes Association (ANGFA)",
+      "url": "https://rainbowfish.angfa.org.au/disease_prevention_and_control/worms.html"
+    },
+    "bmel-zzf-2022": {
+      "type": "Legal information (German Federal Ministry)",
+      "authors": "BMEL",
+      "year": 2022,
+      "title": "Letter from the German Federal Ministry of Food and Agriculture (BMEL) to the ZZF on the Veterinary Medicines Act (prescription requirement for antimicrobial veterinary medicines under Art. 34 Regulation (EU) 2019/6) – document in German",
+      "publisher": "Zentralverband Zoologischer Fachbetriebe (ZZF, German pet trade association)",
+      "url": "https://www.zzf.de/fileadmin/user_upload/pressemitteilungen/migration/intranet/BMEL-Zoofachhandel_Sachkundenachweis.pdf"
+    },
+    "eu-upd-antipilz": {
+      "type": "Database (EU Union Product Database for veterinary medicines)",
+      "title": "OASE AntiPilz / TetraMedica FungiStop plus (copper sulfate, ethacridine lactate, methylthioninium chloride, acriflavinium chloride) – not subject to veterinary prescription, Germany",
+      "publisher": "Union Product Database (EMA)",
+      "url": "https://medicines.health.europa.eu/veterinary/en/700000172912"
+    },
+    "eu-upd-costapur": {
+      "type": "Database (EU Union Product Database for veterinary medicines)",
+      "title": "sera Costapur F (malachite green oxalate, formaldehyde) – not subject to veterinary prescription, exemption for pet medicines, Germany",
+      "publisher": "Union Product Database (EMA)",
+      "url": "https://medicines.health.europa.eu/veterinary/it/700000201031"
+    },
+    "eu-upd-exit": {
+      "type": "Database (EU Union Product Database for veterinary medicines)",
+      "title": "Exit (malachite green oxalate, methylthioninium chloride, ethacridine lactate) – not subject to veterinary prescription, Germany",
+      "publisher": "Union Product Database (EMA)",
+      "url": "https://medicines.health.europa.eu/veterinary/en/700000205397"
+    },
+    "eu-upd-panacur": {
+      "type": "Database (EU Union Product Database for veterinary medicines)",
+      "title": "Panacur (fenbendazole) – subject to veterinary prescription, Germany",
+      "publisher": "Union Product Database (EMA)",
+      "url": "https://medicines.health.europa.eu/veterinary/en/node/409312/printable/pdf"
+    },
+    "eu-upd-protomor": {
+      "type": "Database (EU Union Product Database for veterinary medicines)",
+      "title": "PROTOMOR (methylthioninium chloride, ethacridine lactate, malachite green oxalate) – not subject to veterinary prescription, Germany",
+      "publisher": "Union Product Database (EMA)",
+      "url": "https://medicines.health.europa.eu/veterinary/en/700000153962"
+    },
+    "hemdal-odum-2011": {
+      "type": "Original research (peer-reviewed)",
+      "authors": "Hemdal J, Odum RA",
+      "year": 2011,
+      "title": "The Role of Activated Lignite Carbon in the Development of Head and Lateral Line Erosion in the Ocean Surgeon",
+      "publisher": "North American Journal of Aquaculture 73(4):489-492",
+      "doi": "10.1080/15222055.2011.635781"
+    },
+    "msd-bacterial": {
+      "type": "Veterinary reference manual",
+      "title": "Bacterial Diseases in Aquaculture (Aeromonas, Vibrio, Flavobacterium u. a.)",
+      "publisher": "MSD/Merck Veterinary Manual",
+      "url": "https://www.msdvetmanual.com/exotic-and-laboratory-animals/aquaculture/bacterial-diseases-in-aquaculture"
+    },
+    "msd-euthanasia": {
+      "type": "Veterinary reference manual",
+      "title": "Agents and Methods of Euthanasia by Species (nach AVMA Guidelines 2020)",
+      "publisher": "MSD/Merck Veterinary Manual",
+      "url": "https://www.msdvetmanual.com/multimedia/table/agents-and-methods-of-euthanasia-by-species"
+    },
+    "oase-antiargulus": {
+      "type": "Manufacturer information (package leaflet)",
+      "title": "OASE AntiArgulus – package leaflet (diflubenzuron)",
+      "publisher": "Aquarium Münster Pahlsmeier GmbH",
+      "url": "https://static.koempf24.de/media/upload/Oase/2_OASE_AntiArgulus-37718_Medi.indd.pdf"
+    },
+    "paull-matthews-2001": {
+      "type": "Original research (peer-reviewed)",
+      "authors": "Paull GC, Matthews RA",
+      "year": 2001,
+      "title": "Spironucleus vortens, a possible cause of hole-in-the-head disease in cichlids",
+      "publisher": "Diseases of Aquatic Organisms 45:197-202",
+      "doi": "10.3354/dao045197",
+      "url": "https://int-res.com/abstracts/dao/v45/n3/p197-202"
+    },
+    "sangmaneedet-smith-1999": {
+      "type": "Original research (peer-reviewed)",
+      "authors": "Sangmaneedet S, Smith SA",
+      "year": 1999,
+      "title": "Efficacy of various chemotherapeutic agents on the growth of Spironucleus vortens, an intestinal parasite of the freshwater angelfish",
+      "publisher": "Diseases of Aquatic Organisms"
+    },
+    "sera-argulol": {
+      "type": "Manufacturer information (package leaflet)",
+      "title": "sera med Professional Argulol – package leaflet (emamectin benzoate 10 mg/ml)",
+      "publisher": "sera GmbH",
+      "url": "https://media.hornbach.at/hb/ownersmanual/as.16682557.pdf"
+    },
+    "sera-costapur-leaflet": {
+      "type": "Manufacturer information (package leaflet)",
+      "title": "sera costapur F – package leaflet (indications, intolerances)",
+      "publisher": "sera GmbH",
+      "url": "https://vptserver1.uzh.ch/TAK/PDFSPC/06000000/06981901-AI-DE.pdf"
+    },
+    "sera-nematol": {
+      "type": "Manufacturer information",
+      "title": "sera med Professional Nematol – first freely available ornamental fish remedy against nematodes (emamectin)",
+      "publisher": "sera GmbH",
+      "url": "https://www.sera.de/en/service/news/news-detail/sera-med-professional-nematol-3/"
+    },
+    "sera-tremazol": {
+      "type": "Manufacturer information (package leaflet)",
+      "year": 2017,
+      "title": "sera med Professional Tremazol – package leaflet (praziquantel 7.47 g/100 ml)",
+      "publisher": "sera GmbH",
+      "url": "https://www.sera.de/fileadmin/user_upload/manuals/sourcefiles/43164_43168_-INT-_sera-med-prof-tremazol_03_2017.pdf"
+    },
+    "srac-amyloodinium": {
+      "type": "Extension publication (Southern Regional Aquaculture Center)",
+      "authors": "Francis-Floyd R, Floyd MR",
+      "title": "Amyloodinium ocellatum, an Important Parasite of Cultured Marine Fish",
+      "publisher": "SRAC",
+      "url": "https://srac.tamu.edu/fact-sheets/serve/227"
+    },
+    "srac-nitrite": {
+      "type": "Extension publication (Southern Regional Aquaculture Center)",
+      "title": "Nitrite in Fish Ponds",
+      "publisher": "SRAC",
+      "url": "https://srac-aquaponics.tamu.edu/fact-sheets/serve/2"
+    },
+    "ufifas-fa006": {
+      "type": "Extension publication (university/veterinary)",
+      "authors": "Francis-Floyd R, Yanong R, Pouder D",
+      "year": 2016,
+      "title": "Ichthyophthirius multifiliis (White Spot) Infections in Fish (CIR920/FA006)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "doi": "10.32473/edis-fa006-1991",
+      "url": "https://edis.ifas.ufl.edu/publication/FA006"
+    },
+    "ufifas-fa008": {
+      "type": "Extension publication (university)",
+      "authors": "Yanong RPE",
+      "title": "Use of Copper in Freshwater Aquaculture and Farm Ponds (FA008)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "url": "https://ask.ifas.ufl.edu/publication/FA008"
+    },
+    "ufifas-fa033": {
+      "type": "Extension publication (university/veterinary)",
+      "authors": "Francis-Floyd R, Klinger R, Petty D, Pouder D",
+      "title": "Monogenean Parasites of Fish (FA033)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "doi": "10.32473/edis-fa033-2012",
+      "url": "https://edis.ifas.ufl.edu/publication/FA033"
+    },
+    "ufifas-fa16": {
+      "type": "Extension publication (university/veterinary)",
+      "authors": "Francis-Floyd R, Watson C, Petty D, Pouder DB",
+      "year": 2009,
+      "title": "Ammonia in Aquatic Systems (FA16)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "doi": "10.32473/edis-fa031-2009",
+      "url": "https://journals.flvc.org/edis/article/view/118012"
+    },
+    "ufifas-fa164": {
+      "type": "Extension publication (university/veterinary)",
+      "authors": "Yanong RPE",
+      "year": 2009,
+      "title": "Cryptocaryon irritans Infections (Marine White Spot Disease) in Fish (FA164)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "url": "https://edis.ifas.ufl.edu/publication/FA164"
+    },
+    "ufifas-fa165": {
+      "type": "Extension publication (university/veterinary)",
+      "authors": "Yanong RPE",
+      "year": 2009,
+      "title": "Use of Copper in Marine Aquaculture and Aquarium Systems (FA165)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "url": "https://edis.ifas.ufl.edu/publication/FA165"
+    },
+    "ufifas-fa184": {
+      "type": "Extension publication (university/veterinary)",
+      "authors": "Steckler N, Yanong RPE",
+      "year": 2013,
+      "title": "Argulus (Fish Louse) Infections in Fish (FA184)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "url": "http://edis.ifas.ufl.edu/fa184"
+    },
+    "ufifas-fa185": {
+      "type": "Extension publication (university/veterinary)",
+      "authors": "Steckler N, Yanong RPE",
+      "year": 2012,
+      "title": "Lernaea (Anchorworm) Infestations in Fish (FA185)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "doi": "10.32473/edis-fa185-2012",
+      "url": "https://ask.ifas.ufl.edu/publication/fa185"
+    },
+    "ufifas-kmno4": {
+      "type": "Extension publication (university)",
+      "title": "The Use of Potassium Permanganate in Fish Ponds",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "url": "https://extension.rwfm.tamu.edu/wp-content/uploads/sites/8/2013/09/The-Use-of-Potassium-Permanganate-in-Fish-Ponds.pdf"
+    },
+    "ufifas-vm90": {
+      "type": "Extension publication (university/veterinary)",
+      "authors": "Reed P, Francis-Floyd R",
+      "title": "Amyloodinium Infections of Marine Fish (VM90)",
+      "publisher": "UF/IFAS Extension",
+      "url": "https://extension.rwfm.tamu.edu/wp-content/uploads/sites/8/2013/09/Amyloodinium-Infections-of-Marine-Fish.pdf"
+    }
+  }
+}

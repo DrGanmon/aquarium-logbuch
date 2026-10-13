@@ -2,7 +2,7 @@
   "id": "diseases-saltwater",
   "name": "Krankheiten – Meerwasser",
   "description": "Häufige Krankheiten der Arten aus saltwater.json mit Zuordnung zu jeder Art.",
-  "version": "2026-10-12",
+  "version": "2026-10-13",
   "disclaimer": "Informationssammlung, kein Ersatz für eine tierärztliche Diagnose. Viele Krankheiten sehen ähnlich aus; eine sichere Diagnose gelingt oft nur per Mikroskop. Medikamente immer nach Packungsbeilage bzw. tierärztlicher Anweisung anwenden.",
   "legalNotes": [
     "Antibiotika und andere antimikrobiell wirksame Tierarzneimittel (z. B. Metronidazol) sind seit 28.01.2022 EU-weit verschreibungspflichtig (Art. 34 Abs. 1 Buchst. c VO (EU) 2019/6) – Bezug nur über Tierarzt bzw. Apotheke.",
@@ -16,7 +16,7 @@
     "activeSubstances.prescriptionRequired": "true = verschreibungspflichtig; null = je nach Präparat bzw. nicht eindeutig.",
     "activeSubstances.invertebrateSafe": "false = für Wirbellose giftig; null = Herstellerangabe prüfen."
   },
-  "diseaseCount": 12,
+  "diseaseCount": 13,
   "speciesCount": 31,
   "diseases": [
     {
@@ -119,6 +119,48 @@
         "zebrasoma-flavescens",
         "paracanthurus-hepatus",
         "acanthurus-leucosternon"
+      ],
+      "recommendedMedications": [
+        {
+          "medicationId": "malachite-green-formaldehyde",
+          "name": "Malachitgrün + Formaldehyd (Kombipräparat)",
+          "role": "alternative",
+          "roleLabel": "Alternative",
+          "legalStatus": "otc",
+          "legalStatusLabel": "frei verkäuflich (Zoofachhandel)"
+        },
+        {
+          "medicationId": "copper-marine",
+          "name": "Kupferpräparat für Meerwasser (Kupfertherapie)",
+          "role": "first_choice",
+          "roleLabel": "Mittel der Wahl",
+          "legalStatus": "otc",
+          "legalStatusLabel": "frei verkäuflich (Zoofachhandel)"
+        },
+        {
+          "medicationId": "chloroquine",
+          "name": "Chloroquin",
+          "role": "vet_only",
+          "roleLabel": "nur nach tierärztlicher Verordnung",
+          "legalStatus": "rx",
+          "legalStatusLabel": "verschreibungspflichtig (Tierarzt)"
+        },
+        {
+          "medicationId": "copper-test-kit",
+          "name": "Kupfertest",
+          "role": "supportive",
+          "roleLabel": "unterstützend",
+          "legalStatus": "not_a_medicine",
+          "legalStatusLabel": "kein Arzneimittel – frei erhältlich (Handel, Apotheke, Drogerie)"
+        },
+        {
+          "medicationId": "quarantine-tank",
+          "name": "Quarantänebecken (mit Heizer, Luftpumpe, Schwammfilter)",
+          "role": "supportive",
+          "roleLabel": "unterstützend",
+          "legalStatus": "not_a_medicine",
+          "legalStatusLabel": "kein Arzneimittel – frei erhältlich (Handel, Apotheke, Drogerie)"
+        }
       ]
     },
     {
@@ -213,6 +255,40 @@
         "zebrasoma-flavescens",
         "paracanthurus-hepatus",
         "acanthurus-leucosternon"
+      ],
+      "recommendedMedications": [
+        {
+          "medicationId": "copper-marine",
+          "name": "Kupferpräparat für Meerwasser (Kupfertherapie)",
+          "role": "first_choice",
+          "roleLabel": "Mittel der Wahl",
+          "legalStatus": "otc",
+          "legalStatusLabel": "frei verkäuflich (Zoofachhandel)"
+        },
+        {
+          "medicationId": "chloroquine",
+          "name": "Chloroquin",
+          "role": "vet_only",
+          "roleLabel": "nur nach tierärztlicher Verordnung",
+          "legalStatus": "rx",
+          "legalStatusLabel": "verschreibungspflichtig (Tierarzt)"
+        },
+        {
+          "medicationId": "copper-test-kit",
+          "name": "Kupfertest",
+          "role": "supportive",
+          "roleLabel": "unterstützend",
+          "legalStatus": "not_a_medicine",
+          "legalStatusLabel": "kein Arzneimittel – frei erhältlich (Handel, Apotheke, Drogerie)"
+        },
+        {
+          "medicationId": "quarantine-tank",
+          "name": "Quarantänebecken (mit Heizer, Luftpumpe, Schwammfilter)",
+          "role": "supportive",
+          "roleLabel": "unterstützend",
+          "legalStatus": "not_a_medicine",
+          "legalStatusLabel": "kein Arzneimittel – frei erhältlich (Handel, Apotheke, Drogerie)"
+        }
       ]
     },
     {
@@ -297,6 +373,16 @@
         "zebrasoma-flavescens",
         "paracanthurus-hepatus",
         "acanthurus-leucosternon"
+      ],
+      "recommendedMedications": [
+        {
+          "medicationId": "malachite-green-formaldehyde",
+          "name": "Malachitgrün + Formaldehyd (Kombipräparat)",
+          "role": "first_choice",
+          "roleLabel": "Mittel der Wahl",
+          "legalStatus": "otc",
+          "legalStatusLabel": "frei verkäuflich (Zoofachhandel)"
+        }
       ]
     },
     {
@@ -377,6 +463,16 @@
         "zebrasoma-flavescens",
         "paracanthurus-hepatus",
         "acanthurus-leucosternon"
+      ],
+      "recommendedMedications": [
+        {
+          "medicationId": "malachite-green-formaldehyde",
+          "name": "Malachitgrün + Formaldehyd (Kombipräparat)",
+          "role": "alternative",
+          "roleLabel": "Alternative",
+          "legalStatus": "otc",
+          "legalStatusLabel": "frei verkäuflich (Zoofachhandel)"
+        }
       ]
     },
     {
@@ -461,6 +557,16 @@
         "zebrasoma-flavescens",
         "paracanthurus-hepatus",
         "acanthurus-leucosternon"
+      ],
+      "recommendedMedications": [
+        {
+          "medicationId": "praziquantel",
+          "name": "Praziquantel",
+          "role": "first_choice",
+          "roleLabel": "Mittel der Wahl",
+          "legalStatus": "otc",
+          "legalStatusLabel": "frei verkäuflich (Zoofachhandel)"
+        }
       ]
     },
     {
@@ -547,6 +653,16 @@
         "zebrasoma-flavescens",
         "paracanthurus-hepatus",
         "acanthurus-leucosternon"
+      ],
+      "recommendedMedications": [
+        {
+          "medicationId": "praziquantel",
+          "name": "Praziquantel",
+          "role": "alternative",
+          "roleLabel": "Alternative",
+          "legalStatus": "otc",
+          "legalStatusLabel": "frei verkäuflich (Zoofachhandel)"
+        }
       ]
     },
     {
@@ -623,7 +739,8 @@
         "zebrasoma-flavescens",
         "paracanthurus-hepatus",
         "acanthurus-leucosternon"
-      ]
+      ],
+      "recommendedMedications": []
     },
     {
       "id": "lymphocystis-marine",
@@ -693,7 +810,8 @@
         "zebrasoma-flavescens",
         "paracanthurus-hepatus",
         "acanthurus-leucosternon"
-      ]
+      ],
+      "recommendedMedications": []
     },
     {
       "id": "mycobacteriosis-marine",
@@ -769,6 +887,24 @@
         "zebrasoma-flavescens",
         "paracanthurus-hepatus",
         "acanthurus-leucosternon"
+      ],
+      "recommendedMedications": [
+        {
+          "medicationId": "clove-oil",
+          "name": "Nelkenöl (Eugenol)",
+          "role": "euthanasia",
+          "roleLabel": "tierschutzgerechtes Töten",
+          "legalStatus": "not_a_medicine",
+          "legalStatusLabel": "kein Arzneimittel – frei erhältlich (Handel, Apotheke, Drogerie)"
+        },
+        {
+          "medicationId": "tricaine",
+          "name": "Tricainmesilat (MS-222)",
+          "role": "euthanasia",
+          "roleLabel": "tierschutzgerechtes Töten",
+          "legalStatus": "rx",
+          "legalStatusLabel": "verschreibungspflichtig (Tierarzt)"
+        }
       ]
     },
     {
@@ -851,6 +987,32 @@
         "zebrasoma-flavescens",
         "paracanthurus-hepatus",
         "acanthurus-leucosternon"
+      ],
+      "recommendedMedications": [
+        {
+          "medicationId": "enrofloxacin",
+          "name": "Enrofloxacin",
+          "role": "vet_only",
+          "roleLabel": "nur nach tierärztlicher Verordnung",
+          "legalStatus": "rx",
+          "legalStatusLabel": "verschreibungspflichtig (Tierarzt)"
+        },
+        {
+          "medicationId": "oxytetracycline",
+          "name": "Oxytetracyclin",
+          "role": "vet_only",
+          "roleLabel": "nur nach tierärztlicher Verordnung",
+          "legalStatus": "rx",
+          "legalStatusLabel": "verschreibungspflichtig (Tierarzt)"
+        },
+        {
+          "medicationId": "sulfonamide-trimethoprim",
+          "name": "Sulfonamid + Trimethoprim",
+          "role": "vet_only",
+          "roleLabel": "nur nach tierärztlicher Verordnung",
+          "legalStatus": "rx",
+          "legalStatusLabel": "verschreibungspflichtig (Tierarzt)"
+        }
       ]
     },
     {
@@ -912,6 +1074,24 @@
         "trochus-spp",
         "nassarius-spp",
         "entacmaea-quadricolor"
+      ],
+      "recommendedMedications": [
+        {
+          "medicationId": "copper-test-kit",
+          "name": "Kupfertest",
+          "role": "first_choice",
+          "roleLabel": "Mittel der Wahl",
+          "legalStatus": "not_a_medicine",
+          "legalStatusLabel": "kein Arzneimittel – frei erhältlich (Handel, Apotheke, Drogerie)"
+        },
+        {
+          "medicationId": "activated-carbon",
+          "name": "Aktivkohle (gewaschen, gekörnt)",
+          "role": "first_choice",
+          "roleLabel": "Mittel der Wahl",
+          "legalStatus": "not_a_medicine",
+          "legalStatusLabel": "kein Arzneimittel – frei erhältlich (Handel, Apotheke, Drogerie)"
+        }
       ]
     },
     {
@@ -966,16 +1146,108 @@
       "affectedSpeciesCount": 1,
       "affectedSpecies": [
         "entacmaea-quadricolor"
+      ],
+      "recommendedMedications": []
+    },
+    {
+      "id": "ammonia-nitrite-poisoning-marine",
+      "name": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+      "synonyms": [
+        "Einlaufphase-Syndrom",
+        "New Tank Syndrome"
+      ],
+      "pathogen": {
+        "type": "Nicht infektiös – Vergiftung",
+        "scientificName": "Ammoniak (NH3) und Nitrit (NO2⁻)"
+      },
+      "category": "nicht infektiös",
+      "contagious": {
+        "status": "nein",
+        "zoonotic": false,
+        "transmission": "Keine Übertragung.",
+        "notes": "Betrifft meist alle Tiere eines Beckens."
+      },
+      "description": "Ammoniak aus den Ausscheidungen reichert sich in neuen Becken, nach Filterausfall oder bei Überbesatz an. Wegen des hohen pH-Werts im Meerwasser liegt ein größerer Anteil als giftiges freies Ammoniak (NH3) vor. Nitrit ist im Meerwasser durch den hohen Chloridgehalt weniger giftig als im Süßwasser, sollte aber ebenfalls nicht nachweisbar sein.",
+      "generalSigns": [
+        "Viele Tiere gleichzeitig betroffen",
+        "Schnelle Atmung, Apathie",
+        "Plötzliche Todesfälle in neuen Becken"
+      ],
+      "keySigns": [
+        "Messbares Ammonium/Nitrit",
+        "Atemnot bei vielen Tieren"
+      ],
+      "predisposingFactors": [
+        "Neu eingerichtetes Becken",
+        "Filterausfall, Überbesatz"
+      ],
+      "diagnosis": "Wassertest (Ammonium, Nitrit).",
+      "treatment": {
+        "summary": "Sofort Teilwasserwechsel, Fütterung reduzieren, Filterung prüfen.",
+        "steps": [
+          "Großer Teilwasserwechsel mit gleicher Salinität und Temperatur.",
+          "Fütterung reduzieren.",
+          "Täglich messen."
+        ],
+        "activeSubstances": [],
+        "prognosis": "Gut bei schnellem Handeln."
+      },
+      "prevention": [
+        "Becken einfahren lassen",
+        "Langsam besetzen"
+      ],
+      "sources": [
+        "ufifas-fa16",
+        "srac-nitrite"
+      ],
+      "affectedSpeciesCount": 31,
+      "affectedSpecies": [
+        "amphiprion-ocellaris",
+        "amphiprion-percula",
+        "gramma-loreto",
+        "chromis-viridis",
+        "chrysiptera-parasema",
+        "pseudanthias-squamipinnis",
+        "synchiropus-splendidus",
+        "elacatinus-oceanops",
+        "nemateleotris-magnifica",
+        "salarias-fasciatus",
+        "ecsenius-bicolor",
+        "centropyge-loricula",
+        "pterapogon-kauderni",
+        "sphaeramia-nematoptera",
+        "pseudochromis-fridmani",
+        "opistognathus-aurifrons",
+        "halichoeres-chrysus",
+        "zebrasoma-flavescens",
+        "paracanthurus-hepatus",
+        "acanthurus-leucosternon",
+        "lysmata-amboinensis",
+        "lysmata-debelius",
+        "lysmata-wurdemanni",
+        "stenopus-hispidus",
+        "thor-amboinensis",
+        "mithraculus-sculptus",
+        "clibanarius-tricolor",
+        "paguristes-cadenati",
+        "trochus-spp",
+        "nassarius-spp",
+        "entacmaea-quadricolor"
+      ],
+      "recommendedMedications": [
+        {
+          "medicationId": "water-test-kit",
+          "name": "Wassertests (Ammonium, Nitrit, Nitrat, pH, GH, KH)",
+          "role": "first_choice",
+          "roleLabel": "Mittel der Wahl",
+          "legalStatus": "not_a_medicine",
+          "legalStatusLabel": "kein Arzneimittel – frei erhältlich (Handel, Apotheke, Drogerie)"
+        }
       ]
     }
   ],
   "speciesIndex": {
     "amphiprion-ocellaris": {
-      "name": "Falscher Clownfisch (Anemonenfisch)",
-      "scientificName": "Amphiprion ocellaris",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -1087,6 +1359,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -1094,11 +1377,6 @@
       ]
     },
     "amphiprion-percula": {
-      "name": "Orangeringel-Anemonenfisch",
-      "scientificName": "Amphiprion percula",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -1210,6 +1488,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -1217,11 +1506,6 @@
       ]
     },
     "gramma-loreto": {
-      "name": "Königs-Feenbarsch",
-      "scientificName": "Gramma loreto",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -1331,6 +1615,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -1338,11 +1633,6 @@
       ]
     },
     "chromis-viridis": {
-      "name": "Grünes Schwalbenschwänzchen",
-      "scientificName": "Chromis viridis",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -1452,6 +1742,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -1459,11 +1760,6 @@
       ]
     },
     "chrysiptera-parasema": {
-      "name": "Gelbschwanz-Demoiselle",
-      "scientificName": "Chrysiptera parasema",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -1573,6 +1869,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -1580,11 +1887,6 @@
       ]
     },
     "pseudanthias-squamipinnis": {
-      "name": "Juwelen-Fahnenbarsch",
-      "scientificName": "Pseudanthias squamipinnis",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -1694,6 +1996,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -1701,11 +2014,6 @@
       ]
     },
     "synchiropus-splendidus": {
-      "name": "Mandarinfisch",
-      "scientificName": "Synchiropus splendidus",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -1815,6 +2123,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -1822,11 +2141,6 @@
       ]
     },
     "elacatinus-oceanops": {
-      "name": "Neongrundel",
-      "scientificName": "Elacatinus oceanops",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -1936,6 +2250,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -1943,11 +2268,6 @@
       ]
     },
     "nemateleotris-magnifica": {
-      "name": "Feuer-Schwertgrundel",
-      "scientificName": "Nemateleotris magnifica",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -2057,6 +2377,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -2064,11 +2395,6 @@
       ]
     },
     "salarias-fasciatus": {
-      "name": "Algen-Schleimfisch",
-      "scientificName": "Salarias fasciatus",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -2178,6 +2504,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -2185,11 +2522,6 @@
       ]
     },
     "ecsenius-bicolor": {
-      "name": "Zweifarben-Schleimfisch",
-      "scientificName": "Ecsenius bicolor",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -2299,6 +2631,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -2306,11 +2649,6 @@
       ]
     },
     "centropyge-loricula": {
-      "name": "Flammen-Zwergkaiserfisch",
-      "scientificName": "Centropyge loricula",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -2414,6 +2752,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -2422,11 +2771,6 @@
       ]
     },
     "pterapogon-kauderni": {
-      "name": "Banggai-Kardinalbarsch",
-      "scientificName": "Pterapogon kauderni",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -2536,6 +2880,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -2543,11 +2898,6 @@
       ]
     },
     "sphaeramia-nematoptera": {
-      "name": "Pyjama-Kardinalbarsch",
-      "scientificName": "Sphaeramia nematoptera",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -2657,6 +3007,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -2664,11 +3025,6 @@
       ]
     },
     "pseudochromis-fridmani": {
-      "name": "Orchideen-Zwergbarsch",
-      "scientificName": "Pseudochromis fridmani",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -2778,6 +3134,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -2785,11 +3152,6 @@
       ]
     },
     "opistognathus-aurifrons": {
-      "name": "Brunnenbauer",
-      "scientificName": "Opistognathus aurifrons",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -2899,6 +3261,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -2906,11 +3279,6 @@
       ]
     },
     "halichoeres-chrysus": {
-      "name": "Kanarien-Lippfisch",
-      "scientificName": "Halichoeres chrysus",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -3020,6 +3388,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -3027,11 +3406,6 @@
       ]
     },
     "zebrasoma-flavescens": {
-      "name": "Gelber Segelflossen-Doktorfisch (Hawaii-Doktor)",
-      "scientificName": "Zebrasoma flavescens",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -3140,6 +3514,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -3147,11 +3532,6 @@
       ]
     },
     "paracanthurus-hepatus": {
-      "name": "Paletten-Doktorfisch",
-      "scientificName": "Paracanthurus hepatus",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -3260,6 +3640,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -3267,11 +3658,6 @@
       ]
     },
     "acanthurus-leucosternon": {
-      "name": "Weißkehl-Doktorfisch",
-      "scientificName": "Acanthurus leucosternon",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "cryptocaryoniasis",
@@ -3380,6 +3766,17 @@
           ],
           "contagious": "bedingt",
           "zoonotic": true
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -3387,11 +3784,6 @@
       ]
     },
     "lysmata-amboinensis": {
-      "name": "Weißband-Putzergarnele",
-      "scientificName": "Lysmata amboinensis",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "invertebrate-copper-toxicity-marine",
@@ -3400,6 +3792,17 @@
           "signs": [
             "Plötzliches Sterben nach Behandlung"
           ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Garnelen und Krebse sterben plötzlich"
+          ],
+          "note": "Wirbellose reagieren empfindlich.",
           "contagious": "nein",
           "zoonotic": false
         }
@@ -3409,11 +3812,6 @@
       ]
     },
     "lysmata-debelius": {
-      "name": "Blutstriemen-Putzergarnele",
-      "scientificName": "Lysmata debelius",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "invertebrate-copper-toxicity-marine",
@@ -3422,6 +3820,17 @@
           "signs": [
             "Plötzliches Sterben nach Behandlung"
           ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Garnelen und Krebse sterben plötzlich"
+          ],
+          "note": "Wirbellose reagieren empfindlich.",
           "contagious": "nein",
           "zoonotic": false
         }
@@ -3431,11 +3840,6 @@
       ]
     },
     "lysmata-wurdemanni": {
-      "name": "Peppermint-Garnele",
-      "scientificName": "Lysmata wurdemanni (Artkomplex)",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "invertebrate-copper-toxicity-marine",
@@ -3444,6 +3848,17 @@
           "signs": [
             "Plötzliches Sterben nach Behandlung"
           ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Garnelen und Krebse sterben plötzlich"
+          ],
+          "note": "Wirbellose reagieren empfindlich.",
           "contagious": "nein",
           "zoonotic": false
         }
@@ -3453,11 +3868,6 @@
       ]
     },
     "stenopus-hispidus": {
-      "name": "Gebänderte Scherengarnele",
-      "scientificName": "Stenopus hispidus",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "invertebrate-copper-toxicity-marine",
@@ -3466,6 +3876,17 @@
           "signs": [
             "Plötzliches Sterben nach Behandlung"
           ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Garnelen und Krebse sterben plötzlich"
+          ],
+          "note": "Wirbellose reagieren empfindlich.",
           "contagious": "nein",
           "zoonotic": false
         }
@@ -3475,11 +3896,6 @@
       ]
     },
     "thor-amboinensis": {
-      "name": "Anemonengarnele",
-      "scientificName": "Thor amboinensis",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "invertebrate-copper-toxicity-marine",
@@ -3488,6 +3904,17 @@
           "signs": [
             "Plötzliches Sterben nach Behandlung"
           ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Garnelen und Krebse sterben plötzlich"
+          ],
+          "note": "Wirbellose reagieren empfindlich.",
           "contagious": "nein",
           "zoonotic": false
         }
@@ -3497,11 +3924,6 @@
       ]
     },
     "mithraculus-sculptus": {
-      "name": "Smaragdkrabbe",
-      "scientificName": "Mithraculus sculptus",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "invertebrate-copper-toxicity-marine",
@@ -3510,6 +3932,17 @@
           "signs": [
             "Plötzliches Sterben nach Behandlung"
           ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Garnelen und Krebse sterben plötzlich"
+          ],
+          "note": "Wirbellose reagieren empfindlich.",
           "contagious": "nein",
           "zoonotic": false
         }
@@ -3519,11 +3952,6 @@
       ]
     },
     "clibanarius-tricolor": {
-      "name": "Blaufuß-Einsiedlerkrebs",
-      "scientificName": "Clibanarius tricolor",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "invertebrate-copper-toxicity-marine",
@@ -3532,6 +3960,17 @@
           "signs": [
             "Plötzliches Sterben nach Behandlung"
           ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Garnelen und Krebse sterben plötzlich"
+          ],
+          "note": "Wirbellose reagieren empfindlich.",
           "contagious": "nein",
           "zoonotic": false
         }
@@ -3541,11 +3980,6 @@
       ]
     },
     "paguristes-cadenati": {
-      "name": "Rotfuß-Einsiedlerkrebs",
-      "scientificName": "Paguristes cadenati",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "invertebrate-copper-toxicity-marine",
@@ -3554,6 +3988,17 @@
           "signs": [
             "Plötzliches Sterben nach Behandlung"
           ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Garnelen und Krebse sterben plötzlich"
+          ],
+          "note": "Wirbellose reagieren empfindlich.",
           "contagious": "nein",
           "zoonotic": false
         }
@@ -3563,11 +4008,6 @@
       ]
     },
     "trochus-spp": {
-      "name": "Kreiselschnecke (Trochus)",
-      "scientificName": "Trochus spp.",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "invertebrate-copper-toxicity-marine",
@@ -3576,6 +4016,17 @@
           "signs": [
             "Plötzliches Sterben nach Behandlung"
           ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Garnelen und Krebse sterben plötzlich"
+          ],
+          "note": "Wirbellose reagieren empfindlich.",
           "contagious": "nein",
           "zoonotic": false
         }
@@ -3585,11 +4036,6 @@
       ]
     },
     "nassarius-spp": {
-      "name": "Nassarius-Schnecke",
-      "scientificName": "Nassarius spp.",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "invertebrate-copper-toxicity-marine",
@@ -3600,6 +4046,17 @@
           ],
           "contagious": "nein",
           "zoonotic": false
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Garnelen und Krebse sterben plötzlich"
+          ],
+          "note": "Wirbellose reagieren empfindlich.",
+          "contagious": "nein",
+          "zoonotic": false
         }
       ],
       "treatmentCautions": [
@@ -3607,11 +4064,6 @@
       ]
     },
     "entacmaea-quadricolor": {
-      "name": "Blasenanemone",
-      "scientificName": "Entacmaea quadricolor",
-      "collections": [
-        "saltwater"
-      ],
       "diseases": [
         {
           "diseaseId": "invertebrate-copper-toxicity-marine",
@@ -3631,6 +4083,17 @@
             "Weiß ausgeblichen",
             "schrumpft"
           ],
+          "contagious": "nein",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning-marine",
+          "disease": "Ammoniak- und Nitritvergiftung (Meerwasser)",
+          "susceptibility": "hoch",
+          "signs": [
+            "Garnelen und Krebse sterben plötzlich"
+          ],
+          "note": "Wirbellose reagieren empfindlich.",
           "contagious": "nein",
           "zoonotic": false
         }
@@ -3743,6 +4206,12 @@
       "publisher": "SRAC",
       "url": "https://srac.tamu.edu/fact-sheets/serve/227"
     },
+    "srac-nitrite": {
+      "type": "Fachpublikation (Southern Regional Aquaculture Center)",
+      "title": "Nitrite in Fish Ponds",
+      "publisher": "SRAC",
+      "url": "https://srac-aquaponics.tamu.edu/fact-sheets/serve/2"
+    },
     "stamper-2011": {
       "type": "Originalarbeit (peer-reviewed)",
       "authors": "Stamper MA, Kittell MM, Patel EE, Corwin AL",
@@ -3758,6 +4227,15 @@
       "publisher": "UF/IFAS Extension, EDIS",
       "doi": "10.32473/edis-fa033-2012",
       "url": "https://edis.ifas.ufl.edu/publication/FA033"
+    },
+    "ufifas-fa16": {
+      "type": "Fachpublikation (Universität/Veterinärmedizin)",
+      "authors": "Francis-Floyd R, Watson C, Petty D, Pouder DB",
+      "year": 2009,
+      "title": "Ammonia in Aquatic Systems (FA16)",
+      "publisher": "UF/IFAS Extension, EDIS",
+      "doi": "10.32473/edis-fa031-2009",
+      "url": "https://journals.flvc.org/edis/article/view/118012"
     },
     "ufifas-fa164": {
       "type": "Fachpublikation (Universität/Veterinärmedizin)",

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onBeforeUnmount } from 'vue';
+import MedicationDetail from './MedicationDetail.vue';
 import Modal from './Modal.vue';
 import { api } from '../api';
 import { language, t, errorMessage } from '../state';
@@ -8,6 +9,7 @@ const props = defineProps<{ diseaseId: string; speciesId?: string }>();
 const emit = defineEmits<{ close: [] }>();
 const disease = ref<DiseaseDetail>();
 const error = ref('');
+const selectedMedication = ref<string>();
 let request: AbortController | undefined;
 watch([() => props.diseaseId, () => props.speciesId, language], async () => {
   request?.abort();
@@ -41,9 +43,18 @@ const safeLink = (url?: string) => url && /^https?:\/\//i.test(url) ? url : unde
           <p>{{ disease.treatment.prognosis }}</p>
         </details>
       </section>
+      <section v-if="disease.medications.length" class="stack"><h3>{{ t('healthMedications.sourceAssociations') }}</h3>
+        <p class="muted">{{ t('healthMedications.sourceNote') }}</p>
+        <div v-for="medication in disease.medications" :key="medication.id" class="health-substance">
+          <strong>{{ medication.name }}</strong><div class="row"><span class="chip">{{ medication.roleLabel }}</span><span class="chip" :class="{ warn: medication.legalStatus === 'rx' }">{{ medication.legalStatusLabel }}</span><span class="chip">{{ t(medication.legalStatusVerified ? 'healthMedications.verified' : 'healthMedications.unverified') }}</span></div>
+          <p v-if="medication.invertebrateSafe === false" class="compat-box warn">{{ t('health.unsafeInvertebrates') }}</p>
+          <button type="button" class="btn small ghost" @click="selectedMedication = medication.id">{{ t('healthMedications.details') }}</button>
+        </div>
+      </section>
       <section><h3>{{ t('health.prevention') }}</h3><ul><li v-for="item in disease.prevention" :key="item">{{ item }}</li></ul></section>
       <details><summary>{{ t('health.affectedSpecies') }} ({{ disease.affectedSpeciesNames.length }})</summary><ul><li v-for="species in disease.affectedSpeciesNames" :key="species.id">{{ species.name }} · <i>{{ species.scientificName }}</i></li></ul></details>
       <details><summary>{{ t('health.sources') }}</summary><ul><li v-for="source in disease.sourceDetails" :key="source.id"><a v-if="safeLink(source.url)" :href="safeLink(source.url)" target="_blank" rel="noopener noreferrer">{{ source.title }}</a><span v-else>{{ source.title }}</span><span v-if="source.authors"> · {{ source.authors }}</span><span v-if="source.year"> ({{ source.year }})</span></li></ul><p v-for="note in disease.legalNotes" :key="note" class="muted">{{ note }}</p></details>
     </template>
   </Modal>
+  <MedicationDetail v-if="selectedMedication" :medication-id="selectedMedication" :show-disease-links="false" @close="selectedMedication = undefined" />
 </template>

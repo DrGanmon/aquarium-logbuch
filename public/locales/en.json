@@ -1,4 +1,26 @@
 {
+  "healthMedications": {
+    "title": "Medications & supplies",
+    "intro": "Medicines, treatment agents and supplies from the supplied dataset. Disease associations and legal status refer to Germany/EU according to the source and are not individual treatment recommendations.",
+    "details": "Medication details",
+    "sourceNote": "These associations and ratings come from the dataset. Consult a veterinarian and current product instructions for selection and use; no dose calculation.",
+    "sourceAssociations": "Treatment agents according to the source",
+    "substances": "Active substances",
+    "indications": "Disease associations according to the source",
+    "cautions": "Precautions",
+    "use": "Use guidance according to the source",
+    "homePharmacy": "Home pharmacy rating according to the source",
+    "products": "Product examples (no brand endorsement)",
+    "disease": "Disease",
+    "legalStatus": "Legal status (Germany/EU)",
+    "otc": "Non-prescription according to the source",
+    "notMedicine": "Not a medicine",
+    "search": "Search name, active substance or product",
+    "verified": "Legal status documented by source",
+    "unverified": "Legal status not individually documented",
+    "supply": "Supply",
+    "medication": "Medicine/treatment agent"
+  },
   "testSelection": {
     "title": "Customize water tests",
     "description": "Combine tests from any suites. One method is active per water parameter. Choosing another method replaces the previous method for that parameter.",

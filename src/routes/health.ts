@@ -43,6 +43,21 @@ router.get('/diseases/:diseaseId', auth, wrap(async (req, res) => {
   res.json({ disease });
 }));
 
+router.get('/medications', auth, wrap(async (req, res) => {
+  const water = String(req.query.waterType || 'all');
+  const legalStatus = String(req.query.legalStatus || '');
+  if (!['fresh', 'salt', 'all'].includes(water) || !['', 'otc', 'rx', 'not_a_medicine'].includes(legalStatus)) throw new AppError('Ungültiger Medikamentenfilter.', 400);
+  res.json(healthService.medications({ waterType: water === 'all' ? undefined : water as WaterType,
+    diseaseId: String(req.query.diseaseId || '').slice(0, 120), legalStatus,
+    query: String(req.query.q || '').slice(0, 160), language: language(req) }));
+}));
+
+router.get('/medications/:medicationId', auth, wrap(async (req, res) => {
+  const medication = healthService.medication(String(req.params.medicationId), language(req));
+  if (!medication) throw new AppError('Medikament nicht gefunden.', 404);
+  res.json({ medication });
+}));
+
 router.get('/aquariums/:id/residents', auth, ownAquarium, wrap(async (req, res) => {
   const lang = language(req);
   const stock = await db.stock.listForAquarium(req.aq.id);

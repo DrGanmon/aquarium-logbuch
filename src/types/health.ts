@@ -3,6 +3,26 @@ export type HealthLanguage = 'de' | 'en';
 export type HealthAnswer = 'yes' | 'no' | 'unknown';
 export interface AnswerInput { questionId: string; answer: HealthAnswer }
 export interface HealthSource { title: string; url?: string; type?: string; publisher?: string; authors?: string; year?: number }
+export type MedicationRole = 'first_choice' | 'alternative' | 'supportive' | 'vet_only' | 'euthanasia';
+export interface MedicationRecommendation {
+  medicationId: string; name: string; role: MedicationRole; roleLabel: string;
+  legalStatus: 'otc' | 'rx' | 'not_a_medicine'; legalStatusLabel: string;
+}
+export interface Medication {
+  id: string; name: string; category: string; activeSubstances: string[];
+  productExamples: { name: string; manufacturer: string; sourceId: string }[];
+  legalStatus: MedicationRecommendation['legalStatus']; legalStatusLabel: string; legalStatusVerified: boolean; legalNote: string;
+  waterTypes: WaterType[]; invertebrateSafe: boolean | null;
+  indications: { diseaseId: string; disease: string; role: MedicationRole; roleLabel: string }[];
+  cautions: string[]; use: string;
+  homePharmacy: { freshwater: number | null; saltwater: number | null; reason: string };
+  sources: string[];
+}
+export interface MedicationDocument {
+  version: string; description: string; disclaimer: string; homePharmacyScale: string; homePharmacyCriteria: string[];
+  legalNotes: string[]; legalStatusVerifiedNote: string;
+  medications: Medication[]; supplies: Medication[]; sources: Record<string, HealthSource>;
+}
 export interface Disease {
   id: string; name: string; synonyms: string[]; category: string; description: string;
   pathogen: { type: string; scientificName: string };
@@ -10,9 +30,10 @@ export interface Disease {
   generalSigns: string[]; keySigns: string[]; predisposingFactors: string[]; diagnosis: string;
   treatment: { summary: string; steps: string[]; prognosis: string; activeSubstances: { substance: string; prescriptionRequired: boolean | null; invertebrateSafe: boolean | null; notes: string }[] };
   prevention: string[]; sources: string[]; affectedSpecies: string[]; affectedSpeciesCount: number;
+  recommendedMedications: MedicationRecommendation[];
 }
 export interface DiseaseSpecies {
-  name: string; scientificName: string; collections: string[];
+  name: string; scientificName: string;
   diseases: { diseaseId: string; disease: string; susceptibility: string; signs: string[]; note?: string }[];
   treatmentCautions: string[];
 }

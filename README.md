@@ -23,7 +23,7 @@ Im optionalen KI-Chat interagierst du mit einem KI-System; dessen Antworten sind
 - **Pflege planen:** Unabhängige Mess- und Düngzyklen mit optionalen E-Mail-Erinnerungen; Dosierpumpenpläne mit manueller Protokollierung.
 - **Wassertest-Verbrauch verfolgen:** Automatische Zählung, korrigierbare Füllmengen und Nachkauferinnerung ab 75 % Verbrauch.
 - **Besatz prüfen:** Artenkatalog mit Haltungsanforderungen, Bildern und Hinweisen zu Gruppen, Beckengröße und Verträglichkeit.
-- **Gesundheit einschätzen:** Krankheitskatalog und Diagnose-Assistent mit aktuellen Wasserwerten und nachvollziehbaren Verdachtsdiagnosen.
+- **Gesundheit einschätzen:** Krankheitskatalog, Diagnose-Assistent und Medikamente/Hilfsmittel mit Quellen, Rechtsstatus und Warnhinweisen.
 - **KI-Assistent nutzen:** Optionaler Aquarium-Chat mit OpenAI, Google Gemini oder Anthropic Claude und persönlichem API-Schlüssel.
 - **Daten mitnehmen und teilen:** CSV-Import mit Spaltenzuordnung, Excel-kompatibler CSV-Export und Aquariumfreigaben mit Lese- oder Schreibzugriff.
 - **Konto anpassen:** Profil, Avatar, Passwortverwaltung, lokale Anmeldung oder Pocket ID/OIDC und Einladungen.
@@ -36,7 +36,7 @@ Im optionalen KI-Chat interagierst du mit einem KI-System; dessen Antworten sind
 - Node.js ab **22.12** oder Bun ab **1.4.3**; SQLite oder MongoDB.
 - Web Worker für rechenintensive Frontend-Aufgaben, Backend-Threadpool und optional mehrere Serverprozesse mit Supervisor.
 - Abschnittsweises Nachladen von Aquariumdetails und abbrechbare Datenanfragen.
-- JSON-Kataloge für Arten, Krankheiten und Testsuiten; deutsche und englische Sprachdateien.
+- Gemeinsamer Artenkatalog für Besatz und Gesundheit; JSON-Daten für Krankheiten, Medikamente und Testsuiten; deutsche und englische Sprachdateien.
 - SMTP-Warteschlange mit anpassbaren E-Mail-Vorlagen und Testversand.
 - Admin-Bereich für Benutzer, Registrierung, Einstellungen, Backups und Logs.
 - Datenbankmigrationen, manuelle/automatische Sicherungen und Wiederherstellung inklusive Uploads.

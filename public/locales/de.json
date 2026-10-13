@@ -1,4 +1,26 @@
 {
+  "healthMedications": {
+    "title": "Medikamente & Hilfsmittel",
+    "intro": "Arznei-, Behandlungsmittel und Hilfsmittel aus der gelieferten Datensammlung. Krankheitszuordnungen und Rechtsstatus gelten laut Quelle für Deutschland/EU und sind keine individuelle Therapieempfehlung.",
+    "details": "Medikamentendetails",
+    "sourceNote": "Diese Zuordnungen und Bewertungen stammen aus der Datensammlung. Auswahl und Anwendung mit Tierarzt und aktueller Packungsbeilage abstimmen; keine Dosierungsberechnung.",
+    "sourceAssociations": "Behandlungsmittel laut Datenquelle",
+    "substances": "Wirkstoffe",
+    "indications": "Krankheitszuordnungen laut Quelle",
+    "cautions": "Vorsichtsmaßnahmen",
+    "use": "Anwendungshinweis laut Quelle",
+    "homePharmacy": "Hausapotheke-Bewertung laut Quelle",
+    "products": "Produktbeispiele (keine Markenempfehlung)",
+    "disease": "Krankheit",
+    "legalStatus": "Rechtsstatus (Deutschland/EU)",
+    "otc": "Frei verkäuflich laut Quelle",
+    "notMedicine": "Kein Arzneimittel",
+    "search": "Name, Wirkstoff oder Produkt suchen",
+    "verified": "Rechtsstatus laut Quelle belegt",
+    "unverified": "Rechtsstatus nicht einzeln belegt",
+    "supply": "Hilfsmittel",
+    "medication": "Arznei-/Behandlungsmittel"
+  },
   "testSelection": {
     "title": "Wassertests anpassen",
     "description": "Kombiniere Tests aus beliebigen Suiten. Pro Wasserparameter ist eine Methode aktiv. Die Auswahl einer anderen Methode ersetzt die bisherige Methode für diesen Parameter.",

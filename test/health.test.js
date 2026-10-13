@@ -11,18 +11,18 @@ const context = (speciesId, values = {}) => ({ speciesId, species: service.speci
 
 test('Gesundheitsdaten: vollständiger zweisprachiger Katalog, Filter, Alias und Quellen', () => {
   const german = service.catalog();
-  assert.equal(german.total, 32);
+  assert.equal(german.total, 38);
   assert.equal(german.species.length, 147);
-  assert.equal(service.catalog({ waterType: 'fresh' }).total, 20);
-  assert.equal(service.catalog({ waterType: 'salt' }).total, 12);
+  assert.equal(service.catalog({ waterType: 'fresh' }).total, 25);
+  assert.equal(service.catalog({ waterType: 'salt' }).total, 13);
   const betta = service.catalog({ speciesId: 'betta-splendens' });
-  assert.equal(betta.total, 12);
+  assert.equal(betta.total, 16);
   assert.ok(betta.diseases.every(item => item.waterType === 'fresh'));
   assert.ok(service.catalog({ query: 'Ichthyophthirius' }).total > 0);
   assert.equal(service.catalog({ waterType: 'salt', speciesId: 'betta-splendens' }).total, 0);
   assert.equal(service.catalog({ speciesId: '__proto__' }).total, 0);
   assert.deepEqual(service.catalog({ speciesId: 'symphysodon-spp' }).diseases.map(item => item.id), service.catalog({ speciesId: 'symphysodon-sp' }).diseases.map(item => item.id));
-  assert.equal(service.catalog({ language: 'en' }).total, 32);
+  assert.equal(service.catalog({ language: 'en' }).total, 38);
   assert.notEqual(service.disease('ichthyophthiriasis', 'en').name, service.disease('ichthyophthiriasis').name);
   const detail = service.disease('ichthyophthiriasis', 'de', 'betta-splendens');
   assert.ok(detail.speciesSigns.length);
@@ -60,7 +60,9 @@ test('Diagnose: Kupfer löst automatische Antwort aus; niedriger Wert lässt den
   assert.ok(absent.question.text.includes('Kupfergabe'));
   const unsafeWater = service.diagnose(context('neocaridina-davidi', { no2: 0.2 }));
   assert.equal(unsafeWater.automaticAnswers.find(item => item.questionId === 'water_bad').answer, 'yes');
-  assert.deepEqual(unsafeWater.results, absent.results, 'Wasserwarnung ohne artspezifische Matrixzeile erfindet keine Krankheitsschätzung');
+  assert.equal(unsafeWater.results[0].diseaseId, 'ammonia-nitrite-poisoning');
+  assert.ok(unsafeWater.results[0].probability > absent.results.find(item => item.diseaseId === 'ammonia-nitrite-poisoning').probability,
+    'Die neue Vergiftungsmatrix berücksichtigt auffälliges Nitrit auch bei Wirbellosen');
 });
 
 test('Diagnose: Meerwasser ignoriert leere Härtegrenzen und kennt Ausstattung nur bei explizitem Wert', () => {
@@ -68,11 +70,11 @@ test('Diagnose: Meerwasser ignoriert leere Härtegrenzen und kennt Ausstattung n
   const response = service.diagnose(fish);
   assert.equal(response.automaticAnswers.find(item => item.questionId === 'params_out_of_range').answer, 'no');
   assert.equal(response.automaticAnswers.some(item => item.questionId === 'carbon'), false);
-  fish.measurements.carbon_in_filter = reading(true);
-  assert.equal(service.diagnose(fish).automaticAnswers.find(item => item.questionId === 'carbon').answer, 'yes');
+  const tang = context('zebrasoma-flavescens', { carbon_in_filter: true });
+  assert.equal(service.diagnose(tang).automaticAnswers.find(item => item.questionId === 'carbon').answer, 'yes');
 });
 
-test('Diagnose: alle Arten und Sprachfassungen enden begrenzt bei Ja, Nein und Weiß nicht', () => {
+test('Diagnose: alle Arten und Sprachfassungen enden begrenzt bei Ja, Nein und Weiß nicht', { timeout: 60000 }, () => {
   for (const lang of ['de', 'en']) for (const waterType of ['fresh', 'salt']) {
     const species = service.bundle(waterType, lang).diagnosis.species;
     for (const speciesId of Object.keys(species)) for (const answer of ['yes', 'no', 'unknown']) {

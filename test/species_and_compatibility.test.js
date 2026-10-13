@@ -132,7 +132,7 @@ test('Artenkatalog & Besatz-Kompatibilität', async (t) => {
 
     // 2. Malawi-Buntbarsch vs Roter Neon -> Biotop- & Wasserwertkonflikt
     const malawiConflict = speciesService.analyzeStockCompatibility({ id: 5, volume_l: 300, water_type: 'fresh' }, [
-      { species: "Malawi-Buntbarsch 'Yellow'", count: 4, profile: 'hartwasser' },
+      { species: 'labidochromis-caeruleus', count: 4, profile: 'hartwasser' },
       { species: 'Roter Neon', count: 20, profile: 'weichwasser' },
     ]);
     assert.strictEqual(malawiConflict.isCompatible, false);

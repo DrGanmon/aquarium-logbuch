@@ -23,7 +23,7 @@ In the optional AI chat, you interact with an AI system; its responses are autom
 - **Plan maintenance:** Independent measurement and fertilization cycles with optional email reminders; dosing pump plans with manual logging.
 - **Track test usage:** Automatic counting, adjustable refill capacities and refill reminders at 75% usage.
 - **Check stocking:** Species catalog with care requirements, images and guidance on groups, tank size and compatibility.
-- **Assess health:** Disease catalog and diagnosis assistant using recent water readings to explain suspected diagnoses.
+- **Assess health:** Disease catalog, diagnosis assistant and medications/supplies with references, legal status and cautions.
 - **Use AI assistance:** Optional aquarium chat with OpenAI, Google Gemini or Anthropic Claude and personal API keys.
 - **Transfer and share data:** CSV import with column mapping, Excel-compatible CSV export and tank sharing with read or write access.
 - **Customize accounts:** Profiles, avatars, password management, local or Pocket ID/OIDC login and invitations.
@@ -36,7 +36,7 @@ In the optional AI chat, you interact with an AI system; its responses are autom
 - Node.js **22.12+** or Bun **1.4.3+**; SQLite or MongoDB.
 - Web worker for demanding frontend tasks, backend thread pool and optional multiple server processes with a supervisor.
 - Section-based loading of tank details and cancellable data requests.
-- JSON catalogs for species, diseases and test suites; German and English translation files.
+- Shared species catalog for stocking and health; JSON data for diseases, medications and test suites; German and English translation files.
 - SMTP queue with customizable email templates and test delivery.
 - Admin panel for users, registration, settings, backups and logs.
 - Database migrations, manual/automated backups and restore including uploads.

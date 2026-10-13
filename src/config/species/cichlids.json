@@ -49,8 +49,8 @@
         "large_tank_required"
       ],
       "diet": "omnivore",
-      "decorHints": "Hohe Aquarien (mind. 50 cm, besser 60 cm Beckenhöhe), senkrechte Wurzeln und großblättrige Pflanzen (z. B. Echinodorus) als Laichsubstrat.",
-      "behaviorNotes": "Ruhiger, eleganter Buntbarsch; als Paar oder als Gruppe ab 5–6 Tieren in großen Becken. Brutpaare verteidigen das Laichrevier energisch. Frisst kleine Fische (z. B. Neonsalmler) und Zwerggarnelen, sobald sie ins Maul passen. Keine Flossenbeißer (Sumatrabarben, Blutsalmler) zusetzen. Nachzuchten vertragen auch neutrales bis leicht alkalisches Wasser.",
+      "decorHints": "Hohe Becken (mind. 50 cm Wasserstand) mit großblättrigen Pflanzen (z. B. Amazonasschwertpflanzen) und Wurzeln.",
+      "behaviorNotes": "Ausgewachsene Skalare fressen kleine Fische wie Neonsalmler! Nicht mit Flossenbeißern (Sumatrabarbe, Blutsalmler) halten. Paarweise oder als Gruppe ab 5–6 Tieren in großen Becken; Brutpaare verteidigen ihr Laichrevier energisch.",
       "description": "Hochrückiger Buntbarsch aus dem Amazonasgebiet, ca. 15 cm lang und höher als lang. Zahlreiche Zuchtformen (z. B. Marmor, Gold, Koi, Schleier)."
     },
     {
@@ -106,8 +106,8 @@
     },
     {
       "id": "symphysodon-sp",
-      "name": "Diskusfisch",
-      "scientificName": "Symphysodon sp.",
+      "name": "Diskus",
+      "scientificName": "Symphysodon spp.",
       "category": "Buntbarsche",
       "waterType": "fresh",
       "profile": "weichwasser",
@@ -151,9 +151,9 @@
         "large_tank_required"
       ],
       "diet": "omnivore",
-      "decorHints": "Große, hohe Becken (mind. 50–60 cm Höhe), weiches und keimarmes Wasser, Wurzeln als Unterstand, sehr häufige Teilwasserwechsel. Ruhige Umgebung; Sandboden oder Barebottom möglich.",
-      "behaviorNotes": "Der 'König der Aquarienfische'. Benötigt hohe Temperaturen (28–30 °C), sehr sauberes Weichwasser und eine Gruppe ab 5–6 Tieren mit stabiler Rangordnung. Brutpaare werden territorial. Geeigneter Beibesatz: Roter Neon, Sterbas Panzerwels, Schmetterlingsbuntbarsch – keine Kaltwasser- oder Normaltemperaturfische. Keine Neonsalmler als Beibesatz.",
-      "description": "Scheibenförmiger Buntbarsch (ca. 15–20 cm) aus dem Amazonasgebiet. Im Handel fast ausschließlich Zuchtformen; die Gattung umfasst mehrere Arten (u. a. S. discus, S. aequifasciatus, S. haraldi)."
+      "decorHints": "Große, hohe Becken (Wasserstand ab 50 cm), Wurzeln, ruhige Umgebung, Sand oder Barebottom; sehr häufige Teilwasserwechsel.",
+      "behaviorNotes": "Anspruchsvoll: braucht sehr warmes, weiches und sauberes Wasser. In Gruppen ab 5–6 Tieren halten, Rangordnung beachten. Geeignete Mitbewohner: Roter Neon, Sterbas Panzerwels, Schmetterlingsbuntbarsch. Keine Neonsalmler oder Kaltwasserarten.",
+      "description": "Scheibenförmiger Buntbarsch (ca. 15–20 cm) aus dem Amazonasgebiet. Im Handel fast nur Zuchtformen (Hybridherkunft aus S. aequifasciatus, S. discus u. a.)."
     },
     {
       "id": "mesonauta-festivus",
@@ -390,7 +390,7 @@
     },
     {
       "id": "mikrogeophagus-ramirezi",
-      "name": "Schmetterlingsbuntbarsch (Ramirezi)",
+      "name": "Schmetterlingsbuntbarsch",
       "scientificName": "Mikrogeophagus ramirezi",
       "category": "Buntbarsche",
       "waterType": "fresh",
@@ -432,9 +432,9 @@
         "peaceful"
       ],
       "diet": "omnivore",
-      "decorHints": "Flache Kiesel/Steine als Laichunterlage, feiner Sand, dichte Randbepflanzung, sauberes Weichwasser. Wurzeln und Laub ergänzen die Einrichtung.",
-      "behaviorNotes": "Paarhaltung (Offenbrüter). Das Paar verteidigt sein kleines Bodenrevier und pflegt gemeinsam die Brut. Empfindlich gegenüber Keimbelastung, Nitrat und hartem Wasser. Zuchtformen (Gold, Electric Blue, Ballon) sind oft weniger robust. Nicht mit Kaltwasserarten halten.",
-      "description": "Einer der farbenprächtigsten Zwergbuntbarsche (ca. 5–7 cm) mit blau schillernden Glanzschuppen, aus den Llanos Venezuelas und Kolumbiens (Orinoko-Becken)."
+      "decorHints": "Feiner Sand, flache Steine als Laichplatz, Wurzeln, Laub, dichte Randbepflanzung.",
+      "behaviorNotes": "Friedlicher Zwergbuntbarsch, paarweise halten; während der Brutpflege revierverteidigend. Braucht warmes, sauberes Wasser; Zuchtformen (z. B. Gold, Electric Blue, Ballon) sind oft weniger robust. Nicht mit Kaltwasserarten wie dem Kardinalfisch.",
+      "description": "Ca. 5–7 cm großer, farbenprächtiger Buntbarsch aus den Llanos Venezuelas und Kolumbiens (Orinoko-Becken)."
     },
     {
       "id": "mikrogeophagus-altispinosus",
@@ -479,7 +479,7 @@
       ],
       "diet": "omnivore",
       "decorHints": "Sandboden zum Gründeln, flache Steine, Wurzeln und Randbepflanzung.",
-      "behaviorNotes": "Friedlich und deutlich robuster als M. ramirezi; paarweise halten. Während der Brutpflege revierverteidigend.",
+      "behaviorNotes": "Friedlicher und robuster als M. ramirezi; paarweise halten. Während der Brutpflege revierverteidigend.",
       "description": "Ca. 7–8 cm großer Zwergbuntbarsch aus Bolivien und Brasilien (Mamoré, Guaporé) mit goldgelber Brust und rot gesäumten Flossen."
     },
     {
@@ -528,8 +528,8 @@
         "hiding_spots"
       ],
       "diet": "carnivore",
-      "decorHints": "Mehrere Höhlen (Kokosnussschalen, Tonhöhlen, Steinhöhlen mit kleinem Eingang), feiner Sandboden, Laub; bei Haremshaltung ab 80 cm. Wurzeln als zusätzliche Strukturierung.",
-      "behaviorNotes": "Haremshaltung (1 Männchen mit 2–3 Weibchen) oder Paar. Jedes Weibchen beansprucht eine eigene Bruthöhle und verteidigt deren Umkreis energisch. Das Männchen kontrolliert das Gesamtrevier. Nicht mit anderen Apistogramma in kleinen Becken. Bevorzugt Lebend- und Frostfutter. Auch mehrere Männchen derselben Art nicht in kleinen Becken halten.",
+      "decorHints": "Viele Höhlen (Kokosnussschalen, Tonhöhlen), Wurzeln, Laub, Sand; bei Haremshaltung ab 80 cm.",
+      "behaviorNotes": "Paar oder Harem (1 Männchen mit 2–3 Weibchen). Weibchen verteidigen Brutreviere energisch. Nicht mehrere Apistogramma-Männchen in kleinen Becken. Bevorzugt Lebend- und Frostfutter.",
       "description": "Robuster Zwergbuntbarsch aus dem oberen Amazonasgebiet (Peru, Kolumbien, Brasilien). Männchen bis ca. 8–9 cm mit kammartig verlängerter Rückenflosse; Zuchtformen wie Double Red."
     },
     {
@@ -579,7 +579,7 @@
       ],
       "diet": "carnivore",
       "decorHints": "Höhlen, Wurzeln, viel Laub, Sand; weiches, saures Wasser; bei Haremshaltung ab 80 cm.",
-      "behaviorNotes": "Paar oder Harem. Zur erfolgreichen Zucht sehr weiches, saures Wasser nötig. Nicht mit anderen Apistogramma in kleinen Becken.",
+      "behaviorNotes": "Paar oder Harem. Zur Zucht sehr weiches, saures Wasser nötig. Nicht mit anderen Apistogramma in kleinen Becken.",
       "description": "Zwergbuntbarsch aus dem Amazonasgebiet; Männchen bis ca. 8–9 cm mit lanzettförmiger Schwanzflosse. Viele Fundort- und Zuchtformen."
     },
     {
@@ -909,9 +909,9 @@
         "cave_dweller"
       ],
       "diet": "omnivore",
-      "decorHints": "Höhlen (Kokosnuss, Steine, Ton), Wurzeln, Sand; robuste oder aufgebundene Pflanzen.",
-      "behaviorNotes": "Paarhaltung (Höhlenbrüter). Während der Brutpflege stark revierverteidigend und beansprucht große Teile des Bodens; gräbt rund um die Bruthöhle. Der pH-Wert beeinflusst das Geschlechterverhältnis der Jungfische.",
-      "description": "Westafrikanischer Buntbarsch aus Nigeria und Kamerun; Männchen bis ca. 10 cm, Weibchen kleiner mit leuchtend purpurrotem Bauch."
+      "decorHints": "Höhlen, Sandboden (gräbt), Wurzeln; robuste oder aufgebundene Pflanzen.",
+      "behaviorNotes": "Paarweise halten. Während der Brutpflege sehr revierverteidigend gegenüber Bodenbewohnern. Gräbt rund um die Bruthöhle. Der pH-Wert beeinflusst das Geschlechterverhältnis der Jungfische.",
+      "description": "Westafrikanischer Buntbarsch (Nigeria, Kamerun), Männchen bis ca. 10 cm. Weibchen mit leuchtend purpurrotem Bauch."
     },
     {
       "id": "pelvicachromis-taeniatus",
@@ -1055,7 +1055,7 @@
     },
     {
       "id": "labidochromis-caeruleus",
-      "name": "Malawi-Buntbarsch 'Yellow'",
+      "name": "Labidochromis 'Yellow'",
       "scientificName": "Labidochromis caeruleus",
       "category": "Buntbarsche",
       "waterType": "fresh",
@@ -1098,9 +1098,9 @@
         "species_tank_recommended"
       ],
       "diet": "omnivore",
-      "decorHints": "Felsenbecken (Steinaufbauten mit vielen Höhlen und Spalten), Sandboden, kaum Pflanzen nötig.",
-      "behaviorNotes": "Einer der friedlichsten Mbuna, aber strikt an alkalisches Hartwasser gebunden. Weibchenüberschuss (1 Männchen auf 3–4 Weibchen). Maternaler Maulbrüter. Nicht mit Weichwasserfischen, Salmlern, Skalaren oder Zwerggarnelen halten. Nur mit anderen geeigneten Malawi-Buntbarschen vergesellschaften.",
-      "description": "Ca. 10 cm großer, kanariengelber Buntbarsch aus dem Malawisee mit schwarzem Flossensaum."
+      "decorHints": "Malawi-Becken mit großen Steinaufbauten, Höhlen und Sand; hartes, alkalisches Wasser.",
+      "behaviorNotes": "Einer der friedlichsten Mbuna, aber nur mit anderen Malawi-Buntbarschen vergesellschaften. Gruppe mit Weibchenüberschuss (1 Männchen auf 3–4 Weibchen). Maternaler Maulbrüter.",
+      "description": "Ca. 10 cm großer, zitronengelber Buntbarsch aus dem Malawisee mit schwarz gesäumter Rücken- und Afterflosse."
     },
     {
       "id": "chindongo-saulosi",
@@ -1350,7 +1350,7 @@
     },
     {
       "id": "neolamprologus-multifasciatus",
-      "name": "Vielgestreifter Schneckenbuntbarsch",
+      "name": "Schneckenbuntbarsch",
       "scientificName": "Neolamprologus multifasciatus",
       "category": "Buntbarsche",
       "waterType": "fresh",
@@ -1395,9 +1395,9 @@
         "species_tank_recommended"
       ],
       "diet": "carnivore",
-      "decorHints": "Große Bodenfläche mit feinem Sand und deutlich mehr leeren Schneckenhäusern (z. B. Weinbergschnecke) als Fische – mind. 2–3 pro Tier.",
-      "behaviorNotes": "Gilt als einer der kleinsten Buntbarsche (Männchen ca. 4–4,5 cm, Weibchen ca. 3 cm). Bildet Kolonien am Boden; jedes Tier verteidigt sein Schneckenhaus mutig und gräbt intensiv. Weibchenüberschuss. Benötigt hartes, alkalisches Wasser. Am besten im Artenbecken oder nur mit Freiwasser-Tanganjikabuntbarschen halten.",
-      "description": "Winziger Schneckenbuntbarsch aus dem Tanganjikasee mit feinen Querstreifen; lebt in leeren Neothauma-Schneckenhäusern."
+      "decorHints": "Große Bodenfläche mit feinem Sand und deutlich mehr leeren Schneckenhäusern (z. B. Weinbergschnecke) als Fische.",
+      "behaviorNotes": "Koloniebildend; jedes Tier verteidigt sein Schneckenhaus-Revier und gräbt intensiv. Am besten im Artbecken oder nur mit Freiwasser-Tanganjikabuntbarschen. Weibchenüberschuss.",
+      "description": "Einer der kleinsten Buntbarsche (Männchen ca. 4,5 cm, Weibchen ca. 3 cm) aus dem Tanganjikasee, lebt in leeren Neothauma-Schneckenhäusern."
     },
     {
       "id": "lamprologus-ocellatus",
