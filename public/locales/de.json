@@ -1,4 +1,11 @@
 {
+  "frontendUpdate": {
+    "title": "Neue Version verfügbar",
+    "message": "Frontend-Version {version} ist verfügbar. Möchtest du sie jetzt laden?",
+    "warning": "Die App wird neu geladen. Ungespeicherte Eingaben gehen dabei verloren.",
+    "reload": "Jetzt laden",
+    "later": "Später"
+  },
   "common": {
     "appName": "Aquarium-Logbuch",
     "save": "Speichern",

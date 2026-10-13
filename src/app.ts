@@ -88,6 +88,7 @@ const sendIndex = (req: Request, res: Response) => {
 
 app.get(['/', '/index.html'], sendIndex);
 app.get('/sw.js', (req: Request, res: Response) => res.setHeader('Cache-Control', 'no-cache').sendFile(path.join(publicDir, 'dist', 'sw.js')));
+app.get('/dist/version.json', (req: Request, res: Response) => res.setHeader('Cache-Control', 'no-store').sendFile(path.join(publicDir, 'dist', 'version.json')));
 app.use(express.static(publicDir, { maxAge: 0 }));
 
 // 404 Handler

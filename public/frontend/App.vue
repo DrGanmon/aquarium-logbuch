@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted } from "vue";
+import FrontendUpdate from "./components/FrontendUpdate.vue";
 import Topbar from "./components/Topbar.vue";
 import SiteFooter from "./components/SiteFooter.vue";
 import AuthView from "./views/AuthView.vue";
@@ -78,6 +79,7 @@ onMounted(initialize);
     <AquariumList v-else />
   </main>
   <SiteFooter :t="t" />
+  <FrontendUpdate />
   <div
     id="toast"
     role="status"

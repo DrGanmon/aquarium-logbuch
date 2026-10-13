@@ -1,4 +1,11 @@
 {
+  "frontendUpdate": {
+    "title": "New version available",
+    "message": "Frontend version {version} is available. Would you like to load it now?",
+    "warning": "The app will reload. Unsaved changes will be lost.",
+    "reload": "Load now",
+    "later": "Later"
+  },
   "common": {
     "appName": "Aquarium Logbook",
     "save": "Save",
