@@ -1,0 +1,27 @@
+# Artenkatalog und Besatzprüfung
+
+[Handbuch](README.md) · [English](../en/species.md) · [Projektübersicht](../../README.md)
+
+Der Besatz wird über modulare **JSON-Artenkataloge** unter `../../src/config/species` (bzw. für eigene Erweiterungen unter `data/species/`) gesteuert:
+- **Kataloge:**
+  - `freshwater-popular.json`: Gängige Salmler, Lebendgebärende, Labyrinthfische, Bärblinge, Welse und Schmerlen.
+  - `cichlids.json`: Südamerikanische Zwergbuntbarsche, Skalare, Diskusfische sowie ostafrikanische Buntbarsche (Malawi / Tanganjika).
+  - `invertebrates.json`: Zwerggarnelen, Fächergarnelen, Zwergflusskrebse und Zierschnecken.
+  - `saltwater.json`: Meerwasserfische, Anemonenfische, Putzergarnelen und Einsiedlerkrebse.
+- **Dubletten-Abgleich:** Abweichende strukturierte Werte aus der neuen Popular-Datei wurden in die bestehenden Buntbarsch-Einträge übernommen, Tags aus beiden Dateien vereinigt und fehlende Haltungshinweise ergänzt. Buntbarsch-Einträge bleiben in `cichlids.json` zentral gepflegt.
+- **147 Arten ohne doppelte Katalogeinträge:** Buntbarsche stehen ausschließlich in `cichlids.json`. Die alternative Diskus-ID `symphysodon-spp` bleibt als Alias für `symphysodon-sp` erreichbar.
+- **Sulawesi-Profil:** Kardinalsgarnelen und Tylomelania erhalten ein eigenes Profil für warmes, alkalisches, mittelhartes Wasser. Seine Bereiche stammen aus der Überschneidung der gelieferten Katalogwerte; sie sind keine unabhängig geprüften artspezifischen Gefahrenwerte.
+- **Neue Verhaltenstags:** Garnelenjäger (`shrimp_predator`, `aggressive_to_shrimp`) werden in der Räuber-Beute-Prüfung berücksichtigt. Weitere Tags erzeugen deutsch- und englischsprachige Haltungshinweise, etwa zu Strömung, Fütterung, Ausbruchschutz, Riffverträglichkeit und Nachzucht. `solitary` beschreibt die mögliche Einzelhaltung; strikte Einzelhaltungs-Konflikte richten sich weiterhin nach dem Aggressionsmerkmal.
+- **Optionales Artenschema für Salinität:** `salinity` verwendet dieselben Felder wie Temperatur (`min`, `max`, `idealMin`, `idealMax`), ausschließlich in **‰**. Vorhandene Werte erscheinen in den Artendetails und im strukturierten KI-Kontext. Die gelieferten Dateien enthalten keine Salinitätswerte; es werden keine pauschalen Werte nachgetragen. Dies ergänzt keine Messmethode oder Testsuite und verändert keine Messwert-Grenzwerte.
+- **Datenherkunft:** Die erweiterten Kataloge wurden aus den bereitgestellten Dateien übernommen. Abgeleitete KH-Bereiche und allgemeine Meerwasser-KH-Bereiche sind Richtwerte und wurden nicht als artspezifische Quellenangaben verifiziert.
+- **Mobile Artendetails mit Bildern:** Klar gegliederte Übersicht mit Beckenbedarf, Haltung, Verhalten, Ideal-/Wasserbereichen und Einrichtung. 146 Arten haben ein lokal gespeichertes WebP-Bild; bei `nannostomus-beckfordi` fehlt ein Bild in der gelieferten Zuordnung. Die Kameraschaltfläche unten im Bild öffnet Urheber, Urheberlink, Lizenz, Lizenzlink, Bildquelle, ursprüngliche Herkunft und Bearbeitungshinweise. Nicht mitgelieferte Links werden kenntlich gemacht.
+- **Bilddateien & Lizenzen:** `../../public/species-images/manifest.json` ordnet Bilder und Bildnachweise zu; `attribution.json` bewahrt die vollständige gelieferte Zuordnung. Die Bilder stehen jeweils unter ihrer eigenen dort angegebenen Lizenz, einschließlich ShareAlike, und fallen nicht pauschal unter die Softwarelizenz. Sie werden lokal geladen, ohne externe Bildabrufe. Die Bildzuordnung wurde aus der bereitgestellten Datenbank übernommen; deren Review-Status ist im Originalnachweis erhalten.
+- **Bildoptimierung:** Maximal 768 × 768 Pixel, WebP (Qualität 74), ohne Beschnitt. Die eingebundenen Bilder benötigen insgesamt rund 5,4 MB statt 24,8 MB (78 % weniger). Erneuter Import mit Python 3 und Pillow: `python3 scripts/import-species-images.py "/pfad/zum/out"`. Dabei bleiben Originalnachweise erhalten und die zusätzliche Komprimierung wird dokumentiert.
+- **Artenkatalog-Ansicht (`#/species`):** Durchsuche und filtere alle Bewohner nach Wassertyp oder Kategorie und sieh dir Wasseranforderungen (Temperatur, pH, GH, KH), Mindestbeckenvolumen, Schwimmzone und Wesen an.
+  - **Zum Aquarium hinzufügen:** Direkt auf der Artenkarte oder in den Artendetails ein passendes Aquarium mit Schreibzugriff auswählen und die Anzahl eingeben. Optional erscheinen dynamische Namensfelder pro Tier; unbenannte Tiere werden als Gruppe gespeichert.
+- **Verhaltens- & Territorialitäts-Prüfung:**
+  - **Kampffische (*Betta splendens*):** Prüfung auf strikte Einzelhaltung (mehrere Kampffische in einem Becken lösen kritische Alarme aus), Schutz vor Flossenbeißern (Sumatrabarbe, Blutsalmler) und Rivalitätswarnung bei bunten Schleierfischen (Guppys).
+  - **Mindestbeckengrößen:** Warnung, wenn das Aquarium kleiner ist als das empfohlene Mindestvolumen einer Art (z. B. Skalare ab 200 L, Diskus ab 300 L, Prachtschmerlen ab 400 L).
+  - **Schwarmgrößen:** Warnung bei Schwarmfischen (Neonsalmler, Rotkopfsalmler, Zebrabärblinge), wenn weniger als die empfohlene Mindestanzahl gehalten wird.
+  - **Räuber-Beute & Flossenschutz:** Warnungen vor Zwerggarnelen-Verlusten bei größeren Raubfischen (Skalare/Buntbarsche), Zwickgefahren bei Krebsen und Schneckenfressern (Raubschnecke Helena, Prachtschmerle) bei Zierschnecken.
+  - **Biotop- und Wasserwertkonflikte:** Automatische Erkennung unvereinbarer Ansprüche (z. B. alkalische Malawi-/Tanganjika-Buntbarsche vs. Weichwasser-Südamerikaner oder Kaltwasserfische wie Kardinalfische vs. wärmebedürftige Tropenfische).
