@@ -50,6 +50,9 @@ jobs:
     needs: version
     env:
       APP_VERSION: ${{ needs.version.outputs.version }}
+      AQUARIUM_TEST_JOBS: '2'
+      MONGOMS_DOWNLOAD_DIR: ${{ runner.temp }}/aquarium-mongodb-binaries
+      MONGOMS_USE_ARCHIVE_NAME_FOR_BINARY_NAME: 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -64,6 +67,13 @@ jobs:
         if: matrix.runtime == 'bun'
         with:
           bun-version: '1.4.3'
+      - name: Cache MongoDB test binaries
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.MONGOMS_DOWNLOAD_DIR }}
+          key: mongodb-test-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json', 'bun.lock') }}
+          restore-keys: |
+            mongodb-test-${{ runner.os }}-${{ runner.arch }}-
       - name: Install dependencies
         run: |
           if [ "${{ matrix.runtime }}" = "bun" ]; then
@@ -75,10 +85,10 @@ jobs:
         run: |
           if [ "${{ matrix.runtime }}" = "bun" ]; then
             bun run dist:bun
-            bun run test:bun
+            AQUARIUM_TEST_BACKEND_BUILT="$PWD/dist/backend" bun run test:bun
           else
             npm run dist
-            npm test
+            AQUARIUM_TEST_BACKEND_BUILT="$PWD/dist/backend" npm test
           fi
 
   build-and-push:

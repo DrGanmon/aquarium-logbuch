@@ -34,6 +34,8 @@ Für Hot Reload läuft nach einem Build die API über `npm start`, Vite separat 
 ```bash
 npm run typecheck
 npm test
+npm test -- --jobs=4
+npm test -- --serial
 npm test -- test/auth.test.js
 npm test -- --info
 ```
@@ -43,3 +45,13 @@ Die Tests bauen das Backend vorab. Integrationstests benötigen lokale HTTP-Port
 ## Betriebsgrenzen
 
 Die dokumentierten Prüfergebnisse und verbleibenden Betriebsgrenzen stehen in [AUDIT.md](../../AUDIT.md).
+
+## Parallele und isolierte Testläufe
+
+Der Starter führt standardmäßig bis zu vier Testdateien parallel aus, begrenzt durch verfügbare CPUs und das Speicherlimit (Budget von 1 GiB pro Worker). Jede Datei läuft in einem eigenen Prozess mit eigenem temporärem `DATA_DIR`; Modulzustand, Umgebungsvariablen, Uploads, Logs und Backups sind getrennt. Tests und Untertests innerhalb einer Datei bleiben seriell. Die Frontend-Buildtests laufen exklusiv, da sie den gemeinsamen Buildordner verändern. Fehlerausgaben, Exit-Code und Summen werden aus allen Dateien zusammengeführt; ein Abbruch beendet die Prozessgruppen und bereinigt temporäre Daten.
+
+`--jobs=N` oder `--test-concurrency=N` legt die Parallelität fest (1–64), `--serial` schaltet auf eine Datei um. Alternativ setzt `AQUARIUM_TEST_JOBS=2 npm test` den Standard; CLI-Angaben haben Vorrang. Dieselben Optionen gelten für `bun run test:bun`. `--info` zeigt vollständige Logs und Ergebnisse. Eine leere Dateiauswahl oder ungültige Parallelität schlägt fehl. Native Node-Filter wie `--test-name-pattern` können weitergegeben werden. Eigene Reporter, Watch-Modus, Coverage-Optionen und deaktivierte Prozessisolation verwenden automatisch den seriellen nativen Node-Runner, damit diese Funktionen erhalten bleiben.
+
+Das Backend wird vor dem Testlauf einmal kompiliert. Verschachtelte Starter-Tests verwenden diesen Build erneut, statt die Dateien anderer Worker zu löschen und neu zu erzeugen. Auch CI verwendet den zuvor erfolgreich typgeprüften Produktionsbuild für die Tests und begrenzt die Parallelität auf zwei Dateien. Der MongoDB-Binärcache wird über GitHub Actions wiederverwendet; die einzelnen Datenbanken und Server bleiben getrennt.
+
+Grundlagen: [Node-Testisolation](https://nodejs.org/api/test.html#test-runner-execution-model), [Buns `node:test`-Kompatibilität](https://bun.com/docs/runtime/nodejs-compat#node-test) und [MongoDB-Binärcache](https://typegoose.github.io/mongodb-memory-server/docs/api/config-options/#download_dir).

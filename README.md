@@ -43,7 +43,7 @@ Im optionalen KI-Chat interagierst du mit einem KI-System; dessen Antworten sind
 - Admin-Bereich für Benutzer, Registrierung, Einstellungen, Backups und Logs.
 - Datenbankmigrationen, manuelle/automatische Sicherungen und Wiederherstellung inklusive Uploads.
 - Docker-Images für AMD64/ARM64; Compose-Vorlagen für SQLite und MongoDB.
-- Automatische Versionsberechnung aus Commit-Typen, Typprüfung und Tests für beide Datenbankadapter und Runtimes.
+- Automatische Versionsberechnung aus Commit-Typen, Typprüfung und parallel isolierte Tests für beide Datenbankadapter und Runtimes.
 
 ## Schnellstart
 

@@ -34,6 +34,8 @@ For hot reload, build first, start the API with `npm start` and run Vite separat
 ```bash
 npm run typecheck
 npm test
+npm test -- --jobs=4
+npm test -- --serial
 npm test -- test/auth.test.js
 npm test -- --info
 ```
@@ -43,3 +45,13 @@ Tests rebuild the backend first. Integration tests need local HTTP ports and a M
 ## Operational limits
 
 Documented audit results and remaining operational limits are in [AUDIT.md](../../AUDIT.md).
+
+## Parallel and isolated test runs
+
+The runner defaults to at most four concurrent test files, limited by CPU availability and the memory limit (a 1 GiB budget per worker). Every file runs in a separate process with a temporary `DATA_DIR`, isolating module state, environment variables, uploads, logs and backups. Tests and subtests within each file stay sequential. Frontend build tests run exclusively because they modify the shared output directory. Failure logs, exit status and counts are aggregated across all files; cancellation terminates process groups and removes temporary data.
+
+Use `--jobs=N` or `--test-concurrency=N` to set concurrency (1–64), or `--serial` for one file at a time. `AQUARIUM_TEST_JOBS=2 npm test` sets the default, overridden by CLI flags. The same options work with `bun run test:bun`. `--info` prints complete logs and results. Empty file selections and invalid concurrency fail. Native Node filters such as `--test-name-pattern` may be forwarded; custom reporters, watch mode, coverage flags and disabled process isolation automatically use the sequential native Node runner, retaining those features.
+
+The backend compiles once before testing. Nested runner fixtures reuse that build instead of deleting files other workers are using. CI also reuses its successfully typechecked production build and limits concurrency to two files. GitHub Actions caches the MongoDB binaries; individual database instances and servers remain separate.
+
+References: [Node test isolation](https://nodejs.org/api/test.html#test-runner-execution-model), [Bun `node:test` compatibility](https://bun.com/docs/runtime/nodejs-compat#node-test) and [MongoDB binary cache](https://typegoose.github.io/mongodb-memory-server/docs/api/config-options/#download_dir).

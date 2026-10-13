@@ -11,7 +11,7 @@ const { backupService } = require('../dist/backend/src/services/backup-service')
 const logger = require('../dist/backend/src/utils/logger');
 const { createMongoTestEnvironment } = require('./helpers/env');
 
-test('Database Migrations & Backward Compatibility', async (t) => {
+test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (t) => {
   const tmpDir = path.join(__dirname, '..', 'data', 'test_migrations_' + Date.now());
   fs.mkdirSync(tmpDir, { recursive: true });
 

@@ -43,7 +43,7 @@ In the optional AI chat, you interact with an AI system; its responses are autom
 - Admin panel for users, registration, settings, backups and logs.
 - Database migrations, manual/automated backups and restore including uploads.
 - AMD64/ARM64 Docker images; Compose configurations for SQLite and MongoDB.
-- Commit-based version calculation, type checking and tests for both database adapters and runtimes.
+- Commit-based version calculation, type checking and parallel isolated tests for both database adapters and runtimes.
 
 ## Quick start
 

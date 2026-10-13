@@ -48,7 +48,7 @@ test('Produktionslayout läuft ohne TypeScript-Quellen oder Compiler', (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aquarium-production-layout-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   fs.cpSync(path.join(root, 'dist/backend'), path.join(dir, 'dist/backend'), { recursive: true });
-  for (const file of ['server.js', 'config.js', 'oidc.js', 'version.json', 'public/index.html', 'public/icon-192.png', 'public/species-images/manifest.json']) {
+  for (const file of ['server.js', 'config.js', 'oidc.js', 'version.json', 'public/index.html', 'public/icon-192.png', 'public/species-images/manifest.json', 'public/locales/de.json', 'public/locales/en.json']) {
     fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
     fs.copyFileSync(path.join(root, file), path.join(dir, file));
   }
