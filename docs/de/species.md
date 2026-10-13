@@ -25,3 +25,9 @@ Der Besatz wird über modulare **JSON-Artenkataloge** unter `../../src/config/sp
   - **Schwarmgrößen:** Warnung bei Schwarmfischen (Neonsalmler, Rotkopfsalmler, Zebrabärblinge), wenn weniger als die empfohlene Mindestanzahl gehalten wird.
   - **Räuber-Beute & Flossenschutz:** Warnungen vor Zwerggarnelen-Verlusten bei größeren Raubfischen (Skalare/Buntbarsche), Zwickgefahren bei Krebsen und Schneckenfressern (Raubschnecke Helena, Prachtschmerle) bei Zierschnecken.
   - **Biotop- und Wasserwertkonflikte:** Automatische Erkennung unvereinbarer Ansprüche (z. B. alkalische Malawi-/Tanganjika-Buntbarsche vs. Weichwasser-Südamerikaner oder Kaltwasserfische wie Kardinalfische vs. wärmebedürftige Tropenfische).
+
+## Seitenweises Laden und Suche
+
+Die Katalogansicht lädt zunächst 24 Artenkarten und weitere Seiten beim Scrollen; „Weitere Arten laden“ funktioniert auch ohne automatische Scroll-Erkennung. Artendetails und Bilder werden erst beim Öffnen einer Art abgerufen. Suche, Wasserart und Kategorie werden auf den gesamten serverseitigen Katalog angewendet, bevor die Seite ausgewählt wird. Deshalb bleiben noch nicht angezeigte Arten auffindbar. Mehrere Suchwörter müssen gemeinsam in Namen, wissenschaftlichem Namen, Kategorie, Beschreibung oder Tags vorkommen; Namens-Treffer werden höher gewichtet. Deutsch- und englischsprachige Namen sind durchsuchbar. Die Gesamtanzahl und Kategorien stammen aus dem vollständigen Katalog.
+
+Suchänderungen werden um 200 ms gebündelt; alte Anfragen werden abgebrochen und überholte Antworten verworfen. Filter- und Sprachwechsel starten wieder mit der ersten Seite. Die API verwendet `/api/species?limit=24&offset=0&q=…` mit optionalem `water_type` und `category`. `total` zählt alle Treffer, `next` enthält den nächsten Offset oder `null`; eine Seite ist auf maximal 100 Einträge begrenzt. Ohne Seitenauswahl bleibt die vollständige API-Antwort für bestehende Verbraucher erhalten.

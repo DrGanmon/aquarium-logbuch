@@ -1,3 +1,4 @@
+import { searchSpecies } from '../shared/species-search';
 import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
 'use strict';
@@ -105,6 +106,26 @@ router.get('/species', auth, (req: Request, res: Response) => {
   const waterType = req.query.water_type || req.query.waterType;
   const category = req.query.category;
   const q = req.query.q ? String(req.query.q).toLowerCase().trim() : null;
+
+  if (req.query.limit !== undefined || req.query.offset !== undefined) {
+    const integer = (value: unknown, fallback: number) => value === undefined ? fallback
+      : typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : NaN;
+    const limit = integer(req.query.limit, 24), offset = integer(req.query.offset, 0);
+    if (!Number.isSafeInteger(limit) || limit < 1 || limit > 100 || !Number.isSafeInteger(offset) || offset < 0)
+      return res.status(400).json({ error: 'Ungültige Seitenauswahl.' });
+    const { filtered, total } = searchSpecies({ species: list, query: q || '',
+      waterType: waterType ? String(waterType) : 'all', category: category ? String(category) : 'all' });
+    // Cards need only a summary; photos, water ranges and care details load on demand.
+    const page = filtered.slice(offset, offset + limit).map((species: any) => ({
+      id: species.id, name: species.name, scientificName: species.scientificName,
+      category: species.category, profile: species.profile, waterType: species.waterType,
+      minVolumeL: species.minVolumeL, minGroupCount: species.minGroupCount, description: species.description,
+    }));
+    return res.setHeader('Cache-Control', 'no-store').json({ species: page, total,
+      next: offset + page.length < total ? offset + page.length : null,
+      categories: cfg.speciesService.getCategories(lang) });
+  }
+
 
   if (waterType) {
     list = list.filter((s: any) => s.waterType === waterType);

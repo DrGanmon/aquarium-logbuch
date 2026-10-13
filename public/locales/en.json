@@ -921,5 +921,14 @@
     "liabilityTitle": "8. App information",
     "liabilityText": "The app provides aquarium documentation and information. Animal health information and AI responses do not replace professional advice. These terms do not restrict statutory claims or mandatory liability rules.",
     "link": "Terms of use"
+  },
+  "speciesCatalog": {
+    "count": "{loaded} of {total} species loaded",
+    "more": "Load more species",
+    "empty": "No species match this search and filters.",
+    "water": "Water type",
+    "category": "Category",
+    "fresh": "Freshwater",
+    "salt": "Saltwater"
   }
 }

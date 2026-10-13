@@ -1,3 +1,4 @@
+import { searchSpecies } from '../../src/shared/species-search';
 import type { Species, Measurement, Parameter, Range } from "./types";
 import { evaluate } from "./composables/values";
 export interface CsvHeader {
@@ -155,42 +156,7 @@ export function handleParseCsv(
 export function handleSearchSpecies(
   data: WorkerTasks["SEARCH_SPECIES"]["input"],
 ): SearchResult {
-  const words = data.query.toLowerCase().trim().split(/\s+/).filter(Boolean);
-  const filtered = data.species
-    .filter(
-      (species) =>
-        (data.waterType === "all" || species.waterType === data.waterType) &&
-        (data.category === "all" || species.category === data.category),
-    )
-    .map((species) => {
-      const name = species.name.toLowerCase();
-      const haystack =
-        `${name} ${species.scientificName || ""} ${species.category || ""} ${species.description || ""}`.toLowerCase();
-      return {
-        species,
-        score: words.every((word) => haystack.includes(word))
-          ? words.reduce(
-              (score, word) =>
-                score +
-                (name === word
-                  ? 20
-                  : name.startsWith(word)
-                    ? 10
-                    : name.includes(word)
-                      ? 5
-                      : 1),
-              1,
-            )
-          : 0,
-      };
-    })
-    .filter((item) => item.score > 0)
-    .sort(
-      (a, b) =>
-        b.score - a.score || a.species.name.localeCompare(b.species.name),
-    )
-    .map((item) => item.species);
-  return { filtered, total: filtered.length };
+  return searchSpecies(data);
 }
 export function handleComputeStats(
   data: WorkerTasks["COMPUTE_STATS"]["input"],

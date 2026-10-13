@@ -29,3 +29,9 @@ Images are loaded locally, resized without cropping to at most 768 × 768 pixels
 ## Add residents from the catalog
 
 Use the species card or detail dialog to select a compatible aquarium with write access and enter a count. Optional name fields allow individual residents; unnamed animals are stored as a group. Known residents also open catalog details from the tank view, including with read-only access. Custom species without a match display an explanatory note.
+
+## Lazy loading and search
+
+The catalog initially loads 24 species cards, then fetches more pages while scrolling. “Load more species” also works without automatic scroll detection. Details and photos load when a species is opened. Search, water type and category are applied to the entire server-side catalog before selecting a page, so species not yet displayed remain searchable. All query words must match names, scientific names, categories, descriptions or tags; name matches rank higher. Both German and English names are searchable. Total counts and category options come from the complete catalog.
+
+Typing is debounced by 200 ms; previous requests are aborted and outdated responses are discarded. Filter and language changes restart from the first page. The API uses `/api/species?limit=24&offset=0&q=…`, with optional `water_type` and `category`. `total` counts every match and `next` returns the next offset or `null`; pages are capped at 100 records. Requests without pagination retain the full response for existing consumers.

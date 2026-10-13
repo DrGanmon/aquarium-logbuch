@@ -921,5 +921,14 @@
     "liabilityTitle": "8. Hinweise zur App",
     "liabilityText": "Die App bietet Dokumentations- und Informationsfunktionen für Aquarien. Angaben zu Tiergesundheit und KI-Antworten ersetzen keine fachliche Beratung. Gesetzliche Ansprüche und zwingende Haftungsregelungen werden durch diese Bedingungen nicht eingeschränkt.",
     "link": "AGB"
+  },
+  "speciesCatalog": {
+    "count": "{loaded} von {total} Arten geladen",
+    "more": "Weitere Arten laden",
+    "empty": "Keine Arten für diese Suche und Filter gefunden.",
+    "water": "Wasserart",
+    "category": "Kategorie",
+    "fresh": "Süßwasser",
+    "salt": "Meerwasser"
   }
 }
