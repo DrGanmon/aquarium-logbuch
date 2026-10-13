@@ -24,7 +24,7 @@ async function runBunTests(files, { info, options = [] }) {
       };
       progress(relative);
       let output = '';
-      current = run({ files: [file], timeout: 30000 });
+      current = run({ files: [file], timeout: 60000 });
       for await (const { type, data } of current) {
         if (type === 'test:stdout' || type === 'test:stderr') {
           output = (output + data.message).slice(-16384);

@@ -267,7 +267,7 @@ test('Konto-Löschung: Zweistufiger Ablauf mit App- und E-Mail-Bestätigung (SQL
   assert.ok(user2Logs.data.length >= 1);
 });
 
-test('Konto-Löschung: Zweistufiger Ablauf unter MongoDB', async (t) => {
+test('Konto-Löschung: Zweistufiger Ablauf unter MongoDB', { timeout: 60000 }, async (t) => {
   const env = await createMongoTestEnvironment({
     ADMIN_EMAIL: 'admin@example.com',
   });

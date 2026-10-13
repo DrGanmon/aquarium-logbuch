@@ -1,12 +1,18 @@
+<p align="center">
+  <img src="public/icon-192.png" alt="Aquarium-Logbuch Logo" width="96" height="96">
+</p>
+
 # Aquarium-Logbuch
 
 Aquarium-Logbuch is a self-hosted web app for water parameters, residents and aquarium care. It combines measurement history, care logs and reminders, supporting multiple users with separate or shared tanks. A species catalog, diagnosis assistant and optional AI chat complement freshwater and saltwater tank management.
 
 [Deutsch](README.md) · **English** · [Manual](docs/en/README.md)
 
-<p align="center">
-  <img src="public/icon-192.png" alt="Aquarium-Logbuch Logo" width="96" height="96">
-</p>
+## Transparency notice: AI-generated software
+
+**This app was written and is developed with the help of generative AI.** Its source code and documentation contain AI-generated content. This voluntary disclosure follows the transparency approach of [Article 50 of the EU AI Act (Regulation (EU) 2024/1689)](https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-50); it is not a declaration of full legal compliance. AI-assisted development alone does not create a blanket labeling obligation for all software.
+
+In the optional AI chat, you interact with an AI system; its responses are automatically generated and may be incorrect or incomplete. Check recommendations before acting on them. Water assessments and suspected diagnoses do not replace professional or veterinary examination. Sending a chat request transfers messages and aquarium context to the selected AI provider; see the [AI manual](docs/en/ai-chat.md) for details.
 
 ## Features for users
 

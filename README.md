@@ -1,12 +1,18 @@
+<p align="center">
+  <img src="public/icon-192.png" alt="Aquarium-Logbuch Logo" width="96" height="96">
+</p>
+
 # Aquarium-Logbuch
 
 Aquarium-Logbuch ist eine selbst gehostete Web-App für Wasserwerte, Besatz und Aquarienpflege. Sie verbindet Messverläufe, Pflegeprotokolle und Erinnerungen und unterstützt mehrere Benutzer mit getrennten oder geteilten Aquarien. Ein Artenkatalog, ein Diagnose-Assistent und ein optionaler KI-Chat ergänzen die Verwaltung von Süß- und Meerwasserbecken.
 
 **Deutsch** · [English](README.en.md) · [Handbuch](docs/de/README.md)
 
-<p align="center">
-  <img src="public/icon-192.png" alt="Aquarium-Logbuch Logo" width="96" height="96">
-</p>
+## Transparenzhinweis: KI-generierte Software
+
+**Diese App wurde mithilfe generativer KI geschrieben und weiterentwickelt.** Quellcode und Dokumentation enthalten KI-generierte Inhalte. Dieser Hinweis dient der freiwilligen Transparenz in Anlehnung an [Artikel 50 des EU AI Act (Verordnung (EU) 2024/1689)](https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-50); er ist keine Erklärung vollständiger Rechtskonformität. Aus der KI-gestützten Entwicklung allein folgt keine pauschale Kennzeichnungspflicht für jede Software.
+
+Im optionalen KI-Chat interagierst du mit einem KI-System; dessen Antworten sind automatisch generiert und können fehlerhaft oder unvollständig sein. Prüfe Empfehlungen vor der Anwendung. Wasserwertbewertungen und Verdachtsdiagnosen ersetzen keine fachliche oder tierärztliche Untersuchung. Beim Absenden einer Chat-Anfrage werden Nachrichten und Aquariumkontext an den ausgewählten KI-Anbieter übermittelt; Details stehen im [KI-Handbuch](docs/de/ai-chat.md).
 
 ## Features für Benutzer
 
