@@ -1,3 +1,4 @@
+import { TERMS_VERSION } from './terms-service';
 import type { Response } from 'express';
 'use strict';
 import oidcModule = require('../../oidc');
@@ -41,7 +42,7 @@ async function usernameFromClaims(claims?: any, db?: any) {
   return name;
 }
 
-async function userForClaims(claims?: any, db?: any) {
+async function userForClaims(claims?: any, db?: any, terms: { version: string; acceptedAt: string } | null = null) {
   if (typeof claims?.sub !== 'string' || !claims.sub.trim()) throw new Error('OIDC subject fehlt.');
   const sub = claims.sub;
   const verifiedEmail = claims.email_verified === true;
@@ -74,10 +75,11 @@ async function userForClaims(claims?: any, db?: any) {
     }
   }
   if (!ALLOW_REGISTRATION || (registrationService.getConfig().isClosed || registrationService.getConfig().isInviteOnly)) return null;
+  if (terms?.version !== TERMS_VERSION || !terms.acceptedAt) throw new Error('Bitte vor der ersten Anmeldung die aktuellen AGB akzeptieren.');
   const username = await usernameFromClaims(claims, db);
   const user = await db.users.create({
     username,
-    password_hash: '',
+    password_hash: '', terms_version: terms.version, terms_accepted_at: terms.acceptedAt,
     oidc_sub: sub,
     email,
     email_verified: verifiedEmail ? 1 : 0,

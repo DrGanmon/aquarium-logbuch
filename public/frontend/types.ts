@@ -282,6 +282,7 @@ export interface ChatMessage {
   id?: Id;
 }
 export interface Registration {
+  termsVersion: string;
   registration: boolean;
   localLogin: boolean;
   oidc: boolean;

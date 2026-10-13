@@ -27,7 +27,7 @@ const { hashPassword, verifyPassword, DUMMY_HASH, hasLocalPassword, sha } = cryp
 import rate_limitModule = require('../utils/rate-limit');
 const { tooManyAttempts, noteAttempt, clearAttempts } = rate_limitModule;
 import cookiesModule = require('../utils/cookies');
-const { parseCookies, setSessionCookie, clearSessionCookie, startSession } = cookiesModule;
+const { parseCookies, setSessionCookie, clearSessionCookie, startSession, setCookie } = cookiesModule;
 import helpersModule = require('../utils/helpers');
 const { wrap, str } = helpersModule;
 import authModule = require('../middleware/auth');
@@ -36,6 +36,7 @@ import image_serviceModule = require('../services/image-service');
 const { saveAvatar, deleteImage, getImagePath, getMimeType } = image_serviceModule;
 import mail_serviceModule = require('../services/mail-service');
 const { mailService } = mail_serviceModule;
+import { TERMS_VERSION, acceptsCurrentTerms, currentTerms } from '../services/terms-service';
 import registration_serviceModule = require('../services/registration-service');
 const { registrationService } = registration_serviceModule;
 const {
@@ -146,6 +147,8 @@ router.post(
       return res.status(403).json({ error: 'Lokale Registrierung ist deaktiviert.' });
     }
 
+    if (!acceptsCurrentTerms(req.body)) return res.status(400).json({ error: 'Bitte die aktuellen AGB ausdrücklich akzeptieren.' });
+
     const registerKey = `register|${req.ip}`;
     if (tooManyAttempts(registerKey, 30)) return res.status(429).json({ error: 'Zu viele Registrierungsversuche. Bitte später erneut versuchen.' });
     noteAttempt(registerKey, 30);
@@ -229,7 +232,7 @@ router.post(
       email_verified: emailVerified,
       email_verify_token: verifyToken,
       email_verify_expires: verifyExpires,
-      language,
+      language, terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString(),
     }); } catch (error) {
       if (invitation) await db.invitations.releaseUse(invitation.id);
       const code = asRecord(error).code;
@@ -863,10 +866,25 @@ router.post(
   })
 );
 
+router.post('/oidc/login', async (req: Request, res: Response, next) => {
+  if (!oidc) return res.status(404).end();
+  if (req.body.acceptTerms !== undefined && req.body.acceptTerms !== false && !acceptsCurrentTerms(req.body))
+    return res.status(400).json({ error: 'Bitte die aktuellen AGB ausdrücklich akzeptieren.' });
+  try {
+    const terms = acceptsCurrentTerms(req.body) ? { version: TERMS_VERSION, acceptedAt: new Date().toISOString() } : null;
+    const { url, state } = await oidc.startLogin(terms);
+    setCookie(res, 'oidc_state', state, 600);
+    res.json({ url });
+  } catch (error) { next(error); }
+});
+
+router.get('/terms', (req: Request, res: Response) => res.setHeader('Cache-Control', 'no-store').json(currentTerms(req.query.language === 'en' ? 'en' : 'de')));
+
 router.get('/registration', (req: Request, res: Response) => {
   const regConfig = registrationService.getConfig();
   res.json({
     registration: LOCAL_LOGIN && ALLOW_REGISTRATION && !regConfig.isClosed,
+    termsVersion: TERMS_VERSION,
     mode: regConfig.mode,
     isOpen: regConfig.isOpen,
     isInviteAdmin: regConfig.isInviteAdmin,
@@ -1311,6 +1329,9 @@ router.all(
     if (isEmailAdmin(user.email)) {
       return res.status(400).json({ error: 'Der Administrator-Account kann nicht gelöscht werden.' });
     }
+
+    const { backupService } = require('../services/backup-service');
+    if (backupService.isBackingUp || backupService.isRestoring) return res.status(409).json({ error: 'Eine Sicherung oder Wiederherstellung läuft. Bitte die Kontolöschung danach erneut bestätigen.' });
 
     // Benutzer und alle zugehörigen Daten (Aquarien, Fotos, Messwerte, Alarme, Pflegen, Freigaben, Sessions) löschen
     await db.users.delete(user.id);

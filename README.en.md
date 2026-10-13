@@ -30,7 +30,7 @@ In the optional AI chat, you interact with an AI system; its responses are autom
 - **Use on mobile:** German/English, light/dark/system themes, home-screen installation and timer notifications.
 - **Stay up to date:** A popup offers to reload when a newer frontend version is available.
 
-- **Social community:** Public photo feed with captions, avatars, likes, comments and share links; uploads are resized server-side to 1600 pixels. [Details](docs/en/social.md).
+- **Social community:** Photo feed with public or server-only visibility, captions, avatars, likes, comments and share links; uploads are resized server-side to 1600 pixels. [Details](docs/en/social.md).
 
 ## Technical features
 

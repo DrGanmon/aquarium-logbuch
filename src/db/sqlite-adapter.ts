@@ -257,7 +257,7 @@ class SqliteAdapter {
           u.password_reset_expires || null,
           u.created_at || new Date().toISOString()
         );
-        db.prepare('UPDATE users SET test_inventory = ? WHERE id = ?').run(u.test_inventory || '{}', u.id);
+        db.prepare('UPDATE users SET test_inventory = ?, terms_version = ?, terms_accepted_at = ? WHERE id = ?').run(u.test_inventory || '{}', u.terms_version || null, u.terms_accepted_at || null, u.id);
       }
 
       // Aktive Sessions für vorhandene Benutzer wiederherstellen
@@ -530,10 +530,11 @@ class SqliteAdapter {
         password_reset_token = null,
         password_reset_expires = null,
         language = 'de',
+        terms_version = null, terms_accepted_at = null,
       }: any) {
         const info = db
           .prepare(
-            'INSERT INTO users (username, password_hash, email, oidc_sub, email_verified, email_verify_token, email_verify_expires, password_reset_token, password_reset_expires, language) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO users (username, password_hash, email, oidc_sub, email_verified, email_verify_token, email_verify_expires, password_reset_token, password_reset_expires, language, terms_version, terms_accepted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
           )
           .run(
             username,
@@ -545,7 +546,7 @@ class SqliteAdapter {
             email_verify_expires,
             password_reset_token,
             password_reset_expires,
-            language === 'en' ? 'en' : 'de'
+            language === 'en' ? 'en' : 'de', terms_version, terms_accepted_at
           );
         const id = Number(info.lastInsertRowid);
         return {
@@ -556,7 +557,7 @@ class SqliteAdapter {
           email_verified: email_verified ? 1 : 0,
           email_verify_token,
           email_verify_expires,
-          language: language === 'en' ? 'en' : 'de',
+          language: language === 'en' ? 'en' : 'de', terms_version, terms_accepted_at,
         };
       },
       async mutateTestInventory(id?: any, mutate?: any) {
@@ -598,7 +599,7 @@ class SqliteAdapter {
           'claude_api_key',
           'claude_model',
           'ai_provider',
-          'language',
+          'language', 'terms_version', 'terms_accepted_at',
         ];
 
         for (const k of allowed) {
@@ -622,14 +623,16 @@ class SqliteAdapter {
       },
       async delete(id?: any) {
         const numId = Number(id);
-        await self.social.deleteUser(numId);
         const user = db.prepare<UserRecord>('SELECT * FROM users WHERE id = ?').get(numId);
+        if (!user) return false;
+        await require('../services/backup-service').backupService.purgeUserImages(user);
+        await self.social.deleteUser(numId);
         if (user && user.avatar_file) {
-          deleteImage(user.avatar_file);
+          deleteImage(user.avatar_file, true);
         }
         const userAqs = db.prepare<Aquarium>('SELECT id FROM aquariums WHERE user_id = ?').all(numId);
         for (const aq of userAqs) {
-          await self.aquariums.delete(aq.id);
+          await self.aquariums.delete(aq.id, true);
         }
         db.prepare('DELETE FROM aquarium_shares WHERE user_id = ?').run(numId);
         db.prepare('DELETE FROM sessions WHERE user_id = ?').run(numId);
@@ -840,11 +843,16 @@ class SqliteAdapter {
         const res = db.prepare('UPDATE aquariums SET image_file = ? WHERE id = ?').run(filename, id);
         return res.changes > 0;
       },
-      async delete(id?: any) {
+      async delete(id?: any, strictImages = false) {
         const numId = Number(id);
         const aq = db.prepare<Aquarium>('SELECT image_file FROM aquariums WHERE id = ?').get(numId);
         const images = db.prepare<AquariumImage>('SELECT filename FROM aquarium_images WHERE aquarium_id = ?').all(numId);
         const stocks = db.prepare<StockRecord>('SELECT image_file FROM stock WHERE aquarium_id = ?').all(numId);
+        if (strictImages) {
+          deleteImage(aq?.image_file, true);
+          for (const image of images) deleteImage(image.filename, true);
+          for (const stock of stocks) deleteImage(stock.image_file, true);
+        }
         const res = db.prepare('DELETE FROM aquariums WHERE id = ?').run(numId);
         if (!res.changes) return false;
         deleteImage(aq?.image_file);

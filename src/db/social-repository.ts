@@ -8,16 +8,16 @@ export class SocialRepository {
     private readonly sequence?: (name: string) => Promise<number>) {}
   private get sql() { return this.raw as SqliteConnection; }
   private get mongo() { return this.raw as MongoConnection; }
-  async posts(before: number, limit: number): Promise<SocialPost[]> {
-    if (this.type === 'sqlite') return this.sql.prepare<SocialPost>('SELECT * FROM social_posts WHERE id < ? ORDER BY id DESC LIMIT ?').all(before, limit);
-    return this.mongo.collection<SocialPost>('social_posts').find({ id: { $lt: before } }).sort({ id: -1 }).limit(limit).toArray();
+  async posts(before: number, limit: number, includeInternal = false): Promise<SocialPost[]> {
+    if (this.type === 'sqlite') return this.sql.prepare<SocialPost>('SELECT * FROM social_posts WHERE id < ? AND (is_public = 1 OR ? = 1) ORDER BY id DESC LIMIT ?').all(before, includeInternal ? 1 : 0, limit);
+    return this.mongo.collection<SocialPost>('social_posts').find({ id: { $lt: before }, ...(includeInternal ? {} : { is_public: true }) }).sort({ id: -1 }).limit(limit).toArray();
   }
   async post(id: number): Promise<SocialPost | null> {
     if (this.type === 'sqlite') return this.sql.prepare<SocialPost>('SELECT * FROM social_posts WHERE id = ?').get(id) || null;
     return this.mongo.collection<SocialPost>('social_posts').findOne({ id });
   }
   async createPost(input: Omit<SocialPost, 'id'>): Promise<number> {
-    if (this.type === 'sqlite') return Number(this.sql.prepare('INSERT INTO social_posts (user_id, filename, width, height, text, created_at) VALUES (?, ?, ?, ?, ?, ?)').run(input.user_id, input.filename, input.width, input.height, input.text, input.created_at).lastInsertRowid);
+    if (this.type === 'sqlite') return Number(this.sql.prepare('INSERT INTO social_posts (user_id, filename, width, height, text, created_at, is_public) VALUES (?, ?, ?, ?, ?, ?, ?)').run(input.user_id, input.filename, input.width, input.height, input.text, input.created_at, input.is_public ? 1 : 0).lastInsertRowid);
     const id = await this.sequence!('social_posts');
     await this.mongo.collection<SocialPost>('social_posts').insertOne({ id, ...input });return id;
   }
@@ -64,14 +64,20 @@ export class SocialRepository {
     if (this.type === 'sqlite') { this.sql.prepare('DELETE FROM social_comments WHERE id = ?').run(id);return; }
     await this.mongo.collection('social_comments').deleteOne({ id });
   }
-  async hasActivity(userId: number): Promise<boolean> {
-    if (this.type === 'sqlite') return Boolean(this.sql.prepare('SELECT 1 FROM social_posts WHERE user_id = ? UNION ALL SELECT 1 FROM social_comments WHERE user_id = ? LIMIT 1').get(userId, userId));
-    return Boolean(await this.mongo.collection('social_posts').findOne({ user_id: userId }) || await this.mongo.collection('social_comments').findOne({ user_id: userId }));
+  async hasActivity(userId: number, includeInternal = false): Promise<boolean> {
+    if (this.type === 'sqlite') return Boolean(this.sql.prepare(`SELECT 1 FROM social_posts p WHERE p.user_id = ? AND (p.is_public = 1 OR ? = 1)
+      UNION ALL SELECT 1 FROM social_comments c JOIN social_posts p ON p.id = c.post_id WHERE c.user_id = ? AND (p.is_public = 1 OR ? = 1) LIMIT 1`).get(userId, includeInternal ? 1 : 0, userId, includeInternal ? 1 : 0));
+    const visible = includeInternal ? {} : { is_public: true };
+    if (await this.mongo.collection('social_posts').findOne({ user_id: userId, ...visible })) return true;
+    return (await this.mongo.collection('social_comments').aggregate([
+      { $match: { user_id: userId } }, { $lookup: { from: 'social_posts', localField: 'post_id', foreignField: 'id', as: 'post' } },
+      { $unwind: '$post' }, ...(includeInternal ? [] : [{ $match: { 'post.is_public': true } }]), { $limit: 1 },
+    ]).toArray()).length > 0;
   }
   async deleteUser(userId: number) {
     const posts = this.type === 'sqlite' ? this.sql.prepare<SocialPost>('SELECT * FROM social_posts WHERE user_id = ?').all(userId)
       : await this.mongo.collection<SocialPost>('social_posts').find({ user_id: userId }).toArray();
-    for (const post of posts) { await this.deletePost(post.id);deleteImage(post.filename); }
+    for (const post of posts) { deleteImage(post.filename, true);await this.deletePost(post.id); }
     if (this.type === 'sqlite') {
       this.sql.prepare('DELETE FROM social_comments WHERE user_id = ?').run(userId);
       this.sql.prepare('DELETE FROM social_likes WHERE user_id = ?').run(userId);
@@ -99,7 +105,7 @@ export class SocialRepository {
   importSqliteData(data: { social_posts?: SocialPost[]; social_comments?: SocialComment[]; social_likes?: SocialLike[] }) {
     const posts = data.social_posts || [], comments = data.social_comments || [], likes = data.social_likes || [];
     this.sql.transaction(() => {
-        for (const p of posts) this.sql.prepare('INSERT INTO social_posts (id,user_id,filename,width,height,text,created_at) VALUES (?,?,?,?,?,?,?)').run(p.id,p.user_id,p.filename,p.width,p.height,p.text,p.created_at);
+        for (const p of posts) this.sql.prepare('INSERT INTO social_posts (id,user_id,filename,width,height,text,created_at,is_public) VALUES (?,?,?,?,?,?,?,?)').run(p.id,p.user_id,p.filename,p.width,p.height,p.text,p.created_at,p.is_public ? 1 : 0);
         for (const c of comments) this.sql.prepare('INSERT INTO social_comments (id,post_id,user_id,text,created_at) VALUES (?,?,?,?,?)').run(c.id,c.post_id,c.user_id,c.text,c.created_at);
         for (const l of likes) this.sql.prepare('INSERT INTO social_likes (post_id,user_id) VALUES (?,?)').run(l.post_id,l.user_id);
       })();

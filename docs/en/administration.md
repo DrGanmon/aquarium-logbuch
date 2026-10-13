@@ -34,3 +34,5 @@ Default templates live in `../../src/templates/mail` and are copied into the bac
 A FIFO queue spaces outgoing messages using `SMTP_RATE_LIMIT_MS`. Configure SMTP through environment variables or the admin panel, which also provides test delivery and queue status.
 
 Backups contain sensitive account and configuration data as well as uploads; store them securely. Create a current backup before restoring. Restore replaces the data set; older backups are adapted to the current schema. Automated backups remain local and do not replace an external backup.
+
+Account deletion removes image bytes and associated Social content from managed local `.json.gz` backups. Deletion during backup/restore asks the user to retry afterward. Other backup data, external and downloaded backups require an operator-defined retention and deletion policy. [Details](social.md).

@@ -30,7 +30,7 @@ Im optionalen KI-Chat interagierst du mit einem KI-System; dessen Antworten sind
 - **Mobil verwenden:** Deutsch/Englisch, helles/dunkles/systemabhängiges Design, Homescreen-Installation und Timer-Benachrichtigungen.
 - **Aktuell bleiben:** Popup bei neuerer Frontend-Version mit Angebot zum Neuladen.
 
-- **Social-Community:** Öffentlicher Bilderfeed mit Texten, Profilbildern, Likes, Kommentaren und Teilen-Links; Uploads werden serverseitig auf 1600 Pixel begrenzt. [Details](docs/de/social.md).
+- **Social-Community:** Bilderfeed mit wählbarer öffentlicher oder serverinterner Sichtbarkeit, Texten, Profilbildern, Likes, Kommentaren und Teilen-Links; Uploads werden serverseitig auf 1600 Pixel begrenzt. [Details](docs/de/social.md).
 
 ## Technische Features
 

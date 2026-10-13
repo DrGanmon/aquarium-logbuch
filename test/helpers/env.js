@@ -90,6 +90,12 @@ function createTestEnvironment(customEnv = {}) {
     };
 
     let body = options.body;
+    // Existing account fixtures explicitly accept the current terms by default.
+    // Pass termsConsent: false to exercise a request without that fixture default.
+    if (pathStr === '/api/register' && body && options.termsConsent !== false) {
+      const { TERMS_VERSION } = require('../../dist/backend/src/services/terms-service');
+      body = { acceptTerms: true, termsVersion: TERMS_VERSION, ...body };
+    }
     if (body && typeof body === 'object' && !(body instanceof Buffer) && !(body instanceof Uint8Array)) {
       headers['Content-Type'] = 'application/json';
       body = JSON.stringify(body);

@@ -113,14 +113,14 @@ function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'ope
   }
 
   // Liefert die URL, zu der der Browser umgeleitet wird, und den state für das Cookie
-  async function startLogin() {
+  async function startLogin(terms: { version: string; acceptedAt: string } | null = null) {
     const d = await config();
     cleanup();
     const nonce = b64url(crypto.randomBytes(24));
     const verifier = b64url(crypto.randomBytes(48));
     const random = b64url(crypto.randomBytes(16));
-    const state = signState({ s: random, n: nonce, v: verifier, t: Date.now() });
-    pending.set(state, { verifier, nonce, created: Date.now() });
+    const state = signState({ s: random, n: nonce, v: verifier, t: Date.now(), terms });
+    pending.set(state, { verifier, nonce, created: Date.now(), terms });
     const url = new URL(d.authorization_endpoint);
     url.search = new URLSearchParams({
       response_type: 'code',
@@ -149,7 +149,7 @@ function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'ope
     } else {
       const verified = verifyStateToken(state);
       if (verified) {
-        p = { verifier: verified.v, nonce: verified.n, created: verified.t };
+        p = { verifier: verified.v, nonce: verified.n, created: verified.t, terms: verified.terms || null };
       }
     }
     if (!p || Date.now() - p.created > PENDING_TTL) throw new Error('Die Anmeldung hat zu lange gedauert. Bitte erneut anmelden.');
@@ -169,7 +169,7 @@ function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'ope
         if (info.sub === claims.sub) claims = { ...info, ...claims };
       } catch (e) { /* Userinfo ist optional */ }
     }
-    return { claims, idToken: tokens.id_token };
+    return { claims, idToken: tokens.id_token, terms: p.terms || null };
   }
 
   async function logoutUrl(idToken?: any, postLogoutRedirectUri?: any) {

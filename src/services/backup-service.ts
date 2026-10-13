@@ -21,7 +21,7 @@ const gunzipAsync = promisify(zlib.gunzip);
 const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
 const CONFIG_FILE = path.join(DATA_DIR, 'backup-config.json');
 
-const CURRENT_SCHEMA_VERSION = 3;
+const CURRENT_SCHEMA_VERSION = 4;
 const APP_VERSION = require('./version-service').getAppVersion();
 
 const DEFAULT_CONFIG: Record<string, any> = {
@@ -47,6 +47,36 @@ class BackupService {
     this.isBackingUp = false;
     this.isRestoring = false;
     this._ensureDirs();
+  }
+
+  async purgeUserImages(user: { id: number; created_at: string }) {
+    if (this.isBackingUp || this.isRestoring) throw new Error('Kontolöschung während Backup oder Wiederherstellung bitte erneut versuchen.');
+    // Synchronous archive rewriting prevents a new backup starting halfway through cleanup.
+    for (const name of fs.readdirSync(this.backupsDir)) {
+      if (!name.endsWith('.json.gz')) continue;
+      const archivePath = path.join(this.backupsDir, name);
+      const payload = JSON.parse(zlib.gunzipSync(fs.readFileSync(archivePath), { maxOutputLength: 512 * 1024 * 1024 }).toString('utf8'));
+      const data = payload.data || payload;
+      const archivedUser = (data.users || []).find((entry: any) => Number(entry.id) === user.id && (entry.created_at ? entry.created_at === user.created_at : entry.username === (user as { username?: string }).username));
+      if (!archivedUser) continue;
+      const filenames = new Set<string>();
+      const remember = (value: unknown) => { if (typeof value === 'string' && value) filenames.add(path.basename(value)); };
+      remember(archivedUser.avatar_file);archivedUser.avatar_file = null;
+      const aquariums = (data.aquariums || []).filter((entry: any) => Number(entry.user_id) === user.id);
+      const aquariumIds = new Set(aquariums.map((entry: any) => Number(entry.id)));
+      for (const aquarium of aquariums) { remember(aquarium.image_file);aquarium.image_file = null; }
+      for (const image of data.aquarium_images || []) if (aquariumIds.has(Number(image.aquarium_id))) remember(image.filename);
+      data.aquarium_images = (data.aquarium_images || []).filter((entry: any) => !aquariumIds.has(Number(entry.aquarium_id)));
+      for (const stock of data.stock || []) if (aquariumIds.has(Number(stock.aquarium_id))) { remember(stock.image_file);stock.image_file = null; }
+      const postIds = new Set<number>();
+      for (const post of data.social_posts || []) if (Number(post.user_id) === user.id) { remember(post.filename);postIds.add(Number(post.id)); }
+      data.social_posts = (data.social_posts || []).filter((entry: any) => !postIds.has(Number(entry.id)));
+      for (const collection of ['social_comments', 'social_likes']) data[collection] = (data[collection] || []).filter((entry: any) => !postIds.has(Number(entry.post_id)) && Number(entry.user_id) !== user.id);
+      for (const filename of filenames) if (payload.files) delete payload.files[filename];
+      const temporary = `${archivePath}.privacy-tmp`;
+      try { fs.writeFileSync(temporary, zlib.gzipSync(Buffer.from(JSON.stringify(payload))));fs.renameSync(temporary, archivePath); }
+      finally { if (fs.existsSync(temporary)) fs.unlinkSync(temporary); }
+    }
   }
 
   _ensureDirs() {
@@ -486,6 +516,8 @@ class BackupService {
         last_name: u.last_name ? String(u.last_name).trim() : null,
         bio: u.bio ? String(u.bio).trim() : null,
         avatar_file: u.avatar_file ? path.basename(String(u.avatar_file)) : null,
+        terms_version: typeof u.terms_version === 'string' ? u.terms_version : null,
+        terms_accepted_at: typeof u.terms_accepted_at === 'string' ? u.terms_accepted_at : null,
         selected_suite: u.selected_suite ? String(u.selected_suite) : null,
         selected_tests: u.selected_tests ? String(u.selected_tests) : null,
         test_inventory: require('./test-inventory-service').normalizeInventory(u.test_inventory),
@@ -687,7 +719,7 @@ class BackupService {
       validId(post.id) && validUserIds.has(post.user_id) && typeof post.filename === 'string'
       && typeof post.text === 'string' && post.width > 0 && post.width <= 1600 && post.height > 0 && post.height <= 1600)
       .map((post: any) => ({ id: post.id, user_id: post.user_id, filename: path.basename(post.filename), width: post.width,
-        height: post.height, text: post.text.slice(0, 2200), created_at: post.created_at || new Date().toISOString() }));
+        height: post.height, is_public: post.is_public === undefined ? true : (post.is_public === true || post.is_public === 1), text: post.text.slice(0, 2200), created_at: post.created_at || new Date().toISOString() }));
     const socialIds = new Set(socialPosts.map((post: any) => post.id));
     const socialComments = (Array.isArray(data.social_comments) ? data.social_comments : []).filter((comment: any) =>
       validId(comment.id) && socialIds.has(comment.post_id) && validUserIds.has(comment.user_id) && typeof comment.text === 'string')

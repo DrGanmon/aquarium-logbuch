@@ -17,6 +17,7 @@ const { tooManyAttempts, noteAttempt } = source4;
 import { saveSocialImage } from '../services/social-image-service';
 import source5 = require('../services/image-service');
 const { deleteImage, getImagePath, getMimeType } = source5;
+import { TERMS_VERSION, acceptsCurrentTerms } from '../services/terms-service';
 import type { SocialPost, SocialAuthor } from '../types/social';
 const { auth } = authModule;
 const router = express.Router();
@@ -44,57 +45,64 @@ const limit = (kind: string, maximum: number) => (req: Request, res: Response, n
   if (tooManyAttempts(key, maximum)) return res.status(429).json({ error: 'Zu viele Aktionen. Bitte später erneut versuchen.' });
   noteAttempt(key, maximum);next();
 };
-async function postOrFail(postId: number) { const post = await db.social.post(postId);if (!post) throw new AppError('Beitrag nicht gefunden.', 404);return post; }
+async function postOrFail(postId: number, req: Request) { const post = await db.social.post(postId);if (!post || (!post.is_public && !req.user)) throw new AppError('Beitrag nicht gefunden.', 404);return post; }
 async function author(userId: number): Promise<SocialAuthor> {
   const user = await db.users.findById(userId);
   return { id: userId, username: user?.username || 'Gelöschter Nutzer', avatarUrl: user?.avatar_file ? `api/social/authors/${userId}/avatar` : null };
 }
 async function postView(post: SocialPost, req: Request) {
-  return { id: post.id, text: post.text, width: post.width, height: post.height, created_at: post.created_at,
+  return { id: post.id, text: post.text, width: post.width, height: post.height, is_public: Boolean(post.is_public), created_at: post.created_at,
     author: await author(post.user_id), imageUrl: `api/social/posts/${post.id}/image`,
     ...await db.social.counts(post.id, req.user?.id), canDelete: Boolean(req.user && (req.user.id === post.user_id || req.user.isAdmin)) };
 }
 router.get('/posts', viewer, wrap(async (req: Request, res: Response) => {
-  const posts = await db.social.posts(before(req), 21), visible = posts.slice(0, 20);
+  const posts = await db.social.posts(before(req), 21, Boolean(req.user)), visible = posts.slice(0, 20);
   res.setHeader('Cache-Control', 'no-store').json({ posts: await Promise.all(visible.map(post => postView(post, req))), next: posts.length > 20 ? visible.at(-1)!.id : null });
 }));
 router.get('/posts/:id', viewer, wrap(async (req: Request, res: Response) => {
-  res.setHeader('Cache-Control', 'no-store').json({ post: await postView(await postOrFail(id(req.params.id)), req) });
+  res.setHeader('Cache-Control', 'no-store').json({ post: await postView(await postOrFail(id(req.params.id), req), req) });
 }));
-router.get('/posts/:id/image', wrap(async (req: Request, res: Response) => {
-  const post = await postOrFail(id(req.params.id)), image = getImagePath(post.filename);
+router.get('/posts/:id/image', viewer, wrap(async (req: Request, res: Response) => {
+  const post = await postOrFail(id(req.params.id), req), image = getImagePath(post.filename);
   if (!image) throw new AppError('Bild nicht gefunden.', 404);
-  res.type('image/webp').setHeader('Cache-Control', 'no-cache').sendFile(image);
+  res.type('image/webp').setHeader('Cache-Control', 'no-store').sendFile(image);
 }));
-router.get('/authors/:id/avatar', wrap(async (req: Request, res: Response) => {
+router.get('/authors/:id/avatar', viewer, wrap(async (req: Request, res: Response) => {
   const userId = id(req.params.id);
-  if (!await db.social.hasActivity(userId)) throw new AppError('Profilbild nicht öffentlich verfügbar.', 404);
+  if (!await db.social.hasActivity(userId, Boolean(req.user))) throw new AppError('Profilbild nicht öffentlich verfügbar.', 404);
   const user = await db.users.findById(userId), image = getImagePath(user?.avatar_file);
   if (!image) throw new AppError('Profilbild nicht gefunden.', 404);
-  res.type(getMimeType(user?.avatar_file)).setHeader('Cache-Control', 'no-cache').sendFile(image);
+  res.type(getMimeType(user?.avatar_file)).setHeader('Cache-Control', 'no-store').sendFile(image);
 }));
 router.post('/posts', auth, limit('post', 20), wrap(async (req: Request, res: Response) => {
   const caption = text(req.body.text, 2200);
+  if (req.body.isPublic !== undefined && typeof req.body.isPublic !== 'boolean') throw new AppError('Ungültige Sichtbarkeit.', 400);
+  const user = await db.users.findById(req.user.id);
+  if (!user) throw new AppError('Benutzer nicht gefunden.', 401);
+  if (user.terms_version !== TERMS_VERSION && !acceptsCurrentTerms(req.body)) throw new AppError('Bitte zuerst die aktuellen AGB akzeptieren.', 400);
+  if (user.terms_version !== TERMS_VERSION) await db.users.update(user.id, { terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString() });
   const image = await saveSocialImage(req.body.image);
   try {
-    const postId = await db.social.createPost({ user_id: req.user.id, ...image, text: caption, created_at: new Date().toISOString() });
-    res.status(201).json({ post: await postView(await postOrFail(postId), req) });
+    if (!await db.users.findById(req.user.id)) throw new AppError('Benutzerkonto wurde gelöscht.', 401);
+    const postId = await db.social.createPost({ user_id: req.user.id, ...image, is_public: req.body.isPublic === true, text: caption, created_at: new Date().toISOString() });
+    if (!await db.users.findById(req.user.id)) { await db.social.deletePost(postId);throw new AppError('Benutzerkonto wurde gelöscht.', 401); }
+    res.status(201).json({ post: await postView(await postOrFail(postId, req), req) });
   } catch (error) { deleteImage(image.filename);throw error; }
 }));
 router.delete('/posts/:id', auth, wrap(async (req: Request, res: Response) => {
-  const post = await postOrFail(id(req.params.id));
+  const post = await postOrFail(id(req.params.id), req);
   if (post.user_id !== req.user.id && !req.user.isAdmin) throw new AppError('Keine Löschberechtigung.', 403);
-  await db.social.deletePost(post.id);deleteImage(post.filename);res.json({ ok: true });
+  deleteImage(post.filename, true);await db.social.deletePost(post.id);res.json({ ok: true });
 }));
 router.put('/posts/:id/like', auth, limit('like', 200), wrap(async (req: Request, res: Response) => {
-  const postId = id(req.params.id);await postOrFail(postId);
+  const postId = id(req.params.id);await postOrFail(postId, req);
   if (typeof req.body.liked !== 'boolean') throw new AppError('Ungültige Like-Einstellung.', 400);
   await db.social.like(postId, req.user.id, req.body.liked);
   if (!await db.social.post(postId)) { await db.social.like(postId, req.user.id, false);throw new AppError('Beitrag nicht gefunden.', 404); }
   res.json(await db.social.counts(postId, req.user.id));
 }));
 router.get('/posts/:id/comments', viewer, wrap(async (req: Request, res: Response) => {
-  const postId = id(req.params.id);await postOrFail(postId);
+  const postId = id(req.params.id);await postOrFail(postId, req);
   const comments = await db.social.comments(postId, before(req), 21), visible = comments.slice(0, 20);
   res.setHeader('Cache-Control', 'no-store').json({ comments: await Promise.all(visible.reverse().map(async comment => ({
     id: comment.id, post_id: comment.post_id, text: comment.text, created_at: comment.created_at, author: await author(comment.user_id),
@@ -102,7 +110,7 @@ router.get('/posts/:id/comments', viewer, wrap(async (req: Request, res: Respons
   }))), next: comments.length > 20 ? comments[19].id : null });
 }));
 router.post('/posts/:id/comments', auth, limit('comment', 60), wrap(async (req: Request, res: Response) => {
-  const postId = id(req.params.id);await postOrFail(postId);
+  const postId = id(req.params.id);await postOrFail(postId, req);
   const commentId = await db.social.createComment({ post_id: postId, user_id: req.user.id, text: text(req.body.text, 1000, true), created_at: new Date().toISOString() });
   if (!await db.social.post(postId)) { await db.social.deleteComment(commentId);throw new AppError('Beitrag nicht gefunden.', 404); }
   const comment = await db.social.comment(commentId);

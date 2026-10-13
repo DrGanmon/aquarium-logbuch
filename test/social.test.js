@@ -14,7 +14,7 @@ for (const backend of ['sqlite', 'mongodb']) {
     const headers = { Cookie: owner.cookie }, friendHeaders = { Cookie: friend.cookie }, adminHeaders = { Cookie: admin.cookie };
     const bytes = await sharp({ create: { width: 3200, height: 2000, channels: 3, background: '#226688' } }).png().toBuffer();
     const image = `data:image/png;base64,${bytes.toString('base64')}`;
-    const create = (h = headers, caption = 'Mein Aquarium 🐠') => env.request('/api/social/posts', { method: 'POST', headers: h, body: { image, text: caption } });
+    const create = (h = headers, caption = 'Mein Aquarium 🐠') => env.request('/api/social/posts', { method: 'POST', headers: h, body: { image, text: caption, isPublic: true } });
     assert.equal((await env.request('/api/social/posts')).status, 200);
     assert.equal((await create({})).status, 401);
     assert.equal((await env.request('/api/social/posts', { method: 'POST', headers, body: { image: 'data:image/png;base64,bm90YW5pbWFnZQ==' } })).status, 400);
@@ -65,7 +65,7 @@ for (const backend of ['sqlite', 'mongodb']) {
     assert.equal((await env.request('/api/social/posts')).data.posts.length, 0);
     const { saveSocialImage } = require('../dist/backend/src/services/social-image-service');
     await assert.rejects(saveSocialImage('data:image/png;base64,' + Buffer.alloc(5 * 1024 * 1024 + 1).toString('base64')), error => error.status === 400);
-    assert.equal(db.type === 'sqlite' ? db.getSchemaVersion() : await db.getSchemaVersion(), 3);
+    assert.equal(db.type === 'sqlite' ? db.getSchemaVersion() : await db.getSchemaVersion(), 4);
   });
 }
 

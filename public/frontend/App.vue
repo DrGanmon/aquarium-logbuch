@@ -20,6 +20,8 @@ const legalPage = computed(
   () =>
     (
       ({
+        "/agb": "terms",
+        "/terms": "terms",
         "/impressum": "impressum",
         "/imprint": "impressum",
         "/datenschutz": "datenschutz",

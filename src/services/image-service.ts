@@ -61,7 +61,7 @@ function saveImage(aquariumId?: number, base64Data?: unknown, oldFilename?: unkn
   return { value: { filename, mime: fmt.mime } };
 }
 
-function deleteImage(filename?: unknown) {
+function deleteImage(filename?: unknown, strict = false) {
   if (!filename || typeof filename !== 'string') return;
   const safeName = path.basename(filename);
   const fullPath = path.join(UPLOADS_DIR, safeName);
@@ -71,6 +71,7 @@ function deleteImage(filename?: unknown) {
     }
   } catch (caught: unknown) {
     const e = asError(caught);
+    if (strict) throw e;
     console.error('Fehler beim Löschen der Bilddatei:', e);
   }
 }

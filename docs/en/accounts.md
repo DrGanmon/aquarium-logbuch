@@ -25,3 +25,5 @@ Logged-in users can open their **User Profile** (`#/profile`) from the header na
 Administrators choose open registration, admin-only invitations, invitations by all users, or closed registration. `ALLOW_REGISTRATION=false` blocks new accounts, including first-time OIDC logins. Invitation codes have expiry and usage limits; email invitations expire as well. Configure SMTP for verification, password resets and email invitations.
 
 Language and appearance can be changed in the header and profile. German and English, light and dark themes, and the system theme are supported; charts follow the active theme.
+
+New accounts require explicit acceptance of the terms, including first-time OIDC sign-in. The checkbox is unchecked by default; public terms and privacy links are in the footer. Existing accounts retain access and accept current terms before posting new Social content. Account deletion also removes Social content and associated images from managed local JSON backups; operators must separately manage external backups. [Details](social.md).

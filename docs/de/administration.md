@@ -36,3 +36,5 @@ Die Standardvorlagen liegen unter `../../src/templates/mail` und werden in den B
 Eine FIFO-Warteschlange begrenzt den Versand über `SMTP_RATE_LIMIT_MS`. SMTP lässt sich über Umgebungsvariablen oder die Admin-Oberfläche einrichten; dort sind auch Testversand und Warteschlangenstatus verfügbar.
 
 Backups enthalten sensible Konto- und Konfigurationsdaten sowie Uploads und gehören in einen geschützten Speicher. Vor einer Wiederherstellung ein aktuelles Backup anlegen. Die Wiederherstellung ersetzt den Datenbestand; ältere Sicherungen werden auf das aktuelle Schema angepasst. Automatische Sicherungen bleiben lokal und ersetzen keine externe Sicherung.
+
+Bei Kontolöschung werden Bilddaten und zugehörige Social-Inhalte aus den verwalteten lokalen `.json.gz`-Backups entfernt. Während Backup/Restore wird die Kontolöschung mit einem Hinweis auf erneute Bestätigung zurückgestellt. Für sonstige Sicherungsdaten sowie externe oder heruntergeladene Backups ist ein eigenes Aufbewahrungs- und Löschkonzept erforderlich. [Details](social.md).

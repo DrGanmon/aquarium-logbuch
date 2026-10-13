@@ -1556,3 +1556,8 @@ dialog.aquarium-chat-modal {
   .social-post-header, .social-post-content { padding: .75rem; }
   .social-actions .btn { font-size: .8rem; padding: .4rem; }
 }
+
+.terms-consent { display: flex; align-items: flex-start; gap: .6rem; }
+.terms-consent input[type="checkbox"] { width: auto; flex: 0 0 auto; margin-top: .3rem; }
+.terms-consent a { text-decoration: underline; }
+.terms-consent small { display: block; }

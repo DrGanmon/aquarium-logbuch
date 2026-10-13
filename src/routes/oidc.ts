@@ -51,7 +51,7 @@ router.get('/callback', async (req: Request, res: Response) => {
   setCookie(res, 'oidc_state', '', 0);
   setCookie(res, 'oidc_link_user', '', 0);
   try {
-    const { claims, idToken } = await oidc.finishLogin(req.query, cookieState);
+    const { claims, idToken, terms } = await oidc.finishLogin(req.query, cookieState);
     const sub = String(claims.sub);
     const email = claims.email ? String(claims.email).trim().toLowerCase() : null;
 
@@ -72,7 +72,7 @@ router.get('/callback', async (req: Request, res: Response) => {
       return res.redirect(302, `${APP_URL}/?oidc_linked=1`);
     }
 
-    const user = await userForClaims(claims, db);
+    const user = await userForClaims(claims, db, terms);
     if (!user) {
       return appRedirect(res, 'Für dieses Konto ist kein Zugang eingerichtet (Registrierung ist deaktiviert).');
     }
@@ -81,7 +81,7 @@ router.get('/callback', async (req: Request, res: Response) => {
   } catch (caught: unknown) {
     const e = asError(caught);
     console.error('OIDC-Callback fehlgeschlagen:', e.message);
-    appRedirect(res, e.message.startsWith('Anmeldung abgebrochen') ? e.message : 'Die Anmeldung ist fehlgeschlagen. Bitte erneut versuchen.');
+    appRedirect(res, (e.message.startsWith('Anmeldung abgebrochen') || e.message.startsWith('Bitte vor der ersten Anmeldung')) ? e.message : 'Die Anmeldung ist fehlgeschlagen. Bitte erneut versuchen.');
   }
 });
 

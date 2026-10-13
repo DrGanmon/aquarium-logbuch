@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { api } from "../api";
-import { session, t, themeIcon, toggleTheme, errorMessage } from "../state";
+import { session, language, t, themeIcon, toggleTheme, errorMessage } from "../state";
 const props = defineProps<{ page: string }>();
 const info = ref<{ contactEmail: string; imprintEmail: string }>({
   contactEmail: "",
   imprintEmail: "",
 });
 const error = ref("");
+const termsVersion = ref("");
+const terms = ref<Record<string, string>>({});
 const contactMail = computed(() => info.value.contactEmail);
 const imprintMail = computed(
   () => info.value.imprintEmail || info.value.contactEmail,
@@ -15,10 +17,19 @@ const imprintMail = computed(
 onMounted(async () => {
   try {
     info.value = await api("/legal-info");
+    if (props.page === "terms") await loadTerms();
   } catch (e) {
     error.value = errorMessage(e);
   }
 });
+async function loadTerms() {
+  const requestedLanguage = language.value;
+  try {
+    const result = await api<{ version: string; terms: Record<string, string> }>(`/terms?language=${requestedLanguage}`);
+    if (language.value === requestedLanguage) { termsVersion.value = result.version;terms.value = result.terms; }
+  } catch (e) { error.value = errorMessage(e); }
+}
+watch(language, () => { if (props.page === 'terms') void loadTerms(); });
 </script>
 <template>
   <div class="legal-container stack">
@@ -36,6 +47,7 @@ onMounted(async () => {
     <nav class="legal-tabs" role="tablist">
       <a
         v-for="tab in [
+          { id: 'terms', hash: 'agb', label: 'terms.link' },
           { id: 'impressum', hash: 'impressum', label: 'footer.imprint' },
           { id: 'datenschutz', hash: 'datenschutz', label: 'footer.privacy' },
           { id: 'licenses', hash: 'lizenzen', label: 'footer.licenses' },
@@ -51,6 +63,13 @@ onMounted(async () => {
       >
     </nav>
     <p v-if="error" class="error">{{ error }}</p>
+    <div v-if="page === 'terms'" class="legal-box stack">
+      <h1>{{ terms.title || t('terms.title') }}</h1><p v-if="!termsVersion" role="status">{{ t('common.loading') }}</p><p class="muted">{{ t('terms.version') }}: {{ termsVersion }}</p>
+      <section v-for="key in ['scope', 'account', 'content', 'license', 'visibility', 'deletion', 'moderation', 'liability']" :key="key">
+        <h2>{{ terms[key + 'Title'] }}</h2><p>{{ terms[key + 'Text'] }}</p>
+      </section>
+      <p><a href="#/impressum">{{ t('footer.imprint') }}</a> · <a href="#/datenschutz">{{ t('footer.privacy') }}</a></p>
+    </div>
     <div v-if="page === 'impressum'" class="legal-box stack">
       <h1>{{ t("legal.content.imprintHeading") }}</h1>
       <div class="legal-badge-box stack" style="gap: 0.4rem">
@@ -107,7 +126,7 @@ onMounted(async () => {
     </div>
     <div v-if="page === 'datenschutz'" class="legal-box stack">
       <h1>{{ t("legal.content.privacyHeading") }}</h1>
-      <section class="card stack"><h2>{{ t("social.privacyTitle") }}</h2><p>{{ t("social.privacyText") }}</p></section>
+      <section class="card stack"><h2>{{ t("social.privacyTitle") }}</h2><p>{{ t("social.privacyText") }}</p><h3>{{ t('social.privacyBasisTitle') }}</h3><p>{{ t('social.privacyBasis') }}</p><h3>{{ t('social.privacyRetentionTitle') }}</h3><p>{{ t('social.privacyRetention') }}</p><p><a href="#/agb">{{ t('terms.title') }}</a></p></section>
       <p class="muted" style="margin: 0">
         {{ t("legal.content.privacyIntro") }}
       </p>

@@ -31,6 +31,7 @@ export interface Measurement {
   alerts?: { param: string; level: 'crit' | 'warn'; value: number; message: string }[]; created_by_username?: string | null;
 }
 export interface UserRecord {
+  terms_version: string | null; terms_accepted_at: string | null;
   id: number; username: string; email: string | null; password_hash: string | null; created_at: string;
   oidc_sub: string | null; language: string; first_name: string | null; last_name: string | null; bio: string | null; avatar_file: string | null;
   selected_suite: string | null; selected_tests: string | null; default_graph_range: string | null; test_inventory: string | null;

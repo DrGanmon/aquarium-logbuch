@@ -182,9 +182,21 @@ test('OIDC: Login-Flow, Signaturen, Validierung, Verknüpfung und Unlink', async
   assert.strictEqual(tamperedRes.status, 302);
   assert.ok(tamperedRes.headers.get('location').includes('auth_error'));
 
+  // A plain login may sign in existing accounts, but must never create a new account without acceptance.
+  const noConsentInit = await env.request('/auth/login');
+  const noConsentUrl = new URL(noConsentInit.headers.get('location'));
+  oidcMock.setAuthCode('code-no-consent', { sub: 'no-consent-sub', email: 'no-consent@pocketid.test', username: 'no_consent', nonce: noConsentUrl.searchParams.get('nonce') });
+  const noConsentResult = await env.request(`/auth/callback?code=code-no-consent&state=${noConsentUrl.searchParams.get('state')}`, { headers: { Cookie: `oidc_state=${noConsentInit.cookies.oidc_state}` } });
+  assert.equal(noConsentResult.status, 302);
+  assert.equal(noConsentResult.cookies.session, undefined);
+  assert.match(decodeURIComponent(noConsentResult.headers.get('location')), /AGB akzeptieren/);
+  assert.equal(await require('../dist/backend/src/db').users.findByOidcSub('no-consent-sub'), null);
+  assert.equal((await env.request('/api/oidc/login', { method: 'POST', body: { acceptTerms: true, termsVersion: 'old' } })).status, 400);
+
   // 4. Erfolgreicher OIDC-Login (Neuer Benutzer)
-  const loginInit2 = await env.request('/auth/login');
-  const url2 = new URL(loginInit2.headers.get('location'));
+  const loginInit2 = await env.request('/api/oidc/login', { method: 'POST', body: { acceptTerms: true, termsVersion: require('../dist/backend/src/services/terms-service').TERMS_VERSION } });
+  assert.equal(loginInit2.status, 200);
+  const url2 = new URL(loginInit2.data.url);
   const state2 = url2.searchParams.get('state');
   const nonce2 = url2.searchParams.get('nonce');
   const stateCookie2 = loginInit2.cookies.oidc_state;
@@ -202,6 +214,10 @@ test('OIDC: Login-Flow, Signaturen, Validierung, Verknüpfung und Unlink', async
   assert.strictEqual(callbackRes.status, 302);
   const sessionAlice = callbackRes.cookies.session;
   assert.ok(sessionAlice, 'Session-Cookie muss gesetzt werden');
+  const dbForTerms = require('../dist/backend/src/db');
+  const acceptedUser = await dbForTerms.users.findByOidcSub('pocket-sub-alice-001');
+  assert.equal(acceptedUser.terms_version, require('../dist/backend/src/services/terms-service').TERMS_VERSION);
+  assert.ok(acceptedUser.terms_accepted_at);
 
   // Prüfen von /api/me für Alice
   const meAlice = await env.request('/api/me', {

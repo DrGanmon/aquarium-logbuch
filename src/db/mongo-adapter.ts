@@ -434,6 +434,7 @@ class MongoAdapter {
         password_reset_token = null,
         password_reset_expires = null,
         language = 'de',
+        terms_version = null, terms_accepted_at = null,
       }: any) {
         const id = await self.getNextSequence('users');
         const doc: Record<string, any> = {
@@ -462,11 +463,11 @@ class MongoAdapter {
           claude_api_key: null,
           claude_model: null,
           ai_provider: null,
-          language: language === 'en' ? 'en' : 'de',
+          language: language === 'en' ? 'en' : 'de', terms_version, terms_accepted_at,
           created_at: new Date().toISOString(),
         };
         await db.collection('users').insertOne(doc);
-        return { id, username, email, oidc_sub, email_verified: email_verified ? 1 : 0, language: doc.language };
+        return { id, username, email, oidc_sub, email_verified: email_verified ? 1 : 0, language: doc.language, terms_version, terms_accepted_at };
       },
       async mutateTestInventory(id?: any, mutate?: any) {
         const users = db.collection<UserRecord & { _id?: number }>('users');
@@ -512,7 +513,7 @@ class MongoAdapter {
           'claude_api_key',
           'claude_model',
           'ai_provider',
-          'language',
+          'language', 'terms_version', 'terms_accepted_at',
         ];
 
         for (const k of allowed) {
@@ -530,24 +531,27 @@ class MongoAdapter {
       },
       async delete(id?: any) {
         const numId = Number(id);
-        await self.social.deleteUser(numId);
         const user = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: numId });
+        if (!user) return false;
+        await require('../services/backup-service').backupService.purgeUserImages(user);
+        await self.social.deleteUser(numId);
         if (user && user.avatar_file) {
-          deleteImage(user.avatar_file);
+          deleteImage(user.avatar_file, true);
         }
-        const res = await db.collection('users').deleteOne({ id: numId });
-        if (res.deletedCount === 0) return false;
 
         // Cascade cleanup
         await db.collection('sessions').deleteMany({ user_id: numId });
         const aqs = await db.collection<Aquarium & { _id?: number }>('aquariums').find({ user_id: numId }).toArray();
         for (const aq of aqs) {
-          await self.aquariums.delete(aq.id);
+          await self.aquariums.delete(aq.id, true);
         }
         await db.collection('aquarium_shares').deleteMany({ user_id: numId });
         await db.collection('maintenance_logs').updateMany({ created_by: numId }, { $set: { created_by: null } });
         await db.collection('measurements').updateMany({ created_by: numId }, { $set: { created_by: null } });
-        return true;
+        const res = await db.collection('users').deleteOne({ id: numId });
+        // Catch posts created while the earlier MongoDB cleanup was awaiting I/O.
+        await self.social.deleteUser(numId);
+        return res.deletedCount > 0;
       },
       async listForAdmin() {
         const users = await db.collection<UserRecord & { _id?: number }>('users').find({}).sort({ created_at: 1, id: 1 }).toArray();
@@ -767,13 +771,18 @@ class MongoAdapter {
         const res = await db.collection('aquariums').updateOne({ id: numId }, { $set: { image_file: filename } });
         return res.matchedCount > 0;
       },
-      async delete(id?: any) {
+      async delete(id?: any, strictImages = false) {
         const numId = Number(id);
         const [aq, images, stocks] = await Promise.all([
           db.collection('aquariums').findOne({ id: numId }),
           db.collection('aquarium_images').find({ aquarium_id: numId }).toArray(),
           db.collection('stock').find({ aquarium_id: numId }).toArray(),
         ]);
+        if (strictImages) {
+          deleteImage(aq?.image_file, true);
+          for (const image of images) deleteImage(image.filename, true);
+          for (const stock of stocks) deleteImage(stock.image_file, true);
+        }
         const res = await db.collection('aquariums').deleteOne({ id: numId });
         if (res.deletedCount === 0) return false;
         deleteImage(aq?.image_file);

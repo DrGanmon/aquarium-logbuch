@@ -13,6 +13,7 @@ import {
 } from "../state";
 import type { Registration } from "../types";
 const info = ref<Registration>({
+  termsVersion: "",
   registration: true,
   localLogin: true,
   oidc: false,
@@ -28,6 +29,7 @@ const mode = computed(() =>
       : route.value.path.slice(1) || "login",
 );
 const fields = reactive({
+  acceptTerms: false,
   username: "",
   email: route.value.query.get("email") || "",
   password: "",
@@ -69,7 +71,7 @@ async function submit() {
     let body: object = { username: fields.username, password: fields.password };
     if (mode.value === "register") {
       path = "/register";
-      body = { ...fields, language: language.value };
+      body = { ...fields, language: language.value, termsVersion: info.value.termsVersion };
     }
     if (mode.value === "forgot") {
       path = "/forgot-password";
@@ -116,6 +118,15 @@ async function submit() {
   } finally {
     busy.value = false;
   }
+}
+async function startOidc() {
+  if (busy.value) return;
+  if (mode.value === 'register' && !fields.acceptTerms) { error.value = t('terms.required');return; }
+  busy.value = true;error.value = '';
+  try {
+    const result = await api<{ url: string }>('/oidc/login', { method: 'POST', body: { acceptTerms: fields.acceptTerms, termsVersion: info.value.termsVersion } });
+    location.assign(result.url);
+  } catch (e) { error.value = errorMessage(e);busy.value = false; }
 }
 async function resend() {
   try {
@@ -218,7 +229,13 @@ async function resend() {
         >
           {{ t("admin.modeClosed") }}
         </div>
-        <template v-else-if="info.localLogin"
+        <label v-if="mode === 'register' || info.oidc" class="terms-consent">
+          <input v-model="fields.acceptTerms" type="checkbox" :required="mode === 'register'" :disabled="busy" />
+          <span>{{ t('terms.acceptPrefix') }} <a href="#/agb" target="_blank" rel="noopener">{{ t('terms.link') }}</a>{{ t('terms.acceptSuffix') }}
+            <small v-if="mode !== 'register'"> {{ t('terms.oidcNotice') }}</small>
+          </span>
+        </label>
+        <template v-if="info.localLogin && !(mode === 'register' && (info.isClosed || !info.registration))"
           ><p
             v-if="mode === 'register' && info.isInviteOnly"
             class="compat-box info"
@@ -289,9 +306,9 @@ async function resend() {
             📨 {{ t("auth.resendVerifyEmail") }}
           </button></template
         >
-        <a v-if="info.oidc" class="btn" href="auth/login">{{
+        <button v-if="info.oidc" type="button" class="btn" :disabled="busy" @click="startOidc">{{
           t("auth.oidcButton", { provider: info.oidcName })
-        }}</a
+        }}</button
         ><a
           v-if="mode !== 'register' && info.registration && !info.isClosed"
           class="btn ghost"

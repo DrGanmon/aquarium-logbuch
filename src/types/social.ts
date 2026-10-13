@@ -1,4 +1,4 @@
-export interface SocialPost { id: number; user_id: number; filename: string; width: number; height: number; text: string; created_at: string }
+export interface SocialPost { id: number; user_id: number; filename: string; width: number; height: number; text: string; created_at: string; is_public: boolean | number }
 export interface SocialComment { id: number; post_id: number; user_id: number; text: string; created_at: string }
 export interface SocialLike { post_id: number; user_id: number }
 export interface SocialAuthor { id: number; username: string; avatarUrl: string | null }
