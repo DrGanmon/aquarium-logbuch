@@ -3,6 +3,8 @@ import { computed, reactive, ref, onMounted, watch } from "vue";
 import Fields from "../components/Fields.vue";
 import ProviderSettings from "../components/ProviderSettings.vue";
 import Invitations from "../components/Invitations.vue";
+import TestSelection from "../components/TestSelection.vue";
+import { initialTestSelection, resolveTests } from "../composables/test-selection";
 import TestInventory from "../components/TestInventory.vue";
 import { api, refreshSession } from "../api";
 import { session, t, errorMessage, toast, theme, language } from "../state";
@@ -59,11 +61,7 @@ const provider = ref(session.user?.aiProvider || "openai");
 const deletePassword = ref("");
 const deleteConfirm = ref(false);
 const suite = ref(session.config?.userPreferences.selectedSuite || "");
-const tests = ref(
-  session.config?.userPreferences.selectedTests ||
-    session.config?.parameters.map((p) => p.key) ||
-    [],
-);
+const tests = ref(initialTestSelection(session.config));
 if (model.defaultGraphRange === "3650") model.defaultGraphRange = "all";
 const avatarInput = ref<HTMLInputElement>();
 const avatarVersion = ref(Date.now());
@@ -74,12 +72,10 @@ const fields = computed<Field[]>(() => [
   { key: "email", label: t("auth.email"), type: "email" },
   { key: "bio", label: t("profile.bio"), type: "textarea" },
 ]);
-const allTests = computed(
-  () =>
-    session.config?.suites.find((item) => item.id === suite.value)?.tests ||
-    session.config?.parameters ||
-    [],
-);
+const inventorySuites = computed(() => (session.config?.suites || []).map(item => ({
+  id: item.id,
+  keys: resolveTests(session.config?.suites || [], tests.value).filter(test => test.suiteId === item.id).map(test => test.key),
+})).filter(item => item.keys.length));
 onMounted(async () => {
   try {
     await refreshSession();
@@ -524,30 +520,12 @@ async function saveRange() {
     >
       <section class="card stack">
         <h2>🧪 Wassertests</h2>
-        <label
-          >{{ t("measure.suiteLabel")
-          }}<select v-model="suite" @change="tests = allTests.map((p) => p.key)">
-            <option
-              v-for="item in session.config?.suites"
-              :key="item.id"
-              :value="item.id"
-            >
-              {{ item.name }}
-            </option>
-          </select></label
-        >
-        <div class="picker">
-          <label v-for="test in allTests" :key="test.key"
-            ><input v-model="tests" type="checkbox" :value="test.key" />{{
-              test.name
-            }}</label
-          >
-        </div>
+        <TestSelection v-model="tests" />
         <button class="btn" :disabled="busy" @click="saveTests">
           {{ t("common.save") }}
         </button>
       </section>
-      <TestInventory :suite-id="suite" :selected-tests="tests" />
+      <TestInventory v-for="item in inventorySuites" :key="item.id" :suite-id="item.id" :selected-tests="item.keys" />
     </div>
     <div
       v-if="canShowInvites"

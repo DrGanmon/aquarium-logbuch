@@ -27,7 +27,7 @@ export interface StockRecord {
 }
 export interface Measurement {
   id: number; aquarium_id?: number; measured_at: string; note: string | null; created_by: number | null;
-  values: Record<string, number>; suite_id?: string | null;
+  values: Record<string, number>; suite_id?: string | null; test_selection?: string[];
   alerts?: { param: string; level: 'crit' | 'warn'; value: number; message: string }[]; created_by_username?: string | null;
 }
 export interface UserRecord {

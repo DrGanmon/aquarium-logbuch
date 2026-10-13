@@ -47,7 +47,7 @@ describe('JSON-Testsuiten & Benutzerauswahl', () => {
     assert.strictEqual(no3.verified, true);
 
     const nh4 = defSuite.tests.find((t) => t.key === 'nh4');
-    assert.strictEqual(nh4.wait, 600, 'Ammonium-Wartezeit muss 600s (10 min) sein');
+    assert.strictEqual(nh4.wait, 900, 'Ammonium-Timer muss die konfigurierten 900s (15 min) übernehmen');
     assert.strictEqual(nh4.verified, true);
 
     const po4 = defSuite.tests.find((t) => t.key === 'po4');

@@ -1,4 +1,13 @@
 {
+  "testSelection": {
+    "title": "Wassertests anpassen",
+    "description": "Kombiniere Tests aus beliebigen Suiten. Pro Wasserparameter ist eine Methode aktiv. Die Auswahl einer anderen Methode ersetzt die bisherige Methode für diesen Parameter.",
+    "useSuite": "Suite übernehmen",
+    "addSuite": "Suite ergänzen",
+    "clear": "Auswahl leeren",
+    "selected": "{count} Tests ausgewählt",
+    "remove": "{name} entfernen"
+  },
   "frontendUpdate": {
     "title": "Neue Version verfügbar",
     "message": "Frontend-Version {version} ist verfügbar. Möchtest du sie jetzt laden?",

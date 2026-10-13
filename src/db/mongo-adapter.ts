@@ -1265,7 +1265,7 @@ class MongoAdapter {
       async findLastForAquarium(aquariumId?: any) {
         return (await db.collection<Measurement & { _id?: number }>('measurements').findOne({ aquarium_id: Number(aquariumId) }, { sort: { measured_at: -1 } })) || null;
       },
-      async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [], suite_id = null }: any) {
+      async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [], suite_id = null, test_selection = undefined }: any) {
         const measId = await self.getNextSequence('measurements');
         const doc: Record<string, any> = {
           _id: measId,
@@ -1294,7 +1294,7 @@ class MongoAdapter {
           });
         }
 
-        if (created_by) await require('../services/test-inventory-service').recordUsage(self, created_by, values, suite_id);
+        if (created_by) await require('../services/test-inventory-service').recordUsage(self, created_by, values, suite_id, test_selection);
         return { id: measId };
       },
       async delete(id?: any, aquariumId: any = null) {

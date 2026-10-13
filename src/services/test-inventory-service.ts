@@ -82,12 +82,18 @@ class TestInventoryService {
     if (!updated) throw new AppError('Benutzer nicht gefunden.', 400);
     await this.checkUserReminders(db, userId);
   }
-  applyUsage(inventory: TestInventory, user: InventoryUser, values: Record<string, unknown>, suiteId: string | null = null): void {
-    const id = suiteId || user.selected_suite || this.suites.getDefaultSuite()?.id || 'jbl-pro';
-    const suite = this.suites.getSuite(id);
-    if (!suite) return;
-    const saved = inventory[id] ||= {};
-    for (const test of suite.tests.filter(isConsumable)) {
+  applyUsage(inventory: TestInventory, user: InventoryUser, values: Record<string, unknown>, suiteId: string | null = null, selection?: string[]): void {
+    let savedSelection: unknown = selection;
+    if (savedSelection === undefined && !suiteId && user.selected_tests) {
+      try {
+        const parsed: unknown = JSON.parse(user.selected_tests);
+        if (Array.isArray(parsed) && (parsed.length === 0 || parsed.some(reference => typeof reference === 'string' && reference.includes(':')))) savedSelection = parsed;
+      } catch { /* Legacy preferences use the selected suite. */ }
+    }
+    const tests = this.suites.resolveSelection(savedSelection, suiteId || user.selected_suite);
+    for (const test of tests) {
+      if (!isConsumable(test)) continue;
+      const saved = inventory[test.suiteId] ||= {};
       if (values[test.key] === '' || values[test.key] == null || !Number.isFinite(Number(values[test.key]))) continue;
       const entry = entryFor(test, saved[test.key]);
       if (test.consumable.variants.find(item => item.id === entry.variant)?.trackUsage === false) continue;
@@ -95,8 +101,8 @@ class TestInventoryService {
       saved[test.key] = entry;
     }
   }
-  async recordUsage(db: InventoryDatabase, userId: number, values: Record<string, unknown>, suiteId: string | null = null): Promise<void> {
-    await db.users.mutateTestInventory(userId, (inventory, user) => this.applyUsage(inventory, user, values, suiteId));
+  async recordUsage(db: InventoryDatabase, userId: number, values: Record<string, unknown>, suiteId: string | null = null, selection?: string[]): Promise<void> {
+    await db.users.mutateTestInventory(userId, (inventory, user) => this.applyUsage(inventory, user, values, suiteId, selection));
     await this.checkUserReminders(db, userId);
   }
   async checkUserReminders(db: InventoryDatabase, userId: number): Promise<number> {

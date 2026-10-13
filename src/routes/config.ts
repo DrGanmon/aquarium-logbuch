@@ -43,7 +43,8 @@ router.get(
       suites,
       defaultSuiteId: defaultSuite?.id || 'jbl-pro',
       currentSuite: suite,
-      parameters: (suite?.tests || []).map(({ key, name, unit, decimals, step, min, max, wait, verified, hint }: any) => ({
+      parameters: (Array.isArray(userSelectedTests) && userSelectedTests.some((test: unknown) => typeof test === 'string' && test.includes(':'))
+        ? cfg.suiteService.resolveSelection(userSelectedTests, selectedSuiteId, lang) : suite?.tests || []).map(({ key, name, unit, decimals, step, min, max, wait, verified, hint }: any) => ({
         key,
         name,
         unit,
@@ -202,9 +203,14 @@ router.put(
     let selectedTests = req.body.tests || req.body.selectedTests;
 
     if (selectedSuite != null) selectedSuite = str(selectedSuite, 50);
-    let testsJson = null;
-    if (Array.isArray(selectedTests)) {
-      testsJson = JSON.stringify(selectedTests.map((t: any) => str(t, 40).toLowerCase()).filter(Boolean));
+    if (selectedSuite && !cfg.suiteService.getSuite(selectedSuite)) return res.status(400).json({ error: 'Unbekannte Testsuite.' });
+    const fallbackSuite = selectedSuite || user.selected_suite;
+    let testsJson = user.selected_tests;
+    if (selectedTests !== undefined && selectedTests !== null) {
+      if (!cfg.suiteService.validateSelection(selectedTests, fallbackSuite)) {
+        return res.status(400).json({ error: 'Ungültige Testauswahl. Pro Wasserparameter ist eine Testmethode erlaubt.' });
+      }
+      testsJson = JSON.stringify(selectedTests);
     } else if (selectedTests === null) {
       testsJson = null;
     }

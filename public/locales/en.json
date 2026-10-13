@@ -1,4 +1,13 @@
 {
+  "testSelection": {
+    "title": "Customize water tests",
+    "description": "Combine tests from any suites. One method is active per water parameter. Choosing another method replaces the previous method for that parameter.",
+    "useSuite": "Use suite",
+    "addSuite": "Add suite",
+    "clear": "Clear selection",
+    "selected": "{count} tests selected",
+    "remove": "Remove {name}"
+  },
   "frontendUpdate": {
     "title": "New version available",
     "message": "Frontend version {version} is available. Would you like to load it now?",

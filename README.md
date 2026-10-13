@@ -17,7 +17,7 @@ Im optionalen KI-Chat interagierst du mit einem KI-System; dessen Antworten sind
 ## Features für Benutzer
 
 - **Aquarien verwalten:** Stammdaten, Einrichtung, Fotos, Galerie und benannte Bewohner mit Porträts.
-- **Wasserwerte erfassen:** 15 Parameter, konfigurierbare Testsuiten, Live-Bewertung und mehrere Reaktionstimer.
+- **Wasserwerte erfassen:** 15 Parameter, frei kombinierbare Tests aus mehreren Suiten, Live-Bewertung und mehrere Reaktionstimer.
 - **Verlauf auswerten:** Diagramme mit freier Zeitraumauswahl, Warnungen und bestätigbare Alarme.
 - **Pflege dokumentieren:** Logbuch für Wasserwechsel, Filterpflege, Pflanzen, Düngung und weitere Aktivitäten.
 - **Pflege planen:** Unabhängige Mess- und Düngzyklen mit optionalen E-Mail-Erinnerungen; Dosierpumpenpläne mit manueller Protokollierung.

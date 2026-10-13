@@ -6,13 +6,13 @@ Die Wassertests sind modular als **JSON-Dateien** unter `../../src/config/suites
 - **Standard-Suite (`jbl-pro-aquatest.json`):** JBL PRO AQUATEST Testlab Tropfentests nach offizieller Gebrauchsanweisung mit verifizierten Reaktionszeiten (z. B. Kalium 90 s, Nitrit 5 min, Nitrat 10 min, Ammonium 10 min, Phosphat 10 min, Eisen 10 min, Kupfer 15 min, Silikat 3 min).
 - **Konsolidierter pH-Wert:** Statt unübersichtlicher Einzeltests für verschiedene pH-Bereiche existiert ein einheitlicher pH-Test (3,0 bis 10,0), bei dem der Messwert direkt erfasst wird.
 - **Weitere Suiten:** Beliebig erweiterbar (z. B. `jbl-easy-7in1.json` für Teststreifen).
-- **Benutzerauswahl:** Jeder Anwender kann sowohl im Profil (`#/profile`) als auch direkt bei der Messung (`#/a/:id/messen`) auswählen, welche Testsuite er nutzt und welche Tests er besitzt/durchführen möchte. Die Auswahl wird dauerhaft im Benutzerkonto und im Browser gespeichert.
+- **Benutzerauswahl:** Jeder Anwender kann sowohl im Profil (`#/profile`) als auch direkt bei der Messung (`#/a/:id/messen`) Tests aus verschiedenen Suiten auswählen und kombinieren. Die Auswahl wird dauerhaft im Benutzerkonto und im Browser gespeichert.
 
 ### Verbrauchszähler und Nachkauferinnerung für JBL-Tröpfchentests
 
 Im Profil unter **Wassertest-Verbrauch & Nachkaufen** lassen sich pro vorhandenem Test der bisherige Verbrauch und die Gesamtreichweite einer Nachfüllung einstellen. **Neue Nachfüllung / Zähler zurücksetzen** setzt den Verbrauch auf 0 und gibt die Nachkauferinnerung für diesen Test wieder frei. Vorhandene Messhistorie wird nicht rückwirkend gezählt; trage den Verbrauch deiner aktuellen Flasche einmalig ein.
 
-Jeder neu gespeicherte Messwert zählt als **ein Test**, auch `0`, auch beim CSV-Import und über mehrere Aquarien hinweg. Gezählt wird beim eintragenden Benutzer, auch bei geteilten Aquarien. Leere, ungültige oder abgewiesene Werte zählen nicht. Das Löschen einer Messung stellt verbrauchtes Reagens nicht wieder her. Ein Thermometer und aus pH/KH berechnetes CO₂ verbrauchen kein eigenes Reagens. Die gewählte Testsuite bestimmt, welche Tests gezählt werden; Teststreifen werden nicht als einzelne JBL-Tröpfchentests gezählt.
+Jeder neu gespeicherte Messwert zählt als **ein Test**, auch `0`, auch beim CSV-Import und über mehrere Aquarien hinweg. Gezählt wird beim eintragenden Benutzer, auch bei geteilten Aquarien. Leere, ungültige oder abgewiesene Werte zählen nicht. Das Löschen einer Messung stellt verbrauchtes Reagens nicht wieder her. Ein Thermometer und aus pH/KH berechnetes CO₂ verbrauchen kein eigenes Reagens. Die gewählten Testmethoden bestimmen, welcher Suite der Verbrauch zugeordnet wird; Teststreifen werden nicht als einzelne JBL-Tröpfchentests gezählt.
 
 Hinterlegte Reichweiten sind Hersteller-Richtwerte pro Test-Set bzw. Nachfüllung (recherchiert am 12.10.2026):
 
@@ -28,6 +28,14 @@ Hinterlegte Reichweiten sind Hersteller-Richtwerte pro Test-Set bzw. Nachfüllun
 | KH, GH, Ca, Mg-Ca (Meerwasser), CO₂ Direct | variabel, eigene Schätzung erforderlich | [JBL Calcium / Titrationstests](https://www.jbl.de/de/produkte/detail/8682/jbl-proaquatest-ca-calcium?country=de&cpref=736), [JBL CO₂ Direct](https://www.jbl.de/de/produkte/detail/8691/jbl-proaquatest-co2-direct?country=de&cpref=384) |
 
 Die Reichweite bleibt anpassbar, etwa für eine andere Packungsgröße oder den individuellen Tropfenverbrauch. Im Profil können die pH- und Magnesium-Variante sowie CO₂ Direct oder berechnetes CO₂ ausgewählt werden. Ab **75 % Verbrauch** wird einmal pro Nachfüllung eine E-Mail mit Testname und Restmenge eingereiht, sofern die Erinnerung aktiviert ist, die E-Mail-Adresse verifiziert wurde und SMTP eingerichtet ist. Die Grenze wird auf ganze Tests aufgerundet: bei 50 Tests ab Test 38, bei 25 ab Test 19. Nach dem Einrichten von SMTP prüft der Erinnerungs-Scheduler bisher offene Erinnerungen ebenfalls (alle 30 Minuten). Vorlagen: `test-refill-reminder.tpl` und `test-refill-reminder.en.tpl`; eigene Vorlagen unter `../../data/mail-templates`. Verbrauch und Erinnerungsstatus bleiben bei Backup/Restore mit SQLite und MongoDB erhalten.
+
+## Tests aus mehreren Suiten kombinieren
+
+Im Profil und in „Wassertests anpassen“ der Messmaske kannst du Tests aus beliebigen installierten Suiten kombinieren. Wähle eine Suite aus und markiere einzelne Tests. „Suite übernehmen“ ersetzt die gesamte Auswahl; „Suite ergänzen“ übernimmt ihre Tests und lässt andere Parameter bestehen. Bei gleichen Wasserparametern ersetzt die neue Methode die bisherige, da pro Messung nur ein Wert je Parameter gespeichert wird. Die Liste darunter zeigt alle ausgewählten Tests mit ihrer Herkunft.
+
+Die Auswahl bleibt beim Wechsel der angezeigten Suite erhalten und wird im Profil über „Speichern“, in der Messmaske automatisch gespeichert. Bestehende Auswahlen aus einer einzelnen Suite bleiben nutzbar. Reaktionszeiten, Hinweise und Eingabebereiche stammen aus der ausgewählten Testmethode. Beim Methodenwechsel werden ein laufender Timer und ein noch nicht gespeicherter Wert dieses Parameters verworfen.
+
+Verbrauchszähler werden nach Suite und Test getrennt geführt. Messungen verwenden die mitgesendete Auswahl; CSV-Importe verwenden die gespeicherte gemischte Auswahl. Ein Teststreifen erhöht daher keinen Tröpfchentest-Zähler für denselben Parameter. Eigene JSON-Suiten sind ohne feste Anbieterbeschränkung auswählbar. Die gespeicherten Referenzen haben das Format `suiteId:testKey`; bisherige reine Parameterschlüssel werden weiterhin unterstützt. Eine Datenbankmigration ist dafür nicht nötig.
 
 ## Wartezeiten und Grenzwerte
 

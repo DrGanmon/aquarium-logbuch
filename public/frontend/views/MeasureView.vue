@@ -7,6 +7,8 @@ import {
   ref,
   watch,
 } from "vue";
+import TestSelection from "../components/TestSelection.vue";
+import { initialTestSelection, resolveTests } from "../composables/test-selection";
 import { api } from "../api";
 import { session, t, errorMessage, localDateTime, toast } from "../state";
 import type { AquariumDetail } from "../types";
@@ -24,19 +26,9 @@ const suite = ref(
     session.config?.currentSuite.id ||
     "",
 );
-const selected = ref<string[]>(
-  session.config?.userPreferences.selectedTests ||
-    (session.config?.parameters || []).map((p) => p.key),
-);
-const tests = computed(
-  () =>
-    session.config?.suites.find((s) => s.id === suite.value)?.tests ||
-    session.config?.parameters ||
-    [],
-);
-const visibleTests = computed(() =>
-  tests.value.filter((p) => selected.value.includes(p.key)),
-);
+const selected = ref<string[]>(initialTestSelection(session.config));
+const tests = computed(() => resolveTests(session.config?.suites || [], selected.value));
+const visibleTests = tests;
 const timerKey = `timers:${props.id}`;
 const timers = reactive<Record<string, number>>({});
 try {
@@ -65,6 +57,15 @@ const activeTimers = computed(() =>
 const running = computed(() =>
   activeTimers.value.some((timer) => timer.remaining > 0),
 );
+watch(selected, (next, previous) => {
+  for (const reference of previous) {
+    if (next.includes(reference)) continue;
+    const key = reference.slice(reference.indexOf(":") + 1);
+    reset(key);
+    delete values[key];
+  }
+}, { flush: "sync" });
+let preferenceSave = Promise.resolve<unknown>(undefined);
 watch(
   [selected, suite],
   async () => {
@@ -78,10 +79,9 @@ watch(
         selectedTests: [...selected.value],
       };
     try {
-      await api("/me/tests", {
-        method: "PUT",
-        body: { selectedSuite: suite.value, selectedTests: selected.value },
-      });
+      const body = { selectedSuite: suite.value, selectedTests: [...selected.value] };
+      preferenceSave = preferenceSave.catch(() => {}).then(() => api("/me/tests", { method: "PUT", body }));
+      await preferenceSave;
     } catch (e) {
       error.value = errorMessage(e);
     }
@@ -183,9 +183,6 @@ function reset(key: string) {
   persist();
   timerMessage("CANCEL_TIMER", key);
 }
-function changeSuite() {
-  selected.value = tests.value.map((test) => test.key);
-}
 
 async function notify() {
   try {
@@ -216,7 +213,7 @@ async function save() {
       method: "POST",
       body: {
         values: parsed,
-        suiteId: suite.value,
+        selectedTests: [...selected.value],
         measured_at: new Date(when.value).toISOString(),
         note: note.value,
       },
@@ -304,46 +301,10 @@ async function save() {
         </div>
         <details>
           <summary style="cursor: pointer; font-weight: 600">
-            Wassertests anpassen
+            {{ t("testSelection.title") }}
           </summary>
-          <div class="stack" style="margin-top: 0.8rem">
-            <label
-              >{{ t("measure.suiteLabel")
-              }}<select v-model="suite" @change="changeSuite">
-                <option
-                  v-for="item in session.config?.suites"
-                  :key="item.id"
-                  :value="item.id"
-                >
-                  {{ item.name }}
-                </option>
-              </select></label
-            >
-            <div class="row">
-              <button
-                class="btn small ghost"
-                type="button"
-                @click="selected = tests.map((p) => p.key)"
-              >
-                Alle auswählen</button
-              ><button
-                class="btn small ghost"
-                type="button"
-                @click="selected = []"
-              >
-                Keine auswählen
-              </button>
-            </div>
-            <div class="picker">
-              <label v-for="test in tests" :key="test.key"
-                ><input
-                  v-model="selected"
-                  type="checkbox"
-                  :value="test.key"
-                />{{ test.name }}
-                {{ test.wait ? `(${mmss(test.wait)})` : "" }}</label
-              >
-            </div>
+          <div style="margin-top: 0.8rem">
+            <TestSelection v-model="selected" />
           </div>
         </details>
         <div class="tests">

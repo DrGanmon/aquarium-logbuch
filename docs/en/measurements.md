@@ -6,13 +6,13 @@ Water tests are stored modularly as **JSON files** in `../../src/config/suites` 
 - **Default Suite (`jbl-pro-aquatest.json`):** JBL PRO AQUATEST Testlab liquid tests based on official instructions with verified reaction times (e.g., Potassium 90s, Nitrite 5 min, Nitrate 10 min, Ammonium 10 min, Phosphate 10 min, Iron 10 min, Copper 15 min, Silicate 3 min).
 - **Consolidated pH Test:** A unified pH test (3.0 to 10.0) replaces fragmented test ranges for clean recording.
 - **Extensible:** Additional test sets (e.g., `jbl-easy-7in1.json` test strips) can be added as JSON.
-- **User Selection:** Users can choose their preferred test suite and select which specific tests they own/perform in profile settings (`#/profile`) or during measurement (`#/a/:id/messen`).
+- **User Selection:** Users can choose and combine the specific tests they own/perform from multiple suites in profile settings (`#/profile`) or during measurement (`#/a/:id/messen`).
 
 ### JBL drop-test usage and refill reminders
 
 In your profile, **Water test usage & refills** lets you set previous usage and the total capacity of each refill. **New refill / reset counter** resets usage to 0 and enables a new reminder for that test. Existing measurement history is not counted retroactively; enter usage of your current bottle once.
 
-Every newly saved measurement value counts as **one test**, including `0`, CSV imports and measurements across multiple aquariums. Usage belongs to the user recording the measurement, including shared aquariums. Empty, invalid or rejected values are not counted. Deleting a measurement does not replenish reagents. Thermometers and CO₂ calculated from pH/KH do not consume their own reagents. The chosen suite determines which tests are counted; test strips are not counted as individual JBL drop tests.
+Every newly saved measurement value counts as **one test**, including `0`, CSV imports and measurements across multiple aquariums. Usage belongs to the user recording the measurement, including shared aquariums. Empty, invalid or rejected values are not counted. Deleting a measurement does not replenish reagents. Thermometers and CO₂ calculated from pH/KH do not consume their own reagents. The selected methods determine which suite receives the usage count; test strips are not counted as individual JBL drop tests.
 
 Approximate manufacturer capacities per kit/refill, researched on 2026-10-12:
 
@@ -28,6 +28,14 @@ Approximate manufacturer capacities per kit/refill, researched on 2026-10-12:
 | KH, GH, Ca, marine Mg-Ca, CO₂ Direct | variable; enter your estimate | [JBL calcium / titration tests](https://www.jbl.de/de/produkte/detail/8682/jbl-proaquatest-ca-calcium?country=de&cpref=736), [JBL CO₂ Direct](https://www.jbl.de/de/produkte/detail/8691/jbl-proaquatest-co2-direct?country=de&cpref=384) |
 
 Capacity remains adjustable for different pack sizes and individual drop consumption. Select the pH/magnesium variant and direct or calculated CO₂ in your profile. At **75% usage**, one email per refill is queued with the test name and estimated remaining capacity, provided reminders are enabled, the email address is verified and SMTP is configured. Thresholds round up to whole tests: test 38 for a capacity of 50, or test 19 for 25. Once SMTP is configured, the reminder scheduler also checks pending reminders every 30 minutes. Templates: `test-refill-reminder.tpl` and `test-refill-reminder.en.tpl`; overrides belong in `../../data/mail-templates`. Usage and reminder status are preserved by backup/restore with both SQLite and MongoDB.
+
+## Combine tests from multiple suites
+
+In the profile and the measurement form's “Customize water tests” section, combine tests from any installed suites. Browse a suite and select individual tests. “Use suite” replaces the complete selection; “Add suite” incorporates its tests while retaining other parameters. If a parameter already has a method, the new method replaces it because each measurement stores one value per parameter. The list below shows all selected tests and their source suites.
+
+Browsing another suite retains your selection. Save it explicitly in the profile; the measurement form saves automatically. Existing single-suite selections remain supported. Reaction times, instructions and input ranges come from the chosen method. Switching methods clears that parameter's running timer and unsaved reading.
+
+Usage counters are separate for each suite and test. Measurements use their submitted selection; CSV imports use the saved mixed selection. A strip test therefore does not increment a drop-test counter for the same parameter. Custom JSON suites are selectable without a fixed provider restriction. Stored references use `suiteId:testKey`; legacy parameter-only keys remain supported. No database migration is required.
 
 ## Reaction times and target values
 

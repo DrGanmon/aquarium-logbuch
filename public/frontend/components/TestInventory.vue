@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { api } from "../api";
-import { t, language, toast, errorMessage } from "../state";
+import { session, t, language, toast, errorMessage } from "../state";
 import type { TestInventoryItem } from "../types";
 const props = defineProps<{ suiteId: string; selectedTests: string[] }>();
 const items = ref<TestInventoryItem[]>([]);
@@ -67,6 +67,7 @@ async function save(item: TestInventoryItem, reset = false) {
 <template>
   <section v-if="visible.length || loading || error" class="card stack">
     <h2>{{ t("testInventory.title") }}</h2>
+    <p class="muted">{{ session.config?.suites.find(suite => suite.id === suiteId)?.name }}</p>
     <p class="muted">{{ t("testInventory.description") }}</p>
     <p v-if="loading" role="status">{{ t("common.loading") }}</p>
     <p v-if="error" class="error" role="alert">{{ error }}</p>

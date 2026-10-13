@@ -82,6 +82,28 @@ class SuiteService {
     return suite ? this.localize(suite, lang) : id ? null : this.getDefaultSuite(lang);
   }
   getParameters(id: string | null = null, lang = 'de'): WaterTest[] { return this.getSuite(id, lang)?.tests || []; }
+  resolveSelection(selection: unknown, fallbackSuite?: string | null, lang = 'de') {
+    let parsed = selection;
+    if (typeof parsed === 'string') {
+      try { parsed = JSON.parse(parsed) as unknown; } catch { parsed = null; }
+    }
+    const fallback = this.getSuite(fallbackSuite, lang) || this.getDefaultSuite(lang);
+    const references = Array.isArray(parsed) ? parsed : (fallback?.tests || []).map(test => test.key);
+    const result = new Map<string, WaterTest & { suiteId: string; reference: string }>();
+    for (const reference of references) {
+      if (typeof reference !== 'string') continue;
+      const separator = reference.indexOf(':');
+      const suiteId = separator >= 0 ? reference.slice(0, separator) : fallback?.id;
+      const key = separator >= 0 ? reference.slice(separator + 1) : reference;
+      const test = suiteId ? this.getSuite(suiteId, lang)?.tests.find(item => item.key === key) : null;
+      if (test && suiteId) result.set(key, { ...test, suiteId, reference: `${suiteId}:${key}` });
+    }
+    return [...result.values()];
+  }
+  validateSelection(selection: unknown, fallbackSuite?: string | null): selection is string[] {
+    if (!Array.isArray(selection) || selection.some(reference => typeof reference !== 'string')) return false;
+    return this.resolveSelection(selection, fallbackSuite).length === selection.length;
+  }
   getAllKnownParameters(lang = 'de'): WaterTest[] {
     const parameters = new Map<string, WaterTest>();
     for (const test of this.getDefaultSuite(lang)?.tests || []) parameters.set(test.key, test);
@@ -93,4 +115,5 @@ const suiteService = new SuiteService();
 export = { SuiteService, suiteService,
   loadSuites: suiteService.loadSuites.bind(suiteService), getSuites: suiteService.getSuites.bind(suiteService), getSuite: suiteService.getSuite.bind(suiteService),
   getDefaultSuite: suiteService.getDefaultSuite.bind(suiteService), getParameters: suiteService.getParameters.bind(suiteService), getAllKnownParameters: suiteService.getAllKnownParameters.bind(suiteService),
+  resolveSelection: suiteService.resolveSelection.bind(suiteService), validateSelection: suiteService.validateSelection.bind(suiteService),
   BUILTIN_SUITES_DIR, CUSTOM_SUITES_DIR };

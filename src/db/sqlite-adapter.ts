@@ -1301,7 +1301,7 @@ class SqliteAdapter {
         for (const v of vals) values[v.param] = v.value;
         return { ...m, values };
       },
-      async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [], suite_id = null }: any) {
+      async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [], suite_id = null, test_selection = undefined }: any) {
         const insertMeas = db.prepare('INSERT INTO measurements (aquarium_id, measured_at, note, created_by) VALUES (?, ?, ?, ?)');
         const insertVal = db.prepare('INSERT INTO measurement_values (measurement_id, param, value) VALUES (?, ?, ?)');
         const insertAlert = db.prepare(
@@ -1322,7 +1322,7 @@ class SqliteAdapter {
             const user = db.prepare<UserRecord>('SELECT * FROM users WHERE id = ?').get(created_by);
             if (user) {
               const inventory = JSON.parse(user.test_inventory || '{}');
-              require('../services/test-inventory-service').applyUsage(inventory, user, values, suite_id);
+              require('../services/test-inventory-service').applyUsage(inventory, user, values, suite_id, test_selection);
               db.prepare('UPDATE users SET test_inventory = ? WHERE id = ?').run(JSON.stringify(inventory), created_by);
             }
           }

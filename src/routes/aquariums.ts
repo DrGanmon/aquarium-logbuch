@@ -654,7 +654,12 @@ router.post(
   writeAquarium,
   wrap(async (req: Request, res: Response) => {
     const values = req.body.values && typeof req.body.values === 'object' ? req.body.values : {};
-    const params = new Map(cfg.PARAMETERS.map((p: any) => [p.key, p]));
+    const selection = req.body.selectedTests;
+    if (selection !== undefined && !cfg.suiteService.validateSelection(selection, req.body.suiteId)) {
+      return res.status(400).json({ error: 'Ungültige Testauswahl.' });
+    }
+    const selectedParameters = selection === undefined ? cfg.PARAMETERS : cfg.suiteService.resolveSelection(selection, req.body.suiteId);
+    const params = new Map(selectedParameters.map(p => [p.key, p] as const));
     const cleanValues: Record<string, any> = {};
     for (const [key, raw] of Object.entries(values)) {
       if (raw === '' || raw == null) continue;
@@ -682,7 +687,7 @@ router.post(
     const { thresholds } = await thresholdsOfAquarium(req.aq, db);
     const alertsToCreate = [];
     for (const [key, v] of Object.entries(cleanValues)) {
-      const p = params.get(key);
+      const p = params.get(key)!;
       const range = thresholds[key];
       const level = cfg.evaluate(range, v);
       if (level === 'warn' || level === 'crit') {
@@ -699,6 +704,7 @@ router.post(
       values: cleanValues,
       alerts: alertsToCreate,
       suite_id: req.body.suiteId || null,
+      test_selection: selection,
     });
 
     res.json({ id: info.id, alerts: alertsToCreate });

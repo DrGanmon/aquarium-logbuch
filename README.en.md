@@ -17,7 +17,7 @@ In the optional AI chat, you interact with an AI system; its responses are autom
 ## Features for users
 
 - **Manage aquariums:** Tank details, equipment, photos, galleries and named residents with portraits.
-- **Record water parameters:** 15 parameters, configurable test suites, live assessments and simultaneous reaction timers.
+- **Record water parameters:** 15 parameters, freely combined tests from multiple suites, live assessments and simultaneous reaction timers.
 - **Review history:** Charts with custom date ranges, warnings and alarms you can acknowledge.
 - **Document care:** Logbook for water changes, filter maintenance, plants, fertilization and other activities.
 - **Plan maintenance:** Independent measurement and fertilization cycles with optional email reminders; dosing pump plans with manual logging.
