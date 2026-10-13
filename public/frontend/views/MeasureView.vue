@@ -391,7 +391,7 @@ async function save() {
                 /><span class="muted"> {{ test.unit }}</span>
               </div>
             </div>
-            <p v-if="test.hint" class="muted">{{ test.hint }}</p>
+            <p v-if="test.hint" class="test-hint muted">{{ test.hint }}</p>
           </div>
         </div>
         <div class="field">

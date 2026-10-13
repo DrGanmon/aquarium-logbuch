@@ -404,6 +404,7 @@ td.v-warn { color: var(--amber); font-weight: 650; } td.v-crit { color: var(--co
 .test-head { display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; align-items: baseline; }
 .test-head h3 { margin: 0; }
 .test-body { display: grid; grid-template-columns: 1fr; gap: .5rem; }
+.test-hint { grid-column: 1 / -1; margin: .5rem 0 0; }
 @media (min-width: 560px) { .test-body { grid-template-columns: 150px 1fr; align-items: end; } }
 .timer-line { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
 .clock { font-variant-numeric: tabular-nums; font-weight: 650; font-size: 1.15rem; min-width: 3.4em; }
