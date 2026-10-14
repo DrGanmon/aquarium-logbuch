@@ -5,6 +5,8 @@ import { api } from "../api";
 import { t, errorMessage, language } from "../state";
 import { route } from "../router";
 import type { PlantSummary } from "../../../src/shared/plants";
+const AddPlantDialog = lazyComponent(() => import("../components/AddPlantDialog.vue"));
+const adding = ref<PlantSummary>();
 const PlantDetail = lazyComponent(() => import("../components/PlantDetail.vue"));
 interface PlantPage { plants: PlantSummary[]; total: number; next: number | null; categories: string[] }
 const shown = ref<PlantSummary[]>([]), total = ref(0), next = ref<number | null>(null);
@@ -61,6 +63,7 @@ function loadRouteDetail() {
   <div class="stack">
     <div class="row between">
       <h1>{{ t("nav.plants") }}</h1>
+      <a v-if="route.query.get('aquariumId')" class="btn small ghost" :href="`#/a/${encodeURIComponent(route.query.get('aquariumId')!)}`">{{ t("plantStock.back") }}</a>
       <a class="btn small ghost" :href="'#/'">{{ t("common.back") }}</a>
     </div>
     <div class="card stack">
@@ -103,6 +106,7 @@ function loadRouteDetail() {
         <p>{{ item.description }}</p>
         <div class="row">
           <button class="btn small ghost" @click.stop="open(item)">{{ t("common.details") }}</button>
+          <button class="btn small" @click.stop="adding = item">{{ t("plantStock.add") }}</button>
         </div>
       </article>
     </div>
@@ -111,6 +115,9 @@ function loadRouteDetail() {
     <div v-if="next !== null" ref="sentinel" class="row" style="justify-content: center">
       <button type="button" class="btn ghost" :disabled="loading" @click="load(true)">{{ t("speciesCatalog.more") }}</button>
     </div>
-    <PlantDetail v-if="selected" :key="selected.id" :plant-id="selected.id" @close="selected = undefined" />
+    <PlantDetail v-if="selected" :key="selected.id" :plant-id="selected.id" @close="selected = undefined">
+      <template #default="{ plant }"><button class="btn" @click="adding = plant">{{ t('plantStock.add') }}</button></template>
+    </PlantDetail>
+    <AddPlantDialog v-if="adding" :key="adding.id" :plant="adding" :aquarium-id="route.query.get('aquariumId') || undefined" @close="adding = undefined" @added="adding = undefined" />
   </div>
 </template>

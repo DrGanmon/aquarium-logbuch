@@ -34,6 +34,7 @@ function safeUrl(url: string) { return /^https?:\/\//i.test(url) ? url : undefin
     <p v-if="loading" role="status">{{ t('common.loading') }}</p>
     <p v-if="error" class="error" role="alert">{{ error }} <button class="btn small ghost" @click="load">{{ t('detail.lazyRetry') }}</button></p>
     <template v-if="detail">
+      <slot :plant="detail.plant" />
       <p><i>{{ detail.plant.scientificName }}</i> · {{ detail.plant.category }}</p>
       <p v-if="detail.plant.synonyms.length">{{ t('plants.synonyms') }}: {{ detail.plant.synonyms.join(', ') }}</p>
       <p>{{ detail.plant.description }}</p>

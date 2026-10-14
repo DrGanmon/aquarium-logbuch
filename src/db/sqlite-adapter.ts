@@ -1,3 +1,4 @@
+import { PlantRepository } from './plant-repository';
 import { SocialRepository } from "./social-repository";
 import type { UserRecord, Aquarium, AccessRole, StockRecord, Measurement, DosingPump, AquariumImage, AquariumShare, Invitation } from '../types/domain';
 import type { SqliteConnection } from '../types/database-driver';
@@ -32,6 +33,7 @@ class SqliteAdapter {
   aquariums!: RepositoryContract<ReturnType<SqliteAdapter['build_aquariums']>, AquariumQueries>;
   aquariumImages!: ReturnType<SqliteAdapter['build_aquariumImages']>;
   shares!: ReturnType<SqliteAdapter['build_shares']>;
+  plants!: PlantRepository;
   stock!: RepositoryContract<ReturnType<SqliteAdapter['build_stock']>, StockRepository>;
   measurements!: RepositoryContract<ReturnType<SqliteAdapter['build_measurements']>, MeasurementQueries>;
   alerts!: ReturnType<SqliteAdapter['build_alerts']>;
@@ -119,6 +121,7 @@ class SqliteAdapter {
     this.shares = this.build_shares();
 
     this.stock = this.build_stock();
+    this.plants = new PlantRepository(this.type, this.connection());
 
     this.measurements = this.build_measurements();
 
@@ -182,6 +185,7 @@ class SqliteAdapter {
       aquarium_images,
       aquarium_shares,
       stock,
+      aquarium_plants: safeGetAll('aquarium_plants', 'aquarium_id ASC, plant_id ASC'),
       measurements,
       alerts,
       maintenance_logs,
@@ -224,6 +228,7 @@ class SqliteAdapter {
       db.exec('DELETE FROM measurement_values');
       db.exec('DELETE FROM measurements');
       db.exec('DELETE FROM maintenance_logs');
+      db.exec('DELETE FROM aquarium_plants');
       db.exec('DELETE FROM stock');
       db.exec('DELETE FROM aquarium_images');
       db.exec('DELETE FROM aquarium_shares');
@@ -470,6 +475,9 @@ class SqliteAdapter {
         }
       }
 
+      for (const plant of data.aquarium_plants || []) {
+        db.prepare('INSERT INTO aquarium_plants (aquarium_id, plant_id, count) VALUES (?, ?, ?)').run(plant.aquarium_id, plant.plant_id, plant.count);
+      }
       this.social.importSqliteData(data);
       db.pragma('foreign_keys = ON');
     });

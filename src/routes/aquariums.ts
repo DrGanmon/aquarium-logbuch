@@ -1,3 +1,4 @@
+import { getPlantCatalog } from '../services/plant-service';
 import { chatProgress } from '../utils/chat-progress';
 import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
@@ -475,6 +476,29 @@ router.delete(
 );
 
 // ---------- Besatz & Bewohner ----------
+router.get('/:id/plants', auth, ownAquarium, wrap(async (req: Request, res: Response) => {
+  const lang = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de');
+  const catalog = getPlantCatalog(lang);
+  const rows = await db.plants.listForAquarium(req.aq.id);
+  res.json(rows.map(row => {
+    const plant = catalog.plants.find(item => item.id === row.plant_id);
+    return { ...row, name: plant?.name || row.plant_id, scientificName: plant?.scientificName || '', category: plant?.category || '' };
+  }));
+}));
+router.put('/:id/plants/:plantId', auth, writeAquarium, wrap(async (req: Request, res: Response) => {
+  const plant = getPlantCatalog().plants.find(item => item.id === req.params.plantId);
+  if (!plant) return res.status(400).json({ error: 'Pflanze nicht im Katalog gefunden.' });
+  if (plant.waterType !== req.aq.water_type) return res.status(400).json({ error: 'Die Wasserart des Aquariums passt nicht zu dieser Pflanze.' });
+  const count = req.body.count;
+  if (!Number.isInteger(count) || count < 1 || count > 10000) return res.status(400).json({ error: 'Anzahl: 1–10000 ganze Pflanzen.' });
+  await db.plants.set(req.aq.id, plant.id, count);
+  res.json({ ok: true });
+}));
+router.delete('/:id/plants/:plantId', auth, writeAquarium, wrap(async (req: Request, res: Response) => {
+  await db.plants.delete(req.aq.id, String(req.params.plantId));
+  res.json({ ok: true });
+}));
+
 router.get('/:id/stock', auth, ownAquarium, wrap(async (req: Request, res: Response) => {
   const lang = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de');
   res.json(enrichStock(await db.stock.listForAquarium(req.aq.id), lang));

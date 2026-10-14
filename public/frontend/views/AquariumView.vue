@@ -5,6 +5,7 @@ import { api } from "../api";
 import { session, t, errorMessage, fmtDate, fmtNum, language } from "../state";
 import type {
   AquariumDetail,
+  AquariumPlant,
   Photo,
   Measurement,
   LogEntry,
@@ -20,6 +21,7 @@ import { readImage } from "../composables/media";
 const AquariumForm = lazyComponent(() => import("../components/AquariumForm.vue"));
 const WaterChart = lazyComponent(() => import("../components/WaterChart.vue"));
 const LogForm = lazyComponent(() => import("../components/LogForm.vue"));
+const PlantSection = lazyComponent(() => import("../components/PlantSection.vue"));
 const StockSection = lazyComponent(() => import("../components/StockSection.vue"));
 const PumpSection = lazyComponent(() => import("../components/PumpSection.vue"));
 const CsvDialog = lazyComponent(() => import("../components/CsvDialog.vue"));
@@ -75,6 +77,7 @@ const history = useLazyResource<Measurement[]>([], (signal) => {
   const query = new URLSearchParams(range.value === "custom" ? { from: from.value, to: to.value } : { days: range.value });
   return api(`/aquariums/${props.id}/measurements?${query}`, { signal });
 });
+const plantsResource = useLazyResource<AquariumPlant[]>([], signal => api(`/aquariums/${props.id}/plants`, { signal }));
 const residents = useLazyResource<Stock[]>([], (signal) => api(`/aquariums/${props.id}/stock`, { signal }));
 const pumpsResource = useLazyResource<Pump[]>([], (signal) => api(`/aquariums/${props.id}/dosing-pumps`, { signal }));
 let paginationController: AbortController | undefined;
@@ -92,7 +95,7 @@ const stock = residents.data;
 const pumps = pumpsResource.data;
 const logs = timeline.data;
 const logBusy = computed(() => timeline.loading.value || moreLoading.value);
-const resources = [gallery, history, residents, pumpsResource, timeline];
+const resources = [gallery, history, residents, plantsResource, pumpsResource, timeline];
 let detailController: AbortController | undefined;
 onBeforeUnmount(() => { detailController?.abort(); paginationController?.abort(); });
 onMounted(load);
@@ -542,6 +545,9 @@ async function leave() {
           @changed="load"
           @image="(url) => (lightbox = url)"
         />
+      </LazySection>
+      <LazySection data-lazy="plants" :label="t('nav.plants')" :loaded="plantsResource.loaded.value" :loading="plantsResource.loading.value" :error="plantsResource.error.value" @activate="plantsResource.load()">
+        <PlantSection :id="id" :plants="plantsResource.data.value" :readonly="readonly" @changed="plantsResource.load(true)" />
       </LazySection>
       <LazySection data-lazy="pumpsResource" :label="t('detail.pumpsTitle')" :loaded="pumpsResource.loaded.value" :loading="pumpsResource.loading.value" :error="pumpsResource.error.value" @activate="pumpsResource.load()">
         <PumpSection

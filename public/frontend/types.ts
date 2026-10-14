@@ -305,3 +305,5 @@ export interface Field {
   max?: number;
   options?: Record<string, string>;
 }
+
+export interface AquariumPlant { aquarium_id: number; plant_id: string; count: number; name: string; scientificName: string; category: string }

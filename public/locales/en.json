@@ -962,5 +962,13 @@
     "no": "No",
     "care": "Care notes",
     "sources": "Sources"
+  },
+  "plantStock": {
+    "add": "Add to aquarium",
+    "saved": "Aquarium plants saved.",
+    "countHint": "Total quantity in the aquarium. Existing entries will be updated.",
+    "noAquariums": "No writable aquarium with a matching water type available.",
+    "empty": "No plants added yet.",
+    "back": "Back to aquarium"
   }
 }

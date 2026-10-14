@@ -43,3 +43,5 @@ Open **Plants** in the navigation for a separate catalog of 149 freshwater and m
 The list loads 24 results at a time and filters by water type and category. Details include placement, light and CO₂ demand, growth, height, temperature, water parameters, care notes and supplied sources. Salinity uses the unit specified in the catalog. Data and source references were taken from the supplied files.
 
 The authenticated API exposes `/api/plants?limit=24&offset=0&q=…&water_type=fresh&category=…` and `/api/plants/:id`. `total` counts all matches; `next` is the next offset or `null`, with at most 100 entries per page. German is the default; select English with `lang=en` or `X-Language: en`.
+
+Use **Add to aquarium** to assign plants to a writable aquarium with a matching water type. The quantity is the total stock; saving again updates the existing entry. The aquarium view lists plants below the animal stock, with details, editing and removal. Its add link preselects the aquarium in the catalog dialog. Read-only shares can view the plants and their details. Plant stock is included in backups and removed when the aquarium is deleted.

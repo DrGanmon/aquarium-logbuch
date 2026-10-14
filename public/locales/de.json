@@ -962,5 +962,13 @@
     "no": "Nein",
     "care": "Pflegehinweise",
     "sources": "Quellen"
+  },
+  "plantStock": {
+    "add": "Zum Aquarium hinzufügen",
+    "saved": "Pflanzenbestand gespeichert.",
+    "countHint": "Gesamtanzahl im Aquarium. Bereits vorhandene Einträge werden aktualisiert.",
+    "noAquariums": "Kein beschreibbares Aquarium mit passender Wasserart vorhanden.",
+    "empty": "Noch keine Pflanzen eingetragen.",
+    "back": "Zurück zum Aquarium"
   }
 }

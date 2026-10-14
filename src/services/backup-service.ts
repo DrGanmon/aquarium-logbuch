@@ -749,6 +749,11 @@ class BackupService {
         aquarium_images: normalizedAquariumImages,
         aquarium_shares: normalizedShares,
         stock: normalizedStock,
+        aquarium_plants: (Array.isArray(data.aquarium_plants) ? data.aquarium_plants : []).filter((plant: any) =>
+          plant && normalizedAquariums.some((aq: any) => aq.id === Number(plant.aquarium_id)) &&
+          typeof plant.plant_id === 'string' && plant.plant_id.length > 0 && plant.plant_id.length <= 200 &&
+          Number.isInteger(plant.count) && plant.count >= 1 && plant.count <= 10000
+        ).map((plant: any) => ({ aquarium_id: Number(plant.aquarium_id), plant_id: plant.plant_id, count: plant.count })),
         measurements: normalizedMeasurements,
         alerts: normalizedAlerts,
         maintenance_logs: normalizedMaint,

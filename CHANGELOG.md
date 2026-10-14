@@ -6,11 +6,15 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-### Pflanzenkatalog
+### Pflanzen im Aquarium
 
-- Zweisprachige Pflanzendatenbank mit 149 Einträgen analog zum Artenkatalog integriert: Navigation, globale Suche in beiden Sprachen, Wasserart- und Kategoriefilter, seitenweises Nachladen sowie Detailansichten mit Pflegehinweisen, Wasserwerten und Quellen.
-- Authentifizierte Listen- und Detail-API sowie automatisierte Katalog- und API-Tests ergänzt; Pflanzendaten in den Backend-Build aufgenommen.
-- Gelieferte Dateien unverändert nach `src/config/plants/plants.json` und `plants.en.json` verschoben, den Tippfehler im deutschen Dateinamen korrigiert und den leeren Ordner `new` entfernt.
+- Pflanzen aus dem Katalog mit Anzahl zu Aquarien hinzufügen und in einem eigenen Abschnitt unter dem Tierbesatz anzeigen; Details öffnen, Bestände bearbeiten und Pflanzen entfernen.
+- Aquarium aus der Detailansicht im Hinzufügen-Dialog vorauswählen; vorhandene Bestände laden und ohne doppelte Einträge aktualisieren. Deutsche und englische Oberfläche ergänzt.
+- Schreibrechte und Wasserart serverseitig prüfen; Pflanzenbestand in SQLite und MongoDB speichern, bei Aquariumlöschung entfernen und in Backup/Restore übernehmen. API- und Datenbanktests ergänzen.
+
+## 0.1.1-ALPHA
+
+- 2026-10-14 · Pflanzenkatalog: Zweisprachige Datenbank mit 149 Pflanzen, Navigation, Suche, Filtern, Seitennavigation und Details einschließlich Pflegehinweisen, Wasserwerten und Quellen integriert; authentifizierte API, Build-Integration, Tests und Dokumentation ergänzt. Gelieferte Dateien nach `src/config/plants/` verschoben, `pants.json` korrigiert und `new` entfernt ([`9c90b57`](https://github.com/DrGanmon/aquarium-logbuch/commit/9c90b571ab66e4d6bdaa26433038268e952ef864)).
 
 ## 0.1.0-ALPHA
 
