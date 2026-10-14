@@ -6,10 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- ESLint für TypeScript, Vue-Komponenten, JavaScript-Skripte und Tests einrichten; Befehle `npm run lint` und `npm run lint:fix` ergänzen. Ungenutzte Imports, Variablen, redundante Initialisierungen und wirkungslose Strict-Mode-Ausdrücke bereinigen; Namenskonflikt im Pflanzen-Dialog beheben, ignorierte Fehler dokumentieren und ursprüngliche Fehlerursachen beim Weiterwerfen erhalten.
+- Changelog mit der Git-Historie abgleichen und die committete Lint-Einrichtung mit tatsächlicher Commit-ID und Datum unter Revision `0.1.5-ALPHA` einordnen.
 
 ## 0.1.5-ALPHA
 
+- 2026-10-14 · Codeprüfung: ESLint für TypeScript, Vue-Komponenten, JavaScript-Skripte und Tests einrichten; Befehle `npm run lint` und `npm run lint:fix` ergänzen. Ungenutzte Imports, Variablen, redundante Initialisierungen und wirkungslose Strict-Mode-Ausdrücke bereinigen; Namenskonflikt im Pflanzen-Dialog beheben, ignorierte Fehler dokumentieren und ursprüngliche Fehlerursachen beim Weiterwerfen erhalten. ([`2ae88e4`](https://github.com/DrGanmon/aquarium-logbuch/commit/2ae88e4197f76fd8926a85239c858fd644742847)).
 - 2026-10-14 · Bildposts vor der Übertragung einschließlich PNGs und Browser-Fallback auf eine begrenzte JPEG-Größe komprimieren; verständliche Meldung bei HTTP 413 ergänzen. Bestehende Nutzer zur versionierten AGB-Zustimmung im verpflichtenden, zweisprachigen Modal auffordern, Zustimmung dauerhaft speichern und Social-Schreibaktionen bis zur Zustimmung serverseitig sperren. Regressionstests ergänzen. ([`c7d0325`](https://github.com/DrGanmon/aquarium-logbuch/commit/c7d03258e93b7861996debdabf034326ba2153d0)).
 
 ## 0.1.4-ALPHA
