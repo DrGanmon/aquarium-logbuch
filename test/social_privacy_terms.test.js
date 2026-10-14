@@ -46,7 +46,9 @@ for (const backend of ['sqlite', 'mongodb']) {
     const comment = await env.request(`${internalUrl}/comments`, { method: 'POST', headers: friendHeaders, body: { text: 'Nur für den Server' } });
     assert.equal(comment.status, 201);
     for (const suffix of ['', '/image', '/comments']) {
-      assert.equal((await env.request(internalUrl + suffix)).status, 404);
+      const guest = await env.request(internalUrl + suffix);
+      assert.equal(guest.status, suffix ? 404 : 403);
+      if (!suffix) { assert.equal(guest.data.code, 'MEMBERS_ONLY');assert.deepEqual(Object.keys(guest.data).sort(), ['code', 'error']); }
       const visible = await env.request(internalUrl + suffix, { headers: friendHeaders });
       assert.equal(visible.status, 200);assert.equal(visible.headers.get('cache-control'), 'no-store');
     }
@@ -90,7 +92,7 @@ for (const backend of ['sqlite', 'mongodb']) {
     assert.equal(backupService.migrateBackupData(legacy).data.social_posts[0].is_public, true);
     await backupService.restoreBackup(backup);
     assert.equal((await db.users.findById(owner.id)).terms_version, TERMS_VERSION);
-    assert.equal((await env.request(internalUrl)).status, 404);
+    assert.equal((await env.request(internalUrl)).status, 403);
     const archived = await backupService.createBackup({ includeFiles: true, customFilename: 'privacy-account.json.gz' });
     const imageFiles = [...additionalFiles, ...backup.data.social_posts.filter(p => p.user_id === owner.id).map(p => p.filename), backup.data.users.find(u => u.id === owner.id).avatar_file];
     assert.ok(imageFiles.every(filename => imageService.getImagePath(filename)));

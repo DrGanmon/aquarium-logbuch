@@ -60,7 +60,11 @@ router.get('/posts', viewer, wrap(async (req: Request, res: Response) => {
   res.setHeader('Cache-Control', 'no-store').json({ posts: await Promise.all(visible.map(post => postView(post, req))), next: posts.length > 20 ? visible.at(-1)!.id : null });
 }));
 router.get('/posts/:id', viewer, wrap(async (req: Request, res: Response) => {
-  res.setHeader('Cache-Control', 'no-store').json({ post: await postView(await postOrFail(id(req.params.id), req), req) });
+  res.setHeader('Cache-Control', 'no-store');
+  const post = await db.social.post(id(req.params.id));
+  if (!post) throw new AppError('Beitrag nicht gefunden.', 404);
+  if (!post.is_public && !req.user) return res.status(403).json({ error: 'Dieses Bild ist nur für angemeldete Mitglieder sichtbar.', code: 'MEMBERS_ONLY' });
+  res.json({ post: await postView(post, req) });
 }));
 router.get('/posts/:id/image', viewer, wrap(async (req: Request, res: Response) => {
   const post = await postOrFail(id(req.params.id), req), image = getImagePath(post.filename);

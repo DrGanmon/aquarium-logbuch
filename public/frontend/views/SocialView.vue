@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
-import { api } from '../api';
+import { api, ApiError } from '../api';
 import { session, language, t, errorMessage, toast } from '../state';
 import { route } from '../router';
 import { readSocialImage } from '../composables/media';
@@ -9,7 +9,7 @@ import type { SocialPostView } from '../../../src/types/social';
 const posts = ref<SocialPostView[]>([]), next = ref<number | null>(null);
 const loading = ref(false), publishing = ref(false), error = ref(''), composer = ref(false);
 const image = ref(''), caption = ref(''), fileInput = ref<HTMLInputElement>(), processing = ref(false);
-const isPublic = ref(false);
+const isPublic = ref(false), membersOnly = ref(false);
 const postId = computed(() => /^\/social\/\d+$/.test(route.value.path) ? route.value.path.split('/')[2] : undefined);
 let request: AbortController | undefined;
 let imageGeneration = 0;
@@ -17,7 +17,7 @@ onBeforeUnmount(() => { request?.abort();imageGeneration++; });
 async function load(more = false) {
   if (more && (loading.value || !next.value)) return;
   request?.abort();const current = new AbortController();request = current;
-  loading.value = true;error.value = '';
+  loading.value = true;error.value = '';membersOnly.value = false;
   if (!more) { posts.value = [];next.value = null; }
   try {
     if (postId.value) {
@@ -28,7 +28,12 @@ async function load(more = false) {
       const result = await api<{ posts: SocialPostView[]; next: number | null }>(`/social/posts${query}`, { signal: current.signal });
       if (!current.signal.aborted) { posts.value = more ? [...posts.value, ...result.posts] : result.posts;next.value = result.next; }
     }
-  } catch (caught) { if (!current.signal.aborted) error.value = errorMessage(caught); }
+  } catch (caught) {
+    if (!current.signal.aborted) {
+      if (caught instanceof ApiError && caught.code === 'MEMBERS_ONLY' && postId.value && !session.user) membersOnly.value = true;
+      else error.value = errorMessage(caught);
+    }
+  }
   finally { if (request === current) loading.value = false; }
 }
 watch([postId, () => session.user?.id, language], () => { void load(); }, { immediate: true });
@@ -54,8 +59,14 @@ async function publish() {
 <template>
   <div class="social-layout">
     <header class="social-intro"><div><p class="social-eyebrow">{{ t('social.community') }}</p><h1>{{ t('social.title') }}</h1><p class="muted">{{ t('social.intro') }}</p></div><button v-if="session.user" type="button" class="btn" @click="composer = !composer">＋ {{ t('social.newPost') }}</button><a v-else class="btn" href="#/">{{ t('auth.loginBtn') }}</a></header>
-    <p v-if="!session.user" class="social-public-note">{{ t('social.publicRead') }}</p>
+    <p v-if="!session.user && !membersOnly" class="social-public-note">{{ t('social.publicRead') }}</p>
     <a v-if="postId" href="#/social" class="btn small ghost social-back">← {{ t('social.backToFeed') }}</a>
+    <section v-if="membersOnly && !session.user && !loading" class="card stack social-empty" aria-labelledby="members-only-title">
+      <span aria-hidden="true" style="font-size: 2rem">🔒</span>
+      <h2 id="members-only-title">{{ t('social.membersOnlyTitle') }}</h2>
+      <p>{{ t('social.membersOnlyText') }}</p>
+      <div class="row"><a class="btn" href="#/login">{{ t('auth.loginBtn') }}</a><a class="btn ghost" href="#/register">{{ t('auth.registerTitle') }}</a></div>
+    </section>
     <form v-if="composer && session.user" class="card stack social-composer" @submit.prevent="publish">
       <h2>{{ t('social.newPost') }}</h2><label class="terms-consent"><input v-model="isPublic" type="checkbox" :disabled="publishing" /><span>{{ t('social.publicChoice') }}</span></label><p class="compat-box warn">{{ t(isPublic ? 'social.publicNotice' : 'social.internalNotice') }}</p>
       <label>{{ t('social.choosePhoto') }}<input ref="fileInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" :disabled="publishing || processing" @change="chooseImage" /></label>
@@ -67,7 +78,7 @@ async function publish() {
     <p v-if="error" class="error card" role="alert">{{ error }} <button type="button" class="btn small ghost" @click="load()">{{ t('social.retry') }}</button></p>
     <div class="social-feed"><SocialPostCard v-for="post in posts" :key="post.id" :post="post" @deleted="posts = posts.filter(item => item.id !== $event)" /></div>
     <p v-if="loading" role="status" class="social-empty">{{ t('common.loading') }}</p>
-    <div v-else-if="!posts.length && !error" class="card social-empty"><h2>{{ t('social.emptyTitle') }}</h2><p>{{ t('social.emptyText') }}</p></div>
+    <div v-else-if="!posts.length && !error && !membersOnly" class="card social-empty"><h2>{{ t('social.emptyTitle') }}</h2><p>{{ t('social.emptyText') }}</p></div>
     <button v-if="next && !postId" type="button" class="btn ghost social-more" :disabled="loading" @click="load(true)">{{ t('social.more') }}</button>
   </div>
 </template>

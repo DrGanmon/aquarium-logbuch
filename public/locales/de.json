@@ -1,5 +1,8 @@
 {
   "social": {
+    "membersOnlyTitle": "Dieses Bild ist nur für Mitglieder",
+    "membersOnlyText": "Dieser Beitrag ist nur für angemeldete Mitglieder dieses Servers sichtbar. Melde dich an oder registriere ein Konto, um das Bild anzusehen.",
+
     "uploadTooLarge": "Das Bild überschreitet die Upload-Grenze des Servers. Bitte lade die Seite neu und wähle das Bild erneut. Besteht der Fehler weiterhin, muss die Upload-Grenze des Reverse-Proxys erhöht werden.",
     "privacyTitle": "Social-Bereich und Bildrechte",
     "privacyText": "Für Social-Beiträge verarbeitet der Betreiber Bild, Text, Benutzer-ID, Benutzername, aktuelles Profilbild und Zeitpunkte sowie Kommentare und dem Konto zugeordnete Likes. Angezeigt wird die Like-Anzahl; eine öffentliche Liste der likenden Nutzer wird nicht bereitgestellt. Neue Beiträge sind standardmäßig nur angemeldeten Nutzern des Servers zugänglich. Bei ausdrücklicher Auswahl des öffentlichen Feeds können auch nicht angemeldete Personen den Beitrag und seine Kommentare sehen. Kommentare übernehmen die Sichtbarkeit des Beitrags. Direkte Bild- und Teilen-Links ändern diese Einstellung nicht. Bereits zuvor veröffentlichte Beiträge bleiben öffentlich. Hosting-Dienstleister können die Daten für den technischen Betrieb verarbeiten. Öffentliche Inhalte können von Dritten kopiert oder außerhalb der App weitergegeben werden.",

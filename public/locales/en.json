@@ -1,5 +1,8 @@
 {
   "social": {
+    "membersOnlyTitle": "This image is for members only",
+    "membersOnlyText": "This post is only visible to signed-in members of this server. Sign in or register an account to view the image.",
+
     "uploadTooLarge": "The image exceeds the server upload limit. Reload the page and select the image again. If the error persists, the reverse proxy upload limit must be increased.",
     "privacyTitle": "Social area and image rights",
     "privacyText": "For Social posts, the operator processes images, text, user IDs, usernames, current avatars and timestamps, as well as comments and account-linked likes. The like count is displayed; there is no public list of users who liked a post. New posts are accessible only to signed-in users of this server by default. Explicitly choosing the public feed also allows visitors to see the post and comments. Comments inherit the post’s visibility. Direct image and share links do not change this setting. Previously published posts remain public. Hosting providers may process this data for technical operation. Third parties may copy or redistribute public content.",

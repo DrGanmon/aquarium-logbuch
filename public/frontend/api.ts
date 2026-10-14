@@ -1,4 +1,9 @@
 import { session, language, t } from "./state";
+export class ApiError extends Error {
+  constructor(message: string, public readonly status: number, public readonly code?: string) {
+    super(message);this.name = 'ApiError';
+  }
+}
 export interface RequestOptions {
   method?: string;
   body?: unknown;
@@ -25,10 +30,12 @@ export async function api<T>(
   if (response.status === 428 && session.user) session.user.termsRequired = true;
   if (response.status === 413) throw new Error(t('social.uploadTooLarge'));
   if (!response.ok)
-    throw new Error(
+    throw new ApiError(
       typeof data === "object" && data && "error" in data
         ? String(data.error)
         : `HTTP ${response.status}`,
+      response.status,
+      typeof data === 'object' && data && 'code' in data && typeof data.code === 'string' ? data.code : undefined,
     );
   return data as T;
 }
