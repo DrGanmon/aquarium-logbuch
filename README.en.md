@@ -6,7 +6,7 @@
 
 Aquarium-Logbuch is a self-hosted web app for water parameters, residents and aquarium care. It combines measurement history, care logs and reminders, supporting multiple users with separate or shared tanks. A species catalog, diagnosis assistant and optional AI chat complement freshwater and saltwater tank management.
 
-[Deutsch](README.md) · **English** · [Manual](docs/en/README.md)
+[Deutsch](README.md) · **English** · [Manual](docs/en/README.md) · [Changelog](CHANGELOG.md)
 
 ## Transparency notice: AI-generated software
 
