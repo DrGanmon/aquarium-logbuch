@@ -51,6 +51,7 @@ const caption = ref("");
 const primary = ref(false);
 const editingPhoto = ref<Photo>();
 const aquarium = computed(() => detail.value?.aquarium);
+const editingAquarium = computed(() => detail.value ? { ...detail.value.aquarium, role: detail.value.role } : undefined);
 const readonly = computed(() => detail.value?.role === "view");
 const owner = computed(() => detail.value?.role === "owner");
 const parameters = computed(() => session.config?.allParameters || []);
@@ -223,7 +224,7 @@ async function leave() {
     <template v-if="detail && aquarium">
       <div class="row between">
         <div>
-          <a href="#/" class="muted">‹ Alle Aquarien</a>
+          <a :href="'#/'" class="muted">‹ Alle Aquarien</a>
           <h1 style="margin-bottom: 0.2rem">{{ aquarium.name }}</h1>
           <div v-if="aquarium.motto" class="aq-motto">{{ aquarium.motto }}</div>
           <div class="muted">
@@ -692,7 +693,7 @@ async function leave() {
       </button>
       <AquariumForm
         v-if="modal === 'edit'"
-        :aquarium="{ ...aquarium, role: detail.role }"
+        :aquarium="editingAquarium"
         @close="modal = ''"
         @saved="saved"
       />

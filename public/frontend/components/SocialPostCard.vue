@@ -87,7 +87,7 @@ async function share() {
           <button v-if="item.canDelete" type="button" class="btn small ghost" :disabled="commentsBusy" :aria-label="t('social.deleteComment')" @click="removeComment(item)">✕</button>
         </div>
         <form v-if="session.user" class="social-comment-form" @submit.prevent="comment"><label class="social-comment-input">{{ t('social.writeComment') }}<textarea v-model="text" maxlength="1000" rows="2" required /></label><button class="btn small" :disabled="commentsBusy || !text.trim()">{{ t('social.send') }}</button></form>
-        <p v-else class="muted"><a href="#/">{{ t('social.loginToInteract') }}</a></p>
+        <p v-else class="muted"><a :href="'#/'">{{ t('social.loginToInteract') }}</a></p>
       </section>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
     </div>

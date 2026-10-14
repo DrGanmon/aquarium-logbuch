@@ -107,6 +107,9 @@ async function send(prompt = input.value) {
     busy.value = false;
   }
 }
+function toggleContext(event: Event) {
+  if (!props.diagnosis && (event.target as HTMLDetailsElement).open && !context.value) void loadContext();
+}
 async function loadContext() {
   try {
     context.value = (
@@ -149,12 +152,7 @@ async function clear() {
       <p v-if="diagnosis" class="compat-box warn chat-disclaimer">{{ t("health.chatNotSaved") }}</p>
       <details
         class="chat-context-details"
-        @toggle="
-          (event) => {
-            if (!diagnosis && (event.target as HTMLDetailsElement).open && !context)
-              loadContext();
-          }
-        "
+        @toggle="toggleContext"
       >
         <summary>{{ diagnosis ? t("health.chatContext") : "Beckenkontext" }}</summary>
         <pre class="chat-context-body" style="white-space: pre-wrap">{{
@@ -175,7 +173,7 @@ async function clear() {
             <img
               v-if="message.role === 'user' && session.user?.hasAvatar"
               class="chat-avatar-img"
-              src="api/me/avatar"
+              :src="'api/me/avatar'"
               alt="Avatar"
             /><template v-else>
               {{ message.role === "user" ? "👤" : "🤖" }}</template

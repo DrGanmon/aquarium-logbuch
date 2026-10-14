@@ -34,9 +34,9 @@ watch(language, () => { if (props.page === 'terms') void loadTerms(); });
 <template>
   <div class="legal-container stack">
     <div class="row between" style="margin-bottom: 1rem; align-items: center">
-      <a class="btn ghost small" href="#/">← {{ t("common.back") }}</a>
+      <a class="btn ghost small" :href="'#/'">← {{ t("common.back") }}</a>
       <div v-if="!session.user" class="row">
-        <img src="favicon-32x32.png" alt="Logo" width="24" height="24" /><span
+        <img :src="'favicon-32x32.png'" alt="Logo" width="24" height="24" /><span
           class="muted"
           >{{ t("common.appName") }}</span
         ><button class="btn small ghost" @click="toggleTheme">
@@ -68,7 +68,7 @@ watch(language, () => { if (props.page === 'terms') void loadTerms(); });
       <section v-for="key in ['scope', 'account', 'content', 'license', 'visibility', 'deletion', 'moderation', 'liability']" :key="key">
         <h2>{{ terms[key + 'Title'] }}</h2><p>{{ terms[key + 'Text'] }}</p>
       </section>
-      <p><a href="#/impressum">{{ t('footer.imprint') }}</a> · <a href="#/datenschutz">{{ t('footer.privacy') }}</a></p>
+      <p><a :href="'#/impressum'">{{ t('footer.imprint') }}</a> · <a :href="'#/datenschutz'">{{ t('footer.privacy') }}</a></p>
     </div>
     <div v-if="page === 'impressum'" class="legal-box stack">
       <h1>{{ t("legal.content.imprintHeading") }}</h1>
@@ -126,7 +126,7 @@ watch(language, () => { if (props.page === 'terms') void loadTerms(); });
     </div>
     <div v-if="page === 'datenschutz'" class="legal-box stack">
       <h1>{{ t("legal.content.privacyHeading") }}</h1>
-      <section class="card stack"><h2>{{ t("social.privacyTitle") }}</h2><p>{{ t("social.privacyText") }}</p><h3>{{ t('social.privacyBasisTitle') }}</h3><p>{{ t('social.privacyBasis') }}</p><h3>{{ t('social.privacyRetentionTitle') }}</h3><p>{{ t('social.privacyRetention') }}</p><p><a href="#/agb">{{ t('terms.title') }}</a></p></section>
+      <section class="card stack"><h2>{{ t("social.privacyTitle") }}</h2><p>{{ t("social.privacyText") }}</p><h3>{{ t('social.privacyBasisTitle') }}</h3><p>{{ t('social.privacyBasis') }}</p><h3>{{ t('social.privacyRetentionTitle') }}</h3><p>{{ t('social.privacyRetention') }}</p><p><a :href="'#/agb'">{{ t('terms.title') }}</a></p></section>
       <p class="muted" style="margin: 0">
         {{ t("legal.content.privacyIntro") }}
       </p>

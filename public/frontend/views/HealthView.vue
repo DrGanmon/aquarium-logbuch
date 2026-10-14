@@ -49,7 +49,7 @@ watch([water, species, language, tab], async () => {
 </script>
 <template>
   <div class="stack">
-    <div class="row between"><h1>{{ t('health.title') }}</h1><a class="btn small ghost" href="#/">{{ t('common.back') }}</a></div>
+    <div class="row between"><h1>{{ t('health.title') }}</h1><a class="btn small ghost" :href="'#/'">{{ t('common.back') }}</a></div>
     <div class="row" role="tablist" :aria-label="t('health.title')"><button id="health-catalog-tab" class="btn" :class="{ ghost: tab !== 'catalog' }" role="tab" :aria-selected="tab === 'catalog'" aria-controls="health-catalog-panel" @click="tab = 'catalog'">{{ t('health.catalog') }}</button><button id="health-wizard-tab" class="btn" :class="{ ghost: tab !== 'wizard' }" role="tab" :aria-selected="tab === 'wizard'" aria-controls="health-wizard-panel" @click="tab = 'wizard'">{{ t('health.wizard') }}</button><button id="health-medications-tab" class="btn" :class="{ ghost: tab !== 'medications' }" role="tab" :aria-selected="tab === 'medications'" aria-controls="health-medications-panel" @click="tab = 'medications'">{{ t('healthMedications.title') }}</button></div>
     <DiagnosisWizard v-if="tab === 'wizard'" id="health-wizard-panel" role="tabpanel" aria-labelledby="health-wizard-tab" :initial-aquarium-id="route.query.get('aquariumId') || undefined" :initial-stock-id="route.query.get('stockId') || undefined" />
     <MedicationCatalog v-else-if="tab === 'medications'" id="health-medications-panel" role="tabpanel" aria-labelledby="health-medications-tab" @medication="selectedMedication = $event" />

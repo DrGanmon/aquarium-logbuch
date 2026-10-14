@@ -89,7 +89,7 @@ async function action(type: "save" | "test" | "delete") {
       padding: 1rem;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: var(--bg);
+      background: var(--paper);
       gap: 0.75rem;
     "
     @submit.prevent="action('save')"

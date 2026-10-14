@@ -49,7 +49,7 @@ function navigateTabs(event: KeyboardEvent, index: number) {
 <template>
   <div class="stack">
     <div>
-      <a class="muted" href="#/">‹ {{ t("common.back") }}</a>
+      <a class="muted" :href="'#/'">‹ {{ t("common.back") }}</a>
       <h1 style="margin-top: 0.3rem">{{ t("admin.title") }}</h1>
     </div>
     <div class="admin-tabs" role="tablist" :aria-label="t('admin.title')">

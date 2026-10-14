@@ -69,7 +69,7 @@ async function loadDetail(id: string) {
   <div class="stack">
     <div class="row between">
       <h1>{{ t("nav.species") }}</h1>
-      <a class="btn small ghost" href="#/">{{ t("common.back") }}</a>
+      <a class="btn small ghost" :href="'#/'">{{ t("common.back") }}</a>
     </div>
     <div class="card stack">
       <div class="row">

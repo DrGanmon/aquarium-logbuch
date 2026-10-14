@@ -67,7 +67,7 @@ export default defineConfig(({ mode }) => {
           this.emitFile({
             type: "asset",
             fileName: "sw.js",
-            source: result.outputText.replace(/export \{\};?\s*/g, ""),
+            source: result.outputText.replace(/export \{};?\s*/g, ""),
           });
           this.emitFile({
             type: "asset",

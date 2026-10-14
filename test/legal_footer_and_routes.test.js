@@ -6,8 +6,20 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 test('Footer, Impressum, EU AI Act, Datenschutz & Lizenzen Validierung', async (t) => {
-  const indexPath = path.join(__dirname, '..', 'public', 'index.html');
-  const indexHtml = fs.readFileSync(path.join(__dirname, '..', 'public/frontend/components/SiteFooter.vue'), 'utf8') + fs.readFileSync(path.join(__dirname, '..', 'public/locales/de.json'), 'utf8');
+  const { parse, compileTemplate } = require('vue/compiler-sfc');
+  const { createSSRApp } = require('vue');
+  const { renderToString } = require('vue/server-renderer');
+  const footerSource = fs.readFileSync(path.join(__dirname, '..', 'public/frontend/components/SiteFooter.vue'), 'utf8');
+  const template = parse(footerSource).descriptor.template.content;
+  const compiled = compileTemplate({ source: template, filename: 'SiteFooter.vue', id: 'footer-test', compilerOptions: { mode: 'function' } });
+  assert.deepEqual(compiled.errors, []);
+  const translations = require('../public/locales/de.json');
+  const render = new Function('Vue', compiled.code)(require('vue'));
+  const footer = createSSRApp({
+    setup: () => ({ version: '0.0.0-ALPHA', t: key => key.split('.').reduce((value, part) => value[part], translations) }),
+    render,
+  });
+  const indexHtml = await renderToString(footer);
 
   const jsDir = path.join(__dirname, '..', 'public', 'frontend');
   const readAllJs = (dir) => {
@@ -86,7 +98,7 @@ test('Footer, Impressum, EU AI Act, Datenschutz & Lizenzen Validierung', async (
 
   await t.test('Alle Rechtsseiten verwenden vollständige DE/EN-Übersetzungen', () => {
     assert.deepEqual(Object.keys(legalDe).sort(), Object.keys(legalEn).sort());
-    const keys = [...legalView.matchAll(/t\("legal\.content\.([^"\)]+)"\)/g)].map((match) => match[1]);
+    const keys = [...legalView.matchAll(/t\("legal\.content\.([^")]+)"\)/g)].map((match) => match[1]);
     for (const key of keys) {
       assert.ok(legalDe[key]?.trim(), `Deutsche Übersetzung: ${key}`);
       assert.ok(legalEn[key]?.trim(), `Englische Übersetzung: ${key}`);

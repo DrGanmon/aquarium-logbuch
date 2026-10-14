@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const ts = require('typescript');
 const vue = require('vue');
-const { parse, compileScript } = require('@vue/compiler-sfc');
+const { parse, compileScript } = require('vue/compiler-sfc');
 
 function setup() {
   let mount, dispose, observe;

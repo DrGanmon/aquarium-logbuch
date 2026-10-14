@@ -16,14 +16,12 @@ const jsUnminMapPath = path.join(distDir, 'app.js.map');
 const workerUnminPath = path.join(distDir, 'worker.js');
 const workerUnminMapPath = path.join(distDir, 'worker.js.map');
 const cssUnminPath = path.join(distDir, 'style.css');
-const cssUnminMapPath = path.join(distDir, 'style.css.map');
 
 const jsMinPath = path.join(distDir, 'app.min.js');
 const jsMinMapPath = path.join(distDir, 'app.min.js.map');
 const workerMinPath = path.join(distDir, 'worker.min.js');
 const workerMinMapPath = path.join(distDir, 'worker.min.js.map');
 const cssMinPath = path.join(distDir, 'style.min.css');
-const cssMinMapPath = path.join(distDir, 'style.min.css.map');
 
 function staticGraph(entry, seen = new Set()) {
   if (seen.has(entry)) return seen;
@@ -57,6 +55,31 @@ function verifyLazyBuild(entry) {
   const aquarium = files.find(file => file.startsWith('chunk-AquariumView-'));
   assert.ok(aquarium);
   assert.ok(![...staticGraph(aquarium)].some(file => /chunk-(WaterChart|ChatDialog|CsvDialog)-/.test(file)), 'Charts and dialogs load separately from tank details');
+}
+
+async function startAppServer() {
+  delete require.cache[require.resolve('../dist/backend/src/app')];
+  const app = require('../dist/backend/src/app');
+  const server = require('node:http').createServer(app);
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, () => resolve());
+  });
+  return { server, port: server.address().port };
+}
+
+async function verifyServedBundles(port, entry) {
+  const bundleRes = await fetch(`http://127.0.0.1:${port}/dist/${entry}`);
+  assert.equal(bundleRes.status, 200);
+  assert.ok(bundleRes.headers.get('content-type').includes('javascript'));
+  assert.ok(!bundleRes.headers.get('cache-control').includes('immutable'), 'Stable entry revalidates after updates');
+  await bundleRes.arrayBuffer();
+  const chunk = fs.readdirSync(distDir).find(file => file.startsWith('chunk-WaterChart-') && file.endsWith('.js'));
+  const chunkRes = await fetch(`http://127.0.0.1:${port}/dist/${chunk}`);
+  assert.equal(chunkRes.status, 200);
+  assert.ok(chunkRes.headers.get('content-type').includes('javascript'));
+  assert.match(chunkRes.headers.get('cache-control'), /max-age=31536000, immutable/);
+  await chunkRes.arrayBuffer();
 }
 
 function cleanDist() {
@@ -115,13 +138,7 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
     cleanDist();
     await buildFrontend({ minify: false });
 
-    delete require.cache[require.resolve('../dist/backend/src/app')];
-    const app = require('../dist/backend/src/app');
-
-    const http = require('http');
-    const server = http.createServer(app);
-    await new Promise((resolve) => server.listen(0, resolve));
-    const port = server.address().port;
+    const { server, port } = await startAppServer();
 
     try {
       const res = await fetch(`http://127.0.0.1:${port}/`);
@@ -131,16 +148,7 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
       assert.ok(html.includes('dist/style.css'), 'HTML bindet dist/style.css ein');
       assert.ok(!html.includes('dist/app.min.js'), 'Kein dist/app.min.js');
 
-      const bundleRes = await fetch(`http://127.0.0.1:${port}/dist/app.js`);
-      assert.equal(bundleRes.status, 200);
-      assert.ok(bundleRes.headers.get('content-type').includes('javascript'));
-      assert.ok(!bundleRes.headers.get('cache-control').includes('immutable'), 'Stable entry revalidates after updates');
-      const chunk = fs.readdirSync(distDir).find(file => file.startsWith('chunk-WaterChart-') && file.endsWith('.js'));
-      const chunkRes = await fetch(`http://127.0.0.1:${port}/dist/${chunk}`);
-      assert.equal(chunkRes.status, 200);
-      assert.ok(chunkRes.headers.get('content-type').includes('javascript'));
-      assert.match(chunkRes.headers.get('cache-control'), /max-age=31536000, immutable/);
-      await chunkRes.arrayBuffer();
+      await verifyServedBundles(port, 'app.js');
     } finally {
       server.close();
     }
@@ -171,7 +179,6 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
     assert.ok(!fs.existsSync(cssUnminPath), 'dist/style.css existiert nicht nach minifiziertem Build');
 
     const jsContent = fs.readFileSync(jsMinPath, 'utf8');
-    const cssContent = fs.readFileSync(cssMinPath, 'utf8');
 
     assert.ok(jsContent.includes('sourceMappingURL=app.min.js.map'), 'Source Map Link vorhanden');
     verifyLazyBuild('app.min.js');
@@ -182,13 +189,7 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
     cleanDist();
     await buildFrontend({ minify: true });
 
-    delete require.cache[require.resolve('../dist/backend/src/app')];
-    const app = require('../dist/backend/src/app');
-
-    const http = require('http');
-    const server = http.createServer(app);
-    await new Promise((resolve) => server.listen(0, resolve));
-    const port = server.address().port;
+    const { server, port } = await startAppServer();
 
     try {
       const res = await fetch(`http://127.0.0.1:${port}/`);
@@ -197,16 +198,7 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
       assert.ok(html.includes('dist/app.min.js'), 'HTML bindet dist/app.min.js ein');
       assert.ok(html.includes('dist/style.min.css'), 'HTML bindet dist/style.min.css ein');
 
-      const bundleRes = await fetch(`http://127.0.0.1:${port}/dist/app.min.js`);
-      assert.equal(bundleRes.status, 200);
-      assert.ok(bundleRes.headers.get('content-type').includes('javascript'));
-      assert.ok(!bundleRes.headers.get('cache-control').includes('immutable'), 'Stable entry revalidates after updates');
-      const chunk = fs.readdirSync(distDir).find(file => file.startsWith('chunk-WaterChart-') && file.endsWith('.js'));
-      const chunkRes = await fetch(`http://127.0.0.1:${port}/dist/${chunk}`);
-      assert.equal(chunkRes.status, 200);
-      assert.ok(chunkRes.headers.get('content-type').includes('javascript'));
-      assert.match(chunkRes.headers.get('cache-control'), /max-age=31536000, immutable/);
-      await chunkRes.arrayBuffer();
+      await verifyServedBundles(port, 'app.min.js');
     } finally {
       server.close();
     }
@@ -214,11 +206,9 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
 
   await t.test('Express meldet einen fehlenden Vue-Build ohne Legacy-Fallback', async () => {
     cleanDist();
-    delete require.cache[require.resolve('../dist/backend/src/app')];
-    const server = require('http').createServer(require('../dist/backend/src/app'));
-    await new Promise(resolve => server.listen(0, resolve));
+    const { server, port } = await startAppServer();
     try {
-      const response = await fetch(`http://127.0.0.1:${server.address().port}/`);
+      const response = await fetch(`http://127.0.0.1:${port}/`);
       assert.equal(response.status, 503);
       assert.match(await response.text(), /npm run build/);
     } finally { server.close(); }

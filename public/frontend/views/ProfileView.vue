@@ -194,7 +194,7 @@ async function saveRange() {
 <template>
   <div class="stack">
     <div>
-      <a class="muted" href="#/">‹ Zurück zur Übersicht</a>
+      <a class="muted" :href="'#/'">‹ Zurück zur Übersicht</a>
       <h1 style="margin-top: 0.3rem">{{ t("nav.profile") }}</h1>
     </div>
     <p v-if="error" class="error" role="alert">{{ error }}</p>
@@ -392,7 +392,7 @@ async function saveRange() {
               ><span class="theme-option-icon">{{ option.flag }}</span
               >{{ option.title }}</span
             >
-            <p class="theme-option-desc">{{ option.description }}</p>
+            <span class="theme-option-desc">{{ option.description }}</span>
           </button>
         </div>
       </section>
@@ -431,7 +431,7 @@ async function saveRange() {
               ><span class="theme-option-icon">{{ option.icon }}</span
               >{{ option.title }}</span
             >
-            <p class="theme-option-desc">{{ option.description }}</p>
+            <span class="theme-option-desc">{{ option.description }}</span>
           </button>
         </div>
       </section>

@@ -17,14 +17,14 @@ const version = __APP_VERSION__;
         class="footer-nav"
         aria-label="Rechtliche Hinweise und Informationen"
       >
-        <a class="footer-link" href="#/social">{{ t("social.title") }}</a>
-        <a class="footer-link" href="#/impressum">{{ t("footer.imprint") }}</a>
-        <a class="footer-link" href="#/agb">{{ t("footer.terms") }}</a>
-        <a class="footer-link" href="#/datenschutz">{{
+        <a class="footer-link" :href="'#/social'">{{ t("social.title") }}</a>
+        <a class="footer-link" :href="'#/impressum'">{{ t("footer.imprint") }}</a>
+        <a class="footer-link" :href="'#/agb'">{{ t("footer.terms") }}</a>
+        <a class="footer-link" :href="'#/datenschutz'">{{
           t("footer.privacy")
         }}</a>
-        <a class="footer-link" href="#/lizenzen">{{ t("footer.licenses") }}</a>
-        <a class="footer-link" href="#/kontakt">{{ t("footer.contact") }}</a>
+        <a class="footer-link" :href="'#/lizenzen'">{{ t("footer.licenses") }}</a>
+        <a class="footer-link" :href="'#/kontakt'">{{ t("footer.contact") }}</a>
         <a
           class="footer-link"
           href="https://github.com/DrGanmon/aquarium-logbuch"

@@ -64,8 +64,14 @@ onMounted(async () => {
 });
 async function submit() {
   if (busy.value) return;
-  busy.value = true;
   error.value = "";
+  const needsToken = ["reset-password", "verify-email", "delete-account"].includes(mode.value);
+  const token = route.value.query.get("token");
+  if (needsToken && !token) { error.value = "Ungültiger Token.";return; }
+  if (mode.value === "reset-password" && fields.password !== fields.repeat) {
+    error.value = "Die Passwörter stimmen nicht überein.";return;
+  }
+  busy.value = true;
   try {
     let path = "/login";
     let body: object = { username: fields.username, password: fields.password };
@@ -77,17 +83,11 @@ async function submit() {
       path = "/forgot-password";
       body = { identifier: fields.username };
     }
-    if (
-      ["reset-password", "verify-email", "delete-account"].includes(mode.value)
-    ) {
-      const token = route.value.query.get("token");
-      if (!token) throw new Error("Ungültiger Token.");
+    if (needsToken) {
       path =
         mode.value === "delete-account"
           ? "/confirm-delete-account"
           : "/" + mode.value;
-      if (mode.value === "reset-password" && fields.password !== fields.repeat)
-        throw new Error("Die Passwörter stimmen nicht überein.");
       body = { token, password: fields.password };
     }
     const result = await api<{
@@ -145,7 +145,7 @@ async function resend() {
     <div class="row between" style="margin-bottom: 0.5rem; align-items: center">
       <div style="display: flex; align-items: center; gap: 0.5rem">
         <img
-          src="favicon-32x32.png"
+          :src="'favicon-32x32.png'"
           alt="Logo"
           style="width: 28px; height: 28px; border-radius: 6px"
         />
@@ -231,7 +231,7 @@ async function resend() {
         </div>
         <label v-if="mode === 'register' || info.oidc" class="terms-consent">
           <input v-model="fields.acceptTerms" type="checkbox" :required="mode === 'register'" :disabled="busy" />
-          <span>{{ t('terms.acceptPrefix') }} <a href="#/agb" target="_blank" rel="noopener">{{ t('terms.link') }}</a>{{ t('terms.acceptSuffix') }}
+          <span>{{ t('terms.acceptPrefix') }} <a :href="'#/agb'" target="_blank" rel="noopener">{{ t('terms.link') }}</a>{{ t('terms.acceptSuffix') }}
             <small v-if="mode !== 'register'"> {{ t('terms.oidcNotice') }}</small>
           </span>
         </label>
@@ -277,8 +277,8 @@ async function resend() {
               <label for="p">{{ t("auth.password") }}</label
               ><a
                 v-if="mode !== 'register'"
-                href="#/forgot-password"
-                style="font-size: 0.85rem; color: var(--primary)"
+                :href="'#/forgot-password'"
+                style="font-size: 0.85rem; color: var(--ink)"
                 >{{ t("auth.forgotPasswordLink") }}</a
               >
             </div>
@@ -312,13 +312,13 @@ async function resend() {
         ><a
           v-if="mode !== 'register' && info.registration && !info.isClosed"
           class="btn ghost"
-          href="#/register"
+          :href="'#/register'"
           >{{ t("auth.registerTitle") }}</a
         > </template
       ><a
         v-if="(mode !== 'login' && mode !== '/') || message"
         class="btn ghost"
-        href="#/"
+        :href="'#/'"
         >{{ t("auth.backToLogin") }}</a
       >
     </form>

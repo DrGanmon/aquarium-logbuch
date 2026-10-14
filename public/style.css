@@ -140,7 +140,7 @@ html[data-theme="light"] {
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body {
-  margin: 0; font-family: var(--font); color: var(--ink); background: var(--glass);
+  margin: 0; font-family: var(--font), sans-serif; color: var(--ink); background: var(--glass);
   font-size: 16px; line-height: 1.45;
   min-height: 100vh;
   display: flex;
@@ -236,7 +236,7 @@ textarea { min-height: 80px; resize: vertical; }
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--paper);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--card-shadow);
 }
 .cycle-edit-box {
   padding: .85rem 1rem;
@@ -392,6 +392,7 @@ td.v-warn { color: var(--amber); font-weight: 650; } td.v-crit { color: var(--co
 }
 .test.done { border-color: var(--kelp); box-shadow: 0 0 0 2px var(--kelp-bg); }
 .tube {
+  --p: 0;
   grid-row: 1 / span 2; width: 26px; height: 78px; margin: 2px 4px; position: relative; overflow: hidden;
   border: 2px solid var(--ink); border-top-width: 3px; border-radius: 3px 3px 13px 13px; background: var(--tube-bg);
 }
@@ -565,7 +566,7 @@ dialog::backdrop { background: var(--dialog-backdrop); }
 .theme-option.active { border-color: var(--water); border-width: 2px; box-shadow: 0 0 0 2px var(--water-soft); }
 .theme-option-head { display: flex; align-items: center; gap: .45rem; font-weight: 650; font-size: 1rem; }
 .theme-option-icon { font-size: 1.2rem; }
-.theme-option-desc { font-size: .82rem; color: var(--ink-soft); line-height: 1.35; margin: 0; }
+.theme-option-desc { display: block; font-size: .82rem; color: var(--ink-soft); line-height: 1.35; margin: 0; }
 
 /* Arten & Besatz */
 .species-grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
@@ -1012,7 +1013,7 @@ dialog.wide { max-width: 640px; }
 }
 
 .legal-tab.active {
-  color: var(--primary, var(--ink));
+  color: var(--ink);
   border-bottom: 3px solid var(--water);
   background: var(--paper);
   margin-bottom: -2px;
@@ -1212,7 +1213,7 @@ dialog.wide { max-width: 640px; }
 }
 
 .chat-message.user .chat-text {
-  background: var(--primary, #12343b);
+  background: var(--topbar-bg);
   color: #ffffff;
   border-bottom-right-radius: 2px;
 }
@@ -1414,6 +1415,8 @@ dialog.wide { max-width: 640px; }
 
 /* The chat uses the whole dialog; only the message list scrolls. */
 dialog.aquarium-chat-modal {
+  --chat-viewport-top: 0px;
+  --chat-viewport-height: 100dvh;
   width: min(760px, calc(100% - 2rem));
   max-width: 760px;
   height: min(820px, calc(100dvh - 2rem));
@@ -1524,7 +1527,7 @@ dialog.aquarium-chat-modal {
 .social-intro { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .social-intro h1 { margin: .2rem 0 .6rem; }
 .social-eyebrow { color: var(--water); font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; margin: 0; }
-.social-public-note { background: var(--water-bg); padding: .8rem 1rem; border-radius: var(--radius); margin: 0; }
+.social-public-note { background: var(--water-soft); padding: .8rem 1rem; border-radius: var(--radius); margin: 0; }
 .social-feed { width: min(100%, 640px); margin: 0 auto; display: grid; gap: 1.6rem; }
 .social-post { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
 .social-post-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: 1rem; }
@@ -1532,7 +1535,7 @@ dialog.aquarium-chat-modal {
 .social-author strong, .social-comment strong { overflow-wrap: anywhere; }
 .social-author time, .social-comment time { display: block; color: var(--ink-soft); font-size: .75rem; }
 .social-avatar { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 50%; object-fit: cover; border: 1px solid var(--line); }
-.social-avatar-placeholder { display: grid; place-items: center; background: var(--water-bg); color: var(--water); font-weight: 700; }
+.social-avatar-placeholder { display: grid; place-items: center; background: var(--water-soft); color: var(--water); font-weight: 700; }
 .social-image-link { display: block; background: var(--line); }
 .social-photo { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; }
 .social-post-content { padding: .8rem 1rem 1rem; }
