@@ -6,9 +6,14 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-### Versionierung
+### Projektstruktur
 
-- Minor-Version von 0.0 auf 0.1 erhöht; Revision und Patch gemäß Versionsschema auf 0 zurückgesetzt. Neue Version: `0.1.0-ALPHA`.
+- Dockerfiles, Compose-Konfigurationen und Umgebungsvorlage unter `docker/` gebündelt; Prüfbericht nach `docs/AUDIT.md` verschoben.
+- CI-Buildpfad, Dokumentationslinks und Docker-Befehle aktualisiert; Compose verwendet weiterhin das Repository-Hauptverzeichnis als Projektverzeichnis.
+
+## 0.1.0-ALPHA
+
+- 2026-10-14 · Versionierung: Minor-Version auf 0.1.0-ALPHA erhöht und Revision sowie Patch zurückgesetzt ([`40868a3`](https://github.com/DrGanmon/aquarium-logbuch/commit/40868a33973d127d233cdae58b4a6b196973159c)).
 
 ## 0.0.14-ALPHA
 

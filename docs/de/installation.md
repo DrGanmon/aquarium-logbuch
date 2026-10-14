@@ -36,24 +36,26 @@ bun run dev:bun            # Vite mit Hot Reload (zweites Terminal)
 - `bun run test:bun --info` zeigt vollständige Testlogs; einzelne Dateien lassen sich mit `bun run test:bun test/auth.test.js` auswählen. Der Bun-Teststarter zeigt Datei- und Untertest-Ergebnisse sowie eine Gesamtsumme. Zusätzliche native Bun-Testoptionen werden direkt mit `bun test` verwendet. Der Starter setzt temporäre Datenverzeichnisse und isoliert jede Testdatei in einem eigenen Prozess.
 - `../../bun.lock` fixiert die Bun-Abhängigkeiten; `package-lock.json` bleibt für Node/npm erhalten. Installationsskripte von Abhängigkeiten bleiben deaktiviert (`trustedDependencies: []`, `--ignore-scripts`). SQLite nutzt weiterhin `better-sqlite3` 13 mit mitgelieferten Node-API-Binaries.
 - Der Supervisor nutzt `node:cluster`, damit mehrere Worker denselben HTTP-Port unter Node und Bun bedienen können. Datenbankmigrationen werden vor dem Start der Worker abgeschlossen. Mehrprozess-Betrieb ist unter Linux geprüft.
-- Der Standard-`../../Dockerfile` verwendet Bun 1.4.3 für Build und Betrieb, mit unprivilegiertem Benutzer `bun`. Ein Node-Image kann weiter mit `docker build -f Dockerfile.node -t aquarium-logbuch:node .` gebaut werden. Bestehende Compose-Konfigurationen bleiben verwendbar.
+- Der Standard-`docker/Dockerfile` verwendet Bun 1.4.3 für Build und Betrieb, mit unprivilegiertem Benutzer `bun`. Ein Node-Image kann weiter mit `docker build -f docker/Dockerfile.node -t aquarium-logbuch:node .` gebaut werden. Bestehende Compose-Konfigurationen bleiben verwendbar.
 - CI prüft beide Runtimes inklusive Produktionsbuild und vollständiger Testsuite, bevor das Container-Image veröffentlicht wird.
 
 ## Docker Compose
 
-Beide Compose-Dateien verwenden das [offizielle Container-Image](https://github.com/DrGanmon/aquarium-logbuch/pkgs/container/aquarium-logbuch) `ghcr.io/drganmon/aquarium-logbuch:latest`. Ein lokaler Build ist nicht erforderlich. Passe vor dem Start die Umgebungsvariablen in der jeweiligen Compose-Datei an (insbesondere `APP_URL`, `ADMIN_EMAIL` und das MongoDB-Passwort). Eine Vorlage für alle verfügbaren Umgebungsvariablen befindet sich in [example.env](../../example.env).
+Alle folgenden Befehle werden im Hauptverzeichnis des Repositorys ausgeführt. `--project-directory .` erhält den bisherigen Compose-Projektnamen und die Zuordnung der benannten Volumes. Für den lokalen Bun-Image-Build: `docker build -f docker/Dockerfile -t aquarium-logbuch:bun .`.
+
+Beide Compose-Dateien verwenden das [offizielle Container-Image](https://github.com/DrGanmon/aquarium-logbuch/pkgs/container/aquarium-logbuch) `ghcr.io/drganmon/aquarium-logbuch:latest`. Ein lokaler Build ist nicht erforderlich. Passe vor dem Start die Umgebungsvariablen in der jeweiligen Compose-Datei an (insbesondere `APP_URL`, `ADMIN_EMAIL` und das MongoDB-Passwort). Eine Vorlage für alle verfügbaren Umgebungsvariablen befindet sich in [example.env](../../docker/example.env).
 
 ```bash
 # Images herunterladen und App samt MongoDB-Container starten
-docker compose pull
-docker compose up -d
+docker compose --project-directory . -f docker/docker-compose.yml pull
+docker compose --project-directory . -f docker/docker-compose.yml up -d
 ```
 
 Für den Betrieb mit SQLite ohne MongoDB:
 
 ```bash
-docker compose -f docker-compose.sqlite.yml pull
-docker compose -f docker-compose.sqlite.yml up -d
+docker compose --project-directory . -f docker/docker-compose.sqlite.yml pull
+docker compose --project-directory . -f docker/docker-compose.sqlite.yml up -d
 ```
 
 Für Updates dieselben `pull`- und `up -d`-Befehle erneut ausführen. Die Daten bleiben in den benannten Volumes erhalten.

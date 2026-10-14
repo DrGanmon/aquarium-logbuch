@@ -46,7 +46,7 @@ Tests rebuild the backend first. Integration tests need local HTTP ports and a M
 
 ## Operational limits
 
-Documented audit results and remaining operational limits are in [AUDIT.md](../../AUDIT.md).
+Documented audit results and remaining operational limits are in [AUDIT.md](../AUDIT.md).
 
 ## Parallel and isolated test runs
 

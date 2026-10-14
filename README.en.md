@@ -55,16 +55,16 @@ npm run dist
 npm start
 ```
 
-Open `http://localhost:3000`. For development with hot reload, also run `npm run dev` in a second terminal. [Installation and configuration](docs/en/installation.md) covers Bun, Docker, SMTP, OIDC and all environment variables. Use [example.env](example.env) as a configuration template; adjust the public URL, administrator email and database credentials for your installation.
+Open `http://localhost:3000`. For development with hot reload, also run `npm run dev` in a second terminal. [Installation and configuration](docs/en/installation.md) covers Bun, Docker, SMTP, OIDC and all environment variables. Use [example.env](docker/example.env) as a configuration template; adjust the public URL, administrator email and database credentials for your installation.
 
 With Docker Compose and MongoDB:
 
 ```bash
-docker compose pull
-docker compose up -d
+docker compose --project-directory . -f docker/docker-compose.yml pull
+docker compose --project-directory . -f docker/docker-compose.yml up -d
 ```
 
-For SQLite, use `docker compose -f docker-compose.sqlite.yml up -d` instead. Adjust the selected Compose configuration before starting.
+For SQLite, use `docker compose --project-directory . -f docker/docker-compose.sqlite.yml up -d` instead. Adjust the selected Compose configuration before starting.
 
 ## Documentation
 
@@ -72,7 +72,7 @@ For SQLite, use `docker compose -f docker-compose.sqlite.yml up -d` instead. Adj
 - [Development and architecture](docs/en/architecture.md): Source layout, builds, workers and tests.
 - [Versions and commit convention](docs/en/versioning.md): `feat(scope): …` increments the revision, `fix(scope): …` the patch; other types leave the version unchanged.
 - [Administration and backups](docs/en/administration.md): User management, SMTP, backups and restore.
-- [Audit and operational limits](AUDIT.md).
+- [Audit and operational limits](docs/AUDIT.md).
 
 ## Limits and roadmap
 

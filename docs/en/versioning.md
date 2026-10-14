@@ -8,9 +8,9 @@ Each `feat:` / `feat(scope):` commit increments revision and resets patch. Each 
 
 Use `npm run version:major` / `npm run version:minor` manually, or `bun run version:major:bun` / `bun run version:minor:bun`. These reset revision/patch and record a new baseline; major also resets minor. Commit the changed files using a message such as `chore: increase minor version`. `node scripts/version.js` prints the calculated version. Builds calculate it from Git history; commits become visible after rebuilding or restarting Vite.
 
-CI uses one calculated value for the footer, backup metadata, OCI label and full Docker tag, e.g. `ghcr.io/drganmon/aquarium-logbuch:1.0.4-2-ALPHA`. Version tags are published on the default branch and matching `v…` release tags. Existing latest/branch/SHA tags remain; pull requests do not publish images. Pin Compose with `AQUARIUM_VERSION=1.0.4-2-ALPHA docker compose up -d`, or set the variable in `.env`; it defaults to `latest`.
+CI uses one calculated value for the footer, backup metadata, OCI label and full Docker tag, e.g. `ghcr.io/drganmon/aquarium-logbuch:1.0.4-2-ALPHA`. Version tags are published on the default branch and matching `v…` release tags. Existing latest/branch/SHA tags remain; pull requests do not publish images. Pin Compose with `AQUARIUM_VERSION=1.0.4-2-ALPHA docker compose --project-directory . -f docker/docker-compose.yml up -d`, or set the variable in `.env`; it defaults to `latest`.
 
-For a local Docker build, run `APP_VERSION=$(node scripts/version.js)` followed by `docker build --build-arg APP_VERSION="$APP_VERSION" -t "aquarium-logbuch:$APP_VERSION" .`. Source archives without Git use the recorded baseline unless an explicit `APP_VERSION` is supplied. An incomplete Git checkout fails instead of silently producing an incorrect counter.
+For a local Docker build, run `APP_VERSION=$(node scripts/version.js)` followed by `docker build -f docker/Dockerfile --build-arg APP_VERSION="$APP_VERSION" -t "aquarium-logbuch:$APP_VERSION" .`. Source archives without Git use the recorded baseline unless an explicit `APP_VERSION` is supplied. An incomplete Git checkout fails instead of silently producing an incorrect counter.
 
 ## Frontend update notification
 

@@ -139,7 +139,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile
+          file: ./docker/Dockerfile
           build-args: |
             APP_VERSION=${{ needs.version.outputs.version }}
           platforms: linux/amd64,linux/arm64

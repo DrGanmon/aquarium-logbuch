@@ -55,16 +55,16 @@ npm run dist
 npm start
 ```
 
-Die App läuft unter `http://localhost:3000`. Für Entwicklung mit Hot Reload zusätzlich `npm run dev` in einem zweiten Terminal starten. Bun, Docker, SMTP, OIDC und alle Umgebungsvariablen sind unter [Installation und Konfiguration](docs/de/installation.md) beschrieben. [example.env](example.env) dient als Konfigurationsvorlage; passe insbesondere öffentliche URL, Administratoradresse und Datenbankzugang an.
+Die App läuft unter `http://localhost:3000`. Für Entwicklung mit Hot Reload zusätzlich `npm run dev` in einem zweiten Terminal starten. Bun, Docker, SMTP, OIDC und alle Umgebungsvariablen sind unter [Installation und Konfiguration](docs/de/installation.md) beschrieben. [example.env](docker/example.env) dient als Konfigurationsvorlage; passe insbesondere öffentliche URL, Administratoradresse und Datenbankzugang an.
 
 Mit Docker Compose und MongoDB:
 
 ```bash
-docker compose pull
-docker compose up -d
+docker compose --project-directory . -f docker/docker-compose.yml pull
+docker compose --project-directory . -f docker/docker-compose.yml up -d
 ```
 
-Für SQLite stattdessen `docker compose -f docker-compose.sqlite.yml up -d` verwenden. Vorher die jeweilige Compose-Konfiguration anpassen.
+Für SQLite stattdessen `docker compose --project-directory . -f docker/docker-compose.sqlite.yml up -d` verwenden. Vorher die jeweilige Compose-Konfiguration anpassen.
 
 ## Dokumentation
 
@@ -72,7 +72,7 @@ Für SQLite stattdessen `docker compose -f docker-compose.sqlite.yml up -d` verw
 - [Entwicklung und Architektur](docs/de/architecture.md): Quellstruktur, Build, Worker und Tests.
 - [Versionen und Commit-Standard](docs/de/versioning.md): `feat(bereich): …` erhöht die Revision, `fix(bereich): …` den Patch; andere Typen verändern die Version nicht.
 - [Administration und Backups](docs/de/administration.md): Benutzerverwaltung, SMTP, Sicherungen und Wiederherstellung.
-- [Codeprüfung und Betriebsgrenzen](AUDIT.md).
+- [Codeprüfung und Betriebsgrenzen](docs/AUDIT.md).
 
 ## Grenzen und Ausblick
 

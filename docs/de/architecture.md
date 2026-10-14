@@ -46,7 +46,7 @@ Die Tests bauen das Backend vorab. Integrationstests benötigen lokale HTTP-Port
 
 ## Betriebsgrenzen
 
-Die dokumentierten Prüfergebnisse und verbleibenden Betriebsgrenzen stehen in [AUDIT.md](../../AUDIT.md).
+Die dokumentierten Prüfergebnisse und verbleibenden Betriebsgrenzen stehen in [AUDIT.md](../AUDIT.md).
 
 ## Parallele und isolierte Testläufe
 
