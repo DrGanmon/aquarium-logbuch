@@ -16,7 +16,7 @@ The server adds tank dimensions, volume, water type, equipment, residents and th
 
 ## Data transfer and keys
 
-Sending a chat request transfers messages and tank context to the selected provider. Keys are stored in the database and masked in the interface; they can be deleted in the profile. Masking does not encrypt the database. Protect configuration and backups accordingly. Costs, available models and provider-side processing depend on the provider and account.
+Sending a chat request transfers messages and tank context to the selected provider. Personal keys are encrypted with AES-256-GCM in SQLite or MongoDB. Their first and last four characters are stored separately and displayed as `abcd...wxyz`; very short keys appear as `***`. Existing plaintext keys migrate automatically at startup (database schema 7). Deleting a key also clears its identification fields. Decryption takes place only for provider requests. New backups contain encrypted keys; restoring older plaintext backups encrypts them before insertion. Back up the original encryption key separately; see [installation](installation.md#personal-ai-key-encryption). Existing archives are not rewritten. Costs, available models and provider-side processing depend on the provider and account.
 
 ## Chat after a diagnosis
 

@@ -3,7 +3,7 @@
   "info": {
     "title": "Aquarium-Logbuch API",
     "version": "0.1.7-2-ALPHA",
-    "description": "API-Dokumentation des Repository-Standes vom 15.10.2026. Sitzung über HttpOnly-Cookie session; schreibende /api-Anfragen brauchen X-Requested-With und bei Body application/json. JSON-Objekte, keine Multipart-Uploads. Die Server-URL umfasst den APP_URL-Unterpfad, aber nicht /api. Erweiterbare Antwortschemata enthalten die dokumentierten Kernfelder; zusätzliche Katalog- und Anbieterfelder bleiben erlaubt."
+    "description": "API-Dokumentation des Repository-Standes vom 15.10.2026. Sitzung über HttpOnly-Cookie session; schreibende /api-Anfragen brauchen X-Requested-With und bei Body application/json. JSON-Objekte, keine Multipart-Uploads. Die Server-URL umfasst den APP_URL-Unterpfad, aber nicht /api. Erweiterbare Antwortschemata enthalten die dokumentierten Kernfelder; zusätzliche Katalog- und Anbieterfelder bleiben erlaubt. Persönliche KI-Schlüssel werden vor der Speicherung verschlüsselt; Profile zeigen nur die ersten und letzten vier Zeichen. Bestehende Schlüssel werden mit Datenbankschema 7 migriert."
   },
   "servers": [
     {
@@ -6360,7 +6360,7 @@
         ],
         "summary": "Eigenes Profil abrufen",
         "operationId": "get_api_me",
-        "description": "Gültige Sitzung erforderlich. ",
+        "description": "Gültige Sitzung erforderlich.  Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -6395,7 +6395,7 @@
         ],
         "summary": "Eigenes Profil aktualisieren",
         "operationId": "put_api_me",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me, /api/me/profile. ",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me, /api/me/profile.  Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -6420,7 +6420,9 @@
                         true
                       ]
                     },
-                    "user": {},
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
                     "needsVerification": {}
                   },
                   "additionalProperties": true
@@ -6964,7 +6966,7 @@
         ],
         "summary": "Eigenes Profil aktualisieren",
         "operationId": "put_api_me_ai",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/ai, /api/me/ai-settings. ",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/ai, /api/me/ai-settings.  Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -6992,7 +6994,9 @@
                     "message": {
                       "type": "string"
                     },
-                    "user": {}
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
                   },
                   "additionalProperties": true
                 }
@@ -7072,7 +7076,7 @@
         ],
         "summary": "Eigenes Profil aktualisieren",
         "operationId": "put_api_me_ai_settings",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/ai, /api/me/ai-settings. ",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/ai, /api/me/ai-settings.  Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -7100,7 +7104,9 @@
                     "message": {
                       "type": "string"
                     },
-                    "user": {}
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
                   },
                   "additionalProperties": true
                 }
@@ -7180,7 +7186,7 @@
         ],
         "summary": "Eigenes Profil aktualisieren",
         "operationId": "put_api_me_openai",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/openai, /api/me/openai-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten.",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/openai, /api/me/openai-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten. Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -7208,7 +7214,9 @@
                     "message": {
                       "type": "string"
                     },
-                    "user": {}
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
                   },
                   "additionalProperties": true
                 }
@@ -7270,7 +7278,7 @@
         ],
         "summary": "Eigenes Profil löschen",
         "operationId": "delete_api_me_openai",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/openai, /api/me/openai-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten.",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/openai, /api/me/openai-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten. Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -7323,7 +7331,7 @@
         ],
         "summary": "Eigenes Profil aktualisieren",
         "operationId": "put_api_me_openai_key",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/openai, /api/me/openai-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten.",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/openai, /api/me/openai-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten. Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -7351,7 +7359,9 @@
                     "message": {
                       "type": "string"
                     },
-                    "user": {}
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
                   },
                   "additionalProperties": true
                 }
@@ -7413,7 +7423,7 @@
         ],
         "summary": "Eigenes Profil löschen",
         "operationId": "delete_api_me_openai_key",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/openai, /api/me/openai-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten.",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/openai, /api/me/openai-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten. Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -7616,7 +7626,7 @@
         ],
         "summary": "Eigenes Profil aktualisieren",
         "operationId": "put_api_me_gemini",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/gemini, /api/me/gemini-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten.",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/gemini, /api/me/gemini-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten. Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -7644,7 +7654,9 @@
                     "message": {
                       "type": "string"
                     },
-                    "user": {}
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
                   },
                   "additionalProperties": true
                 }
@@ -7706,7 +7718,7 @@
         ],
         "summary": "Eigenes Profil löschen",
         "operationId": "delete_api_me_gemini",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/gemini, /api/me/gemini-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten.",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/gemini, /api/me/gemini-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten. Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -7759,7 +7771,7 @@
         ],
         "summary": "Eigenes Profil aktualisieren",
         "operationId": "put_api_me_gemini_key",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/gemini, /api/me/gemini-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten.",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/gemini, /api/me/gemini-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten. Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -7787,7 +7799,9 @@
                     "message": {
                       "type": "string"
                     },
-                    "user": {}
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
                   },
                   "additionalProperties": true
                 }
@@ -7849,7 +7863,7 @@
         ],
         "summary": "Eigenes Profil löschen",
         "operationId": "delete_api_me_gemini_key",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/gemini, /api/me/gemini-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten.",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/gemini, /api/me/gemini-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten. Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -8052,7 +8066,7 @@
         ],
         "summary": "Eigenes Profil aktualisieren",
         "operationId": "put_api_me_claude",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/claude, /api/me/claude-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten.",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/claude, /api/me/claude-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten. Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -8080,7 +8094,9 @@
                     "message": {
                       "type": "string"
                     },
-                    "user": {}
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
                   },
                   "additionalProperties": true
                 }
@@ -8142,7 +8158,7 @@
         ],
         "summary": "Eigenes Profil löschen",
         "operationId": "delete_api_me_claude",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/claude, /api/me/claude-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten.",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/claude, /api/me/claude-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten. Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -8195,7 +8211,7 @@
         ],
         "summary": "Eigenes Profil aktualisieren",
         "operationId": "put_api_me_claude_key",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/claude, /api/me/claude-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten.",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/claude, /api/me/claude-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten. Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -8223,7 +8239,9 @@
                     "message": {
                       "type": "string"
                     },
-                    "user": {}
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
                   },
                   "additionalProperties": true
                 }
@@ -8285,7 +8303,7 @@
         ],
         "summary": "Eigenes Profil löschen",
         "operationId": "delete_api_me_claude_key",
-        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/claude, /api/me/claude-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten.",
+        "description": "Gültige Sitzung erforderlich. Alias-Pfade: /api/me/claude, /api/me/claude-key.  API-Key ist optional; nicht gesendete Felder können gespeicherte Einstellungen erhalten. Persönliche API-Schlüssel werden mit AES-256-GCM verschlüsselt gespeichert. Maskierung: erste und letzte vier Zeichen; weder Klartextschlüssel noch Chiffretexte erscheinen in Profilantworten.",
         "security": [
           {
             "SessionCookie": []
@@ -15086,6 +15104,39 @@
               "gemini",
               "claude"
             ]
+          },
+          "openaiKeyMasked": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true,
+            "description": "Persönlicher Schlüssel: erste vier + ... + letzte vier Zeichen aus getrennt gespeicherten Hinweisen; kurze Schlüssel ***; sonst null oder Über Server konfiguriert.",
+            "example": "sk-p...1234"
+          },
+          "openaiKeySet": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "geminiKeyMasked": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true,
+            "description": "Persönlicher Schlüssel: erste vier + ... + letzte vier Zeichen aus getrennt gespeicherten Hinweisen; kurze Schlüssel ***; sonst null oder Über Server konfiguriert.",
+            "example": "AIza...5678"
+          },
+          "geminiKeySet": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "claudeKeyMasked": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true,
+            "description": "Persönlicher Schlüssel: erste vier + ... + letzte vier Zeichen aus getrennt gespeicherten Hinweisen; kurze Schlüssel ***; sonst null oder Über Server konfiguriert.",
+            "example": "sk-p...1234"
+          },
+          "claudeKeySet": {
+            "type": "boolean",
+            "readOnly": true
           }
         },
         "additionalProperties": true

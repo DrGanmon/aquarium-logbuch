@@ -16,7 +16,7 @@ Der Server ergänzt die Anfrage um Aquariummaße, Volumen, Wassertyp, Technik, B
 
 ## Datenübertragung und Schlüssel
 
-Eine aktive Chat-Anfrage übermittelt Nachrichten und Beckenkontext an den ausgewählten Anbieter. Die Schlüssel werden in der Datenbank gespeichert und in der Oberfläche maskiert; sie können im Profil gelöscht werden. Maskierung ist keine Verschlüsselung der Datenbank. Die Konfiguration und Sicherungen müssen entsprechend geschützt werden. Kosten, verfügbare Modelle und die Verarbeitung beim Anbieter hängen vom jeweiligen Konto und Anbieter ab.
+Eine aktive Chat-Anfrage übermittelt Nachrichten und Beckenkontext an den ausgewählten Anbieter. Persönliche Schlüssel werden mit AES-256-GCM verschlüsselt in SQLite bzw. MongoDB gespeichert. Zur Identifikation werden die ersten und letzten vier Zeichen separat gespeichert und als `abcd...wxyz` angezeigt; sehr kurze Schlüssel erscheinen als `***`. Bestehende Klartextschlüssel werden beim Start automatisch migriert (Datenbankschema 7). Schlüssel können im Profil gelöscht werden; dabei werden auch die Identifikationsfelder entfernt. Der Server entschlüsselt sie erst für Anbieteraufrufe. Neue Backups enthalten verschlüsselte Schlüssel, ältere Klartextbackups werden beim Restore verschlüsselt. Der ursprüngliche Verschlüsselungsschlüssel muss separat gesichert werden; siehe [Installation](installation.md#verschlüsselung-persönlicher-ki-schlüssel). Bereits vorhandene Archive werden nicht nachträglich umgeschrieben. Kosten, verfügbare Modelle und die Verarbeitung beim Anbieter hängen vom jeweiligen Konto und Anbieter ab.
 
 ## Chat nach einer Diagnose
 

@@ -1,3 +1,4 @@
+import { personalAiToken } from './ai-token-crypto';
 import type { UserRecord, StockRecord } from '../types/domain';
 import type { WaterTest } from '../types/catalog';
 import { isRecord } from '../utils/validation';
@@ -18,7 +19,7 @@ const {
 
 const DEFAULT_OPENAI_MODEL = OPENAI_MODEL || 'gpt-4o-mini';
 const DEFAULT_GEMINI_MODEL = GEMINI_MODEL || 'gemini-2.5-flash';
-const DEFAULT_CLAUDE_MODEL = CLAUDE_MODEL || 'claude-3-5-haiku-20241022';
+const DEFAULT_CLAUDE_MODEL = CLAUDE_MODEL || 'claude-haiku-5-5';
 const OPENAI_URL_BASE = (OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
 
 const AI_PROVIDERS: Record<string, string> = {
@@ -604,7 +605,7 @@ async function callClaude({ apiKey, model, systemPrompt, messages = [], message 
 /**
  * Löst den aktiven Provider, Key und Modell für den Chat auf.
  */
-function resolveProviderAndConfig(user?: Partial<Pick<UserRecord, 'ai_provider' | 'openai_api_key' | 'openai_model' | 'gemini_api_key' | 'gemini_model' | 'claude_api_key' | 'claude_model'>> | null, requestedProvider: string | null = null) {
+function resolveProviderAndConfig(user?: Partial<Pick<UserRecord, 'id' | 'ai_provider' | 'openai_api_key' | 'openai_model' | 'gemini_api_key' | 'gemini_model' | 'claude_api_key' | 'claude_model'>> | null, requestedProvider: string | null = null) {
   let provider = (requestedProvider || user?.ai_provider || '').toLowerCase().trim();
 
   // Wenn kein Provider gewählt ist, anhand vorhandener Keys automatisch bestimmen
@@ -624,14 +625,14 @@ function resolveProviderAndConfig(user?: Partial<Pick<UserRecord, 'ai_provider' 
   let model: string;
 
   if (provider === 'gemini') {
-    apiKey = (user?.gemini_api_key || GEMINI_API_KEY || '').trim();
+    apiKey = (personalAiToken(user, 'gemini') || GEMINI_API_KEY || '').trim();
     model = (user?.gemini_model || GEMINI_MODEL || DEFAULT_GEMINI_MODEL).trim();
   } else if (provider === 'claude') {
-    apiKey = (user?.claude_api_key || CLAUDE_API_KEY || '').trim();
+    apiKey = (personalAiToken(user, 'claude') || CLAUDE_API_KEY || '').trim();
     model = (user?.claude_model || CLAUDE_MODEL || DEFAULT_CLAUDE_MODEL).trim();
   } else {
     provider = 'openai';
-    apiKey = (user?.openai_api_key || OPENAI_API_KEY || '').trim();
+    apiKey = (personalAiToken(user, 'openai') || OPENAI_API_KEY || '').trim();
     model = (user?.openai_model || OPENAI_MODEL || DEFAULT_OPENAI_MODEL).trim();
   }
 

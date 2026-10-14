@@ -1,3 +1,5 @@
+import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-crypto';
+import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
 import { PlantRepository } from './plant-repository';
 import { SocialRepository } from "./social-repository";
 import type { UserRecord, Aquarium, AccessRole, StockRecord, Measurement, DosingPump, AquariumImage, AquariumShare, Invitation } from '../types/domain';
@@ -67,9 +69,15 @@ class SqliteAdapter {
         // Führe alle anstehenden Migrationen sequenziell aus
         await runMigrations(this.db, { adapter: this, dbPath: this.dbPath });
 
+        encryptedAiTokensMigration.upSqlite(this.db);
         this._setupRepositories();
         this._initialized = true;
         return this;
+      } catch (error) {
+        this.db?.close();
+        this.db = null;
+        this._initialized = false;
+        throw error;
       } finally {
         this._initPromise = null;
       }
@@ -201,7 +209,8 @@ class SqliteAdapter {
     if (!this._initialized) await this.init();
     const db = this.connection();
 
-    const users = Array.isArray(data.users) ? data.users : [];
+    // Validate/encrypt before destructive restore; legacy plaintext backups are upgraded here.
+    const users = (Array.isArray(data.users) ? data.users : []).map((user: UserRecord) => encryptPersonalAiFields(user.id, user));
     const aquariums = Array.isArray(data.aquariums) ? data.aquariums : [];
     const aquarium_images = Array.isArray(data.aquarium_images) ? data.aquarium_images : [];
     const shares = Array.isArray(data.aquarium_shares) ? data.aquarium_shares : [];
@@ -262,6 +271,8 @@ class SqliteAdapter {
           u.created_at || new Date().toISOString()
         );
         db.prepare('UPDATE users SET test_inventory = ?, terms_version = ?, terms_accepted_at = ? WHERE id = ?').run(u.test_inventory || '{}', u.terms_version || null, u.terms_accepted_at || null, u.id);
+        for (const provider of AI_PROVIDERS) db.prepare(`UPDATE users SET ${provider}_api_key = ?, ${provider}_api_key_prefix = ?, ${provider}_api_key_suffix = ?, ${provider}_model = ? WHERE id = ?`).run(u[`${provider}_api_key`] || null, u[`${provider}_api_key_prefix`] || null, u[`${provider}_api_key_suffix`] || null, u[`${provider}_model`] || null, u.id);
+        db.prepare('UPDATE users SET ai_provider = ? WHERE id = ?').run(u.ai_provider || null, u.id);
       }
 
       // Aktive Sessions für vorhandene Benutzer wiederherstellen
@@ -578,6 +589,7 @@ class SqliteAdapter {
         }).immediate();
       },
       async update(id: number, fields: Partial<UserRecord> = {}, expected: Partial<UserRecord> = {}) {
+        fields = encryptPersonalAiFields(Number(id), fields);
         const setClauses = [];
         const params = [];
         const allowed = [
@@ -599,6 +611,7 @@ class SqliteAdapter {
           'password_reset_expires',
           'account_delete_token',
           'account_delete_expires',
+          ...AI_PROVIDERS.flatMap(provider => [`${provider}_api_key_prefix`, `${provider}_api_key_suffix`]),
           'openai_api_key',
           'openai_model',
           'gemini_api_key',

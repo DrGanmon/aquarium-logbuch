@@ -95,6 +95,7 @@ Der GitHub-Workflow baut das App-Image für `linux/amd64` und `linux/arm64` und 
 | `SMTP_FROM` | `Aquarium-Logbuch <noreply@...>` | Absenderadresse für ausgehende E-Mails |
 | `SMTP_RATE_LIMIT_MS` | `500` | Verzögerung zwischen E-Mails in der Queue (Millisekunden) |
 | `DEFAULT_AI_PROVIDER` | `openai` | Standard-KI-Provider für den Chat (`openai`, `gemini`, `claude`) |
+| `AI_TOKEN_ENCRYPTION_KEY` | (leer; lokale Schlüsseldatei) | 64 Hex-Zeichen / 32 zufällige Bytes für persönliche KI-Schlüssel. Alle Instanzen derselben Datenbank müssen denselben Wert bzw. dieselbe Schlüsseldatei verwenden. |
 | `OPENAI_API_KEY` | (leer) | Globaler Fallback-API-Key für OpenAI / ChatGPT (optional) |
 | `OPENAI_MODEL` | `gpt-4o-mini` | Standard-Modell für OpenAI Chat Completions |
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Optionale Basis-URL für OpenAI API / Proxys |
@@ -143,3 +144,13 @@ Der Reverse Proxy muss diesen Präfix dann entfernen, bevor er an die App weiter
 - **Backup:** `sqlite3 data/aquarium.db ".backup backup.db"` (die Datenbank läuft im WAL-Modus,
   daher nicht einfach nur die .db-Datei kopieren).
 - **Passwörter** (nur lokale Anmeldung) werden mit scrypt gehasht, Sitzungen als Hash in der Datenbank gespeichert.
+
+## Verschlüsselung persönlicher KI-Schlüssel
+
+Persönliche API-Schlüssel werden mit AES-256-GCM und einer zufälligen Nonce verschlüsselt. Die Authentifizierung bindet jeden Chiffretext an Benutzer-ID und Anbieter. Migration 7 verschlüsselt vorhandene Klartextwerte und legt `<anbieter>_api_key_prefix` / `<anbieter>_api_key_suffix` mit jeweils bis zu vier Zeichen an. Bei jedem Start werden Schlüssel geprüft und gegebenenfalls normalisiert. Anbieteraufrufe verwenden entschlüsselte Werte nur im Arbeitsspeicher. Globale Anbieter-Schlüssel aus Umgebungsvariablen bleiben außerhalb der Datenbank.
+
+Ohne `AI_TOKEN_ENCRYPTION_KEY` erzeugt die Anwendung bei der ersten notwendigen Verschlüsselung atomar eine zufällige Schlüsseldatei `DATA_DIR/ai-token-encryption.key` mit POSIX-Rechten `0600`. Sie bleibt über Neustarts erhalten und wird von Workern im selben Datenvolume gemeinsam genutzt. Bei mehreren unabhängigen Instanzen mit derselben MongoDB entweder dieselbe Datei bereitstellen oder überall denselben Umgebungswert setzen. Beispiel zum Erzeugen eines Umgebungswertes: `openssl rand -hex 32`. Den Wert geheim halten.
+
+Die Schlüsseldatei bzw. den Umgebungswert **separat sichern**: Datenbank-/Bildbackups enthalten diesen Master-Schlüssel absichtlich nicht. Für eine Wiederherstellung auf einem anderen Server zuerst den ursprünglichen Schlüssel bereitstellen. Einen bestehenden Master-Schlüssel nicht einfach austauschen: ohne passende Entschlüsselung und erneute Verschlüsselung werden vorhandene Tokens unlesbar. Bei fehlendem/falschem Schlüssel oder manipuliertem Chiffretext wird die Entschlüsselung abgewiesen; Wiederherstellung prüft verschlüsselte Tokens vor dem Ersetzen der Daten.
+
+Neue Sicherungen einschließlich des Backups vor der Migration enthalten bereits verschlüsselte persönliche Tokens. Ältere Klartextbackups werden beim Restore vor dem Einfügen verschlüsselt; bereits vorhandene Archive und externe Kopien werden nicht rückwirkend verändert. SQLite kann alte Klartextreste in freien Seiten oder älteren WAL-/Dateikopien behalten; diese physische Bereinigung ist nicht Teil der logischen Migration. Datenvolume, Schlüsseldatei und Backups weiterhin vor fremdem Zugriff schützen.

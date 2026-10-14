@@ -37,6 +37,9 @@ export interface UserRecord {
   selected_suite: string | null; selected_tests: string | null; default_graph_range: string | null; test_inventory: string | null;
   email_verified: number | boolean; email_verify_token: string | null; email_verify_expires: number | null;
   password_reset_token: string | null; password_reset_expires: number | null; account_delete_token: string | null; account_delete_expires: number | null;
+  openai_api_key_prefix?: string | null; openai_api_key_suffix?: string | null;
+  gemini_api_key_prefix?: string | null; gemini_api_key_suffix?: string | null;
+  claude_api_key_prefix?: string | null; claude_api_key_suffix?: string | null;
   openai_api_key: string | null; openai_model: string | null; gemini_api_key: string | null; gemini_model: string | null;
   claude_api_key: string | null; claude_model: string | null; ai_provider: string | null;
 }

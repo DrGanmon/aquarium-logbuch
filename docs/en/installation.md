@@ -94,6 +94,7 @@ The GitHub workflow builds the application image for `linux/amd64` and `linux/ar
 | `SMTP_FROM` | `Aquarium-Logbuch <noreply@...>` | Outbound sender address |
 | `SMTP_RATE_LIMIT_MS` | `500` | Delay between queued emails in milliseconds |
 | `DEFAULT_AI_PROVIDER` | `openai` | Default AI provider for chat assistant (`openai`, `gemini`, `claude`) |
+| `AI_TOKEN_ENCRYPTION_KEY` | (empty; local key file) | 64 hexadecimal characters / 32 random bytes for personal AI keys. All instances sharing a database need the same value or key file. |
 | `OPENAI_API_KEY` | (empty) | Global fallback API key for OpenAI / ChatGPT (optional) |
 | `OPENAI_MODEL` | `gpt-4o-mini` | Default model for OpenAI Chat Completions |
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Optional custom base URL for OpenAI API / proxies |
@@ -130,3 +131,13 @@ The app uses Authorization Code Flow with PKCE, verifies token signatures via JW
 - **HTTPS:** Run behind a TLS-terminating reverse proxy (Caddy, Nginx, Traefik) with `APP_URL=https://...`, `COOKIE_SECURE=true`, and `TRUST_PROXY=1`.
 - **Backup:** `sqlite3 data/aquarium.db ".backup backup.db"` (database runs in WAL mode; do not copy raw `.db` file while process is running).
 - **Passwords:** Local passwords hashed with scrypt; session tokens stored as SHA-256 hashes.
+
+## Personal AI key encryption
+
+Personal API keys use AES-256-GCM with random nonces and authentication bound to the user ID and provider. Migration 7 encrypts existing plaintext values and stores `<provider>_api_key_prefix` / `<provider>_api_key_suffix` with up to four characters each. Keys are verified and normalized at startup. Decryption occurs only in memory for provider requests. Global provider keys from environment variables remain outside the database.
+
+Without `AI_TOKEN_ENCRYPTION_KEY`, the first required encryption atomically creates a random `DATA_DIR/ai-token-encryption.key` file with POSIX permissions `0600`. Keep this persistent file across restarts; workers sharing the data volume use the same file. Independent instances using the same MongoDB need the same key file or environment value. Generate an environment value with `openssl rand -hex 32` and keep it secret.
+
+**Back up the key separately**: application database/image backups deliberately omit the master key. Before restoring on another server, provide the original key. Do not simply replace it; existing tokens require decryption and re-encryption for a key change. Missing/wrong keys and modified ciphertext are rejected. Restore validates encrypted keys before replacing existing data.
+
+New backups, including the snapshot before migration, contain encrypted personal tokens. Older plaintext backups are encrypted during restore, before insertion. Existing archives and external copies are not retroactively rewritten. SQLite may retain old plaintext in free pages, WAL history or file copies; physical sanitization is outside this logical migration. Continue protecting the data volume, master key and archives.

@@ -1,3 +1,4 @@
+import { AI_PROVIDERS, encryptPersonalAiFields } from './ai-token-crypto';
 import { writeJsonFile } from './json-config-store';
 import { asError } from '../utils/app-error';
 import path = require('path');
@@ -274,6 +275,8 @@ class BackupService {
       }
     }
 
+    // Migration snapshots also encrypt legacy tokens before any archive is written.
+    if (Array.isArray(rawData.users)) rawData.users = rawData.users.map((user: any) => encryptPersonalAiFields(Number(user.id), user));
     const files = includeFiles ? await this.exportFiles() : {};
 
     const backupPayload: Record<string, any> = {
@@ -515,6 +518,8 @@ class BackupService {
     const normalizedUsers = users.map((u: any) => {
       if (!u || typeof u !== 'object') return null;
       return {
+        ...encryptPersonalAiFields(Number(u.id), Object.fromEntries(AI_PROVIDERS.flatMap(provider => [[`${provider}_api_key`, u[`${provider}_api_key`] ?? null], [`${provider}_model`, typeof u[`${provider}_model`] === 'string' ? u[`${provider}_model`] : null]]))),
+        ai_provider: typeof u.ai_provider === 'string' ? u.ai_provider : null,
         id: Number(u.id),
         username: String(u.username || '').trim(),
         email: u.email ? String(u.email).trim().toLowerCase() : null,

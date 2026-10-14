@@ -1,3 +1,4 @@
+import { personalAiToken, personalAiMask } from '../services/ai-token-crypto';
 import { asRecord } from '../utils/validation';
 import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
@@ -51,13 +52,6 @@ const {
 
 const router = express.Router();
 
-function maskApiKey(rawKey?: any, serverKey?: any) {
-  if (rawKey) {
-    return rawKey.length > 8 ? rawKey.slice(0, 3) + '...' + rawKey.slice(-4) : '***';
-  }
-  return serverKey ? 'Über Server konfiguriert' : null;
-}
-
 function serializeMe(u?: any) {
   let selectedTests = null;
   if (u.selected_tests) {
@@ -70,15 +64,15 @@ function serializeMe(u?: any) {
   const regConfig = registrationService.getConfig();
   const isAdmin = Boolean(u.email_verified) && isEmailAdmin(u.email);
 
-  const rawOpenaiKey = (u.openai_api_key || '').trim();
-  const rawGeminiKey = (u.gemini_api_key || '').trim();
-  const rawClaudeKey = (u.claude_api_key || '').trim();
+  const storedOpenaiKey = (u.openai_api_key || '').trim();
+  const storedGeminiKey = (u.gemini_api_key || '').trim();
+  const storedClaudeKey = (u.claude_api_key || '').trim();
 
-  const activeProvider = u.ai_provider || (rawClaudeKey ? 'claude' : (rawGeminiKey ? 'gemini' : (rawOpenaiKey ? 'openai' : (DEFAULT_AI_PROVIDER || 'openai'))));
+  const activeProvider = u.ai_provider || (storedClaudeKey ? 'claude' : (storedGeminiKey ? 'gemini' : (storedOpenaiKey ? 'openai' : (DEFAULT_AI_PROVIDER || 'openai'))));
 
-  const hasOpenai = Boolean(rawOpenaiKey || OPENAI_API_KEY);
-  const hasGemini = Boolean(rawGeminiKey || GEMINI_API_KEY);
-  const hasClaude = Boolean(rawClaudeKey || CLAUDE_API_KEY);
+  const hasOpenai = Boolean(storedOpenaiKey || OPENAI_API_KEY);
+  const hasGemini = Boolean(storedGeminiKey || GEMINI_API_KEY);
+  const hasClaude = Boolean(storedClaudeKey || CLAUDE_API_KEY);
   const hasAnyKey = Boolean(hasOpenai || hasGemini || hasClaude);
 
   return {
@@ -113,22 +107,22 @@ function serializeMe(u?: any) {
 
     // OpenAI
     hasOpenaiKey: hasOpenai,
-    openaiKeySet: Boolean(rawOpenaiKey),
-    openaiKeyMasked: maskApiKey(rawOpenaiKey, OPENAI_API_KEY),
+    openaiKeySet: Boolean(storedOpenaiKey),
+    openaiKeyMasked: personalAiMask(u, 'openai', OPENAI_API_KEY),
     openaiModel: u.openai_model || OPENAI_MODEL || 'gpt-4o-mini',
     serverHasOpenaiKey: Boolean(OPENAI_API_KEY),
 
     // Google Gemini
     hasGeminiKey: hasGemini,
-    geminiKeySet: Boolean(rawGeminiKey),
-    geminiKeyMasked: maskApiKey(rawGeminiKey, GEMINI_API_KEY),
+    geminiKeySet: Boolean(storedGeminiKey),
+    geminiKeyMasked: personalAiMask(u, 'gemini', GEMINI_API_KEY),
     geminiModel: u.gemini_model || GEMINI_MODEL || 'gemini-2.5-flash',
     serverHasGeminiKey: Boolean(GEMINI_API_KEY),
 
     // Anthropic Claude
     hasClaudeKey: hasClaude,
-    claudeKeySet: Boolean(rawClaudeKey),
-    claudeKeyMasked: maskApiKey(rawClaudeKey, CLAUDE_API_KEY),
+    claudeKeySet: Boolean(storedClaudeKey),
+    claudeKeyMasked: personalAiMask(u, 'claude', CLAUDE_API_KEY),
     claudeModel: u.claude_model || CLAUDE_MODEL || 'claude-3-5-haiku-20241022',
     serverHasClaudeKey: Boolean(CLAUDE_API_KEY),
 
@@ -582,7 +576,7 @@ router.post(
   auth,
   wrap(async (req: Request, res: Response) => {
     const user = await db.users.findById(req.user.id);
-    const keyToTest = (req.body?.apiKey || user?.openai_api_key || OPENAI_API_KEY || '').trim();
+    const keyToTest = (req.body?.apiKey || personalAiToken(user, 'openai') || OPENAI_API_KEY || '').trim();
     const modelToTest = (req.body?.model || user?.openai_model || OPENAI_MODEL || 'gpt-4o-mini').trim();
 
     if (!keyToTest) {
@@ -604,7 +598,7 @@ router.post(
   auth,
   wrap(async (req: Request, res: Response) => {
     const user = await db.users.findById(req.user.id);
-    const keyToUse = (req.body?.apiKey || user?.openai_api_key || OPENAI_API_KEY || '').trim();
+    const keyToUse = (req.body?.apiKey || personalAiToken(user, 'openai') || OPENAI_API_KEY || '').trim();
     if (!keyToUse) {
       return res.status(400).json({ error: 'Bitte gib zuerst einen OpenAI API-Schlüssel ein, um die verfügbaren Modelle abzufragen.' });
     }
@@ -682,7 +676,7 @@ router.post(
   auth,
   wrap(async (req: Request, res: Response) => {
     const user = await db.users.findById(req.user.id);
-    const keyToTest = (req.body?.apiKey || user?.gemini_api_key || GEMINI_API_KEY || '').trim();
+    const keyToTest = (req.body?.apiKey || personalAiToken(user, 'gemini') || GEMINI_API_KEY || '').trim();
     const modelToTest = (req.body?.model || user?.gemini_model || GEMINI_MODEL || 'gemini-2.5-flash').trim();
 
     if (!keyToTest) {
@@ -704,7 +698,7 @@ router.post(
   auth,
   wrap(async (req: Request, res: Response) => {
     const user = await db.users.findById(req.user.id);
-    const keyToUse = (req.body?.apiKey || user?.gemini_api_key || GEMINI_API_KEY || '').trim();
+    const keyToUse = (req.body?.apiKey || personalAiToken(user, 'gemini') || GEMINI_API_KEY || '').trim();
     if (!keyToUse) {
       return res.status(400).json({ error: 'Bitte gib zuerst einen Google Gemini API-Schlüssel ein, um die verfügbaren Modelle abzufragen.' });
     }
@@ -782,7 +776,7 @@ router.post(
   auth,
   wrap(async (req: Request, res: Response) => {
     const user = await db.users.findById(req.user.id);
-    const keyToTest = (req.body?.apiKey || user?.claude_api_key || CLAUDE_API_KEY || '').trim();
+    const keyToTest = (req.body?.apiKey || personalAiToken(user, 'claude') || CLAUDE_API_KEY || '').trim();
     const modelToTest = (req.body?.model || user?.claude_model || CLAUDE_MODEL || 'claude-3-5-haiku-20241022').trim();
 
     if (!keyToTest) {
@@ -804,7 +798,7 @@ router.post(
   auth,
   wrap(async (req: Request, res: Response) => {
     const user = await db.users.findById(req.user.id);
-    const keyToUse = (req.body?.apiKey || user?.claude_api_key || CLAUDE_API_KEY || '').trim();
+    const keyToUse = (req.body?.apiKey || personalAiToken(user, 'claude') || CLAUDE_API_KEY || '').trim();
     if (!keyToUse) {
       return res.status(400).json({ error: 'Bitte gib zuerst einen Anthropic Claude API-Schlüssel ein, um die verfügbaren Modelle abzufragen.' });
     }
@@ -828,9 +822,9 @@ router.post(
     const model = (req.body?.model || '').trim();
 
     if (!apiKey) {
-      if (provider === 'gemini') apiKey = (user?.gemini_api_key || GEMINI_API_KEY || '').trim();
-      else if (provider === 'claude') apiKey = (user?.claude_api_key || CLAUDE_API_KEY || '').trim();
-      else apiKey = (user?.openai_api_key || OPENAI_API_KEY || '').trim();
+      if (provider === 'gemini') apiKey = (personalAiToken(user, 'gemini') || GEMINI_API_KEY || '').trim();
+      else if (provider === 'claude') apiKey = (personalAiToken(user, 'claude') || CLAUDE_API_KEY || '').trim();
+      else apiKey = (personalAiToken(user, 'openai') || OPENAI_API_KEY || '').trim();
     }
 
     if (!apiKey) {
@@ -856,9 +850,9 @@ router.post(
     let apiKey = (req.body?.apiKey || '').trim();
 
     if (!apiKey) {
-      if (provider === 'gemini') apiKey = (user?.gemini_api_key || GEMINI_API_KEY || '').trim();
-      else if (provider === 'claude') apiKey = (user?.claude_api_key || CLAUDE_API_KEY || '').trim();
-      else apiKey = (user?.openai_api_key || OPENAI_API_KEY || '').trim();
+      if (provider === 'gemini') apiKey = (personalAiToken(user, 'gemini') || GEMINI_API_KEY || '').trim();
+      else if (provider === 'claude') apiKey = (personalAiToken(user, 'claude') || CLAUDE_API_KEY || '').trim();
+      else apiKey = (personalAiToken(user, 'openai') || OPENAI_API_KEY || '').trim();
     }
 
     if (!apiKey) {

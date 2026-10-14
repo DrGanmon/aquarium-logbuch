@@ -4,6 +4,14 @@ Die API-Spezifikation mit Authentifizierung, Berechtigungen und Fehlerantworten 
 
 Ausgangsstand: `3dd39c98ce157b4d5e5c41f8b636bbbd406c1cee`. Geprüft wurden Authentifizierung und Sitzungen, OIDC, Aquariumfreigaben, Social- und Pflanzenfunktionen, Uploads, Backups, KI-Schnittstellen, SQLite-/MongoDB-Zugriffe, Sicherheitsheader und die Abhängigkeiten. Die manuelle Prüfung konzentrierte sich auf diese Schnittstellen; sie ist kein vollständiger Penetrationstest oder Nachweis allgemeiner Fehlerfreiheit. Der frühere Audit-Bericht bleibt unten erhalten.
 
+## Nachtrag: Persönliche KI-Schlüssel (15.10.2026)
+
+Die Klartextspeicherung persönlicher OpenAI-, Gemini- und Claude-Schlüssel wurde behoben. AES-256-GCM verwendet einen zufälligen 96-Bit-IV und einen 128-Bit-Authentifizierungstag; Benutzer-ID und Anbieter sind als AAD gebunden. SQLite-/MongoDB-Schreibzugriffe verschlüsseln Tokens und speichern die ersten und letzten vier Zeichen separat. Datenbankschema 7 migriert bestehende Tokens; Neustarts prüfen die Daten erneut ohne doppelte Verschlüsselung. Profile geben nur die gespeicherte Maskierung zurück, Anbieteraufrufe entschlüsseln erst bei Bedarf.
+
+Neue Backups einschließlich Migrationssicherungen enthalten Chiffretexte. Restore erhält die KI-Konfiguration und verschlüsselt alte Klartextwerte vor dem Einfügen; falsche Schlüssel und manipulierte Chiffretexte werden vor destruktiven Datenbankaktionen abgewiesen. `AI_TOKEN_ENCRYPTION_KEY` oder die atomar angelegte private Datei `DATA_DIR/ai-token-encryption.key` stellen den persistenten Master-Schlüssel bereit. Unabhängige Instanzen müssen denselben Schlüssel verwenden. Die Datei wird nicht in Anwendungsbackups aufgenommen.
+
+Regressionstests: `test/ai_token_encryption.test.js` prüft beide Datenbanken, alle Anbieter, Migration inklusive Sicherung, Identifikationsfelder, Zufalls-IVs, falsche Benutzer/Anbieter/Schlüssel, Manipulation, Neustarts, Legacy-/Chiffretext-Restore und Löschen. Die physische Bereinigung alter SQLite-Seiten, vorhandener Archive und externer Kopien ist nicht Bestandteil dieser Änderung. Die übrigen Befunde des historischen Audits bleiben bestehen.
+
 ## Bestätigte und behobene Befunde
 
 | Priorität | Befund | Korrektur und Nachweis |
@@ -26,7 +34,7 @@ Ausgangsstand: `3dd39c98ce157b4d5e5c41f8b636bbbd406c1cee`. Geprüft wurden Authe
 ## Verbleibende Risiken und Prüflücken
 
 - Rate-Limits bleiben pro Prozess. Mehrere Worker oder unabhängige Instanzen brauchen ein gemeinsam gespeichertes oder am Reverse Proxy durchgesetztes Limit. Der neue Passwortschutz ist keine verteilte Sperre.
-- Persönliche KI-Schlüssel liegen weiterhin im Klartext in der Datenbank; Backups enthalten entsprechende Daten. Datenvolume und Backup-Ablage müssen vor fremdem Zugriff geschützt werden. `0600` verschlüsselt keine Archive und behebt keine schon extern kopierten Sicherungen.
+- Nachtrag vom 15.10.2026: Persönliche KI-Schlüssel werden inzwischen mit AES-256-GCM gespeichert und aus Klartext migriert (siehe Nachtrag). Alte Archive, externe Kopien sowie mögliche freie SQLite-Seiten/WAL-Reste können weiterhin Klartext enthalten. Der Master-Schlüssel muss separat geschützt und gesichert werden; Datenvolume und Archive bleiben sensibel.
 - Öffentliche OIDC-Clients mit mehreren unabhängigen Instanzen benötigen denselben `OIDC_STATE_SECRET`. Ohne festen Schlüssel werden noch laufende Anmeldungen nach Neustart ungültig. Bereits gestartete Anmeldungen mit dem alten Statusformat müssen nach dem Update neu begonnen werden.
 - Die bisherigen nicht atomaren Gesamtoperationen über MongoDB-Collections und die instanzlokalen Backup-/Restore-Sperren bleiben bestehen. Wiederherstellungen brauchen weiterhin ein Wartungsfenster ohne konkurrierende Schreibzugriffe.
 - Aquarium-, Bewohner- und Avatarbilder werden weiterhin nach Dateisignatur und Byte-Limit geprüft; anders als Social-Bilder werden sie nicht serverseitig vollständig dekodiert oder von Metadaten befreit. Standortdaten in EXIF und eine ungünstige Pixelzahl bleiben daher mögliche Datenschutz-/Ressourcenrisiken.

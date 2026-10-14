@@ -60,6 +60,12 @@ Ein neuer Beitrag verwendet `{image, text, isPublic}`. `text` darf bis 2200 Zeic
 
 Die Schemas dokumentieren Kernfelder und bleiben bei Katalogen, Konfigurationen sowie Anbieterantworten erweiterbar (`additionalProperties`). Sie sind keine vollständig geschlossene Beschreibung sämtlicher interner Datenbankfelder. Ein optionales Feld mit freiem Schema bedeutet eine dynamische, nicht auf einen einzelnen Typ festgelegte Antwort.
 
+## Persönliche KI-Schlüssel
+
+Die Profilrouten `/api/me/ai` bzw. die anbieterspezifischen `/api/me/openai`, `/api/me/gemini`, `/api/me/claude` (inklusive Alias-Pfaden) nehmen API-Schlüssel wie bisher als JSON-Zeichenfolge an. Der Server verschlüsselt sie vor der Speicherung; Modelllisten, Verbindungstests und Chat entschlüsseln gespeicherte persönliche Tokens erst für den Anbieteraufruf. Globale Umgebungswerte bleiben der Fallback.
+
+Profilantworten liefern `openaiKeyMasked`, `geminiKeyMasked` und `claudeKeyMasked` mit den gespeicherten ersten/letzten vier Zeichen, beispielsweise `sk-p...1234`, bei kurzen Tokens `***`. Vollständige Schlüssel und Chiffretexte werden nicht ausgegeben. Ohne persönlichen Schlüssel liefert die Maskierung `null` oder `Über Server konfiguriert`. Löschen entfernt auch die Identifikationsfelder. Neue Backups enthalten verschlüsselte Tokens; zum Wiederherstellen ist derselbe Master-Schlüssel erforderlich, siehe [Installation](../de/installation.md#verschlüsselung-persönlicher-ki-schlüssel).
+
 ## Chat-Antworten
 
 Ohne Streaming antwortet `/api/aquariums/{id}/chat` als JSON mit `ok`, `reply`, `provider`, `model` und gegebenenfalls `usage`. Der Diagnose-Chat liefert `reply`, `provider` und `model`.

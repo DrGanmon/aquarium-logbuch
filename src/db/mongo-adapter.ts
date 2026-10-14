@@ -1,3 +1,5 @@
+import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-crypto';
+import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
 import { PlantRepository } from './plant-repository';
 import { SocialRepository } from "./social-repository";
 import type { UserRecord, Aquarium, AccessRole, StockRecord, Measurement, AquariumImage, AquariumShare, Invitation } from '../types/domain';
@@ -82,6 +84,7 @@ class MongoAdapter {
         await this._createIndexes();
         const migRes = await runMigrationsMongo(this.db, { adapter: this });
         this.schemaVersion = migRes.currentVersion;
+        await encryptedAiTokensMigration.upMongo(this.db);
         this._setupRepositories();
         this._initialized = true;
         return this;
@@ -296,7 +299,8 @@ class MongoAdapter {
     if (!this._initialized && !this.db) await this.init();
     const db = this.connection();
 
-    const users = Array.isArray(data.users) ? data.users : [];
+    // Validate/encrypt before destructive restore; legacy plaintext backups are upgraded here.
+    const users = (Array.isArray(data.users) ? data.users : []).map((user: UserRecord) => encryptPersonalAiFields(user.id, user));
     const aquariums = Array.isArray(data.aquariums) ? data.aquariums : [];
     const aquarium_images = Array.isArray(data.aquarium_images) ? data.aquarium_images : [];
     const shares = Array.isArray(data.aquarium_shares) ? data.aquarium_shares : [];
@@ -490,6 +494,7 @@ class MongoAdapter {
         throw new Error('Testverbrauch konnte wegen gleichzeitiger Änderungen nicht gespeichert werden.');
       },
       async update(id: number, fields: Partial<UserRecord> = {}, expected: Partial<UserRecord> = {}) {
+        fields = encryptPersonalAiFields(Number(id), fields);
         const numId = Number(id);
         const updateFields: Record<string, any> = {};
         const allowed = [
@@ -511,6 +516,7 @@ class MongoAdapter {
           'password_reset_expires',
           'account_delete_token',
           'account_delete_expires',
+          ...AI_PROVIDERS.flatMap(provider => [`${provider}_api_key_prefix`, `${provider}_api_key_suffix`]),
           'openai_api_key',
           'openai_model',
           'gemini_api_key',
