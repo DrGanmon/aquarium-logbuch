@@ -25,7 +25,7 @@ Administrators are identified by their email address matching `ADMIN_EMAIL` in `
   - **Backward Compatibility:** Older backups are automatically migrated and normalized to current database schemas.
   - **Automated Local Backups:** Configurable automated backups (enable/disable, intervals e.g. 6h/12h/24h, retention count, and automatic pruning of old archives).
   - **Access Security:** Backup and restore features are strictly restricted to administrators.
-- **System Logbook:** Live viewing and clearing of server logs (`../../data/aquarium.log`).
+- **System Logbook:** Initially shows the newest 200 lines at the bottom. Each page contains between 10 and 1000 configurable lines. Older entries load when scrolling up or using the button, preserving the reading position. Level and search filters apply on the server across the full history. Automatic refresh runs only at the bottom. Clearing server logs (`../../data/aquarium.log`).
 
 ## Email templates and delivery
 

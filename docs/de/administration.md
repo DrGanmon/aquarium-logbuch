@@ -27,7 +27,7 @@ Der Administrator wird anhand der bestätigten E-Mail-Adresse festgelegt. Dazu e
   - **Abwärtskompatibilität & Migration:** Backups älterer Versionen (z. B. v1 ohne neue Tabellen/Felder oder mit separater Messwerttabelle) werden beim Einspielen automatisch auf das aktuelle Datenbankschema migriert und normalisiert.
   - **Automatische lokale Sicherungen:** Im Admin-Bereich konfigurierbar (Aktivieren/Deaktivieren, Intervall in Stunden z. B. alle 6h, 12h, 24h, Vorhalteanzahl/Retention z. B. max. 10 Backups und automatisches Pruning alter Dateien).
   - **Sicherheit & Zugriffsschutz:** Alle Backup- und Restore-Funktionen sind strikt auf Administratoren beschränkt.
-- **System-Logbuch:** Live-Einsicht und Bereinigung der Server- und Fehlerprotokolle (`../../data/aquarium.log`).
+- **System-Logbuch:** Die neuesten 200 Zeilen erscheinen zunächst am unteren Ende. Die Anzahl pro Ladeabschnitt ist zwischen 10 und 1000 einstellbar. Ältere Einträge werden beim Hochscrollen oder per Schaltfläche nachgeladen; die Leseposition bleibt erhalten. Level- und Suchfilter gelten serverseitig über den gesamten Verlauf. Automatische Aktualisierung erfolgt nur am unteren Ende. Bereinigung der Server- und Fehlerprotokolle (`../../data/aquarium.log`).
 
 ## E-Mail-Vorlagen und Versand
 

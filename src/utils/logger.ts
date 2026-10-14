@@ -154,6 +154,43 @@ const logger: Record<string, any> = {
     }
   },
 
+  /** Read a bounded window backwards; byte cursors remain stable when new logs arrive. */
+  readLogPage({ limit = 200, before, level = 'all', search = '', fileId }: {
+    limit?: number; before?: number; level?: string; search?: string; fileId?: string;
+  } = {}) {
+    const logPath = this.getLogPath();
+    if (!fs.existsSync(logPath)) return { logs: [], next: null, fileId: null, reset: Boolean(before) };
+    const fd = fs.openSync(logPath, 'r');
+    try {
+      const stat = fs.fstatSync(fd);
+      const identity = `${stat.dev}:${stat.ino}`;
+      const reset = before !== undefined && (before > stat.size || (fileId !== undefined && fileId !== identity));
+      const end = before === undefined || reset ? stat.size : before;
+      const start = Math.max(0, end - 4 * 1024 * 1024);
+      const buffer = Buffer.alloc(end - start);
+      const read = fs.readSync(fd, buffer, 0, buffer.length, start);
+      const data = buffer.subarray(0, read);
+      const boundary = start > 0 ? data.indexOf(10) + 1 : 0;
+      const count = Math.min(1000, Math.max(10, Math.trunc(limit) || 200));
+      const logs: string[] = [];
+      let cursor = end;
+      let lineEnd = data.length;
+      const query = search.toLowerCase();
+      for (let index = data.length - 1; index >= boundary - 1; index--) {
+        if (index >= boundary && data[index] !== 10) continue;
+        const lineStart = index + 1;
+        const line = data.subarray(lineStart, lineEnd).toString('utf8').replace(/\r$/, '');
+        cursor = start + lineStart;
+        lineEnd = index;
+        if (line && (level === 'all' || line.includes(`[${level}]`)) && line.toLowerCase().includes(query)) logs.unshift(line);
+        if (logs.length === count) break;
+      }
+      // Continue into earlier file windows even when this window has no filter matches.
+      if (!logs.length && start > 0) cursor = start + boundary;
+      return { logs, next: cursor > 0 && cursor < end ? cursor : null, fileId: identity, reset };
+    } finally { fs.closeSync(fd); }
+  },
+
   /**
    * Leert die Log-Datei.
    */

@@ -163,12 +163,13 @@ router.get(
   requireAdmin,
   wrap((req: Request, res: Response) => {
     const limit = Math.min(Math.max(Number(req.query.lines) || 200, 10), 1000);
-    const logs = logger.readRecentLogs(limit);
-    res.json({
-      logPath: logger.getLogPath(),
-      count: logs.length,
-      logs,
-    });
+    const before = req.query.before === undefined ? undefined : Number(req.query.before);
+    if (before !== undefined && (!Number.isSafeInteger(before) || before < 0)) return res.status(400).json({ error: 'Ungültiger Log-Cursor.' });
+    const level = String(req.query.level || 'all');
+    if (!['all', 'INFO', 'WARN', 'ERROR', 'DEBUG', 'FATAL'].includes(level)) return res.status(400).json({ error: 'Ungültiger Log-Level.' });
+    const page = logger.readLogPage({ limit, before, level, search: String(req.query.search || '').slice(0, 500),
+      fileId: req.query.fileId === undefined ? undefined : String(req.query.fileId) });
+    res.setHeader('Cache-Control', 'no-store').json({ logPath: logger.getLogPath(), count: page.logs.length, ...page });
   })
 );
 

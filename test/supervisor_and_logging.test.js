@@ -120,6 +120,22 @@ test('Logging & Überwachungsprozess (Supervisor)', async (t) => {
     assert.ok(adminGet.data.logs.some((l) => l.includes('Initialer Logeintrag vor Test')));
     assert.strictEqual(adminGet.data.logPath, testLogFile);
 
+    // Pages remain chronological and stable while the log grows.
+    fs.writeFileSync(testLogFile, Array.from({ length: 35 }, (_, index) => `[INFO] Zeile ${index + 1}`).join('\n') + '\n');
+    const page1 = await env.request('/api/admin/logs?lines=10', { headers: { Cookie: admin.cookie } });
+    assert.deepEqual(page1.data.logs, Array.from({ length: 10 }, (_, index) => `[INFO] Zeile ${index + 26}`));
+    assert.equal(page1.data.count, 10);
+    assert.equal(page1.headers.get('cache-control'), 'no-store');
+    fs.appendFileSync(testLogFile, '[ERROR] Neuer Eintrag\n');
+    const page2 = await env.request(`/api/admin/logs?lines=10&before=${page1.data.next}&fileId=${page1.data.fileId}`, { headers: { Cookie: admin.cookie } });
+    assert.deepEqual(page2.data.logs, Array.from({ length: 10 }, (_, index) => `[INFO] Zeile ${index + 16}`));
+    const filtered = await env.request('/api/admin/logs?level=INFO&search=Zeile%201', { headers: { Cookie: admin.cookie } });
+    assert.deepEqual(filtered.data.logs, ['[INFO] Zeile 1', ...Array.from({ length: 10 }, (_, index) => `[INFO] Zeile ${index + 10}`)]);
+    for (const before of ['-1', 'NaN', '1.5', 'Infinity']) {
+      assert.equal((await env.request(`/api/admin/logs?before=${before}`, { headers: { Cookie: admin.cookie } })).status, 400);
+    }
+    assert.equal((await env.request('/api/admin/logs?level=UNKNOWN', { headers: { Cookie: admin.cookie } })).status, 400);
+
     // 3. Admin kann Logs leeren
     const adminDel = await env.request('/api/admin/logs', {
       method: 'DELETE',
@@ -222,4 +238,38 @@ test('Logging & Überwachungsprozess (Supervisor)', async (t) => {
       } catch (e) {}
     }
   });
+});
+
+test('Log-Paginierung: Unicode, Fenstergrenzen, Filter und gekürzte Dateien', t => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'aquarium-log-pages-'));
+  const filename = path.join(directory, 'pages.log');
+  const previous = process.env.LOG_FILE;
+  process.env.LOG_FILE = filename;
+  t.after(() => {
+    if (previous === undefined) delete process.env.LOG_FILE;else process.env.LOG_FILE = previous;
+    fs.rmSync(directory, { recursive: true, force: true });
+  });
+  assert.deepEqual(logger.readLogPage().logs, []);
+  const expected = Array.from({ length: 37 }, (_, i) => `[${i % 2 ? 'ERROR' : 'INFO'}] Eintrag ${i} 🐟 äöü`);
+  fs.writeFileSync(filename, expected.join('\r\n')); // Include final line without a newline.
+  let page = logger.readLogPage({ limit: 10 });
+  let all = page.logs;
+  const firstPage = page;
+  while (page.next !== null) {
+    page = logger.readLogPage({ limit: 10, before: page.next, fileId: page.fileId });
+    all = [...page.logs, ...all];
+  }
+  assert.deepEqual(all, expected);
+  assert.deepEqual(logger.readLogPage({ level: 'ERROR', search: '🐟' }).logs, expected.filter(line => line.includes('[ERROR]')));
+  fs.writeFileSync(filename, '[INFO] Neustart\n');
+  const reset = logger.readLogPage({ before: firstPage.next, fileId: firstPage.fileId });
+  assert.equal(reset.reset, true);
+  assert.deepEqual(reset.logs, ['[INFO] Neustart']);
+  fs.writeFileSync(filename, '[ERROR] very old match\n' + '[INFO] no match\n'.repeat(350000));
+  page = logger.readLogPage({ level: 'ERROR' });
+  assert.deepEqual(page.logs, []);
+  assert.ok(page.next > 0, 'No matches in a bounded window must still allow loading older logs');
+  const earlier = logger.readLogPage({ level: 'ERROR', before: page.next, fileId: page.fileId });
+  assert.deepEqual(earlier.logs, ['[ERROR] very old match']);
+  assert.equal(earlier.next, null);
 });

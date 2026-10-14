@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   computed,
+  nextTick,
   onMounted,
   reactive,
   ref,
@@ -39,11 +40,47 @@ const userModel = reactive<FormData>({});
 const config = reactive<FormData>({});
 const backups = ref<Backup[]>([]);
 const queue = ref<Record<string, unknown>>({});
-const logs = ref("");
+const logs = computed(() => rawLogs.value.join("\n"));
 const rawLogs = ref<string[]>([]);
 const logLevel = ref("all");
 const logSearch = ref("");
 const logLines = ref(200);
+const logViewer = ref<HTMLElement>();
+const logNext = ref<number | null>(null);
+const logFileId = ref<string | null>(null);
+const logsLoading = ref(false), olderLogsLoading = ref(false);
+let olderController: AbortController | undefined;
+interface LogPage { logs: string[]; next: number | null; fileId: string | null; reset: boolean }
+function atLogBottom() {
+  const viewer = logViewer.value;
+  return !viewer || viewer.scrollHeight - viewer.scrollTop - viewer.clientHeight < 48;
+}
+function logQuery(before?: number) {
+  const query = new URLSearchParams({ lines: String(logLines.value), level: logLevel.value, search: logSearch.value });
+  if (before !== undefined) { query.set('before', String(before));if (logFileId.value) query.set('fileId', logFileId.value); }
+  return `/admin/logs?${query}`;
+}
+async function loadOlderLogs() {
+  if (logsLoading.value || olderLogsLoading.value || logNext.value === null || !logViewer.value) return;
+  const generation = loadGeneration;
+  const viewer = logViewer.value;
+  const height = viewer.scrollHeight, top = viewer.scrollTop;
+  const request = new AbortController();olderController = request;
+  olderLogsLoading.value = true;
+  try {
+    const result = await api<LogPage>(logQuery(logNext.value), { signal: request.signal });
+    if (request.signal.aborted || generation !== loadGeneration) return;
+    rawLogs.value = result.reset ? result.logs : [...result.logs, ...rawLogs.value];
+    logNext.value = result.next;logFileId.value = result.fileId;
+    await nextTick();
+    if (generation !== loadGeneration) return;
+    viewer.scrollTop = result.reset ? viewer.scrollHeight : top + viewer.scrollHeight - height;
+  } catch (e) { if (!request.signal.aborted && generation === loadGeneration) error.value = errorMessage(e); }
+  finally { if (olderController === request) olderLogsLoading.value = false; }
+}
+function onLogScroll() {
+  if (logViewer.value && logViewer.value.scrollTop < 48) void loadOlderLogs();
+}
 const autoRefresh = ref(false);
 const error = ref("");
 const busy = ref(false);
@@ -164,14 +201,16 @@ watch(autoRefresh, (value) => {
   clearInterval(interval);
   if (value)
     interval = setInterval(() => {
-      if (tab.value === "logs") void load();
+      if (tab.value === "logs" && !logsLoading.value && !olderLogsLoading.value && atLogBottom()) void load();
     }, 5000);
 });
-onBeforeUnmount(() => { clearInterval(interval); loadController?.abort(); loadGeneration++; });
+onBeforeUnmount(() => { clearInterval(interval); loadController?.abort(); olderController?.abort(); loadGeneration++; });
 let loadController: AbortController | undefined;
 let loadGeneration = 0;
 async function load() {
   loadController?.abort();
+  olderController?.abort();
+  olderLogsLoading.value = false;
   const request = new AbortController();
   loadController = request;
   const generation = ++loadGeneration;
@@ -182,20 +221,12 @@ async function load() {
       const result = await api<AdminUser[]>("/admin/users", { signal: request.signal });
       if (generation === loadGeneration) users.value = result;
     } else if (section === "logs") {
-      const result = await api<{ logs: string[] }>(
-        `/admin/logs?${new URLSearchParams({ lines: String(logLines.value), level: logLevel.value, search: logSearch.value })}`,
-        { signal: request.signal },
-      );
+      logsLoading.value = true;
+      const result = await api<LogPage>(logQuery(), { signal: request.signal });
       if (generation !== loadGeneration) return;
-      rawLogs.value = result.logs;
-      logs.value = rawLogs.value
-        .filter(
-          (line) =>
-            (logLevel.value === "all" ||
-              line.includes("[" + logLevel.value + "]")) &&
-            line.toLowerCase().includes(logSearch.value.toLowerCase()),
-        )
-        .join("\n");
+      rawLogs.value = result.logs;logNext.value = result.next;logFileId.value = result.fileId;
+      await nextTick();
+      if (generation === loadGeneration && logViewer.value) logViewer.value.scrollTop = logViewer.value.scrollHeight;
     } else {
       const result = await api<AdminResponse>("/admin/" + section, { signal: request.signal });
       if (generation !== loadGeneration) return;
@@ -206,7 +237,7 @@ async function load() {
     }
   } catch (e) {
     if (!request.signal.aborted && generation === loadGeneration) error.value = errorMessage(e);
-  }
+  } finally { if (generation === loadGeneration) logsLoading.value = false; }
 }
 async function action(path: string, method: string, body?: unknown) {
   if (busy.value) return;
@@ -373,9 +404,9 @@ async function createBackup() {
         ><input v-model="logSearch" placeholder="Logs durchsuchen" /><input
           v-model.number="logLines"
           type="number"
-          min="1"
-          max="10000"
-          aria-label="Zeilen"
+          min="10"
+          max="1000"
+          aria-label="Zeilen pro Ladeabschnitt"
         /><button class="btn small ghost" @click="load">Aktualisieren</button
         ><button class="btn small ghost danger" @click="clearLogs">
           {{ t("common.delete") }}</button
@@ -384,11 +415,23 @@ async function createBackup() {
           aktualisieren</label
         >
       </div>
+      <div class="row">
+        <span class="muted">{{ rawLogs.length }} Einträge geladen · Neueste unten</span>
+        <button v-if="logNext !== null" type="button" class="btn small ghost" :disabled="logsLoading || olderLogsLoading" @click="loadOlderLogs">
+          {{ olderLogsLoading ? 'Ältere Einträge werden geladen …' : 'Ältere Einträge laden' }}
+        </button>
+        <span v-if="logsLoading" class="muted" role="status">{{ t('common.loading') }}</span>
+      </div>
       <pre
+        ref="logViewer"
         class="log-viewer-box"
+        tabindex="0"
+        aria-label="Serverlogs, neueste Einträge unten"
+        @scroll="onLogScroll"
         style="
           max-height: 320px;
           overflow: auto;
+          overflow-anchor: none;
           background: var(--tube-bg);
           padding: 0.75rem;
           border: 1px solid var(--line);
