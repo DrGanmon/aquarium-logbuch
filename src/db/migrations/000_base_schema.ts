@@ -1,4 +1,3 @@
-'use strict';
 import logger = require('../../utils/logger');
 
 /**

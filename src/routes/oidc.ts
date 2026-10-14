@@ -2,7 +2,6 @@ import cryptoModule = require('../utils/crypto');
 const { sha } = cryptoModule;
 import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
-'use strict';
 import express = require('express');
 import db = require('../db');
 import envModule = require('../config/env');

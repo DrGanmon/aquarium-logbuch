@@ -63,7 +63,7 @@ router.get('/aquariums/:id/residents', auth, ownAquarium, wrap(async (req, res) 
   const lang = language(req);
   const stock = await db.stock.listForAquarium(req.aq.id);
   res.json({ aquarium: { id: req.aq.id, name: req.aq.name, waterType: req.aq.water_type },
-    residents: stock.map(item => { const { ranges, ...resident } = residentProfile(item, req.aq.water_type, lang); return resident; }) });
+    residents: stock.map(item => { const { ...resident } = residentProfile(item, req.aq.water_type, lang); return resident; }) });
 }));
 
 async function diagnosisFor(req: Request) {

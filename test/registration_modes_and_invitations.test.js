@@ -150,7 +150,7 @@ test('Registrierungs-Modi & Einladungen: Umfassender Workflow (SQLite)', async (
     assert.strictEqual(userCodeRes.status, 200);
     assert.ok(userCodeRes.data.invitation.code);
     const userCode = userCodeRes.data.invitation.code;
-    const userCodeId = userCodeRes.data.invitation.id;
+
 
     // Nutzer 1 ruft seine Einladungsliste ab
     const myInvs = await env.request('/api/me/invitations', {

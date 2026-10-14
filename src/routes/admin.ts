@@ -1,6 +1,5 @@
 import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
-'use strict';
 import express = require('express');
 import db = require('../db');
 import envModule = require('../config/env');
@@ -11,8 +10,7 @@ import helpersModule = require('../utils/helpers');
 const { wrap, str } = helpersModule;
 import authModule = require('../middleware/auth');
 const { auth, requireAdmin } = authModule;
-import image_serviceModule = require('../services/image-service');
-const { deleteImage } = image_serviceModule;
+import '../services/image-service';
 import backup_serviceModule = require('../services/backup-service');
 const { backupService } = backup_serviceModule;
 import mail_serviceModule = require('../services/mail-service');

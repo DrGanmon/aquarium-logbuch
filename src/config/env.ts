@@ -1,5 +1,4 @@
 import { APP_ROOT } from '../utils/paths';
-'use strict';
 import path = require('path');
 import os = require('os');
 import cfg = require('./app-config');

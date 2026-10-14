@@ -1,8 +1,7 @@
 import { JsonConfigStore } from './json-config-store';
 import { asRecord } from '../utils/validation';
 interface LegalSettings { contactEmail: string | null; imprintEmail: string | null }
-import { asError } from '../utils/app-error';
-'use strict';
+import {  } from '../utils/app-error';
 import path = require('path');
 import fs = require('fs');
 import envModule = require('../config/env');
@@ -35,7 +34,7 @@ class LegalConfigService {
   _ensureDirs() {
     try {
       fs.mkdirSync(path.dirname(this.configFile), { recursive: true });
-    } catch (e) {
+    } catch {
       // ignore
     }
   }
@@ -67,10 +66,10 @@ class LegalConfigService {
     const newConfig = asRecord(input);
     this._ensureDirs();
 
-    let contactEmail = newConfig.contactEmail !== undefined
+    const contactEmail = newConfig.contactEmail !== undefined
       ? (newConfig.contactEmail ? String(newConfig.contactEmail).trim() : null)
       : undefined;
-    let imprintEmail = newConfig.imprintEmail !== undefined
+    const imprintEmail = newConfig.imprintEmail !== undefined
       ? (newConfig.imprintEmail ? String(newConfig.imprintEmail).trim() : null)
       : undefined;
 

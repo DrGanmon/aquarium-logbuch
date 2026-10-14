@@ -2,7 +2,6 @@ import type { SpeciesCatalogDescriptor } from '../types/catalog';
 import { asRecord, isRecord } from '../utils/validation';
 import { asError } from '../utils/app-error';
 import { APP_ROOT } from '../utils/paths';
-'use strict';
 import fs = require('fs');
 import path = require('path');
 

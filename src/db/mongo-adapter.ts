@@ -5,7 +5,6 @@ import type { MongoConnection } from '../types/database-driver';
 import type { RepositoryContract, UserQueries, AquariumQueries, StockRepository, PumpRepository, MeasurementQueries } from '../types/repositories';
 import { asError } from '../utils/app-error';
 import type { DatabaseOptions } from '../types/domain';
-'use strict';
 import { MongoClient } from 'mongodb';
 import envModule = require('../config/env');
 const { MONGODB_URI, MONGODB_DB_NAME } = envModule;
@@ -17,7 +16,7 @@ const { calculateCycleStatus } = reminder_serviceModule;
 import image_serviceModule = require('../services/image-service');
 const { deleteImage } = image_serviceModule;
 import migratorModule = require('./migrator');
-const { runMigrationsMongo, getCurrentVersionMongo } = migratorModule;
+const { runMigrationsMongo } = migratorModule;
 
 function escapeRegex(string?: any) {
   return String(string).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -75,7 +74,7 @@ class MongoAdapter {
             const parsed = new URL(this.uri);
             const pathName = parsed.pathname.replace(/^\/+/, '');
             this.db = this.client.db(pathName || 'aquarium');
-          } catch (e) {
+          } catch {
             this.db = this.client.db('aquarium');
           }
         }
@@ -105,7 +104,7 @@ class MongoAdapter {
     if (this.client) {
       try {
         await this.client.close();
-      } catch (e) {
+      } catch {
         // ignore
       }
       this.client = null;
@@ -212,8 +211,8 @@ class MongoAdapter {
   }
 
   _setupRepositories() {
-    const db = this.connection();
-    const self = this;
+    this.connection();
+
 
     this.users = this.build_users();
 
@@ -257,7 +256,7 @@ class MongoAdapter {
     const safeGetDocs = async (collectionName?: any, sort: any = { id: 1 }) => {
       try {
         return stripId(await db.collection(collectionName).find({}).sort(sort).toArray());
-      } catch (e) {
+      } catch {
         return [];
       }
     };
@@ -586,7 +585,7 @@ class MongoAdapter {
 
   private build_sessions() {
     const db = this.connection();
-    const self = this;
+
     return {
       async create(tokenHash?: any, userId?: any, expiresAt?: any, idToken: any = null) {
         await db.collection('sessions').updateOne(
@@ -975,7 +974,7 @@ class MongoAdapter {
 
   private build_shares() {
     const db = this.connection();
-    const self = this;
+
     return {
       async listForAquarium(aquariumId?: any) {
         const shares = await db.collection<AquariumShare & { _id?: number }>('aquarium_shares').find({ aquarium_id: Number(aquariumId) }).sort({ created_at: 1 }).toArray();

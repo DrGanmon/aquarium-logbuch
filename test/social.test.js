@@ -1,7 +1,6 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
 const sharp = require('sharp');
 const { createTestEnvironment, createMongoTestEnvironment } = require('./helpers/env');
 for (const backend of ['sqlite', 'mongodb']) {

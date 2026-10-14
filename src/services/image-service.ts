@@ -1,5 +1,4 @@
 import { asError } from '../utils/app-error';
-'use strict';
 import path = require('path');
 import fs = require('fs');
 import crypto = require('crypto');

@@ -1,4 +1,3 @@
-'use strict';
 export = {
   version: 2,
   name: '002_test_inventory',

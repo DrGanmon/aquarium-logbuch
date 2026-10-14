@@ -1,6 +1,5 @@
 import { writeJsonFile } from './json-config-store';
 import { asError } from '../utils/app-error';
-'use strict';
 import path = require('path');
 import fs = require('fs');
 import zlib = require('zlib');
@@ -83,7 +82,7 @@ class BackupService {
     try {
       fs.mkdirSync(this.backupsDir, { recursive: true });
       fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-    } catch (e) {
+    } catch {
       // ignore
     }
   }
@@ -177,7 +176,7 @@ class BackupService {
       for (const f of existing) {
         try {
           fs.unlinkSync(path.join(UPLOADS_DIR, f));
-        } catch (e) {
+        } catch {
           // ignore
         }
       }
@@ -226,7 +225,7 @@ class BackupService {
             if (col.name.startsWith('system.')) continue;
             try {
               rawData[col.name] = await rawDb.collection(col.name).find().toArray();
-            } catch (e) {
+            } catch {
               rawData[col.name] = [];
             }
           }
@@ -244,7 +243,7 @@ class BackupService {
           for (const table of tables) {
             try {
               rawData[table] = rawDb.prepare(`SELECT * FROM "${table}"`).all();
-            } catch (e) {
+            } catch {
               rawData[table] = [];
             }
           }
@@ -322,7 +321,7 @@ class BackupService {
           lastBackupAt: now.toISOString(),
           lastBackupFile: filename,
         });
-      } catch (cfgErr) {
+      } catch {
         // ignore
       }
 
@@ -418,7 +417,7 @@ class BackupService {
             isAuto: safe.includes('auto-backup'),
           });
         }
-      } catch (e) {
+      } catch {
         // ignore
       }
     }
@@ -469,9 +468,9 @@ class BackupService {
     }
 
     // Falls das Backup direkt eine Tabellenstruktur ist (v1 ohne Hülle)
-    let version = Number(raw.version) || 1;
-    let data = raw.data || raw;
-    let files = raw.files || {};
+    const version = Number(raw.version) || 1;
+    const data = raw.data || raw;
+    const files = raw.files || {};
 
     // Standardstrukturen vorbereiten
     const users = Array.isArray(data.users) ? data.users : [];

@@ -59,7 +59,7 @@ class WorkerPool {
         console.error(`Worker Thread #${index} Fehler:`, error.message);
         this._replaceWorker(worker, index);
       });
-      worker.on('exit', (code: number) => {
+      worker.on('exit', (_code: number) => {
         if (!this.isTerminated) this._replaceWorker(worker, index);
       });
       this.workers.set(index, worker);

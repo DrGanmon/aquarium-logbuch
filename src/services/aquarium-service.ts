@@ -1,7 +1,6 @@
 import type { Aquarium, AquariumInput, AccessRole, CycleUnit, ValidationResult } from '../types/domain';
 import { asRecord } from '../utils/validation';
 interface CycleSettings { interval: number | null; unit: CycleUnit; day_of_week: number | null; reminder_mail: 0 | 1 }
-'use strict';
 import helpersModule = require('../utils/helpers');
 const { str } = helpersModule;
 import reminder_serviceModule = require('./reminder-service');
@@ -50,7 +49,7 @@ function aquariumInput(input: unknown): ValidationResult<AquariumInput> {
   const name = str(body.name, 80);
   if (!name) return { error: 'Bitte einen Namen eingeben.' };
   const water_type = body.water_type === 'salt' ? 'salt' : 'fresh';
-  let volume_l = body.volume_l === '' || body.volume_l == null ? null : Math.round(Number(body.volume_l));
+  const volume_l = body.volume_l === '' || body.volume_l == null ? null : Math.round(Number(body.volume_l));
   if (volume_l != null && (!Number.isFinite(volume_l) || volume_l < 1 || volume_l > 100000)) {
     return { error: 'Volumen: bitte eine Zahl zwischen 1 und 100000 Litern angeben.' };
   }

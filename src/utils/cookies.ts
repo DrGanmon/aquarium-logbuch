@@ -1,5 +1,4 @@
 import type { Request, Response } from 'express';
-'use strict';
 import crypto = require('crypto');
 import envModule = require('../config/env');
 const { COOKIE_PATH, COOKIE_SECURE, SESSION_DAYS } = envModule;
@@ -34,7 +33,7 @@ async function startSession(res: Response, db?: any, userId?: any, idToken: any 
   await db.sessions.create(sha(token), userId, Date.now() + maxAge * 1000, idToken);
   try {
     db.sessions.cleanExpired().catch(() => {});
-  } catch (e) {
+  } catch {
     // Ignore async cleanup error
   }
   setSessionCookie(res, token, maxAge);

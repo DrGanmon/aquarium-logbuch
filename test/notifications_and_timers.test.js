@@ -1,9 +1,9 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('fs');
-const path = require('path');
-const http = require('http');
+require('fs');
+require('path');
+require('http');
 
 const { createTestEnvironment } = require('./helpers/env');
 
@@ -22,12 +22,12 @@ test('Push-Benachrichtigungen & Timer-Service-Worker', async (t) => {
     assert.ok(contentType.includes('javascript'));
 
     const content = res.text;
-    assert.ok(/scope\.addEventListener\([\"']install[\"']/.test(content), 'sw.js muss install-Handler enthalten');
-    assert.ok(/scope\.addEventListener\([\"']message[\"']/.test(content), 'sw.js muss message-Handler enthalten');
+    assert.ok(/scope\.addEventListener\(["']install["']/.test(content), 'sw.js muss install-Handler enthalten');
+    assert.ok(/scope\.addEventListener\(["']message["']/.test(content), 'sw.js muss message-Handler enthalten');
     assert.ok(content.includes('SCHEDULE_TIMER'), 'sw.js muss SCHEDULE_TIMER unterstützen');
     assert.ok(content.includes('CANCEL_TIMER'), 'sw.js muss CANCEL_TIMER unterstützen');
     assert.ok(content.includes('CLEAR_ALL_TIMERS'), 'sw.js muss CLEAR_ALL_TIMERS unterstützen');
-    assert.ok(/scope\.addEventListener\([\"']notificationclick[\"']/.test(content), 'sw.js muss notificationclick-Handler enthalten');
+    assert.ok(/scope\.addEventListener\(["']notificationclick["']/.test(content), 'sw.js muss notificationclick-Handler enthalten');
   });
 
   await t.test('Web App Manifest (manifest.json) wird korrekt ausgeliefert', async () => {

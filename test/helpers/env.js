@@ -112,7 +112,7 @@ function createTestEnvironment(customEnv = {}) {
       redirect: options.redirect || 'manual',
     });
 
-    let data = null;
+    let data;
     const text = await res.text();
     try {
       data = JSON.parse(text);
@@ -212,7 +212,7 @@ async function createMongoTestEnvironment(customEnv = {}) {
     await originalCleanup();
     try {
       await mongod.stop();
-    } catch (e) {}
+    } catch { /* Temporary resources may already have been removed. */ }
   };
 
   env.getMongoUri = () => uri;

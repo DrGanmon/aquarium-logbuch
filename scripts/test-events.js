@@ -18,5 +18,6 @@ async function forwardEvent({ type, data }) {
 // Node custom reporter; IPC keeps summaries and failure logs separate from human output.
 module.exports = async function* (source) {
   for await (const event of source) await forwardEvent(event);
+  yield* []; // Events are sent through IPC; this reporter produces no text.
 };
 module.exports.forwardEvent = forwardEvent;

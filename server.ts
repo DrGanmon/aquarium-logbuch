@@ -1,5 +1,4 @@
 import { asError } from './src/utils/app-error';
-'use strict';
 import app = require('./src/app');
 import envModule = require('./src/config/env');
 const { PORT } = envModule;
@@ -72,10 +71,10 @@ function startServer(): void {
         server.close(async () => {
           try {
             await workerPool.terminate();
-          } catch (e) {}
+          } catch { /* Best-effort cleanup or optional operation; failure is safe to ignore. */ }
           try {
             await db.close();
-          } catch (e) {}
+          } catch { /* Best-effort cleanup or optional operation; failure is safe to ignore. */ }
           process.exit(0);
         });
         setTimeout(() => process.exit(0), 2500).unref();

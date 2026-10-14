@@ -5,8 +5,7 @@ import { asRecord, isRecord } from '../utils/validation';
 import speciesModule = require('./species-service');
 import type { WaterType } from '../types/domain';
 import type {
-  AnswerInput, AutomaticAnswer, DiagnosisDocument, DiagnosisNode, DiagnosisOutcome, DiagnosisTree,
-  Disease, DiseaseDocument, HealthContext, HealthLanguage, HealthMeasurement, HealthQuestion, SpeciesRanges, MedicationDocument,
+  AnswerInput, AutomaticAnswer, DiagnosisDocument, DiagnosisNode, DiagnosisOutcome, DiseaseDocument, HealthContext, HealthLanguage, HealthQuestion, SpeciesRanges, MedicationDocument,
 } from '../types/health';
 
 const DATA_DIRECTORY = path.join(__dirname, '../config/health');

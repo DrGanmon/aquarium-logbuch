@@ -2,7 +2,6 @@ import { getPlantCatalog, searchPlants } from '../services/plant-service';
 import { searchSpecies } from '../shared/species-search';
 import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
-'use strict';
 import express = require('express');
 import cfg = require('../config/app-config');
 import authModule = require('../middleware/auth');
@@ -36,7 +35,7 @@ router.get(
     if (user?.selected_tests) {
       try {
         userSelectedTests = typeof user.selected_tests === 'string' ? JSON.parse(user.selected_tests) : user.selected_tests;
-      } catch (e) {
+      } catch {
         userSelectedTests = null;
       }
     }
@@ -246,7 +245,7 @@ router.put(
     if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
 
     let selectedSuite = req.body.suiteId || req.body.selectedSuite || null;
-    let selectedTests = req.body.tests || req.body.selectedTests;
+    const selectedTests = req.body.tests || req.body.selectedTests;
 
     if (selectedSuite != null) selectedSuite = str(selectedSuite, 50);
     if (selectedSuite && !cfg.suiteService.getSuite(selectedSuite)) return res.status(400).json({ error: 'Unbekannte Testsuite.' });
@@ -272,7 +271,7 @@ router.put(
     if (updated.selected_tests) {
       try {
         parsed = typeof updated.selected_tests === 'string' ? JSON.parse(updated.selected_tests) : updated.selected_tests;
-      } catch (e) {
+      } catch {
         parsed = null;
       }
     }

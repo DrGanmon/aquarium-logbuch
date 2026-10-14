@@ -1,7 +1,6 @@
 import type { ChildProcess } from 'node:child_process';
 import { asRecord } from '../utils/validation';
 interface SupervisorOptions { targetScript?: string; args?: string[]; env?: NodeJS.ProcessEnv; logFile?: string; gracefulTimeout?: number; maxCrashWindowMs?: number; maxCrashesInWindow?: number; numWorkers?: number | 'auto' }
-'use strict';
 import cluster from 'node:cluster';
 import path = require('path');
 import os = require('os');
@@ -249,7 +248,7 @@ class Supervisor {
     const stopPromises = currentChildren.map((child: ChildProcess) => {
       return new Promise<void>((resolve) => {
         let resolved = false;
-        let killTimer: ReturnType<typeof setTimeout> | undefined;
+        let killTimer: ReturnType<typeof setTimeout> | undefined = undefined;
         const done = () => {
           if (!resolved) {
             resolved = true;
@@ -264,7 +263,7 @@ class Supervisor {
 
         try {
           child.kill('SIGTERM');
-        } catch (err) {}
+        } catch { /* Best-effort cleanup or optional operation; failure is safe to ignore. */ }
 
         if (resolved) return;
         killTimer = setTimeout(() => {
@@ -272,7 +271,7 @@ class Supervisor {
             logger.warn(`Child-Prozess (PID: ${child.pid}) reagiert nicht auf SIGTERM, erzwinge Beenden (SIGKILL)...`, 'supervisor');
             try {
               child.kill('SIGKILL');
-            } catch (e) {}
+            } catch { /* Best-effort cleanup or optional operation; failure is safe to ignore. */ }
             done();
           }
         }, this.gracefulTimeout);

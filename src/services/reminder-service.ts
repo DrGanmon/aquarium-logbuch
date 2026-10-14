@@ -1,6 +1,5 @@
 interface CycleConfig { interval?: number | string | null; unit?: string | null; day_of_week?: number | string | null; reminder_mail?: number | boolean | string | null }
 import { asError } from '../utils/app-error';
-'use strict';
 
 import mail_serviceModule = require('./mail-service');
 const { mailService } = mail_serviceModule;

@@ -30,7 +30,9 @@
     "build:backend": "node scripts/build-backend.js",
     "build:backend:bun": "bun scripts/build-backend.js",
     "typecheck:backend": "node scripts/build-backend.js --check",
-    "typecheck:backend:bun": "bun scripts/build-backend.js --check"
+    "typecheck:backend:bun": "bun scripts/build-backend.js --check",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "npm run lint -- --fix"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
@@ -46,14 +48,19 @@
     "bun": ">=1.4.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@types/better-sqlite3": "^9.6.0",
     "@types/express": "^5.0.6",
     "@types/node": "^22.20.5",
     "@vitejs/plugin-vue": "^6.0.10",
     "@volar/typescript": "2.4.28",
     "@vue/language-core": "3.3.13",
+    "eslint": "^9.39.5",
+    "eslint-plugin-vue": "^10.11.1",
+    "globals": "^17.13.0",
     "mongodb-memory-server": "^11.3.0",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.2",
     "vite": "^8.3.4",
     "vue-tsc": "^3.3.13"
   },

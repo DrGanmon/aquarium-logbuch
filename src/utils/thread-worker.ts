@@ -1,6 +1,5 @@
-import type { TaskPayloads, TaskResults, TaskName, WorkerRequest, WorkerReply, Statistics } from '../types/worker';
+import type { TaskPayloads, TaskResults, TaskName, WorkerRequest, Statistics } from '../types/worker';
 import { asError } from './app-error';
-'use strict';
 import { parentPort } from 'worker_threads';
 import crypto = require('crypto');
 import { promisify } from 'util';
@@ -20,7 +19,7 @@ const TASK_HANDLERS: { [K in TaskName]: (payload: TaskPayloads[K]) => TaskResult
     try {
       const hash = await scryptAsync(pw, Buffer.from(saltHex, 'hex'), 64);
       return crypto.timingSafeEqual(hash, Buffer.from(hashHex, 'hex'));
-    } catch (e) {
+    } catch {
       return false;
     }
   },

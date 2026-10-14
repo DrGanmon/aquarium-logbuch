@@ -1,7 +1,6 @@
 import { asRecord } from '../utils/validation';
 import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
-'use strict';
 import express = require('express');
 import crypto = require('crypto');
 import db = require('../db');
@@ -64,7 +63,7 @@ function serializeMe(u?: any) {
   if (u.selected_tests) {
     try {
       selectedTests = typeof u.selected_tests === 'string' ? JSON.parse(u.selected_tests) : u.selected_tests;
-    } catch (e) {
+    } catch {
       selectedTests = null;
     }
   }
@@ -527,13 +526,13 @@ router.put(
     const user = await db.users.findById(req.user.id);
     if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
 
-    let rawKey = req.body.apiKey !== undefined ? req.body.apiKey : req.body.key;
+    const rawKey = req.body.apiKey !== undefined ? req.body.apiKey : req.body.key;
     let apiKey = undefined;
     if (rawKey !== undefined) {
       apiKey = rawKey === null || rawKey === '' ? null : str(rawKey, 500).trim();
     }
 
-    let rawModel = req.body.model;
+    const rawModel = req.body.model;
     let model = undefined;
     if (rawModel !== undefined) {
       model = rawModel === null || rawModel === '' ? null : str(rawModel, 100).trim();
@@ -627,13 +626,13 @@ router.put(
     const user = await db.users.findById(req.user.id);
     if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
 
-    let rawKey = req.body.apiKey !== undefined ? req.body.apiKey : req.body.key;
+    const rawKey = req.body.apiKey !== undefined ? req.body.apiKey : req.body.key;
     let apiKey = undefined;
     if (rawKey !== undefined) {
       apiKey = rawKey === null || rawKey === '' ? null : str(rawKey, 500).trim();
     }
 
-    let rawModel = req.body.model;
+    const rawModel = req.body.model;
     let model = undefined;
     if (rawModel !== undefined) {
       model = rawModel === null || rawModel === '' ? null : str(rawModel, 100).trim();
@@ -727,13 +726,13 @@ router.put(
     const user = await db.users.findById(req.user.id);
     if (!user) return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
 
-    let rawKey = req.body.apiKey !== undefined ? req.body.apiKey : req.body.key;
+    const rawKey = req.body.apiKey !== undefined ? req.body.apiKey : req.body.key;
     let apiKey = undefined;
     if (rawKey !== undefined) {
       apiKey = rawKey === null || rawKey === '' ? null : str(rawKey, 500).trim();
     }
 
-    let rawModel = req.body.model;
+    const rawModel = req.body.model;
     let model = undefined;
     if (rawModel !== undefined) {
       model = rawModel === null || rawModel === '' ? null : str(rawModel, 100).trim();
@@ -826,7 +825,7 @@ router.post(
     const user = await db.users.findById(req.user.id);
     const provider = (req.body?.provider || user?.ai_provider || 'openai').toLowerCase().trim();
     let apiKey = (req.body?.apiKey || '').trim();
-    let model = (req.body?.model || '').trim();
+    const model = (req.body?.model || '').trim();
 
     if (!apiKey) {
       if (provider === 'gemini') apiKey = (user?.gemini_api_key || GEMINI_API_KEY || '').trim();

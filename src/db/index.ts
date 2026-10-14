@@ -1,4 +1,3 @@
-'use strict';
 import envModule = require('../config/env');
 const { DB_TYPE, MONGODB_URI, MONGODB_DB_NAME, DATA_DIR } = envModule;
 import SqliteAdapter = require('./sqlite-adapter');

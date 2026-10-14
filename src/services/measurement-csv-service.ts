@@ -1,4 +1,3 @@
-'use strict';
 
 import cfg = require('../config/app-config');
 import alert_serviceModule = require('./alert-service');
@@ -33,7 +32,7 @@ function detectDelimiter(text?: any) {
 function parseCsv(text?: any, options: any = {}) {
   if (!text || typeof text !== 'string') return [];
   // BOM entfernen falls vorhanden
-  let cleanText = text.replace(/^\uFEFF/, '');
+  const cleanText = text.replace(/^\uFEFF/, '');
   const delimiter = options.delimiter || detectDelimiter(cleanText);
 
   const rows = [];
@@ -118,10 +117,10 @@ function parseCsv(text?: any, options: any = {}) {
  */
 function parseDate(rawDate?: any, rawTime: any = null) {
   if (!rawDate && rawDate !== 0) return null;
-  let dStr = String(rawDate).trim();
+  const dStr = String(rawDate).trim();
   if (!dStr) return null;
 
-  let tStr = rawTime != null ? String(rawTime).trim() : '';
+  const tStr = rawTime != null ? String(rawTime).trim() : '';
 
   // Prüfe auf Excel Serial Date (z.B. 45200.5)
   if (/^\d{5}(\.\d+)?$/.test(dStr)) {
@@ -441,7 +440,7 @@ function generateCsv(measurements: any = [], options: any = {}) {
 
   for (const m of sorted) {
     const dateObj = new Date(m.measured_at);
-    let dateStr = '';
+    let dateStr: string;
     let timeStr = '';
     if (!Number.isNaN(dateObj.getTime())) {
       const y = dateObj.getFullYear();

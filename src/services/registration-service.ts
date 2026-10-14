@@ -1,7 +1,6 @@
 import { JsonConfigStore } from './json-config-store';
 import { asRecord } from '../utils/validation';
-import { asError } from '../utils/app-error';
-'use strict';
+import {  } from '../utils/app-error';
 import path = require('path');
 import fs = require('fs');
 import crypto = require('crypto');
@@ -35,7 +34,7 @@ class RegistrationService {
   _ensureDirs() {
     try {
       fs.mkdirSync(path.dirname(this.configFile), { recursive: true });
-    } catch (e) {
+    } catch {
       // ignore
     }
   }

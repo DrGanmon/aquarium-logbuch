@@ -88,7 +88,7 @@ test('Auth: Login und Brute-Force Rate Limiting', async (t) => {
   t.after(async () => await env.cleanup());
 
   // Benutzer anlegen
-  const regRes = await env.request('/api/register', {
+  await env.request('/api/register', {
     method: 'POST',
     body: { username: 'logintest', password: 'correctpassword', email: 'logintest@example.com' },
   });

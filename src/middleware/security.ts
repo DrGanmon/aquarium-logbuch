@@ -1,5 +1,4 @@
 import type { Request, Response, NextFunction } from 'express';
-'use strict';
 
 function securityHeaders(req: Request, res: Response, next: NextFunction) {
   res.setHeader('X-Content-Type-Options', 'nosniff');

@@ -4,7 +4,6 @@ import type { UserRecord, Aquarium, AccessRole, StockRecord, Measurement, Dosing
 import type { SqliteConnection } from '../types/database-driver';
 import type { RepositoryContract, UserQueries, AquariumQueries, StockRepository, PumpRepository, MeasurementQueries } from '../types/repositories';
 import type { DatabaseOptions } from '../types/domain';
-'use strict';
 import path = require('path');
 import fs = require('fs');
 import Database = require('better-sqlite3');
@@ -18,7 +17,7 @@ const { calculateCycleStatus } = reminder_serviceModule;
 import image_serviceModule = require('../services/image-service');
 const { deleteImage } = image_serviceModule;
 import migratorModule = require('./migrator');
-const { runMigrations, getCurrentVersion, setCurrentVersion } = migratorModule;
+const { runMigrations, getCurrentVersion } = migratorModule;
 
 class SqliteAdapter {
   readonly type: 'sqlite';
@@ -88,7 +87,7 @@ class SqliteAdapter {
     if (this.db) {
       try {
         this.db.close();
-      } catch (e) {
+      } catch {
         // ignore
       }
       this.db = null;
@@ -106,13 +105,13 @@ class SqliteAdapter {
   }
 
   _setupRepositories() {
-    const db = this.connection();
+    this.connection();
 
     this.users = this.build_users();
 
     this.sessions = this.build_sessions();
 
-    const self = this;
+
 
     this.aquariums = this.build_aquariums();
 
@@ -146,7 +145,7 @@ class SqliteAdapter {
         const exists = Boolean(db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?").get(table));
         if (!exists) return [];
         return db.prepare(`SELECT * FROM "${table}" ORDER BY ${order}`).all();
-      } catch (e) {
+      } catch {
         return [];
       }
     };
@@ -671,7 +670,7 @@ class SqliteAdapter {
 
   private build_sessions() {
     const db = this.connection();
-    const self = this;
+
     return {
       async create(tokenHash?: any, userId?: any, expiresAt?: any, idToken: any = null) {
         db.prepare(
@@ -953,7 +952,7 @@ class SqliteAdapter {
 
   private build_aquariumImages() {
     const db = this.connection();
-    const self = this;
+
     return {
       async listForAquarium(aquariumId?: any) {
         const numId = Number(aquariumId);
@@ -1031,7 +1030,7 @@ class SqliteAdapter {
 
   private build_shares() {
     const db = this.connection();
-    const self = this;
+
     return {
       async listForAquarium(aquariumId?: any) {
         return db
@@ -1149,7 +1148,7 @@ class SqliteAdapter {
 
   private build_stock() {
     const db = this.connection();
-    const self = this;
+
     return {
       async listForAquarium(aquariumId?: any) {
         const rows = db.prepare<StockRecord>('SELECT id, aquarium_id, species, count, profile, name, image_file FROM stock WHERE aquarium_id = ? ORDER BY species, id').all(Number(aquariumId));
@@ -1394,7 +1393,7 @@ class SqliteAdapter {
 
   private build_alerts() {
     const db = this.connection();
-    const self = this;
+
     return {
       async listOpenForAquarium(aquariumId?: any) {
         return db
@@ -1583,7 +1582,7 @@ class SqliteAdapter {
 
   private build_invitations() {
     const db = this.connection();
-    const self = this;
+
     return {
       async findById(id?: any) {
         if (!id) return null;
@@ -1680,7 +1679,7 @@ class SqliteAdapter {
 
   private build_aquariumChats() {
     const db = this.connection();
-    const self = this;
+
     return {
       async listForAquarium(aquariumId?: any, options: any = {}) {
         const limit = Math.min(Math.max(Number(options.limit) || 100, 1), 500);

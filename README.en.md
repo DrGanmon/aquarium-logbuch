@@ -55,6 +55,8 @@ npm run dist
 npm start
 ```
 
+Run `npm run lint` to check the code; `npm run lint:fix` applies automatic fixes. ESLint checks TypeScript, Vue components, JavaScript scripts and tests.
+
 Open `http://localhost:3000`. For development with hot reload, also run `npm run dev` in a second terminal. [Installation and configuration](docs/en/installation.md) covers Bun, Docker, SMTP, OIDC and all environment variables. Use [example.env](docker/example.env) as a configuration template; adjust the public URL, administrator email and database credentials for your installation.
 
 With Docker Compose and MongoDB:

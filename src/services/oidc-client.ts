@@ -1,4 +1,3 @@
-'use strict';
 // OpenID Connect (Authorization Code Flow mit PKCE), z. B. gegen Pocket ID. Ohne externe Pakete.
 import crypto = require('crypto');
 
@@ -43,7 +42,7 @@ function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'ope
       if (!data || typeof data !== 'object') return null;
       if (Date.now() - data.t > PENDING_TTL) return null;
       return data;
-    } catch (e) {
+    } catch {
       return null;
     }
   }
@@ -52,7 +51,7 @@ function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'ope
     const res = await fetch(url, { ...opts, headers: { Accept: 'application/json', ...(opts.headers || {}) }, signal: AbortSignal.timeout(10000) });
     const text = await res.text();
     let data;
-    try { data = JSON.parse(text); } catch (e) { throw new Error(`Ungültige Antwort von ${url} (HTTP ${res.status})`); }
+    try { data = JSON.parse(text); } catch (cause) { throw new Error(`Ungültige Antwort von ${url} (HTTP ${res.status})`, { cause }); }
     if (!res.ok) throw new Error(`${url}: HTTP ${res.status} ${data.error_description || data.error || ''}`.trim());
     return data;
   }
@@ -167,7 +166,7 @@ function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'ope
       try {
         const info = await getJson(d.userinfo_endpoint, { headers: { Authorization: `Bearer ${tokens.access_token}` } });
         if (info.sub === claims.sub) claims = { ...info, ...claims };
-      } catch (e) { /* Userinfo ist optional */ }
+      } catch { /* Userinfo ist optional */ }
     }
     return { claims, idToken: tokens.id_token, terms: p.terms || null };
   }
@@ -181,7 +180,7 @@ function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'ope
       if (idToken) params.id_token_hint = idToken;
       url.search = new URLSearchParams(params).toString();
       return url.toString();
-    } catch (e) {
+    } catch {
       return null;
     }
   }

@@ -1,4 +1,3 @@
-'use strict';
 import helpersModule = require('../utils/helpers');
 const { str } = helpersModule;
 

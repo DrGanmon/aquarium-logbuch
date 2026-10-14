@@ -2,7 +2,6 @@ import { isRecord } from './utils/validation';
 import { asError } from './utils/app-error';
 import type { Request, Response, NextFunction } from 'express';
 import { APP_ROOT } from './utils/paths';
-'use strict';
 import express = require('express');
 import path = require('path');
 import fs = require('fs');

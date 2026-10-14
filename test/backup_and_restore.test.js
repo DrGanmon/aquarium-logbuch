@@ -1,9 +1,9 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('fs');
-const path = require('path');
-const zlib = require('zlib');
+require('fs');
+require('path');
+require('zlib');
 
 const { createTestEnvironment, createMongoTestEnvironment } = require('./helpers/env');
 

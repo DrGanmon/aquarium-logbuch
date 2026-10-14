@@ -5,10 +5,8 @@ const net = require('net');
 const { createTestEnvironment, createMongoTestEnvironment } = require('./helpers/env');
 const { sendSmtpMail, createMimeMessage, extractEmail } = require('../dist/backend/src/utils/smtp');
 const {
-  getTemplatePath,
   loadTemplate,
   replaceTokens,
-  renderTemplate,
   renderBaseTemplate,
   createEmailVerificationMail,
   createPasswordResetMail,

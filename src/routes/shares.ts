@@ -1,5 +1,4 @@
 import type { Request, Response } from 'express';
-'use strict';
 import express = require('express');
 import db = require('../db');
 import helpersModule = require('../utils/helpers');

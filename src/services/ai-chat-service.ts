@@ -3,7 +3,6 @@ import type { WaterTest } from '../types/catalog';
 import { isRecord } from '../utils/validation';
 interface ChatMessage { role: 'user' | 'assistant'; content: string }
 interface CompressionOptions { maxRecent?: number; maxTotalChars?: number; maxOldTurnChars?: number }
-'use strict';
 import db = require('../db');
 import cfg = require('../config/app-config');
 const {
@@ -74,8 +73,8 @@ async function buildAquariumSystemPrompt(aquariumId: number, customDb: typeof db
   let compatibility = null;
   try {
     compatibility = cfg.speciesService.analyzeStockCompatibility(aq, stockRows);
-  } catch (e) {
-    compatibility = null;
+  } catch {
+    // Optional compatibility analysis is unavailable.
   }
 
   // Profile und Grenzwerte berechnen
@@ -89,8 +88,8 @@ async function buildAquariumSystemPrompt(aquariumId: number, customDb: typeof db
   let maintenanceLogs = [];
   try {
     maintenanceLogs = await database.maintenance.listForAquarium(aquariumId, { days: 60 });
-  } catch (e) {
-    maintenanceLogs = [];
+  } catch {
+    // Optional maintenance history is unavailable.
   }
 
   // Parameter-Definitionen
@@ -280,10 +279,10 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
     let errorData = null;
     try {
       errorData = await response.clone().json();
-    } catch (e) {}
+    } catch { /* Keep the fallback error message when the response is not valid JSON. */ }
     const errMsg = String(errorData?.error?.message || '').toLowerCase();
 
-    let retryPayload: Record<string, any> = { ...payload };
+    const retryPayload: Record<string, any> = { ...payload };
     let shouldRetry = false;
 
     if (
@@ -319,7 +318,7 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
         let secondErrorData = null;
         try {
           secondErrorData = await response.clone().json();
-        } catch (e) {}
+        } catch { /* Keep the fallback error message when the response is not valid JSON. */ }
         const secondErrMsg = String(secondErrorData?.error?.message || '').toLowerCase();
         let secondRetry = false;
 
@@ -360,7 +359,7 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
     let errorData: Record<string, any> = {};
     try {
       errorData = await response.json();
-    } catch (e) {}
+    } catch { /* Keep the fallback error message when the response is not valid JSON. */ }
 
     const openAiError = errorData?.error?.message || response.statusText;
     let friendlyMessage = `OpenAI API Fehler (${response.status}): ${openAiError}`;
@@ -446,7 +445,7 @@ async function callGemini({ apiKey, model, systemPrompt, messages = [], message 
     let errorData: Record<string, any> = {};
     try {
       errorData = await response.json();
-    } catch (e) {}
+    } catch { /* Keep the fallback error message when the response is not valid JSON. */ }
 
     const geminiError = errorData?.error?.message || response.statusText;
     let friendlyMessage = `Google Gemini API Fehler (${response.status}): ${geminiError}`;
@@ -562,7 +561,7 @@ async function callClaude({ apiKey, model, systemPrompt, messages = [], message 
     let errorData: Record<string, any> = {};
     try {
       errorData = await response.json();
-    } catch (e) {}
+    } catch { /* Keep the fallback error message when the response is not valid JSON. */ }
 
     const claudeError = errorData?.error?.message || errorData?.message || response.statusText;
     let friendlyMessage = `Anthropic Claude API Fehler (${response.status}): ${claudeError}`;
@@ -621,8 +620,8 @@ function resolveProviderAndConfig(user?: Partial<Pick<UserRecord, 'ai_provider' 
     }
   }
 
-  let apiKey = '';
-  let model = '';
+  let apiKey: string;
+  let model: string;
 
   if (provider === 'gemini') {
     apiKey = (user?.gemini_api_key || GEMINI_API_KEY || '').trim();
@@ -796,7 +795,7 @@ async function chatWithAquarium({
           }
         }
       }
-    } catch (e) {
+    } catch {
       // Ignoriere DB-Fehler beim Laden der Historie
     }
   }
@@ -854,7 +853,7 @@ async function chatWithAquarium({
         provider: activeProvider,
         model: result.model || model,
       });
-    } catch (dbErr) {
+    } catch {
       // Speichern ignorieren falls Fehler
     }
   }
@@ -898,7 +897,7 @@ async function fetchOpenAiModels(apiKey?: any, baseUrl: any = OPENAI_URL_BASE) {
     let errorData: Record<string, any> = {};
     try {
       errorData = await response.json();
-    } catch (e) {}
+    } catch { /* Keep the fallback error message when the response is not valid JSON. */ }
     const msg = errorData?.error?.message || response.statusText;
     if (response.status === 401) {
       throw new Error('Ungültiger OpenAI API-Schlüssel. Bitte überprüfe deine Eingabe.');
@@ -963,7 +962,7 @@ async function fetchGeminiModels(apiKey?: any) {
     let errorData: Record<string, any> = {};
     try {
       errorData = await response.json();
-    } catch (e) {}
+    } catch { /* Keep the fallback error message when the response is not valid JSON. */ }
     const msg = errorData?.error?.message || response.statusText;
     if (response.status === 400 && String(msg).toLowerCase().includes('api key')) {
       throw new Error('Ungültiger Google Gemini API-Schlüssel. Bitte überprüfe deine Eingabe.');
@@ -1037,7 +1036,7 @@ async function fetchClaudeModels(apiKey?: any) {
     let errorData: Record<string, any> = {};
     try {
       errorData = await response.json();
-    } catch (e) {}
+    } catch { /* Keep the fallback error message when the response is not valid JSON. */ }
     const msg = errorData?.error?.message || errorData?.message || response.statusText;
     if (response.status === 401) {
       throw new Error('Ungültiger Anthropic Claude API-Schlüssel. Bitte überprüfe deine Eingabe.');
@@ -1131,10 +1130,10 @@ async function testOpenAiConnection(apiKey?: any, model: any = DEFAULT_OPENAI_MO
     let errorData = null;
     try {
       errorData = await response.clone().json();
-    } catch (e) {}
+    } catch { /* Keep the fallback error message when the response is not valid JSON. */ }
     const errMsg = String(errorData?.error?.message || '').toLowerCase();
 
-    let retryPayload: Record<string, any> = { ...testPayload };
+    const retryPayload: Record<string, any> = { ...testPayload };
     let shouldRetry = false;
 
     if (
@@ -1170,7 +1169,7 @@ async function testOpenAiConnection(apiKey?: any, model: any = DEFAULT_OPENAI_MO
         let secondErrorData = null;
         try {
           secondErrorData = await response.clone().json();
-        } catch (e) {}
+        } catch { /* Keep the fallback error message when the response is not valid JSON. */ }
         const secondErrMsg = String(secondErrorData?.error?.message || '').toLowerCase();
         let secondRetry = false;
 
@@ -1211,7 +1210,7 @@ async function testOpenAiConnection(apiKey?: any, model: any = DEFAULT_OPENAI_MO
     let errorData: Record<string, any> = {};
     try {
       errorData = await response.json();
-    } catch (e) {}
+    } catch { /* Keep the fallback error message when the response is not valid JSON. */ }
 
     const openAiError = errorData?.error?.message || response.statusText;
     if (response.status === 401) {
@@ -1259,7 +1258,7 @@ async function testGeminiConnection(apiKey?: any, model: any = DEFAULT_GEMINI_MO
     let errorData: Record<string, any> = {};
     try {
       errorData = await response.json();
-    } catch (e) {}
+    } catch { /* Keep the fallback error message when the response is not valid JSON. */ }
 
     const geminiError = errorData?.error?.message || response.statusText;
     if (response.status === 400 && String(geminiError).toLowerCase().includes('api key')) {
@@ -1309,7 +1308,7 @@ async function testClaudeConnection(apiKey?: any, model: any = DEFAULT_CLAUDE_MO
     let errorData: Record<string, any> = {};
     try {
       errorData = await response.json();
-    } catch (e) {}
+    } catch { /* Keep the fallback error message when the response is not valid JSON. */ }
 
     const claudeError = errorData?.error?.message || errorData?.message || response.statusText;
     if (response.status === 401) {

@@ -1,6 +1,5 @@
 import { asError } from './app-error';
 import { APP_ROOT } from './paths';
-'use strict';
 import fs = require('fs');
 import path = require('path');
 

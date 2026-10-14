@@ -1,6 +1,5 @@
 import { TERMS_VERSION } from './terms-service';
 import type { Response } from 'express';
-'use strict';
 import oidcModule = require('./oidc-client');
 const { createOidc } = oidcModule;
 const {

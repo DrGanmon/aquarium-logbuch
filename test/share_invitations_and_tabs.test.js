@@ -1,8 +1,8 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('fs');
-const path = require('path');
+require('fs');
+require('path');
 const { createTestEnvironment } = require('./helpers/env');
 const { loadTemplate, createShareAquariumMail } = require('../dist/backend/src/services/mail-template');
 
@@ -111,7 +111,7 @@ test('Aquarium-Freigaben: Einladungsmail, Token, Annahme, Ablehnung und Übersic
   assert.strictEqual(reShare.status, 200);
   assert.strictEqual(reShare.data.status, 'pending');
   assert.strictEqual(reShare.data.role, 'write');
-  const newToken = reShare.data.token;
+
 
   // 8. Resend-Endpoint testen
   const resendRes = await env.request(`/api/aquariums/${aqId}/shares/${recipient.id}/resend`, {

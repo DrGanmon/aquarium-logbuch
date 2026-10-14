@@ -17,7 +17,7 @@ test('Benutzerprofil: Abruf, Aktualisierung und Validierung', async (t) => {
   t.after(async () => await env.cleanup());
 
   const user1 = await env.createUserAndLogin('profileuser1', 'password123', 'user1@example.com');
-  const user2 = await env.createUserAndLogin('profileuser2', 'password123', 'user2@example.com');
+  await env.createUserAndLogin('profileuser2', 'password123', 'user2@example.com');
 
   // 1. Initialer Profilabruf
   const me1 = await env.request('/api/me', {

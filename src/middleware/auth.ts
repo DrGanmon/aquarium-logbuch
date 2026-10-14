@@ -1,7 +1,6 @@
 import type { Aquarium, AccessRole, SessionUser } from '../types/domain';
 import { asError } from '../utils/app-error';
 import type { Request, Response, NextFunction } from 'express';
-'use strict';
 import db = require('../db');
 import envModule = require('../config/env');
 const { isEmailAdmin } = envModule;

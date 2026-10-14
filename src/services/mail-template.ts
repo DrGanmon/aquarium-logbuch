@@ -1,5 +1,4 @@
 import { APP_ROOT } from '../utils/paths';
-'use strict';
 import fs = require('fs');
 import path = require('path');
 import envModule = require('../config/env');
@@ -15,7 +14,7 @@ try {
     const logoBuf = fs.readFileSync(LOGO_PNG_PATH);
     DEFAULT_LOGO_DATA_URI = `data:image/png;base64,${logoBuf.toString('base64')}`;
   }
-} catch (e) {
+} catch {
   // ignore
 }
 

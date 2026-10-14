@@ -1,5 +1,4 @@
 import { asError } from './app-error';
-'use strict';
 import net = require('net');
 import tls = require('tls');
 import crypto = require('crypto');
@@ -140,7 +139,7 @@ function sendSmtpMail(config?: any, mailOptions?: any) {
         if (code === 250) {
           const supportsStarttls = lines.some((l: any) => l.toUpperCase().includes('STARTTLS'));
           const authLine = lines.find((l: any) => l.toUpperCase().includes('AUTH '));
-          
+
           if (!secure && !isTlsUpgraded && supportsStarttls && !ignoreTls) {
             state = 'STARTTLS';
             send('STARTTLS');
@@ -295,7 +294,7 @@ function sendSmtpMail(config?: any, mailOptions?: any) {
       if (!socket) return;
       socket.removeAllListeners('data');
       socket.removeAllListeners('error');
-      
+
       const secureSocket = tls.connect({
         socket: socket,
         host: host,
@@ -381,7 +380,7 @@ function osHostname() {
   try {
     const os = require('os');
     return os.hostname() || 'localhost';
-  } catch (e) {
+  } catch {
     return 'localhost';
   }
 }

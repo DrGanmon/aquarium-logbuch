@@ -1,5 +1,4 @@
 import type { DosingPump, DosingPumpInput, ValidationResult } from '../types/domain';
-'use strict';
 import helpersModule = require('../utils/helpers');
 const { str } = helpersModule;
 
@@ -25,12 +24,12 @@ function validateDosingPumpInput(body: Record<string, unknown>): ValidationResul
   amountMl = Math.round(amountMl * 100) / 100;
   if (amountMl < 0.01) return { error: 'Die kleinste Dosiermenge beträgt 0.01 ml.' };
 
-  let intervalDays = Number(body.interval_days != null ? body.interval_days : 1);
+  const intervalDays = Number(body.interval_days != null ? body.interval_days : 1);
   if (!Number.isInteger(intervalDays) || intervalDays < 1 || intervalDays > 365) {
     return { error: 'Bitte ein gültiges Dosierintervall in Tagen angeben (z. B. 1 für täglich).' };
   }
 
-  let timeOfDay = str(body.time_of_day, 10);
+  const timeOfDay = str(body.time_of_day, 10);
   if (timeOfDay && !/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(timeOfDay)) {
     return { error: 'Bitte eine gültige Uhrzeit angeben (HH:MM).' };
   }

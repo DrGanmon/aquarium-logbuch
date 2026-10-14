@@ -2,7 +2,6 @@ import { getPlantCatalog } from '../services/plant-service';
 import { chatProgress } from '../utils/chat-progress';
 import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
-'use strict';
 import express = require('express');
 import { Readable, pipeline } from 'node:stream';
 import crypto = require('crypto');
@@ -13,11 +12,11 @@ const { wrap, str } = helpersModule;
 import authModule = require('../middleware/auth');
 const { auth, ownAquarium, writeAquarium, ownerAquarium, getAquariumAccess } = authModule;
 import aquarium_serviceModule = require('../services/aquarium-service');
-const { aquariumInput, aquariumSummary } = aquarium_serviceModule;
+const { aquariumInput } = aquarium_serviceModule;
 import alert_serviceModule = require('../services/alert-service');
 const { thresholdsOfAquarium, buildMessage } = alert_serviceModule;
 import image_serviceModule = require('../services/image-service');
-const { saveImage, saveAquariumImage, saveStockImage, deleteImage, getImagePath, getMimeType } = image_serviceModule;
+const { saveAquariumImage, saveStockImage, deleteImage, getImagePath, getMimeType } = image_serviceModule;
 import maintenance_serviceModule = require('../services/maintenance-service');
 const { validateMaintenanceInput, getAquariumTimeline } = maintenance_serviceModule;
 import dosing_serviceModule = require('../services/dosing-service');
@@ -253,7 +252,7 @@ router.post(
           expiresDays,
           lang: shareLang,
         });
-      } catch (e) {
+      } catch {
         // Mail-Fehler soll Freigabe-Erstellung nicht abbrechen
       }
     }
@@ -744,8 +743,8 @@ router.get(
     let days = req.query.days !== undefined && req.query.days !== '' && req.query.days !== 'all'
       ? Math.min(Math.max(Number(req.query.days) || 90, 1), 3650)
       : null;
-    let from = req.query.from ? String(req.query.from).trim() : null;
-    let to = req.query.to ? String(req.query.to).trim() : null;
+    const from = req.query.from ? String(req.query.from).trim() : null;
+    const to = req.query.to ? String(req.query.to).trim() : null;
     const all = req.query.all === 'true' || req.query.days === 'all';
     if (!from && days == null && !all) {
       days = 90; // Standard 3 Monate
@@ -773,11 +772,11 @@ router.get(
   auth,
   ownAquarium,
   wrap(async (req: Request, res: Response) => {
-    let days = req.query.days !== undefined && req.query.days !== '' && req.query.days !== 'all'
+    const days = req.query.days !== undefined && req.query.days !== '' && req.query.days !== 'all'
       ? Math.min(Math.max(Number(req.query.days) || 90, 1), 3650)
       : null;
-    let from = req.query.from ? String(req.query.from).trim() : null;
-    let to = req.query.to ? String(req.query.to).trim() : null;
+    const from = req.query.from ? String(req.query.from).trim() : null;
+    const to = req.query.to ? String(req.query.to).trim() : null;
     const all = req.query.all === 'true' || req.query.days === 'all' || (!days && !from && !to);
 
     const ms = await db.measurements.listForAquarium(req.aq.id, { days, from, to, all });

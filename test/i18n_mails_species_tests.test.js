@@ -1,12 +1,8 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('node:path');
-const fs = require('node:fs');
 const { createTestEnvironment } = require('./helpers/env');
 const {
-  getTemplatePath,
-  renderTemplate,
   createEmailVerificationMail,
   createPasswordResetMail,
   createTestEmailMail,
@@ -16,7 +12,7 @@ const {
   createMeasureReminderMail,
   createFertilizeReminderMail,
 } = require('../dist/backend/src/services/mail-template');
-const { MailService } = require('../dist/backend/src/services/mail-service');
+require('../dist/backend/src/services/mail-service');
 const { suiteService } = require('../dist/backend/src/config/app-config.js');
 const { speciesService } = require('../dist/backend/src/config/app-config.js');
 
@@ -96,14 +92,14 @@ test('i18n: Mails, Besatz (Species) und Testsuiten (Deutsch & Englisch)', async 
 
   await t.test('2. Besatz & Artenkatalog: Daten und Kompatibilität in Deutsch und Englisch', () => {
     // 1. Deutsche Arten
-    const deSpecies = speciesService.getAllSpecies('de');
+    speciesService.getAllSpecies('de');
     const bettaDe = speciesService.getSpeciesById('betta-splendens', 'de');
     assert.equal(bettaDe.name, 'Siamesischer Kampffisch');
     assert.equal(bettaDe.category, 'Labyrinthfische');
     assert.ok(bettaDe.description.includes('Siamesische Kampffisch'));
 
     // 2. Englische Arten
-    const enSpecies = speciesService.getAllSpecies('en');
+    speciesService.getAllSpecies('en');
     const bettaEn = speciesService.getSpeciesById('betta-splendens', 'en');
     assert.equal(bettaEn.name, 'Siamese Fighting Fish');
     assert.equal(bettaEn.category, 'Labyrinth Fish');
@@ -146,7 +142,7 @@ test('i18n: Mails, Besatz (Species) und Testsuiten (Deutsch & Englisch)', async 
 
   await t.test('3. Wassertests & Suiten: Lokalisierte Parameter, Namen und Anleitungen', () => {
     // 1. Deutsche Testsuiten
-    const deSuites = suiteService.getSuites('de');
+    suiteService.getSuites('de');
     const deJbl = suiteService.getSuite('jbl-pro', 'de');
     assert.equal(deJbl.name, 'JBL Pro Tröpfchentest');
     const dePh = deJbl.tests.find((t) => t.key === 'ph');
@@ -154,7 +150,7 @@ test('i18n: Mails, Besatz (Species) und Testsuiten (Deutsch & Englisch)', async 
     assert.ok(dePh.hint.includes('Probewasser'));
 
     // 2. Englische Testsuiten
-    const enSuites = suiteService.getSuites('en');
+    suiteService.getSuites('en');
     const enJbl = suiteService.getSuite('jbl-pro', 'en');
     assert.equal(enJbl.name, 'JBL Pro Drop Test');
     const enPh = enJbl.tests.find((t) => t.key === 'ph');

@@ -1,8 +1,8 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('fs');
-const path = require('path');
+require('fs');
+require('path');
 const { createTestEnvironment } = require('./helpers/env');
 
 test('Aquarium-Bilder: Upload, Anzeige, Formate, Validierung und Löschen', async (t) => {

@@ -2,7 +2,6 @@ import { writeJsonFile } from './json-config-store';
 import type { MailConfig, MailMessage, QueuedMail, MailStats } from '../types/mail';
 import { asRecord } from '../utils/validation';
 import { asError } from '../utils/app-error';
-'use strict';
 import path = require('path');
 import fs = require('fs');
 import envModule = require('../config/env');
@@ -61,7 +60,7 @@ class MailService {
   _ensureDirs() {
     try {
       fs.mkdirSync(path.dirname(this.configFile), { recursive: true });
-    } catch (e) {
+    } catch {
       // ignore
     }
   }

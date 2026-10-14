@@ -50,7 +50,7 @@ test('Logging & Überwachungsprozess (Supervisor)', async (t) => {
       delete process.env.LOG_FILE;
       try {
         fs.rmSync(tempDir, { recursive: true, force: true });
-      } catch (e) {}
+      } catch { /* Temporary resources may already have been removed. */ }
     }
   });
 
@@ -65,7 +65,7 @@ test('Logging & Überwachungsprozess (Supervisor)', async (t) => {
       next(new Error('Kritischer Test-Fehler in API'));
     });
 
-    testApp.use((err, req, res, next) => {
+    testApp.use((err, req, res, _next) => {
       logger.error(`Express-Fehler bei ${req.method} ${req.originalUrl || req.url}: ${err.stack || err.message}`, 'express');
       res.status(500).json({ error: 'Ein interner Serverfehler ist aufgetreten.' });
     });
@@ -235,7 +235,7 @@ test('Logging & Überwachungsprozess (Supervisor)', async (t) => {
       }
       try {
         fs.rmSync(tempDir, { recursive: true, force: true });
-      } catch (e) {}
+      } catch { /* Temporary resources may already have been removed. */ }
     }
   });
 });

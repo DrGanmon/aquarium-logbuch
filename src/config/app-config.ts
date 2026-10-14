@@ -1,6 +1,5 @@
 import type { WaterType } from '../types/domain';
 import type { WaterTest, Thresholds } from '../types/catalog';
-'use strict';
 /*
  * Testparameter, Wartezeiten (Timer) und Grenzwerte.
  *

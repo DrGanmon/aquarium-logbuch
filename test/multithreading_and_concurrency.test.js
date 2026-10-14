@@ -222,7 +222,7 @@ test('Multithreading & Nebenläufigkeit (Concurrency)', async (t) => {
       if (supervisor.isRunning) await supervisor.stop();
       try {
         fs.rmSync(tempDir, { recursive: true, force: true });
-      } catch (e) {}
+      } catch { /* Temporary resources may already have been removed. */ }
     }
   });
 

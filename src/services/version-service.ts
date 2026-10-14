@@ -1,5 +1,4 @@
 import { APP_ROOT } from '../utils/paths';
-'use strict';
 import fs = require('node:fs');
 import path = require('node:path');
 function getAppVersion() {

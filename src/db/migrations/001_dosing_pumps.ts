@@ -1,4 +1,3 @@
-'use strict';
 import logger = require('../../utils/logger');
 
 /**
@@ -73,12 +72,12 @@ export = {
             try {
               const detailsObj: Record<string, any> = { note: log.note };
               updateLog.run(JSON.stringify(detailsObj), log.id);
-            } catch (e) {
+            } catch {
               // ignore
             }
           }
         }
-      } catch (err) {
+      } catch {
         // Nicht blockierend bei Altdaten
       }
     }
@@ -101,7 +100,7 @@ export = {
           SET measure_reminder_mail = 0
           WHERE measure_reminder_mail IS NULL;
         `);
-      } catch (err) {
+      } catch {
         // ignore
       }
     }
@@ -110,7 +109,7 @@ export = {
     if (hasTable('users')) {
       try {
         db.exec("UPDATE users SET language = 'de' WHERE language IS NULL OR language = '';");
-      } catch (err) {
+      } catch {
         // ignore
       }
     }
@@ -119,7 +118,7 @@ export = {
       try {
         db.exec("UPDATE stock SET profile = 'allgemein' WHERE profile IS NULL OR profile = '';");
         db.exec('UPDATE stock SET count = 1 WHERE count IS NULL OR count <= 0;');
-      } catch (err) {
+      } catch {
         // ignore
       }
     }

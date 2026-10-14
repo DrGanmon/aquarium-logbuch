@@ -1,5 +1,4 @@
 import { asError } from '../utils/app-error';
-'use strict';
 import path = require('path');
 import fs = require('fs');
 import logger = require('../utils/logger');
@@ -31,7 +30,7 @@ function getCurrentVersion(db?: any) {
     }
     const ver = Number(row.max_v);
     return Number.isFinite(ver) && ver >= 0 ? ver : 0;
-  } catch (err) {
+  } catch {
     return 0;
   }
 }
@@ -51,7 +50,7 @@ async function getCurrentVersionMongo(db?: any) {
     }
     const ver = Number(doc.version);
     return Number.isFinite(ver) && ver >= 0 ? ver : 0;
-  } catch (err) {
+  } catch {
     return 0;
   }
 }
@@ -84,7 +83,7 @@ function setCurrentVersion(db?: any, version?: any, name: any = '') {
 
   try {
     db.pragma(`user_version = ${Math.floor(ver)}`);
-  } catch (e) {
+  } catch {
     // ignore
   }
 }
@@ -152,7 +151,7 @@ function loadMigrations(migrationsDir?: any) {
       });
     } catch (caught: unknown) {
       const err = asError(caught);
-      throw new Error(`Fehler beim Laden der Migration '${file}': ${err.message}`);
+      throw new Error(`Fehler beim Laden der Migration '${file}': ${err.message}`, { cause: caught });
     }
   }
 
