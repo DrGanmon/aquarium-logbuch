@@ -134,11 +134,11 @@ test('Aquarium-Zyklen API: Anlegen, Bearbeiten, Statusabfrage und Rückstellung 
   assert.strictEqual(aq.measure_cycle_status.configured, true);
   assert.strictEqual(aq.measure_cycle_status.day_of_week_label, 'Samstag');
 
-  assert.strictEqual(aq.fertilize_cycle_interval, 3);
+  assert.strictEqual(aq.fertilize_cycle_interval, null);
   assert.strictEqual(aq.fertilize_cycle_unit, 'days');
-  assert.strictEqual(aq.fertilize_reminder_mail, 1);
+  assert.strictEqual(aq.fertilize_reminder_mail, 0);
   assert.ok(aq.fertilize_cycle_status);
-  assert.strictEqual(aq.fertilize_cycle_status.configured, true);
+  assert.strictEqual(aq.fertilize_cycle_status.configured, false);
 
   // 3. Messung durchführen
   const addMeas = await env.request(`/api/aquariums/${aqId}/measurements`, {
@@ -197,7 +197,7 @@ test('Aquarium-Zyklen API: Anlegen, Bearbeiten, Statusabfrage und Rückstellung 
   assert.strictEqual(putAq.measure_cycle_unit, 'weeks');
   assert.strictEqual(putAq.measure_cycle_day_of_week, 7);
   assert.strictEqual(putAq.measure_reminder_mail, 0);
-  assert.strictEqual(putAq.fertilize_cycle_interval, 1);
+  assert.strictEqual(putAq.fertilize_cycle_interval, null);
   assert.strictEqual(putAq.fertilize_cycle_unit, 'days');
 });
 
@@ -247,16 +247,15 @@ test('Reminder-Service: checkAndSendReminders generiert Erinnerungs-E-Mails bei 
   // Führe Erinnerungsdurchlauf aus
   const result = await reminderService.checkAndSendReminders(db);
   assert.ok(result.checked >= 1);
-  assert.strictEqual(result.sent, 2, '2 Erinnerungs-Mails (Messung + Düngung) sollten erfasst und gesendet werden');
+  assert.strictEqual(result.sent, 1, 'Nur Messzyklen erhalten eine aquariumweite Erinnerung');
 
-  assert.strictEqual(sentEmails.length, 2);
+  assert.strictEqual(sentEmails.length, 1);
   const measureEntry = sentEmails.find((m) => m.type === 'measure');
   const fertilizeEntry = sentEmails.find((m) => m.type === 'fertilize');
 
   assert.ok(measureEntry, 'Messzyklus-Mail sollte erfasst worden sein');
   assert.strictEqual(measureEntry.user.email, 'reminder_owner@test.local');
-  assert.ok(fertilizeEntry, 'Düngzyklus-Mail sollte erfasst worden sein');
-  assert.strictEqual(fertilizeEntry.user.email, 'reminder_owner@test.local');
+  assert.equal(fertilizeEntry, undefined, 'Keine aquariumweite Düngererinnerung');
 
   // Zweiter Durchlauf unmittelbar danach: Keine erneuten doppelten E-Mails
   const secondRun = await reminderService.checkAndSendReminders(db);

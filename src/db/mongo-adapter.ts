@@ -826,7 +826,7 @@ class MongoAdapter {
           .collection('maintenance_logs')
           .findOne({ aquarium_id: aq.id, type: 'water_change' }, { sort: { logged_at: -1 } });
         const lastMaintenance = await db.collection('maintenance_logs').findOne({ aquarium_id: aq.id }, { sort: { logged_at: -1 } });
-        const lastFertilize = await db.collection('maintenance_logs').findOne({ aquarium_id: aq.id, type: 'fertilize' }, { sort: { logged_at: -1 } });
+        const lastFertilize = await db.collection('maintenance_logs').findOne({ aquarium_id: aq.id, type: { $in: ['fertilize', 'dosing_pump'] } }, { sort: { logged_at: -1 } });
 
         const crit = await db.collection('alerts').countDocuments({ aquarium_id: aq.id, acked_at: null, level: 'crit' });
         const warn = await db.collection('alerts').countDocuments({ aquarium_id: aq.id, acked_at: null, level: 'warn' });
@@ -1741,6 +1741,7 @@ class MongoAdapter {
       async listForAquarium(aquariumId?: any) {
         const rows = await db.collection('dosing_pumps').find({ aquarium_id: Number(aquariumId) }).sort({ id: 1 }).toArray();
         return rows.map((r: any) => ({
+          mode: (r.mode === 'manual' ? 'manual' : 'automatic') as 'manual' | 'automatic', reminder_mail: (r.reminder_mail ? 1 : 0) as 0 | 1, last_reminder_sent_at: r.last_reminder_sent_at || null, schedule_started_at: r.schedule_started_at || r.created_at,
           id: r.id,
           aquarium_id: r.aquarium_id,
           name: r.name,
@@ -1758,6 +1759,7 @@ class MongoAdapter {
         const r = await db.collection('dosing_pumps').findOne({ id: Number(id) });
         if (!r) return null;
         return {
+          mode: (r.mode === 'manual' ? 'manual' : 'automatic') as 'manual' | 'automatic', reminder_mail: (r.reminder_mail ? 1 : 0) as 0 | 1, last_reminder_sent_at: r.last_reminder_sent_at || null, schedule_started_at: r.schedule_started_at || r.created_at,
           id: r.id,
           aquarium_id: r.aquarium_id,
           name: r.name,
@@ -1780,6 +1782,8 @@ class MongoAdapter {
         time_of_day = null,
         is_active = 1,
         note = null,
+        mode = 'automatic',
+        reminder_mail = 0,
       }: any) {
         const id = await self.getNextSequence('dosing_pumps');
         const doc: Record<string, any> = {
@@ -1794,10 +1798,12 @@ class MongoAdapter {
           last_dosed_at: null,
           is_active: (is_active ? 1 : 0) as 0 | 1,
           note: note ? String(note).trim() : null,
+          mode, reminder_mail: reminder_mail ? 1 : 0, last_reminder_sent_at: null, schedule_started_at: new Date().toISOString(),
           created_at: new Date().toISOString(),
         };
         await db.collection('dosing_pumps').insertOne(doc);
         return {
+          mode: doc.mode, reminder_mail: doc.reminder_mail, last_reminder_sent_at: doc.last_reminder_sent_at, schedule_started_at: doc.schedule_started_at,
           id: doc.id,
           aquarium_id: doc.aquarium_id,
           name: doc.name,
@@ -1814,11 +1820,11 @@ class MongoAdapter {
       async update(id?: any, aquariumId?: any, fields: any = {}) {
         const numId = Number(id);
         const updateFields: Record<string, any> = {};
-        const allowed = ['name', 'fertilizer_name', 'amount_ml', 'interval_days', 'time_of_day', 'is_active', 'note', 'last_dosed_at'];
+        const allowed = ['name', 'fertilizer_name', 'amount_ml', 'interval_days', 'time_of_day', 'is_active', 'note', 'last_dosed_at', 'mode', 'reminder_mail', 'schedule_started_at', 'last_reminder_sent_at'];
         for (const k of allowed) {
           if (fields[k] !== undefined) {
             if (k === 'amount_ml') updateFields[k] = Number(fields[k]);
-            else if (k === 'interval_days' || k === 'is_active') updateFields[k] = Number(fields[k]);
+            else if (k === 'interval_days' || k === 'is_active' || k === 'reminder_mail') updateFields[k] = Number(fields[k]);
             else if (fields[k] == null) updateFields[k] = null;
             else updateFields[k] = String(fields[k]).trim();
           }
@@ -1835,23 +1841,30 @@ class MongoAdapter {
         const res = await db.collection('dosing_pumps').deleteOne(filter);
         return res.deletedCount > 0;
       },
-      async logDosing(id?: any, aquariumId?: any, userId: any = null, timestamp: any = null) {
+      async updateReminderSent(id: number, aquariumId: number, timestamp: string | null, expected: string | null) {
+        const result = await db.collection('dosing_pumps').updateOne({ id, aquarium_id: aquariumId, mode: 'manual', reminder_mail: 1, is_active: 1, last_reminder_sent_at: expected }, { $set: { last_reminder_sent_at: timestamp } });
+        return result.modifiedCount > 0;
+      },
+      async logDosing(id?: any, aquariumId?: any, userId: any = null, timestamp: any = null, automatic = false) {
         const pump = await this.findById(id);
-        if (!pump || (aquariumId != null && pump.aquarium_id !== Number(aquariumId))) return null;
-        const loggedAt = timestamp || new Date().toISOString();
-        const details = `${pump.amount_ml} ml ${pump.fertilizer_name} (${pump.name})`;
-        const note = pump.note ? `Dosierung via Dosierpumpe "${pump.name}". ${pump.note}` : `Dosierung via Dosierpumpe "${pump.name}"`;
-        const maint = await self.maintenance.create({
-          aquarium_id: pump.aquarium_id,
-          logged_at: loggedAt,
-          type: 'dosing_pump',
-          percentage: null,
-          details,
-          note,
-          created_by: userId != null ? Number(userId) : null,
-        });
-        await this.update(pump.id, pump.aquarium_id, { last_dosed_at: loggedAt });
-        return { success: true, log_id: maint.id, logged_at: loggedAt };
+        if (!pump || pump.aquarium_id !== Number(aquariumId) || (automatic ? pump.mode !== 'automatic' || !pump.is_active : pump.mode !== 'manual')) return null;
+        const loggedAt = timestamp ? new Date(timestamp).toISOString() : new Date().toISOString();
+          if (automatic && new Date(loggedAt) < new Date(pump.schedule_started_at)) return null;
+        const key = automatic ? `pump:${pump.id}:${loggedAt}` : null;
+        let logId: number, created = true;
+        try {
+          logId = await self.getNextSequence('maintenance_logs');
+          await db.collection('maintenance_logs').insertOne({ _id: logId, id: logId, aquarium_id: pump.aquarium_id, logged_at: loggedAt,
+            type: automatic ? 'dosing_pump' : 'fertilize', details: `${pump.amount_ml} ml ${pump.fertilizer_name} (${pump.name})`, note: pump.note,
+            created_by: automatic ? null : userId, percentage: null, created_at: new Date().toISOString(), ...(key ? { automation_key: key } : {}) });
+        } catch (error) {
+          if (!key || (error as { code?: number }).code !== 11000) throw error;
+          const existing = await db.collection('maintenance_logs').findOne({ automation_key: key });
+          if (!existing) throw error;
+          logId = existing.id;created = false;
+        }
+        await db.collection('dosing_pumps').updateOne({ id: pump.id, aquarium_id: pump.aquarium_id, $or: [{ last_dosed_at: null }, { last_dosed_at: { $lt: loggedAt } }] }, { $set: { last_dosed_at: loggedAt, last_reminder_sent_at: null } });
+        return { success: true, created, log_id: logId, logged_at: loggedAt };
       },
     };
   }

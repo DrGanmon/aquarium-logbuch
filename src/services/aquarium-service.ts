@@ -58,9 +58,6 @@ function aquariumInput(input: unknown): ValidationResult<AquariumInput> {
   const measureCycleRes = parseCycleParams(body, 'measure');
   if (measureCycleRes.error !== undefined) return { error: measureCycleRes.error };
 
-  const fertilizeCycleRes = parseCycleParams(body, 'fertilize');
-  if (fertilizeCycleRes.error !== undefined) return { error: fertilizeCycleRes.error };
-
   let reminder_days = Math.round(Number(body.reminder_days ?? 7));
   if (!Number.isFinite(reminder_days) || reminder_days < 0 || reminder_days > 365) {
     return { error: 'Erinnerung: 0–365 Tage (0 = aus).' };
@@ -91,10 +88,10 @@ function aquariumInput(input: unknown): ValidationResult<AquariumInput> {
       measure_cycle_unit: measureCycleRes.value.unit,
       measure_cycle_day_of_week: measureCycleRes.value.day_of_week,
       measure_reminder_mail: measureCycleRes.value.reminder_mail,
-      fertilize_cycle_interval: fertilizeCycleRes.value.interval,
-      fertilize_cycle_unit: fertilizeCycleRes.value.unit,
-      fertilize_cycle_day_of_week: fertilizeCycleRes.value.day_of_week,
-      fertilize_reminder_mail: fertilizeCycleRes.value.reminder_mail,
+      fertilize_cycle_interval: null,
+      fertilize_cycle_unit: 'days',
+      fertilize_cycle_day_of_week: null,
+      fertilize_reminder_mail: 0,
     },
   };
 }

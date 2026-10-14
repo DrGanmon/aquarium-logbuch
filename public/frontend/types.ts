@@ -238,6 +238,9 @@ export interface Photo {
   image_url?: string;
 }
 export interface Pump {
+  mode: "manual" | "automatic";
+  schedule_timezone?: string;
+  reminder_mail: number | boolean;
   id: Id;
   name: string;
   fertilizer_name: string;

@@ -20,7 +20,7 @@ In the optional AI chat, you interact with an AI system; its responses are autom
 - **Record water parameters:** 15 parameters, freely combined tests from multiple suites, live assessments and simultaneous reaction timers.
 - **Review history:** Charts with custom date ranges, warnings and alarms you can acknowledge.
 - **Document care:** Logbook for water changes, filter maintenance, plants, fertilization and other activities.
-- **Plan maintenance:** Independent measurement and fertilization cycles with optional email reminders; dosing pump plans with manual logging.
+- **Plan maintenance:** Measurement cycles with optional email reminders; a fertilizer area with individual reminders for manual fertilizers and scheduled automatic logbook entries for dosing pumps.
 - **Track test usage:** Automatic counting, adjustable refill capacities and refill reminders at 75% usage.
 - **Check stocking:** Species catalog with care requirements, images and guidance on groups, tank size and compatibility.
 - **Assess health:** Disease catalog, diagnosis assistant and medications/supplies with references, legal status and cautions.

@@ -147,6 +147,7 @@
           Plant fertilization is due for your aquarium <strong>„{{aquariumName}}“</strong> according to your scheduled fertilization cycle!
         </p>
 
+        <p class="paragraph"><strong>{{fertilizerText}}</strong></p>
         <div class="info-card">
           <table width="100%" cellpadding="0" cellspacing="0" border="0">
             <tr>

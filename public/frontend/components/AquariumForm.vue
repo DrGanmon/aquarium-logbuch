@@ -19,10 +19,6 @@ const model = reactive<FormData>({
   measure_cycle_unit: "days",
   measure_cycle_day_of_week: null,
   measure_reminder_mail: false,
-  fertilize_cycle_interval: 0,
-  fertilize_cycle_unit: "weeks",
-  fertilize_cycle_day_of_week: null,
-  fertilize_reminder_mail: false,
 });
 if (props.aquarium)
   for (const key of Object.keys(model)) {
@@ -36,7 +32,6 @@ if (props.aquarium)
       model[key] = value;
   }
 model.measure_reminder_mail = Boolean(model.measure_reminder_mail);
-model.fertilize_reminder_mail = Boolean(model.fertilize_reminder_mail);
 const busy = ref(false);
 const error = ref("");
 const image = ref("");
@@ -62,7 +57,7 @@ const fields = computed<Field[]>(() => [
   },
   { key: "notes", label: t("common.notes"), type: "textarea" },
 ]);
-const cycles = ["measure", "fertilize"];
+const cycles = ["measure"];
 const weekdays = computed(() =>
   Object.fromEntries(
     [
@@ -94,7 +89,6 @@ async function save() {
       ...model,
       volume_l: model.volume_l === "" ? null : model.volume_l,
       measure_reminder_mail: model.measure_reminder_mail ? 1 : 0,
-      fertilize_reminder_mail: model.fertilize_reminder_mail ? 1 : 0,
     };
     const result = await api<{ id: Id }>(
       props.aquarium ? `/aquariums/${props.aquarium.id}` : "/aquariums",
@@ -149,7 +143,7 @@ async function remove() {
       </div>
       <fieldset v-for="cycle in cycles" :key="cycle" class="stack">
         <legend>
-          {{ cycle === "measure" ? "🧪 Messzyklus" : "🌿 Düngzyklus" }}
+          {{ t("fertilizers.measureCycle") }}
         </legend>
         <div class="row">
           <input

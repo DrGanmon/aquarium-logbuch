@@ -113,9 +113,11 @@ test(`Dosierpumpen & Lazy Loading im Logbuch (${type})`, async (t) => {
     headers: { Cookie: user.cookie },
     body: {},
   });
-  assert.strictEqual(doseRes.status, 200);
-  assert.strictEqual(doseRes.data.success, true);
-  assert.ok(doseRes.data.log_id);
+  assert.strictEqual(doseRes.status, 400, 'Pumpen dürfen nicht manuell protokolliert werden');
+  const db = require('../dist/backend/src/db');
+  const automatic = await db.dosingPumps.logDosing(pump1Id, aqId, null, new Date().toISOString(), true);
+  assert.strictEqual(automatic.success, true);
+  assert.ok(automatic.log_id);
 
   // Nach dem Dosieren muss last_dosed_at gesetzt sein
   const pumpAfterDose = await env.request(`/api/aquariums/${aqId}/dosing-pumps/${pump1Id}`, {

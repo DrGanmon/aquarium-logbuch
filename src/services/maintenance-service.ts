@@ -21,6 +21,8 @@ function validateMaintenanceInput(body?: any) {
     return { error: 'Ungültige oder fehlende Kategorie für die Arbeit.' };
   }
 
+  if (typeKey === 'dosing_pump') return { error: 'Dosierpumpen werden ausschließlich automatisch protokolliert.' };
+
   let loggedAt = new Date();
   if (body.logged_at) {
     loggedAt = new Date(body.logged_at);

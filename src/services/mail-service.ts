@@ -414,7 +414,7 @@ class MailService {
   /**
    * Sendet eine Erinnerungs-E-Mail für einen fälligen Düngzyklus.
    */
-  sendFertilizeReminderEmail({ user, aquarium, cycleStatus, lang = null }: any) {
+  sendFertilizeReminderEmail({ user, aquarium, fertilizer = null, cycleStatus, lang = null }: any) {
     const userLang = lang || user?.language || 'de';
     const isEn = String(userLang).toLowerCase().startsWith('en');
     const baseUrl = APP_URL || 'http://localhost:3000';
@@ -426,6 +426,7 @@ class MailService {
     const { subject, html, text } = createFertilizeReminderMail({
       username: user.username,
       aquariumName: aquarium.name,
+      fertilizerText: fertilizer ? `${fertilizer.amount_ml} ml ${fertilizer.fertilizer_name} (${fertilizer.name})` : '',
       cycleLabel: cycleStatus?.cycle_label || (isEn ? 'Regular' : 'Regelmäßig'),
       lastDateStr,
       statusLabel: cycleStatus?.status_label || (isEn ? 'Due' : 'Fällig'),

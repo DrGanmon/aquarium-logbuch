@@ -147,6 +147,7 @@
           für dein Aquarium <strong>„{{aquariumName}}“</strong> steht gemäß deinem hinterlegten Düngzyklus eine neue Pflanzendüngung an!
         </p>
 
+        <p class="paragraph"><strong>{{fertilizerText}}</strong></p>
         <div class="info-card">
           <table width="100%" cellpadding="0" cellspacing="0" border="0">
             <tr>

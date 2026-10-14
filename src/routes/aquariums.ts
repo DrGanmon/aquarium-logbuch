@@ -21,7 +21,7 @@ const { saveImage, saveAquariumImage, saveStockImage, deleteImage, getImagePath,
 import maintenance_serviceModule = require('../services/maintenance-service');
 const { validateMaintenanceInput, getAquariumTimeline } = maintenance_serviceModule;
 import dosing_serviceModule = require('../services/dosing-service');
-const { validateDosingPumpInput } = dosing_serviceModule;
+const { validateDosingPumpInput, nextAutomaticDosingAt, manualDosingStatus } = dosing_serviceModule;
 import mail_serviceModule = require('../services/mail-service');
 const { mailService } = mail_serviceModule;
 const {
@@ -915,6 +915,7 @@ router.put(
     const logId = Number(req.params.logId);
     const existing = await db.maintenance.findById(logId);
     if (!existing || existing.aquarium_id !== req.aq.id) return res.status(404).json({ error: 'Eintrag nicht gefunden.' });
+    if (existing.type === 'dosing_pump') return res.status(400).json({ error: 'Automatische Pumpeneinträge können nicht manuell bearbeitet werden.' });
 
     const { error, value } = validateMaintenanceInput(req.body);
     if (error !== undefined) return res.status(400).json({ error });
@@ -947,21 +948,24 @@ router.delete(
 
 // ---------- Dosierpumpen & Düngung ----------
 router.get(
-  '/:id/dosing-pumps',
+  ['/:id/dosing-pumps', '/:id/fertilizers'],
   auth,
   ownAquarium,
   wrap(async (req: Request, res: Response) => {
     const list = await db.dosingPumps.listForAquarium(req.aq.id);
-    res.json(list);
+    res.json(list.map(plan => ({ ...plan, schedule_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      next_due_at: !plan.is_active ? null : plan.mode === 'manual'
+        ? manualDosingStatus(plan).next_due_at
+        : nextAutomaticDosingAt(plan).toISOString() })));
   })
 );
 
 router.post(
-  '/:id/dosing-pumps',
+  ['/:id/dosing-pumps', '/:id/fertilizers'],
   auth,
   writeAquarium,
   wrap(async (req: Request, res: Response) => {
-    const { error, value } = validateDosingPumpInput(req.body);
+    const { error, value } = validateDosingPumpInput(req.body || {});
     if (error !== undefined) return res.status(400).json({ error });
 
     const pump = await db.dosingPumps.create({
@@ -973,7 +977,7 @@ router.post(
 );
 
 router.get(
-  '/:id/dosing-pumps/:pumpId',
+  ['/:id/dosing-pumps/:pumpId', '/:id/fertilizers/:pumpId'],
   auth,
   ownAquarium,
   wrap(async (req: Request, res: Response) => {
@@ -987,7 +991,7 @@ router.get(
 );
 
 router.put(
-  '/:id/dosing-pumps/:pumpId',
+  ['/:id/dosing-pumps/:pumpId', '/:id/fertilizers/:pumpId'],
   auth,
   writeAquarium,
   wrap(async (req: Request, res: Response) => {
@@ -997,16 +1001,19 @@ router.put(
       return res.status(404).json({ error: 'Dosierpumpe nicht gefunden.' });
     }
 
-    const { error, value } = validateDosingPumpInput(req.body);
+    const { error, value } = validateDosingPumpInput(req.body || {});
     if (error !== undefined) return res.status(400).json({ error });
 
-    const updated = await db.dosingPumps.update(pump.id, req.aq.id, value);
+    const resetSchedule = value.mode !== pump.mode || value.interval_days !== pump.interval_days || value.time_of_day !== pump.time_of_day || (!pump.is_active && value.is_active);
+    const updated = await db.dosingPumps.update(pump.id, req.aq.id, { ...value,
+      ...(resetSchedule ? { schedule_started_at: new Date().toISOString() } : {}),
+      ...(resetSchedule || value.reminder_mail !== pump.reminder_mail ? { last_reminder_sent_at: null } : {}) });
     res.json(updated);
   })
 );
 
 router.delete(
-  '/:id/dosing-pumps/:pumpId',
+  ['/:id/dosing-pumps/:pumpId', '/:id/fertilizers/:pumpId'],
   auth,
   writeAquarium,
   wrap(async (req: Request, res: Response) => {
@@ -1022,7 +1029,7 @@ router.delete(
 );
 
 router.post(
-  '/:id/dosing-pumps/:pumpId/dose',
+  ['/:id/dosing-pumps/:pumpId/dose', '/:id/fertilizers/:pumpId/dose'],
   auth,
   writeAquarium,
   wrap(async (req: Request, res: Response) => {
@@ -1032,7 +1039,10 @@ router.post(
       return res.status(404).json({ error: 'Dosierpumpe nicht gefunden.' });
     }
 
-    const result = await db.dosingPumps.logDosing(pump.id, req.aq.id, req.user.id, req.body.logged_at);
+    if (pump.mode !== 'manual') return res.status(400).json({ error: 'Dosierpumpen werden ausschließlich automatisch protokolliert.' });
+    const loggedAt = req.body?.logged_at ? new Date(req.body.logged_at) : new Date();
+    if (!Number.isFinite(loggedAt.getTime()) || loggedAt.getTime() > Date.now() + 5 * 60000) return res.status(400).json({ error: 'Ungültiger Dosierzeitpunkt.' });
+    const result = await db.dosingPumps.logDosing(pump.id, req.aq.id, req.user.id, loggedAt.toISOString());
     if (!result) return res.status(400).json({ error: 'Dosierung konnte nicht protokolliert werden.' });
     res.json(result);
   })

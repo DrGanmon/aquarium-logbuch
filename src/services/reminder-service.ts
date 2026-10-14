@@ -224,7 +224,7 @@ class ReminderService {
     this.schedulerTimer = null;
   }
 
-  startScheduler(intervalMinutes: number = 30) {
+  startScheduler(intervalMinutes: number = 1) {
     if (this.schedulerTimer) return;
     logger.info(`Starte Zyklus-Erinnerungs-Scheduler (Prüfung alle ${intervalMinutes} Minuten)`, 'reminder');
 
@@ -276,15 +276,15 @@ class ReminderService {
     const aquariums = await db.aquariums.listAllRaw();
     if (!aquariums || !aquariums.length) return { sent: 0, checked: 0 };
 
-    let sentCount = 0;
     const now = new Date();
+    const { processDosingPlans } = require('./dosing-service');
+    let sentCount = (await processDosingPlans(db, aquariums, now)).sent;
     const todayStr = now.toISOString().slice(0, 10);
 
     for (const aq of aquariums) {
       // Nur Aquarien mit mindestens einer aktiven Erinnerungs-Mail
       const hasMeasureMail = Boolean(aq.measure_reminder_mail && aq.measure_cycle_interval);
-      const hasFertilizeMail = Boolean(aq.fertilize_reminder_mail && aq.fertilize_cycle_interval);
-      if (!hasMeasureMail && !hasFertilizeMail) continue;
+      if (!hasMeasureMail) continue;
 
       const user = await db.users.findById(aq.user_id);
       if (!user || !user.email || !user.email_verified) continue;
@@ -345,58 +345,6 @@ class ReminderService {
         }
       }
 
-      // 2. Düngzyklus prüfen
-      if (hasFertilizeMail) {
-        const lastFertilize = await db.maintenance.findLastByType(aq.id, 'fertilize');
-        const lastFertilizeDate = lastFertilize ? lastFertilize.logged_at : null;
-        const fertilizeStatus = calculateCycleStatus(
-          {
-            interval: aq.fertilize_cycle_interval,
-            unit: aq.fertilize_cycle_unit,
-            day_of_week: aq.fertilize_cycle_day_of_week,
-            reminder_mail: aq.fertilize_reminder_mail,
-          },
-          lastFertilizeDate,
-          aq.created_at,
-          now,
-          userLang
-        );
-
-        if (fertilizeStatus.is_due) {
-          let shouldSend = true;
-          if (aq.last_fertilize_reminder_sent_at) {
-            const lastSent = new Date(aq.last_fertilize_reminder_sent_at);
-            const lastSentDay = lastSent.toISOString().slice(0, 10);
-            if (lastSentDay === todayStr) {
-              shouldSend = false;
-            }
-            if (lastFertilizeDate && lastSent > new Date(lastFertilizeDate) && (now.getTime() - lastSent.getTime()) < 24 * 3600 * 1000) {
-              shouldSend = false;
-            }
-          }
-
-          const previous = aq.last_fertilize_reminder_sent_at || null;
-          const claimedAt = now.toISOString();
-          if (shouldSend && await db.aquariums.updateReminderSent(aq.id, 'fertilize', claimedAt, previous)) {
-            try {
-              const queued = mailService.sendFertilizeReminderEmail({
-                user,
-                aquarium: aq,
-                cycleStatus: fertilizeStatus,
-                lang: userLang,
-              });
-              if (!queued.ok) throw new Error(queued.error || 'E-Mail konnte nicht eingereiht werden.');
-              aq.last_fertilize_reminder_sent_at = now.toISOString();
-              sentCount++;
-              logger.info(`Düngzyklus-Erinnerung versendet für Aquarium „${aq.name}“ an ${user.email} (Lang: ${userLang})`, 'reminder');
-            } catch (caught: unknown) {
-              const err = asError(caught);
-              await db.aquariums.updateReminderSent(aq.id, 'fertilize', previous, claimedAt);
-              logger.error(`Fehler beim Senden der Düngzyklus-Erinnerung für Aq #${aq.id}: ${err.message}`, 'reminder');
-            }
-          }
-        }
-      }
     }
 
     return { sent: sentCount, checked: aquariums.length };

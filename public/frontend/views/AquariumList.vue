@@ -35,8 +35,7 @@ function status(a: Aquarium) {
     ? "crit"
     : a.open_warn ||
         a.overdue ||
-        a.measure_cycle_status?.is_due ||
-        a.fertilize_cycle_status?.is_due
+        a.measure_cycle_status?.is_due
       ? "warn"
       : a.last_measured_at
         ? "ok"
@@ -141,10 +140,6 @@ function saved(id: Id) {
             v-if="a.overdue || a.measure_cycle_status?.is_due"
             class="chip warn"
             >🧪 Messung fällig</span
-          ><span
-            v-if="a.fertilize_overdue || a.fertilize_cycle_status?.is_due"
-            class="chip warn"
-            >🌿 Düngung fällig</span
           ><span v-if="status(a) === 'ok'" class="chip ok">{{
             t("common.statusOk")
           }}</span

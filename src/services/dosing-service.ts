@@ -1,12 +1,16 @@
-import type { DosingPumpInput, ValidationResult } from '../types/domain';
+import type { DosingPump, DosingPumpInput, ValidationResult } from '../types/domain';
 'use strict';
 import helpersModule = require('../utils/helpers');
 const { str } = helpersModule;
 
 function validateDosingPumpInput(body: Record<string, unknown>): ValidationResult<DosingPumpInput> {
+  const mode = body.mode === undefined ? 'automatic' : body.mode;
+  if (!['manual', 'automatic'].includes(String(mode))) return { error: 'Ungültige Düngerart.' };
+  const reminderMail = [true, 1, '1'].includes(body.reminder_mail as boolean | number | string) ? 1 : 0;
+  if (mode === 'automatic' && reminderMail) return { error: 'Mail-Erinnerungen sind nur für manuelle Dünger möglich.' };
   const name = str(body.name, 100);
   if (!name) {
-    return { error: 'Bitte einen Namen oder Kanal für die Dosierpumpe angeben.' };
+    return { error: 'Bitte einen Namen für den Dünger oder Pumpenkanal angeben.' };
   }
 
   const fertilizerName = str(body.fertilizer_name || body.fertilizerName || body.fertilizer, 100);
@@ -36,6 +40,8 @@ function validateDosingPumpInput(body: Record<string, unknown>): ValidationResul
 
   return {
     value: {
+      mode: mode as 'manual' | 'automatic',
+      reminder_mail: reminderMail,
       name,
       fertilizer_name: fertilizerName,
       amount_ml: amountMl,
@@ -47,6 +53,78 @@ function validateDosingPumpInput(body: Record<string, unknown>): ValidationResul
   };
 }
 
+function nextAutomaticDosingAt(pump: DosingPump): Date {
+  const start = new Date(pump.schedule_started_at || pump.created_at);
+  const last = pump.last_dosed_at ? new Date(pump.last_dosed_at) : null;
+  const continuing = last && last >= start;
+  const next = new Date(continuing ? last : start);
+  const [hours, minutes] = (pump.time_of_day || '00:00').split(':').map(Number);
+  if (continuing) next.setDate(next.getDate() + pump.interval_days);
+  next.setHours(hours, minutes, 0, 0);
+  if (!continuing && next < start) next.setDate(next.getDate() + 1);
+  return next;
+}
+
+function manualDosingStatus(plan: DosingPump, now = new Date(), language = 'de') {
+  const { calculateCycleStatus } = require('./reminder-service');
+  const status = calculateCycleStatus({ interval: plan.interval_days, unit: 'days', reminder_mail: plan.reminder_mail }, plan.last_dosed_at, plan.schedule_started_at || plan.created_at, now, language);
+  if (status.next_due_at && plan.time_of_day) {
+    const due = new Date(status.next_due_at);
+    const [hours, minutes] = plan.time_of_day.split(':').map(Number);
+    due.setHours(hours, minutes, 0, 0);
+    status.next_due_at = due.toISOString();status.is_due = due <= now;
+  }
+  return status;
+}
+
+async function processDosingPlans(db: any, aquariums: any[], now = new Date()): Promise<{ sent: number; logged: number }> {
+  if (!db.dosingPumps) return { sent: 0, logged: 0 };
+  const { mailService } = require('./mail-service');
+  const logger = require('../utils/logger');
+  let sent = 0, logged = 0;
+  for (const aq of aquariums) {
+    const plans: DosingPump[] = await db.dosingPumps.listForAquarium(aq.id);
+    for (const plan of plans) {
+      if (!plan.is_active) continue;
+      try {
+        if (plan.mode !== 'manual') {
+          // Bound catch-up work; subsequent passes continue any remaining backlog.
+          for (let count = 0; count < 31; count++) {
+            const due = nextAutomaticDosingAt(plan);
+            if (!Number.isFinite(due.getTime()) || due > now) break;
+            const result = await db.dosingPumps.logDosing(plan.id, aq.id, null, due.toISOString(), true);
+            if (!result) break;
+            plan.last_dosed_at = due.toISOString();
+            if (result.created) logged++;
+          }
+          continue;
+        }
+        if (!plan.reminder_mail) continue;
+        const user = await db.users.findById(aq.user_id);
+        if (!user?.email || !user.email_verified) continue;
+        const status = manualDosingStatus(plan, now, user.language || 'de');
+        if (!status.is_due) continue;
+        const previous = plan.last_reminder_sent_at || null;
+        if (previous && now.getTime() - new Date(previous).getTime() < 24 * 3600 * 1000) continue;
+        const claimed = now.toISOString();
+        if (!await db.dosingPumps.updateReminderSent(plan.id, aq.id, claimed, previous)) continue;
+        try {
+          const queued = mailService.sendFertilizeReminderEmail({ user, aquarium: aq, fertilizer: plan, cycleStatus: status, lang: user.language || 'de' });
+          if (!queued.ok) throw new Error(queued.error || 'E-Mail konnte nicht eingereiht werden.');
+          sent++;
+        } catch (error) {
+          await db.dosingPumps.updateReminderSent(plan.id, aq.id, previous, claimed);
+          throw error;
+        }
+      } catch (error) { logger.error(`Düngerplan #${plan.id}: ${error instanceof Error ? error.message : String(error)}`, 'dosing'); }
+    }
+  }
+  return { sent, logged };
+}
+
 export = {
   validateDosingPumpInput,
+  nextAutomaticDosingAt,
+  manualDosingStatus,
+  processDosingPlans,
 };

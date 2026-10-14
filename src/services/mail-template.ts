@@ -752,7 +752,7 @@ Dein Aquarium-Logbuch Team`;
  * Template für Erinnerungen an fällige Düngzyklen.
  * Nutzt 'fertilize-reminder.tpl'.
  */
-function createFertilizeReminderMail({ username, aquariumName, cycleLabel, lastDateStr, statusLabel, fertilizeUrl, lang = 'de' }: any) {
+function createFertilizeReminderMail({ username, aquariumName, fertilizerText = '', cycleLabel, lastDateStr, statusLabel, fertilizeUrl, lang = 'de' }: any) {
   const isEn = String(lang).toLowerCase().startsWith('en');
   const aqName = aquariumName || (isEn ? 'Aquarium' : 'Aquarium');
   const subject = isEn ? `🌿 Reminder: Fertilization due for "${aqName}"` : `🌿 Erinnerung: Düngung fällig für „${aqName}“`;
@@ -769,6 +769,7 @@ function createFertilizeReminderMail({ username, aquariumName, cycleLabel, lastD
     headline,
     username: username || (isEn ? 'Aquarist' : 'Aquarianer'),
     aquariumName: aqName,
+    fertilizerText,
     cycleLabel: cycleLabel || (isEn ? 'Regular' : 'Regelmäßig'),
     lastDateStr: lastDateStr || (isEn ? 'No previous fertilization' : 'Keine bisherige Düngung'),
     statusLabel: statusLabel || (isEn ? 'Due' : 'Fällig'),
@@ -782,7 +783,7 @@ function createFertilizeReminderMail({ username, aquariumName, cycleLabel, lastD
 
 Plant fertilization is due for your aquarium "${aqName}" according to your scheduled cycle (${cycleLabel})!
 
-Status: ${statusLabel}
+${fertilizerText ? `🌿 ${fertilizerText}\n\n` : ''}Status: ${statusLabel}
 Last fertilization: ${lastDateStr || 'No previous fertilization'}
 
 Log your fertilization in Aquarium Logbook:
@@ -793,7 +794,7 @@ Your Aquarium Logbook Team`
 
 für dein Aquarium „${aqName}“ steht gemäß deinem hinterlegten Düngzyklus (${cycleLabel}) eine neue Pflanzendüngung an!
 
-Status: ${statusLabel}
+${fertilizerText ? `🌿 ${fertilizerText}\n\n` : ''}Status: ${statusLabel}
 Letzte Düngung: ${lastDateStr || 'Keine bisherige Düngung'}
 
 Dokumentiere deine Düngung im Aquarium-Logbuch:

@@ -395,8 +395,8 @@ class SqliteAdapter {
 
       // Maintenance Logs
       const insertMaint = db.prepare(`
-        INSERT INTO maintenance_logs (id, aquarium_id, logged_at, type, percentage, details, note, created_by, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO maintenance_logs (id, aquarium_id, logged_at, type, percentage, details, note, created_by, created_at, automation_key)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       for (const ml of maintenance) {
         insertMaint.run(
@@ -408,7 +408,7 @@ class SqliteAdapter {
           ml.details || null,
           ml.note || null,
           ml.created_by || null,
-          ml.created_at || new Date().toISOString()
+          ml.created_at || new Date().toISOString(), ml.automation_key || null
         );
       }
 
@@ -454,8 +454,8 @@ class SqliteAdapter {
 
       // Dosing Pumps
       const insertDosingPump = db.prepare(`
-        INSERT INTO dosing_pumps (id, aquarium_id, name, fertilizer_name, amount_ml, interval_days, time_of_day, last_dosed_at, is_active, note, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO dosing_pumps (id, aquarium_id, name, fertilizer_name, amount_ml, interval_days, time_of_day, last_dosed_at, is_active, note, created_at, mode, reminder_mail, last_reminder_sent_at, schedule_started_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       for (const dp of dosing_pumps) {
         if (dp && dp.aquarium_id) {
@@ -470,7 +470,7 @@ class SqliteAdapter {
             dp.last_dosed_at || null,
             dp.is_active !== undefined ? (dp.is_active ? 1 : 0) : 1,
             dp.note || null,
-            dp.created_at || new Date().toISOString()
+            dp.created_at || new Date().toISOString(), dp.mode === 'manual' ? 'manual' : 'automatic', dp.reminder_mail ? 1 : 0, dp.last_reminder_sent_at || null, dp.schedule_started_at || new Date().toISOString()
           );
         }
       }
@@ -895,7 +895,7 @@ class SqliteAdapter {
           .prepare("SELECT logged_at, percentage FROM maintenance_logs WHERE aquarium_id = ? AND type = 'water_change' ORDER BY logged_at DESC LIMIT 1")
           .get(aq.id);
         const lastMaintenance = db.prepare('SELECT logged_at, type FROM maintenance_logs WHERE aquarium_id = ? ORDER BY logged_at DESC LIMIT 1').get(aq.id);
-        const lastFertilize = db.prepare("SELECT logged_at, details, note FROM maintenance_logs WHERE aquarium_id = ? AND type = 'fertilize' ORDER BY logged_at DESC LIMIT 1").get(aq.id);
+        const lastFertilize = db.prepare("SELECT logged_at, details, note FROM maintenance_logs WHERE aquarium_id = ? AND type IN ('fertilize', 'dosing_pump') ORDER BY logged_at DESC LIMIT 1").get(aq.id);
         const alerts = db.prepare(`SELECT level, COUNT(*) n FROM alerts WHERE aquarium_id = ? AND acked_at IS NULL GROUP BY level`).all(aq.id);
         const crit = alerts.find((a: any) => a.level === 'crit')?.n || 0;
         const warn = alerts.find((a: any) => a.level === 'warn')?.n || 0;
@@ -1731,7 +1731,6 @@ class SqliteAdapter {
 
   private build_dosingPumps() {
     const db = this.connection();
-    const self = this;
     return {
       async listForAquarium(aquariumId?: any) {
         return db.prepare<DosingPump>('SELECT * FROM dosing_pumps WHERE aquarium_id = ? ORDER BY id ASC').all(Number(aquariumId));
@@ -1749,10 +1748,12 @@ class SqliteAdapter {
         time_of_day = null,
         is_active = 1,
         note = null,
+        mode = 'automatic',
+        reminder_mail = 0,
       }: any) {
         const info = db.prepare(`
-          INSERT INTO dosing_pumps (aquarium_id, name, fertilizer_name, amount_ml, interval_days, time_of_day, is_active, note)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO dosing_pumps (aquarium_id, name, fertilizer_name, amount_ml, interval_days, time_of_day, is_active, note, mode, reminder_mail, schedule_started_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
           Number(aquarium_id),
           String(name).trim(),
@@ -1761,19 +1762,19 @@ class SqliteAdapter {
           Number(interval_days) || 1,
           time_of_day ? String(time_of_day).trim() : null,
           is_active ? 1 : 0,
-          note ? String(note).trim() : null
+          note ? String(note).trim() : null, mode, reminder_mail ? 1 : 0, new Date().toISOString()
         );
         return this.findById(info.lastInsertRowid);
       },
       async update(id?: any, aquariumId?: any, fields: any = {}) {
-        const allowed = ['name', 'fertilizer_name', 'amount_ml', 'interval_days', 'time_of_day', 'is_active', 'note', 'last_dosed_at'];
+        const allowed = ['name', 'fertilizer_name', 'amount_ml', 'interval_days', 'time_of_day', 'is_active', 'note', 'last_dosed_at', 'mode', 'reminder_mail', 'schedule_started_at', 'last_reminder_sent_at'];
         const sets = [];
         const params = [];
         for (const [k, v] of Object.entries(fields)) {
           if (!allowed.includes(k)) continue;
           sets.push(`${k} = ?`);
           if (k === 'amount_ml') params.push(Number(v));
-          else if (k === 'interval_days' || k === 'is_active') params.push(Number(v));
+          else if (k === 'interval_days' || k === 'is_active' || k === 'reminder_mail') params.push(Number(v));
           else if (v == null) params.push(null);
           else params.push(String(v).trim());
         }
@@ -1796,23 +1797,24 @@ class SqliteAdapter {
         }
         return res.changes > 0;
       },
-      async logDosing(id?: any, aquariumId?: any, userId: any = null, timestamp: any = null) {
-        const pump = await this.findById(id);
-        if (!pump || (aquariumId != null && pump.aquarium_id !== Number(aquariumId))) return null;
-        const loggedAt = timestamp || new Date().toISOString();
-        const details = `${pump.amount_ml} ml ${pump.fertilizer_name} (${pump.name})`;
-        const note = pump.note ? `Dosierung via Dosierpumpe "${pump.name}". ${pump.note}` : `Dosierung via Dosierpumpe "${pump.name}"`;
-        const maint = await self.maintenance.create({
-          aquarium_id: pump.aquarium_id,
-          logged_at: loggedAt,
-          type: 'dosing_pump',
-          percentage: null,
-          details,
-          note,
-          created_by: userId != null ? Number(userId) : null,
-        });
-        await this.update(pump.id, pump.aquarium_id, { last_dosed_at: loggedAt });
-        return { success: true, log_id: maint.id, logged_at: loggedAt };
+      async updateReminderSent(id: number, aquariumId: number, timestamp: string | null, expected: string | null) {
+        return db.prepare("UPDATE dosing_pumps SET last_reminder_sent_at = ? WHERE id = ? AND aquarium_id = ? AND mode = 'manual' AND reminder_mail = 1 AND is_active = 1 AND last_reminder_sent_at IS ?")
+          .run(timestamp, id, aquariumId, expected).changes > 0;
+      },
+      async logDosing(id?: any, aquariumId?: any, userId: any = null, timestamp: any = null, automatic = false) {
+        return db.transaction(() => {
+          const pump = db.prepare<DosingPump>('SELECT * FROM dosing_pumps WHERE id = ? AND aquarium_id = ?').get(Number(id), Number(aquariumId));
+          if (!pump || (automatic ? pump.mode !== 'automatic' || !pump.is_active : pump.mode !== 'manual')) return null;
+          const loggedAt = timestamp ? new Date(timestamp).toISOString() : new Date().toISOString();
+          if (automatic && new Date(loggedAt) < new Date(pump.schedule_started_at)) return null;
+          const key = automatic ? `pump:${pump.id}:${loggedAt}` : null;
+          const info = db.prepare(`INSERT INTO maintenance_logs (aquarium_id, logged_at, type, details, note, created_by, automation_key)
+            VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(automation_key) DO NOTHING`).run(pump.aquarium_id, loggedAt, automatic ? 'dosing_pump' : 'fertilize',
+            `${pump.amount_ml} ml ${pump.fertilizer_name} (${pump.name})`, pump.note, automatic ? null : userId, key);
+          db.prepare("UPDATE dosing_pumps SET last_dosed_at = ?, last_reminder_sent_at = NULL WHERE id = ? AND (last_dosed_at IS NULL OR last_dosed_at < ?)").run(loggedAt, pump.id, loggedAt);
+          const logId = info.changes ? Number(info.lastInsertRowid) : db.prepare('SELECT id FROM maintenance_logs WHERE automation_key = ?').get(key)?.id;
+          return { success: true, created: info.changes > 0, log_id: logId, logged_at: loggedAt };
+        })();
       },
     };
   }

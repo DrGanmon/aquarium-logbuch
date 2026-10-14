@@ -20,7 +20,7 @@ Im optionalen KI-Chat interagierst du mit einem KI-System; dessen Antworten sind
 - **Wasserwerte erfassen:** 15 Parameter, frei kombinierbare Tests aus mehreren Suiten, Live-Bewertung und mehrere Reaktionstimer.
 - **Verlauf auswerten:** Diagramme mit freier Zeitraumauswahl, Warnungen und bestätigbare Alarme.
 - **Pflege dokumentieren:** Logbuch für Wasserwechsel, Filterpflege, Pflanzen, Düngung und weitere Aktivitäten.
-- **Pflege planen:** Unabhängige Mess- und Düngzyklen mit optionalen E-Mail-Erinnerungen; Dosierpumpenpläne mit manueller Protokollierung.
+- **Pflege planen:** Messzyklen mit optionalen E-Mail-Erinnerungen; Düngerbereich mit individuellen Erinnerungen für manuelle Dünger und automatischer Protokollierung geplanter Pumpendosierungen.
 - **Wassertest-Verbrauch verfolgen:** Automatische Zählung, korrigierbare Füllmengen und Nachkauferinnerung ab 75 % Verbrauch.
 - **Besatz prüfen:** Artenkatalog mit Haltungsanforderungen, Bildern und Hinweisen zu Gruppen, Beckengröße und Verträglichkeit.
 - **Gesundheit einschätzen:** Krankheitskatalog, Diagnose-Assistent und Medikamente/Hilfsmittel mit Quellen, Rechtsstatus und Warnhinweisen.

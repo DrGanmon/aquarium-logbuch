@@ -30,7 +30,7 @@ export interface PumpRepository {
   findById(id: number): Promise<DosingPump | null>;
   listForAquarium(id: number): Promise<DosingPump[]>;
   create(input: DosingPumpInput & { aquarium_id: number }): Promise<DosingPump | null>;
-  update(id: number, aquariumId: number | null, fields: Partial<DosingPumpInput> & { last_dosed_at?: string | null }): Promise<DosingPump | null>;
+  update(id: number, aquariumId: number | null, fields: Partial<DosingPumpInput> & { last_dosed_at?: string | null; schedule_started_at?: string; last_reminder_sent_at?: string | null }): Promise<DosingPump | null>;
 }
 export interface MeasurementQueries {
   listForAquarium(id: number, options?: { all?: boolean; limit?: number | null; offset?: number; from?: string | null; to?: string | null; days?: number | null }): Promise<Measurement[]>;

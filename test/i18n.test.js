@@ -97,10 +97,11 @@ test('App-weiter modularer i18n Support (Deutsch & Englisch)', async (t) => {
   await t.test('5. Frontend-Bundle enthält kompilierte i18n Daten', () => {
     const bundlePath = path.join(__dirname, '..', 'public', 'dist', 'app.js');
     if (fs.existsSync(bundlePath)) {
-      const bundle = fs.readFileSync(bundlePath, 'utf8');
+      const distDir = path.dirname(bundlePath);
+      const bundle = fs.readdirSync(distDir).filter(file => file.endsWith('.js')).map(file => fs.readFileSync(path.join(distDir, file), 'utf8')).join('\n');
       assert.ok(bundle.includes('Aquarium Logbook'), 'Bundle enthält englische Übersetzungen');
       assert.ok(bundle.includes('Aquarium-Logbuch'), 'Bundle enthält deutsche Übersetzungen');
-      assert.ok(bundle.includes('setLanguage'), 'Bundle enthält setLanguage Funktion');
+      assert.ok(bundle.includes('toggleLanguage'), 'Bundle enthält Sprachwechsel-Funktion');
     }
   });
 });

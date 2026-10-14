@@ -41,6 +41,8 @@ export interface UserRecord {
   claude_api_key: string | null; claude_model: string | null; ai_provider: string | null;
 }
 export interface DosingPumpInput {
+  mode?: 'manual' | 'automatic';
+  reminder_mail?: 0 | 1;
   name: string;
   fertilizer_name: string;
   amount_ml: number;
@@ -59,7 +61,7 @@ export interface DatabaseOptions {
   migrationsDir?: string;
 }
 
-export interface DosingPump extends DosingPumpInput { id: number; aquarium_id: number; last_dosed_at: string | null; created_at: string }
+export interface DosingPump extends DosingPumpInput { id: number; aquarium_id: number; last_dosed_at: string | null; last_reminder_sent_at: string | null; schedule_started_at: string; created_at: string }
 export interface AquariumImage { id: number; aquarium_id: number; filename: string; caption: string | null; is_primary: number | boolean; created_at: string }
 export interface AquariumShare {
   aquarium_id: number; user_id: number; role: 'view' | 'write'; status: 'pending' | 'accepted';

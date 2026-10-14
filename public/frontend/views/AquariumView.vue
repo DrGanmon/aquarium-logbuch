@@ -23,7 +23,7 @@ const WaterChart = lazyComponent(() => import("../components/WaterChart.vue"));
 const LogForm = lazyComponent(() => import("../components/LogForm.vue"));
 const PlantSection = lazyComponent(() => import("../components/PlantSection.vue"));
 const StockSection = lazyComponent(() => import("../components/StockSection.vue"));
-const PumpSection = lazyComponent(() => import("../components/PumpSection.vue"));
+const FertilizerSection = lazyComponent(() => import("../components/FertilizerSection.vue"));
 const CsvDialog = lazyComponent(() => import("../components/CsvDialog.vue"));
 const ChatDialog = lazyComponent(() => import("../components/ChatDialog.vue"));
 const SharingDialog = lazyComponent(() => import("../components/SharingDialog.vue"));
@@ -73,7 +73,6 @@ const hasAI = computed(
 );
 const cycles = computed(() => [
   { name: "🧪 Messzyklus", status: aquarium.value?.measure_cycle_status },
-  { name: "🌿 Düngzyklus", status: aquarium.value?.fertilize_cycle_status },
 ]);
 const gallery = useLazyResource<Photo[]>([], (signal) => api(`/aquariums/${props.id}/images`, { signal }));
 const history = useLazyResource<Measurement[]>([], (signal) => {
@@ -82,7 +81,7 @@ const history = useLazyResource<Measurement[]>([], (signal) => {
 });
 const plantsResource = useLazyResource<AquariumPlant[]>([], signal => api(`/aquariums/${props.id}/plants`, { signal }));
 const residents = useLazyResource<Stock[]>([], (signal) => api(`/aquariums/${props.id}/stock`, { signal }));
-const pumpsResource = useLazyResource<Pump[]>([], (signal) => api(`/aquariums/${props.id}/dosing-pumps`, { signal }));
+const pumpsResource = useLazyResource<Pump[]>([], (signal) => api(`/aquariums/${props.id}/fertilizers`, { signal }));
 let paginationController: AbortController | undefined;
 const timeline = useLazyResource<LogEntry[]>([], async (signal) => {
   paginationController?.abort();
@@ -414,7 +413,7 @@ async function leave() {
       </div>
       <section class="card stack">
         <div class="row between">
-          <h2 style="margin: 0">📅 Mess- & Düngzyklen</h2>
+          <h2 style="margin: 0">{{ t("fertilizers.measureCycle") }}</h2>
           <button
             v-if="!readonly"
             class="btn small ghost"
@@ -425,7 +424,7 @@ async function leave() {
         </div>
         <div class="grid2" style="gap: 1rem">
           <div
-            v-for="(cycle, index) in cycles"
+            v-for="cycle in cycles"
             :key="cycle.name"
             class="cycle-card stack"
           >
@@ -452,15 +451,7 @@ async function leave() {
               Nächste Fälligkeit: {{ fmtDate(cycle.status?.next_due_at) }}
             </div>
             <div v-if="!readonly">
-              <a v-if="index === 0" class="btn small" :href="`#/a/${id}/messen`"
-                >🧪 Jetzt messen</a
-              ><button
-                v-else
-                class="btn small"
-                @click="openLog(undefined, 'fertilize')"
-              >
-                🌿 Düngung eintragen
-              </button>
+              <a class="btn small" :href="`#/a/${id}/messen`">🧪 {{ t('fertilizers.measureNow') }}</a>
             </div>
           </div>
         </div>
@@ -579,9 +570,9 @@ async function leave() {
         <PlantSection :id="id" :plants="plantsResource.data.value" :readonly="readonly" @changed="plantsResource.load(true)" />
       </LazySection>
       <LazySection data-lazy="pumpsResource" :label="t('detail.pumpsTitle')" :loaded="pumpsResource.loaded.value" :loading="pumpsResource.loading.value" :error="pumpsResource.error.value" @activate="pumpsResource.load()">
-        <PumpSection
+        <FertilizerSection
           :id="id"
-          :pumps="pumps"
+          :fertilizers="pumps"
           :readonly="readonly"
           @changed="load"
         />
@@ -639,7 +630,7 @@ async function leave() {
                 </div>
                 <div v-if="!readonly" class="row">
                   <button
-                    v-if="entry.kind === 'maintenance'"
+                    v-if="entry.kind === 'maintenance' && entry.type !== 'dosing_pump'"
                     class="btn small ghost"
                     @click="openLog(entry)"
                   >

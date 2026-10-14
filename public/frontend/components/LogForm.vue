@@ -25,7 +25,7 @@ const fields = computed<Field[]>(() => [
     key: "type",
     label: t("common.type"),
     options: Object.fromEntries(
-      Object.entries(session.config?.maintenanceTypes || {}).map(
+      Object.entries(session.config?.maintenanceTypes || {}).filter(([key]) => key !== "dosing_pump").map(
         ([key, item]) => [key, `${item.icon} ${item.label}`],
       ),
     ),
