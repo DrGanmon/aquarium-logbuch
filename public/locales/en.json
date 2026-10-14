@@ -897,6 +897,14 @@
     "chatMessage": "Message",
     "chatSend": "Send"
   },
+  "chat": {
+    "progressTitle": "Request progress",
+    "sending": "Sending your request …",
+    "context": "Preparing aquarium context …",
+    "history": "Preparing chat history …",
+    "generating": "Waiting for the AI response …",
+    "saving": "Saving the response …"
+  },
   "terms": {
     "title": "Terms of use",
     "version": "Version",

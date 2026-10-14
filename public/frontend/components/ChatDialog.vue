@@ -2,7 +2,7 @@
 import { onMounted, onBeforeUnmount, ref, nextTick } from "vue";
 import Modal from "./Modal.vue";
 import MarkdownText from "./MarkdownText.vue";
-import { api } from "../api";
+import { api, chatRequest } from "../api";
 import { t, errorMessage, session } from "../state";
 import type { AnswerInput } from '../health-types';
 import type { ChatMessage } from "../types";
@@ -14,6 +14,8 @@ const emit = defineEmits<{ close: [] }>();
 const messages = ref<ChatMessage[]>([]);
 const input = ref("");
 const busy = ref(false);
+const answering = ref(false);
+const progressStages = ref<string[]>([]);
 const historyLoading = ref(true);
 const lifecycle = new AbortController();
 const error = ref("");
@@ -75,27 +77,33 @@ async function send(prompt = input.value) {
   busy.value = true;
   error.value = "";
   input.value = "";
+  const history = props.diagnosis ? temporaryHistory() : [];
+  const pendingIndex = messages.value.length;
+  messages.value.push({ role: "user", content: prompt });
+  answering.value = true;
+  progressStages.value = ["sending"];
+  void scroll();
   try {
-    const result = await api<{ reply: string }>(props.diagnosis ? `/health/aquariums/${props.id}/diagnosis/chat` : `/aquariums/${props.id}/chat`, {
-      signal: lifecycle.signal,
-      method: "POST",
-      body: props.diagnosis ? {
+    const result = await chatRequest(props.diagnosis ? `/health/aquariums/${props.id}/diagnosis/chat` : `/aquariums/${props.id}/chat`, props.diagnosis ? {
         stockId: props.diagnosis.stockId, answers: props.diagnosis.answers, message: prompt,
-        messages: temporaryHistory(),
-      } : { message: prompt, provider: provider.value, saveHistory: true },
+        messages: history, progress: true,
+      } : { message: prompt, provider: provider.value, saveHistory: true, progress: true }, lifecycle.signal, (stage) => {
+      if (!progressStages.value.includes(stage)) progressStages.value.push(stage);
+      void scroll();
     });
     if (lifecycle.signal.aborted) return;
     messages.value.push(
-      { role: "user", content: prompt },
       { role: "assistant", content: result.reply },
     );
     if (props.diagnosis && messages.value.length > 100) messages.value = messages.value.slice(-100);
     await scroll();
   } catch (e) {
     if (lifecycle.signal.aborted) return;
+    messages.value.splice(pendingIndex, 1);
     error.value = errorMessage(e);
     input.value = prompt;
   } finally {
+    answering.value = false;
     busy.value = false;
   }
 }
@@ -124,7 +132,7 @@ async function clear() {
     ><div class="stack chat-dialog">
       <div class="row between chat-toolbar">
         <span v-if="diagnosis" class="muted">{{ diagnosis.provider }} · {{ diagnosis.model }}</span>
-        <select v-else v-model="provider">
+        <select v-else v-model="provider" :disabled="busy">
           <option v-if="session.user?.hasOpenaiKey" value="openai">
             OpenAI
           </option>
@@ -189,7 +197,18 @@ async function clear() {
             </div>
           </div>
         </div>
-        <p v-if="busy" class="muted" role="status">{{ t("common.loading") }}</p>
+        <div v-if="answering" class="chat-message assistant" role="status" aria-live="polite" aria-atomic="true">
+          <div class="chat-avatar" aria-hidden="true">🤖</div>
+          <div class="chat-bubble-content">
+            <strong>{{ t('chat.progressTitle') }}</strong>
+            <ol class="chat-progress-steps">
+              <li v-for="(stage, index) in progressStages" :key="stage" :class="{ muted: index < progressStages.length - 1 }">
+                <span aria-hidden="true">{{ index < progressStages.length - 1 ? '✓' : '⏳' }}</span> {{ t(`chat.${stage}`) }}
+              </li>
+            </ol>
+          </div>
+        </div>
+        <p v-else-if="busy" class="muted" role="status">{{ t("common.loading") }}</p>
       </div>
       <div class="chat-quick-prompts">
         <button

@@ -204,6 +204,12 @@ test('Diagnose-KI: persönliche Konfiguration, validierter Kontext, alle Anbiete
     assert.equal(result.data.reply, 'Test reply');
     assert.equal(result.data.provider, provider);
     assert.equal(result.data.model, `selected-${provider}`);
+    const progress = await chat({ answers, progress: true });
+    assert.equal(progress.status, 200, progress.text);
+    assert.match(progress.headers.get('content-type'), /application\/x-ndjson/);
+    assert.deepEqual(progress.text.trim().split('\n').map(line => JSON.parse(line)), [
+      { type: 'status', stage: 'generating' }, { type: 'done', reply: 'Test reply' },
+    ]);
     if (provider === 'gemini') assert.ok(calls.at(-1).url.includes(`selected-${provider}`));
     else assert.equal(calls.at(-1).payload.model, `selected-${provider}`);
   }
@@ -212,5 +218,5 @@ test('Diagnose-KI: persönliche Konfiguration, validierter Kontext, alle Anbiete
   assert.equal((await chat({ answers, message: 'x'.repeat(8001) })).status, 400);
   assert.equal((await env.request(path + '/chat', { method: 'POST', headers: { Cookie: stranger.cookie }, body: { stockId: resident.id, answers, message: 'Hello' } })).status, 404);
   assert.equal((await env.request(path + '/chat', { method: 'POST', body: { stockId: resident.id, answers, message: 'Hello' } })).status, 401);
-  assert.equal(calls.length, 3);
+  assert.equal(calls.length, 6);
 });

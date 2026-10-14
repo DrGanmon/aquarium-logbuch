@@ -8,6 +8,8 @@ In the profile, select OpenAI, Google Gemini or Anthropic Claude, enter a person
 
 Open the chat from the aquarium details. Suggested questions help you get started. On mobile devices, the dialog uses the available screen and accounts for the on-screen keyboard.
 
+Sent questions appear immediately in the conversation. While processing, the chat shows actual server stages and waits for the AI response. These status messages are not the model’s private reasoning. If a request fails, the question is restored to the input for retrying.
+
 ## Context and history
 
 The server adds tank dimensions, volume, water type, equipment, residents and the last ten measurements with assessments and trends. Aquarium chat history is stored per tank. Older conversation turns are summarized for the model context; summaries may lose details.

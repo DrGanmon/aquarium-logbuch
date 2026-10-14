@@ -728,6 +728,7 @@ async function chatWithAquarium({
   customDb = null,
   saveHistory = true,
   includeHistory = true,
+  onProgress = undefined,
   signal = undefined,
 }: any) {
   signal?.throwIfAborted();
@@ -755,6 +756,7 @@ async function chatWithAquarium({
     throw err;
   }
 
+  onProgress?.("context");
   // System-Prompt und Beckenkontext generieren
   const { systemPrompt } = await buildAquariumSystemPrompt(aquariumId, database);
 
@@ -815,9 +817,11 @@ async function chatWithAquarium({
     throw new Error('Keine Benutzernachricht übergeben.');
   }
 
+  onProgress?.("history");
   // Kontext-Komprimierung anwenden
   const optimizedMessages = compressChatHistory(inputMessages);
 
+  onProgress?.("generating");
   let result;
   if (activeProvider === 'gemini') {
     result = await callGemini({ apiKey, model, systemPrompt, messages: optimizedMessages, signal });
@@ -830,6 +834,7 @@ async function chatWithAquarium({
   signal?.throwIfAborted();
   // Wenn die Antwort erfolgreich war und Historie gespeichert werden soll
   if (saveHistory && result && result.reply && database.aquariumChats) {
+    onProgress?.("saving");
     try {
       if (userMessageText) {
         await database.aquariumChats.create({

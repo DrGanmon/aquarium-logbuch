@@ -1433,6 +1433,8 @@ dialog.aquarium-chat-modal {
 .aquarium-chat-modal .chat-input-form textarea { flex: 1; min-width: 0; width: 100%; resize: none; font-size: 16px; }
 .aquarium-chat-modal .chat-message.assistant { width: 100%; max-width: 100%; }
 .aquarium-chat-modal .chat-bubble-content { flex: 1; }
+.chat-progress-steps { list-style: none; padding: 0; margin: .5rem 0 0; }
+.chat-progress-steps li + li { margin-top: .3rem; }
 .aquarium-chat-modal .chat-quick-prompts { display: flex; gap: .5rem; overflow-x: auto; overscroll-behavior-x: contain; padding-bottom: .15rem; }
 .aquarium-chat-modal .chat-prompt-chip { flex-shrink: 0; }
 .aquarium-chat-modal .chat-disclaimer { margin-bottom: 0; line-height: 1.4; }

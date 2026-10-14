@@ -1,3 +1,4 @@
+import { chatProgress } from '../utils/chat-progress';
 import express from 'express';
 import db = require('../db');
 import speciesCatalog = require('../services/species-service');
@@ -101,9 +102,17 @@ router.post('/aquariums/:id/diagnosis/chat', auth, ownAquarium, wrap(async (req,
   const controller = new AbortController();
   const disconnect = () => { if (!res.writableFinished) controller.abort(); };
   res.once('close', disconnect);
+  const progressEnabled = req.body?.progress === true;
+  const progress = chatProgress(res, progressEnabled);
   try {
+    progress.status('generating');
     const result = await aiChatService.chatWithContext({ ...selectedAi, systemPrompt, messages, signal: controller.signal });
-    res.json({ reply: result.reply, provider: selectedAi.provider, model: selectedAi.model });
+    if (progressEnabled) progress.done({ reply: result.reply });
+    else res.json({ reply: result.reply, provider: selectedAi.provider, model: selectedAi.model });
+  } catch (error) {
+    if (controller.signal.aborted || res.destroyed) return;
+    if (progressEnabled && res.headersSent) progress.error(error instanceof Error ? error.message : String(error));
+    else throw error;
   } finally { res.removeListener('close', disconnect); }
 }));
 

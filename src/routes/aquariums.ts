@@ -1,3 +1,4 @@
+import { chatProgress } from '../utils/chat-progress';
 import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
 'use strict';
@@ -1094,6 +1095,8 @@ router.post(
     const { messages, message, provider, stream, saveHistory } = req.body || {};
     const controller = new AbortController();
     let streaming = false;
+    const progressEnabled = req.body?.progress === true;
+    const progress = chatProgress(res, progressEnabled);
     const disconnect = () => { if (!res.writableFinished) controller.abort(); };
     res.once('close', disconnect);
     try {
@@ -1103,13 +1106,14 @@ router.post(
         messages,
         message,
         provider,
-        stream: Boolean(stream),
+        stream: Boolean(stream) && !progressEnabled,
+        onProgress: progressEnabled ? progress.status : undefined,
         customDb: db,
         saveHistory: saveHistory !== false,
         signal: controller.signal,
       });
 
-      if (stream && 'stream' in result && result.stream) {
+      if (!progressEnabled && stream && 'stream' in result && result.stream) {
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
@@ -1122,6 +1126,7 @@ router.post(
         return;
       }
 
+      if (progressEnabled) { progress.done({ reply: result.reply });return; }
       res.json({
         ok: true,
         reply: result.reply,
@@ -1132,6 +1137,7 @@ router.post(
     } catch (caught: unknown) {
       if (controller.signal.aborted || res.destroyed) return;
       const err = asError(caught);
+      if (progressEnabled && res.headersSent) { progress.error(err.message);return; }
       const status = err.status || (err.code === 'NO_API_KEY' ? 400 : 500);
       res.status(status).json({
         error: err.message,

@@ -8,6 +8,8 @@ Wähle im Profil OpenAI, Google Gemini oder Anthropic Claude, hinterlege einen p
 
 Der Chat öffnet sich in der Aquarium-Detailansicht. Schnellfragen helfen beim Einstieg. Auf Mobilgeräten nutzt der Dialog den verfügbaren Bildschirm und berücksichtigt die Bildschirmtastatur.
 
+Gesendete Fragen erscheinen sofort im Verlauf. Während der Bearbeitung zeigt der Chat tatsächliche Server-Schritte und das Warten auf die KI-Antwort an. Diese Statusmeldungen sind keine internen Gedankengänge des Modells. Bei einem Fehler wird die Frage zur erneuten Bearbeitung ins Eingabefeld zurückgesetzt.
+
 ## Kontext und Verlauf
 
 Der Server ergänzt die Anfrage um Aquariummaße, Volumen, Wassertyp, Technik, Besatz und die letzten zehn Messungen mit Bewertung und Trends. Der Aquarium-Chat wird pro Becken gespeichert. Ältere Gesprächsteile werden für den Modellkontext zusammengefasst; diese Zusammenfassung kann Details verlieren.

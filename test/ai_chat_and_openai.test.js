@@ -928,3 +928,54 @@ test('KI-Streaming leitet Fetch-Webstreams als SSE weiter', async (t) => {
   assert.match(response.headers.get('content-type'), /text\/event-stream/);
   assert.equal(response.text, payload);
 });
+
+test('KI-Chat: Fortschritt vor der Antwort, Speicherung und Fehler im Ereignisstrom', async t => {
+  const env = createTestEnvironment();
+  t.after(() => env.cleanup());
+  const user = await env.createUserAndLogin('progress_tester');
+  const headers = { Cookie: user.cookie, 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' };
+  const aquarium = await env.request('/api/aquariums', { method: 'POST', headers, body: { name: 'Progress', water_type: 'fresh', volume_l: 100 } });
+  const endpoint = `/api/aquariums/${aquarium.data.id}/chat`;
+  const noKey = await env.request(endpoint, { method: 'POST', headers, body: { message: 'Hallo', progress: true } });
+  assert.equal(noKey.status, 400);
+  assert.match(noKey.headers.get('content-type'), /application\/json/);
+  await env.request('/api/me/openai', { method: 'PUT', headers, body: { apiKey: 'sk-test-progress-key', model: 'gpt-4o-mini', setAsActive: true } });
+  const originalFetch = global.fetch;
+  let finishProvider;
+  let fail = false;
+  global.fetch = async (url, options) => {
+    if (!String(url).startsWith('https://api.openai.com/')) return originalFetch(url, options);
+    assert.equal(JSON.parse(options.body).stream, false);
+    if (fail) return new Response(JSON.stringify({ error: { message: 'Provider unavailable' } }), { status: 503 });
+    await new Promise(resolve => { finishProvider = resolve; });
+    return new Response(JSON.stringify({ choices: [{ message: { content: 'Antwort' } }], model: 'gpt-4o-mini' }));
+  };
+  t.after(() => { finishProvider?.();global.fetch = originalFetch; });
+  const response = await originalFetch((await env.start()) + endpoint, { method: 'POST', headers, body: JSON.stringify({ message: 'Hallo', progress: true }) });
+  assert.match(response.headers.get('content-type'), /application\/x-ndjson/);
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let text = '';
+  while (!text.includes('generating')) {
+    const chunk = await reader.read();assert.equal(chunk.done, false);
+    text += decoder.decode(chunk.value, { stream: true });
+  }
+  assert.ok(finishProvider, 'Provider request is pending while progress is visible');
+  assert.equal(text.includes('"type":"done"'), false);
+  finishProvider();
+  while (true) {
+    const chunk = await reader.read();if (chunk.done) break;
+    text += decoder.decode(chunk.value, { stream: true });
+  }
+  const events = text.trim().split('\n').map(line => JSON.parse(line));
+  assert.deepEqual(events.filter(e => e.type === 'status').map(e => e.stage), ['context', 'history', 'generating', 'saving']);
+  assert.deepEqual(events.at(-1), { type: 'done', reply: 'Antwort' });
+  const history = await env.request(endpoint + '/history', { headers });
+  assert.deepEqual(history.data.messages.map(m => m.content), ['Hallo', 'Antwort']);
+  fail = true;
+  const failure = await env.request(endpoint, { method: 'POST', headers, body: { message: 'Fehler', progress: true } });
+  const errorEvents = failure.text.trim().split('\n').map(line => JSON.parse(line));
+  assert.equal(errorEvents.at(-1).type, 'error');
+  assert.match(errorEvents.at(-1).error, /Provider unavailable/);
+  assert.equal(errorEvents.some(e => e.type === 'done'), false);
+});

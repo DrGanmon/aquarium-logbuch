@@ -897,6 +897,14 @@
     "chatMessage": "Nachricht",
     "chatSend": "Senden"
   },
+  "chat": {
+    "progressTitle": "Bearbeitungsstatus",
+    "sending": "Anfrage wird gesendet …",
+    "context": "Beckenkontext wird vorbereitet …",
+    "history": "Chatverlauf wird aufbereitet …",
+    "generating": "Warte auf die Antwort der KI …",
+    "saving": "Antwort wird gespeichert …"
+  },
   "terms": {
     "title": "Allgemeine Geschäftsbedingungen (AGB)",
     "version": "Fassung",
