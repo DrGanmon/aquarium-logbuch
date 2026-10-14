@@ -39,7 +39,7 @@ Verbrauchszähler werden nach Suite und Test getrennt geführt. Messungen verwen
 
 ## Wartezeiten und Grenzwerte
 
-Die Testparameter und Standardwerte liegen in `../../src/config/suites/jbl-pro-aquatest.json` und `config.ts`.
+Die Testparameter und Standardwerte liegen in `../../src/config/suites/jbl-pro-aquatest.json` und `src/config/app-config.ts`.
 
 - **Wartezeiten:** Alle Zeiten im Standard-Set basieren auf der JBL Testlab-Gebrauchsanweisung (`verified: true`). Eigene Testsuiten können jederzeit als JSON ergänzt werden.
 - **Grenzwerte:** Richtwerte für Süß- und Meerwasser. Prüfe sie für dein Becken und passe sie an.

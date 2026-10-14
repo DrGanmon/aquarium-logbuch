@@ -39,7 +39,7 @@ Usage counters are separate for each suite and test. Measurements use their subm
 
 ## Reaction times and target values
 
-Test parameters and default values are defined in `../../src/config/suites/jbl-pro-aquatest.json` and `config.js`.
+Test parameters and default values are defined in `../../src/config/suites/jbl-pro-aquatest.json` and `src/config/app-config.ts`.
 
 - **Reaction Times:** All default timings are verified against official manufacturer instructions (`verified: true`).
 - **Target Ranges:** Guidelines for fresh and saltwater tanks. Verify and adjust according to your specific setup and inhabitant needs. The application does not replace professional veterinary or aquaristic advice.

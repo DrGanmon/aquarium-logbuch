@@ -8,7 +8,7 @@ import type { DatabaseOptions } from '../types/domain';
 import { MongoClient } from 'mongodb';
 import envModule = require('../config/env');
 const { MONGODB_URI, MONGODB_DB_NAME } = envModule;
-import cfg = require('../../config');
+import cfg = require('../config/app-config');
 import aquarium_serviceModule = require('../services/aquarium-service');
 const { isOverdue } = aquarium_serviceModule;
 import reminder_serviceModule = require('../services/reminder-service');

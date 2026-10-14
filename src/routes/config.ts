@@ -3,7 +3,7 @@ import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
 'use strict';
 import express = require('express');
-import cfg = require('../../config');
+import cfg = require('../config/app-config');
 import authModule = require('../middleware/auth');
 const { auth } = authModule;
 import db = require('../db');

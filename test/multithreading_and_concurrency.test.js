@@ -10,7 +10,7 @@ const { createTestEnvironment } = require('./helpers/env');
 const { WorkerPool } = require('../dist/backend/src/utils/worker-pool');
 const { hashPassword, verifyPassword, hashPasswordSync, verifyPasswordSync } = require('../dist/backend/src/utils/crypto');
 const { Supervisor } = require('../dist/backend/src/services/supervisor');
-const { createOidc } = require('../dist/backend/oidc.js');
+const { createOidc } = require('../dist/backend/src/services/oidc-client.js');
 
 test('Multithreading & Nebenläufigkeit (Concurrency)', async (t) => {
   let env;

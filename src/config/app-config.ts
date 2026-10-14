@@ -1,5 +1,5 @@
-import type { WaterType } from './src/types/domain';
-import type { WaterTest, Thresholds } from './src/types/catalog';
+import type { WaterType } from '../types/domain';
+import type { WaterTest, Thresholds } from '../types/catalog';
 'use strict';
 /*
  * Testparameter, Wartezeiten (Timer) und Grenzwerte.
@@ -12,9 +12,9 @@ import type { WaterTest, Thresholds } from './src/types/catalog';
  * Zwischen ok und crit gibt es eine Warnung. null = keine Grenze auf dieser Seite.
  */
 
-import suiteService = require('./src/services/suite-service');
-import speciesService = require('./src/services/species-service');
-import maintenanceService = require('./src/services/maintenance-service');
+import suiteService = require('../services/suite-service');
+import speciesService = require('../services/species-service');
+import maintenanceService = require('../services/maintenance-service');
 
 const PARAMETERS = suiteService.getAllKnownParameters();
 

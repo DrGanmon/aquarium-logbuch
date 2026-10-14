@@ -6,7 +6,7 @@ import express = require('express');
 import { Readable, pipeline } from 'node:stream';
 import crypto = require('crypto');
 import db = require('../db');
-import cfg = require('../../config');
+import cfg = require('../config/app-config');
 import helpersModule = require('../utils/helpers');
 const { wrap, str } = helpersModule;
 import authModule = require('../middleware/auth');

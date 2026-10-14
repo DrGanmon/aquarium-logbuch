@@ -5,7 +5,7 @@ interface ChatMessage { role: 'user' | 'assistant'; content: string }
 interface CompressionOptions { maxRecent?: number; maxTotalChars?: number; maxOldTurnChars?: number }
 'use strict';
 import db = require('../db');
-import cfg = require('../../config');
+import cfg = require('../config/app-config');
 const {
   DEFAULT_AI_PROVIDER,
   OPENAI_API_KEY,

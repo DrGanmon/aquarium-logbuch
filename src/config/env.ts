@@ -2,7 +2,7 @@ import { APP_ROOT } from '../utils/paths';
 'use strict';
 import path = require('path');
 import os = require('os');
-import cfg = require('../../config');
+import cfg = require('./app-config');
 
 const env = process.env;
 const PORT = Number(env.PORT || 3000);
@@ -53,7 +53,7 @@ if (OIDC_ENABLED && (!APP_URL || !OIDC_CLIENT_ID)) {
 // Lokale Anmeldung mit Passwort: Standard an ohne OIDC, aus mit OIDC
 const LOCAL_LOGIN = env.LOCAL_LOGIN != null && env.LOCAL_LOGIN !== '' ? env.LOCAL_LOGIN === 'true' : !OIDC_ENABLED;
 
-// Admin-E-Mail(s) aus Umgebung oder config.js (mehrere durch Komma getrennt)
+// Admin-E-Mail(s) aus Umgebung oder app-config.ts (mehrere durch Komma getrennt)
 const ADMIN_EMAIL = (env.ADMIN_EMAIL || cfg.ADMIN_EMAIL || '').trim();
 const ADMIN_EMAILS = ADMIN_EMAIL.split(',').map((s: any) => s.trim().toLowerCase()).filter(Boolean);
 const isEmailAdmin = (email: any) => !!email && ADMIN_EMAILS.includes(String(email).trim().toLowerCase());

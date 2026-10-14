@@ -4,7 +4,7 @@
 
 The admin view is organized into five tabs: **User management**, **Invitations & registration** (registration modes, validity periods, invitation codes and email invitations), **Settings** (legal settings and email/SMTP, including test email and queue), **Backups**, and **Logs**.
 
-Administrators are identified by their email address matching `ADMIN_EMAIL` in `../../config.js` or environment variables (comma-separated for multiple admins).
+Administrators are identified by their email address matching `ADMIN_EMAIL` in `src/config/app-config.ts` or environment variables (comma-separated for multiple admins).
 
 - Users matching `ADMIN_EMAIL` receive administrative privileges.
 - An **Admin** button appears in the navigation bar (`#/admin`).

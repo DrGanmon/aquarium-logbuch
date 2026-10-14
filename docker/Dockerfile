@@ -12,7 +12,7 @@ FROM oven/bun:1.4.3-slim AS production
 WORKDIR /app
 COPY package.json bun.lock .npmrc ./
 RUN bun install --frozen-lockfile --production --ignore-scripts
-COPY --from=build /app/server.js /app/config.js /app/oidc.js /app/version.json /app/LICENSE ./
+COPY --from=build /app/server.js /app/version.json /app/LICENSE ./
 COPY --from=build /app/dist/backend ./dist/backend
 COPY --from=build /app/public ./public
 ARG APP_VERSION

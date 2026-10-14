@@ -8,11 +8,12 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ### Projektstruktur
 
-- Dockerfiles, Compose-Konfigurationen und Umgebungsvorlage unter `docker/` gebündelt; Prüfbericht nach `docs/AUDIT.md` verschoben.
-- CI-Buildpfad, Dokumentationslinks und Docker-Befehle aktualisiert; Compose verwendet weiterhin das Repository-Hauptverzeichnis als Projektverzeichnis.
+- Anwendungskonfiguration nach `src/config/app-config.ts` und OIDC-Client nach `src/services/oidc-client.ts` verschoben; JavaScript-Wrapper im Hauptverzeichnis entfernt.
+- Imports, TypeScript-Build, Produktionslayout-Tests, Dockerfiles und Dokumentation an die neuen Modulpfade angepasst.
 
 ## 0.1.0-ALPHA
 
+- 2026-10-14 · Projektstruktur: Docker-Dateien unter `docker/` gebündelt, Prüfbericht nach `docs/AUDIT.md` verschoben und CI sowie Anleitungen angepasst ([`731c899`](https://github.com/DrGanmon/aquarium-logbuch/commit/731c89940e77a476de11e43aea918fdd5e273b97)).
 - 2026-10-14 · Versionierung: Minor-Version auf 0.1.0-ALPHA erhöht und Revision sowie Patch zurückgesetzt ([`40868a3`](https://github.com/DrGanmon/aquarium-logbuch/commit/40868a33973d127d233cdae58b4a6b196973159c)).
 
 ## 0.0.14-ALPHA

@@ -1,7 +1,7 @@
 import type { Aquarium, StockRecord } from '../types/domain';
 import type { Thresholds, WaterTest } from '../types/catalog';
 'use strict';
-import cfg = require('../../config');
+import cfg = require('../config/app-config');
 import helpersModule = require('../utils/helpers');
 const { fmt } = helpersModule;
 

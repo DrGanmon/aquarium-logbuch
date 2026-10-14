@@ -6,7 +6,7 @@ Die Admin-Ansicht ist in fünf Tabs gegliedert: **Userverwaltung**, **Einladung 
 
 Für die erste lokale Administratorregistrierung muss der Mailversand bereits über `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` und `SMTP_FROM` eingerichtet sein, damit die Adresse bestätigt werden kann. Bei bestehenden unbestätigten Konten lässt sich der Bestätigungslink erneut anfordern.
 
-Der Administrator wird anhand der bestätigten E-Mail-Adresse festgelegt. Dazu entweder in `../../config.ts` oder über die Umgebungsvariable `ADMIN_EMAIL` die gewünschte E-Mail-Adresse hinterlegen (z. B. `ADMIN_EMAIL=admin@example.com` bzw. kommagetrennt für mehrere).
+Der Administrator wird anhand der bestätigten E-Mail-Adresse festgelegt. Dazu entweder in `src/config/app-config.ts` oder über die Umgebungsvariable `ADMIN_EMAIL` die gewünschte E-Mail-Adresse hinterlegen (z. B. `ADMIN_EMAIL=admin@example.com` bzw. kommagetrennt für mehrere).
 
 - Benutzer erhalten Administratorrechte erst mit einer bestätigten E-Mail-Adresse, die mit `ADMIN_EMAIL` übereinstimmt. Das gilt auch nach Änderungen der Profiladresse. OIDC muss dafür `email_verified: true` liefern. E-Mail-Einladungen eines bereits bestätigten Administrators gelten als ausdrücklich freigegebene Konten; Einladungen anderer Benutzer erfordern eine zusätzliche E-Mail-Bestätigung.
 - Im Header erscheint der Button **Admin** (`#/admin`).

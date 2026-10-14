@@ -1,6 +1,6 @@
 'use strict';
 
-import cfg = require('../../config');
+import cfg = require('../config/app-config');
 import alert_serviceModule = require('./alert-service');
 const { thresholdsOfAquarium, buildMessage } = alert_serviceModule;
 
