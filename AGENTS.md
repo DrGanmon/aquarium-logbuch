@@ -6,6 +6,12 @@
 - Beispiel: `fix(ci): Build- und Testfehler in der Pipeline beheben`.
 - Eine Commit-Message bereitzustellen ist keine Aufforderung, automatisch zu committen oder zu pushen.
 
+## API-Dokumentation pflegen
+
+- Bei der Anlage neuer API-Endpunkte die OpenAPI-/Swagger-Dokumentation in `docs/api/openapi.json` im selben Änderungsschritt mitpflegen. Dies gilt auch für neue Alias-Pfade sowie Änderungen oder das Entfernen bestehender Endpunkte.
+- HTTP-Methoden, Pfad- und Query-Parameter, Anfrage- und Antwortschemata, Authentifizierung, Berechtigungen und Fehlercodes entsprechend dem tatsächlichen Verhalten dokumentieren. Bei geänderten Abläufen auch die Anleitung und Aufrufbeispiele in `docs/api/README.md` aktualisieren.
+- Nach API-Änderungen `node scripts/check-api-docs.js` ausführen und gemeldete Abweichungen vor Abschluss der Änderung beheben.
+
 ## Changelog pflegen
 
 - Bei jeder Änderung und beim Formulieren jeder neuen Commit-Message automatisch auch `CHANGELOG.md` aktualisieren. Diese Pflege gehört zur Aufgabe und benötigt keine zusätzliche Aufforderung.
