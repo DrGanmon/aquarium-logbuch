@@ -1,6 +1,6 @@
 # Aquarium-Bilddatenbank
 
-Erzeugt für alle Arten aus `data/*.json` (Süßwasser, Buntbarsche, Wirbellose, Meerwasser – 148 eindeutige IDs) je ein Bild aus Wikipedia bzw. Wikimedia Commons, inklusive Urheber- und Lizenzangaben.
+Erzeugt für alle Einträge aus `data/*.json` – Tiere (Süßwasser, Buntbarsche, Wirbellose, Meerwasser; 148 Arten) und Pflanzen (`plants.json`; 149 Pflanzen) – je ein Bild aus Wikipedia bzw. Wikimedia Commons, inklusive Urheber- und Lizenzangaben.
 
 ## Welche Bilder übernommen werden
 
@@ -41,6 +41,7 @@ python3 build_image_db.py --contact admin@example.org --download
 | `--download` | Vorschaubilder nach `out/images/<id>.jpg` speichern |
 | `--width 800` | Breite der Vorschaubilder in Pixeln |
 | `--only id1 id2` | nur diese Arten (neu) bearbeiten |
+| `--kind plants` | nur Pflanzen (neu) suchen; `--kind animals` nur Tiere. Bereits vorhandene Einträge der anderen Gruppe bleiben in `images.json` erhalten |
 | `--refresh` | auch bereits gefundene Bilder neu suchen |
 | `--reject id1 id2` | aktuelles Bild dieser Arten ausschließen und das nächstbeste suchen |
 | `--serve` | Review-Server starten (siehe unten), mit `--host` und `--port` (Standard `127.0.0.1:8765`) |
@@ -49,6 +50,24 @@ python3 build_image_db.py --contact admin@example.org --download
 | `--data`, `--out`, `--overrides` | abweichende Pfade |
 
 Erneute Läufe übernehmen Arten mit Status `ok` oder `manual` aus dem vorhandenen `out/images.json` und bearbeiten nur den Rest.
+
+## Pflanzen
+
+`data/plants.json` wird automatisch mitverarbeitet (erkannt am Schlüssel `plants` statt `species`). Unterschiede zu Tieren:
+
+- Synonyme aus dem Feld `synonyms` werden als Wikipedia-Artikel probiert (z. B. *Hemianthus callitrichoides* für Kuba-Perlkraut).
+- Zusätzliche Commons-Suche nach „<Name> aquarium“, weil Wikipedia-Leitbilder bei Pflanzen oft Blüten oder Überwasserformen zeigen.
+- Herbarbelege und botanische Tafeln werden verworfen.
+- Zuchtformen (Name mit Sorte in Anführungszeichen) und Sammelbezeichnungen (`sp.`, `spp.`) stehen immer auf `review`, weil Commons meist nur die Wildform zeigt.
+- Jeder Eintrag in `images.json` hat das Feld `kind` (`animal` oder `plant`); die Galerie lässt sich danach filtern.
+
+Nur Pflanzen suchen:
+
+```bash
+python3 build_image_db.py --contact admin@example.org --download --kind plants
+```
+
+Nur eine Sprachfassung der Pflanzenliste nach `data/` legen (`plants.json` oder `plants-en.json`) – die IDs sind gleich.
 
 ## Ablauf der Bildsuche
 

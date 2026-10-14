@@ -60,7 +60,8 @@ HREF = re.compile(r'href="([^"]+)"|href=\'([^\']+)\'')
 BAD_FILENAME = re.compile(
     r"(\bmap\b|range|distribution|verbreitung|karte|drawing|illustration|zeichnung|"
     r"\bplate\b|tafel|skeleton|skelett|logo|stamp|briefmarke|bloch|lac[eé]p[eè]de|"
-    r"cuvier|\bfig\b|figure|lithograph|engraving|\.svg$|\.gif$|\.tiff?$)",
+    r"cuvier|\bfig\b|figure|lithograph|engraving|herbarium|specimen|exsiccat|k[oö]hler|"
+    r"\.svg$|\.gif$|\.tiff?$)",
     re.I,
 )
 ALLOWED_MIME = {"image/jpeg", "image/png", "image/webp"}
@@ -149,6 +150,10 @@ def title_candidates(species: dict, override: dict) -> tuple[list[str], str]:
             if epithet not in NOT_EPITHET:
                 titles.append(f"{genus} {epithet}")
     titles += SYNONYM.findall(species.get("description", ""))
+    for syn in species.get("synonyms", []):  # Pflanzen führen Synonyme als eigenes Feld
+        for genus, epithet in BINOMIAL.findall(syn):
+            if epithet not in NOT_EPITHET:
+                titles.append(f"{genus} {epithet}")
     seen, unique = set(), []
     for t in titles:
         if t.lower() not in seen:
@@ -217,7 +222,7 @@ def evaluate_batch(client: Client, files: list[str], width: int | None = None) -
     for f in files:
         name = norm_file(f)
         if BAD_FILENAME.search(name):
-            results[name] = (None, "Dateiname deutet auf Karte/Zeichnung")
+            results[name] = (None, "Dateiname deutet auf Karte, Zeichnung oder Herbarbeleg")
         else:
             pending.append(name)
     for i in range(0, len(pending), 50):
@@ -331,6 +336,8 @@ def gather_candidates(client: Client, species: dict, override: dict, log: list[s
         candidates += commons_search(client, search, SEARCH_PUBLIC_DOMAIN, 10, must, SRC_SEARCH_FREE, "Commons-Suche (gemeinfrei)")
         candidates += commons_search(client, search, SEARCH_CC0, 10, must, SRC_SEARCH_FREE, "Commons-Suche (CC0)")
         candidates += commons_search(client, search, "", 25, must, SRC_SEARCH, "Commons-Suche")
+        if species.get("kind") == "plant":
+            candidates += commons_search(client, f"{search} aquarium", "", 15, must, SRC_SEARCH, "Commons-Suche (Aquarium)")
         if not candidates and genus not in titles:
             candidates = [(f, v + " (nur Gattung)", SRC_GENUS) for f, v, _ in lead_images(client, [genus], log)]
     best: dict[str, tuple[str, int]] = {}
@@ -391,7 +398,12 @@ def resolve(client: Client, species: dict, override: dict) -> dict:
     weaker = [a for a in accepted[1:] if a["sort"][0] > top["sort"][0]]
     if weaker:
         log.append(f"{len(weaker)} weitere Treffer mit schwächerer Lizenz übergangen")
-    return finish_record(top["record"], top["via"], top["rank"], override, log)
+    result = finish_record(top["record"], top["via"], top["rank"], override, log)
+    sci = species["scientificName"]
+    if species.get("kind") == "plant" and ("'" in sci or re.search(r"\bspp?\.", sci)):
+        result["reviewReasons"].append("Sorte bzw. Sammelbezeichnung – prüfen, ob das Bild die richtige Form zeigt")
+        result["status"] = "review"
+    return result
 
 
 # ------------------------------------------------------------------ Ausgabe
@@ -424,7 +436,7 @@ def build_entry(client: Client, out: pathlib.Path, sp: dict, res: dict, override
     if not res.get("restrictions"):
         res.pop("restrictions", None)
     res.pop("needsReview", None)
-    entry = {"id": sp["id"], "name": sp["name"], "scientificName": sp["scientificName"],
+    entry = {"id": sp["id"], "kind": sp.get("kind", "animal"), "name": sp["name"], "scientificName": sp["scientificName"],
              "collections": sp["collections"], **res}
     if override.get("note"):
         entry["note"] = override["note"]
@@ -449,13 +461,24 @@ def atomic_write(path: pathlib.Path, text: str) -> None:
     tmp.replace(path)
 
 
-def load_species(data_dir: pathlib.Path) -> list[dict]:
+def load_species(data_dir: pathlib.Path, kind: str = "all") -> list[dict]:
+    """Liest Artenlisten (Schlüssel "species") und Pflanzenlisten (Schlüssel "plants")."""
     by_id: dict[str, dict] = {}
     for path in sorted(data_dir.glob("*.json")):
         collection = json.loads(path.read_text(encoding="utf-8"))
-        for sp in collection["species"]:
-            entry = by_id.setdefault(sp["id"], {**sp, "collections": []})
-            entry["collections"].append(collection["id"])
+        if "plants" in collection:
+            items, item_kind = collection["plants"], "plant"
+        elif "species" in collection:
+            items, item_kind = collection["species"], "animal"
+        else:
+            print(f"Übersprungen (weder 'species' noch 'plants'): {path.name}", file=sys.stderr)
+            continue
+        if kind != "all" and item_kind != kind.rstrip("s"):
+            continue
+        for sp in items:
+            entry = by_id.setdefault(sp["id"], {**sp, "kind": item_kind, "collections": []})
+            if collection["id"] not in entry["collections"]:
+                entry["collections"].append(collection["id"])
     return list(by_id.values())
 
 
@@ -529,7 +552,7 @@ def render_card(d: dict, interactive: bool = False) -> str:
         actions = f'<div class="actions">{"".join(buttons)}</div>'
     search = " ".join([d["id"], d["name"], d["scientificName"]]).lower()
     status = d.get("status", "missing")
-    return (f'<figure style="--status:{STATUS_COLOR.get(status, "var(--muted)")}" data-id="{e(d["id"])}" data-status="{e(status)}" '
+    return (f'<figure style="--status:{STATUS_COLOR.get(status, "var(--muted)")}" data-id="{e(d["id"])}" data-kind="{e(d.get("kind", "animal"))}" data-status="{e(status)}" '
             f'data-tier="{e(d.get("licenseTier", ""))}" data-collections="{e(" ".join(d.get("collections", [])))}" '
             f'data-search="{e(search)}">{img}<figcaption>'
             f'<div class="name">{e(d["name"])}</div><div class="sci">{e(d["scientificName"])}</div>'
@@ -568,6 +591,7 @@ def main() -> None:
     ap.add_argument("--width", type=int, default=800, help="Breite der Vorschaubilder in px")
     ap.add_argument("--download", action="store_true", help="Vorschaubilder lokal speichern")
     ap.add_argument("--only", nargs="*", help="nur diese IDs verarbeiten")
+    ap.add_argument("--kind", choices=["all", "animals", "plants"], default="all", help="nur Tiere oder nur Pflanzen verarbeiten")
     ap.add_argument("--refresh", action="store_true", help="auch bereits gefundene Bilder neu suchen")
     ap.add_argument("--reject", nargs="+", metavar="ID",
                     help="aktuelles Bild dieser Arten dauerhaft ausschließen (in overrides.json) und neu suchen")
@@ -625,7 +649,7 @@ def main() -> None:
         previous = {r["id"]: r for r in json.loads((out / "images.json").read_text(encoding="utf-8"))["images"]}
 
     client = Client(f"AquariumImageDB/2.0 ({ARGS.contact})", ARGS.delay)
-    species = load_species(pathlib.Path(ARGS.data))
+    species = load_species(pathlib.Path(ARGS.data))  # immer alle laden, damit nichts aus images.json verloren geht
     unknown = set(overrides) - {sp["id"] for sp in species}
     if unknown:
         print(f"Warnung: Overrides für unbekannte IDs: {', '.join(sorted(unknown))}", file=sys.stderr)
@@ -635,7 +659,8 @@ def main() -> None:
         keep = previous.get(sp["id"])
         if keep and keep.get("file") and "licenseTier" not in keep:
             keep = None  # Eintrag aus älterer Version ohne Lizenzrangfolge → neu prüfen
-        selected = not ARGS.only or sp["id"] in ARGS.only
+        selected = (not ARGS.only or sp["id"] in ARGS.only) and \
+                   (ARGS.kind == "all" or sp.get("kind") == ARGS.kind.rstrip("s"))
         if keep and (not selected or (keep["status"] in ("ok", "manual") and not ARGS.refresh)):
             results.append(keep)
             continue

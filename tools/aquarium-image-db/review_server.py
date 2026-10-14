@@ -53,7 +53,7 @@ class ReviewApp:
         for sid in self.order:
             sp = self.species[sid]
             self.entries[sid] = known.get(sid) or {
-                "id": sid, "name": sp["name"], "scientificName": sp["scientificName"],
+                "id": sid, "kind": sp.get("kind", "animal"), "name": sp["name"], "scientificName": sp["scientificName"],
                 "collections": sp["collections"], "status": "missing", "matchedVia": "",
                 "log": ["noch nicht gesucht – über „Alternativen“ ein Bild wählen"],
             }

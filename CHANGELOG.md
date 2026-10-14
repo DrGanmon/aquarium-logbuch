@@ -6,11 +6,15 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-### Pflanzen im Aquarium
+### Bilddatenbank-Werkzeug
 
-- Pflanzen aus dem Katalog mit Anzahl zu Aquarien hinzufügen und in einem eigenen Abschnitt unter dem Tierbesatz anzeigen; Details öffnen, Bestände bearbeiten und Pflanzen entfernen.
-- Aquarium aus der Detailansicht im Hinzufügen-Dialog vorauswählen; vorhandene Bestände laden und ohne doppelte Einträge aktualisieren. Deutsche und englische Oberfläche ergänzt.
-- Schreibrechte und Wasserart serverseitig prüfen; Pflanzenbestand in SQLite und MongoDB speichern, bei Aquariumlöschung entfernen und in Backup/Restore übernehmen. API- und Datenbanktests ergänzen.
+- Bildsuche um Pflanzenkataloge, strukturierte Synonyme und zusätzliche Commons-Suchen mit Aquariumbezug erweitern; Herbarbelege aussortieren und automatisch gefundene Pflanzen-Zuchtformen sowie Sammelbezeichnungen zur Sichtprüfung markieren.
+- Tiere und Pflanzen mit `kind` kennzeichnen, über `--kind` gezielt verarbeiten und in der Review-Galerie filtern; Dokumentation entsprechend ergänzen.
+- Datenverzeichnis mit Platzhalter sowie artspezifische Suchvorgaben und Prüfhilfen in `tools/overrides.json` hinzufügen.
+
+## 0.1.2-ALPHA
+
+- 2026-10-14 · Pflanzenbestand: Pflanzen mit Anzahl zu Aquarien hinzufügen, unter dem Tierbesatz anzeigen, Details öffnen sowie Bestände bearbeiten und entfernen. Aquariumvorauswahl, deutsche und englische Oberfläche, Prüfung von Schreibrechten und Wasserart, Speicherung in SQLite und MongoDB, Löschbereinigung, Backup/Restore, Tests und Dokumentation ergänzt ([`1c4dcad`](https://github.com/DrGanmon/aquarium-logbuch/commit/1c4dcad11832275798e6bc02ec2e7ce9694a6b54)).
 
 ## 0.1.1-ALPHA
 

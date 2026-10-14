@@ -103,13 +103,14 @@
 </head>
 <body>
 <header>
-  <h1>Artenbilder prüfen</h1>
+  <h1>Bilder prüfen</h1>
   <div class="controls filters" role="group" aria-label="Nach Status filtern" hidden>{{FILTERS}}</div>
+  <select class="controls" id="kind" aria-label="Tiere oder Pflanzen" hidden><option value="">Tiere und Pflanzen</option><option value="animal">Nur Tiere</option><option value="plant">Nur Pflanzen</option></select>
   <select class="controls" id="collection" aria-label="Sammlung" hidden><option value="">Alle Sammlungen</option>{{COLLECTIONS}}</select>
   <select class="controls" id="tier" aria-label="Lizenz" hidden><option value="">Alle Lizenzen</option><option value="public-domain">Gemeinfrei / CC0</option><option value="cc-by">CC BY</option><option value="cc-by-sa">CC BY-SA</option></select>
   <input class="controls" id="q" type="search" placeholder="Name oder ID suchen" aria-label="Suchen" hidden>
 </header>
-<p class="count" id="count">{{TOTAL}} Arten ({{MODE}}), erzeugt {{GENERATED}}</p>
+<p class="count" id="count">{{TOTAL}} Einträge ({{MODE}}), erzeugt {{GENERATED}}</p>
 <main id="grid">
 {{CARDS}}
 </main>
@@ -118,7 +119,7 @@
 (function () {
   const active = new Set(["ok", "manual", "review", "missing"]);
   document.querySelectorAll(".controls").forEach(el => el.hidden = false);
-  const q = document.getElementById("q"), col = document.getElementById("collection"), tier = document.getElementById("tier");
+  const q = document.getElementById("q"), col = document.getElementById("collection"), tier = document.getElementById("tier"), kind = document.getElementById("kind");
   function apply() {
     const cards = document.querySelectorAll("figure[data-status]");
     const text = q.value.toLowerCase();
@@ -127,11 +128,12 @@
       const visible = active.has(c.dataset.status)
         && (!col.value || c.dataset.collections.split(" ").includes(col.value))
         && (!tier.value || c.dataset.tier === tier.value)
+        && (!kind.value || c.dataset.kind === kind.value)
         && (!text || c.dataset.search.includes(text));
       c.hidden = !visible;
       if (visible) shown++;
     }
-    document.getElementById("count").textContent = shown + " von " + cards.length + " Arten ({{MODE}})";
+    document.getElementById("count").textContent = shown + " von " + cards.length + " Einträgen ({{MODE}})";
   }
   window.applyFilters = apply;
   document.querySelectorAll(".filters button").forEach(b => b.addEventListener("click", () => {
@@ -143,6 +145,7 @@
   q.addEventListener("input", apply);
   col.addEventListener("change", apply);
   tier.addEventListener("change", apply);
+  kind.addEventListener("change", apply);
   apply();
 })();
 </script>
