@@ -13,38 +13,38 @@ const ALGS: Record<string, any> = {
 const CLOCK_SKEW = 120; // Sekunden
 const PENDING_TTL = 10 * 60 * 1000;
 
-function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'openid profile email' }: any) {
+function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'openid profile email', stateSecret = clientSecret || crypto.randomBytes(32).toString('hex') }: any) {
   const base = issuer.replace(/\/+$/, '');
-  const internalSecret = crypto.createHash('sha256').update(clientSecret || clientId || 'oidc-internal-secret').digest();
+  const internalSecret = crypto.createHash('sha256').update(stateSecret).update('\0').update(base).update('\0').update(clientId).update('\0').update(redirectUri).digest();
   let discovery: Record<string, any> | null = null;
   let discoveryAt = 0;
   let jwks: (crypto.JsonWebKey & { use?: string; kid?: string; alg?: string })[] | null = null;
   const pending = new Map(); // state -> { verifier, nonce, created }
 
-  function signState(data?: any) {
-    const json = JSON.stringify(data);
-    const b64 = b64url(Buffer.from(json));
-    const sig = b64url(crypto.createHmac('sha256', internalSecret).update(b64).digest());
-    return `${b64}.${sig}`;
+  // Authenticate and encrypt the PKCE verifier; a signed plaintext state would expose it in URLs.
+  function signState(data: unknown) {
+    const iv = crypto.randomBytes(12);
+    const cipher = crypto.createCipheriv('aes-256-gcm', internalSecret, iv);
+    const encrypted = Buffer.concat([cipher.update(JSON.stringify(data), 'utf8'), cipher.final()]);
+    return `v2.${b64url(iv)}.${b64url(encrypted)}.${b64url(cipher.getAuthTag())}`;
   }
 
-  function verifyStateToken(stateStr?: any) {
-    if (!stateStr || typeof stateStr !== 'string') return null;
+  function verifyStateToken(stateStr: unknown) {
+    if (typeof stateStr !== 'string' || stateStr.length > 4096) return null;
     const parts = stateStr.split('.');
-    if (parts.length !== 2) return null;
-    const [b64, sig] = parts;
-    const expectedSig = b64url(crypto.createHmac('sha256', internalSecret).update(b64).digest());
-    if (sig.length !== expectedSig.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedSig))) {
-      return null;
-    }
+    if (parts.length !== 4 || parts[0] !== 'v2') return null;
     try {
-      const data = JSON.parse(fromB64url(b64).toString('utf8'));
-      if (!data || typeof data !== 'object') return null;
-      if (Date.now() - data.t > PENDING_TTL) return null;
+      const iv = fromB64url(parts[1]), tag = fromB64url(parts[3]);
+      if (iv.length !== 12 || tag.length !== 16) return null;
+      const decipher = crypto.createDecipheriv('aes-256-gcm', internalSecret, iv);
+      decipher.setAuthTag(tag);
+      const plaintext = Buffer.concat([decipher.update(fromB64url(parts[2])), decipher.final()]);
+      const data = JSON.parse(plaintext.toString('utf8'));
+      if (!data || typeof data !== 'object' || !Number.isSafeInteger(data.t)
+        || Date.now() - data.t > PENDING_TTL || data.t > Date.now() + CLOCK_SKEW * 1000
+        || typeof data.v !== 'string' || typeof data.n !== 'string') return null;
       return data;
-    } catch {
-      return null;
-    }
+    } catch { return null; }
   }
 
   async function getJson(url?: any, opts: any = {}) {
@@ -84,7 +84,7 @@ function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'ope
     const parts = String(token || '').split('.');
     if (parts.length !== 3) throw new Error('ID-Token fehlt oder ist ungültig.');
     const header = JSON.parse(fromB64url(parts[0]).toString('utf8'));
-    const alg = ALGS[header.alg];
+    const alg = Object.hasOwn(ALGS, header.alg) ? ALGS[header.alg] : undefined;
     if (!alg) throw new Error(`Nicht unterstützter Signatur-Algorithmus: ${header.alg}`);
     const key = await findKey(header);
     const verifyKey: crypto.VerifyKeyObjectInput = { key };
@@ -119,6 +119,7 @@ function createOidc({ issuer, clientId, clientSecret, redirectUri, scopes = 'ope
     const verifier = b64url(crypto.randomBytes(48));
     const random = b64url(crypto.randomBytes(16));
     const state = signState({ s: random, n: nonce, v: verifier, t: Date.now(), terms });
+    if (pending.size >= 1000) pending.delete(pending.keys().next().value);
     pending.set(state, { verifier, nonce, created: Date.now(), terms });
     const url = new URL(d.authorization_endpoint);
     url.search = new URLSearchParams({

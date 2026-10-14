@@ -7,6 +7,12 @@ import authModule = require('../middleware/auth');
 const { auth } = authModule;
 
 const router = express.Router();
+// Token possession authorizes token-based actions; aquarium-ID actions require a session.
+const authenticateIdAction: express.RequestHandler = (req, res, next) => {
+  if (req.body.token !== undefined && (typeof req.body.token !== 'string' || req.body.token.length > 128))
+    return res.status(400).json({ error: 'Ungültiges Einladungstoken.' });
+  return typeof req.body.token === 'string' && req.body.token.trim() ? next() : auth(req, res, next);
+};
 
 /**
  * GET /api/shares/pending
@@ -67,6 +73,7 @@ router.get(
  */
 router.post(
   '/accept',
+  authenticateIdAction,
   wrap(async (req: Request, res: Response) => {
     const token = req.body.token ? String(req.body.token).trim() : null;
     const aquariumId = req.body.aquarium_id != null ? Number(req.body.aquarium_id) : null;
@@ -80,7 +87,7 @@ router.post(
         return res.status(400).json({ error: 'Dieser Einladungslink ist leider abgelaufen.' });
       }
 
-      await db.shares.acceptByToken(token, share.user_id);
+      if (!await db.shares.acceptByToken(token, share.user_id)) return res.status(400).json({ error: 'Einladung abgelaufen, ersetzt oder bereits angenommen.' });
       return res.json({
         ok: true,
         aquarium_id: share.aquarium_id,
@@ -89,24 +96,11 @@ router.post(
       });
     }
 
-    // Falls per aquarium_id und Session angenommen wird
-    if (!req.headers.cookie) {
-      return res.status(401).json({ error: 'Nicht angemeldet.' });
-    }
-
-    // auth Middleware simulieren / aufrufen
-    return auth(req, res, async () => {
-      if (!aquariumId) return res.status(400).json({ error: 'Bitte Aquarium oder Token angeben.' });
-      const share = await db.shares.find(aquariumId, req.user.id);
-      if (!share) return res.status(404).json({ error: 'Keine Einladung für dieses Aquarium gefunden.' });
-
-      await db.shares.accept(aquariumId, req.user.id);
-      res.json({
-        ok: true,
-        aquarium_id: aquariumId,
-        message: 'Einladung erfolgreich angenommen!',
-      });
-    });
+    if (!Number.isSafeInteger(aquariumId) || !aquariumId || aquariumId < 1) return res.status(400).json({ error: 'Bitte eine gültige Aquarium-ID angeben.' });
+    const share = await db.shares.find(aquariumId, req.user.id);
+    if (!share) return res.status(404).json({ error: 'Keine Einladung für dieses Aquarium gefunden.' });
+    if (!await db.shares.accept(aquariumId, req.user.id)) return res.status(400).json({ error: 'Einladung abgelaufen oder bereits angenommen.' });
+    res.json({ ok: true, aquarium_id: aquariumId, message: 'Einladung erfolgreich angenommen!' });
   })
 );
 
@@ -116,6 +110,7 @@ router.post(
  */
 router.post(
   '/decline',
+  authenticateIdAction,
   wrap(async (req: Request, res: Response) => {
     const token = req.body.token ? String(req.body.token).trim() : null;
     const aquariumId = req.body.aquarium_id != null ? Number(req.body.aquarium_id) : null;
@@ -129,15 +124,9 @@ router.post(
       return res.json({ ok: true, message: 'Einladung wurde abgelehnt.' });
     }
 
-    if (!req.headers.cookie) {
-      return res.status(401).json({ error: 'Nicht angemeldet.' });
-    }
-
-    return auth(req, res, async () => {
-      if (!aquariumId) return res.status(400).json({ error: 'Bitte Aquarium oder Token angeben.' });
-      await db.shares.decline(aquariumId, req.user.id);
-      res.json({ ok: true, message: 'Einladung wurde abgelehnt.' });
-    });
+    if (!Number.isSafeInteger(aquariumId) || !aquariumId || aquariumId < 1) return res.status(400).json({ error: 'Bitte eine gültige Aquarium-ID angeben.' });
+    await db.shares.decline(aquariumId, req.user.id);
+    res.json({ ok: true, message: 'Einladung wurde abgelehnt.' });
   })
 );
 

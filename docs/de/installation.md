@@ -79,6 +79,7 @@ Der GitHub-Workflow baut das App-Image für `linux/amd64` und `linux/arm64` und 
 | `OIDC_ISSUER` | (leer) | URL des Pocket-ID-Servers, z. B. `https://id.example.com`. Gesetzt = OIDC aktiv |
 | `OIDC_CLIENT_ID` | (leer) | Client-ID aus Pocket ID |
 | `OIDC_CLIENT_SECRET` | (leer) | Client-Secret aus Pocket ID (leer lassen bei einem öffentlichen Client) |
+| `OIDC_STATE_SECRET` | Client-Secret oder zufälliger Prozessschlüssel | Geheimnis für verschlüsselten OIDC-Status. Bei öffentlichen Clients mit mehreren Instanzen einen gemeinsamen zufälligen Wert mit mindestens 32 Bytes setzen. Supervisor-Worker erben denselben Schlüssel; ohne festen Schlüssel werden laufende Anmeldungen nach Neustart ungültig. |
 | `OIDC_SCOPES` | `openid profile email` | Angeforderte Scopes |
 | `OIDC_PROVIDER_NAME` | `Pocket ID` | Beschriftung des Anmelde-Buttons |
 | `LOCAL_LOGIN` | automatisch | Lokale Anmeldung mit Passwort. Standard: aus, wenn OIDC aktiv ist, sonst an |

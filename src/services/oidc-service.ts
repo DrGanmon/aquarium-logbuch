@@ -7,6 +7,7 @@ const {
   OIDC_ISSUER,
   OIDC_CLIENT_ID,
   OIDC_CLIENT_SECRET,
+  OIDC_STATE_SECRET,
   OIDC_SCOPES,
   OIDC_LINK_BY_USERNAME,
   ALLOW_REGISTRATION,
@@ -20,6 +21,7 @@ const oidc = OIDC_ENABLED
       issuer: OIDC_ISSUER,
       clientId: OIDC_CLIENT_ID,
       clientSecret: OIDC_CLIENT_SECRET,
+      stateSecret: OIDC_STATE_SECRET,
       redirectUri: `${APP_URL}/auth/callback`,
       scopes: OIDC_SCOPES,
     })

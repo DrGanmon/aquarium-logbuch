@@ -135,6 +135,7 @@ router.put(
       updateFields.password_hash = await hashPassword(password);
     }
     await db.users.update(id, updateFields);
+    if (password) await db.sessions.deleteForUser(id);
     res.json({ ok: true });
   })
 );

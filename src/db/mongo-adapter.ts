@@ -1076,7 +1076,8 @@ class MongoAdapter {
       },
       async accept(aquariumId?: any, userId?: any) {
         const res = await db.collection('aquarium_shares').updateOne(
-          { aquarium_id: Number(aquariumId), user_id: Number(userId) },
+          { aquarium_id: Number(aquariumId), user_id: Number(userId), status: 'pending',
+            $or: [{ token_expires: null }, { token_expires: { $gte: Date.now() } }] },
           {
             $set: {
               status: 'accepted',
@@ -1090,7 +1091,7 @@ class MongoAdapter {
       },
       async acceptByToken(token?: any, userId: any = null) {
         if (!token) return false;
-        const filter: Record<string, any> = { token: String(token) };
+        const filter: Record<string, any> = { token: String(token), status: 'pending', $or: [{ token_expires: null }, { token_expires: { $gte: Date.now() } }] };
         if (userId != null) filter.user_id = Number(userId);
         const res = await db.collection('aquarium_shares').updateOne(
           filter,

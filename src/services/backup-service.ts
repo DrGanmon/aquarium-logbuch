@@ -17,6 +17,15 @@ function getDb() {
 const gzipAsync = promisify(zlib.gzip);
 const gunzipAsync = promisify(zlib.gunzip);
 
+function writePrivateArchive(filename: string, contents: Buffer) {
+  const fd = fs.openSync(filename, 'w', 0o600);
+  try {
+    // Set permissions before writing secrets, including when replacing an older archive.
+    fs.fchmodSync(fd, 0o600);
+    fs.writeFileSync(fd, contents);
+  } finally { fs.closeSync(fd); }
+}
+
 const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
 const CONFIG_FILE = path.join(DATA_DIR, 'backup-config.json');
 
@@ -73,7 +82,7 @@ class BackupService {
       for (const collection of ['social_comments', 'social_likes']) data[collection] = (data[collection] || []).filter((entry: any) => !postIds.has(Number(entry.post_id)) && Number(entry.user_id) !== user.id);
       for (const filename of filenames) if (payload.files) delete payload.files[filename];
       const temporary = `${archivePath}.privacy-tmp`;
-      try { fs.writeFileSync(temporary, zlib.gzipSync(Buffer.from(JSON.stringify(payload))));fs.renameSync(temporary, archivePath); }
+      try { writePrivateArchive(temporary, zlib.gzipSync(Buffer.from(JSON.stringify(payload))));fs.renameSync(temporary, archivePath); }
       finally { if (fs.existsSync(temporary)) fs.unlinkSync(temporary); }
     }
   }
@@ -307,7 +316,7 @@ class BackupService {
       const filename = customFilename || `aquarium-${prefix}-${dateStr}.json.gz`;
       const fullPath = path.join(targetBackupsDir, filename);
 
-      fs.writeFileSync(fullPath, gzipped);
+      writePrivateArchive(fullPath, gzipped);
 
       const stat = fs.statSync(fullPath);
       logger.info(

@@ -78,6 +78,7 @@ The GitHub workflow builds the application image for `linux/amd64` and `linux/ar
 | `OIDC_ISSUER` | (empty) | URL of Pocket ID server, e.g. `https://id.example.com`. Set = OIDC enabled |
 | `OIDC_CLIENT_ID` | (empty) | Client ID from Pocket ID |
 | `OIDC_CLIENT_SECRET` | (empty) | Client Secret from Pocket ID (leave empty for public clients) |
+| `OIDC_STATE_SECRET` | Client secret or random process key | Secret for encrypted OIDC state. Public clients running across multiple instances must share a random value of at least 32 bytes. Supervisor workers inherit the same key; without a fixed key, in-flight logins expire on restart. |
 | `OIDC_SCOPES` | `openid profile email` | Requested OIDC scopes |
 | `OIDC_PROVIDER_NAME` | `Pocket ID` | Login button label |
 | `LOCAL_LOGIN` | auto | Local password login. Default: disabled if OIDC is configured, else enabled |

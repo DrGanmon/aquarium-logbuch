@@ -6,10 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Fehlende verlinkte Pflanzenbilder aus der gelieferten Zuordnung herunterladen und lokal importieren: 139 Pflanzen mit unbeschnittenen WebP-Bildern bis maximal 768 × 768 Pixel ausstatten, aktuelle Quellen- und Lizenznachweise erhalten und sämtliche Bilddateien sowie ihre API-Zuordnung prüfen. Zehn Pflanzen ohne Bildlink behalten den Fallback.
+- Code- und Sicherheitsaudit durchführen und dokumentieren: OIDC-Status samt PKCE-Verifier geheim verschlüsseln, öffentliche Client-ID als Signaturgeheimnis ablösen und `OIDC_STATE_SECRET` für mehrere Instanzen ergänzen. Sitzungen nach eigenen und administrativen Passwortwechseln widerrufen, Passwortprüfungen begrenzen und konkurrierende Änderungen schützen. Abgelaufene oder bereits verwendete Aquarium-Einladungen atomar abweisen, Freigabe-Fehlerbehandlung korrigieren, geerbte Kategorien/Algorithmen zurückweisen und Backup-Archive mit privaten Dateirechten speichern. SQLite-/MongoDB- und OIDC-Regressionstests sowie zweisprachige Betriebsdokumentation ergänzen.
 
 ## 0.1.7-ALPHA
 
+- 2026-10-14 · Pflanzenbilder: Fehlende verlinkte Pflanzenbilder aus der gelieferten Zuordnung herunterladen und lokal importieren: 139 Pflanzen mit unbeschnittenen WebP-Bildern bis maximal 768 × 768 Pixel ausstatten, aktuelle Quellen- und Lizenznachweise erhalten und sämtliche Bilddateien sowie ihre API-Zuordnung prüfen. Zehn Pflanzen ohne Bildlink behalten den Fallback. ([`3dd39c9`](https://github.com/DrGanmon/aquarium-logbuch/commit/3dd39c98ce157b4d5e5c41f8b636bbbd406c1cee)).
 - 2026-10-14 · Pflanzenbilder: Neun bereitgestellte Pflanzenbilder anhand der Zuordnung lokal als unbeschnittene WebP-Dateien integrieren. Pflanzen- und Fischdetails verwenden eine gemeinsame Fotoanzeige mit Quellen-, Urheber- und Lizenzdialog sowie Fallback ohne Foto. Pflanzen-API, reproduzierbaren Import, Bildnachweise, Dokumentation und Tests ergänzen. ([`53785c4`](https://github.com/DrGanmon/aquarium-logbuch/commit/53785c440a5a87ee10f38338d335d7cd4e1671c6)).
 
 ## 0.1.6-ALPHA

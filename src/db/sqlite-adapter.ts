@@ -1104,9 +1104,9 @@ class SqliteAdapter {
       async accept(aquariumId?: any, userId?: any) {
         const res = db
           .prepare(
-            "UPDATE aquarium_shares SET status = 'accepted', accepted_at = datetime('now'), token = NULL, token_expires = NULL WHERE aquarium_id = ? AND user_id = ?"
+            "UPDATE aquarium_shares SET status = 'accepted', accepted_at = datetime('now'), token = NULL, token_expires = NULL WHERE aquarium_id = ? AND user_id = ? AND status = 'pending' AND (token_expires IS NULL OR token_expires >= ?)"
           )
-          .run(Number(aquariumId), Number(userId));
+          .run(Number(aquariumId), Number(userId), Date.now());
         return res.changes > 0;
       },
       async acceptByToken(token?: any, userId: any = null) {
@@ -1115,15 +1115,15 @@ class SqliteAdapter {
         if (userId != null) {
           res = db
             .prepare(
-              "UPDATE aquarium_shares SET status = 'accepted', accepted_at = datetime('now'), token = NULL, token_expires = NULL WHERE token = ? AND user_id = ?"
+              "UPDATE aquarium_shares SET status = 'accepted', accepted_at = datetime('now'), token = NULL, token_expires = NULL WHERE token = ? AND user_id = ? AND status = 'pending' AND (token_expires IS NULL OR token_expires >= ?)"
             )
-            .run(String(token), Number(userId));
+            .run(String(token), Number(userId), Date.now());
         } else {
           res = db
             .prepare(
-              "UPDATE aquarium_shares SET status = 'accepted', accepted_at = datetime('now'), token = NULL, token_expires = NULL WHERE token = ?"
+              "UPDATE aquarium_shares SET status = 'accepted', accepted_at = datetime('now'), token = NULL, token_expires = NULL WHERE token = ? AND status = 'pending' AND (token_expires IS NULL OR token_expires >= ?)"
             )
-            .run(String(token));
+            .run(String(token), Date.now());
         }
         return res.changes > 0;
       },

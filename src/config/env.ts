@@ -1,6 +1,7 @@
 import { APP_ROOT } from '../utils/paths';
 import path = require('path');
 import os = require('os');
+import crypto = require('node:crypto');
 import cfg = require('./app-config');
 
 const env = process.env;
@@ -42,6 +43,9 @@ const OIDC_LINK_BY_USERNAME = env.OIDC_LINK_BY_USERNAME === 'true';
 const OIDC_ISSUER = env.OIDC_ISSUER || '';
 const OIDC_CLIENT_ID = env.OIDC_CLIENT_ID || '';
 const OIDC_CLIENT_SECRET = env.OIDC_CLIENT_SECRET || '';
+// The supervisor loads this module before forking, so generated keys are inherited by its workers.
+const OIDC_STATE_SECRET = env.OIDC_STATE_SECRET || OIDC_CLIENT_SECRET || (OIDC_ENABLED ? crypto.randomBytes(32).toString('hex') : '');
+if (OIDC_ENABLED && !env.OIDC_STATE_SECRET) env.OIDC_STATE_SECRET = OIDC_STATE_SECRET;
 const OIDC_SCOPES = env.OIDC_SCOPES || 'openid profile email';
 
 if (OIDC_ENABLED && (!APP_URL || !OIDC_CLIENT_ID)) {
@@ -97,6 +101,7 @@ export = {
   OIDC_ISSUER,
   OIDC_CLIENT_ID,
   OIDC_CLIENT_SECRET,
+  OIDC_STATE_SECRET,
   OIDC_SCOPES,
   LOCAL_LOGIN,
   ADMIN_EMAIL,

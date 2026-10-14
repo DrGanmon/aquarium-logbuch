@@ -16,7 +16,7 @@ const MAINTENANCE_TYPES: Record<string, any> = {
 
 function validateMaintenanceInput(body?: any) {
   const typeKey = str(body.type, 40);
-  if (!typeKey || !MAINTENANCE_TYPES[typeKey]) {
+  if (!typeKey || !Object.hasOwn(MAINTENANCE_TYPES, typeKey)) {
     return { error: 'Ungültige oder fehlende Kategorie für die Arbeit.' };
   }
 

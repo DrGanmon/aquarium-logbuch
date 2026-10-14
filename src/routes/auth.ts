@@ -1098,18 +1098,22 @@ router.post(
       return res.status(403).json({ error: 'Passwörter werden über den Anmeldedienst verwaltet.' });
     }
     const { current, next } = req.body;
+    if (typeof current !== 'string' || current.length > 200 || typeof next !== 'string' || next.length < 8 || next.length > 200)
+      return res.status(400).json({ error: 'Das aktuelle Passwort darf höchstens 200 Zeichen enthalten; das neue braucht 8 bis 200 Zeichen.' });
+    const key = `change-password|${req.user.id}`;
+    if (tooManyAttempts(key)) return res.status(429).json({ error: 'Zu viele Versuche. Bitte später erneut versuchen.' });
+    noteAttempt(key);
     const user = await db.users.findById(req.user.id);
     if (!user) return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
-    if (!String(user.password_hash).includes(':')) {
-      return res.status(400).json({ error: 'Dieses Konto hat kein lokales Passwort.' });
-    }
-    if (typeof current !== 'string' || !(await verifyPassword(current, user.password_hash))) {
-      return res.status(400).json({ error: 'Das aktuelle Passwort stimmt nicht.' });
-    }
-    if (typeof next !== 'string' || next.length < 8) {
-      return res.status(400).json({ error: 'Das neue Passwort braucht mindestens 8 Zeichen.' });
-    }
-    await db.users.update(req.user.id, { password_hash: await hashPassword(next) });
+    if (!String(user.password_hash).includes(':')) return res.status(400).json({ error: 'Dieses Konto hat kein lokales Passwort.' });
+    if (!(await verifyPassword(current, user.password_hash))) return res.status(400).json({ error: 'Das aktuelle Passwort stimmt nicht.' });
+    const changed = await db.users.update(req.user.id, { password_hash: await hashPassword(next) }, { password_hash: user.password_hash });
+    if (!changed) return res.status(409).json({ error: 'Das Passwort wurde inzwischen geändert. Bitte erneut anmelden.' });
+    const token = parseCookies(req).session;
+    const previous = token ? await db.sessions.find(sha(token)) : null;
+    await db.sessions.deleteForUser(req.user.id);
+    await startSession(res, db, req.user.id, previous?.id_token || null);
+    clearAttempts(key);
     res.json({ ok: true });
   })
 );
@@ -1276,23 +1280,23 @@ router.post(
       });
     }
 
+    const key = `delete-account-req|${req.user.id}`;
+    if (tooManyAttempts(key)) {
+      return res.status(429).json({ error: 'Zu viele Löschanfragen. Bitte in ein paar Minuten erneut probieren.' });
+    }
+    noteAttempt(key);
+
     // Wenn lokales Passwort vorhanden ist, Passwort-Bestätigung verlangen
     if (hasLocalPassword(user)) {
       const password = typeof req.body?.password === 'string' ? req.body.password : '';
-      if (!password) {
-        return res.status(400).json({ error: 'Bitte gib zur Bestätigung dein aktuelles Passwort ein.' });
+      if (!password || password.length > 200) {
+        return res.status(400).json({ error: 'Bitte gib zur Bestätigung dein aktuelles Passwort mit höchstens 200 Zeichen ein.' });
       }
       const ok = await verifyPassword(password, user.password_hash);
       if (!ok) {
         return res.status(400).json({ error: 'Das eingegebene Passwort ist nicht korrekt.' });
       }
     }
-
-    const key = `delete-account-req|${req.user.id}|${req.ip}`;
-    if (tooManyAttempts(key)) {
-      return res.status(429).json({ error: 'Zu viele Löschanfragen. Bitte in ein paar Minuten erneut probieren.' });
-    }
-    noteAttempt(key);
 
     const token = crypto.randomBytes(32).toString('hex');
     const expires = Date.now() + 3600 * 1000; // 1 Stunde
