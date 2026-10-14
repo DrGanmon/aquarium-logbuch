@@ -1,5 +1,7 @@
 # Code- und Sicherheitsaudit vom 14.10.2026
 
+Die API-Spezifikation mit Authentifizierung, Berechtigungen und Fehlerantworten steht in [API / Swagger](api/README.md) und [openapi.json](api/openapi.json).
+
 Ausgangsstand: `3dd39c98ce157b4d5e5c41f8b636bbbd406c1cee`. Geprüft wurden Authentifizierung und Sitzungen, OIDC, Aquariumfreigaben, Social- und Pflanzenfunktionen, Uploads, Backups, KI-Schnittstellen, SQLite-/MongoDB-Zugriffe, Sicherheitsheader und die Abhängigkeiten. Die manuelle Prüfung konzentrierte sich auf diese Schnittstellen; sie ist kein vollständiger Penetrationstest oder Nachweis allgemeiner Fehlerfreiheit. Der frühere Audit-Bericht bleibt unten erhalten.
 
 ## Bestätigte und behobene Befunde

@@ -16,3 +16,4 @@ This manual covers usage, module workflows, configuration and operation. Start w
 - [Versions, commits and updates](versioning.md)
 - [Legal pages and licenses](legal.md)
 - [Social: public feed, likes and comments](social.md)
+- [API: OpenAPI / Swagger specification and examples (German)](../api/README.md)
