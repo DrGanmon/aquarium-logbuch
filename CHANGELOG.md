@@ -6,10 +6,12 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Social-Bildupload reparieren: lokale `blob:`-Bildquellen in der Content-Security-Policy erlauben, damit Bilddekodierung und Komprimierung im Browser funktionieren. Fehler im echten Browser reproduzieren und Veröffentlichung einschließlich Vorschau, Speicherung und erneutem Laden prüfen; Regressionstest für die ausgelieferte Sicherheitsrichtlinie ergänzen.
+- Neun bereitgestellte Pflanzenbilder anhand der Zuordnung lokal als unbeschnittene WebP-Dateien integrieren. Pflanzen- und Fischdetails verwenden eine gemeinsame Fotoanzeige mit Quellen-, Urheber- und Lizenzdialog sowie Fallback ohne Foto. Pflanzen-API, reproduzierbaren Import, Bildnachweise, Dokumentation und Tests ergänzen.
 
 ## 0.1.6-ALPHA
 
+- 2026-10-14 · Social: Social-Bildupload reparieren: lokale `blob:`-Bildquellen in der Content-Security-Policy erlauben, damit Bilddekodierung und Komprimierung im Browser funktionieren. Fehler im echten Browser reproduzieren und Veröffentlichung einschließlich Vorschau, Speicherung und erneutem Laden prüfen; Regressionstest für die ausgelieferte Sicherheitsrichtlinie ergänzen. ([`6155fc9`](https://github.com/DrGanmon/aquarium-logbuch/commit/6155fc9c92d421048ac73f66ceb2353ef23fc8dd)).
+- 2026-10-14 · Bilddatenbank-Werkzeug: Zuordnungsvorgaben und Datenplatzhalter in den Werkzeugordner verschieben ([`71ea118`](https://github.com/DrGanmon/aquarium-logbuch/commit/71ea118b7876445b3e8ffae225a4b45a4d460c3b), [`6155fc9`](https://github.com/DrGanmon/aquarium-logbuch/commit/6155fc9c92d421048ac73f66ceb2353ef23fc8dd)).
 - 2026-10-14 · Social: Bildgrenze für Social-Posts in Oberfläche und API auf 10 MB erhöhen; deutsche und englische Hinweise und Dokumentation sowie Tests für die Größenlimits aktualisieren. Komprimierung vor dem Upload beibehalten. ([`2601b57`](https://github.com/DrGanmon/aquarium-logbuch/commit/2601b5789ec67ba9ab3ff0bae1e80bda8e82b693)).
 
 ## 0.1.5-ALPHA

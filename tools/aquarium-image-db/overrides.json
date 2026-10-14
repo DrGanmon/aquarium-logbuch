@@ -222,5 +222,34 @@
   },
   "macropodus-opercularis": {
     "file": "File:Macropodus opercularis fish.png"
+  },
+  "bucephalandra-spp": {
+    "exclude": [
+      "File:2026-02-28--Bucephalandra Inflorescence 13 emers.jpg"
+    ]
+  },
+  "vallisneria-spiralis-tiger": {
+    "file": "File:Vallisneria spiralis.jpg"
+  },
+  "vallisneria-americana": {
+    "file": "File:Vallisneria americana UMFS 3.JPG"
+  },
+  "echinodorus-ozelot": {
+    "file": "File:Echinodorus grandiflorus - Victoriahuset, Bergianska trädgården - Stockholm, Sweden - DSC00263.JPG"
+  },
+  "marsilea-hirsuta": {
+    "file": "File:Marsilea hirsuta kz01.jpg"
+  },
+  "glossostigma-elatinoides": {
+    "file": "File:Glossostigma elatinoides.jpg"
+  },
+  "hydrocotyle-tripartita": {
+    "file": "File:Hydrocotyle tripartita leaf10 DC (15247538007).jpg"
+  },
+  "echinodorus-rubin": {
+    "file": "File:Echinodorus grandiflorus - Victoriahuset, Bergianska trädgården - Stockholm, Sweden - DSC00263.JPG"
+  },
+  "rotala-sp-green": {
+    "file": "File:Rotala rotundifolia 2.jpg"
   }
 }

@@ -43,7 +43,7 @@ test('Pflanzen-API: Authentifizierung, Seiten, zweisprachige Suche, Filter und D
     assert.ok(found.data.plants.some(p => p.id === 'anubias-barteri-nana'));
     const detail = await request('/anubias-barteri-nana', lang);
     const expected = (lang === 'de' ? de : en).plants[0];
-    assert.equal(detail.status, 200);assert.deepEqual(detail.data.plant, expected);
+    assert.equal(detail.status, 200);assert.deepEqual(detail.data.plant, { ...expected, image: null });
     assert.ok(detail.data.sources.length);assert.ok(detail.data.sources.every(s => s.url));
     assert.ok(detail.data.fieldDefinitions.placement.epiphyte);assert.ok(detail.data.notes.length);
   }

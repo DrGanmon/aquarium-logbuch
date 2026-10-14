@@ -1,5 +1,7 @@
+import type { CatalogImage } from "./catalog-image";
 export interface PlantRange { min: number; max: number; idealMin?: number; idealMax?: number; unit?: string }
 export interface Plant {
+  image?: CatalogImage | null;
   id: string; name: string; scientificName: string; synonyms: string[]; category: string;
   waterType: 'fresh' | 'salt'; origin: string; placement: string[]; growthRate: string;
   heightCm: PlantRange | null; difficulty: string; light: string; co2Demand: string | null; co2: string;

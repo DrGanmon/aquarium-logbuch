@@ -45,3 +45,5 @@ The list loads 24 results at a time and filters by water type and category. Deta
 The authenticated API exposes `/api/plants?limit=24&offset=0&q=…&water_type=fresh&category=…` and `/api/plants/:id`. `total` counts all matches; `next` is the next offset or `null`, with at most 100 entries per page. German is the default; select English with `lang=en` or `X-Language: en`.
 
 Use **Add to aquarium** to assign plants to a writable aquarium with a matching water type. The quantity is the total stock; saving again updates the existing entry. The aquarium view lists plants below the animal stock, with details, editing and removal. Its add link preselects the aquarium in the catalog dialog. Read-only shares can view the plants and their details. Plant stock is included in backups and removed when the aquarium is deleted.
+
+Plant details use the same photo view with source and license credits. Import local plant images with `python3 scripts/import-species-images.py tools/aquarium-image-db/out --kind plants`. The import resizes without cropping to fit within 768 × 768 pixels and stores WebP assets and complete attribution in `public/plants-images/`.

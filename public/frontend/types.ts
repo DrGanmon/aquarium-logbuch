@@ -74,25 +74,8 @@ export interface SpeciesRange {
   idealMin?: number;
   idealMax?: number;
 }
-export interface SpeciesImage {
-  url: string;
-  width: number;
-  height: number;
-  title: string;
-  author: string;
-  authorUrl: string;
-  requiredAttribution: string;
-  source: string;
-  sourceUrl: string;
-  originalSource: string;
-  originalSourceUrl: string;
-  license: string;
-  licenseUrl: string;
-  publicDomainBasis: string;
-  shareAlike: boolean;
-  attribution: string;
-  modifications: string;
-}
+export type { CatalogImage as SpeciesImage } from "../../src/shared/catalog-image";
+import type { CatalogImage as SpeciesImage } from "../../src/shared/catalog-image";
 export interface Species {
   image?: SpeciesImage | null;
   id: string;

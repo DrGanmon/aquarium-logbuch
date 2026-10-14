@@ -7,12 +7,13 @@ from PIL import Image, ImageOps
 
 parser = argparse.ArgumentParser()
 parser.add_argument('source', type=Path, help='Directory containing images.json and images/')
+parser.add_argument('--kind', choices=['species', 'plants'], default='species', help='Target catalog (default: species)')
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
-output = root / 'public/species-images'
+output = root / f'public/{args.kind}-images'
 output.mkdir(exist_ok=True)
 source = json.loads((args.source / 'images.json').read_text())
-ids = {s['id'] for catalog in (root / 'src/config/species').glob('*.json') for s in json.loads(catalog.read_text())['species']}
+ids = {s['id'] for catalog in (root / f'src/config/{args.kind}').glob('*.json') for s in json.loads(catalog.read_text())[args.kind]}
 manifest = {}
 original_bytes = 0
 for entry in source['images']:
@@ -29,7 +30,7 @@ for entry in source['images']:
         width, height = image.size
     original_bytes += src.stat().st_size
     metadata = {key: entry.get(key, '') for key in ['title', 'author', 'authorUrl', 'requiredAttribution', 'source', 'sourceUrl', 'originalSource', 'originalSourceUrl', 'license', 'licenseUrl', 'publicDomainBasis', 'shareAlike', 'attribution']}
-    metadata.update(url=f"species-images/{dest.name}", width=width, height=height,
+    metadata.update(url=f"{args.kind}-images/{dest.name}", width=width, height=height,
                     modifications='; '.join(filter(None, [entry.get('modifications'), 'Auf maximal 768 × 768 Pixel verkleinert und als WebP komprimiert; nicht beschnitten.'])))
     manifest[entry['id']] = metadata
 (output / 'attribution.json').write_text(json.dumps(source, ensure_ascii=False, indent=2) + '\n')

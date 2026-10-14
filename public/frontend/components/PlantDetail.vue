@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onBeforeUnmount } from "vue";
+import CatalogPhoto from "./CatalogPhoto.vue";
 import Modal from "./Modal.vue";
 import { api } from "../api";
 import { t, language, errorMessage } from "../state";
@@ -36,6 +37,7 @@ function safeUrl(url: string) { return /^https?:\/\//i.test(url) ? url : undefin
     <template v-if="detail">
       <slot :plant="detail.plant" />
       <p><i>{{ detail.plant.scientificName }}</i> · {{ detail.plant.category }}</p>
+      <CatalogPhoto :image="detail.plant.image" :name="detail.plant.name" />
       <p v-if="detail.plant.synonyms.length">{{ t('plants.synonyms') }}: {{ detail.plant.synonyms.join(', ') }}</p>
       <p>{{ detail.plant.description }}</p>
       <div class="row">

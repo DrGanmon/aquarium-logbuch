@@ -1,9 +1,16 @@
 import fs = require('node:fs');
 import path = require('node:path');
+import { APP_ROOT } from '../utils/paths';
+import type { CatalogImage } from '../shared/catalog-image';
 import type { PlantCatalog } from '../shared/plants';
 
+const images: Record<string, CatalogImage> = JSON.parse(fs.readFileSync(path.join(APP_ROOT, 'public/plants-images/manifest.json'), 'utf8'));
+
 const catalogs = Object.fromEntries(['de', 'en'].map(lang => [lang,
-  JSON.parse(fs.readFileSync(path.join(__dirname, '../config/plants', lang === 'en' ? 'plants.en.json' : 'plants.json'), 'utf8')) as PlantCatalog,
+  (() => {
+    const catalog = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/plants', lang === 'en' ? 'plants.en.json' : 'plants.json'), 'utf8')) as PlantCatalog;
+    return { ...catalog, plants: catalog.plants.map(plant => ({ ...plant, image: images[plant.id] || null })) };
+  })(),
 ]));
 const translations = new Map(catalogs.en.plants.map(plant => [plant.id, plant]));
 const searchText = new Map(catalogs.de.plants.map(plant => [plant.id,
