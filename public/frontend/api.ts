@@ -1,4 +1,4 @@
-import { session, language } from "./state";
+import { session, language, t } from "./state";
 export interface RequestOptions {
   method?: string;
   body?: unknown;
@@ -22,6 +22,8 @@ export async function api<T>(
   const data: unknown = await response.json().catch(() => ({}));
   if (response.status === 401 && !["/login", "/register", "/me"].includes(path))
     session.user = null;
+  if (response.status === 428 && session.user) session.user.termsRequired = true;
+  if (response.status === 413) throw new Error(t('social.uploadTooLarge'));
   if (!response.ok)
     throw new Error(
       typeof data === "object" && data && "error" in data

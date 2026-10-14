@@ -2,6 +2,7 @@ export type Id = string | number;
 export type Language = "de" | "en";
 export type Theme = "system" | "light" | "dark";
 export interface User {
+  termsRequired?: boolean;
   id: Id;
   username: string;
   email?: string;

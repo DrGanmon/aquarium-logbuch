@@ -83,6 +83,7 @@ function serializeMe(u?: any) {
   const hasAnyKey = Boolean(hasOpenai || hasGemini || hasClaude);
 
   return {
+    termsRequired: u.terms_version !== TERMS_VERSION || !u.terms_accepted_at,
     id: u.id,
     username: u.username,
     firstName: u.first_name || '',
@@ -321,6 +322,15 @@ router.get(
     res.json(serializeMe(u));
   })
 );
+
+router.post('/me/terms', auth, wrap(async (req: Request, res: Response) => {
+  if (!acceptsCurrentTerms(req.body)) return res.status(400).json({ error: 'Bitte den aktuellen AGB ausdrücklich zustimmen.' });
+  const user = await db.users.findById(req.user.id);
+  if (!user) return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
+  if (user.terms_version !== TERMS_VERSION || !user.terms_accepted_at)
+    await db.users.update(req.user.id, { terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString() });
+  res.json({ user: serializeMe(await db.users.findById(req.user.id)) });
+}));
 
 router.put(
   ['/me', '/me/profile'],

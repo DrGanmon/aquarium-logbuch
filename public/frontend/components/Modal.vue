@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, type CSSProperties } from "vue";
 import { t } from "../state";
-defineProps<{ title: string; wide?: boolean; dialogClass?: string; dialogStyle?: CSSProperties }>();
+defineProps<{ title: string; persistent?: boolean; wide?: boolean; dialogClass?: string; dialogStyle?: CSSProperties }>();
 const emit = defineEmits<{ close: [] }>();
 const dialog = ref<HTMLDialogElement>();
 onMounted(() => dialog.value?.showModal());
@@ -12,10 +12,10 @@ onMounted(() => dialog.value?.showModal());
       ref="dialog"
       :class="[{ wide }, dialogClass]"
       :style="dialogStyle"
-      @cancel.prevent="emit('close')"
+      @cancel.prevent="!persistent && emit('close')"
       @click="
         (event) => {
-          if (event.target === dialog) emit('close');
+          if (!persistent && event.target === dialog) emit('close');
         }
       "
     >
@@ -23,6 +23,7 @@ onMounted(() => dialog.value?.showModal());
         <div class="row between">
           <h2 style="margin: 0">{{ title }}</h2>
           <button
+            v-if="!persistent"
             class="btn small ghost"
             type="button"
             :aria-label="t('common.close')"

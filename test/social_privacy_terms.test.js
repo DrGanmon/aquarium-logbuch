@@ -62,12 +62,14 @@ for (const backend of ['sqlite', 'mongodb']) {
     assert.equal((await env.request(`/api/social/authors/${owner.id}/avatar`)).status, 200);
     assert.equal((await env.request(`/api/social/authors/${friend.id}/avatar`)).status, 404, 'Kommentar zu internem Beitrag darf Profilbild nicht öffentlich machen');
     await env.request(`${internalUrl}/like`, { method: 'PUT', headers: friendHeaders, body: { liked: true } });
-    // Legacy accounts may upload without accepting terms again; do not invent consent.
+    // Legacy accounts must explicitly accept terms before publishing; do not invent consent.
     await db.users.update(friend.id, { terms_version: null, terms_accepted_at: null });
-    const friendPost = await env.request('/api/social/posts', { method: 'POST', headers: friendHeaders, body: { image, isPublic: true } });
-    assert.equal(friendPost.status, 201, friendPost.text);
+    assert.equal((await env.request('/api/social/posts', { method: 'POST', headers: friendHeaders, body: { image, isPublic: true } })).status, 428);
     assert.equal((await db.users.findById(friend.id)).terms_version, null);
     assert.equal((await db.users.findById(friend.id)).terms_accepted_at, null);
+    assert.equal((await env.request('/api/me/terms', { method: 'POST', headers: friendHeaders, body: { acceptTerms: true, termsVersion: TERMS_VERSION } })).status, 200);
+    const friendPost = await env.request('/api/social/posts', { method: 'POST', headers: friendHeaders, body: { image, isPublic: true } });
+    assert.equal(friendPost.status, 201, friendPost.text);
     await env.request(`/api/social/posts/${friendPost.data.post.id}/comments`, { method: 'POST', headers, body: { text: 'Wird mit meinem Konto gelöscht' } });
     await env.request(`/api/social/posts/${friendPost.data.post.id}/like`, { method: 'PUT', headers, body: { liked: true } });
     const aq = await db.aquariums.create({ user_id: owner.id, name: 'Bildlöschung' });

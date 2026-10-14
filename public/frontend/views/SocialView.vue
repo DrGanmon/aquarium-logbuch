@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { api } from '../api';
 import { session, language, t, errorMessage, toast } from '../state';
 import { route } from '../router';
-import { readImage } from '../composables/media';
+import { readSocialImage } from '../composables/media';
 import SocialPostCard from '../components/SocialPostCard.vue';
 import type { SocialPostView } from '../../../src/types/social';
 const posts = ref<SocialPostView[]>([]), next = ref<number | null>(null);
@@ -35,7 +35,7 @@ watch([postId, () => session.user?.id, language], () => { void load(); }, { imme
 async function chooseImage(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0];if (!file) return;
   const generation = ++imageGeneration;processing.value = true;error.value = '';image.value = '';
-  try { const value = await readImage(file);if (generation === imageGeneration) image.value = value; }
+  try { const value = await readSocialImage(file);if (generation === imageGeneration) image.value = value; }
   catch (caught) { if (generation === imageGeneration) error.value = errorMessage(caught); }
   finally { if (generation === imageGeneration) processing.value = false; }
 }

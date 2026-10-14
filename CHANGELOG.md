@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Düngerbereich für manuelle Dünger und Dosierpumpen einführen: manuelle Düngungen bestätigen und pro Dünger optional per Mail erinnern; geplante Pumpendosierungen automatisch und ohne doppelte Einträge im Logbuch erfassen. Aquariumweite Düngzyklen und Erinnerungen entfernen sowie manuelle Anlage und Bearbeitung automatischer Pumpenlogs in Oberfläche und API sperren. Bestehende Pumpen und historische Logs erhalten; Schema-Migration für SQLite/MongoDB, Backup/Restore, zweisprachige Oberfläche, Mailvorlagen, Dokumentation und Tests ergänzen.
+- Bildposts vor der Übertragung einschließlich PNGs und Browser-Fallback auf eine begrenzte JPEG-Größe komprimieren; verständliche Meldung bei HTTP 413 ergänzen. Bestehende Nutzer zur versionierten AGB-Zustimmung im verpflichtenden, zweisprachigen Modal auffordern, Zustimmung dauerhaft speichern und Social-Schreibaktionen bis zur Zustimmung serverseitig sperren. Regressionstests ergänzen.
+
+## 0.1.4-ALPHA
+
+- 2026-10-14 · Düngerbereich für manuelle Dünger und Dosierpumpen einführen: manuelle Düngungen bestätigen und pro Dünger optional per Mail erinnern; geplante Pumpendosierungen automatisch und ohne doppelte Einträge im Logbuch erfassen. Aquariumweite Düngzyklen und Erinnerungen entfernen sowie manuelle Anlage und Bearbeitung automatischer Pumpenlogs in Oberfläche und API sperren. Bestehende Pumpen und historische Logs erhalten; Schema-Migration für SQLite/MongoDB, Backup/Restore, zweisprachige Oberfläche, Mailvorlagen, Dokumentation und Tests ergänzen. ([`c640c85`](https://github.com/DrGanmon/aquarium-logbuch/commit/c640c857c3f8250b98763611d1d38178de8c42d9)).
 
 ## 0.1.3-ALPHA
 

@@ -2,6 +2,7 @@
 import { lazyComponent } from "./composables/lazy-component";
 import { computed, onMounted } from "vue";
 import FrontendUpdate from "./components/FrontendUpdate.vue";
+import TermsConsent from "./components/TermsConsent.vue";
 import Topbar from "./components/Topbar.vue";
 import SiteFooter from "./components/SiteFooter.vue";
 import { session, language, notification, t } from "./state";
@@ -88,6 +89,7 @@ onMounted(initialize);
   </main>
   <SiteFooter :t="t" />
   <FrontendUpdate />
+  <TermsConsent v-if="session.user?.termsRequired" :key="session.user.id" />
   <div
     id="toast"
     role="status"

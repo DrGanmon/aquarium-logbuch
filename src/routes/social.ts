@@ -8,6 +8,7 @@ import source1 = require('../utils/crypto');
 const { sha } = source1;
 import source2 = require('../config/env');
 const { isEmailAdmin } = source2;
+import { TERMS_VERSION } from '../services/terms-service';
 import { AppError } from '../utils/app-error';
 const wrap = (handler: RequestHandler): RequestHandler => async (req, res, next) => {
   try { await handler(req, res, next); } catch (error) { next(error); }
@@ -73,7 +74,16 @@ router.get('/authors/:id/avatar', viewer, wrap(async (req: Request, res: Respons
   if (!image) throw new AppError('Profilbild nicht gefunden.', 404);
   res.type(getMimeType(user?.avatar_file)).setHeader('Cache-Control', 'no-store').sendFile(image);
 }));
-router.post('/posts', auth, limit('post', 20), wrap(async (req: Request, res: Response) => {
+const requireTerms: RequestHandler = async (req, res, next) => {
+  try {
+    const user = await db.users.findById(req.user.id);
+    if (!user) return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
+    if (user.terms_version !== TERMS_VERSION || !user.terms_accepted_at)
+      return res.status(428).json({ error: 'Bitte zuerst den aktuellen AGB zustimmen.' });
+    next();
+  } catch (error) { next(error); }
+};
+router.post('/posts', auth, requireTerms, limit('post', 20), wrap(async (req: Request, res: Response) => {
   const caption = text(req.body.text, 2200);
   if (req.body.isPublic !== undefined && typeof req.body.isPublic !== 'boolean') throw new AppError('Ungültige Sichtbarkeit.', 400);
   const user = await db.users.findById(req.user.id);
@@ -91,7 +101,7 @@ router.delete('/posts/:id', auth, wrap(async (req: Request, res: Response) => {
   if (post.user_id !== req.user.id && !req.user.isAdmin) throw new AppError('Keine Löschberechtigung.', 403);
   deleteImage(post.filename, true);await db.social.deletePost(post.id);res.json({ ok: true });
 }));
-router.put('/posts/:id/like', auth, limit('like', 200), wrap(async (req: Request, res: Response) => {
+router.put('/posts/:id/like', auth, requireTerms, limit('like', 200), wrap(async (req: Request, res: Response) => {
   const postId = id(req.params.id);await postOrFail(postId, req);
   if (typeof req.body.liked !== 'boolean') throw new AppError('Ungültige Like-Einstellung.', 400);
   await db.social.like(postId, req.user.id, req.body.liked);
@@ -106,7 +116,7 @@ router.get('/posts/:id/comments', viewer, wrap(async (req: Request, res: Respons
     canDelete: Boolean(req.user && (req.user.id === comment.user_id || req.user.isAdmin)),
   }))), next: comments.length > 20 ? comments[19].id : null });
 }));
-router.post('/posts/:id/comments', auth, limit('comment', 60), wrap(async (req: Request, res: Response) => {
+router.post('/posts/:id/comments', auth, requireTerms, limit('comment', 60), wrap(async (req: Request, res: Response) => {
   const postId = id(req.params.id);await postOrFail(postId, req);
   const commentId = await db.social.createComment({ post_id: postId, user_id: req.user.id, text: text(req.body.text, 1000, true), created_at: new Date().toISOString() });
   if (!await db.social.post(postId)) { await db.social.deleteComment(commentId);throw new AppError('Beitrag nicht gefunden.', 404); }
