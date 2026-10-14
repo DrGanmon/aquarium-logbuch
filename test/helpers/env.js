@@ -37,6 +37,7 @@ function createTestEnvironment(customEnv = {}) {
 
   const serverPath = path.resolve(__dirname, '../../server.js');
   const app = require(serverPath);
+  const db = require('../../dist/backend/src/db');
   let server = null;
   let baseUrl = '';
   let startPromise = null;
@@ -45,7 +46,6 @@ function createTestEnvironment(customEnv = {}) {
     if (baseUrl) return baseUrl;
     if (startPromise) return startPromise;
     startPromise = (async () => {
-      const db = require('../../dist/backend/src/db');
       await db.init();
       return new Promise((resolve, reject) => {
         server = http.createServer(app);
@@ -64,6 +64,10 @@ function createTestEnvironment(customEnv = {}) {
     if (server) {
       await new Promise((resolve) => server.close(resolve));
     }
+    // Importing the SQLite adapter starts migrations, even without start().
+    // Finish their backup writes before removing the data directory or changing env.
+    if (db.type === 'sqlite') await db.init();
+    await db.close();
     // Restore env
     for (const k of Object.keys(process.env)) {
       if (!(k in envBackup)) delete process.env[k];
@@ -205,10 +209,6 @@ async function createMongoTestEnvironment(customEnv = {}) {
 
   const originalCleanup = env.cleanup;
   env.cleanup = async () => {
-    try {
-      const db = require('../../dist/backend/src/db');
-      await db.close();
-    } catch (e) {}
     await originalCleanup();
     try {
       await mongod.stop();

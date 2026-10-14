@@ -96,7 +96,8 @@ function cleanDist() {
   }
 }
 
-test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
+// Multiple real Vite builds and bundle checks exceed Bun's default 5-second limit.
+test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', { timeout: 60000 }, async (t) => {
   await t.test('buildFrontend({ minify: false }) erstellt unminifiziertes Entwicklungs-Bundle (app.js, worker.js & style.css)', async () => {
     cleanDist();
 

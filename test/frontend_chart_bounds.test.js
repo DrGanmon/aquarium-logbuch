@@ -16,13 +16,14 @@ function render(measurements) {
     constructor(canvas, config) { options = config; }
     destroy() {}
   }
-  new Function('require', 'defineProps', 'exports', code)((name) => {
+  // Exercise the browser fallback without IntersectionObserver; keep globals isolated.
+  new Function('require', 'defineProps', 'exports', 'window', code)((name) => {
     if (name === 'vue') return { ref: () => ({ value: {} }), onMounted: callback => { mount = callback; }, onBeforeUnmount() {}, watch() {} };
     if (name === 'chart.js') return { Chart, registerables: [] };
     if (name === '../state') return { dark: { value: false }, fmtDate: String, fmtNum: String };
     if (name === '../composables/values') return { evaluate: () => 'ok' };
     throw new Error(`Unexpected import: ${name}`);
-  }, () => ({ parameter: { key: 'ph', min: 0, max: 14 }, measurements }), {});
+  }, () => ({ parameter: { key: 'ph', min: 0, max: 14 }, measurements }), {}, {});
   mount();
   return options;
 }
