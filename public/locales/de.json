@@ -11,7 +11,7 @@
     "publicNotice": "Dein Bild, Text, Benutzername und Profilbild sind öffentlich sichtbar – auch ohne Anmeldung. Veröffentliche nur Bilder, die du teilen darfst.",
     "newPost": "Neuer Beitrag",
     "choosePhoto": "Bild auswählen",
-    "imageLimits": "JPG, PNG, WebP oder GIF, maximal 5 MB. Gespeichert als WebP mit maximal 1600 Pixeln an der längsten Seite; GIFs als Standbild.",
+    "imageLimits": "JPG, PNG, WebP oder GIF, maximal 10 MB. Gespeichert als WebP mit maximal 1600 Pixeln an der längsten Seite; GIFs als Standbild.",
     "preview": "Bildvorschau",
     "caption": "Text zu deinem Bild",
     "publish": "Veröffentlichen",

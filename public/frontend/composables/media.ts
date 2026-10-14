@@ -48,7 +48,7 @@ export function beep() {
 export const SOCIAL_UPLOAD_MAX_BYTES = 650 * 1024;
 export async function readSocialImage(file: File): Promise<string> {
   if (!/^image\/(png|jpeg|webp|gif)$/.test(file.type)) throw new Error('Ungültiges Bildformat.');
-  if (file.size > 5 * 1024 * 1024) throw new Error('Das Bild ist größer als 5 MB.');
+  if (file.size > 10 * 1024 * 1024) throw new Error('Das Bild ist größer als 10 MB.');
   const url = URL.createObjectURL(file);
   try {
     const image = new Image();image.src = url;await image.decode();

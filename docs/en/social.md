@@ -16,7 +16,7 @@ Share uses the device's native sharing dialog, falls back to copying the post li
 
 ## Photos
 
-JPG, PNG, WebP and GIF uploads up to 5 MB are supported. The server validates and decodes images, limits input to 40 megapixels and resizes proportionally to fit within 1600 × 1600 pixels without enlarging or cropping. The longest edge therefore remains at most 1600 pixels. Images are stored as WebP at quality 82, without original metadata; GIFs become still images. Processing uses [sharp](https://sharp.pixelplumbing.com/api-resize/).
+JPG, PNG, WebP and GIF uploads up to 10 MB are supported. The server validates and decodes images, limits input to 40 megapixels and resizes proportionally to fit within 1600 × 1600 pixels without enlarging or cropping. The longest edge therefore remains at most 1600 pixels. Images are stored as WebP at quality 82, without original metadata; GIFs become still images. Processing uses [sharp](https://sharp.pixelplumbing.com/api-resize/).
 
 Photos are stored as `social_*.webp` in the existing uploads directory. Public endpoints serve only images of existing posts and avatars of users with activity on public posts. Signed-in users can also view internal posts and their authors. Public responses exclude email addresses, API keys and internal filenames.
 

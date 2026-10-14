@@ -36,10 +36,10 @@ for (const type of ['image/png', 'image/jpeg', 'image/webp', 'image/gif']) test(
   class Image { naturalWidth = 4000;naturalHeight = 3000;async decode() {} }
   class FileReader { readAsDataURL(blob) { this.result = 'data:image/jpeg;base64,' + 'a'.repeat(Math.ceil(blob.size / 3) * 4);this.onload(); } }
   new Function('require', 'exports', 'document', 'Image', 'URL', 'FileReader', code)(() => ({}), exports, { createElement: () => canvas }, Image, { createObjectURL: () => 'blob:test', revokeObjectURL: () => { revoked = true; } }, FileReader);
-  const image = await exports.readSocialImage({ type, size: 5 * 1024 * 1024 });
+  const image = await exports.readSocialImage({ type, size: 10 * 1024 * 1024 });
   assert.ok(JSON.stringify({ image, text: '🐠'.repeat(1100), isPublic: true }).length < 1024 * 1024);
   assert.deepEqual(dimensions[0], [1600, 1200]);assert.ok(dimensions[2][0] < dimensions[0][0]);assert.equal(revoked, true);
-  await assert.rejects(exports.readSocialImage({ type, size: 5 * 1024 * 1024 + 1 }));
+  await assert.rejects(exports.readSocialImage({ type, size: 10 * 1024 * 1024 + 1 }));
 });
 
 test('AGB-Modal: ausdrückliche Zustimmung, Fehler und erfolgreiche Freigabe', async () => {
@@ -66,4 +66,17 @@ test('AGB-Modal: ausdrückliche Zustimmung, Fehler und erfolgreiche Freigabe', a
   fail = false;await exports.confirm();assert.equal(session.user.termsRequired, false);
   assert.deepEqual(calls.at(-1)[1].body, { acceptTerms: true, termsVersion: 'current' });
   assert.match(source, /persistent wide/);
+});
+
+test('Social-API: gültiges Bild mit genau 10 MB akzeptieren, darüber ablehnen', async t => {
+  const env = createTestEnvironment({ DB_TYPE: 'sqlite' });t.after(() => env.cleanup());
+  const account = await env.createUserAndLogin('social_size_limit');
+  const png = await require('sharp')({ create: { width: 32, height: 32, channels: 3, background: '#123456' } }).png().toBuffer();
+  // PNG permits a decoder to ignore trailing bytes; padding exercises the actual input size.
+  const bytes = Buffer.concat([png, Buffer.alloc(10 * 1024 * 1024 - png.length)]);
+  const post = image => env.request('/api/social/posts', { method: 'POST', headers: { Cookie: account.cookie }, body: { image } });
+  const accepted = await post(`data:image/png;base64,${bytes.toString('base64')}`);
+  assert.equal(accepted.status, 201, accepted.text);
+  const rejected = await post(`data:image/png;base64,${Buffer.concat([bytes, Buffer.alloc(1)]).toString('base64')}`);
+  assert.equal(rejected.status, 400);
 });

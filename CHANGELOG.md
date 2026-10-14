@@ -6,10 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Bun-Lockdatei mit den ESLint-Abhängigkeiten aus `package.json` synchronisieren, damit CI- und Docker-Installationen mit Bun 1.4.3 und `--frozen-lockfile` wieder erfolgreich sind.
+- Bildgrenze für Social-Posts in Oberfläche und API auf 10 MB erhöhen; deutsche und englische Hinweise und Dokumentation sowie Tests für die Größenlimits aktualisieren. Komprimierung vor dem Upload beibehalten.
 
 ## 0.1.5-ALPHA
 
+- 2026-10-14 · CI: Bun-Lockdatei mit den ESLint-Abhängigkeiten aus `package.json` synchronisieren, damit CI- und Docker-Installationen mit Bun 1.4.3 und `--frozen-lockfile` wieder erfolgreich sind. ([`a6b7790`](https://github.com/DrGanmon/aquarium-logbuch/commit/a6b77900bff5ae480d077d9642a51afb0ae85521)).
 - 2026-10-14 · Dokumentation: Changelog mit der Git-Historie abgleichen und die committete Lint-Einrichtung mit tatsächlicher Commit-ID und Datum unter Revision `0.1.5-ALPHA` einordnen. ([`9b5ca87`](https://github.com/DrGanmon/aquarium-logbuch/commit/9b5ca878d182a016b503965b2790f209cf3129c4)).
 - 2026-10-14 · Codeprüfung: ESLint für TypeScript, Vue-Komponenten, JavaScript-Skripte und Tests einrichten; Befehle `npm run lint` und `npm run lint:fix` ergänzen. Ungenutzte Imports, Variablen, redundante Initialisierungen und wirkungslose Strict-Mode-Ausdrücke bereinigen; Namenskonflikt im Pflanzen-Dialog beheben, ignorierte Fehler dokumentieren und ursprüngliche Fehlerursachen beim Weiterwerfen erhalten. ([`2ae88e4`](https://github.com/DrGanmon/aquarium-logbuch/commit/2ae88e4197f76fd8926a85239c858fd644742847)).
 - 2026-10-14 · Bildposts vor der Übertragung einschließlich PNGs und Browser-Fallback auf eine begrenzte JPEG-Größe komprimieren; verständliche Meldung bei HTTP 413 ergänzen. Bestehende Nutzer zur versionierten AGB-Zustimmung im verpflichtenden, zweisprachigen Modal auffordern, Zustimmung dauerhaft speichern und Social-Schreibaktionen bis zur Zustimmung serverseitig sperren. Regressionstests ergänzen. ([`c7d0325`](https://github.com/DrGanmon/aquarium-logbuch/commit/c7d03258e93b7861996debdabf034326ba2153d0)).

@@ -8,11 +8,11 @@ const { UPLOADS_DIR } = source0;
 import { AppError } from '../utils/app-error';
 export const SOCIAL_IMAGE_MAX_EDGE = 1600;
 export async function saveSocialImage(input: unknown) {
-  if (typeof input !== 'string' || input.length > 7 * 1024 * 1024) throw new AppError('Bild fehlt oder ist zu groß (maximal 5 MB).', 400);
+  if (typeof input !== 'string' || input.length > 14 * 1024 * 1024) throw new AppError('Bild fehlt oder ist zu groß (maximal 10 MB).', 400);
   const match = /^data:image\/(?:jpeg|png|webp|gif);base64,([a-zA-Z0-9+/=\s]+)$/.exec(input);
   if (!match) throw new AppError('Erlaubt sind JPG, PNG, WebP und GIF.', 400);
   const bytes = Buffer.from(match[1], 'base64');
-  if (!bytes.length || bytes.length > 5 * 1024 * 1024) throw new AppError('Bild fehlt oder ist zu groß (maximal 5 MB).', 400);
+  if (!bytes.length || bytes.length > 10 * 1024 * 1024) throw new AppError('Bild fehlt oder ist zu groß (maximal 10 MB).', 400);
   let output;
   try {
     const image = sharp(bytes, { limitInputPixels: 40_000_000, animated: false, failOn: 'error' });

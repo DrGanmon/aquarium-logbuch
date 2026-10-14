@@ -11,7 +11,7 @@
     "publicNotice": "Your photo, caption, username and avatar will be publicly visible, including without sign-in. Only publish images you have permission to share.",
     "newPost": "New post",
     "choosePhoto": "Choose a photo",
-    "imageLimits": "JPG, PNG, WebP or GIF, up to 5 MB. Stored as WebP with a longest edge of 1600 pixels; GIFs become still images.",
+    "imageLimits": "JPG, PNG, WebP or GIF, up to 10 MB. Stored as WebP with a longest edge of 1600 pixels; GIFs become still images.",
     "preview": "Photo preview",
     "caption": "Photo caption",
     "publish": "Publish",

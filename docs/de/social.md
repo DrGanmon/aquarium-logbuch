@@ -16,7 +16,7 @@ Angemeldete Nutzer können Bilder hochladen, Beiträge liken und Kommentare bis 
 
 ## Bilder
 
-JPG, PNG, WebP und GIF bis 5 MB werden akzeptiert. Der Server prüft und dekodiert die Bilddaten, begrenzt die Eingabe auf 40 Megapixel und skaliert proportional auf maximal 1600 × 1600 Pixel ohne Vergrößern oder Beschneiden. Die längste Seite bleibt also höchstens 1600 Pixel groß. Bilder werden als WebP mit Qualität 82 gespeichert; Metadaten werden nicht übernommen und GIFs als Standbild verarbeitet. Die Verarbeitung verwendet [sharp](https://sharp.pixelplumbing.com/api-resize/).
+JPG, PNG, WebP und GIF bis 10 MB werden akzeptiert. Der Server prüft und dekodiert die Bilddaten, begrenzt die Eingabe auf 40 Megapixel und skaliert proportional auf maximal 1600 × 1600 Pixel ohne Vergrößern oder Beschneiden. Die längste Seite bleibt also höchstens 1600 Pixel groß. Bilder werden als WebP mit Qualität 82 gespeichert; Metadaten werden nicht übernommen und GIFs als Standbild verarbeitet. Die Verarbeitung verwendet [sharp](https://sharp.pixelplumbing.com/api-resize/).
 
 Bilder liegen als `social_*.webp` im vorhandenen Upload-Ordner. Öffentlich erreichbar sind nur Bilder vorhandener Beiträge und Profilbilder von Nutzern mit öffentlich sichtbaren Beiträgen oder Kommentaren. Angemeldete Nutzer können außerdem interne Beiträge und deren Autoren sehen. E-Mail-Adressen, API-Schlüssel und interne Dateinamen werden nicht im öffentlichen Feed ausgegeben.
 
