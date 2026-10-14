@@ -35,6 +35,9 @@ const loading = ref(true);
 const modal = ref("");
 const lightbox = ref("");
 const logEntry = ref<LogEntry>();
+const deleteEntry = ref<{ kind: LogEntry["kind"]; id: Id }>();
+const deleteError = ref("");
+const deletingEntry = ref(false);
 const logType = ref("water_change");
 const filter = ref("all");
 const more = ref(true);
@@ -160,6 +163,32 @@ async function mutate(path: string, method = "POST", body?: unknown) {
 }
 async function remove(path: string) {
   if (confirm(t("common.delete") + "?")) await mutate(path, "DELETE");
+}
+function requestEntryDeletion(entry: { kind: LogEntry["kind"]; id: Id }) {
+  if (readonly.value || deletingEntry.value) return;
+  deleteEntry.value = { kind: entry.kind, id: entry.id };
+  deleteError.value = "";
+}
+function cancelEntryDeletion() {
+  if (!deletingEntry.value) deleteEntry.value = undefined;
+}
+async function confirmEntryDeletion() {
+  const entry = deleteEntry.value;
+  if (!entry || readonly.value || deletingEntry.value) return;
+  deletingEntry.value = true;
+  deleteError.value = "";
+  try {
+    const collection = entry.kind === "measurement" ? "measurements" : "maintenance";
+    await api(`/aquariums/${props.id}/${collection}/${entry.id}`, { method: "DELETE" });
+    logs.value = logs.value.filter((row) => row.kind !== entry.kind || row.id !== entry.id);
+    if (entry.kind === "measurement") measurements.value = measurements.value.filter((row) => row.id !== entry.id);
+    deleteEntry.value = undefined;
+    await load();
+  } catch (e) {
+    deleteError.value = errorMessage(e);
+  } finally {
+    deletingEntry.value = false;
+  }
 }
 async function photoChanged(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0];
@@ -616,12 +645,10 @@ async function leave() {
                   >
                     {{ t("common.edit") }}</button
                   ><button
+                    type="button"
                     class="btn small ghost danger"
-                    @click="
-                      remove(
-                        `/${entry.kind === 'measurement' ? 'measurements' : 'maintenance'}/${entry.id}`,
-                      )
-                    "
+                    :disabled="deletingEntry"
+                    @click="requestEntryDeletion(entry)"
                   >
                     {{ t("common.delete") }}
                   </button>
@@ -674,8 +701,10 @@ async function leave() {
                   <td>{{ measurement.note }}</td>
                   <td v-if="!readonly">
                     <button
+                      type="button"
                       class="btn small ghost danger"
-                      @click="remove(`/measurements/${measurement.id}`)"
+                      :disabled="deletingEntry"
+                      @click="requestEntryDeletion({ kind: 'measurement', id: measurement.id })"
                     >
                       {{ t("common.delete") }}
                     </button>
@@ -754,6 +783,16 @@ async function leave() {
           <button class="btn" :disabled="busy">{{ t("common.save") }}</button>
         </form></Modal
       >
+      <Modal v-if="deleteEntry" :title="t('common.delete')" @close="cancelEntryDeletion">
+        <form class="stack" @submit.prevent="confirmEntryDeletion">
+          <p>{{ t('timeline.deleteConfirm') }}</p>
+          <p v-if="deleteError" class="error" role="alert">{{ deleteError }}</p>
+          <div class="row">
+            <button type="button" class="btn ghost" :disabled="deletingEntry" @click="cancelEntryDeletion">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn danger" :disabled="deletingEntry">{{ deletingEntry ? t('common.loading') : t('common.delete') }}</button>
+          </div>
+        </form>
+      </Modal>
       <Modal
         v-if="lightbox"
         :title="t('common.imageLightboxTitle')"

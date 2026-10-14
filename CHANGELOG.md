@@ -6,11 +6,14 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-### Bilddatenbank-Werkzeug
+- Logbucheinträge und Messungen über einen Bestätigungsdialog in der Anwendung löschen, unabhängig von Browserbestätigungen; Fehler im Dialog anzeigen, doppelte Anfragen verhindern und gelöschte Einträge sofort aus Logbuch und Messwerttabelle entfernen. Regressionstests für Bestätigung, Abbruch, API-Zuordnung, Fehlerfälle und Berechtigungen ergänzen.
 
-- Bildsuche um Pflanzenkataloge, strukturierte Synonyme und zusätzliche Commons-Suchen mit Aquariumbezug erweitern; Herbarbelege aussortieren und automatisch gefundene Pflanzen-Zuchtformen sowie Sammelbezeichnungen zur Sichtprüfung markieren.
-- Tiere und Pflanzen mit `kind` kennzeichnen, über `--kind` gezielt verarbeiten und in der Review-Galerie filtern; Dokumentation entsprechend ergänzen.
-- Datenverzeichnis mit Platzhalter sowie artspezifische Suchvorgaben und Prüfhilfen in `tools/overrides.json` hinzufügen.
+## 0.1.3-ALPHA
+
+- 2026-10-14 · Tests: Erwartete Datenbankschemaversion im Social-Test aktualisiert ([`98c9495`](https://github.com/DrGanmon/aquarium-logbuch/commit/98c949550b144bb434a301d196b1ff25b5bc269b)).
+- 2026-10-14 · Bilddatenbank-Werkzeug: Bildsuche um Pflanzenkataloge, strukturierte Synonyme und zusätzliche Commons-Suchen mit Aquariumbezug erweitern; Herbarbelege aussortieren und automatisch gefundene Pflanzen-Zuchtformen sowie Sammelbezeichnungen zur Sichtprüfung markieren ([`bd099de`](https://github.com/DrGanmon/aquarium-logbuch/commit/bd099dea5a41c659018c9f3a676229d51c6eb0e8)).
+- 2026-10-14 · Bilddatenbank-Werkzeug: Tiere und Pflanzen mit `kind` kennzeichnen, über `--kind` gezielt verarbeiten und in der Review-Galerie filtern; Dokumentation entsprechend ergänzen ([`bd099de`](https://github.com/DrGanmon/aquarium-logbuch/commit/bd099dea5a41c659018c9f3a676229d51c6eb0e8)).
+- 2026-10-14 · Bilddatenbank-Werkzeug: Datenverzeichnis mit Platzhalter sowie artspezifische Suchvorgaben und Prüfhilfen in `tools/overrides.json` hinzufügen ([`bd099de`](https://github.com/DrGanmon/aquarium-logbuch/commit/bd099dea5a41c659018c9f3a676229d51c6eb0e8)).
 
 ## 0.1.2-ALPHA
 
