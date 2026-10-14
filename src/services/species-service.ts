@@ -594,12 +594,20 @@ function normalizeSpecies(s: Record<string, unknown>, lang: string = 'de') {
 
 class SpeciesCatalog {
   private cache: { rawList: Record<string, unknown>[]; catalogList: SpeciesCatalogDescriptor[] } | null = null;
+  private localized = new Map<string, {
+    list: ReturnType<typeof normalizeSpecies>[];
+    byId: Map<string, ReturnType<typeof normalizeSpecies>>;
+    categories: string[];
+  }>();
+  private normalizedCount = -1;
   constructor(private readonly builtinDir = BUILTIN_SPECIES_DIR, private readonly customDir = CUSTOM_SPECIES_DIR) {}
   load(forceReload = false) {
     if (this.cache && !forceReload) {
       return this.cache;
     }
 
+    this.localized.clear();
+    this.normalizedCount = -1;
     fs.mkdirSync(this.builtinDir, { recursive: true });
     const rawList: Record<string, unknown>[] = [];
     const catalogList: SpeciesCatalogDescriptor[] = [];
@@ -643,23 +651,36 @@ class SpeciesCatalog {
     return this.cache;
   }
 
-  getAllSpecies(lang: string = 'de') {
+  private localizedCatalog(lang: string) {
     const { rawList } = this.load();
+    // Also respect additions/removals made through the existing raw catalog API.
+    if (this.normalizedCount !== rawList.length) {
+      this.localized.clear();this.normalizedCount = rawList.length;
+    }
+    const key = lang === 'en' ? 'en' : 'de';
+    const cached = this.localized.get(key);
+    if (cached) return cached;
     const map = new Map<string, ReturnType<typeof normalizeSpecies>>();
     for (const item of rawList) {
-      const s = normalizeSpecies(item, lang);
+      const s = normalizeSpecies(item, key);
       if (s.id && !map.has(s.id)) {
         map.set(s.id, s);
       }
     }
-    return Array.from(map.values());
+    const list = Array.from(map.values());
+    const result = { list, byId: map, categories: [...new Set(list.map(item => item.category).filter(Boolean))].sort() };
+    this.localized.set(key, result);
+    return result;
+  }
+
+  getAllSpecies(lang: string = 'de') {
+    return this.localizedCatalog(lang).list.slice();
   }
 
   getSpeciesById(id: unknown, lang: string = 'de') {
     if (!id) return null;
-    const list = this.getAllSpecies(lang);
     const key = String(id).trim().toLowerCase();
-    return list.find((s) => s.id === (SPECIES_ID_ALIASES[key] || key)) || null;
+    return this.localizedCatalog(lang).byId.get(SPECIES_ID_ALIASES[key] || key) || null;
   }
 
   findSpeciesByName(name: unknown, lang: string = 'de') {
@@ -699,12 +720,7 @@ class SpeciesCatalog {
   }
 
   getCategories(lang: string = 'de') {
-    const list = this.getAllSpecies(lang);
-    const set = new Set<string>();
-    for (const s of list) {
-      if (s.category) set.add(s.category);
-    }
-    return Array.from(set).sort();
+    return this.localizedCatalog(lang).categories.slice();
   }
 
 }

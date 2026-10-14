@@ -2,6 +2,7 @@
 import { lazyComponent } from "../composables/lazy-component";
 import { ref, shallowRef, computed, watch, onBeforeUnmount } from 'vue';
 import { api } from '../api';
+import { useIndexedSearch } from '../composables/indexed-search';
 import { useProgressiveList } from '../composables/progressive-list';
 import { language, t, errorMessage } from '../state';
 import { route } from '../router';
@@ -20,10 +21,9 @@ const error = ref('');
 const loading = ref(false);
 const selected = ref<string>();
 const selectedMedication = ref<string>();
-const matches = computed(() => {
-  const query = search.value.trim().toLocaleLowerCase();
-  return catalog.value?.diseases.filter(item => !query || [item.name, item.category, ...item.synonyms, ...item.keySigns, ...item.speciesSigns].join(' ').toLocaleLowerCase().includes(query)) || [];
-});
+const diseases = computed(() => catalog.value?.diseases || []);
+const matches = useIndexedSearch(diseases, search, item =>
+  [item.name, item.category, ...item.synonyms, ...item.keySigns, ...item.speciesSigns].join(' '));
 const { visible: shown, hasMore, sentinel, more } = useProgressiveList(matches);
 let loadedCatalogKey = '';
 let request: AbortController | undefined;
@@ -58,7 +58,7 @@ watch([water, species, language, tab], async () => {
       <div class="card health-filter-grid"><label>{{ t('health.waterType') }}<select v-model="water"><option value="all">{{ t('common.all') }}</option><option value="fresh">{{ t('health.fresh') }}</option><option value="salt">{{ t('health.salt') }}</option></select></label><label>{{ t('health.species') }}<select v-model="species"><option value="">{{ t('health.allSpecies') }}</option><option v-for="item in catalog?.species || []" :key="item.id" :value="item.id">{{ item.name }} · {{ item.scientificName }}</option></select></label><label>{{ t('health.search') }}<input v-model="search" type="search" :placeholder="t('health.searchPlaceholder')" /></label></div>
       <p v-if="error" class="error" role="alert">{{ error }}</p><p v-if="loading" role="status">{{ t('common.loading') }}</p>
       <template v-else><p class="muted" role="status">{{ matches.length }} {{ t('health.entries') }}</p><p v-if="!shown.length" class="card">{{ t('health.noMatches') }}</p>
-        <div class="health-disease-grid"><article v-for="item in shown" :key="item.id" class="card stack"><div class="row"><span class="chip">{{ item.waterType === 'salt' ? t('health.salt') : t('health.fresh') }}</span><span class="chip">{{ item.category }}</span></div><h2>{{ item.name }}</h2><ul><li v-for="sign in (item.speciesSigns.length ? item.speciesSigns : item.keySigns)" :key="sign">{{ sign }}</li></ul><p v-if="item.susceptibility" class="muted">{{ t('health.susceptibility') }}: {{ item.susceptibility }}</p><span v-if="item.contagious.zoonotic" class="chip warn">{{ t('health.zoonoticShort') }}</span><button class="btn ghost" type="button" @click="selected = item.id">{{ t('health.diseaseDetails') }}</button></article></div>
+        <div class="health-disease-grid" v-memo="[shown, language]"><article v-for="item in shown" :key="item.id" class="card stack"><div class="row"><span class="chip">{{ item.waterType === 'salt' ? t('health.salt') : t('health.fresh') }}</span><span class="chip">{{ item.category }}</span></div><h2>{{ item.name }}</h2><ul><li v-for="sign in (item.speciesSigns.length ? item.speciesSigns : item.keySigns)" :key="sign">{{ sign }}</li></ul><p v-if="item.susceptibility" class="muted">{{ t('health.susceptibility') }}: {{ item.susceptibility }}</p><span v-if="item.contagious.zoonotic" class="chip warn">{{ t('health.zoonoticShort') }}</span><button class="btn ghost" type="button" @click="selected = item.id">{{ t('health.diseaseDetails') }}</button></article></div>
         <div v-if="hasMore" ref="sentinel" class="row" style="justify-content: center">
           <button class="btn ghost" type="button" @click="more">{{ t('common.loadMore') }}</button>
         </div>

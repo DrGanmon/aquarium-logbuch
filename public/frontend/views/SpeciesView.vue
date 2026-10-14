@@ -1,56 +1,22 @@
 <script setup lang="ts">
 import { lazyComponent } from "../composables/lazy-component";
 import { onMounted, onBeforeUnmount, ref, watch } from "vue";
+import { useCatalogSearch } from "../composables/catalog-search";
 import { api } from "../api";
 import { t, errorMessage, language } from "../state";
 import { route } from "../router";
 import type { Species } from "../types";
 const AddSpeciesDialog = lazyComponent(() => import("../components/AddSpeciesDialog.vue"));
 const SpeciesDetail = lazyComponent(() => import("../components/SpeciesDetail.vue"));
-interface SpeciesPage { species: Species[]; total: number; next: number | null; categories: string[] }
-const shown = ref<Species[]>([]), total = ref(0), next = ref<number | null>(null);
-const search = ref(""), water = ref("all"), category = ref("all"), categories = ref<string[]>([]);
+const { shown, total, next, search, water, category, categories, pageError, loading, sentinel, load, retry } = useCatalogSearch<Species>("species");
 const selected = ref<Species>(), adding = ref<Species>();
-const error = ref(""), pageError = ref(""), loading = ref(true), sentinel = ref<HTMLElement>();
-let loadRequest: AbortController | undefined, detailRequest: AbortController | undefined;
-let observer: IntersectionObserver | undefined, reloadTimer: ReturnType<typeof setTimeout> | undefined;
+const error = ref("");
+let detailRequest: AbortController | undefined;
 let disposed = false;
-
-onBeforeUnmount(() => {
-  disposed = true;clearTimeout(reloadTimer);loadRequest?.abort();detailRequest?.abort();observer?.disconnect();
-});
-watch(language, () => { detailRequest?.abort();category.value = "all";selected.value = undefined;adding.value = undefined;void loadRouteDetail(); });
-watch([search, water, category, language], ([query], previous) => {
-  clearTimeout(reloadTimer);loadRequest?.abort();shown.value = [];total.value = 0;next.value = null;
-  pageError.value = "";loading.value = true;
-  reloadTimer = setTimeout(() => { reloadTimer = undefined;void load(); }, previous?.length && query !== previous[0] ? 200 : 0);
-}, { immediate: true, flush: "sync" });
-watch(sentinel, element => {
-  observer?.disconnect();
-  if (!element || !("IntersectionObserver" in window)) return;
-  observer = new IntersectionObserver(entries => {
-    if (entries.some(entry => entry.isIntersecting) && !pageError.value) void load(true);
-  }, { rootMargin: "300px" });
-  observer.observe(element);
-}, { flush: "post" });
+onBeforeUnmount(() => { disposed = true;detailRequest?.abort(); });
+watch(language, () => { detailRequest?.abort();selected.value = undefined;adding.value = undefined;void loadRouteDetail(); });
 onMounted(loadRouteDetail);
 
-async function load(more = false) {
-  if (disposed || (more && (loading.value || reloadTimer !== undefined || next.value === null))) return;
-  loadRequest?.abort();const request = new AbortController();loadRequest = request;
-  loading.value = true;pageError.value = "";
-  const query = new URLSearchParams({ limit: "24", offset: String(more ? next.value : 0), q: search.value });
-  if (water.value !== "all") query.set("water_type", water.value);
-  if (category.value !== "all") query.set("category", category.value);
-  try {
-    const result = await api<SpeciesPage>(`/species?${query}`, { signal: request.signal });
-    if (request.signal.aborted || disposed) return;
-    shown.value = more ? [...shown.value, ...result.species] : result.species;
-    total.value = result.total;next.value = result.next;categories.value = result.categories;
-  } catch (caught) { if (!request.signal.aborted && !disposed) pageError.value = errorMessage(caught); }
-  finally { if (loadRequest === request && !request.signal.aborted) loading.value = false; }
-}
-function retry() { void load(shown.value.length > 0 && next.value !== null); }
 async function open(item: Species) { await loadDetail(item.id); }
 async function loadRouteDetail() {
   const id = route.value.path.split("/")[2];if (!id) return;
@@ -91,7 +57,7 @@ async function loadDetail(id: string) {
     </div>
     <p v-if="error" class="error" role="alert">{{ error }}</p>
     <p v-if="pageError" class="error" role="alert">{{ pageError }} <button type="button" class="btn small ghost" :disabled="loading" @click="retry">{{ t("detail.lazyRetry") }}</button></p>
-    <div class="species-grid">
+    <div class="species-grid" v-memo="[shown, language]">
       <article
         v-for="item in shown"
         :key="item.id"
