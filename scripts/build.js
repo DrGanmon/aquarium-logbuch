@@ -29,11 +29,49 @@ async function buildFrontend(options = {}) {
     cssSize: size(files.cssFile),
   };
 }
+// Run independent compiler work in separate processes so both Node and Bun
+// can use multiple cores. Wait for both before emitting frontend bundles.
+async function buildApplication() {
+  const { spawn } = require('node:child_process');
+  const jobs = [
+    ['typecheck.js', path.join(__dirname, '../public/tsconfig.json')],
+    ['build-backend.js'],
+  ];
+  const children = [];
+  let interrupted;
+  const handlers = ['SIGINT', 'SIGTERM'].map(signal => {
+    const handler = () => {
+      interrupted = signal;
+      for (const child of children) child.kill(signal);
+    };
+    process.on(signal, handler);
+    return handler;
+  });
+  try {
+    const results = await Promise.allSettled(jobs.map(([script, ...args]) =>
+      new Promise((resolve, reject) => {
+        const child = spawn(process.execPath, [path.join(__dirname, script), ...args], { stdio: 'inherit' });
+        children.push(child);
+        child.once('error', reject);
+        child.once('close', (code, signal) => {
+          if (code === 0) resolve();
+          else reject(new Error(`${script} fehlgeschlagen (${signal || code}).`));
+        });
+      })
+    ));
+    if (interrupted) {
+      process.exitCode = interrupted === 'SIGINT' ? 130 : 143;
+      return;
+    }
+    const failures = results.filter(result => result.status === 'rejected');
+    if (failures.length) throw new AggregateError(failures.map(result => result.reason), 'Build-Prüfung fehlgeschlagen.');
+  } finally {
+    ['SIGINT', 'SIGTERM'].forEach((signal, index) => process.removeListener(signal, handlers[index]));
+  }
+  return buildFrontend();
+}
 if (require.main === module) {
-  const { typecheck } = require('./typecheck');
-  const code = typecheck();
-  if (code) process.exitCode = code;
-  else Promise.resolve().then(() => require('./build-backend').buildBackend()).then(() => buildFrontend()).catch((error) => {
+  buildApplication().catch((error) => {
     console.error(error);
     process.exitCode = 1;
   });

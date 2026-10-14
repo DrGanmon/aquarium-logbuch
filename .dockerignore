@@ -4,3 +4,20 @@ data
 
 # Rebuild generated backend files inside the image
 dist/backend
+
+# Generated bundles are rebuilt; keep the directory needed by Vite.
+public/dist/*
+!public/dist/.gitkeep
+
+# Development-only files must not invalidate the application build layer.
+test
+docs
+.github
+.vscode
+.idea
+AGENTS.md
+CHANGELOG.md
+README*.md
+*.log
+.env
+.env.*
