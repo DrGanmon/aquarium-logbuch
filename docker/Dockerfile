@@ -1,5 +1,7 @@
+# Compile platform-independent JavaScript once on the native builder.
+# Production dependencies are still installed for each target architecture.
 # The build and production runtime both use Bun; no Node helper is required.
-FROM oven/bun:1.4.3-slim AS build
+FROM --platform=$BUILDPLATFORM oven/bun:1.4.3-slim AS build
 WORKDIR /app
 COPY package.json bun.lock .npmrc ./
 RUN bun install --frozen-lockfile --ignore-scripts

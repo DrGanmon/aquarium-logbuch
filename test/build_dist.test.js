@@ -136,9 +136,7 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', { timeout: 600
   });
 
   await t.test('Express bindet unminifiziertes Bundle (dist/app.js & dist/style.css) ein, wenn nur dieses existiert', async () => {
-    cleanDist();
-    await buildFrontend({ minify: false });
-
+    // Reuse the development bundle verified by the preceding awaited subtest.
     const { server, port } = await startAppServer();
 
     try {
@@ -187,9 +185,7 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', { timeout: 600
   });
 
   await t.test('Express bindet minifiziertes Bundle (dist/app.min.js & dist/style.min.css) bevorzugt ein', async () => {
-    cleanDist();
-    await buildFrontend({ minify: true });
-
+    // Reuse the production bundle verified by the preceding awaited subtest.
     const { server, port } = await startAppServer();
 
     try {

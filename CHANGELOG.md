@@ -6,13 +6,15 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-### Projektstruktur
+### Build-Performance
 
-- Anwendungskonfiguration nach `src/config/app-config.ts` und OIDC-Client nach `src/services/oidc-client.ts` verschoben; JavaScript-Wrapper im Hauptverzeichnis entfernt.
-- Imports, TypeScript-Build, Produktionslayout-Tests, Dockerfiles und Dokumentation an die neuen Modulpfade angepasst.
+- Plattformunabhängige Docker-Build-Stufe einmal auf der nativen Builder-Architektur ausführen; Produktionsabhängigkeiten weiterhin passend zu AMD64 bzw. ARM64 installieren.
+- npm- und Bun-Paketdownloads in der CI zwischenspeichern.
+- Bereits geprüfte Frontend-Bundles in den HTTP-Buildtests wiederverwenden und dadurch zwei von fünf Vite-Builds pro Testlauf einsparen.
 
 ## 0.1.0-ALPHA
 
+- 2026-10-14 · Projektstruktur: Anwendungskonfiguration und OIDC-Client nach `src` verschoben, JavaScript-Wrapper entfernt und Imports, Build, Tests, Dockerfiles sowie Dokumentation angepasst ([`624a6fa`](https://github.com/DrGanmon/aquarium-logbuch/commit/624a6fab470b8d95aeda5cc51603d77280401c7f)).
 - 2026-10-14 · Projektstruktur: Docker-Dateien unter `docker/` gebündelt, Prüfbericht nach `docs/AUDIT.md` verschoben und CI sowie Anleitungen angepasst ([`731c899`](https://github.com/DrGanmon/aquarium-logbuch/commit/731c89940e77a476de11e43aea918fdd5e273b97)).
 - 2026-10-14 · Versionierung: Minor-Version auf 0.1.0-ALPHA erhöht und Revision sowie Patch zurückgesetzt ([`40868a3`](https://github.com/DrGanmon/aquarium-logbuch/commit/40868a33973d127d233cdae58b4a6b196973159c)).
 

@@ -62,10 +62,20 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: '22'
+          cache: ${{ matrix.runtime == 'node' && 'npm' || '' }}
+          cache-dependency-path: package-lock.json
       - uses: oven-sh/setup-bun@v2
         if: matrix.runtime == 'bun'
         with:
           bun-version: '1.4.3'
+      - name: Cache Bun packages
+        if: matrix.runtime == 'bun'
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ runner.arch }}-1.4.3-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            bun-${{ runner.os }}-${{ runner.arch }}-1.4.3-
       - name: Set MongoDB test cache directory
         run: echo "MONGOMS_DOWNLOAD_DIR=$RUNNER_TEMP/aquarium-mongodb-binaries" >> "$GITHUB_ENV"
       - name: Cache MongoDB test binaries
