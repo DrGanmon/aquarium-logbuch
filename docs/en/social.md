@@ -30,7 +30,7 @@ The `/api/social` API provides visibility-filtered GET endpoints for posts, phot
 
 ## Terms, content licence and privacy
 
-Public pages `#/terms` and `#/privacy` provide German and English information. Registration requires `acceptTerms=true` and the current `termsVersion` returned by `/api/registration` or `/api/terms`. Version and timestamp are stored with the account. New OIDC accounts require the same acceptance; the CSRF-protected `POST /api/oidc/login` binds it to the signed login state. Existing accounts may continue signing in. Publishing asks users to confirm their rights and the terms; older accounts must also accept the current version server-side before posting.
+Public pages `#/terms` and `#/privacy` provide German and English information. Registration requires `acceptTerms=true` and the current `termsVersion` returned by `/api/registration` or `/api/terms`. Version and timestamp are stored with the account. New OIDC accounts require the same acceptance; the CSRF-protected `POST /api/oidc/login` binds it to the signed login state. Existing accounts may continue signing in. Terms are accepted once at registration. Publishing and uploading do not require renewed acceptance, including for existing accounts.
 
 The royalty-free, non-exclusive licence covers app storage, image processing, backups and display according to the chosen visibility. Copyright stays with the user. Advertising outside the app, content sales and AI training are excluded.
 

@@ -17,7 +17,6 @@ const { tooManyAttempts, noteAttempt } = source4;
 import { saveSocialImage } from '../services/social-image-service';
 import source5 = require('../services/image-service');
 const { deleteImage, getImagePath, getMimeType } = source5;
-import { TERMS_VERSION, acceptsCurrentTerms } from '../services/terms-service';
 import type { SocialPost, SocialAuthor } from '../types/social';
 const { auth } = authModule;
 const router = express.Router();
@@ -79,8 +78,6 @@ router.post('/posts', auth, limit('post', 20), wrap(async (req: Request, res: Re
   if (req.body.isPublic !== undefined && typeof req.body.isPublic !== 'boolean') throw new AppError('Ungültige Sichtbarkeit.', 400);
   const user = await db.users.findById(req.user.id);
   if (!user) throw new AppError('Benutzer nicht gefunden.', 401);
-  if (user.terms_version !== TERMS_VERSION && !acceptsCurrentTerms(req.body)) throw new AppError('Bitte zuerst die aktuellen AGB akzeptieren.', 400);
-  if (user.terms_version !== TERMS_VERSION) await db.users.update(user.id, { terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString() });
   const image = await saveSocialImage(req.body.image);
   try {
     if (!await db.users.findById(req.user.id)) throw new AppError('Benutzerkonto wurde gelöscht.', 401);

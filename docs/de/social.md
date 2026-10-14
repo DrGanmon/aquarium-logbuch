@@ -30,7 +30,7 @@ Die API unter `/api/social` bietet nach Sichtbarkeit gefilterte GET-Endpunkte f�
 
 ## AGB, Nutzungsrecht und Datenschutz
 
-Die öffentlich erreichbaren Seiten `#/agb` und `#/datenschutz` beschreiben die Nutzung in Deutsch und Englisch. Registrierung erfordert `acceptTerms=true` und die aktuelle `termsVersion` aus `/api/registration` oder `/api/terms`. Version und Zeitpunkt werden im Konto gespeichert. Neue OIDC-Konten benötigen die gleiche Zustimmung; der CSRF-geschützte Start über `POST /api/oidc/login` bindet sie an den signierten Anmeldestatus. Bestehende Konten können sich weiterhin anmelden. Beim Veröffentlichen bestätigt das Formular die Rechte und die AGB; Bestandskonten ohne aktuelle Zustimmung müssen diese auch serverseitig nachholen.
+Die öffentlich erreichbaren Seiten `#/agb` und `#/datenschutz` beschreiben die Nutzung in Deutsch und Englisch. Registrierung erfordert `acceptTerms=true` und die aktuelle `termsVersion` aus `/api/registration` oder `/api/terms`. Version und Zeitpunkt werden im Konto gespeichert. Neue OIDC-Konten benötigen die gleiche Zustimmung; der CSRF-geschützte Start über `POST /api/oidc/login` bindet sie an den signierten Anmeldestatus. Bestehende Konten können sich weiterhin anmelden. Die AGB werden einmalig bei der Registrierung akzeptiert. Beim Veröffentlichen oder Hochladen wird keine erneute Zustimmung verlangt, auch nicht für Bestandskonten.
 
 Das einfache, unentgeltliche Nutzungsrecht umfasst nur Speicherung, Bildverarbeitung, Sicherungen und Anzeige für den App-Betrieb entsprechend der Sichtbarkeit. Urheberrechte bleiben beim Nutzer; Werbenutzung außerhalb der App, Verkauf und KI-Training sind ausgeschlossen.
 

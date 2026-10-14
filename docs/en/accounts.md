@@ -26,4 +26,4 @@ Administrators choose open registration, admin-only invitations, invitations by 
 
 Language and appearance can be changed in the header and profile. German and English, light and dark themes, and the system theme are supported; charts follow the active theme.
 
-New accounts require explicit acceptance of the terms, including first-time OIDC sign-in. The checkbox is unchecked by default; public terms and privacy links are in the footer. Existing accounts retain access and accept current terms before posting new Social content. Account deletion also removes Social content and associated images from managed local JSON backups; operators must separately manage external backups. [Details](social.md).
+New accounts require explicit acceptance of the terms, including first-time OIDC sign-in. The checkbox is unchecked by default; public terms and privacy links are in the footer. Terms are accepted once at registration; uploads and Social posts do not require renewed acceptance. Account deletion also removes Social content and associated images from managed local JSON backups; operators must separately manage external backups. [Details](social.md).

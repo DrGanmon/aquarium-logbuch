@@ -37,10 +37,8 @@ for (const backend of ['sqlite', 'mongodb']) {
     const image = `data:image/png;base64,${(await sharp({ create: { width: 32, height: 24, channels: 3, background: '#558877' } }).png().toBuffer()).toString('base64')}`;
     await env.request('/api/me/avatar', { method: 'POST', headers, body: { image } });
     await env.request('/api/me/avatar', { method: 'POST', headers: friendHeaders, body: { image } });
-    await db.users.update(owner.id, { terms_version: null, terms_accepted_at: null });
-    assert.equal((await env.request('/api/social/posts', { method: 'POST', headers, body: { image } })).status, 400);
-    assert.equal((await env.request('/api/social/posts', { method: 'POST', headers, body: { image, acceptTerms: true, termsVersion: 'old' } })).status, 400);
-    const internal = await env.request('/api/social/posts', { method: 'POST', headers, body: { image, text: 'Serverintern', acceptTerms: true, termsVersion: TERMS_VERSION } });
+    const internal = await env.request('/api/social/posts', { method: 'POST', headers, body: { image, text: 'Serverintern' } });
+    assert.equal((await db.users.findById(owner.id)).terms_accepted_at, storedUser.terms_accepted_at);
     assert.equal(internal.status, 201, internal.text);assert.equal(internal.data.post.is_public, false);
     const internalUrl = `/api/social/posts/${internal.data.post.id}`;
     assert.equal((await env.request('/api/social/posts')).data.posts.length, 0);
@@ -64,7 +62,12 @@ for (const backend of ['sqlite', 'mongodb']) {
     assert.equal((await env.request(`/api/social/authors/${owner.id}/avatar`)).status, 200);
     assert.equal((await env.request(`/api/social/authors/${friend.id}/avatar`)).status, 404, 'Kommentar zu internem Beitrag darf Profilbild nicht öffentlich machen');
     await env.request(`${internalUrl}/like`, { method: 'PUT', headers: friendHeaders, body: { liked: true } });
+    // Legacy accounts may upload without accepting terms again; do not invent consent.
+    await db.users.update(friend.id, { terms_version: null, terms_accepted_at: null });
     const friendPost = await env.request('/api/social/posts', { method: 'POST', headers: friendHeaders, body: { image, isPublic: true } });
+    assert.equal(friendPost.status, 201, friendPost.text);
+    assert.equal((await db.users.findById(friend.id)).terms_version, null);
+    assert.equal((await db.users.findById(friend.id)).terms_accepted_at, null);
     await env.request(`/api/social/posts/${friendPost.data.post.id}/comments`, { method: 'POST', headers, body: { text: 'Wird mit meinem Konto gelöscht' } });
     await env.request(`/api/social/posts/${friendPost.data.post.id}/like`, { method: 'PUT', headers, body: { liked: true } });
     const aq = await db.aquariums.create({ user_id: owner.id, name: 'Bildlöschung' });
