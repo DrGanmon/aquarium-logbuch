@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Bildgrenze für Social-Posts in Oberfläche und API auf 10 MB erhöhen; deutsche und englische Hinweise und Dokumentation sowie Tests für die Größenlimits aktualisieren. Komprimierung vor dem Upload beibehalten.
+- Social-Bildupload reparieren: lokale `blob:`-Bildquellen in der Content-Security-Policy erlauben, damit Bilddekodierung und Komprimierung im Browser funktionieren. Fehler im echten Browser reproduzieren und Veröffentlichung einschließlich Vorschau, Speicherung und erneutem Laden prüfen; Regressionstest für die ausgelieferte Sicherheitsrichtlinie ergänzen.
+
+## 0.1.6-ALPHA
+
+- 2026-10-14 · Social: Bildgrenze für Social-Posts in Oberfläche und API auf 10 MB erhöhen; deutsche und englische Hinweise und Dokumentation sowie Tests für die Größenlimits aktualisieren. Komprimierung vor dem Upload beibehalten. ([`2601b57`](https://github.com/DrGanmon/aquarium-logbuch/commit/2601b5789ec67ba9ab3ff0bae1e80bda8e82b693)).
 
 ## 0.1.5-ALPHA
 

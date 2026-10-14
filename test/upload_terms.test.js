@@ -80,3 +80,14 @@ test('Social-API: gültiges Bild mit genau 10 MB akzeptieren, darüber ablehnen'
   const rejected = await post(`data:image/png;base64,${Buffer.concat([bytes, Buffer.alloc(1)]).toString('base64')}`);
   assert.equal(rejected.status, 400);
 });
+
+test('Social-Bildauswahl: ausgelieferte CSP erlaubt lokale Blob-Bilder', async t => {
+  const env = createTestEnvironment({ DB_TYPE: 'sqlite' });t.after(() => env.cleanup());
+  const response = await fetch(`${await env.start()}/`);
+  const policy = response.headers.get('content-security-policy');
+  const directives = Object.fromEntries(policy.split(';').map(part => part.trim().split(/\s+/)).filter(parts => parts[0]).map(([key, ...sources]) => [key, sources]));
+  assert.deepEqual(directives['img-src'], ["'self'", 'data:', 'blob:']);
+  assert.deepEqual(directives['script-src'], ["'self'"]);
+  assert.deepEqual(directives['worker-src'], ["'self'"]);
+  assert.deepEqual(directives['object-src'], ["'none'"]);
+});

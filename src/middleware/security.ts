@@ -6,7 +6,7 @@ function securityHeaders(req: Request, res: Response, next: NextFunction) {
   res.setHeader('Referrer-Policy', 'same-origin');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; worker-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'"
+    "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; worker-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; frame-ancestors 'none'"
   );
   next();
 }
