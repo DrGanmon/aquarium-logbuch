@@ -1,3 +1,4 @@
+import { getPlantCatalog, searchPlants } from '../services/plant-service';
 import { searchSpecies } from '../shared/species-search';
 import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
@@ -99,6 +100,30 @@ router.get(
     });
   })
 );
+
+router.get('/plants', auth, (req: Request, res: Response) => {
+  const lang = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de');
+  const integer = (value: unknown, fallback: number) => value === undefined ? fallback
+    : typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : NaN;
+  const limit = integer(req.query.limit, 24), offset = integer(req.query.offset, 0);
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > 100 || !Number.isSafeInteger(offset) || offset < 0)
+    return res.status(400).json({ error: 'Ungültige Seitenauswahl.' });
+  const { plants, categories } = searchPlants(lang, String(req.query.q || ''),
+    String(req.query.water_type || req.query.waterType || 'all'), String(req.query.category || 'all'));
+  const page = plants.slice(offset, offset + limit).map(({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate }) =>
+    ({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate }));
+  res.setHeader('Cache-Control', 'no-store').json({ plants: page, categories, total: plants.length,
+    next: offset + page.length < plants.length ? offset + page.length : null });
+});
+
+router.get('/plants/:id', auth, (req: Request, res: Response) => {
+  const lang = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de');
+  const catalog = getPlantCatalog(lang);
+  const plant = catalog.plants.find(item => item.id === req.params.id);
+  if (!plant) return res.status(404).json({ error: 'Pflanze nicht gefunden.' });
+  res.json({ plant, fieldDefinitions: catalog.fieldDefinitions, notes: catalog.notes,
+    sources: plant.sources.map(id => catalog.sources[id]).filter(Boolean) });
+});
 
 router.get('/species', auth, (req: Request, res: Response) => {
   const lang = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de');

@@ -170,7 +170,8 @@
     "register": "Register",
     "themeToggle": "Toggle color theme",
     "langToggle": "Change language (DE/EN)",
-    "health": "Health"
+    "health": "Health",
+    "plants": "Plants"
   },
   "footer": {
     "version": "Version",
@@ -942,5 +943,24 @@
     "category": "Category",
     "fresh": "Freshwater",
     "salt": "Saltwater"
+  },
+  "plants": {
+    "count": "{loaded} of {total} plants",
+    "empty": "No matching plants found.",
+    "synonyms": "Synonyms",
+    "origin": "Origin",
+    "growth": "Growth",
+    "height": "Height",
+    "light": "Light demand",
+    "temperature": "Temperature",
+    "ideal": "ideal",
+    "salinity": "Salinity",
+    "substrate": "Substrate / Attachment",
+    "propagation": "Propagation",
+    "herbivoreResistant": "Herbivore resistant",
+    "yes": "Yes",
+    "no": "No",
+    "care": "Care notes",
+    "sources": "Sources"
   }
 }

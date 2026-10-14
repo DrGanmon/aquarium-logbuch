@@ -170,7 +170,8 @@
     "register": "Registrieren",
     "themeToggle": "Farbschema wechseln",
     "langToggle": "Sprache wechseln (DE/EN)",
-    "health": "Gesundheit"
+    "health": "Gesundheit",
+    "plants": "Pflanzen"
   },
   "footer": {
     "version": "Version",
@@ -942,5 +943,24 @@
     "category": "Kategorie",
     "fresh": "Süßwasser",
     "salt": "Meerwasser"
+  },
+  "plants": {
+    "count": "{loaded} von {total} Pflanzen",
+    "empty": "Keine passenden Pflanzen gefunden.",
+    "synonyms": "Synonyme",
+    "origin": "Herkunft",
+    "growth": "Wachstum",
+    "height": "Höhe",
+    "light": "Lichtbedarf",
+    "temperature": "Temperatur",
+    "ideal": "ideal",
+    "salinity": "Salinität",
+    "substrate": "Bodengrund / Befestigung",
+    "propagation": "Vermehrung",
+    "herbivoreResistant": "Fraßresistent",
+    "yes": "Ja",
+    "no": "Nein",
+    "care": "Pflegehinweise",
+    "sources": "Quellen"
   }
 }

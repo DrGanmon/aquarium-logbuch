@@ -36,6 +36,7 @@ const avatar = computed(() =>
       <a class="btn small ghost" v-if="user" id="btn-species" href="#/species">{{
         t("nav.species")
       }}</a>
+      <a class="btn small ghost" v-if="user" href="#/plants">🌿 {{ t("nav.plants") }}</a>
       <a class="btn small ghost" v-if="user" href="#/health">🩺 {{ t("nav.health") }}</a>
       <a class="btn small ghost" href="#/social">{{ t("social.title") }}</a>
       <a v-if="!user" class="btn small ghost" href="#/">{{ t("auth.loginBtn") }}</a>

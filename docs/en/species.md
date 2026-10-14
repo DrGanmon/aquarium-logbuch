@@ -35,3 +35,11 @@ Use the species card or detail dialog to select a compatible aquarium with write
 The catalog initially loads 24 species cards, then fetches more pages while scrolling. “Load more species” also works without automatic scroll detection. Details and photos load when a species is opened. Search, water type and category are applied to the entire server-side catalog before selecting a page, so species not yet displayed remain searchable. All query words must match names, scientific names, categories, descriptions or tags; name matches rank higher. Both German and English names are searchable. Total counts and category options come from the complete catalog.
 
 Typing is debounced by 200 ms; previous requests are aborted and outdated responses are discarded. Filter and language changes restart from the first page. The API uses `/api/species?limit=24&offset=0&q=…`, with optional `water_type` and `category`. `total` counts every match and `next` returns the next offset or `null`; pages are capped at 100 records. Requests without pagination retain the full response for existing consumers.
+
+## Plant catalog
+
+Open **Plants** in the navigation for a separate catalog of 149 freshwater and marine plants. Complete German and English data live in `src/config/plants/plants.json` and `src/config/plants/plants.en.json`, linked by plant IDs. Names in both languages and synonyms are searchable regardless of the selected language.
+
+The list loads 24 results at a time and filters by water type and category. Details include placement, light and CO₂ demand, growth, height, temperature, water parameters, care notes and supplied sources. Salinity uses the unit specified in the catalog. Data and source references were taken from the supplied files.
+
+The authenticated API exposes `/api/plants?limit=24&offset=0&q=…&water_type=fresh&category=…` and `/api/plants/:id`. `total` counts all matches; `next` is the next offset or `null`, with at most 100 entries per page. German is the default; select English with `lang=en` or `X-Language: en`.

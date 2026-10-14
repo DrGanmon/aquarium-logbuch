@@ -31,3 +31,11 @@ Der Besatz wird über modulare **JSON-Artenkataloge** unter `../../src/config/sp
 Die Katalogansicht lädt zunächst 24 Artenkarten und weitere Seiten beim Scrollen; „Weitere Arten laden“ funktioniert auch ohne automatische Scroll-Erkennung. Artendetails und Bilder werden erst beim Öffnen einer Art abgerufen. Suche, Wasserart und Kategorie werden auf den gesamten serverseitigen Katalog angewendet, bevor die Seite ausgewählt wird. Deshalb bleiben noch nicht angezeigte Arten auffindbar. Mehrere Suchwörter müssen gemeinsam in Namen, wissenschaftlichem Namen, Kategorie, Beschreibung oder Tags vorkommen; Namens-Treffer werden höher gewichtet. Deutsch- und englischsprachige Namen sind durchsuchbar. Die Gesamtanzahl und Kategorien stammen aus dem vollständigen Katalog.
 
 Suchänderungen werden um 200 ms gebündelt; alte Anfragen werden abgebrochen und überholte Antworten verworfen. Filter- und Sprachwechsel starten wieder mit der ersten Seite. Die API verwendet `/api/species?limit=24&offset=0&q=…` mit optionalem `water_type` und `category`. `total` zählt alle Treffer, `next` enthält den nächsten Offset oder `null`; eine Seite ist auf maximal 100 Einträge begrenzt. Ohne Seitenauswahl bleibt die vollständige API-Antwort für bestehende Verbraucher erhalten.
+
+## Pflanzenkatalog
+
+Über **Pflanzen** in der Navigation öffnet sich ein eigener Katalog mit 149 Süß- und Meerwasserpflanzen. Die vollständigen deutschen und englischen Daten liegen unter `src/config/plants/plants.json` und `src/config/plants/plants.en.json`. Beide Dateien werden über dieselben Pflanzen-IDs verknüpft; Namen beider Sprachen und Synonyme sind unabhängig von der gewählten Sprache durchsuchbar.
+
+Die Liste lädt jeweils 24 Treffer und filtert nach Wasserart und Kategorie. Details zeigen Platzierung, Licht- und CO₂-Bedarf, Wachstum, Höhe, Temperatur, Wasserwerte, Pflegehinweise und die mitgelieferten Quellen. Salinität wird mit der Einheit aus dem Katalog angezeigt. Die Daten und Quellenangaben wurden aus den gelieferten Dateien übernommen.
+
+Die authentifizierte API bietet `/api/plants?limit=24&offset=0&q=…&water_type=fresh&category=…` sowie `/api/plants/:id`. `total` zählt alle Treffer, `next` ist der nächste Offset oder `null`; maximal 100 Einträge pro Seite. Deutsch ist die Standardsprache, Englisch wird über `lang=en` oder `X-Language: en` gewählt.

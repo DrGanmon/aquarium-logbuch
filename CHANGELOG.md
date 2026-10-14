@@ -6,13 +6,15 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-### Build-Performance
+### Pflanzenkatalog
 
-- Frontend-Typprüfung und Backend-Kompilierung unter Node und Bun parallel ausführen; Frontend-Bundles erst nach erfolgreichen Prüfungen erzeugen und Abbrüche an Compilerprozesse weiterreichen.
-- Docker-Build-Kontext um generierte Frontend-Bundles, Tests, Dokumentation und lokale Entwicklungsdateien verkleinern; Änderungen daran invalidieren den Anwendungsbuild nicht mehr. AMD64 und ARM64 bleiben erhalten.
+- Zweisprachige Pflanzendatenbank mit 149 Einträgen analog zum Artenkatalog integriert: Navigation, globale Suche in beiden Sprachen, Wasserart- und Kategoriefilter, seitenweises Nachladen sowie Detailansichten mit Pflegehinweisen, Wasserwerten und Quellen.
+- Authentifizierte Listen- und Detail-API sowie automatisierte Katalog- und API-Tests ergänzt; Pflanzendaten in den Backend-Build aufgenommen.
+- Gelieferte Dateien unverändert nach `src/config/plants/plants.json` und `plants.en.json` verschoben, den Tippfehler im deutschen Dateinamen korrigiert und den leeren Ordner `new` entfernt.
 
 ## 0.1.0-ALPHA
 
+- 2026-10-14 · Build-Performance: Frontend-Typprüfung und Backend-Kompilierung unter Node und Bun parallelisiert, Bundles erst nach erfolgreichen Prüfungen erzeugt und Prozessabbrüche weitergereicht; Docker-Build-Kontext um generierte Bundles, Tests, Dokumentation und lokale Entwicklungsdateien verkleinert ([`5968224`](https://github.com/DrGanmon/aquarium-logbuch/commit/5968224dbe1dc49a71c4f351e0582f497d070f18)).
 - 2026-10-14 · Build-Performance: Native Docker-Build-Stufe und npm-/Bun-Paket-Caches eingeführt sowie zwei doppelte Vite-Testbuilds entfernt ([`799c572`](https://github.com/DrGanmon/aquarium-logbuch/commit/799c57291dac4864027a2fa48ba42765cdfdd776)).
 - 2026-10-14 · Projektstruktur: Anwendungskonfiguration und OIDC-Client nach `src` verschoben, JavaScript-Wrapper entfernt und Imports, Build, Tests, Dockerfiles sowie Dokumentation angepasst ([`624a6fa`](https://github.com/DrGanmon/aquarium-logbuch/commit/624a6fab470b8d95aeda5cc51603d77280401c7f)).
 - 2026-10-14 · Projektstruktur: Docker-Dateien unter `docker/` gebündelt, Prüfbericht nach `docs/AUDIT.md` verschoben und CI sowie Anleitungen angepasst ([`731c899`](https://github.com/DrGanmon/aquarium-logbuch/commit/731c89940e77a476de11e43aea918fdd5e273b97)).

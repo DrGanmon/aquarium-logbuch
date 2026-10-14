@@ -32,7 +32,7 @@ function buildBackend() {
   printDiagnostics(result.diagnostics);
   if (result.emitSkipped) throw new Error('Backend-Kompilierung fehlgeschlagen.');
   // Preserve relative paths for templates and modular species/test catalogs.
-  for (const directory of ['src/templates', 'src/config/species', 'src/config/suites', 'src/config/health']) {
+  for (const directory of ['src/templates', 'src/config/species', 'src/config/plants', 'src/config/suites', 'src/config/health']) {
     fs.cpSync(path.join(root, directory), path.join(root, 'dist/backend', directory), { recursive: true });
   }
   console.log('Backend kompiliert: dist/backend');
