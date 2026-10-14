@@ -9,12 +9,13 @@ const manifest = require('../public/plants-images/manifest.json');
 const attribution = require('../public/plants-images/attribution.json');
 
 test('Pflanzenbilder: Zuordnung, WebP-Abmessungen und vollständige Bildnachweise', async () => {
-  assert.equal(Object.keys(manifest).length, 9);
+  assert.equal(Object.keys(manifest).length, 139);
   const plants = require('../src/config/plants/plants.json').plants;
   for (const [id, image] of Object.entries(manifest)) {
     assert.ok(plants.some(plant => plant.id === id));
     assert.equal(image.url, `plants-images/${id}.webp`);
     const metadata = await sharp(path.join('public', image.url)).metadata();
+    await sharp(path.join('public', image.url), { failOn: 'error' }).raw().toBuffer();
     assert.equal(metadata.format, 'webp');assert.equal(metadata.width, image.width);assert.equal(metadata.height, image.height);
     assert.ok(image.width <= 768 && image.height <= 768);
     const original = attribution.images.find(item => item.id === id);
@@ -32,7 +33,7 @@ test('Pflanzen-API: Bilder und Bildnachweise in beiden Sprachen, Details ohne Bi
       const result = await env.request(`/api/plants/${id}`, { headers: { Cookie: account.cookie, 'X-Language': lang } });
       assert.equal(result.status, 200);assert.deepEqual(result.data.plant.image, image);
     }
-    const missing = await env.request('/api/plants/anubias-barteri-nana', { headers: { Cookie: account.cookie, 'X-Language': lang } });
+    const missing = await env.request('/api/plants/taxiphyllum-barbieri', { headers: { Cookie: account.cookie, 'X-Language': lang } });
     assert.equal(missing.data.plant.image, null);
   }
   const response = await fetch(`${await env.start()}/${Object.values(manifest)[0].url}`);

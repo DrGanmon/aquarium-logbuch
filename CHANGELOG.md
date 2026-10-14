@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Neun bereitgestellte Pflanzenbilder anhand der Zuordnung lokal als unbeschnittene WebP-Dateien integrieren. Pflanzen- und Fischdetails verwenden eine gemeinsame Fotoanzeige mit Quellen-, Urheber- und Lizenzdialog sowie Fallback ohne Foto. Pflanzen-API, reproduzierbaren Import, Bildnachweise, Dokumentation und Tests ergänzen.
+- Fehlende verlinkte Pflanzenbilder aus der gelieferten Zuordnung herunterladen und lokal importieren: 139 Pflanzen mit unbeschnittenen WebP-Bildern bis maximal 768 × 768 Pixel ausstatten, aktuelle Quellen- und Lizenznachweise erhalten und sämtliche Bilddateien sowie ihre API-Zuordnung prüfen. Zehn Pflanzen ohne Bildlink behalten den Fallback.
+
+## 0.1.7-ALPHA
+
+- 2026-10-14 · Pflanzenbilder: Neun bereitgestellte Pflanzenbilder anhand der Zuordnung lokal als unbeschnittene WebP-Dateien integrieren. Pflanzen- und Fischdetails verwenden eine gemeinsame Fotoanzeige mit Quellen-, Urheber- und Lizenzdialog sowie Fallback ohne Foto. Pflanzen-API, reproduzierbaren Import, Bildnachweise, Dokumentation und Tests ergänzen. ([`53785c4`](https://github.com/DrGanmon/aquarium-logbuch/commit/53785c440a5a87ee10f38338d335d7cd4e1671c6)).
 
 ## 0.1.6-ALPHA
 
