@@ -66,7 +66,7 @@ async function share() {
 <template>
   <article class="social-post">
     <header class="social-post-header">
-      <div class="social-author"><img v-if="post.author.avatarUrl" :src="post.author.avatarUrl" class="social-avatar" :alt="t('social.avatar', { username: post.author.username })" /><span v-else class="social-avatar social-avatar-placeholder" aria-hidden="true">{{ post.author.username.slice(0, 1).toUpperCase() }}</span><div><strong>{{ post.author.username }}</strong><time :datetime="post.created_at">{{ fmtDate(post.created_at) }}</time><span class="muted">{{ t(post.is_public ? 'social.publicBadge' : 'social.internalBadge') }}</span></div></div>
+      <div class="social-author"><img v-if="post.author.avatarUrl" :src="post.author.avatarUrl" class="social-avatar" decoding="async" loading="lazy" :alt="t('social.avatar', { username: post.author.username })" /><span v-else class="social-avatar social-avatar-placeholder" aria-hidden="true">{{ post.author.username.slice(0, 1).toUpperCase() }}</span><div><strong>{{ post.author.username }}</strong><time :datetime="post.created_at">{{ fmtDate(post.created_at) }}</time><span class="muted">{{ t(post.is_public ? 'social.publicBadge' : 'social.internalBadge') }}</span></div></div>
       <button v-if="post.canDelete" type="button" class="btn small ghost" :disabled="busy" @click="remove">{{ t('social.delete') }}</button>
     </header>
     <a :href="`#/social/${post.id}`" class="social-image-link"><img :src="post.imageUrl" :alt="post.text || t('social.photoBy', { username: post.author.username })" :width="post.width" :height="post.height" class="social-photo" loading="lazy" decoding="async" /></a>

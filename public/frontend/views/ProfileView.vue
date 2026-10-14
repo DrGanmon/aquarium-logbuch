@@ -1,16 +1,19 @@
 <script setup lang="ts">
+import { lazyComponent } from "../composables/lazy-component";
 import { computed, reactive, ref, onMounted, watch } from "vue";
 import Fields from "../components/Fields.vue";
-import ProviderSettings from "../components/ProviderSettings.vue";
-import Invitations from "../components/Invitations.vue";
 import TestSelection from "../components/TestSelection.vue";
 import { initialTestSelection, resolveTests } from "../composables/test-selection";
-import TestInventory from "../components/TestInventory.vue";
 import { api, refreshSession } from "../api";
 import { session, t, errorMessage, toast, theme, language } from "../state";
 import { readImage, enableNotifications } from "../composables/media";
 import type { Field, FormData, User } from "../types";
+const ProviderSettings = lazyComponent(() => import("../components/ProviderSettings.vue"));
+const Invitations = lazyComponent(() => import("../components/Invitations.vue"));
+const TestInventory = lazyComponent(() => import("../components/TestInventory.vue"));
 const activeTab = ref("profile");
+const visitedTabs = ref(new Set([activeTab.value]));
+watch(activeTab, value => { visitedTabs.value.add(value); });
 const canShowInvites = computed(() =>
   ["open", "invite_open"].includes(session.user?.registrationMode || ""),
 );
@@ -212,6 +215,7 @@ async function saveRange() {
     </div>
     <div
 
+      v-if="visitedTabs.has('profile')"
       v-show="activeTab === 'profile'"
       id="profile-panel-profile"
       class="stack"
@@ -352,6 +356,7 @@ async function saveRange() {
     </div>
     <div
 
+      v-if="visitedTabs.has('ui')"
       v-show="activeTab === 'ui'"
       id="profile-panel-ui"
       class="stack"
@@ -470,6 +475,7 @@ async function saveRange() {
     </div>
     <div
 
+      v-if="visitedTabs.has('ai')"
       v-show="activeTab === 'ai'"
       id="profile-panel-ai"
       class="stack"
@@ -511,6 +517,7 @@ async function saveRange() {
     </div>
     <div
 
+      v-if="visitedTabs.has('tests')"
       v-show="activeTab === 'tests'"
       id="profile-panel-tests"
       class="stack"
@@ -528,7 +535,7 @@ async function saveRange() {
       <TestInventory v-for="item in inventorySuites" :key="item.id" :suite-id="item.id" :selected-tests="item.keys" />
     </div>
     <div
-      v-if="canShowInvites"
+      v-if="canShowInvites && visitedTabs.has('invites')"
       v-show="activeTab === 'invites'"
       id="profile-panel-invites"
       class="stack"

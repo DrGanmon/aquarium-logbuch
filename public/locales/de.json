@@ -87,6 +87,9 @@
     "later": "Später"
   },
   "common": {
+    "loadMore": "Weitere Einträge laden",
+    "moduleLoadFailed": "Dieser Bereich konnte nicht geladen werden. Prüfe deine Verbindung oder lade die Seite neu. Beim Neuladen gehen ungespeicherte Eingaben verloren.",
+    "reloadPage": "Seite neu laden",
     "appName": "Aquarium-Logbuch",
     "save": "Speichern",
     "saved": "Gespeichert",

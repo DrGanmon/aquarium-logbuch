@@ -87,6 +87,9 @@
     "later": "Later"
   },
   "common": {
+    "loadMore": "Load more entries",
+    "moduleLoadFailed": "This section could not be loaded. Check your connection or reload the page. Reloading discards unsaved changes.",
+    "reloadPage": "Reload page",
     "appName": "Aquarium Logbook",
     "save": "Save",
     "saved": "Saved",

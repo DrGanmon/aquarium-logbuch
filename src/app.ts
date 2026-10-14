@@ -91,7 +91,9 @@ const sendIndex = (req: Request, res: Response) => {
 app.get(['/', '/index.html'], sendIndex);
 app.get('/sw.js', (req: Request, res: Response) => res.setHeader('Cache-Control', 'no-cache').sendFile(path.join(publicDir, 'dist', 'sw.js')));
 app.get('/dist/version.json', (req: Request, res: Response) => res.setHeader('Cache-Control', 'no-store').sendFile(path.join(publicDir, 'dist', 'version.json')));
-app.use(express.static(publicDir, { maxAge: 0 }));
+app.use(express.static(publicDir, { maxAge: 0, setHeaders(res, filename) {
+  if (/[/\\]chunk-[^/\\]+-[A-Za-z0-9_-]+\.js$/.test(filename)) res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+} }));
 
 // 404 Handler
 app.use('/api', (req: Request, res: Response) => res.status(404).json({ error: 'Nicht gefunden.' }));

@@ -102,6 +102,7 @@ export default defineConfig(({ mode }) => {
       sourcemap: true,
       minify,
       cssMinify: minify,
+      rolldownOptions: { output: { chunkFileNames: "chunk-[name]-[hash].js" } },
       lib: {
         entry: fileURLToPath(
           new URL("./public/frontend/main.ts", import.meta.url),

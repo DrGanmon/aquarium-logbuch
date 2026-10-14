@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { lazyComponent } from "../composables/lazy-component";
 import { onMounted, onBeforeUnmount, ref, watch } from "vue";
-import AddSpeciesDialog from "../components/AddSpeciesDialog.vue";
-import SpeciesDetail from "../components/SpeciesDetail.vue";
 import { api } from "../api";
 import { t, errorMessage, language } from "../state";
 import { route } from "../router";
 import type { Species } from "../types";
+const AddSpeciesDialog = lazyComponent(() => import("../components/AddSpeciesDialog.vue"));
+const SpeciesDetail = lazyComponent(() => import("../components/SpeciesDetail.vue"));
 interface SpeciesPage { species: Species[]; total: number; next: number | null; categories: string[] }
 const shown = ref<Species[]>([]), total = ref(0), next = ref<number | null>(null);
 const search = ref(""), water = ref("all"), category = ref("all"), categories = ref<string[]>([]);

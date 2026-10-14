@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { lazyComponent } from "../composables/lazy-component";
 import { computed, onMounted, onBeforeUnmount, ref, watch } from "vue";
 import { api } from "../api";
 import { session, t, errorMessage, fmtDate, fmtNum, language } from "../state";
@@ -11,18 +12,19 @@ import type {
   Stock,
   Pump,
 } from "../types";
-import AquariumForm from "../components/AquariumForm.vue";
 import Modal from "../components/Modal.vue";
-import WaterChart from "../components/WaterChart.vue";
-import LogForm from "../components/LogForm.vue";
-import StockSection from "../components/StockSection.vue";
-import PumpSection from "../components/PumpSection.vue";
-import CsvDialog from "../components/CsvDialog.vue";
-import ChatDialog from "../components/ChatDialog.vue";
-import SharingDialog from "../components/SharingDialog.vue";
 import LazySection from "../components/LazySection.vue";
 import { useLazyResource } from "../composables/lazy-resource";
+import { useProgressiveList } from "../composables/progressive-list";
 import { readImage } from "../composables/media";
+const AquariumForm = lazyComponent(() => import("../components/AquariumForm.vue"));
+const WaterChart = lazyComponent(() => import("../components/WaterChart.vue"));
+const LogForm = lazyComponent(() => import("../components/LogForm.vue"));
+const StockSection = lazyComponent(() => import("../components/StockSection.vue"));
+const PumpSection = lazyComponent(() => import("../components/PumpSection.vue"));
+const CsvDialog = lazyComponent(() => import("../components/CsvDialog.vue"));
+const ChatDialog = lazyComponent(() => import("../components/ChatDialog.vue"));
+const SharingDialog = lazyComponent(() => import("../components/SharingDialog.vue"));
 const props = defineProps<{ id: string }>();
 const detail = ref<AquariumDetail>();
 
@@ -83,6 +85,8 @@ const timeline = useLazyResource<LogEntry[]>([], async (signal) => {
 });
 const photos = gallery.data;
 const measurements = history.data;
+const { visible: tableMeasurements, hasMore: hasMoreMeasurements, sentinel: tableSentinel, more: moreMeasurements } =
+  useProgressiveList(computed(() => [...measurements.value].reverse()), 50);
 const stock = residents.data;
 const pumps = pumpsResource.data;
 const logs = timeline.data;
@@ -648,7 +652,7 @@ async function leave() {
               </thead>
               <tbody>
                 <tr
-                  v-for="measurement in [...measurements].reverse()"
+                  v-for="measurement in tableMeasurements"
                   :key="measurement.id"
                 >
                   <td>{{ fmtDate(measurement.measured_at) }}</td>
@@ -672,6 +676,9 @@ async function leave() {
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div v-if="hasMoreMeasurements" ref="tableSentinel" class="row" style="justify-content: center">
+            <button class="btn ghost" type="button" @click="moreMeasurements">{{ t('common.loadMore') }}</button>
           </div>
         </section>
       </LazySection>

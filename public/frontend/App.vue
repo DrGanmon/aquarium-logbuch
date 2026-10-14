@@ -1,21 +1,22 @@
 <script setup lang="ts">
+import { lazyComponent } from "./composables/lazy-component";
 import { computed, onMounted } from "vue";
 import FrontendUpdate from "./components/FrontendUpdate.vue";
 import Topbar from "./components/Topbar.vue";
 import SiteFooter from "./components/SiteFooter.vue";
-import AuthView from "./views/AuthView.vue";
-import AquariumList from "./views/AquariumList.vue";
-import AquariumView from "./views/AquariumView.vue";
-import MeasureView from "./views/MeasureView.vue";
-import ProfileView from "./views/ProfileView.vue";
-import SpeciesView from "./views/SpeciesView.vue";
-import SocialView from "./views/SocialView.vue";
-import HealthView from "./views/HealthView.vue";
-import AdminView from "./views/AdminView.vue";
-import LegalView from "./views/LegalView.vue";
-import ShareView from "./views/ShareView.vue";
 import { session, language, notification, t } from "./state";
 import { route, initialize, toggleLanguage, logout } from "./router";
+const AuthView = lazyComponent(() => import("./views/AuthView.vue"));
+const AquariumList = lazyComponent(() => import("./views/AquariumList.vue"));
+const AquariumView = lazyComponent(() => import("./views/AquariumView.vue"));
+const MeasureView = lazyComponent(() => import("./views/MeasureView.vue"));
+const ProfileView = lazyComponent(() => import("./views/ProfileView.vue"));
+const SpeciesView = lazyComponent(() => import("./views/SpeciesView.vue"));
+const SocialView = lazyComponent(() => import("./views/SocialView.vue"));
+const HealthView = lazyComponent(() => import("./views/HealthView.vue"));
+const AdminView = lazyComponent(() => import("./views/AdminView.vue"));
+const LegalView = lazyComponent(() => import("./views/LegalView.vue"));
+const ShareView = lazyComponent(() => import("./views/ShareView.vue"));
 const legalPage = computed(
   () =>
     (

@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { lazyComponent } from "../composables/lazy-component";
 import { computed, onMounted, ref, watch } from "vue";
-import AquariumForm from "../components/AquariumForm.vue";
 import { api } from "../api";
 import { t, session, fmtDate, errorMessage, language } from "../state";
 import type { Aquarium, Share, Id } from "../types";
+const AquariumForm = lazyComponent(() => import("../components/AquariumForm.vue"));
 const list = ref<Aquarium[]>([]);
 const pending = ref<Share[]>([]);
 const error = ref("");

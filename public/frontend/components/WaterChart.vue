@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref, watch } from "vue";
-import { Chart, registerables, type Plugin } from "chart.js";
+import { Chart, LineController, LineElement, PointElement, LinearScale, Tooltip, type Plugin } from "chart.js";
 import type { Parameter, Measurement, Range } from "../types";
 import { dark, fmtDate, fmtNum } from "../state";
 import { evaluate } from "../composables/values";
-Chart.register(...registerables);
+Chart.register(LineController, LineElement, PointElement, LinearScale, Tooltip);
+const root = ref<HTMLElement>();
+let visible = false;
+let observer: IntersectionObserver | undefined;
 const props = defineProps<{
   parameter: Parameter;
   measurements: Measurement[];
@@ -44,8 +47,8 @@ const bands: Plugin<"line"> = {
   },
 };
 function render() {
+  if (!visible || !canvas.value) return;
   chart?.destroy();
-  if (!canvas.value) return;
   const points = props.measurements
     .filter((m) => m.values[props.parameter.key] != null)
     .map((m) => ({
@@ -127,14 +130,20 @@ function render() {
     },
   });
 }
-onMounted(render);
-watch([() => props.measurements, () => props.range, dark], render, {
-  deep: true,
+onMounted(() => {
+  if (!root.value || !("IntersectionObserver" in window)) { visible = true;render();return; }
+  observer = new IntersectionObserver(entries => {
+    if (entries.some(entry => entry.isIntersecting)) {
+      visible = true;observer?.disconnect();render();
+    }
+  }, { rootMargin: '200px' });
+  observer.observe(root.value);
 });
-onBeforeUnmount(() => chart?.destroy());
+watch([() => props.measurements, () => props.range, () => props.parameter, dark], render);
+onBeforeUnmount(() => { observer?.disconnect();chart?.destroy(); });
 </script>
 <template>
-  <div class="card chart-card">
+  <div ref="root" class="card chart-card">
     <h3>
       <span>{{ parameter.name }}</span
       ><span class="muted">{{ parameter.unit }}</span>

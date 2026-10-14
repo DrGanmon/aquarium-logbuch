@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { lazyComponent } from "../composables/lazy-component";
 import { computed, ref } from "vue";
-import AdminPanel from "../components/AdminPanel.vue";
 import { t } from "../state";
+const AdminPanel = lazyComponent(() => import("../components/AdminPanel.vue"));
 const tabs = [
   { id: "users", label: "admin.tabs.users", sections: ["users"] },
   {

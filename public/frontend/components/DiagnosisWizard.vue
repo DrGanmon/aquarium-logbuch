@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { lazyComponent } from "../composables/lazy-component";
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { api } from '../api';
 import { t, language, errorMessage, fmtDate, session } from '../state';
 import type { Aquarium } from '../types';
 import type { AnswerInput, DiagnosisResponse, HealthResident, ResidentResponse } from '../health-types';
 import DiseaseDetail from './DiseaseDetail.vue';
-import ChatDialog from './ChatDialog.vue';
+const ChatDialog = lazyComponent(() => import("./ChatDialog.vue"));
+
 const showHealthChat = ref(false);
 const props = defineProps<{ initialAquariumId?: string; initialStockId?: string }>();
 const aquariums = ref<Aquarium[]>([]);

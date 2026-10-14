@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { ref, computed, watch, onBeforeUnmount } from 'vue';
+import { ref, shallowRef, computed, watch, onBeforeUnmount } from 'vue';
 import { api } from '../api';
+import { useProgressiveList } from '../composables/progressive-list';
 import { language, t, errorMessage } from '../state';
 import type { HealthCatalog, MedicationCatalog } from '../health-types';
 const emit = defineEmits<{ medication: [id: string] }>();
 const water = ref('all'), disease = ref(''), legalStatus = ref(''), search = ref('');
-const catalog = ref<MedicationCatalog>();
-const diseases = ref<HealthCatalog['diseases']>([]);
+const catalog = shallowRef<MedicationCatalog>();
+const diseases = shallowRef<HealthCatalog['diseases']>([]);
 const loading = ref(false), error = ref('');
-const shown = computed(() => {
+const matches = computed(() => {
   const query = search.value.trim().toLocaleLowerCase();
   return (catalog.value?.items || []).filter(item => (!disease.value || item.indications.some(entry => entry.diseaseId === disease.value))
     && (!legalStatus.value || item.legalStatus === legalStatus.value)
     && (!query || [item.name, item.category, ...item.activeSubstances, ...item.productExamples.map(product => product.name)].join(' ').toLocaleLowerCase().includes(query)));
 });
+const { visible: shown, hasMore, sentinel, more } = useProgressiveList(matches);
 let request: AbortController | undefined;
 watch(water, () => { disease.value = ''; });
 watch([water, language], async () => {
@@ -43,7 +45,7 @@ onBeforeUnmount(() => request?.abort());
     </div>
     <p v-if="error" class="error" role="alert">{{ error }}</p><p v-if="loading" role="status">{{ t('common.loading') }}</p>
     <template v-else>
-      <p role="status">{{ shown.length }} {{ t('health.entries') }}</p><p v-if="!shown.length" class="card">{{ t('health.noMatches') }}</p>
+      <p role="status">{{ matches.length }} {{ t('health.entries') }}</p><p v-if="!shown.length" class="card">{{ t('health.noMatches') }}</p>
       <div class="health-disease-grid">
         <article v-for="item in shown" :key="item.id" class="card stack">
           <div class="row"><span class="chip">{{ t(item.kind === 'supply' ? 'healthMedications.supply' : 'healthMedications.medication') }}</span><span class="chip" :class="{ warn: item.legalStatus === 'rx' }">{{ item.legalStatusLabel }}</span></div>
@@ -53,6 +55,9 @@ onBeforeUnmount(() => request?.abort());
           <span v-else-if="item.invertebrateSafe === null" class="chip warn">{{ t('health.checkProduct') }}</span>
           <button type="button" class="btn ghost" @click="emit('medication', item.id)">{{ t('healthMedications.details') }}</button>
         </article>
+      </div>
+      <div v-if="hasMore" ref="sentinel" class="row" style="justify-content: center">
+        <button class="btn ghost" type="button" @click="more">{{ t('common.loadMore') }}</button>
       </div>
       <details v-if="catalog"><summary>{{ t('healthMedications.homePharmacy') }}</summary><p>{{ catalog.homePharmacyScale }}</p><ul><li v-for="criterion in catalog.homePharmacyCriteria" :key="criterion">{{ criterion }}</li></ul></details>
     </template>

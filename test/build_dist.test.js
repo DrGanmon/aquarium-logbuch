@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const { buildFrontend } = require('../scripts/build');
+const ts = require('typescript');
 
 const rootDir = path.resolve(__dirname, '..');
 const publicDir = path.join(rootDir, 'public');
@@ -23,6 +24,40 @@ const workerMinPath = path.join(distDir, 'worker.min.js');
 const workerMinMapPath = path.join(distDir, 'worker.min.js.map');
 const cssMinPath = path.join(distDir, 'style.min.css');
 const cssMinMapPath = path.join(distDir, 'style.min.css.map');
+
+function staticGraph(entry, seen = new Set()) {
+  if (seen.has(entry)) return seen;
+  seen.add(entry);
+  const source = ts.createSourceFile(entry, fs.readFileSync(path.join(distDir, entry), 'utf8'), ts.ScriptTarget.Latest, true);
+  for (const node of source.statements) {
+    if ((ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
+      assert.ok(node.moduleSpecifier.text.startsWith('./'), 'Chunk imports stay relative for subpath hosting');
+      staticGraph(node.moduleSpecifier.text.slice(2), seen);
+    }
+  }
+  return seen;
+}
+function verifyLazyBuild(entry) {
+  const initial = staticGraph(entry);
+  const bytes = [...initial].reduce((sum, file) => sum + fs.statSync(path.join(distDir, file)).size, 0);
+  assert.ok(![...initial].some(file => /chunk-(AquariumView|HealthView|AdminPanel|WaterChart|ChatDialog)-/.test(file)), 'Heavy views and dialogs stay outside startup dependencies');
+  if (entry.includes('.min')) assert.ok(bytes < 350000, `Initial dependency graph must remain below 350 KB (got ${bytes})`);
+  const files = fs.readdirSync(distDir).filter(file => file.endsWith('.js'));
+  for (const file of files) {
+    const source = ts.createSourceFile(file, fs.readFileSync(path.join(distDir, file), 'utf8'), ts.ScriptTarget.Latest, true);
+    function visit(node) {
+      if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword && ts.isStringLiteral(node.arguments[0])) {
+        assert.ok(node.arguments[0].text.startsWith('./'), 'Lazy chunks resolve relative to their importing bundle');
+        assert.ok(fs.existsSync(path.join(distDir, node.arguments[0].text)), `Missing dynamic import from ${file}: ${node.arguments[0].text}`);
+      }
+      ts.forEachChild(node, visit);
+    }
+    visit(source);
+  }
+  const aquarium = files.find(file => file.startsWith('chunk-AquariumView-'));
+  assert.ok(aquarium);
+  assert.ok(![...staticGraph(aquarium)].some(file => /chunk-(WaterChart|ChatDialog|CsvDialog)-/.test(file)), 'Charts and dialogs load separately from tank details');
+}
 
 function cleanDist() {
   if (fs.existsSync(distDir)) {
@@ -69,6 +104,7 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
     // Unminifiziertes JS enthält gebündelte Logik und lesbare Formatierung
     assert.ok(jsContent.includes('function') || jsContent.includes('const'), 'JS Bundle enthält unminifizierten Code');
     assert.ok(jsContent.includes('sourceMappingURL=app.js.map'), 'Source Map Link vorhanden');
+    verifyLazyBuild('app.js');
 
     // Unminifiziertes CSS enthält Zeilenumbrüche
     assert.ok(cssContent.includes('\n'), 'CSS enthält Zeilenumbrüche');
@@ -98,6 +134,13 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
       const bundleRes = await fetch(`http://127.0.0.1:${port}/dist/app.js`);
       assert.equal(bundleRes.status, 200);
       assert.ok(bundleRes.headers.get('content-type').includes('javascript'));
+      assert.ok(!bundleRes.headers.get('cache-control').includes('immutable'), 'Stable entry revalidates after updates');
+      const chunk = fs.readdirSync(distDir).find(file => file.startsWith('chunk-WaterChart-') && file.endsWith('.js'));
+      const chunkRes = await fetch(`http://127.0.0.1:${port}/dist/${chunk}`);
+      assert.equal(chunkRes.status, 200);
+      assert.ok(chunkRes.headers.get('content-type').includes('javascript'));
+      assert.match(chunkRes.headers.get('cache-control'), /max-age=31536000, immutable/);
+      await chunkRes.arrayBuffer();
     } finally {
       server.close();
     }
@@ -131,6 +174,7 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
     const cssContent = fs.readFileSync(cssMinPath, 'utf8');
 
     assert.ok(jsContent.includes('sourceMappingURL=app.min.js.map'), 'Source Map Link vorhanden');
+    verifyLazyBuild('app.min.js');
 
   });
 
@@ -156,6 +200,13 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', async (t) => {
       const bundleRes = await fetch(`http://127.0.0.1:${port}/dist/app.min.js`);
       assert.equal(bundleRes.status, 200);
       assert.ok(bundleRes.headers.get('content-type').includes('javascript'));
+      assert.ok(!bundleRes.headers.get('cache-control').includes('immutable'), 'Stable entry revalidates after updates');
+      const chunk = fs.readdirSync(distDir).find(file => file.startsWith('chunk-WaterChart-') && file.endsWith('.js'));
+      const chunkRes = await fetch(`http://127.0.0.1:${port}/dist/${chunk}`);
+      assert.equal(chunkRes.status, 200);
+      assert.ok(chunkRes.headers.get('content-type').includes('javascript'));
+      assert.match(chunkRes.headers.get('cache-control'), /max-age=31536000, immutable/);
+      await chunkRes.arrayBuffer();
     } finally {
       server.close();
     }
