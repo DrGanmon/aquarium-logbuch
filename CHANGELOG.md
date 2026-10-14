@@ -2,18 +2,17 @@
 
 Features, Fehlerbehebungen und weitere Änderungen für jede Revision des Aquarium-Logbuchs. Neueste Einträge stehen zuerst.
 
-Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere Einträge bleiben in ihrer ursprünglichen Sprache. Die Versionszuordnung ist anhand der aktuellen Basis in `version.json` und der Regeln in `scripts/version.js` rekonstruiert und belegt keine Veröffentlichung: `feat` erhöht die Revision und setzt den Patch zurück, `fix` erhöht den Patch. Andere Commit-Typen behalten die Version bei. Im Changelog werden alle Patches unter der jeweiligen Revision zusammengefasst; eigene Patch-Abschnitte entfallen. Jede Änderung ist über ihre Commit-ID nachvollziehbar.
+Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere Einträge bleiben in ihrer ursprünglichen Sprache. Die Versionszuordnung ist anhand der zum jeweiligen Zeitpunkt geltenden Versionsbasis und der Regeln in `scripts/version.js` rekonstruiert und belegt keine Veröffentlichung: `feat` erhöht die Revision und setzt den Patch zurück, `fix` erhöht den Patch. Andere Commit-Typen behalten die Version bei. Im Changelog werden alle Patches unter der jeweiligen Revision zusammengefasst; eigene Patch-Abschnitte entfallen. Jede Änderung ist über ihre Commit-ID nachvollziehbar.
 
 ## Unveröffentlicht
 
-### Dokumentation
+### Versionierung
 
-- Vollständiges Changelog mit Versionszuordnung und älterer Git-Historie eingeführt und in beiden READMEs verlinkt.
-- Verbindliche Pflege des Changelogs zusammen mit jeder neuen Commit-Message in `AGENTS.md` festgelegt.
-- Patch-Änderungen unter der jeweiligen Revision zusammengefasst und diese Darstellung für zukünftige Einträge festgelegt.
+- Minor-Version von 0.0 auf 0.1 erhöht; Revision und Patch gemäß Versionsschema auf 0 zurückgesetzt. Neue Version: `0.1.0-ALPHA`.
 
 ## 0.0.14-ALPHA
 
+- 2026-10-14 · Dokumentation (changelog): vollständige Änderungshistorie nach Revisionen gebündelt, in beiden READMEs verlinkt und laufende Pflege festgelegt ([`66bd756`](https://github.com/DrGanmon/aquarium-logbuch/commit/66bd756edaf4fbb641d0a96c3d7896afac86bf33)).
 - 2026-10-14 · Fehlerbehebung (ci): Diagrammtests, Backup-Cleanup und Bun-Buildtimeout korrigieren ([`2210402`](https://github.com/DrGanmon/aquarium-logbuch/commit/22104026f14a997c17e245231c57390433a06692))
 - 2026-10-14 · Dokumentation (workflow): verpflichtende Commit-Messages im bestehenden Schema festhalten ([`ad03f39`](https://github.com/DrGanmon/aquarium-logbuch/commit/ad03f39926f98869c0048aa897f2ce4a1c49289a))
 - 2026-10-14 · Fehlerbehebung (frontend): IDE-Fehler und Codeanalyse-Warnungen beheben ([`0c4bcfc`](https://github.com/DrGanmon/aquarium-logbuch/commit/0c4bcfc7fe70414155d549939d54deec06ef4a16))
