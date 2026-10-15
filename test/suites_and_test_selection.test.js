@@ -63,6 +63,34 @@ describe('JSON-Testsuiten & Benutzerauswahl', () => {
     assert.ok(easySuite.tests.length >= 7);
   });
 
+  test('Neue Hersteller-Suiten sind vollständig auf Deutsch und Englisch verfügbar', () => {
+    const expectedSuites = new Map([
+      ['amtra-pro-test', 6],
+      ['sera-aqua-test-box', 12],
+      ['sera-einzeltests', 4],
+      ['tetra-test', 8],
+    ]);
+
+    for (const [id, testCount] of expectedSuites) {
+      const german = cfg.suiteService.getSuite(id, 'de');
+      const english = cfg.suiteService.getSuite(id, 'en');
+
+      assert.ok(german, `${id} muss auf Deutsch geladen werden`);
+      assert.ok(english, `${id} muss auf Englisch geladen werden`);
+      assert.strictEqual(german.testCount, testCount);
+      assert.strictEqual(english.testCount, testCount);
+      assert.ok(german.name && german.description, `${id} benötigt deutsche Suite-Texte`);
+      assert.ok(english.name && english.description, `${id} benötigt englische Suite-Texte`);
+      assert.notStrictEqual(german.description, english.description, `${id} muss eine englische Beschreibung liefern`);
+      assert.deepStrictEqual(german.tests.map((entry) => entry.key), english.tests.map((entry) => entry.key));
+
+      for (let index = 0; index < german.tests.length; index += 1) {
+        assert.ok(german.tests[index].name && german.tests[index].hint, `${id}:${german.tests[index].key} benötigt deutsche Texte`);
+        assert.ok(english.tests[index].name && english.tests[index].hint, `${id}:${english.tests[index].key} benötigt englische Texte`);
+      }
+    }
+  });
+
   test('API /api/config und /api/suites liefern Suiten und Parameter', async () => {
     const user = await env.createUserAndLogin('suiteuser', 'password123');
 

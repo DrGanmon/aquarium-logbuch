@@ -1,0 +1,163 @@
+{
+  "id": "amtra-pro-test",
+  "name": "Amtra PRO TEST",
+  "name_en": "Amtra PRO TEST",
+  "description": "Amtra PRO TEST Schnelltests (pH, KH, NO2, NO3, PO4) für Süß- und Meerwasser nach den Amtra-Manual-Piktogrammen",
+  "description_en": "Amtra PRO TEST quick tests (pH, KH, NO2, NO3, PO4) for freshwater and saltwater according to the Amtra manual pictograms",
+  "isDefault": false,
+  "tests": [
+    {
+      "key": "temp",
+      "name": "Temperatur",
+      "name_en": "Temperature",
+      "unit": "°C",
+      "decimals": 1,
+      "step": 0.1,
+      "min": 0,
+      "max": 40,
+      "wait": 0,
+      "verified": true,
+      "hint": "Mit dem Aquarienthermometer direkt im Becken messen, kein Timer nötig.",
+      "hint_en": "Measure directly in the tank using an aquarium thermometer, no timer needed.",
+      "fresh": { "okMin": 23, "okMax": 27, "critMin": 18, "critMax": 31 },
+      "salt": { "okMin": 24, "okMax": 26, "critMin": 22, "critMax": 29 },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "Amtra PRO TEST Manual (Produktgrafik der Amtra-Produktseite, vom Nutzer bereitgestellt)",
+        "checkedAt": "2026-10-15",
+        "note": "Kein Reagens: Thermometer, kein Verbrauch.",
+        "note_en": "No reagent: thermometer, no consumption.",
+        "variants": [
+          {
+            "id": "thermometer",
+            "name": "Thermometer (kein Reagens)",
+            "name_en": "Thermometer (no reagent)",
+            "capacity": null,
+            "trackUsage": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "ph",
+      "name": "pH-Wert",
+      "name_en": "pH Value",
+      "unit": "",
+      "decimals": 1,
+      "step": 0.1,
+      "min": 4.5,
+      "max": 9.2,
+      "wait": 0,
+      "verified": true,
+      "hint": "5 ml Probewasser mit der Spritze in die Küvette geben, 2 Tropfen Reagenz zugeben, Küvette schütteln und mit der Referenzskala vergleichen. Messbereich pH 4,5–9,2.",
+      "hint_en": "Add 5 ml sample water to the vial with the syringe, add 2 drops of reagent, shake the vial and compare with the reference scale. Range pH 4.5–9.2.",
+      "fresh": { "okMin": 6.5, "okMax": 7.5, "critMin": 5.5, "critMax": 8.5 },
+      "salt": { "okMin": 8.0, "okMax": 8.4, "critMin": 7.6, "critMax": 8.7 },
+      "consumable": {
+        "capacity": 130,
+        "approximate": true,
+        "source": "Amtra PRO TEST Manual (Produktgrafik der Amtra-Produktseite, vom Nutzer bereitgestellt)",
+        "checkedAt": "2026-10-15",
+        "note": "Händler-/Herstellerrichtwert (ca.) pro Test-Set. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate retailer/manufacturer figure per test kit. Adjust for a different pack size."
+      }
+    },
+    {
+      "key": "kh",
+      "name": "Karbonathärte (KH)",
+      "name_en": "Carbonate Hardness (KH)",
+      "unit": "°dH",
+      "decimals": 1,
+      "step": 0.5,
+      "min": 0,
+      "max": 40,
+      "wait": 0,
+      "verified": false,
+      "hint": "5 ml Probewasser mit der Spritze in die Küvette geben. Reagenz KH tropfenweise zugeben, Tropfen zählen, nach jedem Tropfen schütteln und mit der Referenzskala abgleichen. Hinweis: Im Manual steht nur 'x? Tropfen'; Farbumschlag und Umrechnung (°dKH pro Tropfen) bitte mit dem Beipackzettel prüfen.",
+      "hint_en": "Add 5 ml sample water to the vial with the syringe. Add KH reagent drop by drop, count the drops, shake after each drop and compare with the reference scale. Note: the manual only shows 'x? drops'; please check color change and conversion (°dKH per drop) against the leaflet.",
+      "fresh": { "okMin": 3, "okMax": 10, "critMin": 1, "critMax": 20 },
+      "salt": { "okMin": 6.5, "okMax": 9.5, "critMin": 5, "critMax": 13 },
+      "consumable": {
+        "capacity": 50,
+        "approximate": true,
+        "source": "Amtra PRO TEST Manual (Produktgrafik der Amtra-Produktseite, vom Nutzer bereitgestellt)",
+        "checkedAt": "2026-10-15",
+        "note": "Händler-/Herstellerrichtwert (ca.) pro Test-Set. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate retailer/manufacturer figure per test kit. Adjust for a different pack size."
+      }
+    },
+    {
+      "key": "no2",
+      "name": "Nitrit (NO2)",
+      "name_en": "Nitrite (NO2)",
+      "unit": "mg/l",
+      "decimals": 2,
+      "step": 0.01,
+      "min": 0,
+      "max": 5,
+      "wait": 240,
+      "verified": true,
+      "hint": "5 ml Probewasser mit der Spritze in die Küvette geben. 4 Tropfen Reagenz 1 zugeben und schütteln, dann 4 Tropfen Reagenz 2 zugeben und schütteln. 4 Minuten warten und mit der Referenzskala vergleichen.",
+      "hint_en": "Add 5 ml sample water to the vial with the syringe. Add 4 drops of reagent 1 and shake, then 4 drops of reagent 2 and shake. Wait 4 minutes and compare with the reference scale.",
+      "fresh": { "okMin": 0, "okMax": 0.1, "critMin": null, "critMax": 0.5 },
+      "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.2 },
+      "consumable": {
+        "capacity": 60,
+        "approximate": true,
+        "source": "Amtra PRO TEST Manual (Produktgrafik der Amtra-Produktseite, vom Nutzer bereitgestellt)",
+        "checkedAt": "2026-10-15",
+        "note": "Händler-/Herstellerrichtwert (ca.) pro Test-Set. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate retailer/manufacturer figure per test kit. Adjust for a different pack size."
+      }
+    },
+    {
+      "key": "no3",
+      "name": "Nitrat (NO3)",
+      "name_en": "Nitrate (NO3)",
+      "unit": "mg/l",
+      "decimals": 0,
+      "step": 1,
+      "min": 0,
+      "max": 250,
+      "wait": 240,
+      "verified": true,
+      "hint": "5 ml Probewasser mit der Spritze in die Küvette geben. 4 Tropfen Reagenz 1 zugeben und schütteln, 1 Messlöffel Reagenz 3 (Pulver) zugeben und schütteln, dann 4 Tropfen Reagenz 2 zugeben und schütteln. Reihenfolge beachten: erst Reagenz 1, dann 3, dann 2. 4 Minuten warten und mit der Referenzskala vergleichen.",
+      "hint_en": "Add 5 ml sample water to the vial with the syringe. Add 4 drops of reagent 1 and shake, 1 measuring spoon of reagent 3 (powder) and shake, then 4 drops of reagent 2 and shake. Mind the order: reagent 1, then 3, then 2. Wait 4 minutes and compare with the reference scale.",
+      "fresh": { "okMin": 0, "okMax": 25, "critMin": null, "critMax": 100 },
+      "salt": { "okMin": 0, "okMax": 10, "critMin": null, "critMax": 40 },
+      "consumable": {
+        "capacity": 60,
+        "approximate": true,
+        "source": "Amtra PRO TEST Manual (Produktgrafik der Amtra-Produktseite, vom Nutzer bereitgestellt)",
+        "checkedAt": "2026-10-15",
+        "note": "Händler-/Herstellerrichtwert (ca.) pro Test-Set. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate retailer/manufacturer figure per test kit. Adjust for a different pack size."
+      }
+    },
+    {
+      "key": "po4",
+      "name": "Phosphat (PO4)",
+      "name_en": "Phosphate (PO4)",
+      "unit": "mg/l",
+      "decimals": 2,
+      "step": 0.05,
+      "min": 0,
+      "max": 10,
+      "wait": 300,
+      "verified": true,
+      "hint": "10 ml Probewasser mit der Spritze in die Küvette geben. 5 Tropfen Reagenz 1 zugeben und schütteln, dann 1 Messlöffel Reagenz 2 zugeben und schütteln. 5 Minuten warten und mit der Referenzskala vergleichen.",
+      "hint_en": "Add 10 ml sample water to the vial with the syringe. Add 5 drops of reagent 1 and shake, then 1 measuring spoon of reagent 2 and shake. Wait 5 minutes and compare with the reference scale.",
+      "fresh": { "okMin": 0, "okMax": 0.5, "critMin": null, "critMax": 2 },
+      "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.3 },
+      "consumable": {
+        "capacity": 48,
+        "approximate": true,
+        "source": "Amtra PRO TEST Manual (Produktgrafik der Amtra-Produktseite, vom Nutzer bereitgestellt)",
+        "checkedAt": "2026-10-15",
+        "note": "Händler-/Herstellerrichtwert (ca.) pro Test-Set. Bei abweichender Packung anpassen.",
+        "note_en": "Approximate retailer/manufacturer figure per test kit. Adjust for a different pack size."
+      }
+    }
+  ]
+}

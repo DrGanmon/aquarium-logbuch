@@ -1,0 +1,220 @@
+{
+  "id": "tetra-test",
+  "name": "Tetra Test (Tropfentests)",
+  "name_en": "Tetra Test (drop tests)",
+  "description": "Tetra Test Tropfentests (GH, KH, pH, NH3/NH4, NO2, NO3) sowie CO2-Berechnung aus pH/KH nach Tetra-Gebrauchsanweisungen",
+  "description_en": "Tetra Test drop tests (GH, KH, pH, NH3/NH4, NO2, NO3) plus CO2 calculation from pH/KH according to Tetra instructions",
+  "isDefault": false,
+  "tests": [
+    {
+      "key": "temp",
+      "name": "Temperatur",
+      "name_en": "Temperature",
+      "unit": "°C",
+      "decimals": 1,
+      "step": 0.1,
+      "min": 0,
+      "max": 40,
+      "wait": 0,
+      "verified": true,
+      "hint": "Mit dem Aquarienthermometer direkt im Becken messen, kein Timer nötig.",
+      "hint_en": "Measure directly in the tank using an aquarium thermometer, no timer needed.",
+      "fresh": { "okMin": 23, "okMax": 27, "critMin": 18, "critMax": 31 },
+      "salt": { "okMin": 24, "okMax": 26, "critMin": 22, "critMax": 29 },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://media.hornbach.nl/hb/document/as.46566384.pdf",
+        "checkedAt": "2026-10-15",
+        "note": "Kein Reagens: Thermometer, kein Verbrauch.",
+        "note_en": "No reagent: thermometer, no consumption.",
+        "variants": [
+          {
+            "id": "thermometer",
+            "name": "Thermometer (kein Reagens)",
+            "name_en": "Thermometer (no reagent)",
+            "capacity": null,
+            "trackUsage": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "ph",
+      "name": "pH-Wert",
+      "name_en": "pH Value",
+      "unit": "",
+      "decimals": 1,
+      "step": 0.1,
+      "min": 3,
+      "max": 10,
+      "wait": 0,
+      "verified": false,
+      "hint": "5 ml Probewasser in die Messküvette füllen, 7 Tropfen Reagenz pH zugeben, Küvette verschließen, leicht schütteln und mit der Farbkarte pH vergleichen. Achtung: Anleitung stammt aus dem älteren Tetratest-Laborett-Heft, Tropfenzahl und Messbereich der aktuellen Packung bitte gegenprüfen.",
+      "hint_en": "Fill 5 ml sample water into the measuring vial, add 7 drops of pH reagent, close the vial, shake gently and compare with the pH color chart. Note: instructions are from the older Tetratest Laborett leaflet; please check drop count and range against your current pack.",
+      "fresh": { "okMin": 6.5, "okMax": 7.5, "critMin": 5.5, "critMax": 8.5 },
+      "salt": { "okMin": 8.0, "okMax": 8.4, "critMin": 7.6, "critMax": 8.7 },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://media.hornbach.nl/hb/document/as.46566384.pdf",
+        "checkedAt": "2026-10-15",
+        "note": "Testanzahl pro Packung nicht verifiziert: Angabe auf der Packung bzw. im Beipackzettel eintragen.",
+        "note_en": "Number of tests per pack not verified: enter the figure printed on your pack or leaflet."
+      }
+    },
+    {
+      "key": "kh",
+      "name": "Karbonathärte (KH)",
+      "name_en": "Carbonate Hardness (KH)",
+      "unit": "°dH",
+      "decimals": 1,
+      "step": 0.5,
+      "min": 0,
+      "max": 40,
+      "wait": 0,
+      "verified": true,
+      "hint": "5 ml Probewasser in die Messküvette füllen. Reagenz KH tropfenweise zugeben, nach jedem Tropfen leicht schütteln, bis die Farbe von Blau nach Gelb umschlägt. Anzahl der Tropfen = °dKH. Schlägt die Farbe schon nach dem 1. Tropfen um, liegt der Wert bei 0–1 °dKH. Mit 10 ml Probe ist 1 Tropfen = 0,5 °dKH (genauer).",
+      "hint_en": "Fill 5 ml sample water into the measuring vial. Add KH reagent drop by drop, swirl gently after each drop until the color changes from blue to yellow. Number of drops = °dKH. If the color changes after the 1st drop, the value is 0–1 °dKH. With 10 ml of sample, 1 drop = 0.5 °dKH (more precise).",
+      "fresh": { "okMin": 3, "okMax": 10, "critMin": 1, "critMax": 20 },
+      "salt": { "okMin": 6.5, "okMax": 9.5, "critMin": 5, "critMax": 13 },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "http://www.fimoe-aquaristik.com/downloads/gebrauchsanweisungghdnlfi.pdf",
+        "checkedAt": "2026-10-15",
+        "note": "Keine feste Testanzahl: Die Reichweite hängt von der Tropfenzahl und dem Messwert ab. Eigene geschätzte Reichweite eintragen.",
+        "note_en": "No fixed number of tests: capacity depends on the number of drops and measured value. Enter your estimated capacity."
+      }
+    },
+    {
+      "key": "gh",
+      "name": "Gesamthärte (GH)",
+      "name_en": "General Hardness (GH)",
+      "unit": "°dH",
+      "decimals": 1,
+      "step": 0.5,
+      "min": 0,
+      "max": 50,
+      "wait": 0,
+      "verified": true,
+      "hint": "Nur Süßwasser. 5 ml Probewasser in die Messküvette füllen. Reagenz GH tropfenweise zugeben, nach jedem Tropfen leicht schütteln, bis die Farbe von Rot nach Grün umschlägt. Anzahl der Tropfen = °dGH. Schlägt die Farbe schon nach dem 1. Tropfen um, liegt der Wert bei 0–1 °dGH. Mit 10 ml Probe ist 1 Tropfen = 0,5 °dGH (genauer).",
+      "hint_en": "Freshwater only. Fill 5 ml sample water into the measuring vial. Add GH reagent drop by drop, swirl gently after each drop until the color changes from red to green. Number of drops = °dGH. If the color changes after the 1st drop, the value is 0–1 °dGH. With 10 ml of sample, 1 drop = 0.5 °dGH (more precise).",
+      "fresh": { "okMin": 6, "okMax": 16, "critMin": 3, "critMax": 25 },
+      "salt": { "okMin": null, "okMax": null, "critMin": null, "critMax": null },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "http://www.fimoe-aquaristik.com/downloads/gebrauchsanweisungghdnlfi.pdf",
+        "checkedAt": "2026-10-15",
+        "note": "Keine feste Testanzahl: Die Reichweite hängt von der Tropfenzahl und dem Messwert ab. Eigene geschätzte Reichweite eintragen.",
+        "note_en": "No fixed number of tests: capacity depends on the number of drops and measured value. Enter your estimated capacity."
+      }
+    },
+    {
+      "key": "nh4",
+      "name": "Ammonium/Ammoniak (NH3/NH4)",
+      "name_en": "Ammonia/Ammonium (NH3/NH4)",
+      "unit": "mg/l",
+      "decimals": 1,
+      "step": 0.1,
+      "min": 0,
+      "max": 5,
+      "wait": 1200,
+      "verified": true,
+      "hint": "5 ml Probewasser in die Messküvette füllen. Nacheinander 14 Tropfen Reagenz 1, 7 Tropfen Reagenz 2 und 7 Tropfen Reagenz 3 zugeben (Flaschen senkrecht halten, leicht schütteln). 20 Minuten warten, bis sich die Farbe entwickelt hat, dann mit der Farbskala vergleichen. Messbereich 0–5 mg/l Gesamtammoniak (NH3 + NH4).",
+      "hint_en": "Fill 5 ml sample water into the measuring vial. Add 14 drops of reagent 1, 7 drops of reagent 2 and 7 drops of reagent 3 in turn (hold bottles vertically, shake gently). Wait 20 minutes for the color to develop, then compare with the color chart. Range 0–5 mg/l total ammonia (NH3 + NH4).",
+      "fresh": { "okMin": 0, "okMax": 0.1, "critMin": null, "critMax": 0.5 },
+      "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.25 },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://www.tetra.net/fileadmin/pictures/T514889_150419.pdf",
+        "checkedAt": "2026-10-15",
+        "note": "Testanzahl pro Packung nicht verifiziert: Angabe auf der Packung bzw. im Beipackzettel eintragen.",
+        "note_en": "Number of tests per pack not verified: enter the figure printed on your pack or leaflet."
+      }
+    },
+    {
+      "key": "no2",
+      "name": "Nitrit (NO2)",
+      "name_en": "Nitrite (NO2)",
+      "unit": "mg/l",
+      "decimals": 1,
+      "step": 0.1,
+      "min": 0,
+      "max": 3.3,
+      "wait": 120,
+      "verified": true,
+      "hint": "5 ml Probewasser in die Messküvette füllen. 7 Tropfen Reagenz 1 zugeben, dann 7 Tropfen Reagenz 2 (Flaschen senkrecht halten, leicht schütteln). 2 Minuten warten, bis sich die Farbe entwickelt hat, dann mit der Farbskala vergleichen. Messbereich < 0,3 bis 3,3 mg/l; unter 0,3 mg/l ideal.",
+      "hint_en": "Fill 5 ml sample water into the measuring vial. Add 7 drops of reagent 1, then 7 drops of reagent 2 (hold bottles vertically, shake gently). Wait 2 minutes for the color to develop, then compare with the color chart. Range < 0.3 to 3.3 mg/l; below 0.3 mg/l is ideal.",
+      "fresh": { "okMin": 0, "okMax": 0.3, "critMin": null, "critMax": 1 },
+      "salt": { "okMin": 0, "okMax": 0.05, "critMin": null, "critMax": 0.2 },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://www.tetra.net/fileadmin/pictures/T518337_9074_297x180_mm.pdf",
+        "checkedAt": "2026-10-15",
+        "note": "Testanzahl pro Packung nicht verifiziert: Angabe auf der Packung bzw. im Beipackzettel eintragen.",
+        "note_en": "Number of tests per pack not verified: enter the figure printed on your pack or leaflet."
+      }
+    },
+    {
+      "key": "no3",
+      "name": "Nitrat (NO3)",
+      "name_en": "Nitrate (NO3)",
+      "unit": "mg/l",
+      "decimals": 0,
+      "step": 1,
+      "min": 0,
+      "max": 100,
+      "wait": 600,
+      "verified": false,
+      "hint": "Messküvette mit Probewasser füllen (Probenmenge laut Packungsbeilage, vermutlich 5 ml). Nacheinander 14 Tropfen Reagenz 1, 7 Tropfen Reagenz 2 und 7 Tropfen Reagenz 3 zugeben (Flaschen senkrecht halten). 10 Minuten warten, bis sich die Farbe entwickelt hat, dann mit der Farbskala vergleichen. Messbereich 0–100 mg/l. Optimum: Süßwasser < 50 mg/l, Meerwasser < 10 mg/l.",
+      "hint_en": "Fill the measuring vial with sample water (sample volume per your leaflet, presumably 5 ml). Add 14 drops of reagent 1, 7 drops of reagent 2 and 7 drops of reagent 3 in turn (hold bottles vertically). Wait 10 minutes for the color to develop, then compare with the color chart. Range 0–100 mg/l. Optimum: freshwater < 50 mg/l, marine < 10 mg/l.",
+      "fresh": { "okMin": 0, "okMax": 50, "critMin": null, "critMax": 100 },
+      "salt": { "okMin": 0, "okMax": 10, "critMin": null, "critMax": 40 },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://www.tetra.net/fileadmin/pictures/T518340_9074_297x180_mm.pdf",
+        "checkedAt": "2026-10-15",
+        "note": "Testanzahl pro Packung nicht verifiziert: Angabe auf der Packung bzw. im Beipackzettel eintragen.",
+        "note_en": "Number of tests per pack not verified: enter the figure printed on your pack or leaflet."
+      }
+    },
+    {
+      "key": "co2",
+      "name": "Kohlendioxid (CO2)",
+      "name_en": "Carbon Dioxide (CO2)",
+      "unit": "mg/l",
+      "decimals": 1,
+      "step": 0.1,
+      "min": 0,
+      "max": 100,
+      "wait": 0,
+      "verified": true,
+      "hint": "Kein Reagens: CO2 wird aus gemessenem pH-Wert und KH mit der CO2-Tabelle aus der Tetra-Anleitung ermittelt (Werte gelten für 25 °C, bei anderen Temperaturen nur geringe Abweichung). Empfohlene Dauerkonzentration im Aquarium: 5–15 mg/l.",
+      "hint_en": "No reagent: CO2 is derived from the measured pH and KH using the CO2 table in the Tetra instructions (values apply at 25 °C, only minor deviation at other temperatures). Recommended permanent concentration in the aquarium: 5–15 mg/l.",
+      "fresh": { "okMin": 5, "okMax": 15, "critMin": null, "critMax": 60 },
+      "salt": { "okMin": null, "okMax": null, "critMin": null, "critMax": null },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://media.hornbach.nl/hb/document/as.46566384.pdf",
+        "checkedAt": "2026-10-15",
+        "note": "Berechnung aus pH und KH, kein Reagensverbrauch.",
+        "note_en": "Calculated from pH and KH, no reagent consumption.",
+        "variants": [
+          {
+            "id": "calculated",
+            "name": "Berechnet aus pH/KH (kein Reagens)",
+            "name_en": "Calculated from pH/KH (no reagent)",
+            "capacity": null,
+            "trackUsage": false
+          }
+        ]
+      }
+    }
+  ]
+}

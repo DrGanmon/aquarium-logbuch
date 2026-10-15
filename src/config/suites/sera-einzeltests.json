@@ -1,0 +1,115 @@
+{
+  "id": "sera-einzeltests",
+  "name": "sera Einzeltests (Zusatztests)",
+  "name_en": "sera individual tests (additional tests)",
+  "description": "sera Zusatztests, die nicht in der aqua-test box enthalten sind: Magnesium (Meerwasser), Sauerstoff, Silikat. Nach sera-Gebrauchsinformation (Handbuch Stand 07/2015)",
+  "description_en": "sera additional tests not included in the aqua-test box: magnesium (marine), oxygen, silicate. According to the sera instructions for use (manual dated 07/2015)",
+  "isDefault": false,
+  "tests": [
+    {
+      "key": "temp",
+      "name": "Temperatur",
+      "name_en": "Temperature",
+      "unit": "°C",
+      "decimals": 1,
+      "step": 0.1,
+      "min": 0,
+      "max": 40,
+      "wait": 0,
+      "verified": true,
+      "hint": "Mit dem Aquarienthermometer direkt im Becken messen, kein Timer nötig.",
+      "hint_en": "Measure directly in the tank using an aquarium thermometer, no timer needed.",
+      "fresh": { "okMin": 23, "okMax": 27, "critMin": 18, "critMax": 31 },
+      "salt": { "okMin": 24, "okMax": 26, "critMin": 22, "critMax": 29 },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://www.sera.de/fileadmin/user_upload/manuals/sourcefiles/04002_sera_aqua-test-box_2015-07_INT.pdf",
+        "checkedAt": "2026-10-15",
+        "note": "Kein Reagens: Thermometer, kein Verbrauch.",
+        "note_en": "No reagent: thermometer, no consumption.",
+        "variants": [
+          {
+            "id": "thermometer",
+            "name": "Thermometer (kein Reagens)",
+            "name_en": "Thermometer (no reagent)",
+            "capacity": null,
+            "trackUsage": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "mg",
+      "name": "Magnesium (Mg)",
+      "name_en": "Magnesium (Mg)",
+      "unit": "mg/l",
+      "decimals": 0,
+      "step": 60,
+      "min": 0,
+      "max": 2000,
+      "wait": 0,
+      "verified": true,
+      "hint": "Nur Meerwasser, zweistufige Titration mit 2-ml-Spritze. Messung 1: 2 ml Probe in die Küvette, 6 Tropfen Reagenz 1, 1 gestrichenen weißen Löffel Reagenz 2 lösen (schwenken, nicht schütteln), Reagenz 3 tropfenweise bis Rosa nach klarem Blau (nicht Violett) umschlägt, mindestens 30 s stabil; Tropfen notieren. Küvette spülen. Messung 2: erneut 2 ml Probe, 6 Tropfen Reagenz 4, 1 gestrichenen Löffel Reagenz 5 lösen, Reagenz 3 tropfenweise bis Rot nach Grasgrün umschlägt, mindestens 30 s stabil. (Tropfen Messung 2 − Tropfen Messung 1) x 60 = mg/l Mg.",
+      "hint_en": "Marine water only, two-step titration using a 2 ml syringe. Measurement 1: 2 ml sample in the vial, 6 drops reagent 1, dissolve 1 level white spoon of reagent 2 (swirl, do not shake), add reagent 3 dropwise until pink turns to clear blue (not violet), stable for at least 30 s; note the drops. Rinse the vial. Measurement 2: another 2 ml sample, 6 drops reagent 4, dissolve 1 level spoon of reagent 5, add reagent 3 dropwise until red turns to grass green, stable for at least 30 s. (Drops measurement 2 − drops measurement 1) x 60 = mg/l Mg.",
+      "fresh": { "okMin": null, "okMax": null, "critMin": null, "critMax": null },
+      "salt": { "okMin": 1250, "okMax": 1400, "critMin": 1050, "critMax": 1600 },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://www.sera.de/fileadmin/user_upload/manuals/sourcefiles/04002_sera_aqua-test-box_2015-07_INT.pdf",
+        "checkedAt": "2026-10-15",
+        "note": "Keine feste Testanzahl: Die Reichweite hängt von der Tropfenzahl und dem Messwert ab. Eigene geschätzte Reichweite eintragen.",
+        "note_en": "No fixed number of tests: capacity depends on the number of drops and measured value. Enter your estimated capacity."
+      }
+    },
+    {
+      "key": "o2",
+      "name": "Sauerstoff (O2)",
+      "name_en": "Oxygen (O2)",
+      "unit": "mg/l",
+      "decimals": 1,
+      "step": 0.5,
+      "min": 0,
+      "max": 20,
+      "wait": 0,
+      "verified": true,
+      "hint": "Nur Süßwasser. Küvette mehrmals spülen und bis dicht unter den Rand füllen, außen abtrocknen. 6 Tropfen Reagenz 1 zugeben, dann 6 Tropfen Reagenz 2, Küvette sofort luftblasenfrei mit dem Deckel verschließen und schütteln. Deckel öffnen und die Farbe des Niederschlags (ungelöste Flocken) mit der Farbskala vergleichen. Skala: 0,5 gefährlich, 2,0 bedenklich, 4,0 ausreichend, 6,0 und 8,0 gut.",
+      "hint_en": "Freshwater only. Rinse the vial several times and fill it to just below the rim, dry the outside. Add 6 drops of reagent 1, then 6 drops of reagent 2, immediately close the lid without air bubbles and shake. Open the lid and compare the color of the precipitate (undissolved flakes) with the color chart. Scale: 0.5 dangerous, 2.0 critical, 4.0 sufficient, 6.0 and 8.0 good.",
+      "fresh": { "okMin": 6, "okMax": null, "critMin": 2, "critMax": null },
+      "salt": { "okMin": null, "okMax": null, "critMin": null, "critMax": null },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://www.sera.de/fileadmin/user_upload/manuals/sourcefiles/04002_sera_aqua-test-box_2015-07_INT.pdf",
+        "checkedAt": "2026-10-15",
+        "note": "Testanzahl pro Packung nicht verifiziert: Angabe auf der Packung bzw. im Beipackzettel eintragen.",
+        "note_en": "Number of tests per pack not verified: enter the figure printed on your pack or leaflet."
+      }
+    },
+    {
+      "key": "sio2",
+      "name": "Silikat (SiO2)",
+      "name_en": "Silicate (SiO2)",
+      "unit": "mg/l",
+      "decimals": 2,
+      "step": 0.1,
+      "min": 0,
+      "max": 10,
+      "wait": 600,
+      "verified": true,
+      "hint": "Küvette bis zur 10-ml-Marke füllen. 6 Tropfen Reagenz 1 zugeben, Deckel aufsetzen, schütteln, 5 Minuten warten. 6 Tropfen Reagenz 2 zugeben, verschließen, schütteln, kurz warten. 6 Tropfen Reagenz 3 zugeben, verschließen, kurz schütteln. 10 Minuten Reaktionszeit, Küvette dabei nicht öffnen (reizende Gase). Danach öffnen und mit der Farbskala vergleichen. Gase nicht einatmen. Werte über 1 mg/l sollten gebunden werden.",
+      "hint_en": "Fill the vial to the 10 ml mark. Add 6 drops of reagent 1, close the lid, shake, wait 5 minutes. Add 6 drops of reagent 2, close, shake, wait briefly. Add 6 drops of reagent 3, close, shake briefly. Allow 10 minutes of reaction time without opening the vial (irritating gases). Then open and compare with the color chart. Do not inhale the gases. Levels above 1 mg/l should be bound.",
+      "fresh": { "okMin": 0, "okMax": 1.0, "critMin": null, "critMax": 3.0 },
+      "salt": { "okMin": 0, "okMax": 1.0, "critMin": null, "critMax": 2.0 },
+      "consumable": {
+        "capacity": null,
+        "approximate": true,
+        "source": "https://www.sera.de/fileadmin/user_upload/manuals/sourcefiles/04002_sera_aqua-test-box_2015-07_INT.pdf",
+        "checkedAt": "2026-10-15",
+        "note": "Testanzahl pro Packung nicht verifiziert: Angabe auf der Packung bzw. im Beipackzettel eintragen.",
+        "note_en": "Number of tests per pack not verified: enter the figure printed on your pack or leaflet."
+      }
+    }
+  ]
+}
