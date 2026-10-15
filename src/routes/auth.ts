@@ -25,7 +25,7 @@ const { oidc } = oidc_serviceModule;
 import cryptoModule = require('../utils/crypto');
 const { hashPassword, verifyPassword, DUMMY_HASH, hasLocalPassword, sha } = cryptoModule;
 import rate_limitModule = require('../utils/rate-limit');
-const { tooManyAttempts, noteAttempt, clearAttempts } = rate_limitModule;
+const { checkAndNoteAttempt, clearAttempts } = rate_limitModule;
 import cookiesModule = require('../utils/cookies');
 const { parseCookies, setSessionCookie, clearSessionCookie, startSession, setCookie } = cookiesModule;
 import helpersModule = require('../utils/helpers');
@@ -144,8 +144,7 @@ router.post(
     if (!acceptsCurrentTerms(req.body)) return res.status(400).json({ error: 'Bitte die aktuellen AGB ausdrücklich akzeptieren.' });
 
     const registerKey = `register|${req.ip}`;
-    if (tooManyAttempts(registerKey, 30)) return res.status(429).json({ error: 'Zu viele Registrierungsversuche. Bitte später erneut versuchen.' });
-    noteAttempt(registerKey, 30);
+    if (await checkAndNoteAttempt(registerKey, 30)) return res.status(429).json({ error: 'Zu viele Registrierungsversuche. Bitte später erneut versuchen.' });
     const username = str(req.body.username, 40);
     const email = req.body.email ? str(req.body.email, 120).toLowerCase() : null;
     const password = typeof req.body.password === 'string' ? req.body.password : '';
@@ -264,10 +263,9 @@ router.post(
     const password = typeof req.body.password === 'string' ? req.body.password : '';
     if (password.length > 200) return res.status(400).json({ error: 'Das Passwort darf höchstens 200 Zeichen enthalten.' });
     const key = `${req.ip}|${username.toLowerCase()}`;
-    if (tooManyAttempts(key)) {
+    if (await checkAndNoteAttempt(key)) {
       return res.status(429).json({ error: 'Zu viele Versuche. Bitte in ein paar Minuten erneut probieren.' });
     }
-    noteAttempt(key); // Reserve before awaiting password verification to bound concurrent attempts.
     const user = (await db.users.findByUsername(username)) || (await db.users.findByEmail(username));
     const ok = (await verifyPassword(password, user ? user.password_hash : DUMMY_HASH)) && !!user;
     if (!ok) {
@@ -283,7 +281,7 @@ router.post(
       });
     }
 
-    clearAttempts(key);
+    await clearAttempts(key);
     await startSession(res, db, user.id);
     res.json({ id: user.id, username: user.username });
   })
@@ -1095,8 +1093,7 @@ router.post(
     if (typeof current !== 'string' || current.length > 200 || typeof next !== 'string' || next.length < 8 || next.length > 200)
       return res.status(400).json({ error: 'Das aktuelle Passwort darf höchstens 200 Zeichen enthalten; das neue braucht 8 bis 200 Zeichen.' });
     const key = `change-password|${req.user.id}`;
-    if (tooManyAttempts(key)) return res.status(429).json({ error: 'Zu viele Versuche. Bitte später erneut versuchen.' });
-    noteAttempt(key);
+    if (await checkAndNoteAttempt(key)) return res.status(429).json({ error: 'Zu viele Versuche. Bitte später erneut versuchen.' });
     const user = await db.users.findById(req.user.id);
     if (!user) return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
     if (!String(user.password_hash).includes(':')) return res.status(400).json({ error: 'Dieses Konto hat kein lokales Passwort.' });
@@ -1107,7 +1104,7 @@ router.post(
     const previous = token ? await db.sessions.find(sha(token)) : null;
     await db.sessions.deleteForUser(req.user.id);
     await startSession(res, db, req.user.id, previous?.id_token || null);
-    clearAttempts(key);
+    await clearAttempts(key);
     res.json({ ok: true });
   })
 );
@@ -1147,10 +1144,9 @@ router.post(
   wrap(async (req: Request, res: Response) => {
     const identifier = str(req.body?.identifier || req.body?.email || req.body?.username, 120);
     const key = `resend-verify|${req.ip}|${identifier.toLowerCase()}`;
-    if (tooManyAttempts(key)) {
+    if (await checkAndNoteAttempt(key)) {
       return res.status(429).json({ error: 'Zu viele Anfragen. Bitte warte einige Minuten.' });
     }
-    noteAttempt(key);
 
     if (identifier) {
       const user = (await db.users.findByEmail(identifier)) || (await db.users.findByUsername(identifier));
@@ -1180,10 +1176,9 @@ router.post(
     }
     const identifier = str(req.body?.identifier || req.body?.email || req.body?.username, 120);
     const key = `forgot-pw|${req.ip}`;
-    if (tooManyAttempts(key)) {
+    if (await checkAndNoteAttempt(key)) {
       return res.status(429).json({ error: 'Zu viele Anfragen. Bitte in ein paar Minuten erneut probieren.' });
     }
-    noteAttempt(key);
 
     if (identifier) {
       const user = (await db.users.findByEmail(identifier)) || (await db.users.findByUsername(identifier));
@@ -1215,7 +1210,7 @@ router.post(
     const token = str(req.body?.token, 128);
     const password = typeof req.body?.password === 'string' ? req.body.password : '';
     const key = `reset-pw|${req.ip}`;
-    if (tooManyAttempts(key)) {
+    if (await checkAndNoteAttempt(key)) {
       return res.status(429).json({ error: 'Zu viele Versuche. Bitte in ein paar Minuten erneut probieren.' });
     }
 
@@ -1228,11 +1223,9 @@ router.post(
 
     const user = await db.users.findByPasswordResetToken(token);
     if (!user) {
-      noteAttempt(key);
       return res.status(400).json({ error: 'Dieser Link zum Zurücksetzen ist ungültig oder wurde bereits verwendet.' });
     }
     if (user.password_reset_expires && user.password_reset_expires < Date.now()) {
-      noteAttempt(key);
       return res.status(400).json({ error: 'Dieser Link zum Zurücksetzen ist abgelaufen. Bitte fordere einen neuen an.' });
     }
 
@@ -1247,7 +1240,7 @@ router.post(
 
     // Alle bestehenden Sitzungen des Benutzers beenden
     await db.sessions.deleteForUser(user.id);
-    clearAttempts(key);
+    await clearAttempts(key);
 
     res.json({ ok: true, message: 'Dein Passwort wurde erfolgreich geändert. Du kannst dich jetzt damit anmelden.' });
   })
@@ -1275,10 +1268,9 @@ router.post(
     }
 
     const key = `delete-account-req|${req.user.id}`;
-    if (tooManyAttempts(key)) {
+    if (await checkAndNoteAttempt(key)) {
       return res.status(429).json({ error: 'Zu viele Löschanfragen. Bitte in ein paar Minuten erneut probieren.' });
     }
-    noteAttempt(key);
 
     // Wenn lokales Passwort vorhanden ist, Passwort-Bestätigung verlangen
     if (hasLocalPassword(user)) {
@@ -1314,7 +1306,7 @@ router.all(
   wrap(async (req: Request, res: Response) => {
     const token = str(req.body?.token || req.query?.token, 128);
     const key = `delete-account-confirm|${req.ip}`;
-    if (tooManyAttempts(key)) {
+    if (await checkAndNoteAttempt(key)) {
       return res.status(429).json({ error: 'Zu viele Versuche. Bitte in ein paar Minuten erneut probieren.' });
     }
 
@@ -1324,12 +1316,10 @@ router.all(
 
     const user = await db.users.findByDeleteToken(token);
     if (!user) {
-      noteAttempt(key);
       return res.status(400).json({ error: 'Dieser Bestätigungslink ist ungültig oder wurde bereits verwendet.' });
     }
 
     if (user.account_delete_expires && user.account_delete_expires < Date.now()) {
-      noteAttempt(key);
       return res.status(400).json({ error: 'Dieser Bestätigungslink ist abgelaufen. Bitte fordere einen neuen an.' });
     }
 
@@ -1343,7 +1333,7 @@ router.all(
     // Benutzer und alle zugehörigen Daten (Aquarien, Fotos, Messwerte, Alarme, Pflegen, Freigaben, Sessions) löschen
     await db.users.delete(user.id);
     clearSessionCookie(res);
-    clearAttempts(key);
+    await clearAttempts(key);
 
     res.json({
       ok: true,

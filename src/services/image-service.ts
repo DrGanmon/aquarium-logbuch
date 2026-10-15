@@ -72,6 +72,7 @@ async function storeImage(prefix: string, id: number | undefined, base64Data: un
       case 'png': output = await resized.png({ compressionLevel: 9 }).toBuffer(); break;
       case 'webp': output = await resized.webp({ quality: 82 }).toBuffer(); break;
       case 'gif': output = await resized.gif().toBuffer(); break;
+      default: return { error: 'Ungültiges Bildformat. Erlaubt sind JPG, PNG, WebP und GIF.' };
     }
   } catch {
     return { error: 'Ungültiges Bild oder zu hohe Auflösung (maximal 40 Megapixel).' };

@@ -14,7 +14,7 @@ const wrap = (handler: RequestHandler): RequestHandler => async (req, res, next)
   try { await handler(req, res, next); } catch (error) { next(error); }
 };
 import source4 = require('../utils/rate-limit');
-const { tooManyAttempts, noteAttempt } = source4;
+const { checkAndNoteAttempt } = source4;
 import { saveSocialImage } from '../services/social-image-service';
 import source5 = require('../services/image-service');
 const { deleteImage, getImagePath, getMimeType } = source5;
@@ -40,10 +40,10 @@ const viewer = async (req: Request, _res: Response, next: NextFunction) => {
     next();
   } catch (error) { next(error); }
 };
-const limit = (kind: string, maximum: number) => (req: Request, res: Response, next: NextFunction) => {
+const limit = (kind: string, maximum: number) => async (req: Request, res: Response, next: NextFunction) => {
   const key = `social:${kind}:${req.user.id}`;
-  if (tooManyAttempts(key, maximum)) return res.status(429).json({ error: 'Zu viele Aktionen. Bitte später erneut versuchen.' });
-  noteAttempt(key, maximum);next();
+  if (await checkAndNoteAttempt(key, maximum)) return res.status(429).json({ error: 'Zu viele Aktionen. Bitte später erneut versuchen.' });
+  next();
 };
 async function postOrFail(postId: number, req: Request) { const post = await db.social.post(postId);if (!post || (!post.is_public && !req.user)) throw new AppError('Beitrag nicht gefunden.', 404);return post; }
 async function author(userId: number): Promise<SocialAuthor> {

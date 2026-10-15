@@ -18,6 +18,14 @@ Aquarium-, Bewohner- und Profilbilder werden nun serverseitig mit Sharp dekodier
 
 Der Regressionstest `test/sharing_and_images.test.js` prüft einen Aquarium-Upload mit EXIF-Ausrichtung auf entfernte EXIF-Daten und begrenzte Abmessungen. Backend-Diagnosen und `git diff --check` waren fehlerfrei; der Laufzeittest war in der Änderungsumgebung mangels Node.js und Bun nicht ausführbar.
 
+## Nachtrag: Zentraler Missbrauchsschutz (15.10.2026)
+
+Login-, Registrierungs-, Passwort-, Lösch- und Social-Limits werden im Supervisor-Modus nicht mehr je HTTP-Worker geführt. Die Worker senden ausschließlich begrenzte, typgeprüfte Operationen per IPC an einen eigenen Rate-Limit-Controller. Prüfen und Reservieren eines Versuchs geschieht dort atomar, sodass parallele Anfragen über unterschiedliche Worker dasselbe Limit nicht überschreiten können. Bei fehlendem Controller lehnen die Worker geschützte Aktionen geschlossen ab; normale, nicht limitierte Requests laufen weiter.
+
+Der Controller speichert nur HMAC-SHA-256-Schlüssel statt IP-Adressen, Benutzernamen oder Benutzer-IDs im Klartext. Sein separater Schlüssel und die SQLite-Datei unter `DATA_DIR` erhalten POSIX-Rechte `0600`; WAL, synchrone Commits, Zeitfensterbereinigung sowie Obergrenzen für Schlüssel, Limits und ausstehende IPC-Anfragen begrenzen Datenverlust und Ressourcenverbrauch. Der Supervisor startet nur den Controller mit exponentieller Verzögerung neu und lässt alle HTTP-Worker unverändert laufen. Die persistierten Einträge gelten nach dem Neustart weiter. Controller-Fehlerantworten enthalten keine Schlüssel oder Datenbankdetails.
+
+Der Schutz gilt gemeinsam für alle Worker eines Supervisors. Mehrere unabhängige Container oder Hosts besitzen weiterhin getrennte Controller und benötigen für ein installationsübergreifendes Limit zusätzlich eine zentrale Proxy-/Gateway-Begrenzung. `test/rate_limit_controller.test.js` prüft atomare Grenzen, Klartextfreiheit, private Rechte, Neustartpersistenz und unveränderte Worker-PIDs während eines erzwungenen Controller-Absturzes.
+
 ## Bestätigte und behobene Befunde
 
 | Priorität | Befund | Korrektur und Nachweis |
@@ -40,7 +48,7 @@ Der Regressionstest `test/sharing_and_images.test.js` prüft einen Aquarium-Uplo
 
 ## Verbleibende Risiken und Prüflücken
 
-- Rate-Limits bleiben pro Prozess. Mehrere Worker oder unabhängige Instanzen brauchen ein gemeinsam gespeichertes oder am Reverse Proxy durchgesetztes Limit. Der neue Passwortschutz ist keine verteilte Sperre.
+- Rate-Limits gelten zentral über alle Worker eines Supervisors. Mehrere unabhängige Instanzen benötigen weiterhin ein gemeinsam gespeichertes oder am Reverse Proxy/Gateway durchgesetztes Limit.
 - Nachtrag vom 15.10.2026: Persönliche KI-Schlüssel werden inzwischen mit AES-256-GCM gespeichert und aus Klartext migriert (siehe Nachtrag). Alte Archive, externe Kopien sowie mögliche freie SQLite-Seiten/WAL-Reste können weiterhin Klartext enthalten. Der Master-Schlüssel muss separat geschützt und gesichert werden; Datenvolume und Archive bleiben sensibel.
 - Öffentliche OIDC-Clients mit mehreren unabhängigen Instanzen benötigen denselben `OIDC_STATE_SECRET`. Ohne festen Schlüssel werden noch laufende Anmeldungen nach Neustart ungültig. Bereits gestartete Anmeldungen mit dem alten Statusformat müssen nach dem Update neu begonnen werden.
 - Die bisherigen nicht atomaren Gesamtoperationen über MongoDB-Collections und die instanzlokalen Backup-/Restore-Sperren bleiben bestehen. Wiederherstellungen brauchen weiterhin ein Wartungsfenster ohne konkurrierende Schreibzugriffe.
