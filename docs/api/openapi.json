@@ -3,7 +3,7 @@
   "info": {
     "title": "Aquarium-Logbuch API",
     "version": "0.1.12-ALPHA",
-    "description": "API-Dokumentation des Repository-Standes vom 15.10.2026. Sitzung über HttpOnly-Cookie session; schreibende /api-Anfragen brauchen X-Requested-With und bei Body application/json. JSON-Objekte, keine Multipart-Uploads. Die Server-URL umfasst den APP_URL-Unterpfad, aber nicht /api. Dynamische /api-, /auth- und /metrics-Anfragen können während einer gemeinsamen Backup-/Restore-Wartung vorübergehend HTTP 503 erhalten. Erweiterbare Antwortschemata enthalten die dokumentierten Kernfelder; zusätzliche Katalog- und Anbieterfelder bleiben erlaubt. Persönliche KI-Schlüssel werden vor der Speicherung verschlüsselt; Profile zeigen nur die ersten und letzten vier Zeichen. Datenbankschema 8 ergänzt anonyme Provider-Token-Summen."
+    "description": "API-Dokumentation des Repository-Standes vom 15.10.2026. Sitzung über HttpOnly-Cookie session; schreibende /api-Anfragen brauchen X-Requested-With und bei Body application/json. JSON-Objekte, keine Multipart-Uploads. Die Server-URL umfasst den APP_URL-Unterpfad, aber nicht /api. Vor Abschluss einer erforderlichen Ersteinrichtung antworten alle /api- und /auth-Endpunkte außer Setup und Healthcheck mit HTTP 428 und SETUP_REQUIRED. Dynamische /api-, /auth- und /metrics-Anfragen können während einer gemeinsamen Backup-/Restore-Wartung vorübergehend HTTP 503 erhalten. Erweiterbare Antwortschemata enthalten die dokumentierten Kernfelder; zusätzliche Katalog- und Anbieterfelder bleiben erlaubt. Persönliche KI-Schlüssel werden vor der Speicherung verschlüsselt; Profile zeigen nur die ersten und letzten vier Zeichen. Datenbankschema 10 ergänzt Datenbank-Administratoren."
   },
   "servers": [
     {
@@ -8946,7 +8946,7 @@
         "tags": ["Ersteinrichtung"],
         "summary": "Ersteinrichtung abschließen",
         "operationId": "post_api_setup_complete",
-        "description": "Nur ohne vorhandene Benutzer und bei aktivem lokalen Login verfügbar. Erstellt den ersten Datenbank-Administrator, speichert SMTP- und Backup-Konfiguration und startet eine Sitzung.",
+        "description": "Nur ohne vorhandene Benutzer und bei aktivem lokalen Login verfügbar. Erstellt den ersten Datenbank-Administrator, speichert SMTP-, Backup- und Registrierungskonfiguration und startet eine Sitzung.",
         "security": [],
         "parameters": [{ "$ref": "#/components/parameters/RequestedWith" }],
         "requestBody": { "required": true, "content": { "application/json": { "schema": {
@@ -8959,9 +8959,12 @@
             "acceptTerms": { "type": "boolean", "enum": [true] },
             "termsVersion": { "type": "string" },
             "smtp": { "$ref": "#/components/schemas/MailConfigInput" },
-            "backup": { "$ref": "#/components/schemas/BackupConfigInput" }
+            "backup": { "$ref": "#/components/schemas/BackupConfigInput" },
+            "registration": { "type": "object", "properties": {
+              "mode": { "type": "string", "enum": ["open", "invite_admin", "invite_open", "closed"] }
+            }, "required": ["mode"], "additionalProperties": false }
           },
-          "required": ["username", "email", "password", "acceptTerms", "termsVersion", "smtp", "backup"],
+          "required": ["username", "email", "password", "acceptTerms", "termsVersion", "smtp", "backup", "registration"],
           "additionalProperties": false
         } } } },
         "responses": {
@@ -15552,7 +15555,7 @@
         }
       },
       "Error428": {
-        "description": "Aktuelle AGB noch nicht akzeptiert.",
+        "description": "Vorbedingung fehlt: aktuelle AGB noch nicht akzeptiert oder Ersteinrichtung noch nicht abgeschlossen.",
         "content": {
           "application/json": {
             "schema": {

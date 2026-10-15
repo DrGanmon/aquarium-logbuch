@@ -9,6 +9,7 @@ const form = reactive({
   username: "", email: "", password: "", repeat: "", acceptTerms: false,
   smtpEnabled: false, smtpHost: "", smtpPort: 587, smtpSecure: false, smtpUser: "", smtpPass: "", smtpFrom: "",
   backupEnabled: true, backupPassword: "", intervalHours: 24, retentionCount: 10, includeFiles: true,
+  registrationMode: "open",
 });
 onMounted(async () => {
   try { termsVersion.value = (await api<{ termsVersion: string }>("/setup/status")).termsVersion; }
@@ -27,6 +28,7 @@ async function submit() {
         user: form.smtpUser, pass: form.smtpPass, from: form.smtpFrom, rejectUnauthorized: true },
       backup: { enabled: form.backupEnabled, password: form.backupPassword, intervalHours: form.intervalHours,
         retentionCount: form.retentionCount, includeFiles: form.includeFiles },
+      registration: { mode: form.registrationMode },
     } });
     session.setupRequired = false;
     await refreshSession(); location.hash = "#/";
@@ -61,6 +63,17 @@ async function submit() {
         <label>{{ t("setup.interval") }}<input v-model.number="form.intervalHours" type="number" min="1" max="720" /></label>
         <label>{{ t("setup.retention") }}<input v-model.number="form.retentionCount" type="number" min="1" max="100" /></label>
         <label class="row"><input v-model="form.includeFiles" type="checkbox" />{{ t("setup.includeFiles") }}</label>
+      </fieldset>
+      <fieldset class="stack"><legend>{{ t("setup.registration") }}</legend>
+        <label>{{ t("setup.registrationMode") }}
+          <select v-model="form.registrationMode" required>
+            <option value="open">{{ t("setup.registrationOpen") }}</option>
+            <option value="invite_admin">{{ t("setup.registrationInviteAdmin") }}</option>
+            <option value="invite_open">{{ t("setup.registrationInviteOpen") }}</option>
+            <option value="closed">{{ t("setup.registrationClosed") }}</option>
+          </select>
+        </label>
+        <p class="muted">{{ t(`setup.registrationHint.${form.registrationMode}`) }}</p>
       </fieldset>
       <label class="row"><input v-model="form.acceptTerms" required type="checkbox" /> <span>{{ t("setup.acceptTerms", { version: termsVersion }) }}</span></label>
       <button class="btn primary" type="submit" :disabled="busy">{{ busy ? t("common.saving") : t("setup.complete") }}</button>

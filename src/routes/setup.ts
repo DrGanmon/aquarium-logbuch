@@ -8,6 +8,7 @@ import cryptoModule = require('../utils/crypto');
 import cookiesModule = require('../utils/cookies');
 import mailModule = require('../services/mail-service');
 import backupModule = require('../services/backup-service');
+import registrationModule = require('../services/registration-service');
 import { TERMS_VERSION } from '../services/terms-service';
 import { AppError } from '../utils/app-error';
 
@@ -16,6 +17,7 @@ const { hashPassword } = cryptoModule;
 const { startSession } = cookiesModule;
 const { mailService } = mailModule;
 const { backupService } = backupModule;
+const { registrationService, VALID_MODES } = registrationModule;
 const router = express.Router();
 const lockFile = path.join(DATA_DIR, '.setup.lock');
 const wrap = (handler: RequestHandler): RequestHandler => async (req, res, next) => { try { await handler(req, res, next); } catch (error) { next(error); } };
@@ -31,6 +33,7 @@ router.post('/complete', wrap(async (req: Request, res: Response) => {
   const language = req.body.language === 'en' ? 'en' : 'de';
   const smtp = req.body.smtp && typeof req.body.smtp === 'object' ? req.body.smtp : {};
   const backup = req.body.backup && typeof req.body.backup === 'object' ? req.body.backup : {};
+  const registration = req.body.registration && typeof req.body.registration === 'object' ? req.body.registration : {};
   if (!LOCAL_LOGIN) throw new AppError('Für die Ersteinrichtung muss LOCAL_LOGIN aktiviert sein.', 400);
   if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) throw new AppError('Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).', 400);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new AppError('Ungültige E-Mail-Adresse.', 400);
@@ -39,6 +42,7 @@ router.post('/complete', wrap(async (req: Request, res: Response) => {
   if (smtp.enabled && (!String(smtp.host || '').trim() || !String(smtp.from || '').trim())) throw new AppError('Für aktives SMTP werden Host und Absender benötigt.', 400);
   if (smtp.enabled && (!Number.isInteger(Number(smtp.port)) || Number(smtp.port) < 1 || Number(smtp.port) > 65535)) throw new AppError('Ungültiger SMTP-Port.', 400);
   if (backup.enabled && (typeof backup.password !== 'string' || backup.password.length < 12)) throw new AppError('Für automatische Backups wird ein Passwort mit mindestens 12 Zeichen benötigt.', 400);
+  if (!VALID_MODES.includes(registration.mode)) throw new AppError('Bitte einen gültigen Registrierungsmodus auswählen.', 400);
 
   fs.mkdirSync(DATA_DIR, { recursive: true });
   let lock: number;
@@ -50,6 +54,7 @@ router.post('/complete', wrap(async (req: Request, res: Response) => {
       requireTls: smtp.requireTls, rejectUnauthorized: smtp.rejectUnauthorized, user: smtp.user, pass: smtp.pass, from: smtp.from });
     await backupService.saveAdminConfig({ enabled: Boolean(backup.enabled), intervalHours: backup.intervalHours,
       retentionCount: backup.retentionCount, includeFiles: backup.includeFiles, password: backup.password });
+    registrationService.saveConfig({ mode: registration.mode });
     const user = await db.users.create({ username, email, password_hash: await hashPassword(password), email_verified: 1, is_admin: 1,
       language, terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString() });
     await startSession(res, db, user.id);

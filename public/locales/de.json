@@ -17,6 +17,18 @@
     "interval": "Intervall in Stunden",
     "retention": "Anzahl aufzubewahrender Backups",
     "includeFiles": "Bilder in Backups einschließen",
+    "registration": "Registrierung",
+    "registrationMode": "Wer darf neue Konten anlegen?",
+    "registrationOpen": "Offen – jeder darf sich registrieren",
+    "registrationInviteAdmin": "Nur mit Einladung durch Administratoren",
+    "registrationInviteOpen": "Mit Einladung durch bestehende Benutzer",
+    "registrationClosed": "Geschlossen – keine neuen Registrierungen",
+    "registrationHint": {
+      "open": "Neue Benutzer können sich ohne Einladung registrieren.",
+      "invite_admin": "Nur Administratoren können Einladungen erstellen.",
+      "invite_open": "Angemeldete Benutzer können Einladungen erstellen.",
+      "closed": "Neue Konten können erst nach einer späteren Änderung in der Administration angelegt werden."
+    },
     "acceptTerms": "Ich akzeptiere die AGB in Version {version}.",
     "complete": "Einrichtung abschließen",
     "passwordMismatch": "Die Passwörter stimmen nicht überein."

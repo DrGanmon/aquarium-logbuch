@@ -6,14 +6,25 @@ const path = require('node:path');
 const { createTestEnvironment } = require('./helpers/env');
 
 test('Ersteinrichtung: erster Admin, SMTP und Backups werden einmalig eingerichtet', async (t) => {
-  const env = createTestEnvironment({ ADMIN_EMAIL: '', LOCAL_LOGIN: 'true' });
+  const env = createTestEnvironment({ ADMIN_EMAIL: '', LOCAL_LOGIN: 'true', ENFORCE_SETUP_GATE: 'true' });
   t.after(async () => await env.cleanup());
   const status = await env.request('/api/setup/status');
   assert.equal(status.status, 200);assert.equal(status.data.required, true);
+  assert.equal((await env.request('/api/config')).status, 428);
+  assert.equal((await env.request('/api/register', { method: 'POST', body: {
+    username: 'bypass', email: 'bypass@example.com', password: 'password123',
+  } })).status, 428);
+  assert.equal((await env.request('/auth/login')).status, 428);
+
+  const invalidMode = await env.request('/api/setup/complete', { method: 'POST', body: {
+    username: 'first_admin', email: 'admin@setup.test', password: 'password123', acceptTerms: true,
+    termsVersion: status.data.termsVersion, smtp: { enabled: false }, backup: { enabled: false }, registration: { mode: 'invalid' },
+  } });
+  assert.equal(invalidMode.status, 400);
 
   const incomplete = await env.request('/api/setup/complete', { method: 'POST', body: {
     username: 'first_admin', email: 'admin@setup.test', password: 'password123', acceptTerms: true,
-    termsVersion: status.data.termsVersion, smtp: { enabled: false }, backup: { enabled: true, password: 'short' },
+    termsVersion: status.data.termsVersion, smtp: { enabled: false }, backup: { enabled: true, password: 'short' }, registration: { mode: 'open' },
   } });
   assert.equal(incomplete.status, 400);
 
@@ -22,6 +33,7 @@ test('Ersteinrichtung: erster Admin, SMTP und Backups werden einmalig eingericht
     acceptTerms: true, termsVersion: status.data.termsVersion,
     smtp: { enabled: true, host: 'smtp.setup.test', port: 465, secure: true, user: 'mailer', pass: 'smtp-secret', from: 'Aquarium <mail@setup.test>' },
     backup: { enabled: true, password: 'backup-secret-123', intervalHours: 12, retentionCount: 7, includeFiles: true },
+    registration: { mode: 'invite_admin' },
   } });
   assert.equal(complete.status, 201, complete.text);assert.ok(complete.cookies.session);
   assert.equal((await env.request('/api/setup/status')).data.required, false);
@@ -33,8 +45,9 @@ test('Ersteinrichtung: erster Admin, SMTP und Backups werden einmalig eingericht
   const backup = JSON.parse(fs.readFileSync(path.join(env.getDataDir(), 'backup-config.json'), 'utf8'));
   assert.equal(mail.host, 'smtp.setup.test');assert.equal(mail.enabled, true);
   assert.equal(backup.enabled, true);assert.equal(backup.intervalHours, 12);assert.equal(backup.retentionCount, 7);
+  assert.equal((await env.request('/api/registration')).data.mode, 'invite_admin');
   assert.equal((await env.request('/api/setup/complete', { method: 'POST', body: {
     username: 'attacker', email: 'attacker@example.com', password: 'password123', acceptTerms: true,
-    termsVersion: status.data.termsVersion, smtp: { enabled: false }, backup: { enabled: false },
+    termsVersion: status.data.termsVersion, smtp: { enabled: false }, backup: { enabled: false }, registration: { mode: 'closed' },
   } })).status, 409);
 });

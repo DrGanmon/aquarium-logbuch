@@ -16,6 +16,7 @@ function createTestEnvironment(customEnv = {}) {
     PORT: '0',
     ALLOW_REGISTRATION: 'true',
     LOCAL_LOGIN: 'true',
+    NODE_ENV: 'test',
     ADMIN_EMAIL: 'admin@example.com',
     ...customEnv,
   };

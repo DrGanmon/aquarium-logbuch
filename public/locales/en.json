@@ -17,6 +17,18 @@
     "interval": "Interval in hours",
     "retention": "Number of backups to retain",
     "includeFiles": "Include images in backups",
+    "registration": "Registration",
+    "registrationMode": "Who may create new accounts?",
+    "registrationOpen": "Open – anyone may register",
+    "registrationInviteAdmin": "By administrator invitation only",
+    "registrationInviteOpen": "By invitation from existing users",
+    "registrationClosed": "Closed – no new registrations",
+    "registrationHint": {
+      "open": "New users can register without an invitation.",
+      "invite_admin": "Only administrators can create invitations.",
+      "invite_open": "Signed-in users can create invitations.",
+      "closed": "New accounts remain disabled until the mode is changed in administration."
+    },
     "acceptTerms": "I accept the terms of use, version {version}.",
     "complete": "Complete setup",
     "passwordMismatch": "The passwords do not match."

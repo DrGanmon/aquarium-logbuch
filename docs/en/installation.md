@@ -17,7 +17,7 @@ npm start            # Start app (default: SQLite at http://localhost:3000)
 - **Build:** `npm run build` produces an unminified development bundle; `npm run dist` produces the minified production bundle in `../../public/dist`. Both run the type check first. Chart.js is bundled as a module; Vite builds the computation worker, and the TypeScript service worker is emitted as `dist/sw.js` and served at `/sw.js`.
 - **Hosting:** Express selects the built production or development assets and supports an `APP_URL` with a subpath. A missing build returns HTTP 503 with setup instructions. `npm run build:watch` / `npm run dist:watch` rebuild on changes. Docker continues to run the production build during image creation.
 
-On first access to an empty installation, a bilingual setup wizard collects the first administrator account plus SMTP and backup settings. It is available only while no user exists. Further administrators can then be assigned in user management. During upgrades, confirmed accounts previously recognized through `ADMIN_EMAIL` are migrated once to database-backed administrator roles.
+On first access to an empty installation, a bilingual setup wizard collects the first administrator account, SMTP and backup settings, and the registration mode (open, administrator invitations only, invitations by users, or closed). Until setup completes successfully, the normal UI, registration, login and other API endpoints remain locked; only the wizard and technical health check are available. Further administrators can then be assigned in user management. During upgrades, confirmed accounts previously recognized through `ADMIN_EMAIL` are migrated once to database-backed administrator roles.
 
 ## Bun: install, build, test and start
 

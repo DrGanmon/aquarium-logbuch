@@ -6,6 +6,7 @@ import { APP_ROOT } from './utils/paths';
 import express = require('express');
 import path = require('path');
 import fs = require('fs');
+import db = require('./db');
 
 import envModule = require('./config/env');
 const { APP_PATH } = envModule;
@@ -65,6 +66,27 @@ app.use('/api', (req, res, next) => {
   req.body ??= {};
   next();
 });
+
+// Vor der Ersteinrichtung darf nur der Wizard (und der technische Healthcheck)
+// auf das Backend zugreifen. So kann weder die Registrierung noch OIDC den
+// ersten, zwingend administrativen Benutzer am Wizard vorbei anlegen.
+const setupGate = async (req: Request, res: Response, next: NextFunction) => {
+  // Bestehende API-Tests erzeugen bewusst einzelne Konten ohne UI-Wizard. Der
+  // dedizierte Setup-Test aktiviert das produktive Gate ausdrücklich.
+  if (process.env.NODE_ENV === 'test' && process.env.ENFORCE_SETUP_GATE !== 'true') return next();
+  const requestPath = (req.originalUrl || req.url).split('?')[0];
+  if (requestPath === '/api/setup/status' || requestPath === '/api/setup/complete' || requestPath.startsWith('/api/health')) return next();
+  try {
+    if (Number(await db.users.count()) === 0) {
+      return res.status(428).json({ error: 'Die Ersteinrichtung muss zuerst abgeschlossen werden.', code: 'SETUP_REQUIRED' });
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+app.use('/api', setupGate);
+app.use('/auth', setupGate);
 
 // API Routen
 app.use('/api', authRoutes);

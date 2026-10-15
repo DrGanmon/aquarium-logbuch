@@ -6,11 +6,21 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Administratorrechte als Datenbankrolle für mehrere Benutzer verwalten, bisherige bestätigte `ADMIN_EMAIL`-Konten migrieren und einen zweisprachigen, nur bei leerer Installation verfügbaren Setup-Wizard für erstes Admin-Konto, SMTP und automatische Backups ergänzen. Benutzerverwaltung, Sitzungen, Dokumentation und Regressionstests anpassen.
-- Gemeinsamen zweisprachigen Benachrichtigungsbereich mit Kopfzeilenzähler ergänzen: Likes und Kommentare zu eigenen Social-Beiträgen persistent melden, als gelesen markieren und offene Wasserwertwarnungen aus allen zugänglichen Becken anzeigen und quittieren. SQLite-/MongoDB-Migration, Backup/Restore, API-Dokumentation und Regressionstests ergänzen.
-- Vier neue, vollständig deutsch und englisch verfügbare Wassertest-Suiten für Amtra PRO TEST, sera aqua-test box, sera Einzeltests und Tetra Test integrieren und ihre Lokalisierung mit einem Regressionstest absichern.
+- Die normale Oberfläche, Registrierung, Anmeldung, OIDC und sonstige API bis zum Abschluss der Ersteinrichtung serverseitig sperren und den Registrierungsmodus im zweisprachigen Wizard abfragen und speichern. Healthcheck und Setup-Endpunkte bleiben erreichbar; API-Dokumentation und Regressionstests entsprechend erweitern.
 - MongoDB-Compose beim authentifizierten Replica-Set-Start ein persistentes Keyfile mit restriktiven Dateirechten erzeugen lassen und die Betriebsanforderung dokumentieren.
 - Audit-Restrisiken mit den Sicherheitsnachträgen abgleichen, behobene Befunde markieren und den aktuellen Node-/Bun-Prüfstand dokumentieren.
+
+## 0.1.18-ALPHA
+
+- 2026-10-15 · Administratorrechte als Datenbankrolle für mehrere Benutzer verwalten, bisherige bestätigte `ADMIN_EMAIL`-Konten migrieren und einen zweisprachigen Setup-Wizard für erstes Admin-Konto, SMTP und automatische Backups ergänzen. Benutzerverwaltung, Sitzungen, Dokumentation und Regressionstests anpassen ([`eebcb78`](https://github.com/DrGanmon/aquarium-logbuch/commit/eebcb78e3ab79e8ff8135e5cb1181a82f5d2e669)).
+
+## 0.1.17-ALPHA
+
+- 2026-10-15 · Gemeinsamen zweisprachigen Benachrichtigungsbereich mit Kopfzeilenzähler ergänzen: Likes und Kommentare zu eigenen Social-Beiträgen persistent melden, als gelesen markieren und offene Wasserwertwarnungen aus allen zugänglichen Becken anzeigen und quittieren. SQLite-/MongoDB-Migration, Backup/Restore, API-Dokumentation und Regressionstests ergänzen ([`66fb0c7`](https://github.com/DrGanmon/aquarium-logbuch/commit/66fb0c7b20218aa62e7c343be1a14177fd997e51)).
+
+## 0.1.16-ALPHA
+
+- 2026-10-15 · Vier neue, vollständig deutsch und englisch verfügbare Wassertest-Suiten für Amtra PRO TEST, sera aqua-test box, sera Einzeltests und Tetra Test integrieren und ihre Lokalisierung mit einem Regressionstest absichern ([`5628537`](https://github.com/DrGanmon/aquarium-logbuch/commit/5628537337a211c4bd8b94d86357983f41ffdd59)).
 
 ## 0.1.15-ALPHA
 
