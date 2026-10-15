@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { offlineState, storePending } from '../offline-store';
 import { refreshPending, synchronize } from '../offline-sync';
-import { t } from '../state';
+import { t, session } from '../state';
 async function discard(item: typeof offlineState.pending[number]) {
   if (!confirm(t('offline.discardConfirm'))) return;
   await storePending(item, true);
@@ -15,8 +15,9 @@ async function discard(item: typeof offlineState.pending[number]) {
     <details v-if="offlineState.pending.length">
       <summary>{{ t('offline.entries') }} ({{ offlineState.pending.length }})</summary>
       <div v-for="item in offlineState.pending" :key="item.id" class="stack">
-        <p>{{ t('offline.aquarium') }} {{ item.aquarium }} · {{ new Date(item.body.measured_at).toLocaleString() }}</p>
-        <p>{{ Object.entries(item.body.values).map(([key, value]) => `${key}: ${value}`).join(', ') }} · {{ item.body.note }}</p>
+        <p>{{ t('offline.aquarium') }} {{ item.aquarium }} · {{ new Date(item.kind === 'maintenance' ? item.body.logged_at : item.body.measured_at).toLocaleString() }}</p>
+        <p v-if="item.kind === 'maintenance'">{{ session.config?.maintenanceTypes[item.body.type]?.label || item.body.type }}<span v-if="item.body.percentage != null"> · {{ item.body.percentage }} %</span> · {{ item.body.details }} · {{ item.body.note }}</p>
+        <p v-else>{{ Object.entries(item.body.values).map(([key, value]) => `${key}: ${value}`).join(', ') }} · {{ item.body.note }}</p>
         <p v-if="item.error" role="alert">{{ item.error }}</p>
         <button class="btn ghost" type="button" :disabled="offlineState.syncing" @click="discard(item)">{{ t('offline.discard') }}</button>
       </div>

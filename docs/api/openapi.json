@@ -4821,7 +4821,7 @@
         ],
         "summary": "Pflegemaßnahmen anlegen/ausführen",
         "operationId": "post_api_aquariums_id_maintenance",
-        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher. ",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher.  Optional idempotent über operation_id (UUID v4), logged_at und operation_user_id. Die Benutzer-ID muss zur aktuellen Sitzung gehören. Wiederholungen derselben normalisierten Eingabe liefern dieselbe ID ohne weiteren Logbucheintrag. Verschiedene UUIDs bleiben unabhängige Einträge. 400 bei ungültiger UUID, fehlendem logged_at oder ungültiger Eingabe; 403 bei abweichendem operation_user_id oder fehlendem Schreibrecht; 409 bei derselben Operations-ID mit anderem Inhalt oder Aquarium. Gültige Sitzung und bestehende Setup-/Berechtigungsregeln bleiben erforderlich. Operations-IDs sind pro Benutzer und Eintragsart getrennt. Die Belege bleiben nach Löschen erhalten und werden mit Backups gesichert.",
         "security": [
           {
             "SessionCookie": []
@@ -4883,6 +4883,24 @@
           },
           "500": {
             "$ref": "#/components/responses/Error500"
+          },
+          "409": {
+            "description": "Operations-ID wurde bereits für einen anderen Logbucheintrag verwendet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
           }
         },
         "x-aquarium-role": "write",
@@ -4891,7 +4909,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MaintenanceInput"
+                "$ref": "#/components/schemas/OfflineMaintenanceInput"
               }
             }
           }
@@ -14553,6 +14571,28 @@
           "amount_ml"
         ],
         "additionalProperties": true
+      },
+      "OfflineMaintenanceInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MaintenanceInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operation_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Optionale UUID v4 für idempotente Anlage. Mit derselben UUID auch denselben Inhalt erneut senden."
+              },
+              "operation_user_id": {
+                "type": "integer",
+                "description": "Bei operation_id erforderlich: ID des offline erfassenden Benutzers, passend zur Sitzung."
+              }
+            },
+            "description": "Bei operation_id sind logged_at und operation_user_id zusätzlich erforderlich. Ohne operation_id bleibt die bisherige Anlage unterstützt."
+          }
+        ]
       },
       "MaintenanceInput": {
         "type": "object",

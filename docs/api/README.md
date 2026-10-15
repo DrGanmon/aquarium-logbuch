@@ -135,9 +135,9 @@ Zur Wiederherstellung über `POST /api/admin/backups/restore-upload` ein JSON-Ob
 
 Das Format `AQLBENC1` enthält einen längenbegrenzten, authentifizierten Header, einen zufälligen Salt, IV und AES-256-GCM-Chiffretext. scrypt (N=32768, r=8, p=1) leitet den Archivschlüssel vom Passwort ab. Eine mit dem separaten App-Schlüssel verschlüsselte Kopie des Archivschlüssels ermöglicht lokale Wiederherstellung und Bildbereinigung auch nach Passwortwechseln. Das Passwort selbst wird nicht exportiert. Heruntergeladene ältere Archive behalten ihr ursprüngliches Passwort. Migrationssicherungen vor der ersten Passwortkonfiguration sind ausschließlich mit dem App-Schlüssel entschlüsselbar.
 
-## Offline-Messwerte und mehrere Geräte
+## Offline-Messwerte, Logbucheinträge und mehrere Geräte
 
-Die PWA speichert neue Messungen pro Benutzer in IndexedDB und überträgt sie bei geöffneter App nach Wiederherstellung der Verbindung, beim Aktivieren und regelmäßig alle 30 Sekunden. Erster Login und Laden der gewünschten Aquarien/Testkonfiguration müssen online erfolgen. Der Produktionsbuild speichert die App-Oberfläche einschließlich aller Ansichten im Service Worker; HTTPS oder localhost sind erforderlich. Bereits geladene Listen und Details stehen offline zur Verfügung. Andere Schreibvorgänge bleiben online erforderlich. Docker Compose benötigt dafür keinen zusätzlichen Dienst.
+Die PWA speichert neue Messungen und manuelle Logbucheinträge pro Benutzer in IndexedDB und überträgt sie bei geöffneter App nach Wiederherstellung der Verbindung, beim Aktivieren und regelmäßig alle 30 Sekunden. Erster Login und Laden der gewünschten Aquarien/Testkonfiguration müssen online erfolgen. Der Produktionsbuild speichert die App-Oberfläche einschließlich aller Ansichten im Service Worker; HTTPS oder localhost sind erforderlich. Bereits geladene Listen und Details stehen offline zur Verfügung. Bearbeiten und Löschen bestehender Einträge sowie andere Schreibvorgänge bleiben online erforderlich. Docker Compose benötigt dafür keinen zusätzlichen Dienst.
 
 Für jede neue Messung einmal eine UUID v4 erzeugen und denselben Inhalt bei Übertragungswiederholungen beibehalten:
 
@@ -153,3 +153,16 @@ Cookie: session=…
 `operation_user_id` muss zur Sitzung gehören. Authentifizierte Antworten enthalten `X-Aquarium-User` mit der aktuellen Benutzer-ID; die PWA prüft diese vor dem Speichern geladener Daten, damit ein Kontowechsel in einem anderen Tab keine fremden Daten im lokalen Benutzerbestand ablegt. Eine Wiederholung liefert HTTP 200 mit derselben Messungs-ID und den ursprünglichen Alarmen, ohne weitere Messung, Alarme oder Reagenzverbrauch zu erzeugen. Abweichender Inhalt bei gleicher Operations-ID liefert 409. Zwei Geräte mit verschiedenen UUIDs erzeugen zwei Messungen; gleiche Messwerte werden nicht automatisch gelöscht oder zusammengeführt. Wiederholungsbelege bleiben nach dem Löschen einer Messung erhalten und sind Bestandteil neuer Backups. Alte Backups besitzen diese Belege nicht.
 
 Bei abgelaufener Anmeldung pausiert die Übertragung; lokale Eingaben bleiben erhalten und sind nach erneuter Anmeldung desselben Benutzers erreichbar. Abmelden entfernt die aktive Offline-Identität, behält aber offene Eingaben kontogetrennt. Lokale Daten liegen im Browserprofil; Browserdaten-Löschen, Speicherverlust oder Geräteverlust können noch nicht synchronisierte Daten entfernen. Berechtigungsentzug wird beim nächsten Serverkontakt durchgesetzt. Synchronisierung bei geschlossener App ist nicht garantiert. Es gibt noch keine Offline-Bearbeitung oder -Löschung bestehender Messungen und keine automatische Erkennung unabhängig erfasster Duplikate.
+
+Neue manuelle Logbucheinträge nutzen dieselbe Warteschlange und dieselben Sitzungsprüfungen. Unterstützt werden Wasserwechsel, Filterwechsel/-reinigung, Pflanzenschnitt, neue Pflanzen, Pflege, manuelle Düngung, Fütterung und sonstige Arbeiten. Automatische Dosierpumpen-Einträge bleiben serverseitig; deren manuelle Anlage wird weiterhin abgelehnt.
+
+```http
+POST /api/aquariums/42/maintenance
+Content-Type: application/json
+X-Requested-With: fetch
+Cookie: session=…
+
+{"operation_id":"693e8917-ec95-46b1-8784-1db5c43bd4d6","operation_user_id":7,"logged_at":"2026-10-15T12:00:00.000Z","type":"water_change","percentage":30,"details":"Bodengrund abgesaugt","note":"Offline erfasst"}
+```
+
+Bei Erfolg und Wiederholung: HTTP 200 mit `{"ok":true,"id":123}`. Dieselbe Operations-ID mit anderem normalisiertem Inhalt oder Aquarium liefert 409; ungültige UUID/fehlender Zeitpunkt 400, unpassende Benutzer-ID 403. Auch nach dem Löschen und nach Backup/Restore erzeugt eine Wiederholung keinen neuen Eintrag. Operations-IDs für Messungen und Pflegeeinträge sind getrennt, damit bestehende Offline-Messwerte unverändert synchronisierbar bleiben. Die bestehende Belegtabelle/-Collection `measurement_operations` speichert beide Eintragsarten; eine weitere Datenbankmigration oder ein zusätzlicher Docker-Dienst ist nicht erforderlich.

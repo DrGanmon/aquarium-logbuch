@@ -160,3 +160,13 @@ test('Offline identity survives language changes without mixing accounts', async
   f.records.set('activeOwner', 8);
   await assert.rejects(f.api.api('/me'), TypeError);
 });
+
+test('Offline-Sync: mixed outbox routes log entries and legacy measurements to the correct endpoints', async () => {
+  const f = syncFixture();
+  const log = { id: 'log', owner: 7, aquarium: '42', kind: 'maintenance', body: { operation_id: 'log', operation_user_id: 7, type: 'feeding', logged_at: '2026-10-15T12:00:00.000Z', note: 'Offline' } };
+  f.queued.push(log);
+  await f.sync.synchronize();
+  assert.deepEqual(f.calls.map(call => call.path), ['/aquariums/42/measurements', '/aquariums/42/maintenance']);
+  assert.equal(f.calls[1].body, log.body);
+  assert.equal(f.queued.length, 0);
+});

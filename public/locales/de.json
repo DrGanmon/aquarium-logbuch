@@ -1086,14 +1086,15 @@
     "nameExample": "z. B. Eisen-Volldünger"
   },
   "offline": {
+    "logSaved": "Logbucheintrag lokal gespeichert. Die Synchronisierung erfolgt bei bestehender Verbindung.",
     "signIn": "Bitte erneut anmelden.",
     "accountChanged": "Die Anmeldung hat sich geändert. Bitte neu anmelden.",
     "offline": "Offline · Angezeigt werden lokal gespeicherte Daten.",
-    "pending": "{{count}} Messungen warten auf Synchronisierung.",
-    "entries": "Lokal gespeicherte Messungen",
+    "pending": "{{count}} Einträge warten auf Synchronisierung.",
+    "entries": "Lokal gespeicherte Einträge",
     "aquarium": "Aquarium",
     "discard": "Lokalen Eintrag verwerfen",
-    "discardConfirm": "Diesen lokalen Eintrag endgültig entfernen? Eine bereits am Server gespeicherte Messung bleibt bestehen.",
+    "discardConfirm": "Diesen lokalen Eintrag endgültig entfernen? Ein bereits am Server gespeicherter Eintrag bleibt bestehen.",
     "sync": "Jetzt synchronisieren",
     "saved": "Messung lokal gespeichert. Die Synchronisierung erfolgt bei bestehender Verbindung."
   }

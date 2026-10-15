@@ -1,13 +1,27 @@
 import { reactive } from 'vue';
 
+export interface MaintenanceBody {
+  operation_id: string; operation_user_id: number;
+  logged_at: string; type: string; percentage: number | null; details: string; note: string;
+}
 export interface PendingMeasurement {
   id: string;
   owner: number;
   aquarium: string;
+  kind?: 'measurement'; // Existing outbox entries have no kind.
   body: { operation_id: string; operation_user_id: number; measured_at: string; values: Record<string, number>; selectedTests: string[]; note: string };
   error?: string;
 }
-export const offlineState = reactive({ offline: !navigator.onLine, pending: [] as PendingMeasurement[], syncing: false, error: '' });
+export interface PendingMaintenance {
+  id: string;
+  owner: number;
+  aquarium: string;
+  kind: 'maintenance';
+  body: MaintenanceBody;
+  error?: string;
+}
+export type PendingEntry = PendingMeasurement | PendingMaintenance;
+export const offlineState = reactive({ offline: !navigator.onLine, pending: [] as PendingEntry[], syncing: false, error: '' });
 let database: Promise<IDBDatabase> | undefined;
 function open() {
   return database ??= new Promise<IDBDatabase>((resolve, reject) => {
@@ -43,13 +57,13 @@ export async function writeLocal(key: string, value: unknown) {
 export async function activeOwner() { return readLocal<number>('activeOwner'); }
 export async function pendingFor(owner: number) {
   const db = await open();
-  return new Promise<PendingMeasurement[]>((resolve, reject) => {
+  return new Promise<PendingEntry[]>((resolve, reject) => {
     const request = db.transaction('outbox').objectStore('outbox').getAll();
-    request.onsuccess = () => resolve((request.result as PendingMeasurement[]).filter(item => item.owner === owner));
+    request.onsuccess = () => resolve((request.result as PendingEntry[]).filter(item => item.owner === owner));
     request.onerror = () => reject(request.error);
   });
 }
-export async function storePending(item: PendingMeasurement, remove = false) {
+export async function storePending(item: PendingEntry, remove = false) {
   const db = await open();
   await new Promise<void>((resolve, reject) => {
     const tx = db.transaction('outbox', 'readwrite');

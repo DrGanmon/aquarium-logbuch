@@ -1086,14 +1086,15 @@
     "nameExample": "e.g. Iron fertilizer"
   },
   "offline": {
+    "logSaved": "Log entry saved locally. It will sync when connected.",
     "signIn": "Please sign in again.",
     "accountChanged": "The signed-in account has changed. Please sign in again.",
     "offline": "Offline · Showing locally saved data.",
-    "pending": "{{count}} measurements waiting to sync.",
-    "entries": "Locally saved measurements",
+    "pending": "{{count}} entries waiting to sync.",
+    "entries": "Locally saved entries",
     "aquarium": "Aquarium",
     "discard": "Discard local entry",
-    "discardConfirm": "Permanently remove this local entry? A measurement already saved on the server will remain.",
+    "discardConfirm": "Permanently remove this local entry? An entry already saved on the server will remain.",
     "sync": "Sync now",
     "saved": "Measurement saved locally. It will sync when connected."
   }

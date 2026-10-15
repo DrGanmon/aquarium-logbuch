@@ -1,4 +1,4 @@
-import { replayMeasurement } from './measurement-operation';
+import { replayMeasurement, replayOperation } from './measurement-operation';
 import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-crypto';
 import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
 import { PlantRepository } from './plant-repository';
@@ -1533,11 +1533,20 @@ class SqliteAdapter {
             .get(Number(aquariumId), String(type)) || null
         );
       },
-      async create({ aquarium_id, logged_at, type, percentage = null, details = null, note = null, created_by = null }: any) {
-        const info = db
-          .prepare('INSERT INTO maintenance_logs (aquarium_id, logged_at, type, percentage, details, note, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)')
-          .run(aquarium_id, logged_at, type, percentage, details, note, created_by);
-        return { id: Number(info.lastInsertRowid) };
+      async create({ aquarium_id, logged_at, type, percentage = null, details = null, note = null, created_by = null, operation_key = null, request_hash = null }: any) {
+        const create = db.transaction((): { id: number } => {
+          if (operation_key) {
+            const receipt = db.prepare<{ request_hash: string; response: string }>('SELECT * FROM measurement_operations WHERE operation_key = ?').get(operation_key);
+            if (receipt) return replayOperation(receipt, request_hash);
+          }
+          const info = db.prepare('INSERT INTO maintenance_logs (aquarium_id, logged_at, type, percentage, details, note, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            .run(aquarium_id, logged_at, type, percentage, details, note, created_by);
+          const response = { id: Number(info.lastInsertRowid) };
+          if (operation_key) db.prepare('INSERT INTO measurement_operations (operation_key, request_hash, response) VALUES (?, ?, ?)')
+            .run(operation_key, request_hash, JSON.stringify(response));
+          return response;
+        });
+        return create.immediate() as { id: number };
       },
       async update(id?: any, aquariumId?: any, fields: any = {}) {
         const setClauses = [];

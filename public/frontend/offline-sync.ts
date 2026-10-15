@@ -1,7 +1,7 @@
 import { watch } from 'vue';
 import { api, ApiError } from './api';
 import { session, t } from './state';
-import { offlineState, pendingFor, storePending, type PendingMeasurement } from './offline-store';
+import { offlineState, pendingFor, storePending, type PendingMeasurement, type MaintenanceBody, type PendingEntry } from './offline-store';
 
 export async function refreshPending() {
   const owner = Number(session.user?.id);
@@ -9,10 +9,16 @@ export async function refreshPending() {
   if (Number(session.user?.id) === owner || (!session.user && !owner)) offlineState.pending = pending;
 }
 export async function enqueueMeasurement(aquarium: string, body: Omit<PendingMeasurement['body'], 'operation_id' | 'operation_user_id'>) {
+  return enqueueEntry(aquarium, body, 'measurement');
+}
+export async function enqueueMaintenance(aquarium: string, body: Omit<MaintenanceBody, 'operation_id' | 'operation_user_id'>) {
+  return enqueueEntry(aquarium, body, 'maintenance');
+}
+async function enqueueEntry(aquarium: string, body: Omit<PendingMeasurement['body'], 'operation_id' | 'operation_user_id'> | Omit<MaintenanceBody, 'operation_id' | 'operation_user_id'>, kind: 'measurement' | 'maintenance') {
   const owner = Number(session.user?.id);
   if (!owner) throw new Error(t('offline.signIn'));
   const id = crypto.randomUUID();
-  await storePending({ id, owner, aquarium, body: { ...body, operation_id: id, operation_user_id: owner } });
+  await storePending({ id, owner, aquarium, kind, body: { ...body, operation_id: id, operation_user_id: owner } } as PendingEntry);
   await refreshPending();
   void navigator.storage?.persist?.().catch(() => {});
   void synchronize();
@@ -34,7 +40,7 @@ export async function synchronize() {
     for (const item of await pendingFor(owner)) {
       if (Number(session.user?.id) !== owner) break;
       try {
-        await api(`/aquariums/${item.aquarium}/measurements`, { method: 'POST', body: item.body, signal: AbortSignal.timeout(15000) });
+        await api(`/aquariums/${item.aquarium}/${item.kind === 'maintenance' ? 'maintenance' : 'measurements'}`, { method: 'POST', body: item.body, signal: AbortSignal.timeout(15000) });
         await storePending(item, true);
         changed = true;
       } catch (error) {

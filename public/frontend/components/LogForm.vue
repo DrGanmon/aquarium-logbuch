@@ -2,8 +2,9 @@
 import { computed, reactive, ref } from "vue";
 import Modal from "./Modal.vue";
 import Fields from "./Fields.vue";
+import { enqueueMaintenance } from "../offline-sync";
 import { api } from "../api";
-import { session, t, localDateTime, errorMessage } from "../state";
+import { session, t, localDateTime, errorMessage, toast } from "../state";
 import type { Field, FormData, LogEntry } from "../types";
 const props = defineProps<{
   id: string;
@@ -54,17 +55,19 @@ async function save() {
   if (busy.value) return;
   busy.value = true;
   try {
-    await api(
-      `/aquariums/${props.id}/maintenance${props.entry ? "/" + props.entry.id : ""}`,
-      {
-        method: props.entry ? "PUT" : "POST",
-        body: {
-          ...model,
-          logged_at: new Date(String(model.logged_at)).toISOString(),
-          percentage: model.percentage || null,
-        },
-      },
-    );
+    const body = {
+      type: String(model.type),
+      logged_at: new Date(String(model.logged_at)).toISOString(),
+      percentage: model.percentage ? Number(String(model.percentage).replace(',', '.')) : null,
+      details: String(model.details || ''),
+      note: String(model.note || ''),
+    };
+    if (props.entry) {
+      await api(`/aquariums/${props.id}/maintenance/${props.entry.id}`, { method: 'PUT', body });
+    } else {
+      await enqueueMaintenance(props.id, body);
+      toast(t('offline.logSaved'));
+    }
     emit("saved");
   } catch (e) {
     error.value = errorMessage(e);

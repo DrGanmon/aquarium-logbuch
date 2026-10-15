@@ -907,18 +907,33 @@ router.post(
   auth,
   writeAquarium,
   wrap(async (req: Request, res: Response) => {
+    const operationId = req.body.operation_id;
+    if (operationId !== undefined && (typeof operationId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(operationId) || !req.body.logged_at)) {
+      return res.status(400).json({ error: 'operation_id muss eine UUID v4 sein und benötigt logged_at.' });
+    }
+    if (operationId && req.body.operation_user_id !== req.user.id) {
+      return res.status(403).json({ error: 'Der Offline-Eintrag gehört zu einer anderen Benutzersitzung.' });
+    }
     const { error, value } = validateMaintenanceInput(req.body);
     if (error !== undefined) return res.status(400).json({ error });
 
-    const info = await db.maintenance.create({
-      aquarium_id: req.aq.id,
-      logged_at: value.logged_at,
-      type: value.type,
-      percentage: value.percentage,
-      details: value.details,
-      note: value.note,
-      created_by: req.user.id,
-    });
+    let info;
+    try {
+      info = await db.maintenance.create({
+        aquarium_id: req.aq.id,
+        logged_at: value.logged_at,
+        type: value.type,
+        percentage: value.percentage,
+        details: value.details,
+        note: value.note,
+        created_by: req.user.id,
+        operation_key: operationId ? `${req.user.id}:maintenance:${operationId.toLowerCase()}` : null,
+        request_hash: operationId ? crypto.createHash('sha256').update(JSON.stringify({ aquarium_id: req.aq.id, ...value })).digest('hex') : null,
+      });
+    } catch (error) {
+      if ((error as { status?: number }).status === 409) return res.status(409).json({ error: (error as Error).message });
+      throw error;
+    }
 
     res.json({ ok: true, id: info.id });
   })

@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Neue Messwerte offline in einer benutzergetrennten IndexedDB-Warteschlange erfassen, bereits geladene Aquariendaten offline anzeigen und die App-Oberfläche für Offline-Neustarts speichern. Bei Verbindung automatisch synchronisieren, unabhängige Geräteeinträge zusammenführen und wiederholte Übertragungen samt Alarmen und Testverbrauch in SQLite/MongoDB atomar deduplizieren. Kontowechsel absichern, offene Einträge anzeigen sowie API-Dokumentation, Backups und Regressionstests ergänzen.
+- Auch neue manuelle Logbucheinträge und Pflegemaßnahmen offline in derselben benutzergetrennten Warteschlange erfassen und automatisch synchronisieren. Wasserwechsel, Filterarbeiten, Pflanzenpflege, Düngung, Fütterung und sonstige Arbeiten einschließlich Zeitpunkt, Anteil, Details und Notizen unterstützen; Wiederholungen in SQLite/MongoDB atomar deduplizieren und offene Einträge gemeinsam anzeigen. Bestehende Offline-Messwerte, Backup-Belege und Online-Bearbeitung beibehalten; API-Dokumentation und Regressionstests ergänzen.
+
+## 0.2.1-ALPHA
+
+- 2026-10-15 · Neue Messwerte offline in einer benutzergetrennten IndexedDB-Warteschlange erfassen, bereits geladene Aquariendaten offline anzeigen und die App-Oberfläche für Offline-Neustarts speichern. Bei Verbindung automatisch synchronisieren, unabhängige Geräteeinträge zusammenführen und wiederholte Übertragungen samt Alarmen und Testverbrauch in SQLite/MongoDB atomar deduplizieren. Kontowechsel absichern, offene Einträge anzeigen sowie API-Dokumentation, Backups und Regressionstests ergänzen (`2a8390a26048d081ceee509d61ed793b09351584`).
 
 ## 0.2.0-ALPHA
 

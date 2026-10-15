@@ -1,4 +1,4 @@
-import { replayMeasurement } from './measurement-operation';
+import { replayMeasurement, replayOperation } from './measurement-operation';
 import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-crypto';
 import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
 import { PlantRepository } from './plant-repository';
@@ -1536,7 +1536,12 @@ class MongoAdapter {
       async findLastByType(aquariumId?: any, type?: any) {
         return (await db.collection('maintenance_logs').findOne({ aquarium_id: Number(aquariumId), type: String(type) }, { sort: { logged_at: -1 } })) || null;
       },
-      async create({ aquarium_id, logged_at, type, percentage = null, details = null, note = null, created_by = null }: any) {
+      async create({ aquarium_id, logged_at, type, percentage = null, details = null, note = null, created_by = null, operation_key = null, request_hash = null }: any) {
+        const operations = db.collection<{ operation_key: string; request_hash: string; response: string }>('measurement_operations');
+        if (operation_key) {
+          const receipt = await operations.findOne({ operation_key });
+          if (receipt) return replayOperation(receipt, request_hash);
+        }
         const id = await self.getNextSequence('maintenance_logs');
         const doc: Record<string, any> = {
           _id: id,
@@ -1550,7 +1555,22 @@ class MongoAdapter {
           created_by: created_by ? Number(created_by) : null,
           created_at: new Date().toISOString(),
         };
-        await db.collection('maintenance_logs').insertOne(doc);
+        if (operation_key) {
+          const session = self.client!.startSession();
+          try {
+            await session.withTransaction(async () => {
+              await operations.insertOne({ operation_key, request_hash, response: JSON.stringify({ id }) }, { session });
+              await db.collection('maintenance_logs').insertOne(doc, { session });
+            });
+          } catch (error) {
+            if ((error as { code?: number }).code !== 11000) throw error;
+            const receipt = await operations.findOne({ operation_key });
+            if (!receipt) throw error;
+            return replayOperation(receipt, request_hash);
+          } finally { await session.endSession(); }
+        } else {
+          await db.collection('maintenance_logs').insertOne(doc);
+        }
         return { id };
       },
       async update(id?: any, aquariumId?: any, fields: any = {}) {
