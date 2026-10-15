@@ -1,12 +1,13 @@
 import { spawn, type ChildProcess } from 'node:child_process';
+import cluster from 'node:cluster';
 import { EventEmitter } from 'node:events';
+import os from 'node:os';
+import path from 'node:path';
+import logger from '../utils/logger';
 import { asRecord } from '../utils/validation';
 import { loadControllerSecret } from './rate-limit-controller';
+
 interface SupervisorOptions { targetScript?: string; controllerScript?: string; args?: string[]; env?: NodeJS.ProcessEnv; logFile?: string; gracefulTimeout?: number; maxCrashWindowMs?: number; maxCrashesInWindow?: number; numWorkers?: number | 'auto' }
-import cluster from 'node:cluster';
-import path = require('path');
-import os = require('os');
-import logger = require('../utils/logger');
 
 class Supervisor {
   targetScript: string;
@@ -462,6 +463,4 @@ class Supervisor {
   }
 }
 
-export = {
-  Supervisor,
-};
+export { Supervisor };
