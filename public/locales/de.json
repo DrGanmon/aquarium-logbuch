@@ -1,4 +1,20 @@
 {
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "shortTitle": "Hinweise",
+    "intro": "Reaktionen auf deine Social-Beiträge und offene Wasserwertwarnungen aus deinen Becken.",
+    "socialTitle": "Social",
+    "waterTitle": "Wasserwerte",
+    "liked": "{username} gefällt dein Beitrag.",
+    "commented": "{username} hat deinen Beitrag kommentiert.",
+    "openPost": "Beitrag öffnen",
+    "openAquarium": "Becken öffnen",
+    "markRead": "Als gelesen markieren",
+    "markAllRead": "Alle als gelesen markieren",
+    "acknowledge": "Quittieren",
+    "noSocial": "Keine Social-Benachrichtigungen vorhanden.",
+    "noWater": "Keine offenen Wasserwertwarnungen vorhanden."
+  },
   "social": {
     "membersOnlyTitle": "Dieses Bild ist nur für Mitglieder",
     "membersOnlyText": "Dieser Beitrag ist nur für angemeldete Mitglieder dieses Servers sichtbar. Melde dich an oder registriere ein Konto, um das Bild anzusehen.",

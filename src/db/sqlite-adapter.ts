@@ -2,6 +2,7 @@ import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-cryp
 import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
 import { PlantRepository } from './plant-repository';
 import { SocialRepository } from "./social-repository";
+import { NotificationRepository } from "./notification-repository";
 import { buildAdminMetrics, normalizeAiUsage } from './admin-metrics';
 import type { UserRecord, Aquarium, AccessRole, StockRecord, Measurement, DosingPump, AquariumImage, AquariumShare, Invitation } from '../types/domain';
 import type { SqliteConnection } from '../types/database-driver';
@@ -43,6 +44,7 @@ class SqliteAdapter {
   invitations!: ReturnType<SqliteAdapter['build_invitations']>;
   aquariumChats!: ReturnType<SqliteAdapter['build_aquariumChats']>;
   social!: SocialRepository;
+  notifications!: NotificationRepository;
   dosingPumps!: RepositoryContract<ReturnType<SqliteAdapter['build_dosingPumps']>, PumpRepository>;
 
   constructor(options: DatabaseOptions = {}) {
@@ -166,6 +168,7 @@ class SqliteAdapter {
 
     this.dosingPumps = this.build_dosingPumps();
     this.social = new SocialRepository(this.type, this.connection());
+    this.notifications = new NotificationRepository(this.type, this.connection());
   }
 
   async exportAllData() {
@@ -226,6 +229,7 @@ class SqliteAdapter {
       social_posts: safeGetAll('social_posts'),
       social_comments: safeGetAll('social_comments'),
       social_likes: safeGetAll('social_likes', 'post_id ASC, user_id ASC'),
+      social_notifications: safeGetAll('social_notifications', 'id ASC'),
       ai_usage_metrics: safeGetAll('ai_usage_metrics', 'provider ASC'),
     };
   }
@@ -247,6 +251,7 @@ class SqliteAdapter {
     const chats = Array.isArray(data.aquarium_chats) ? data.aquarium_chats : [];
     const dosing_pumps = Array.isArray(data.dosing_pumps) ? data.dosing_pumps : [];
     const aiUsage = Array.isArray(data.ai_usage_metrics) ? data.ai_usage_metrics : [];
+    const socialNotifications = Array.isArray(data.social_notifications) ? data.social_notifications : [];
 
     const validUserIds = new Set(users.map((u: any) => u.id));
     const currentSessions = db.prepare('SELECT * FROM sessions WHERE expires_at > ?').all(Date.now());
@@ -254,6 +259,7 @@ class SqliteAdapter {
     const runImport = db.transaction(() => {
       db.pragma('foreign_keys = OFF');
 
+      this.notifications.clear();
       this.social.clearSqlite();
       db.exec('DELETE FROM dosing_pumps');
       db.exec('DELETE FROM aquarium_chats');
@@ -516,6 +522,7 @@ class SqliteAdapter {
         db.prepare('INSERT INTO aquarium_plants (aquarium_id, plant_id, count) VALUES (?, ?, ?)').run(plant.aquarium_id, plant.plant_id, plant.count);
       }
       this.social.importSqliteData(data);
+      this.notifications.importData(socialNotifications);
       const insertUsage = db.prepare('INSERT INTO ai_usage_metrics (provider, input_tokens, output_tokens, total_tokens, request_count, updated_at) VALUES (?, ?, ?, ?, ?, ?)');
       for (const row of aiUsage) {
         if (!['openai', 'gemini', 'claude'].includes(row?.provider)) continue;

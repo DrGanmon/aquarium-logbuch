@@ -2,6 +2,7 @@ import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-cryp
 import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
 import { PlantRepository } from './plant-repository';
 import { SocialRepository } from "./social-repository";
+import { NotificationRepository } from "./notification-repository";
 import { buildAdminMetrics, normalizeAiUsage } from './admin-metrics';
 import type { UserRecord, Aquarium, AccessRole, StockRecord, Measurement, AquariumImage, AquariumShare, Invitation } from '../types/domain';
 import type { MongoConnection } from '../types/database-driver';
@@ -48,6 +49,7 @@ class MongoAdapter {
   invitations!: ReturnType<MongoAdapter['build_invitations']>;
   aquariumChats!: ReturnType<MongoAdapter['build_aquariumChats']>;
   social!: SocialRepository;
+  notifications!: NotificationRepository;
   dosingPumps!: RepositoryContract<ReturnType<MongoAdapter['build_dosingPumps']>, PumpRepository>;
 
   constructor(options: DatabaseOptions = {}) {
@@ -275,6 +277,7 @@ class MongoAdapter {
 
     this.dosingPumps = this.build_dosingPumps();
     this.social = new SocialRepository(this.type, this.connection(), name => this.getNextSequence(name));
+    this.notifications = new NotificationRepository(this.type, this.connection(), name => this.getNextSequence(name));
   }
 
   async exportAllData() {
@@ -331,6 +334,7 @@ class MongoAdapter {
       aquarium_chats,
       dosing_pumps,
       ...(await new SocialRepository(this.type, db).exportData(session)),
+      social_notifications: await new NotificationRepository(this.type, db).exportData(session),
       ai_usage_metrics: await safeGetDocs('ai_usage_metrics', { provider: 1 }),
     };
   }
@@ -361,10 +365,12 @@ class MongoAdapter {
     const invitations = Array.isArray(data.invitations) ? data.invitations : [];
     const chats = Array.isArray(data.aquarium_chats) ? data.aquarium_chats : [];
     const dosing_pumps = Array.isArray(data.dosing_pumps) ? data.dosing_pumps : [];
+    const socialNotifications = Array.isArray(data.social_notifications) ? data.social_notifications : [];
 
     const userIds = users.map((u: any) => u.id);
     const currentSessions = await db.collection('sessions').find({ expires_at: { $gt: Date.now() } }, sessionOptions).toArray();
 
+    await this.notifications.clear(session);
     await this.social.clear(session);
     // Collections leeren
     for (const name of ['users', 'sessions', 'aquariums', 'aquarium_images', 'aquarium_shares', 'aquarium_plants', 'stock', 'measurements', 'alerts', 'maintenance_logs', 'invitations', 'aquarium_chats', 'dosing_pumps', 'ai_usage_metrics', 'counters']) {
@@ -430,6 +436,7 @@ class MongoAdapter {
     }
 
     await this.social.importData(data, session);
+    await this.notifications.importData(socialNotifications, session);
     return true;
   }
 

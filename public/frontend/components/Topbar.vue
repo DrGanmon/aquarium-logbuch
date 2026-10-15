@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { themeIcon, toggleTheme } from "../state";
+import { api } from "../api";
 import type { User, Translate } from "../types";
 const props = defineProps<{
   user: User | null;
@@ -18,6 +19,27 @@ const displayName = computed(() =>
 const avatar = computed(() =>
   props.user?.hasAvatar ? `api/me/avatar?t=${Date.now()}` : undefined,
 );
+const unread = ref(0);
+let notificationTimer: ReturnType<typeof setInterval> | undefined;
+async function refreshNotifications() {
+  if (!props.user) { unread.value = 0; return; }
+  try {
+    const result = await api<{ unreadSocial: number; openWater: number }>("/notifications?limit=1");
+    unread.value = result.unreadSocial + result.openWater;
+  } catch { /* Den letzten bekannten Zähler bei vorübergehenden Fehlern erhalten. */ }
+}
+watch(() => props.user?.id, refreshNotifications);
+onMounted(() => {
+  void refreshNotifications();
+  notificationTimer = setInterval(refreshNotifications, 60000);
+  window.addEventListener("focus", refreshNotifications);
+  window.addEventListener("notifications-updated", refreshNotifications);
+});
+onBeforeUnmount(() => {
+  if (notificationTimer) clearInterval(notificationTimer);
+  window.removeEventListener("focus", refreshNotifications);
+  window.removeEventListener("notifications-updated", refreshNotifications);
+});
 </script>
 
 <template>
@@ -39,6 +61,7 @@ const avatar = computed(() =>
       <a class="btn small ghost" v-if="user" href="#/plants">🌿 {{ t("nav.plants") }}</a>
       <a class="btn small ghost" v-if="user" href="#/health">🩺 {{ t("nav.health") }}</a>
       <a class="btn small ghost" href="#/social"><span aria-hidden="true">👥 </span>{{ t("social.title") }}</a>
+      <a class="btn small ghost" v-if="user" href="#/notifications" :aria-label="t('notifications.title')">🔔 {{ t("notifications.shortTitle") }}<span v-if="unread" class="notification-count">{{ unread > 99 ? "99+" : unread }}</span></a>
       <a v-if="!user" class="btn small ghost" href="#/">{{ t("auth.loginBtn") }}</a>
       <a
         v-if="user"
@@ -97,3 +120,7 @@ const avatar = computed(() =>
     </div>
   </header>
 </template>
+
+<style scoped>
+.notification-count { min-width: 1.25rem; margin-left: .3rem; padding: .05rem .35rem; border-radius: 1rem; background: var(--danger); color: white; font-weight: 700; text-align: center; }
+</style>

@@ -25,7 +25,8 @@ export class SocialRepository {
   async deletePost(id: number): Promise<void> {
     if (this.type === 'sqlite') { this.sql.prepare('DELETE FROM social_posts WHERE id = ?').run(id);return; }
     await this.mongo.collection('social_posts').deleteOne({ id });
-    await Promise.all([this.mongo.collection('social_comments').deleteMany({ post_id: id }), this.mongo.collection('social_likes').deleteMany({ post_id: id })]);
+    await Promise.all([this.mongo.collection('social_comments').deleteMany({ post_id: id }), this.mongo.collection('social_likes').deleteMany({ post_id: id }),
+      this.mongo.collection('social_notifications').deleteMany({ post_id: id })]);
   }
   async counts(id: number, userId?: number) {
     if (this.type === 'sqlite') {
@@ -63,7 +64,7 @@ export class SocialRepository {
   }
   async deleteComment(id: number) {
     if (this.type === 'sqlite') { this.sql.prepare('DELETE FROM social_comments WHERE id = ?').run(id);return; }
-    await this.mongo.collection('social_comments').deleteOne({ id });
+    await Promise.all([this.mongo.collection('social_comments').deleteOne({ id }), this.mongo.collection('social_notifications').deleteMany({ comment_id: id })]);
   }
   async hasActivity(userId: number, includeInternal = false): Promise<boolean> {
     if (this.type === 'sqlite') return Boolean(this.sql.prepare(`SELECT 1 FROM social_posts p WHERE p.user_id = ? AND (p.is_public = 1 OR ? = 1)
@@ -85,6 +86,7 @@ export class SocialRepository {
     } else {
       await this.mongo.collection('social_comments').deleteMany({ user_id: userId });
       await this.mongo.collection('social_likes').deleteMany({ user_id: userId });
+      await this.mongo.collection('social_notifications').deleteMany({ $or: [{ user_id: userId }, { actor_id: userId }] });
     }
   }
   async exportData(session?: ClientSession) {

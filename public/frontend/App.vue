@@ -15,6 +15,7 @@ const ProfileView = lazyComponent(() => import("./views/ProfileView.vue"));
 const PlantsView = lazyComponent(() => import("./views/PlantsView.vue"));
 const SpeciesView = lazyComponent(() => import("./views/SpeciesView.vue"));
 const SocialView = lazyComponent(() => import("./views/SocialView.vue"));
+const NotificationsView = lazyComponent(() => import("./views/NotificationsView.vue"));
 const HealthView = lazyComponent(() => import("./views/HealthView.vue"));
 const AdminView = lazyComponent(() => import("./views/AdminView.vue"));
 const LegalView = lazyComponent(() => import("./views/LegalView.vue"));
@@ -68,6 +69,7 @@ onMounted(initialize);
       :key="route.path + route.query.toString()"
     />
     <ProfileView v-else-if="route.path === '/profile'" />
+    <NotificationsView v-else-if="route.path === '/notifications'" />
     <PlantsView v-else-if="route.path === '/plants' || route.path.startsWith('/plants/')" :key="route.path" />
     <SpeciesView
       v-else-if="route.path.startsWith('/species')"

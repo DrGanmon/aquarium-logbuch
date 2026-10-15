@@ -1,6 +1,6 @@
 # API / Swagger
 
-Die vollständige [OpenAPI-Spezifikation](openapi.json) beschreibt **126 Pfade mit 190 Operationen** des Repository-Standes vom 15.10.2026, Version `0.1.12-ALPHA`. Sie verwendet [OpenAPI 3.0.3](https://spec.openapis.org/oas/v3.0.3.html) und lässt sich in Swagger UI oder Swagger Editor importieren. Enthalten sind Konten, Kataloge, Aquarien, Bilder, Besatz, Messungen, Pflege, Dünger, Freigaben, Diagnose, KI-Chat, Social, Administration, Metriken und OIDC.
+Die vollständige [OpenAPI-Spezifikation](openapi.json) beschreibt **128 Pfade mit 192 Operationen** des Repository-Standes vom 15.10.2026, Version `0.1.12-ALPHA`. Sie verwendet [OpenAPI 3.0.3](https://spec.openapis.org/oas/v3.0.3.html) und lässt sich in Swagger UI oder Swagger Editor importieren. Enthalten sind Konten, Kataloge, Aquarien, Bilder, Besatz, Messungen, Pflege, Dünger, Freigaben, Diagnose, KI-Chat, Social, Benachrichtigungen, Administration, Metriken und OIDC.
 
 ## In Swagger ansehen
 
@@ -64,6 +64,8 @@ Social-Bilder werden in `image` als `data:image/jpeg;base64,...` bzw. PNG, WebP 
 Ein neuer Beitrag verwendet `{image, text, isPublic}`. `text` darf bis 2200 Zeichen enthalten; `isPublic` ist standardmäßig `false`. Interne Beiträge sind für angemeldete Mitglieder sichtbar. Die öffentliche Feed-Abfrage enthält ausschließlich öffentliche Beiträge.
 
 `GET /api/social/posts/{id}` liefert Gästen bei einem internen Beitrag `403` mit `code:"MEMBERS_ONLY"`, ohne Beitragsdaten. Direkte Bild- und Kommentaraufrufe liefern weiterhin `404`. Das Frontend nutzt den Fehlercode für den Mitgliederhinweis am Teilen-Link.
+
+`GET /api/notifications` bündelt für angemeldete Nutzer Reaktionen auf eigene Social-Beiträge mit offenen Wasserwertwarnungen aus allen zugänglichen Aquarien. Likes und Kommentare des Beitragsautors selbst erzeugen keine Benachrichtigung. `POST /api/notifications/read` markiert einzelne Social-Benachrichtigungen über `{ids:[...]}` oder ohne `ids` alle als gelesen. Wasserwertwarnungen werden weiterhin über `/api/aquariums/{id}/alerts/ack` quittiert.
 
 ## Listen, Datensätze und Spezialformate
 

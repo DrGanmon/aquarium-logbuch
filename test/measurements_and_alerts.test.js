@@ -93,6 +93,11 @@ test('Messungen & Alarme: Erfassung, Validierung, Historie und Quittierung', asy
   assert.strictEqual(detailRes.data.latest.no2.value, 1.0);
   assert.strictEqual(detailRes.data.latest.no2.status, 'crit');
 
+  const notifications = await env.request('/api/notifications', { headers: { Cookie: user.cookie } });
+  assert.strictEqual(notifications.status, 200);
+  assert.strictEqual(notifications.data.openWater, 3);
+  assert.ok(notifications.data.water.every((item) => item.aquariumId === aqId && item.aquariumName === 'Pflanzenbecken'));
+
   // 6. Historie abrufen (/api/aquariums/:id/measurements)
   const histRes = await env.request(`/api/aquariums/${aqId}/measurements?days=30`, {
     headers: { Cookie: user.cookie },

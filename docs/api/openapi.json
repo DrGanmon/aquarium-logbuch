@@ -13381,6 +13381,63 @@
         }
       }
     },
+    "/api/notifications": {
+      "get": {
+        "tags": ["Benachrichtigungen"],
+        "summary": "Benachrichtigungen und offene Wasserwertwarnungen abrufen",
+        "operationId": "get_api_notifications",
+        "description": "Liefert Social-Benachrichtigungen des angemeldeten Nutzers sowie offene Wasserwertwarnungen aus allen für ihn zugänglichen Aquarien.",
+        "security": [{ "SessionCookie": [] }],
+        "parameters": [{ "name": "limit", "in": "query", "required": false, "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 } }],
+        "responses": {
+          "200": {
+            "description": "Social-Benachrichtigungen, Wasserwertwarnungen und offene Anzahlen.",
+            "content": { "application/json": { "schema": {
+              "type": "object",
+              "properties": {
+                "social": { "type": "array", "items": { "type": "object", "additionalProperties": true } },
+                "water": { "type": "array", "items": { "type": "object", "additionalProperties": true } },
+                "unreadSocial": { "type": "integer", "minimum": 0 },
+                "openWater": { "type": "integer", "minimum": 0 }
+              },
+              "required": ["social", "water", "unreadSocial", "openWater"]
+            } } }
+          },
+          "400": { "$ref": "#/components/responses/Error400" },
+          "401": { "$ref": "#/components/responses/Error401" },
+          "500": { "$ref": "#/components/responses/Error500" }
+        }
+      }
+    },
+    "/api/notifications/read": {
+      "post": {
+        "tags": ["Benachrichtigungen"],
+        "summary": "Social-Benachrichtigungen als gelesen markieren",
+        "operationId": "post_api_notifications_read",
+        "description": "Markiert die angegebenen eigenen Social-Benachrichtigungen oder bei fehlendem ids-Feld alle eigenen Social-Benachrichtigungen als gelesen.",
+        "security": [{ "SessionCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/RequestedWith" }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": {
+            "type": "object",
+            "properties": { "ids": { "type": "array", "uniqueItems": true, "items": { "type": "integer", "minimum": 1 } } },
+            "additionalProperties": false
+          } } }
+        },
+        "responses": {
+          "200": {
+            "description": "Gelesen-Markierung gespeichert.",
+            "content": { "application/json": { "schema": { "type": "object", "properties": { "ok": { "type": "boolean" }, "updated": { "type": "integer", "minimum": 0 } }, "required": ["ok", "updated"] } } }
+          },
+          "400": { "$ref": "#/components/responses/Error400" },
+          "401": { "$ref": "#/components/responses/Error401" },
+          "403": { "$ref": "#/components/responses/Error403" },
+          "415": { "$ref": "#/components/responses/Error415" },
+          "500": { "$ref": "#/components/responses/Error500" }
+        }
+      }
+    },
     "/api/social/posts": {
       "get": {
         "tags": [

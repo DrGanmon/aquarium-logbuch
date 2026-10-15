@@ -42,12 +42,21 @@ for (const backend of ['sqlite', 'mongodb']) {
     assert.equal((await env.request(`${postUrl}/comments`, { method: 'POST', headers: friendHeaders, body: { text: '  ' } })).status, 400);
     const comment = await env.request(`${postUrl}/comments`, { method: 'POST', headers: friendHeaders, body: { text: 'Schönes Becken! <script>test</script>' } });
     assert.equal(comment.status, 201);assert.equal(comment.data.comment.author.username, 'social_friend');
+    assert.equal((await env.request('/api/notifications')).status, 401);
+    const notifications = await env.request('/api/notifications', { headers });
+    assert.equal(notifications.status, 200);assert.equal(notifications.data.unreadSocial, 2);
+    assert.deepEqual(notifications.data.social.map(item => item.type).sort(), ['comment', 'like']);
+    assert.ok(notifications.data.social.every(item => item.actor_username === 'social_friend' && item.post_id === post.id));
+    const read = await env.request('/api/notifications/read', { method: 'POST', headers, body: { ids: [notifications.data.social[0].id] } });
+    assert.equal(read.status, 200);assert.equal(read.data.updated, 1);
+    assert.equal((await env.request('/api/notifications', { headers })).data.unreadSocial, 1);
     assert.equal((await env.request(`/api/social/comments/${comment.data.comment.id}`, { method: 'DELETE', headers })).status, 403);
     assert.equal((await env.request(`${postUrl}/comments`)).data.comments[0].text, 'Schönes Becken! <script>test</script>');
     const { backupService } = require('../dist/backend/src/services/backup-service');
     const db = require('../dist/backend/src/db');
     const backup = await backupService.generateBackupData({ includeFiles: true });
     assert.equal(backup.data.social_posts.length, 1);assert.equal(backup.data.social_comments.length, 1);assert.equal(backup.data.social_likes.length, 1);
+    assert.equal(backup.data.social_notifications.length, 2);
     const filename = backup.data.social_posts[0].filename;
     assert.ok(backup.files[filename]);assert.equal(Buffer.from(backup.files[filename], 'base64').equals(storedImage), true);
     assert.equal((await env.request(postUrl, { method: 'DELETE', headers: adminHeaders })).status, 200);
@@ -64,7 +73,7 @@ for (const backend of ['sqlite', 'mongodb']) {
     assert.equal((await env.request('/api/social/posts')).data.posts.length, 0);
     const { saveSocialImage } = require('../dist/backend/src/services/social-image-service');
     await assert.rejects(saveSocialImage('data:image/png;base64,' + Buffer.alloc(10 * 1024 * 1024 + 1).toString('base64')), error => error.status === 400);
-    assert.equal(db.type === 'sqlite' ? db.getSchemaVersion() : await db.getSchemaVersion(), 8);
+    assert.equal(db.type === 'sqlite' ? db.getSchemaVersion() : await db.getSchemaVersion(), 9);
   });
 }
 

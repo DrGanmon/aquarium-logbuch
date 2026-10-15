@@ -106,10 +106,11 @@ router.delete('/posts/:id', auth, wrap(async (req: Request, res: Response) => {
   deleteImage(post.filename, true);await db.social.deletePost(post.id);res.json({ ok: true });
 }));
 router.put('/posts/:id/like', auth, requireTerms, limit('like', 200), wrap(async (req: Request, res: Response) => {
-  const postId = id(req.params.id);await postOrFail(postId, req);
+  const postId = id(req.params.id);const post = await postOrFail(postId, req);
   if (typeof req.body.liked !== 'boolean') throw new AppError('Ungültige Like-Einstellung.', 400);
   await db.social.like(postId, req.user.id, req.body.liked);
   if (!await db.social.post(postId)) { await db.social.like(postId, req.user.id, false);throw new AppError('Beitrag nicht gefunden.', 404); }
+  if (req.body.liked) await db.notifications.create({ user_id: post.user_id, actor_id: req.user.id, post_id: postId, type: 'like' });
   res.json(await db.social.counts(postId, req.user.id));
 }));
 router.get('/posts/:id/comments', viewer, wrap(async (req: Request, res: Response) => {
@@ -121,10 +122,11 @@ router.get('/posts/:id/comments', viewer, wrap(async (req: Request, res: Respons
   }))), next: comments.length > 20 ? comments[19].id : null });
 }));
 router.post('/posts/:id/comments', auth, requireTerms, limit('comment', 60), wrap(async (req: Request, res: Response) => {
-  const postId = id(req.params.id);await postOrFail(postId, req);
+  const postId = id(req.params.id);const post = await postOrFail(postId, req);
   const commentId = await db.social.createComment({ post_id: postId, user_id: req.user.id, text: text(req.body.text, 1000, true), created_at: new Date().toISOString() });
   if (!await db.social.post(postId)) { await db.social.deleteComment(commentId);throw new AppError('Beitrag nicht gefunden.', 404); }
   const comment = await db.social.comment(commentId);
+  await db.notifications.create({ user_id: post.user_id, actor_id: req.user.id, post_id: postId, comment_id: commentId, type: 'comment' });
   res.status(201).json({ comment: { id: commentId, post_id: postId, text: comment!.text, created_at: comment!.created_at, author: await author(req.user.id), canDelete: true } });
 }));
 router.delete('/comments/:id', auth, wrap(async (req: Request, res: Response) => {

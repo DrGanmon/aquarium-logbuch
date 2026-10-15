@@ -2,6 +2,8 @@
 
 [Handbuch](README.md) · [English](../en/social.md)
 
+Der Benachrichtigungsbereich in der Kopfzeile meldet Herzen und Kommentare anderer Mitglieder zu eigenen Beiträgen. Dort erscheinen zusätzlich offene Wasserwertwarnungen aus allen zugänglichen Aquarien. Social-Hinweise können als gelesen markiert, Wasserwertwarnungen direkt quittiert werden.
+
 ## Öffentlicher und serverinterner Feed
 
 Unter `#/social` sehen Besucher ohne Konto nur öffentliche Beiträge. Angemeldete Nutzer sehen zusätzlich Beiträge für alle angemeldeten Nutzer dieser Serverinstanz. Ein Beitrag enthält ein Bild und bis zu 2200 Zeichen Text. Der Feed zeigt die neuesten Beiträge zuerst und lädt jeweils 20 weitere. Einzelne Beiträge haben einen Link unter `#/social/:id`.

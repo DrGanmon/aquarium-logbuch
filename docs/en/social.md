@@ -2,6 +2,8 @@
 
 [Manual](README.md) · [Deutsch](../de/social.md)
 
+The notification area in the header reports likes and comments from other members on your posts. It also shows open water-value warnings from all accessible aquariums. Social notifications can be marked as read, while water warnings can be acknowledged directly.
+
 ## Public and server-only feed
 
 Visitors without accounts can browse public posts at `#/social`. Signed-in users also see posts shared with all members of this server instance. Each post contains one photo and a caption of up to 2200 characters. The feed shows newest posts first and loads pages of 20. Individual posts have links at `#/social/:id`.

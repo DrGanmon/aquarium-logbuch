@@ -1,4 +1,20 @@
 {
+  "notifications": {
+    "title": "Notifications",
+    "shortTitle": "Alerts",
+    "intro": "Reactions to your Social posts and open water-value warnings from your aquariums.",
+    "socialTitle": "Social",
+    "waterTitle": "Water values",
+    "liked": "{username} liked your post.",
+    "commented": "{username} commented on your post.",
+    "openPost": "Open post",
+    "openAquarium": "Open aquarium",
+    "markRead": "Mark as read",
+    "markAllRead": "Mark all as read",
+    "acknowledge": "Acknowledge",
+    "noSocial": "No Social notifications.",
+    "noWater": "No open water-value warnings."
+  },
   "social": {
     "membersOnlyTitle": "This image is for members only",
     "membersOnlyText": "This post is only visible to signed-in members of this server. Sign in or register an account to view the image.",

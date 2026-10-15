@@ -20,6 +20,7 @@ import shareRoutes = require('./routes/shares');
 import adminRoutes = require('./routes/admin');
 import oidcRoutes = require('./routes/oidc');
 import socialRoutes = require('./routes/social');
+import notificationRoutes = require('./routes/notifications');
 import healthRoutes = require('./routes/health');
 import metricsRoutes = require('./routes/metrics');
 
@@ -72,6 +73,7 @@ app.use('/api/aquariums', aquariumRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/social', socialRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/auth', oidcRoutes);
 app.use('/metrics', metricsRoutes);
 
