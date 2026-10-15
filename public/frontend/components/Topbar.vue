@@ -33,12 +33,12 @@ const avatar = computed(() =>
       <span id="topbar-brand-name">{{ t("common.appName") }}</span>
     </a>
     <div class="topbar-right">
-      <a class="btn small ghost" v-if="user" id="btn-species" href="#/species">{{
+      <a class="btn small ghost" v-if="user" id="btn-species" href="#/species"><span aria-hidden="true">🐠 </span>{{
         t("nav.species")
       }}</a>
       <a class="btn small ghost" v-if="user" href="#/plants">🌿 {{ t("nav.plants") }}</a>
       <a class="btn small ghost" v-if="user" href="#/health">🩺 {{ t("nav.health") }}</a>
-      <a class="btn small ghost" href="#/social">{{ t("social.title") }}</a>
+      <a class="btn small ghost" href="#/social"><span aria-hidden="true">👥 </span>{{ t("social.title") }}</a>
       <a v-if="!user" class="btn small ghost" href="#/">{{ t("auth.loginBtn") }}</a>
       <a
         v-if="user"
@@ -61,7 +61,7 @@ const avatar = computed(() =>
         id="btn-admin"
         href="#/admin"
         :hidden="!user?.isAdmin"
-        >{{ t("nav.admin") }}</a
+        ><span aria-hidden="true">⚙️ </span>{{ t("nav.admin") }}</a
       >
       <button
         class="btn small ghost"

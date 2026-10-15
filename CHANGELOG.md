@@ -6,6 +6,7 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
+- Navigationsbuttons für Artenkatalog, Social und Admin sowie den Social-Link im Footer mit passenden Emojis ergänzen.
 - Rechtliche KI-Transparenzhinweise auf Deutsch und Englisch um GitHub Copilot ergänzen und die Angaben im Regressionstest absichern.
 
 ## 0.1.11-ALPHA

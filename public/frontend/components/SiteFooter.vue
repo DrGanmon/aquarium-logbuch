@@ -17,7 +17,7 @@ const version = __APP_VERSION__;
         class="footer-nav"
         aria-label="Rechtliche Hinweise und Informationen"
       >
-        <a class="footer-link" :href="'#/social'">{{ t("social.title") }}</a>
+        <a class="footer-link" :href="'#/social'"><span aria-hidden="true">👥 </span>{{ t("social.title") }}</a>
         <a class="footer-link" :href="'#/impressum'">{{ t("footer.imprint") }}</a>
         <a class="footer-link" :href="'#/agb'">{{ t("footer.terms") }}</a>
         <a class="footer-link" :href="'#/datenschutz'">{{
