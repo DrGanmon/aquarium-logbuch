@@ -86,6 +86,7 @@ The GitHub workflow builds the application image for `linux/amd64` and `linux/ar
 | `LOCAL_LOGIN` | auto | Local password login. Default: disabled if OIDC is configured, else enabled |
 | `OIDC_LINK_BY_USERNAME` | false | `true` links existing local accounts with matching usernames and the same provider-verified email address on first OIDC login |
 | `ADMIN_EMAIL` | (empty) | Administrator email address (comma-separated for multiple admins) |
+
 | `CONTACT_EMAIL` | `ADMIN_EMAIL` | Support and contact email for imprint & contact pages |
 | `IMPRINT_EMAIL` | `CONTACT_EMAIL` | Email address for statutory provider identification |
 | `SMTP_HOST` | (empty) | SMTP server hostname for outbound emails |
@@ -108,6 +109,8 @@ The GitHub workflow builds the application image for `linux/amd64` and `linux/ar
 | `SUPERVISOR` | `true` | `false` starts the app in a single process without supervisor watchdog |
 | `WORKERS` | `1` (or `auto` in Docker) | Number of worker processes (`auto` = all CPU cores) |
 | `WORKER_THREADS` | `auto` | Number of worker threads for heavy tasks (Scrypt, data analysis) |
+
+MongoDB must run as a replica set, including single-node deployments. Multi-collection backups use snapshot reads, and restores execute atomically in a transaction. The Compose template initializes a single-node replica set automatically. For an external MongoDB deployment, configure the URI with its replica-set name, for example `replicaSet=rs0`.
 
 ## Reverse proxy and OIDC
 

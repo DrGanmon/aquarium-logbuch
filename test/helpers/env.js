@@ -197,8 +197,8 @@ function createTestEnvironment(customEnv = {}) {
  * Erstellt eine isolierte MongoDB-Testumgebung mit In-Memory-Server.
  */
 async function createMongoTestEnvironment(customEnv = {}) {
-  const { MongoMemoryServer } = require('mongodb-memory-server');
-  const mongod = await MongoMemoryServer.create();
+  const { MongoMemoryReplSet } = require('mongodb-memory-server');
+  const mongod = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
   const uri = mongod.getUri();
 
   const env = createTestEnvironment({

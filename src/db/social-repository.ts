@@ -1,5 +1,6 @@
 import type { SqliteConnection, MongoConnection } from '../types/database-driver';
 import type { SocialPost, SocialComment, SocialLike } from '../types/social';
+import type { ClientSession } from 'mongodb';
 import source0 = require('../services/image-service');
 const { deleteImage } = source0;
 
@@ -86,21 +87,21 @@ export class SocialRepository {
       await this.mongo.collection('social_likes').deleteMany({ user_id: userId });
     }
   }
-  async exportData() {
+  async exportData(session?: ClientSession) {
     if (this.type === 'sqlite') return {
       social_posts: this.sql.prepare<SocialPost>('SELECT * FROM social_posts ORDER BY id').all(),
       social_comments: this.sql.prepare<SocialComment>('SELECT * FROM social_comments ORDER BY id').all(),
       social_likes: this.sql.prepare<SocialLike>('SELECT * FROM social_likes').all(),
     };
     const clean = <T extends { _id?: unknown }>(rows: T[]) => rows.map(({ _id, ...row }) => row);
-    return { social_posts: clean(await this.mongo.collection<SocialPost>('social_posts').find().toArray()),
-      social_comments: clean(await this.mongo.collection<SocialComment>('social_comments').find().toArray()),
-      social_likes: clean(await this.mongo.collection<SocialLike>('social_likes').find().toArray()) };
+    return { social_posts: clean(await this.mongo.collection<SocialPost>('social_posts').find({}, { session }).toArray()),
+      social_comments: clean(await this.mongo.collection<SocialComment>('social_comments').find({}, { session }).toArray()),
+      social_likes: clean(await this.mongo.collection<SocialLike>('social_likes').find({}, { session }).toArray()) };
   }
   clearSqlite() { this.sql.exec('DELETE FROM social_comments; DELETE FROM social_likes; DELETE FROM social_posts;'); }
-  async clear() {
+  async clear(session?: ClientSession) {
     if (this.type === 'sqlite') { this.clearSqlite();return; }
-    for (const name of ['social_posts', 'social_comments', 'social_likes']) await this.mongo.collection(name).deleteMany({});
+    for (const name of ['social_posts', 'social_comments', 'social_likes']) await this.mongo.collection(name).deleteMany({}, { session });
   }
   importSqliteData(data: { social_posts?: SocialPost[]; social_comments?: SocialComment[]; social_likes?: SocialLike[] }) {
     const posts = data.social_posts || [], comments = data.social_comments || [], likes = data.social_likes || [];
@@ -110,14 +111,14 @@ export class SocialRepository {
         for (const l of likes) this.sql.prepare('INSERT INTO social_likes (post_id,user_id) VALUES (?,?)').run(l.post_id,l.user_id);
       })();
   }
-  async importData(data: { social_posts?: SocialPost[]; social_comments?: SocialComment[]; social_likes?: SocialLike[] }) {
+  async importData(data: { social_posts?: SocialPost[]; social_comments?: SocialComment[]; social_likes?: SocialLike[] }, session?: ClientSession) {
     const posts = data.social_posts || [], comments = data.social_comments || [], likes = data.social_likes || [];
     if (this.type === 'sqlite') { this.importSqliteData(data);return; }
-    if (posts.length) await this.mongo.collection<SocialPost>('social_posts').insertMany(posts);
-    if (comments.length) await this.mongo.collection<SocialComment>('social_comments').insertMany(comments);
-    if (likes.length) await this.mongo.collection<SocialLike>('social_likes').insertMany(likes);
+    if (posts.length) await this.mongo.collection<SocialPost>('social_posts').insertMany(posts, { session });
+    if (comments.length) await this.mongo.collection<SocialComment>('social_comments').insertMany(comments, { session });
+    if (likes.length) await this.mongo.collection<SocialLike>('social_likes').insertMany(likes, { session });
     for (const [name, rows] of [['social_posts', posts], ['social_comments', comments]] as const) {
-      await this.mongo.collection<{ _id: string; seq: number }>('counters').updateOne({ _id: name }, { $set: { seq: rows.reduce((max, row) => Math.max(max, row.id), 0) } }, { upsert: true });
+      await this.mongo.collection<{ _id: string; seq: number }>('counters').updateOne({ _id: name }, { $set: { seq: rows.reduce((max, row) => Math.max(max, row.id), 0) } }, { upsert: true, session });
     }
   }
 }

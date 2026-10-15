@@ -4,6 +4,7 @@ import { AppError } from '../utils/app-error';
 import { AI_PROVIDERS, encryptPersonalAiFields } from './ai-token-crypto';
 import { writeJsonFile } from './json-config-store';
 import { asError } from '../utils/app-error';
+import { acquireMaintenanceLease } from './maintenance-coordinator';
 import path = require('path');
 import fs = require('fs');
 import zlib = require('zlib');
@@ -240,25 +241,13 @@ class BackupService {
         dbType = dbAdapter.type || 'sqlite';
       } catch (caught: unknown) {
         const err = asError(caught);
-        logger.warn(`Fehler beim Export über Adapter für Backup: ${err.message}`, 'backup');
+        logger.error(`Backup-Export über Adapter abgebrochen: ${err.message}`, 'backup');
+        throw err;
       }
     } else if (rawDb) {
       if (typeof rawDb.collection === 'function') {
         dbType = 'mongodb';
-        try {
-          const collections = await rawDb.listCollections().toArray();
-          for (const col of collections) {
-            if (col.name.startsWith('system.')) continue;
-            try {
-              rawData[col.name] = await rawDb.collection(col.name).find().toArray();
-            } catch {
-              rawData[col.name] = [];
-            }
-          }
-        } catch (caught: unknown) {
-          const e = asError(caught);
-          logger.warn(`Fehler beim Auslesen von MongoDB-Collections für Backup: ${e.message}`, 'backup');
-        }
+        throw new Error('MongoDB-Backups müssen für einen konsistenten Snapshot über den Datenbankadapter erstellt werden.');
       } else if (typeof rawDb.prepare === 'function') {
         dbType = 'sqlite';
         try {
@@ -286,7 +275,8 @@ class BackupService {
           dbType = activeDb.type || 'sqlite';
         } catch (caught: unknown) {
           const err = asError(caught);
-          logger.warn(`Fehler beim Export über Default-DB für Backup: ${err.message}`, 'backup');
+          logger.error(`Backup-Export über die Standarddatenbank abgebrochen: ${err.message}`, 'backup');
+          throw err;
         }
       }
     }
@@ -317,7 +307,9 @@ class BackupService {
     }
     if (this.isRestoring) throw new Error('Während einer Wiederherstellung kann kein Backup erstellt werden.');
     this.isBackingUp = true;
+    let maintenanceLease: Awaited<ReturnType<typeof acquireMaintenanceLease>> | null = null;
     try {
+      maintenanceLease = await acquireMaintenanceLease('backup');
       this._ensureDirs();
       const targetBackupsDir = backupsDir || this.backupsDir;
       fs.mkdirSync(targetBackupsDir, { recursive: true });
@@ -328,6 +320,8 @@ class BackupService {
       const shouldIncludeFiles = includeFiles !== null ? Boolean(includeFiles) : cfg.includeFiles;
 
       const backupData = await this.generateBackupData({ includeFiles: shouldIncludeFiles, dbAdapter, db: rawDb });
+      await maintenanceLease.release();
+      maintenanceLease = null;
       const jsonStr = JSON.stringify(backupData);
       const gzipped = await encryptBackup(await gzipAsync(Buffer.from(jsonStr, 'utf8')), password);
 
@@ -370,6 +364,8 @@ class BackupService {
         gzippedBuffer: gzipped,
       };
     } finally {
+      try { await maintenanceLease?.release(); }
+      catch (caught: unknown) { logger.warn(`Gemeinsame Backup-Sperre konnte nicht freigegeben werden: ${asError(caught).message}`, 'backup'); }
       this.isBackingUp = false;
     }
   }
@@ -817,6 +813,7 @@ class BackupService {
     }
 
     this.isRestoring = true;
+    let maintenanceLease: Awaited<ReturnType<typeof acquireMaintenanceLease>> | null = null;
     try {
       if (Buffer.isBuffer(backupInput)) backupInput = await decryptBackup(backupInput, password);
       let rawObj = backupInput;
@@ -835,6 +832,7 @@ class BackupService {
       // Migriere & normalisiere Datenstruktur
       const normalized = this.migrateBackupData(rawObj);
 
+      maintenanceLease = await acquireMaintenanceLease('restore');
       // 1. Spiele Daten in Datenbank ein
       await getDb().importAllData(normalized.data);
 
@@ -863,6 +861,8 @@ class BackupService {
         },
       };
     } finally {
+      try { await maintenanceLease?.release(); }
+      catch (caught: unknown) { logger.warn(`Gemeinsame Restore-Sperre konnte nicht freigegeben werden: ${asError(caught).message}`, 'backup'); }
       this.isRestoring = false;
     }
   }

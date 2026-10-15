@@ -1,6 +1,7 @@
 import { isRecord } from './utils/validation';
 import { asError } from './utils/app-error';
 import type { Request, Response, NextFunction } from 'express';
+import { acquireRequestLease, isBackupMaintenanceRequest } from './services/maintenance-coordinator';
 import { APP_ROOT } from './utils/paths';
 import express = require('express');
 import path = require('path');
@@ -30,6 +31,29 @@ if (process.env.TRUST_PROXY) {
 }
 
 app.use(securityHeaders);
+const maintenanceGate = async (req: Request, res: Response, next: NextFunction) => {
+  if (isBackupMaintenanceRequest(req.method, (req.originalUrl || req.url).split('?')[0])) return next();
+  try {
+    const lease = await acquireRequestLease();
+    if (!lease) return res.status(503).json({ error: 'Die Anwendung führt gerade eine Datenbankwartung aus.' });
+    let released = false;
+    const release = () => {
+      if (released) return;
+      released = true;
+      void lease.release().catch(error => logger.warn(`Wartungs-Lease konnte nicht freigegeben werden: ${String(error)}`, 'maintenance'));
+    };
+    res.once('finish', release);
+    res.once('close', () => {
+      if (res.writableFinished) release();
+      else lease.abandon?.();
+    });
+    next();
+  } catch {
+    res.status(503).json({ error: 'Die gemeinsame Wartungssperre ist derzeit nicht verfügbar.' });
+  }
+};
+app.use('/api', maintenanceGate);
+app.use('/auth', maintenanceGate);
 app.use(express.json({ limit: '50mb' }));
 app.use('/api', csrfProtection);
 app.use('/api', (req, res, next) => {

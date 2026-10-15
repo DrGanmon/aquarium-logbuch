@@ -88,6 +88,7 @@ Der GitHub-Workflow baut das App-Image für `linux/amd64` und `linux/arm64` und 
 | `OIDC_LINK_BY_USERNAME` | false | `true` verknüpft beim ersten OIDC-Login ein vorhandenes lokales Konto mit gleichem Benutzernamen und gleicher, vom Provider bestätigter E-Mail-Adresse |
 | `ADMIN_EMAIL` | (leer) | E-Mail-Adresse des Administrators (oder mehrere durch Komma getrennt) für den Admin-Bereich / Benutzerverwaltung |
 | `CONTACT_EMAIL` | `ADMIN_EMAIL` | Optionale Support- & Kontakt-E-Mail-Adresse für Impressum & Kontaktseite |
+
 | `IMPRINT_EMAIL` | `CONTACT_EMAIL` | Optionale E-Mail-Adresse für Anbieterkennzeichnung / Impressum gem. § 5 DDG |
 | `SMTP_HOST` | (leer) | SMTP-Server-Host für E-Mail-Versand (auch über Admin-Interface konfigurierbar) |
 | `SMTP_PORT` | `587` | SMTP-Port (z. B. `587` für STARTTLS, `465` für SSL/TLS, `25` unverschlüsselt) |
@@ -109,6 +110,8 @@ Der GitHub-Workflow baut das App-Image für `linux/amd64` und `linux/arm64` und 
 | `SUPERVISOR` | `true` | `false` startet die Anwendung im Einzelprozess ohne Überwachungs-Watchdog |
 | `WORKERS` | `1` (bzw. `auto` in Docker) | Anzahl der Worker-Prozesse (`auto` = alle CPU-Kerne) |
 | `WORKER_THREADS` | `auto` | Anzahl der Worker-Threads für rechenintensive Aufgaben (Scrypt, Datenanalyse) |
+
+MongoDB muss als Replica Set betrieben werden, auch bei einem einzelnen Knoten. Mehr-Collection-Backups verwenden Snapshot-Lesevorgänge; Restores laufen atomar in einer Transaktion. Die Compose-Vorlage richtet ein Einzelknoten-Replica-Set automatisch ein. Bei eigener MongoDB muss die URI ein Replica Set angeben, zum Beispiel `replicaSet=rs0`.
 
 ## Reverse Proxy und OIDC
 

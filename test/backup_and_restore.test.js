@@ -443,4 +443,35 @@ test('MongoDB: Backup und Restore im MongoDB-Cluster', async (t) => {
     assert.strictEqual(meas.data.length, 1);
     assert.strictEqual(meas.data[0].values.ca, 420);
   });
+
+  await t.test('MongoDB-Wartung sperrt API-Anfragen und fehlerhafte Restores rollen vollständig zurück', async () => {
+    await env.start();
+    await env.createUserAndLogin('restore-atomic', 'password123', 'admin@example.com');
+    const db = require('../dist/backend/src/db');
+    const maintenance = require('../dist/backend/src/services/maintenance-coordinator');
+    const before = await db.exportAllData();
+    assert.equal(maintenance.isBackupMaintenanceRequest('POST', '/api/admin/backups/create/'), true);
+    assert.equal(maintenance.isBackupMaintenanceRequest('POST', '/api/admin/backups/restore-upload?source=test'), true);
+
+    const lease = await maintenance.acquireMaintenanceLease('restore');
+    const secondInstance = createTestEnvironment({ DB_TYPE: 'mongodb', MONGODB_URI: env.getMongoUri() });
+    try {
+      await secondInstance.start();
+      const blocked = await secondInstance.request('/api/aquariums');
+      assert.equal(blocked.status, 503, 'Eine zweite App-Instanz wird während der Wartung abgewiesen');
+    } finally {
+      await lease.release();
+      await secondInstance.cleanup();
+    }
+
+    const invalidRestore = {
+      ...before,
+      users: [...before.users, { ...before.users[0], username: 'duplicate-restore-user' }],
+    };
+    await assert.rejects(db.importAllData(invalidRestore), error => error?.code === 11000, 'Doppelter Benutzer muss die Mongo-Transaktion abbrechen');
+    const after = await db.exportAllData();
+    assert.deepEqual(after.users, before.users, 'Benutzer bleiben nach abgebrochener Transaktion unverändert');
+    assert.deepEqual(after.aquariums, before.aquariums, 'Aquarien bleiben nach abgebrochener Transaktion unverändert');
+    assert.deepEqual(after.measurements, before.measurements, 'Messungen bleiben nach abgebrochener Transaktion unverändert');
+  });
 });

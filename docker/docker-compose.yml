@@ -12,7 +12,7 @@ services:
       APP_ENCRYPTION_KEY: "${APP_ENCRYPTION_KEY:-}"
       # Datenbank-Umschaltung: 'mongodb' oder 'sqlite'
       DB_TYPE: "mongodb"
-      MONGODB_URI: "mongodb://root:aquarium_secret_password@mongo:27017/aquarium?authSource=admin"
+      MONGODB_URI: "mongodb://root:aquarium_secret_password@mongo:27017/aquarium?authSource=admin&replicaSet=rs0"
       MONGODB_DB_NAME: "aquarium"
       
       # Öffentliche Adresse der App (bei https:// werden Cookies automatisch als Secure gesetzt)
@@ -46,6 +46,7 @@ services:
   mongo:
     image: mongo:7
     restart: unless-stopped
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: aquarium_secret_password
@@ -53,7 +54,7 @@ services:
     volumes:
       - mongo-data:/data/db
     healthcheck:
-      test: ["CMD-SHELL", "mongosh --eval 'db.adminCommand(\"ping\")' || exit 1"]
+      test: ["CMD-SHELL", "mongosh --username \"$${MONGO_INITDB_ROOT_USERNAME}\" --password \"$${MONGO_INITDB_ROOT_PASSWORD}\" --authenticationDatabase admin --quiet --eval 'try { rs.status().ok } catch (e) { rs.initiate({_id: \"rs0\", members: [{_id: 0, host: \"mongo:27017\"}]}) }' >/dev/null 2>&1 && mongosh --username \"$${MONGO_INITDB_ROOT_USERNAME}\" --password \"$${MONGO_INITDB_ROOT_PASSWORD}\" --authenticationDatabase admin --quiet --eval 'rs.status().ok' >/dev/null"]
       interval: 10s
       timeout: 5s
       retries: 5

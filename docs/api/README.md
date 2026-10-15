@@ -81,7 +81,7 @@ Fehler nach Streambeginn werden als `{"type":"error","error":"Fehlermeldung"}` b
 
 ## Fehler und Wartung
 
-Normale Fehlerantworten sind JSON mit `error`, teilweise zusätzlich `code` oder weiteren Hinweisen. Typische Statuscodes: `400` Eingabe/Token, `401` Sitzung, `403` Berechtigung/CSRF, `404` fehlende oder verborgene Ressource, `409` Konflikt, `413` Body-Limit, `415` Inhaltstyp, `428` AGB, `429` Aktionslimit, `500` interner Fehler. OIDC-Routen unter `/auth` leiten stattdessen weiter; bei deaktiviertem OIDC können sie eine leere `404`-Antwort liefern. Auch ein Proxy kann einen anderen Fehlertyp zurückgeben.
+Normale Fehlerantworten sind JSON mit `error`, teilweise zusätzlich `code` oder weiteren Hinweisen. Typische Statuscodes: `400` Eingabe/Token, `401` Sitzung, `403` Berechtigung/CSRF, `404` fehlende oder verborgene Ressource, `409` Konflikt, `413` Body-Limit, `415` Inhaltstyp, `428` AGB, `429` Aktionslimit, `500` interner Fehler. Während einer gemeinsamen Backup-/Restore-Wartung werden dynamische `/api`- und `/auth`-Anfragen vorübergehend mit `503` abgewiesen; erneut versuchen, wenn die Wartung beendet ist. OIDC-Routen unter `/auth` leiten ansonsten weiter; bei deaktiviertem OIDC können sie eine leere `404`-Antwort liefern. Auch ein Proxy kann einen anderen Fehlertyp zurückgeben.
 
 Bei Routenänderungen die Spezifikation mitpflegen und aus dem Repository-Root prüfen:
 

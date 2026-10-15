@@ -6,7 +6,15 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Rate-Limits aller HTTP-Worker über einen eigenen, atomar arbeitenden Controller zusammenführen. Gehashte Limit-Schlüssel in einer privaten SQLite-Datei erhalten, Controller nach Fehlern unabhängig neu starten, Web-Worker währenddessen weiterbetreiben und begrenzte, validierte IPC-Kommunikation bei Ausfällen geschlossen ablehnen. Supervisor-Status, Betriebsdokumentation und Regressionstests für workerübergreifende Limits sowie Controller-Neustarts ergänzen; vollständige Bildformat-Verzweigung für die strikte Backend-Typprüfung absichern.
+- MongoDB-Backups als Snapshot und Restores als Transaktion über alle App- und Social-Collections ausführen. Backup-/Restore-Wartung über Datenbank-Leases zwischen Prozessen und Instanzen koordinieren, laufende API-/OIDC- und Scheduler-Anfragen drainieren und neue Requests während der Wartung ablehnen. MongoDB-Compose und Tests auf Replica Sets umstellen und die Betriebsanforderung dokumentieren.
+
+## 0.1.11-ALPHA
+
+- 2026-10-15 · Supervisor-Imports auf ES-Modul-Syntax umstellen und `Supervisor` als benannten Export bereitstellen ([`c8413af`](https://github.com/DrGanmon/aquarium-logbuch/commit/c8413afa6de879ffa0b95a6167c829b5bb8d98be)).
+
+## 0.1.10-ALPHA
+
+- 2026-10-15 · Rate-Limits aller HTTP-Worker über einen eigenen, atomar arbeitenden Controller zusammenführen. Gehashte Limit-Schlüssel in einer privaten SQLite-Datei erhalten, Controller unabhängig neu starten, Web-Worker währenddessen weiterbetreiben und begrenzte IPC-Kommunikation bei Ausfällen geschlossen ablehnen. Supervisor-Status, Betriebsdokumentation und Regressionstests ergänzen ([`a019a69`](https://github.com/DrGanmon/aquarium-logbuch/commit/a019a69ec06fcea03bf00c750f1a4441b6d0a618)).
 
 ## 0.1.9-ALPHA
 

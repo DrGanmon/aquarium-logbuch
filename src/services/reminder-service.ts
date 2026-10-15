@@ -1,5 +1,6 @@
 interface CycleConfig { interval?: number | string | null; unit?: string | null; day_of_week?: number | string | null; reminder_mail?: number | boolean | string | null }
 import { asError } from '../utils/app-error';
+import { acquireRequestLease } from './maintenance-coordinator';
 
 import mail_serviceModule = require('./mail-service');
 const { mailService } = mail_serviceModule;
@@ -230,7 +231,7 @@ class ReminderService {
     // Initiale Prüfung nach kurzem Anlauf
     this.initialTimer = setTimeout(() => {
       this.initialTimer = null;
-      this.checkAndSendReminders().catch((err: any) => {
+      this.runScheduledCheck().catch((err: any) => {
         logger.error(`Fehler bei initialer Erinnerungsprüfung: ${err.message}`, 'reminder');
       });
     }, 5000);
@@ -238,13 +239,20 @@ class ReminderService {
     const intervalMs = Math.max(1, intervalMinutes) * 60 * 1000;
     this.schedulerTimer = setInterval(async () => {
       try {
-        await this.checkAndSendReminders();
+        await this.runScheduledCheck();
       } catch (caught: unknown) {
         const err = asError(caught);
         logger.error(`Fehler beim Zyklus-Erinnerungsdurchlauf: ${err.message}`, 'reminder');
       }
     }, intervalMs);
     this.schedulerTimer.unref();
+  }
+
+  private async runScheduledCheck() {
+    const lease = await acquireRequestLease();
+    if (!lease) return { sent: 0, checked: 0 };
+    try { return await this.checkAndSendReminders(); }
+    finally { await lease.release(); }
   }
 
   stopScheduler() {

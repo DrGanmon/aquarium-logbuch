@@ -26,6 +26,12 @@ Der Controller speichert nur HMAC-SHA-256-Schlüssel statt IP-Adressen, Benutzer
 
 Der Schutz gilt gemeinsam für alle Worker eines Supervisors. Mehrere unabhängige Container oder Hosts besitzen weiterhin getrennte Controller und benötigen für ein installationsübergreifendes Limit zusätzlich eine zentrale Proxy-/Gateway-Begrenzung. `test/rate_limit_controller.test.js` prüft atomare Grenzen, Klartextfreiheit, private Rechte, Neustartpersistenz und unveränderte Worker-PIDs während eines erzwungenen Controller-Absturzes.
 
+## Nachtrag: Atomare MongoDB-Backups und gemeinsame Wartungssperre (15.10.2026)
+
+Backup- und Restore-Sperren werden jetzt in der gemeinsamen Datenbank statt nur als Prozessflags geführt. Jede API-/OIDC-Anfrage und der Erinnerungs-Scheduler erhalten eine erneuerte Lease; vor Backup/Restore wird die Annahme neuer Anfragen atomar geschlossen und auf aktive Leases gewartet. Neue dynamische Requests erhalten währenddessen HTTP 503. Backups halten die Sperre nur bis Daten- und Dateisnapshot erfasst sind; Restores halten sie während der Datenbank- und Dateiwiederherstellung.
+
+MongoDB-Backups lesen alle App- und Social-Collections innerhalb einer Snapshot-Transaktion. Restores löschen und importieren Collections, Sessions und Zähler in einer Transaktion; Fehler rollen den gesamten Datenbank-Restore zurück. Fehlgeschlagene Snapshot-Reads brechen die Backup-Erstellung ab, statt ein unvollständiges Archiv zu erzeugen. MongoDB muss dafür als Replica Set laufen, auch bei Einzelknoten; Compose und In-Memory-Tests verwenden ein Replica Set. `test/backup_and_restore.test.js` prüft Wartungsablehnung und Rollback nach einem absichtlich ungültigen Restore. Der Testlauf war in der Änderungsumgebung mangels Node.js/Bun nicht ausführbar.
+
 ## Bestätigte und behobene Befunde
 
 | Priorität | Befund | Korrektur und Nachweis |
@@ -51,7 +57,7 @@ Der Schutz gilt gemeinsam für alle Worker eines Supervisors. Mehrere unabhängi
 - Rate-Limits gelten zentral über alle Worker eines Supervisors. Mehrere unabhängige Instanzen benötigen weiterhin ein gemeinsam gespeichertes oder am Reverse Proxy/Gateway durchgesetztes Limit.
 - Nachtrag vom 15.10.2026: Persönliche KI-Schlüssel werden inzwischen mit AES-256-GCM gespeichert und aus Klartext migriert (siehe Nachtrag). Alte Archive, externe Kopien sowie mögliche freie SQLite-Seiten/WAL-Reste können weiterhin Klartext enthalten. Der Master-Schlüssel muss separat geschützt und gesichert werden; Datenvolume und Archive bleiben sensibel.
 - Öffentliche OIDC-Clients mit mehreren unabhängigen Instanzen benötigen denselben `OIDC_STATE_SECRET`. Ohne festen Schlüssel werden noch laufende Anmeldungen nach Neustart ungültig. Bereits gestartete Anmeldungen mit dem alten Statusformat müssen nach dem Update neu begonnen werden.
-- Die bisherigen nicht atomaren Gesamtoperationen über MongoDB-Collections und die instanzlokalen Backup-/Restore-Sperren bleiben bestehen. Wiederherstellungen brauchen weiterhin ein Wartungsfenster ohne konkurrierende Schreibzugriffe.
+- Mongo-Transaktionen und Wartungs-Leases koordinieren nur App-Instanzen, die dieselbe Datenbank und diesen Code verwenden. Direkte externe MongoDB-Schreibzugriffe umgehen das Gate. Dateisystemoperationen des Restore sind nicht Teil der Mongo-Transaktion; ein Fehler bei Dateioperationen kann deshalb weiterhin einen abweichenden Datei-/Datenbankzustand hinterlassen. Mehr-Collection-Cascades außerhalb von Backup/Restore sind ebenfalls nicht global transaktional.
 - Angemeldete Nutzer können konfigurierte serverseitige KI-Schlüssel verwenden. Ein zentraler Kosten-/Nutzungsquotenschutz und ein produktionsnaher Lasttest waren nicht Teil dieser Korrekturen.
 - Keine produktive Installation, Reverse-Proxy-Konfiguration oder realer externer OIDC-/SMTP-Anbieter wurde angegriffen. Docker-Images wurden mangels verfügbarer Docker-CLI nicht gebaut. Die automatischen Prüfungen ersetzen diese Betriebsprüfungen nicht.
 

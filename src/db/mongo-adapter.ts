@@ -7,7 +7,7 @@ import type { MongoConnection } from '../types/database-driver';
 import type { RepositoryContract, UserQueries, AquariumQueries, StockRepository, PumpRepository, MeasurementQueries } from '../types/repositories';
 import { asError } from '../utils/app-error';
 import type { DatabaseOptions } from '../types/domain';
-import { MongoClient } from 'mongodb';
+import { MongoClient, type ClientSession } from 'mongodb';
 import envModule = require('../config/env');
 const { MONGODB_URI, MONGODB_DB_NAME } = envModule;
 import cfg = require('../config/app-config');
@@ -202,6 +202,10 @@ class MongoAdapter {
       // Dosing pumps
       await db.collection('dosing_pumps').createIndex({ id: 1 }, { unique: true });
       await db.collection('dosing_pumps').createIndex({ aquarium_id: 1, id: 1 });
+
+      // Restore transactions cannot create collections implicitly.
+      try { await db.createCollection('counters'); }
+      catch (error: any) { if (error?.code !== 48 && error?.codeName !== 'NamespaceExists') throw error; }
     } catch (error) {
       // Missing uniqueness indexes would make account creation and linking unsafe.
       throw asError(error);
@@ -246,6 +250,18 @@ class MongoAdapter {
 
   async exportAllData() {
     if (!this._initialized && !this.db) await this.init();
+    if (!this.client) return {};
+    const session = this.client.startSession();
+    try {
+      let data: Record<string, any> = {};
+      await session.withTransaction(async () => {
+        data = await this.exportAllDataInSession(session);
+      }, { readConcern: { level: 'snapshot' } });
+      return data;
+    } finally { await session.endSession(); }
+  }
+
+  private async exportAllDataInSession(session: ClientSession) {
     const db = this.connection();
     if (!db) return {};
 
@@ -257,11 +273,7 @@ class MongoAdapter {
       });
 
     const safeGetDocs = async (collectionName?: any, sort: any = { id: 1 }) => {
-      try {
-        return stripId(await db.collection(collectionName).find({}).sort(sort).toArray());
-      } catch {
-        return [];
-      }
+      return stripId(await db.collection(collectionName).find({}, { session }).sort(sort).toArray());
     };
 
     const users = await safeGetDocs('users');
@@ -289,15 +301,23 @@ class MongoAdapter {
       invitations,
       aquarium_chats,
       dosing_pumps,
-      social_posts: await safeGetDocs('social_posts'),
-      social_comments: await safeGetDocs('social_comments'),
-      social_likes: await safeGetDocs('social_likes'),
+      ...(await this.social.exportData(session)),
     };
   }
 
   async importAllData(data: any = {}) {
     if (!this._initialized && !this.db) await this.init();
+    if (!this.client) throw new Error('MongoDB-Verbindung ist nicht initialisiert.');
+    const session = this.client.startSession();
+    try {
+      await session.withTransaction(() => this.importAllDataInSession(data, session));
+      return true;
+    } finally { await session.endSession(); }
+  }
+
+  private async importAllDataInSession(data: any, session: ClientSession) {
     const db = this.connection();
+    const sessionOptions = { session };
 
     // Validate/encrypt before destructive restore; legacy plaintext backups are upgraded here.
     const users = (Array.isArray(data.users) ? data.users : []).map((user: UserRecord) => encryptPersonalAiFields(user.id, user));
@@ -313,45 +333,32 @@ class MongoAdapter {
     const dosing_pumps = Array.isArray(data.dosing_pumps) ? data.dosing_pumps : [];
 
     const userIds = users.map((u: any) => u.id);
-    const currentSessions = await db.collection('sessions').find({ expires_at: { $gt: Date.now() } }).toArray();
+    const currentSessions = await db.collection('sessions').find({ expires_at: { $gt: Date.now() } }, sessionOptions).toArray();
 
-    await this.social.clear();
+    await this.social.clear(session);
     // Collections leeren
-    await Promise.all([
-      db.collection('users').deleteMany({}),
-      db.collection('sessions').deleteMany({}),
-      db.collection('aquariums').deleteMany({}),
-      db.collection('aquarium_images').deleteMany({}),
-      db.collection('aquarium_shares').deleteMany({}),
-      db.collection('aquarium_plants').deleteMany({}),
-      db.collection('stock').deleteMany({}),
-      db.collection('measurements').deleteMany({}),
-      db.collection('alerts').deleteMany({}),
-      db.collection('maintenance_logs').deleteMany({}),
-      db.collection('invitations').deleteMany({}),
-      db.collection('aquarium_chats').deleteMany({}),
-      db.collection('dosing_pumps').deleteMany({}),
-      db.collection('counters').deleteMany({}),
-    ]);
+    for (const name of ['users', 'sessions', 'aquariums', 'aquarium_images', 'aquarium_shares', 'aquarium_plants', 'stock', 'measurements', 'alerts', 'maintenance_logs', 'invitations', 'aquarium_chats', 'dosing_pumps', 'counters']) {
+      await db.collection(name).deleteMany({}, sessionOptions);
+    }
 
     // Daten einfügen
-    if (users.length > 0) await db.collection('users').insertMany(users);
-    if (aquariums.length > 0) await db.collection('aquariums').insertMany(aquariums);
-    if (aquarium_images.length > 0) await db.collection('aquarium_images').insertMany(aquarium_images);
-    if (shares.length > 0) await db.collection('aquarium_shares').insertMany(shares);
-    if (data.aquarium_plants?.length) await db.collection('aquarium_plants').insertMany(data.aquarium_plants);
-    if (stock.length > 0) await db.collection('stock').insertMany(stock);
-    if (measurements.length > 0) await db.collection('measurements').insertMany(measurements);
-    if (alerts.length > 0) await db.collection('alerts').insertMany(alerts);
-    if (maintenance.length > 0) await db.collection('maintenance_logs').insertMany(maintenance);
-    if (invitations.length > 0) await db.collection('invitations').insertMany(invitations);
-    if (chats.length > 0) await db.collection('aquarium_chats').insertMany(chats);
-    if (dosing_pumps.length > 0) await db.collection('dosing_pumps').insertMany(dosing_pumps);
+    if (users.length > 0) await db.collection('users').insertMany(users, sessionOptions);
+    if (aquariums.length > 0) await db.collection('aquariums').insertMany(aquariums, sessionOptions);
+    if (aquarium_images.length > 0) await db.collection('aquarium_images').insertMany(aquarium_images, sessionOptions);
+    if (shares.length > 0) await db.collection('aquarium_shares').insertMany(shares, sessionOptions);
+    if (data.aquarium_plants?.length) await db.collection('aquarium_plants').insertMany(data.aquarium_plants, sessionOptions);
+    if (stock.length > 0) await db.collection('stock').insertMany(stock, sessionOptions);
+    if (measurements.length > 0) await db.collection('measurements').insertMany(measurements, sessionOptions);
+    if (alerts.length > 0) await db.collection('alerts').insertMany(alerts, sessionOptions);
+    if (maintenance.length > 0) await db.collection('maintenance_logs').insertMany(maintenance, sessionOptions);
+    if (invitations.length > 0) await db.collection('invitations').insertMany(invitations, sessionOptions);
+    if (chats.length > 0) await db.collection('aquarium_chats').insertMany(chats, sessionOptions);
+    if (dosing_pumps.length > 0) await db.collection('dosing_pumps').insertMany(dosing_pumps, sessionOptions);
 
     // Aktive Sessions für bestehende Benutzer wiederherstellen
     const validSessions = currentSessions.filter((s: any) => userIds.includes(s.user_id));
     if (validSessions.length > 0) {
-      await db.collection('sessions').insertMany(validSessions);
+      await db.collection('sessions').insertMany(validSessions, sessionOptions);
     }
 
     // Zähler (counters) für Sequenzen aktualisieren
@@ -381,15 +388,11 @@ class MongoAdapter {
 
     for (const c of counterOps) {
       if (c.seq > 0) {
-        await db.collection('counters').updateOne({ _id: c._id }, { $set: { seq: c.seq } }, { upsert: true });
+        await db.collection('counters').updateOne({ _id: c._id }, { $set: { seq: c.seq } }, { upsert: true, ...sessionOptions });
       }
     }
 
-    // Führe Migrationen aus, um importierte Bestandsdaten auf das aktuelle Schema zu normalisieren
-    const migRes = await runMigrationsMongo(db);
-    this.schemaVersion = migRes.currentVersion;
-
-    await this.social.importData(data);
+    await this.social.importData(data, session);
     return true;
   }
 

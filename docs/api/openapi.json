@@ -3,7 +3,7 @@
   "info": {
     "title": "Aquarium-Logbuch API",
     "version": "0.1.8-ALPHA",
-    "description": "API-Dokumentation des Repository-Standes vom 15.10.2026. Sitzung über HttpOnly-Cookie session; schreibende /api-Anfragen brauchen X-Requested-With und bei Body application/json. JSON-Objekte, keine Multipart-Uploads. Die Server-URL umfasst den APP_URL-Unterpfad, aber nicht /api. Erweiterbare Antwortschemata enthalten die dokumentierten Kernfelder; zusätzliche Katalog- und Anbieterfelder bleiben erlaubt. Persönliche KI-Schlüssel werden vor der Speicherung verschlüsselt; Profile zeigen nur die ersten und letzten vier Zeichen. Bestehende Schlüssel werden mit Datenbankschema 7 migriert."
+    "description": "API-Dokumentation des Repository-Standes vom 15.10.2026. Sitzung über HttpOnly-Cookie session; schreibende /api-Anfragen brauchen X-Requested-With und bei Body application/json. JSON-Objekte, keine Multipart-Uploads. Die Server-URL umfasst den APP_URL-Unterpfad, aber nicht /api. Dynamische /api- und /auth-Anfragen können während einer gemeinsamen Backup-/Restore-Wartung vorübergehend HTTP 503 erhalten. Erweiterbare Antwortschemata enthalten die dokumentierten Kernfelder; zusätzliche Katalog- und Anbieterfelder bleiben erlaubt. Persönliche KI-Schlüssel werden vor der Speicherung verschlüsselt; Profile zeigen nur die ersten und letzten vier Zeichen. Bestehende Schlüssel werden mit Datenbankschema 7 migriert."
   },
   "servers": [
     {
