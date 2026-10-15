@@ -55,7 +55,7 @@ test('Produktionslayout läuft ohne TypeScript-Quellen oder Compiler', (t) => {
   fs.mkdirSync(path.join(dir, 'public/dist'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'public/dist/app.js'), '// production fixture');
   fs.symlinkSync(path.join(root, 'node_modules'), path.join(dir, 'node_modules'), 'dir');
-  const env = { ...process.env, DB_TYPE: 'sqlite', NO_SUPERVISOR: '1', SUPERVISOR: 'false' };
+  const env = { ...process.env, NODE_ENV: 'production', LOCAL_LOGIN: 'true', DB_TYPE: 'sqlite', NO_SUPERVISOR: '1', SUPERVISOR: 'false' };
   delete env.DATA_DIR;
   delete env.LOG_FILE;
   const result = spawnSync(process.execPath, ['-e', `
@@ -79,6 +79,21 @@ test('Produktionslayout läuft ohne TypeScript-Quellen oder Compiler', (t) => {
       try {
         const url = 'http://127.0.0.1:' + server.address().port;
         assert.equal((await fetch(url + '/')).status, 200);
+        const registration = await fetch(url + '/api/registration');
+        assert.equal(registration.status, 428);
+        assert.equal((await registration.json()).code, 'SETUP_REQUIRED');
+        const setup = await fetch(url + '/api/setup/status');
+        assert.equal(setup.status, 200);
+        const status = await setup.json();
+        assert.equal(status.required, true);
+        const complete = await fetch(url + '/api/setup/complete', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
+          body: JSON.stringify({ username: 'production_admin', email: 'admin@production.test',
+            password: 'production-password-123', acceptTerms: true, termsVersion: status.termsVersion,
+            smtp: { enabled: false }, backup: { enabled: false }, registration: { mode: 'open' } }),
+        });
+        assert.equal(complete.status, 201, await complete.text());
+        assert.equal((await (await fetch(url + '/api/setup/status')).json()).required, false);
         assert.equal((await fetch(url + '/api/registration')).status, 200);
       } finally {
         await new Promise(resolve => server.close(resolve));

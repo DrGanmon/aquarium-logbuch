@@ -6,8 +6,12 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Minor-Version auf `0.2.0-ALPHA` erhöhen und Revision sowie Patch zurücksetzen.
-- Supervisor-Start im Entwicklungsmodus nicht mehr fälschlich am Setup-Gate scheitern lassen; der echte Laufzeit-Test mit zwei Worker-Prozessen kann damit den gemeinsamen HTTP-Port sauber starten.
+- CI-Tests für KI-Schlüssel auf die aktuelle Schemaversion und den Produktionslayout-Test auf das verpflichtende Setup samt Freigabe nach Abschluss abstimmen; fehlenden MongoDB-Umgebungsblock in Docker Compose ergänzen.
+
+## 0.2.0-ALPHA
+
+- 2026-10-15 · Supervisor-Start im Entwicklungsmodus nicht mehr fälschlich am Setup-Gate scheitern lassen; der echte Laufzeit-Test mit zwei Worker-Prozessen kann damit den gemeinsamen HTTP-Port sauber starten (`7cb6a8982b250cdf9d3ef4b84e3f710e13eb103f`).
+- 2026-10-15 · Minor-Version auf `0.2.0-ALPHA` erhöhen und Revision sowie Patch zurücksetzen (`461226c26e1b714aad30c357468fe331ca73df3c`).
 
 ## 0.1.19-ALPHA
 

@@ -17,6 +17,7 @@ for (const backend of ['sqlite', 'mongodb']) test(`Persönliche KI-Schlüssel: V
   const migration = require('../dist/backend/src/db/migrations/007_encrypted_ai_tokens');
   const { backupService } = require('../dist/backend/src/services/backup-service');
   const raw = db.getRawDb();
+  const currentSchemaVersion = db.getSchemaVersion();
   const tokens = { openai: 'sk-proj-personal-openai-1234', gemini: 'AIza-personal-gemini-5678', claude: 'sk-ant-personal-claude-9012' };
   const read = () => backend === 'sqlite' ? raw.prepare('SELECT * FROM users WHERE id = ?').get(account.id) : raw.collection('users').findOne({ id: account.id });
   const rawUpdate = async fields => {
@@ -66,7 +67,7 @@ for (const backend of ['sqlite', 'mongodb']) test(`Persönliche KI-Schlüssel: V
   await db.close();
   await db.init();
   const migrated = await (backend === 'sqlite' ? db.getRawDb().prepare('SELECT * FROM users WHERE id = ?').get(account.id) : db.getRawDb().collection('users').findOne({ id: account.id }));
-  assert.equal(db.getSchemaVersion(), 8);
+  assert.equal(db.getSchemaVersion(), currentSchemaVersion);
   for (const provider of crypto.AI_PROVIDERS) assert.equal(crypto.personalAiToken(migrated, provider), tokens[provider]);
   const snapshot = backupService.listBackups().find(item => item.filename.includes('pre-migration-v6'));
   assert.ok(snapshot);
