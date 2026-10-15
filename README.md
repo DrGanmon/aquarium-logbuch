@@ -17,20 +17,21 @@ Im optionalen KI-Chat interagierst du mit einem KI-System; dessen Antworten sind
 ## Features für Benutzer
 
 - **Aquarien verwalten:** Stammdaten, Einrichtung, Fotos, Galerie und benannte Bewohner mit Porträts.
-- **Wasserwerte erfassen:** 15 Parameter, frei kombinierbare Tests aus mehreren Suiten, Live-Bewertung und mehrere Reaktionstimer.
+- **Wasserwerte erfassen:** 18 Parameter, frei kombinierbare Tests aus den Suiten von JBL, Amtra, sera und Tetra, Live-Bewertung und mehrere Reaktionstimer.
 - **Verlauf auswerten:** Diagramme mit freier Zeitraumauswahl, Warnungen und bestätigbare Alarme.
 - **Pflege dokumentieren:** Logbuch für Wasserwechsel, Filterpflege, Pflanzen, Düngung und weitere Aktivitäten.
 - **Pflege planen:** Messzyklen mit optionalen E-Mail-Erinnerungen; Düngerbereich mit individuellen Erinnerungen für manuelle Dünger und automatischer Protokollierung geplanter Pumpendosierungen.
 - **Wassertest-Verbrauch verfolgen:** Automatische Zählung, korrigierbare Füllmengen und Nachkauferinnerung ab 75 % Verbrauch.
 - **Besatz prüfen:** Artenkatalog mit Haltungsanforderungen, Bildern und Hinweisen zu Gruppen, Beckengröße und Verträglichkeit.
+- **Pflanzen verwalten:** Zweisprachiger Pflanzenkatalog mit Pflegeanforderungen und Bildern sowie Pflanzenbestand mit Stückzahlen je Aquarium.
 - **Gesundheit einschätzen:** Krankheitskatalog, Diagnose-Assistent und Medikamente/Hilfsmittel mit Quellen, Rechtsstatus und Warnhinweisen.
-- **KI-Assistent nutzen:** Optionaler Aquarium-Chat mit OpenAI, Google Gemini oder Anthropic Claude und persönlichem API-Schlüssel.
+- **KI-Assistent nutzen:** Optionaler Aquarium-Chat mit OpenAI, Google Gemini oder Anthropic Claude und verschlüsselt gespeichertem persönlichem API-Schlüssel.
 - **Daten mitnehmen und teilen:** CSV-Import mit Spaltenzuordnung, Excel-kompatibler CSV-Export und Aquariumfreigaben mit Lese- oder Schreibzugriff.
 - **Konto anpassen:** Profil, Avatar, Passwortverwaltung, lokale Anmeldung oder Pocket ID/OIDC und Einladungen.
 - **Mobil verwenden:** Deutsch/Englisch, helles/dunkles/systemabhängiges Design, Homescreen-Installation und Timer-Benachrichtigungen.
 - **Aktuell bleiben:** Popup bei neuerer Frontend-Version mit Angebot zum Neuladen.
-
 - **Social-Community:** Bilderfeed mit wählbarer öffentlicher oder serverinterner Sichtbarkeit, Texten, Profilbildern, Likes, Kommentaren und Teilen-Links; Uploads werden serverseitig auf 1600 Pixel begrenzt. [Details](docs/de/social.md).
+- **Benachrichtigungen bündeln:** Zentraler Bereich mit Zähler für Likes und Kommentare zu eigenen Beiträgen sowie offene Wasserwertwarnungen aus allen zugänglichen Aquarien.
 
 ## Technische Features
 
@@ -38,10 +39,11 @@ Im optionalen KI-Chat interagierst du mit einem KI-System; dessen Antworten sind
 - Node.js ab **22.12** oder Bun ab **1.4.3**; SQLite oder MongoDB.
 - Web Worker für rechenintensive Frontend-Aufgaben, Backend-Threadpool und optional mehrere Serverprozesse mit Supervisor.
 - Abschnittsweises Nachladen von Aquariumdetails und abbrechbare Datenanfragen.
-- Gemeinsamer Artenkatalog für Besatz und Gesundheit; JSON-Daten für Krankheiten, Medikamente und Testsuiten; deutsche und englische Sprachdateien.
+- Gemeinsame Arten- und Pflanzenkataloge; JSON-Daten für Krankheiten, Medikamente und Testsuiten; deutsche und englische Sprachdateien.
 - SMTP-Warteschlange mit anpassbaren E-Mail-Vorlagen und Testversand.
-- Admin-Bereich für Benutzer, Registrierung, Einstellungen, Backups und Logs.
-- Datenbankmigrationen, manuelle/automatische Sicherungen und Wiederherstellung inklusive Uploads.
+- Datenbankgestützte Administratorrollen für mehrere Benutzer; Admin-Bereich für Benutzer, Registrierungsmodi, Einstellungen, anonyme Nutzungsmetriken, Backups und Logs.
+- Zweisprachiger Ersteinrichtungs-Wizard für das erste Admin-Konto, SMTP, automatische Backups und den Registrierungsmodus; die übrige Anwendung bleibt bis zum Abschluss gesperrt.
+- Datenbankmigrationen, verschlüsselte manuelle/automatische Sicherungen und passwortgeschützte Wiederherstellung inklusive Uploads.
 - Docker-Images für AMD64/ARM64; Compose-Vorlagen für SQLite und MongoDB.
 - Automatische Versionsberechnung aus Commit-Typen, Typprüfung und parallel isolierte Tests für beide Datenbankadapter und Runtimes.
 
@@ -57,7 +59,7 @@ npm start
 
 Für die Codeprüfung `npm run lint` ausführen; `npm run lint:fix` behebt automatisch korrigierbare Befunde. ESLint prüft TypeScript, Vue-Komponenten, JavaScript-Skripte und Tests.
 
-Die App läuft unter `http://localhost:3000`. Für Entwicklung mit Hot Reload zusätzlich `npm run dev` in einem zweiten Terminal starten. Bun, Docker, SMTP, OIDC und alle Umgebungsvariablen sind unter [Installation und Konfiguration](docs/de/installation.md) beschrieben. [example.env](docker/example.env) dient als Konfigurationsvorlage; passe insbesondere öffentliche URL, Administratoradresse und Datenbankzugang an.
+Die App läuft unter `http://localhost:3000`. Bei einer leeren Installation führt sie zuerst durch den Einrichtungs-Wizard für Administrator, SMTP, Backups und Registrierung. Für Entwicklung mit Hot Reload zusätzlich `npm run dev` in einem zweiten Terminal starten. Bun, Docker, SMTP, OIDC und alle Umgebungsvariablen sind unter [Installation und Konfiguration](docs/de/installation.md) beschrieben. [example.env](docker/example.env) dient als Konfigurationsvorlage; passe insbesondere öffentliche URL und Datenbankzugang an.
 
 Mit Docker Compose und MongoDB:
 

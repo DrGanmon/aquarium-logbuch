@@ -17,20 +17,21 @@ In the optional AI chat, you interact with an AI system; its responses are autom
 ## Features for users
 
 - **Manage aquariums:** Tank details, equipment, photos, galleries and named residents with portraits.
-- **Record water parameters:** 15 parameters, freely combined tests from multiple suites, live assessments and simultaneous reaction timers.
+- **Record water parameters:** 18 parameters, freely combined tests from JBL, Amtra, sera and Tetra suites, live assessments and simultaneous reaction timers.
 - **Review history:** Charts with custom date ranges, warnings and alarms you can acknowledge.
 - **Document care:** Logbook for water changes, filter maintenance, plants, fertilization and other activities.
 - **Plan maintenance:** Measurement cycles with optional email reminders; a fertilizer area with individual reminders for manual fertilizers and scheduled automatic logbook entries for dosing pumps.
 - **Track test usage:** Automatic counting, adjustable refill capacities and refill reminders at 75% usage.
 - **Check stocking:** Species catalog with care requirements, images and guidance on groups, tank size and compatibility.
+- **Manage plants:** Bilingual plant catalog with care requirements and images, plus per-aquarium plant stock with quantities.
 - **Assess health:** Disease catalog, diagnosis assistant and medications/supplies with references, legal status and cautions.
-- **Use AI assistance:** Optional aquarium chat with OpenAI, Google Gemini or Anthropic Claude and personal API keys.
+- **Use AI assistance:** Optional aquarium chat with OpenAI, Google Gemini or Anthropic Claude and encrypted personal API keys.
 - **Transfer and share data:** CSV import with column mapping, Excel-compatible CSV export and tank sharing with read or write access.
 - **Customize accounts:** Profiles, avatars, password management, local or Pocket ID/OIDC login and invitations.
 - **Use on mobile:** German/English, light/dark/system themes, home-screen installation and timer notifications.
 - **Stay up to date:** A popup offers to reload when a newer frontend version is available.
-
 - **Social community:** Photo feed with public or server-only visibility, captions, avatars, likes, comments and share links; uploads are resized server-side to 1600 pixels. [Details](docs/en/social.md).
+- **Centralize notifications:** A central area with a counter for likes and comments on your posts and open water-parameter warnings from all accessible aquariums.
 
 ## Technical features
 
@@ -38,10 +39,11 @@ In the optional AI chat, you interact with an AI system; its responses are autom
 - Node.js **22.12+** or Bun **1.4.3+**; SQLite or MongoDB.
 - Web worker for demanding frontend tasks, backend thread pool and optional multiple server processes with a supervisor.
 - Section-based loading of tank details and cancellable data requests.
-- Shared species catalog for stocking and health; JSON data for diseases, medications and test suites; German and English translation files.
+- Shared species and plant catalogs; JSON data for diseases, medications and test suites; German and English translation files.
 - SMTP queue with customizable email templates and test delivery.
-- Admin panel for users, registration, settings, backups and logs.
-- Database migrations, manual/automated backups and restore including uploads.
+- Database-backed administrator roles for multiple users; admin panel for users, registration modes, settings, anonymous usage metrics, backups and logs.
+- Bilingual initial-setup wizard for the first administrator account, SMTP, automated backups and registration mode; the rest of the application stays locked until setup is complete.
+- Database migrations, encrypted manual/automated backups and password-protected restore including uploads.
 - AMD64/ARM64 Docker images; Compose configurations for SQLite and MongoDB.
 - Commit-based version calculation, type checking and parallel isolated tests for both database adapters and runtimes.
 
@@ -57,7 +59,7 @@ npm start
 
 Run `npm run lint` to check the code; `npm run lint:fix` applies automatic fixes. ESLint checks TypeScript, Vue components, JavaScript scripts and tests.
 
-Open `http://localhost:3000`. For development with hot reload, also run `npm run dev` in a second terminal. [Installation and configuration](docs/en/installation.md) covers Bun, Docker, SMTP, OIDC and all environment variables. Use [example.env](docker/example.env) as a configuration template; adjust the public URL, administrator email and database credentials for your installation.
+Open `http://localhost:3000`. On an empty installation, the initial setup wizard first collects the administrator, SMTP, backup and registration settings. For development with hot reload, also run `npm run dev` in a second terminal. [Installation and configuration](docs/en/installation.md) covers Bun, Docker, SMTP, OIDC and all environment variables. Use [example.env](docker/example.env) as a configuration template; adjust the public URL and database credentials for your installation.
 
 With Docker Compose and MongoDB:
 

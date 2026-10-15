@@ -6,9 +6,13 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Die normale Oberfläche, Registrierung, Anmeldung, OIDC und sonstige API bis zum Abschluss der Ersteinrichtung serverseitig sperren und den Registrierungsmodus im zweisprachigen Wizard abfragen und speichern. Healthcheck und Setup-Endpunkte bleiben erreichbar; API-Dokumentation und Regressionstests entsprechend erweitern.
+- Deutsche und englische Projekt-README um Pflanzenkatalog und -bestand, neue Testsuiten, zentrale Benachrichtigungen, mehrere Datenbank-Administratoren, Ersteinrichtungs-Wizard, verschlüsselte KI-Schlüssel und Backups sowie anonyme Admin-Metriken ergänzen; veralteten Hinweis zur Administratoradresse im Schnellstart entfernen.
 - MongoDB-Compose beim authentifizierten Replica-Set-Start ein persistentes Keyfile mit restriktiven Dateirechten erzeugen lassen und die Betriebsanforderung dokumentieren.
 - Audit-Restrisiken mit den Sicherheitsnachträgen abgleichen, behobene Befunde markieren und den aktuellen Node-/Bun-Prüfstand dokumentieren.
+
+## 0.1.19-ALPHA
+
+- 2026-10-15 · Die normale Oberfläche, Registrierung, Anmeldung, OIDC und sonstige API bis zum Abschluss der Ersteinrichtung serverseitig sperren und den Registrierungsmodus im zweisprachigen Wizard abfragen und speichern. Healthcheck und Setup-Endpunkte bleiben erreichbar; API-Dokumentation und Regressionstests entsprechend erweitern ([`ce57967`](https://github.com/DrGanmon/aquarium-logbuch/commit/ce57967)).
 
 ## 0.1.18-ALPHA
 
