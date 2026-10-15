@@ -71,8 +71,9 @@ test('Footer, Impressum, EU AI Act, Datenschutz & Lizenzen Validierung', async (
     for (const content of [legalDe, legalEn]) {
       assert.ok(content.transparencyHeading.includes('Art. 50 EU AI Act'));
       assert.ok(content.transparencyHeading.includes('2024/1689'));
-      for (const tool of ['JetBrains Junie', 'OpenAI Codex', 'ChatGPT']) {
+      for (const tool of ['GitHub Copilot', 'JetBrains Junie', 'OpenAI Codex', 'ChatGPT']) {
         assert.ok(content.developmentNotice.includes(tool));
+        assert.ok(content.mainAppAiNotice.includes(tool));
       }
     }
     assert.ok(legalView.includes('t("legal.content.developmentNotice")'));

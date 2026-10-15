@@ -607,7 +607,7 @@
     "content": {
       "imprintHeading": "⚖️ Impressum & Rechtliche Hinweise",
       "transparencyHeading": "🤖 Transparenzpflicht nach Art. 50 EU AI Act (Verordnung (EU) 2024/1689)",
-      "developmentNotice": "Dieses Softwaresystem (Aquarium-Logbuch) wurde unter Einsatz generativer Künstlicher Intelligenz (JetBrains Junie, OpenAI Codex und ChatGPT) konzipiert, programmiert und strukturiert. Der Programmcode, die Datenbankadapter, Frontend-Ansichten sowie Hilfstexte wurden KI-gestützt generiert und qualitätsgesichert.",
+      "developmentNotice": "Dieses Softwaresystem (Aquarium-Logbuch) wurde unter Einsatz generativer Künstlicher Intelligenz (GitHub Copilot, JetBrains Junie, OpenAI Codex und ChatGPT) konzipiert, programmiert und strukturiert. Der Programmcode, die Datenbankadapter, Frontend-Ansichten sowie Hilfstexte wurden KI-gestützt generiert und qualitätsgesichert.",
       "expertNotice": "Wichtiger Fachhinweis: Die in der App hinterlegten Wasserwertgrenzen, Richtwerte, Alarme, Pflegeregeln und Artendaten dienen der privaten aquaristischen Orientierung. Sie stellen keine tiermedizinische oder biologisch-chemische Fachberatung dar.",
       "providerHeading": "1. Angaben gemäß § 5 Digitale-Dienste-Gesetz (DDG)",
       "appDescription": "Aquarium-Logbuch – Webanwendung zur Verwaltung und Protokollierung von Aquarien, Wasserwerten und Pflegemaßnahmen.",
@@ -669,7 +669,7 @@
       "licensesIntro": "Diese Webanwendung basiert auf quelloffener Software (Open Source). Nachfolgend sind alle verwendeten Module, Autoren und Lizenzbestimmungen aufgeführt:",
       "mainAppHeading": "🐠 Aquarium-Logbuch (Hauptanwendung)",
       "mainAppCopyright": "Copyright © 2026 Aquarium-Logbuch Projekt. Lizenz für private Nutzung und Weiterentwicklung.",
-      "mainAppAiNotice": "Konzipiert und entwickelt unter Einsatz generativer KI (JetBrains Junie, OpenAI Codex und ChatGPT) gem. EU AI Act.",
+      "mainAppAiNotice": "Konzipiert und entwickelt unter Einsatz generativer KI (GitHub Copilot, JetBrains Junie, OpenAI Codex und ChatGPT) gem. EU AI Act.",
       "mainAppTermsHeading": "📜 Lizenzbedingungen für die Hauptanwendung (CC BY-NC-SA 4.0):",
       "noncommercialLabel": "Nur privater & nicht-kommerzieller Gebrauch (NonCommercial):",
       "noncommercialNotice": "Die kostenlose Nutzung und Modifikation ist ausschließlich für persönliche, private und gemeinnützige Zwecke gestattet. Jede kommerzielle Nutzung, der Weiterverkauf oder das Anbieten als kostenpflichtiger Dienst (SaaS/Hosting) ist strengstens untersagt.",

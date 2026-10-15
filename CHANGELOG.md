@@ -6,10 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- MongoDB-Backups als Snapshot und Restores als Transaktion über alle App- und Social-Collections ausführen. Backup-/Restore-Wartung über Datenbank-Leases zwischen Prozessen und Instanzen koordinieren, laufende API-/OIDC- und Scheduler-Anfragen drainieren und neue Requests während der Wartung ablehnen. MongoDB-Compose und Tests auf Replica Sets umstellen und die Betriebsanforderung dokumentieren.
+- Rechtliche KI-Transparenzhinweise auf Deutsch und Englisch um GitHub Copilot ergänzen und die Angaben im Regressionstest absichern.
 
 ## 0.1.11-ALPHA
 
+- 2026-10-15 · MongoDB-Backups als konsistenten Snapshot und Restores als Transaktion über alle App- und Social-Collections ausführen. Backup-/Restore-Wartung über Datenbank-Leases zwischen Prozessen und Instanzen koordinieren, laufende API-/OIDC- und Scheduler-Anfragen drainieren und neue Requests während der Wartung ablehnen. MongoDB-Compose und Tests auf Replica Sets umstellen und die Betriebsanforderung dokumentieren ([`92a2c0b`](https://github.com/DrGanmon/aquarium-logbuch/commit/92a2c0ba5818fc05bad12f21832f2068cdfc82f4)).
 - 2026-10-15 · Supervisor-Imports auf ES-Modul-Syntax umstellen und `Supervisor` als benannten Export bereitstellen ([`c8413af`](https://github.com/DrGanmon/aquarium-logbuch/commit/c8413afa6de879ffa0b95a6167c829b5bb8d98be)).
 
 ## 0.1.10-ALPHA

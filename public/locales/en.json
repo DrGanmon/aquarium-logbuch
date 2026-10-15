@@ -607,7 +607,7 @@
     "content": {
       "imprintHeading": "⚖️ Imprint & Legal Notices",
       "transparencyHeading": "🤖 Transparency notice under Art. 50 EU AI Act (Regulation (EU) 2024/1689)",
-      "developmentNotice": "This software system (Aquarium-Logbuch) was designed, programmed and structured using generative artificial intelligence (JetBrains Junie, OpenAI Codex and ChatGPT). The source code, database adapters, frontend views and help texts were generated and quality-checked with AI assistance.",
+      "developmentNotice": "This software system (Aquarium-Logbuch) was designed, programmed and structured using generative artificial intelligence (GitHub Copilot, JetBrains Junie, OpenAI Codex and ChatGPT). The source code, database adapters, frontend views and help texts were generated and quality-checked with AI assistance.",
       "expertNotice": "Important advisory notice: The water parameter limits, reference values, alerts, care rules and species data provided in this app are intended for personal aquarium guidance. They do not constitute veterinary or biological and chemical expert advice.",
       "providerHeading": "1. Information under § 5 of the German Digital Services Act (DDG)",
       "appDescription": "Aquarium-Logbuch – a web application for managing and recording aquariums, water parameters and care activities.",
@@ -669,7 +669,7 @@
       "licensesIntro": "This web application is based on open source software. The modules used, their authors and license terms are listed below:",
       "mainAppHeading": "🐠 Aquarium-Logbuch (main application)",
       "mainAppCopyright": "Copyright © 2026 Aquarium-Logbuch project. Licensed for private use and further development.",
-      "mainAppAiNotice": "Designed and developed using generative AI (JetBrains Junie, OpenAI Codex and ChatGPT) in accordance with the EU AI Act.",
+      "mainAppAiNotice": "Designed and developed using generative AI (GitHub Copilot, JetBrains Junie, OpenAI Codex and ChatGPT) in accordance with the EU AI Act.",
       "mainAppTermsHeading": "📜 License terms for the main application (CC BY-NC-SA 4.0):",
       "noncommercialLabel": "Private & non-commercial use only (NonCommercial):",
       "noncommercialNotice": "Free use and modification are permitted exclusively for personal, private and non-profit purposes. Any commercial use, resale or provision as a paid service (SaaS/hosting) is strictly prohibited.",
