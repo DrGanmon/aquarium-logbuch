@@ -6,13 +6,24 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Profilbild-Regressionstest auf ein vollständig enkodiertes JPEG umstellen, damit er die serverseitige Bilddekodierung korrekt abdeckt.
-- Backup-/Restore-Regressionstest gemäß der verpflichtenden Backup-Passwortkonfiguration ausführen.
-- MongoDB-Rollbacktest den Vorher-Snapshot erst nach der idempotenten Schema-Initialisierung der zweiten Instanz aufnehmen.
-- Erststart-Backups vor Datenbankmigrationen ohne Zugriff auf den noch nicht verfügbaren DB-Singleton erstellen und MongoDB-Social-Daten bei Initialisierung und Wiederverbindung über den aktuellen Client exportieren.
-- Aggregierte, nutzeranonyme Systemmetriken für Nutzer, Aquarien, Messungen, Pflegeeinträge, Besatz, Social-Beiträge, Sitzungen und KI-Anfragen/Token je Anbieter ergänzen. Admin-Passwortschutz, JSON-Endpunkt, SQLite-/MongoDB-Persistenz, Backup/Restore, Datenschutz-Hinweise und API-Dokumentation ergänzen; Tokens nur bei Anbieter-Usage erfassen und keine historischen Werte vortäuschen.
-- Navigationsbuttons für Artenkatalog, Social und Admin sowie den Social-Link im Footer mit passenden Emojis ergänzen.
-- Rechtliche KI-Transparenzhinweise auf Deutsch und Englisch um GitHub Copilot ergänzen und die Angaben im Regressionstest absichern.
+- Audit-Restrisiken mit den Sicherheitsnachträgen abgleichen, behobene Befunde markieren und den aktuellen Node-/Bun-Prüfstand dokumentieren.
+
+## 0.1.15-ALPHA
+
+- 2026-10-15 · Erststart-Backups vor Schema-Migrationen ohne Zugriff auf den noch nicht verfügbaren DB-Singleton erstellen und MongoDB-Social-Daten bei Initialisierung und Wiederverbindung über den aktuellen Client exportieren. Backup-/Restore-Regressionstests und JPEG-Testfixture stabilisieren ([`62d8d27`](https://github.com/DrGanmon/aquarium-logbuch/commit/62d8d27b31015d9a4764e8d05d3e219adb7fe576)).
+
+## 0.1.14-ALPHA
+
+- 2026-10-15 · Nutzeranonyme Admin-Metriken für Nutzer, Aquarien, Messungen, Pflegeeinträge, Besatz, Social-Beiträge, Sitzungen und KI-Anfragen/Token je Anbieter ergänzen. Passwortgeschützten JSON-Endpunkt, SQLite-/MongoDB-Persistenz, Backup/Restore und zweisprachige Admin-Oberfläche ergänzen; Tokens nur bei Anbieter-Usage erfassen und keine historischen Werte vortäuschen ([`5cc9791`](https://github.com/DrGanmon/aquarium-logbuch/commit/5cc9791c5d9547161f552991b5e0099e3a46b5c6)).
+
+## 0.1.13-ALPHA
+
+- 2026-10-15 · Navigationsbuttons für Artenkatalog, Social und Admin sowie den Social-Link im Footer mit passenden Emojis kennzeichnen ([`b4075e5`](https://github.com/DrGanmon/aquarium-logbuch/commit/b4075e597e6755097d0664735778f19ba7a5b25f)).
+
+## 0.1.12-ALPHA
+
+- 2026-10-15 · MongoDB-Backups als Snapshot und Restores als Transaktion über App- und Social-Collections ausführen; gemeinsame Wartungs-Leases, Request-Drain, Wartungsablehnung sowie Replica-Set-Anforderung ergänzen ([`2b9cd88`](https://github.com/DrGanmon/aquarium-logbuch/commit/2b9cd887577bad07f4d557fe861216f8c21a10f8)).
+- 2026-10-15 · Deutsche und englische Rechtshinweise um GitHub Copilot in der KI-Entwicklungsangabe ergänzen und mit Regressionstest absichern ([`d12f19f`](https://github.com/DrGanmon/aquarium-logbuch/commit/d12f19f91942214b9f0b51530a0de48ab5d536ba)).
 
 ## 0.1.11-ALPHA
 

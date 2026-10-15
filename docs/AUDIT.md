@@ -16,7 +16,7 @@ Regressionstests: `test/ai_token_encryption.test.js` prüft beide Datenbanken, a
 
 Aquarium-, Bewohner- und Profilbilder werden nun serverseitig mit Sharp dekodiert und im ursprünglichen Bildformat neu enkodiert. EXIF-Ausrichtung wird angewandt, Metadaten werden beim Enkodieren entfernt und die längste Kante auf 2048 Pixel begrenzt. Eingaben über 40 Megapixel werden abgewiesen; bei mehrseitigen Bildern gilt die Grenze für alle Seiten. Animierte Formate bleiben animiert. Social-Bilder wurden bereits serverseitig auf 1600 Pixel begrenzt und neu enkodiert.
 
-Der Regressionstest `test/sharing_and_images.test.js` prüft einen Aquarium-Upload mit EXIF-Ausrichtung auf entfernte EXIF-Daten und begrenzte Abmessungen. Backend-Diagnosen und `git diff --check` waren fehlerfrei; der Laufzeittest war in der Änderungsumgebung mangels Node.js und Bun nicht ausführbar.
+Der Regressionstest `test/sharing_and_images.test.js` prüft einen Aquarium-Upload mit EXIF-Ausrichtung auf entfernte EXIF-Daten und begrenzte Abmessungen. Der abschließende Lauf unter Node.js und Bun besteht die vollständige Testsuite (siehe „Prüfungen“).
 
 ## Nachtrag: Zentraler Missbrauchsschutz (15.10.2026)
 
@@ -30,7 +30,7 @@ Der Schutz gilt gemeinsam für alle Worker eines Supervisors. Mehrere unabhängi
 
 Backup- und Restore-Sperren werden jetzt in der gemeinsamen Datenbank statt nur als Prozessflags geführt. Jede API-/OIDC-Anfrage und der Erinnerungs-Scheduler erhalten eine erneuerte Lease; vor Backup/Restore wird die Annahme neuer Anfragen atomar geschlossen und auf aktive Leases gewartet. Neue dynamische Requests erhalten währenddessen HTTP 503. Backups halten die Sperre nur bis Daten- und Dateisnapshot erfasst sind; Restores halten sie während der Datenbank- und Dateiwiederherstellung.
 
-MongoDB-Backups lesen alle App- und Social-Collections innerhalb einer Snapshot-Transaktion. Restores löschen und importieren Collections, Sessions und Zähler in einer Transaktion; Fehler rollen den gesamten Datenbank-Restore zurück. Fehlgeschlagene Snapshot-Reads brechen die Backup-Erstellung ab, statt ein unvollständiges Archiv zu erzeugen. MongoDB muss dafür als Replica Set laufen, auch bei Einzelknoten; Compose und In-Memory-Tests verwenden ein Replica Set. `test/backup_and_restore.test.js` prüft Wartungsablehnung und Rollback nach einem absichtlich ungültigen Restore. Der Testlauf war in der Änderungsumgebung mangels Node.js/Bun nicht ausführbar.
+MongoDB-Backups lesen alle App- und Social-Collections innerhalb einer Snapshot-Transaktion. Restores löschen und importieren Collections, Sessions und Zähler in einer Transaktion; Fehler rollen den gesamten Datenbank-Restore zurück. Fehlgeschlagene Snapshot-Reads brechen die Backup-Erstellung ab, statt ein unvollständiges Archiv zu erzeugen. MongoDB muss dafür als Replica Set laufen, auch bei Einzelknoten; Compose und In-Memory-Tests verwenden ein Replica Set. `test/backup_and_restore.test.js` prüft Wartungsablehnung und Rollback nach einem absichtlich ungültigen Restore; der Test besteht in den abschließenden Node- und Bun-Läufen.
 
 ## Bestätigte und behobene Befunde
 
@@ -49,17 +49,20 @@ MongoDB-Backups lesen alle App- und Social-Collections innerhalb einer Snapshot-
 
 - `npm audit --json`: **0 bekannte Schwachstellen**, 347 erfasste Abhängigkeiten; Momentaufnahme des beim Lauf verfügbaren Advisory-Bestands.
 - Neue Regressionstests: `test/security_audit_20261014.test.js`, mit SQLite und MongoDB sowie kontrolliertem OIDC-Provider-Mock.
-- Vollständige Testsuite mit finalem Quellstand: **305 von 305 Tests bestanden** unter Node 24.19.0 und **305 von 305 unter Bun 1.4.3**, einschließlich SQLite, MongoDB, OIDC-Mock und realem Supervisor.
-- Builds mit Backend-/Frontend-Typprüfung unter Node und Bun erfolgreich; `npm run lint` ohne Fehler oder Warnungen. `git diff --check` erfolgreich.
+- Vollständige Testsuite mit aktuellem Quellstand: **323 von 323 Tests bestanden** unter Node 24.22.0 und **323 von 323 unter Bun 1.4.3**, einschließlich SQLite, MongoDB und realem Supervisor.
+- Builds mit Backend-/Frontend-Typprüfung unter Node und Bun erfolgreich; `npm run lint` ohne Fehler oder Warnungen. API-Dokumentationsprüfung mit 126 Pfaden und 190 Operationen sowie `git diff --check` erfolgreich.
 
 ## Verbleibende Risiken und Prüflücken
 
-- Rate-Limits gelten zentral über alle Worker eines Supervisors. Mehrere unabhängige Instanzen benötigen weiterhin ein gemeinsam gespeichertes oder am Reverse Proxy/Gateway durchgesetztes Limit.
-- Nachtrag vom 15.10.2026: Persönliche KI-Schlüssel werden inzwischen mit AES-256-GCM gespeichert und aus Klartext migriert (siehe Nachtrag). Alte Archive, externe Kopien sowie mögliche freie SQLite-Seiten/WAL-Reste können weiterhin Klartext enthalten. Der Master-Schlüssel muss separat geschützt und gesichert werden; Datenvolume und Archive bleiben sensibel.
-- Öffentliche OIDC-Clients mit mehreren unabhängigen Instanzen benötigen denselben `OIDC_STATE_SECRET`. Ohne festen Schlüssel werden noch laufende Anmeldungen nach Neustart ungültig. Bereits gestartete Anmeldungen mit dem alten Statusformat müssen nach dem Update neu begonnen werden.
-- Mongo-Transaktionen und Wartungs-Leases koordinieren nur App-Instanzen, die dieselbe Datenbank und diesen Code verwenden. Direkte externe MongoDB-Schreibzugriffe umgehen das Gate. Dateisystemoperationen des Restore sind nicht Teil der Mongo-Transaktion; ein Fehler bei Dateioperationen kann deshalb weiterhin einen abweichenden Datei-/Datenbankzustand hinterlassen. Mehr-Collection-Cascades außerhalb von Backup/Restore sind ebenfalls nicht global transaktional.
-- Angemeldete Nutzer können konfigurierte serverseitige KI-Schlüssel verwenden. Ein zentraler Kosten-/Nutzungsquotenschutz und ein produktionsnaher Lasttest waren nicht Teil dieser Korrekturen.
-- Keine produktive Installation, Reverse-Proxy-Konfiguration oder realer externer OIDC-/SMTP-Anbieter wurde angegriffen. Docker-Images wurden mangels verfügbarer Docker-CLI nicht gebaut. Die automatischen Prüfungen ersetzen diese Betriebsprüfungen nicht.
+Die Statusangaben unterscheiden vollständig behobene Befunde von teilweise behobenen Befunden mit verbleibenden Betriebsgrenzen.
+
+- **Behoben — Nachtrag „Bild-Uploads“:** Profil-, Aquarium- und Bewohnerbilder werden serverseitig dekodiert und neu enkodiert; EXIF-Metadaten werden entfernt und Pixel-/Kantenlimits erzwungen. Der zugehörige Befund ist durch den Nachtrag und den Regressionstest erledigt; produktive Upload-Pfade wurden nicht angegriffen.
+- **Teilweise behoben — Nachtrag „Zentraler Missbrauchsschutz“:** Limits gelten atomar über alle Worker eines Supervisors. Mehrere unabhängige Instanzen benötigen weiterhin ein gemeinsam gespeichertes oder am Reverse Proxy/Gateway durchgesetztes Limit.
+- **Teilweise behoben — Nachtrag „Persönliche KI-Schlüssel“:** Speicherung und Migration persönlicher Schlüssel sind verschlüsselt. Alte Archive, externe Kopien sowie mögliche freie SQLite-Seiten/WAL-Reste können weiterhin Klartext enthalten. Der Master-Schlüssel muss separat geschützt und gesichert werden; Datenvolume und Archive bleiben sensibel.
+- **Weiterhin offen:** Öffentliche OIDC-Clients mit mehreren unabhängigen Instanzen benötigen denselben `OIDC_STATE_SECRET`. Ohne festen Schlüssel werden noch laufende Anmeldungen nach Neustart ungültig. Bereits gestartete Anmeldungen mit dem alten Statusformat müssen nach dem Update neu begonnen werden.
+- **Teilweise behoben — Nachtrag „Atomare MongoDB-Backups und gemeinsame Wartungssperre“:** App-Instanzen mit derselben Datenbank und diesem Code koordinieren Backup/Restore und Mongo-Collections transaktional. Direkte externe MongoDB-Schreibzugriffe umgehen das Gate. Dateisystemoperationen des Restore sind nicht Teil der Mongo-Transaktion; Fehler können einen abweichenden Datei-/Datenbankzustand hinterlassen. Mehr-Collection-Cascades außerhalb von Backup/Restore sind ebenfalls nicht global transaktional.
+- **Weiterhin offen:** Angemeldete Nutzer können konfigurierte serverseitige KI-Schlüssel verwenden. Die neuen Metriken zeigen aggregierte Nutzung, erzwingen aber keinen zentralen Kosten-/Nutzungsquotenschutz; Tokenwerte sind zudem nur verfügbar, wenn der Anbieter Usage-Daten meldet. Ein produktionsnaher Lasttest wurde nicht durchgeführt.
+- **Weiterhin offene Prüflücke:** Keine produktive Installation, Reverse-Proxy-Konfiguration oder realer externer OIDC-/SMTP-Anbieter wurde angegriffen. Docker-Images wurden mangels verfügbarer Docker-CLI nicht gebaut. Automatische Prüfungen ersetzen diese Betriebsprüfungen nicht.
 
 ---
 
