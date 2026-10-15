@@ -93,6 +93,7 @@ for (const backend of ['sqlite', 'mongodb']) {
     await backupService.restoreBackup(backup);
     assert.equal((await db.users.findById(owner.id)).terms_version, TERMS_VERSION);
     assert.equal((await env.request(internalUrl)).status, 403);
+  await backupService.saveAdminConfig({ password: 'backup-test-password' });
     const archived = await backupService.createBackup({ includeFiles: true, customFilename: 'privacy-account.json.gz' });
     const imageFiles = [...additionalFiles, ...backup.data.social_posts.filter(p => p.user_id === owner.id).map(p => p.filename), backup.data.users.find(u => u.id === owner.id).avatar_file];
     assert.ok(imageFiles.every(filename => imageService.getImagePath(filename)));
@@ -129,7 +130,7 @@ for (const backend of ['sqlite', 'mongodb']) {
     assert.equal((await env.request('/api/me', { headers })).status, 401);
     const friendRemaining = await env.request(`/api/social/posts/${friendPost.data.post.id}`);
     assert.equal(friendRemaining.status, 200);assert.equal(friendRemaining.data.post.likeCount, 0);assert.equal(friendRemaining.data.post.commentCount, 0);
-    const cleanArchive = JSON.parse(zlib.gunzipSync(fs.readFileSync(archived.fullPath)).toString());
+    const cleanArchive = JSON.parse(zlib.gunzipSync(require('../dist/backend/src/services/backup-crypto').decryptLocalBackup(fs.readFileSync(archived.fullPath))).toString());
     assert.ok(imageFiles.every(filename => !Object.hasOwn(cleanArchive.files, filename)));
     assert.equal(cleanArchive.data.users.find(u => u.id === owner.id).avatar_file, null);
     assert.equal(cleanArchive.data.social_posts.filter(p => p.user_id === owner.id).length, 0);

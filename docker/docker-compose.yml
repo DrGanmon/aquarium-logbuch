@@ -8,6 +8,8 @@ services:
       mongo:
         condition: service_healthy
     environment:
+      # Gemeinsamer Schlüssel für KI-Schlüssel und Backup-Geheimnisse (64 Hex-Zeichen).
+      APP_ENCRYPTION_KEY: "${APP_ENCRYPTION_KEY:-}"
       # Datenbank-Umschaltung: 'mongodb' oder 'sqlite'
       DB_TYPE: "mongodb"
       MONGODB_URI: "mongodb://root:aquarium_secret_password@mongo:27017/aquarium?authSource=admin"

@@ -5,6 +5,8 @@ services:
     ports:
       - "3000:3000"
     environment:
+      # Gemeinsamer Schlüssel für KI-Schlüssel und Backup-Geheimnisse (64 Hex-Zeichen).
+      APP_ENCRYPTION_KEY: "${APP_ENCRYPTION_KEY:-}"
       # Lokale SQLite-Datenbank (Standard)
       DB_TYPE: "sqlite"
       

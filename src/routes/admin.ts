@@ -1,5 +1,6 @@
-import { asError } from '../utils/app-error';
-import type { Request, Response } from 'express';
+import { isEncryptedBackup } from '../services/backup-crypto';
+import { AppError, asError } from '../utils/app-error';
+import type { Request, Response, RequestHandler } from 'express';
 import express = require('express');
 import db = require('../db');
 import envModule = require('../config/env');
@@ -186,15 +187,24 @@ router.delete(
   })
 );
 
+// Only explicitly classified backup validation errors are safe to return to the administrator.
+const wrapBackup = (handler: RequestHandler) => wrap(async (req, res, next) => {
+  try { await handler(req, res, next); }
+  catch (error) {
+    if (error instanceof AppError && error.status === 400) { res.status(400).json({ error: error.message }); return; }
+    throw error;
+  }
+});
+
 /* ---------- Backup & Restore Endpunkte ---------- */
 
 router.get(
   '/backups',
   auth,
   requireAdmin,
-  wrap(async (req: Request, res: Response) => {
+  wrapBackup(async (req: Request, res: Response) => {
     const backups = backupService.listBackups();
-    const config = backupService.getConfig();
+    const config = await backupService.getAdminConfig();
     res.json({ backups, config });
   })
 );
@@ -203,13 +213,13 @@ router.post(
   '/backups/create',
   auth,
   requireAdmin,
-  wrap(async (req: Request, res: Response) => {
+  wrapBackup(async (req: Request, res: Response) => {
     const isDownload = req.query.download === '1' || req.body?.download === true;
     const includeFiles = req.body?.includeFiles !== undefined ? Boolean(req.body.includeFiles) : null;
     const result = await backupService.createBackup({ includeFiles });
 
     if (isDownload) {
-      res.setHeader('Content-Type', 'application/gzip');
+      res.setHeader('Content-Type', 'application/octet-stream');
       res.setHeader('Content-Disposition', `attachment; filename="${result.filename}"`);
       return res.send(result.gzippedBuffer);
     }
@@ -227,11 +237,11 @@ router.get(
   '/backups/:filename/download',
   auth,
   requireAdmin,
-  wrap((req: Request, res: Response) => {
+  wrapBackup((req: Request, res: Response) => {
     const filename = path.basename(String(req.params.filename));
     const buf = backupService.getBackupBuffer(filename);
     const isGzip = filename.endsWith('.json.gz') || (buf.length >= 2 && buf[0] === 0x1f && buf[1] === 0x8b);
-    res.setHeader('Content-Type', isGzip ? 'application/gzip' : 'application/json');
+    res.setHeader('Content-Type', isEncryptedBackup(buf) ? 'application/octet-stream' : isGzip ? 'application/gzip' : 'application/json');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(buf);
   })
@@ -241,9 +251,9 @@ router.post(
   '/backups/:filename/restore',
   auth,
   requireAdmin,
-  wrap(async (req: Request, res: Response) => {
+  wrapBackup(async (req: Request, res: Response) => {
     const filename = path.basename(String(req.params.filename));
-    const result = await backupService.restoreFromLocalFile(filename);
+    const result = await backupService.restoreFromLocalFile(filename, req.body?.password);
     res.json({ ok: true, stats: result.stats });
   })
 );
@@ -252,7 +262,7 @@ router.delete(
   '/backups/:filename',
   auth,
   requireAdmin,
-  wrap((req: Request, res: Response) => {
+  wrapBackup((req: Request, res: Response) => {
     const filename = path.basename(String(req.params.filename));
     backupService.deleteBackup(filename);
     res.json({ ok: true });
@@ -263,7 +273,7 @@ router.post(
   '/backups/restore-upload',
   auth,
   requireAdmin,
-  wrap(async (req: Request, res: Response) => {
+  wrapBackup(async (req: Request, res: Response) => {
     let input = req.body;
     if (req.body && typeof req.body === 'object') {
       if (req.body.backupBase64) {
@@ -272,7 +282,7 @@ router.post(
         input = req.body.backupData;
       }
     }
-    const result = await backupService.restoreBackup(input);
+    const result = await backupService.restoreBackup(input, req.body?.password);
     res.json({ ok: true, stats: result.stats });
   })
 );
@@ -281,8 +291,8 @@ router.put(
   '/backups/config',
   auth,
   requireAdmin,
-  wrap((req: Request, res: Response) => {
-    const updated = backupService.saveConfig(req.body || {});
+  wrapBackup(async (req: Request, res: Response) => {
+    const updated = await backupService.saveAdminConfig(req.body || {});
     res.json({ ok: true, config: updated });
   })
 );

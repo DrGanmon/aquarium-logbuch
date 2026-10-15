@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Aquarium-Logbuch API",
-    "version": "0.1.7-2-ALPHA",
+    "version": "0.1.8-ALPHA",
     "description": "API-Dokumentation des Repository-Standes vom 15.10.2026. Sitzung über HttpOnly-Cookie session; schreibende /api-Anfragen brauchen X-Requested-With und bei Body application/json. JSON-Objekte, keine Multipart-Uploads. Die Server-URL umfasst den APP_URL-Unterpfad, aber nicht /api. Erweiterbare Antwortschemata enthalten die dokumentierten Kernfelder; zusätzliche Katalog- und Anbieterfelder bleiben erlaubt. Persönliche KI-Schlüssel werden vor der Speicherung verschlüsselt; Profile zeigen nur die ersten und letzten vier Zeichen. Bestehende Schlüssel werden mit Datenbankschema 7 migriert."
   },
   "servers": [
@@ -523,7 +523,9 @@
                   "type": "object",
                   "properties": {
                     "backups": {},
-                    "config": {}
+                    "config": {
+                      "$ref": "#/components/schemas/BackupConfig"
+                    }
                   },
                   "additionalProperties": true
                 }
@@ -550,7 +552,7 @@
         ],
         "summary": "Backups anlegen/ausführen",
         "operationId": "post_api_admin_backups_create",
-        "description": "Gültige Sitzung erforderlich. Administrator mit verifizierter ADMIN_EMAILS-Adresse erforderlich.  download=1 oder Body download=true liefert application/gzip statt JSON.",
+        "description": "Gültige Sitzung erforderlich. Administrator mit verifizierter ADMIN_EMAILS-Adresse erforderlich.  download=1 oder Body download=true liefert application/gzip statt JSON. Neue Archive sind mit AES-256-GCM verschlüsselte .json.gz.enc-Dateien (AQLBENC1; scrypt N=32768/r=8/p=1). Ein konfiguriertes Backup-Passwort ist erforderlich. 400 bei fehlendem Passwort.",
         "security": [
           {
             "SessionCookie": []
@@ -595,7 +597,7 @@
                   "additionalProperties": true
                 }
               },
-              "application/gzip": {
+              "application/octet-stream": {
                 "schema": {
                   "type": "string",
                   "format": "binary"
@@ -604,7 +606,14 @@
             }
           },
           "400": {
-            "$ref": "#/components/responses/Error400"
+            "description": "Ungültige Anfrage, fehlendes/ungültiges Backup-Passwort oder nicht entschlüsselbares Archiv.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -682,6 +691,12 @@
                   "type": "string",
                   "format": "binary"
                 }
+              },
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
               }
             }
           },
@@ -705,7 +720,7 @@
         ],
         "summary": "Backups anlegen/ausführen",
         "operationId": "post_api_admin_backups_filename_restore",
-        "description": "Gültige Sitzung erforderlich. Administrator mit verifizierter ADMIN_EMAILS-Adresse erforderlich. ",
+        "description": "Gültige Sitzung erforderlich. Administrator mit verifizierter ADMIN_EMAILS-Adresse erforderlich.  Verschlüsselte Archive werden vor Datenänderungen authentifiziert. Optionales password: damaliges Backup-Passwort, andernfalls Entschlüsselung mit dem lokalen App-Schlüssel. 400 bei falschem Passwort, fehlendem Schlüssel oder beschädigter Verschlüsselung. Alte JSON-/gzip-Sicherungen bleiben lesbar.",
         "security": [
           {
             "SessionCookie": []
@@ -747,7 +762,14 @@
             }
           },
           "400": {
-            "$ref": "#/components/responses/Error400"
+            "description": "Ungültige Anfrage, fehlendes/ungültiges Backup-Passwort oder nicht entschlüsselbares Archiv.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -765,7 +787,25 @@
             "$ref": "#/components/responses/Error500"
           }
         },
-        "x-admin-only": true
+        "x-admin-only": true,
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "writeOnly": true,
+                    "description": "Passwort des Archivs; leer/ausgelassen verwendet den lokalen App-Schlüssel."
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/admin/backups/{filename}": {
@@ -835,7 +875,7 @@
         ],
         "summary": "Backups anlegen/ausführen",
         "operationId": "post_api_admin_backups_restore_upload",
-        "description": "Gültige Sitzung erforderlich. Administrator mit verifizierter ADMIN_EMAILS-Adresse erforderlich.  backupBase64 (gzip oder JSON), backupData als Backup-Objekt oder direkt das JSON-Backup als Body. Wiederherstellung kann Sitzungen ungültig machen.",
+        "description": "Gültige Sitzung erforderlich. Administrator mit verifizierter ADMIN_EMAILS-Adresse erforderlich.  backupBase64 (gzip oder JSON), backupData als Backup-Objekt oder direkt das JSON-Backup als Body. Wiederherstellung kann Sitzungen ungültig machen. Verschlüsselte Archive werden vor Datenänderungen authentifiziert. Optionales password: damaliges Backup-Passwort, andernfalls Entschlüsselung mit dem lokalen App-Schlüssel. 400 bei falschem Passwort, fehlendem Schlüssel oder beschädigter Verschlüsselung. Alte JSON-/gzip-Sicherungen bleiben lesbar.",
         "security": [
           {
             "SessionCookie": []
@@ -868,7 +908,14 @@
             }
           },
           "400": {
-            "$ref": "#/components/responses/Error400"
+            "description": "Ungültige Anfrage, fehlendes/ungültiges Backup-Passwort oder nicht entschlüsselbares Archiv.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -899,6 +946,12 @@
                   },
                   "backupData": {
                     "$ref": "#/components/schemas/Record"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "writeOnly": true,
+                    "description": "Passwort des Archivs; leer/ausgelassen verwendet den lokalen App-Schlüssel."
                   }
                 },
                 "additionalProperties": true
@@ -915,7 +968,7 @@
         ],
         "summary": "Backups aktualisieren",
         "operationId": "put_api_admin_backups_config",
-        "description": "Gültige Sitzung erforderlich. Administrator mit verifizierter ADMIN_EMAILS-Adresse erforderlich. ",
+        "description": "Gültige Sitzung erforderlich. Administrator mit verifizierter ADMIN_EMAILS-Adresse erforderlich.  password wird ausschließlich schreibend angenommen. passwordConfigured zeigt den Status. 400 bei ungültigem Passwort oder Aktivierung ohne hinterlegtes Passwort. Passwortwechsel gelten nur für neue Archive; vorhandene Backups bleiben unverändert.",
         "security": [
           {
             "SessionCookie": []
@@ -940,7 +993,9 @@
                         true
                       ]
                     },
-                    "config": {}
+                    "config": {
+                      "$ref": "#/components/schemas/BackupConfig"
+                    }
                   },
                   "additionalProperties": true
                 }
@@ -948,7 +1003,14 @@
             }
           },
           "400": {
-            "$ref": "#/components/responses/Error400"
+            "description": "Ungültige Anfrage, fehlendes/ungültiges Backup-Passwort oder nicht entschlüsselbares Archiv.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Error401"
@@ -14723,6 +14785,13 @@
           },
           "includeFiles": {
             "type": "boolean"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "writeOnly": true,
+            "maxLength": 1024,
+            "description": "Neues Backup-Passwort mit 12–1024 Zeichen. Leer oder ausgelassen: unverändert. Verschlüsselt in der Datenbank gespeichert; nie zurückgegeben."
           }
         },
         "additionalProperties": true
@@ -15155,6 +15224,38 @@
           }
         },
         "additionalProperties": true
+      },
+      "BackupConfig": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "intervalHours": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 720
+          },
+          "retentionCount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "includeFiles": {
+            "type": "boolean"
+          },
+          "passwordConfigured": {
+            "type": "boolean"
+          },
+          "lastBackupAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastBackupFile": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       }
     },
     "responses": {

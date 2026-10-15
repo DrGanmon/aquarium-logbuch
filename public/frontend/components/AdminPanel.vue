@@ -39,6 +39,7 @@ const editing = ref<AdminUser | null>();
 const userModel = reactive<FormData>({});
 const config = reactive<FormData>({});
 const backups = ref<Backup[]>([]);
+const restorePassword = ref("");
 const queue = ref<Record<string, unknown>>({});
 const logs = computed(() => rawLogs.value.join("\n"));
 const rawLogs = ref<string[]>([]);
@@ -140,6 +141,7 @@ const fields = computed<Field[]>(() =>
     : tab.value === "backups"
       ? [
           { key: "enabled", label: "Automatische Backups", type: "checkbox" },
+          { key: "password", label: "Backup-Passwort (mind. 12 Zeichen; leer = unverändert)", type: "password" },
           {
             key: "intervalHours",
             label: "Intervall (Stunden)",
@@ -260,8 +262,10 @@ async function saveConfig() {
       : tab.value === "backups"
         ? "/admin/backups/config"
         : "/admin/" + tab.value;
-  await action(endpoint, "PUT", config);
-  await load();
+  if (await action(endpoint, "PUT", config)) {
+    delete config.password;
+    await load();
+  }
 }
 function editUser(user: AdminUser | null) {
   editing.value = user;
@@ -300,11 +304,12 @@ async function backupAction(backup: Backup, restore = false) {
     )
   )
     return;
-  await action(
+  const result = await action(
     `/admin/backups/${encodeURIComponent(backup.filename)}${restore ? "/restore" : ""}`,
     restore ? "POST" : "DELETE",
+    restore ? { password: restorePassword.value } : undefined,
   );
-  await load();
+  if (result) { restorePassword.value = ""; await load(); }
 }
 async function uploadBackup(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0];
@@ -319,10 +324,11 @@ async function uploadBackup(event: Event) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-  await action("/admin/backups/restore-upload", "POST", {
+  const result = await action("/admin/backups/restore-upload", "POST", {
     backupBase64: base64,
+    password: restorePassword.value,
   });
-  await load();
+  if (result) { restorePassword.value = ""; await load(); }
 }
 async function clearLogs() {
   if (!confirm("System-Logbuch löschen?")) return;
@@ -330,8 +336,7 @@ async function clearLogs() {
   await load();
 }
 async function createBackup() {
-  await action("/admin/backups/create", "POST");
-  await load();
+  if (await action("/admin/backups/create", "POST")) await load();
 }
 </script>
 <template>
@@ -478,16 +483,21 @@ async function createBackup() {
         </dl>
       </section>
       <section v-if="tab === 'backups'" class="card stack">
+        <p>{{ config.passwordConfigured ? 'Backup-Passwort ist hinterlegt. Neue Backups werden verschlüsselt.' : 'Bitte zuerst ein Backup-Passwort festlegen und speichern.' }}</p>
+        <p class="muted">Ein neues Passwort gilt für neue Backups. Für ältere Downloads das damalige Passwort aufbewahren. Auf diesem Server ist die Wiederherstellung auch über den App-Schlüssel möglich.</p>
+        <label>Passwort für die Wiederherstellung (optional auf diesem Server)
+          <input v-model="restorePassword" type="password" autocomplete="off" />
+        </label>
         <div class="row between">
           <h2>Gespeicherte Backups</h2>
-          <button class="btn" :disabled="busy" @click="createBackup">
+          <button class="btn" :disabled="busy || !config.passwordConfigured" @click="createBackup">
             💾 Backup erstellen
           </button>
         </div>
         <label
           >Backup aus Datei wiederherstellen<input
             type="file"
-            accept=".json,.gz,.gzip"
+            accept=".json,.gz,.gzip,.enc"
             @change="uploadBackup"
         /></label>
         <div class="table-wrap">

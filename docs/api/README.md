@@ -93,3 +93,22 @@ npm run lint
 Die Prüfung liest die tatsächlichen Router-Mounts und Routen mit dem TypeScript-Parser. Sie erkennt fehlende/veraltete Operationen, Alias-Pfade, `router.all`, doppelte Operation-IDs, fehlerhafte Referenzen und Pfadparameter sowie fehlenden Sitzungsschutz oder Schreib-Header. Sie ersetzt keine fachliche Kontrolle der Schemas. Die Datei wurde zusätzlich mit `@apidevtools/swagger-parser` gegen OpenAPI 3.0.3 validiert.
 
 Sicherheitsbefunde und Betriebsgrenzen: [Audit](../AUDIT.md). Die Versionsangabe ist ein dokumentierter Repository-Stand und wird beim Aktualisieren der API-Dokumentation an `node scripts/version.js` angepasst.
+
+### Verschlüsselte Backups
+
+Vor manuellen oder automatischen Backups als Administrator ein Passwort setzen:
+
+```sh
+curl -b /tmp/aquarium-api-cookies.txt -X PUT "$BASE_URL/api/admin/backups/config" \
+  -H 'Content-Type: application/json' \
+  -H 'X-Requested-With: XMLHttpRequest' \
+  --data '{"password":"ein-langes-geheimes-passwort","enabled":true}'
+curl -b /tmp/aquarium-api-cookies.txt -X POST "$BASE_URL/api/admin/backups/create?download=1" \
+  -H 'X-Requested-With: XMLHttpRequest' -o backup.json.gz.enc
+```
+
+`GET /api/admin/backups` und `PUT /api/admin/backups/config` liefern nur `passwordConfigured`, niemals das Passwort oder dessen Chiffretext. Ein leeres Passwort lässt das bisherige unverändert. Neue Passwörter benötigen 12–1024 Zeichen. Ohne Passwort wird die Erstellung mit HTTP 400 abgewiesen.
+
+Zur Wiederherstellung über `POST /api/admin/backups/restore-upload` ein JSON-Objekt mit `backupBase64` (Base64 der vollständigen Archivdatei) und optional `password` senden. Auch `POST /api/admin/backups/{filename}/restore` akzeptiert `{"password":"damaliges-passwort"}`. Ein falsches Passwort oder eine manipulierte Datei ergibt HTTP 400 vor Änderungen an Datenbank und Bildern. Ohne Passwort wird der lokale App-Schlüssel verwendet. Alte JSON-/gzip-Dateien bleiben importierbar.
+
+Das Format `AQLBENC1` enthält einen längenbegrenzten, authentifizierten Header, einen zufälligen Salt, IV und AES-256-GCM-Chiffretext. scrypt (N=32768, r=8, p=1) leitet den Archivschlüssel vom Passwort ab. Eine mit dem separaten App-Schlüssel verschlüsselte Kopie des Archivschlüssels ermöglicht lokale Wiederherstellung und Bildbereinigung auch nach Passwortwechseln. Das Passwort selbst wird nicht exportiert. Heruntergeladene ältere Archive behalten ihr ursprüngliches Passwort. Migrationssicherungen vor der ersten Passwortkonfiguration sind ausschließlich mit dem App-Schlüssel entschlüsselbar.

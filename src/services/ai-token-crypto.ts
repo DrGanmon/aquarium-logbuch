@@ -1,40 +1,10 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
-import fs = require('node:fs');
-import path = require('node:path');
-import env = require('../config/env');
+import { encryptionKey } from './app-crypto';
 import type { UserRecord } from '../types/domain';
 
 export const AI_PROVIDERS = ['openai', 'gemini', 'claude'] as const;
 export type AiProvider = typeof AI_PROVIDERS[number];
 const PREFIX = 'ai-key:v1:';
-const KEY_FILE = path.join(env.DATA_DIR, 'ai-token-encryption.key');
-
-function encryptionKey(create: boolean): Buffer {
-  const configured = process.env.AI_TOKEN_ENCRYPTION_KEY?.trim();
-  if (configured) {
-    if (!/^[a-fA-F0-9]{64}$/.test(configured)) throw new Error('AI_TOKEN_ENCRYPTION_KEY muss 64 Hex-Zeichen (32 zufällige Bytes) enthalten.');
-    return Buffer.from(configured, 'hex');
-  }
-  if (!fs.existsSync(KEY_FILE) && create) {
-    fs.mkdirSync(path.dirname(KEY_FILE), { recursive: true });
-    // Publish a complete file atomically; concurrent workers must never read a partial key.
-    const temporary = `${KEY_FILE}.${process.pid}.${randomBytes(8).toString('hex')}.tmp`;
-    const fd = fs.openSync(temporary, 'wx', 0o600);
-    try {
-      fs.fchmodSync(fd, 0o600);
-      fs.writeFileSync(fd, randomBytes(32).toString('hex') + '\n');
-      fs.fsyncSync(fd);
-    } finally { fs.closeSync(fd); }
-    try { fs.linkSync(temporary, KEY_FILE); }
-    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error; }
-    finally { fs.unlinkSync(temporary); }
-  }
-  if (!fs.existsSync(KEY_FILE)) throw new Error('KI-Verschlüsselungsschlüssel fehlt. AI_TOKEN_ENCRYPTION_KEY oder die ursprüngliche ai-token-encryption.key wiederherstellen.');
-  const key = fs.readFileSync(KEY_FILE, 'utf8').trim();
-  if (!/^[a-fA-F0-9]{64}$/.test(key)) throw new Error('Die Datei ai-token-encryption.key enthält keinen gültigen Verschlüsselungsschlüssel.');
-  fs.chmodSync(KEY_FILE, 0o600);
-  return Buffer.from(key, 'hex');
-}
 
 function context(userId: number, provider: AiProvider): Buffer {
   if (!Number.isSafeInteger(userId) || userId < 1) throw new Error('Ungültige Benutzer-ID für KI-Verschlüsselung.');

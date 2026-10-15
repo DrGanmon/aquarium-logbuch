@@ -94,7 +94,7 @@ The GitHub workflow builds the application image for `linux/amd64` and `linux/ar
 | `SMTP_FROM` | `Aquarium-Logbuch <noreply@...>` | Outbound sender address |
 | `SMTP_RATE_LIMIT_MS` | `500` | Delay between queued emails in milliseconds |
 | `DEFAULT_AI_PROVIDER` | `openai` | Default AI provider for chat assistant (`openai`, `gemini`, `claude`) |
-| `AI_TOKEN_ENCRYPTION_KEY` | (empty; local key file) | 64 hexadecimal characters / 32 random bytes for personal AI keys. All instances sharing a database need the same value or key file. |
+| `APP_ENCRYPTION_KEY` | (empty; local key file) | 64 hexadecimal characters / 32 random bytes for personal AI keys. All instances sharing a database need the same value or key file. |
 | `OPENAI_API_KEY` | (empty) | Global fallback API key for OpenAI / ChatGPT (optional) |
 | `OPENAI_MODEL` | `gpt-4o-mini` | Default model for OpenAI Chat Completions |
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Optional custom base URL for OpenAI API / proxies |
@@ -136,8 +136,16 @@ The app uses Authorization Code Flow with PKCE, verifies token signatures via JW
 
 Personal API keys use AES-256-GCM with random nonces and authentication bound to the user ID and provider. Migration 7 encrypts existing plaintext values and stores `<provider>_api_key_prefix` / `<provider>_api_key_suffix` with up to four characters each. Keys are verified and normalized at startup. Decryption occurs only in memory for provider requests. Global provider keys from environment variables remain outside the database.
 
-Without `AI_TOKEN_ENCRYPTION_KEY`, the first required encryption atomically creates a random `DATA_DIR/ai-token-encryption.key` file with POSIX permissions `0600`. Keep this persistent file across restarts; workers sharing the data volume use the same file. Independent instances using the same MongoDB need the same key file or environment value. Generate an environment value with `openssl rand -hex 32` and keep it secret.
+Without `APP_ENCRYPTION_KEY`, the first required encryption atomically creates a random `DATA_DIR/app-encryption.key` file with POSIX permissions `0600`. Keep this persistent file across restarts; workers sharing the data volume use the same file. Independent instances using the same MongoDB need the same key file or environment value. Generate an environment value with `openssl rand -hex 32` and keep it secret.
 
 **Back up the key separately**: application database/image backups deliberately omit the master key. Before restoring on another server, provide the original key. Do not simply replace it; existing tokens require decryption and re-encryption for a key change. Missing/wrong keys and modified ciphertext are rejected. Restore validates encrypted keys before replacing existing data.
 
 New backups, including the snapshot before migration, contain encrypted personal tokens. Older plaintext backups are encrypted during restore, before insertion. Existing archives and external copies are not retroactively rewritten. SQLite may retain old plaintext in free pages, WAL history or file copies; physical sanitization is outside this logical migration. Continue protecting the data volume, master key and archives.
+
+### App encryption key and backup password
+
+`APP_ENCRYPTION_KEY` is shared by personal AI credentials, the encrypted backup password stored in SQLite/MongoDB, and local archive keys. Docker Compose forwards it from the environment or `.env`. **Keep the previous key value when renaming it.** `AI_TOKEN_ENCRYPTION_KEY` remains a legacy fallback; an existing `ai-token-encryption.key` is reused as `app-encryption.key` without rotating its contents. The new environment variable takes precedence.
+
+Set and save a password of at least 12 characters in Administration → Backups. New manual and scheduled backups are fully encrypted `.json.gz.enc` files; without a configured password they are rejected. Migration snapshots taken before password setup use the app key. Existing plaintext backups are not automatically converted and remain importable.
+
+Password changes affect new archives only. Older downloads require their original password or app key. The restore password field is optional on the original server, where the app key can decrypt local archives and perform privacy cleanup even after password changes. Back up the app key separately: encrypted personal AI credentials still require it even when the archive password is known. Backup passwords are never returned or exported; restoration preserves the current password configuration.

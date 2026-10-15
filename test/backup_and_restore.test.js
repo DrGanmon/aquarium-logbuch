@@ -55,6 +55,7 @@ test('Backup & Restore: Zugriffsschutz, Datenexport, Wiederherstellung, Migratio
     // Admin und Testdaten anlegen
     const admin = await env.createUserAndLogin('adminuser', 'password123', 'admin@example.com');
     const adminHeaders = { Cookie: admin.cookie };
+    assert.equal((await env.request('/api/admin/backups/config', { method: 'PUT', headers: adminHeaders, body: { password: 'backup-test-password' } })).status, 200);
 
     // Aquarium anlegen
     const aqRes = await env.request('/api/aquariums', {
@@ -133,6 +134,7 @@ test('Backup & Restore: Zugriffsschutz, Datenexport, Wiederherstellung, Migratio
 
     const admin = await env.createUserAndLogin('adminuser', 'password123', 'admin@example.com');
     const adminHeaders = { Cookie: admin.cookie };
+    assert.equal((await env.request('/api/admin/backups/config', { method: 'PUT', headers: adminHeaders, body: { password: 'backup-test-password' } })).status, 200);
 
     // Erstes Aquarium anlegen
     const aqRes = await env.request('/api/aquariums', {
@@ -209,6 +211,7 @@ test('Backup & Restore: Zugriffsschutz, Datenexport, Wiederherstellung, Migratio
 
     const admin = await env.createUserAndLogin('adminuser', 'password123', 'admin@example.com');
     const adminHeaders = { Cookie: admin.cookie };
+    assert.equal((await env.request('/api/admin/backups/config', { method: 'PUT', headers: adminHeaders, body: { password: 'backup-test-password' } })).status, 200);
 
     // Altes v1 Backup-Format
     const legacyBackup = {
@@ -321,6 +324,7 @@ test('Backup & Restore: Zugriffsschutz, Datenexport, Wiederherstellung, Migratio
 
     const admin = await env.createUserAndLogin('adminuser', 'password123', 'admin@example.com');
     const adminHeaders = { Cookie: admin.cookie };
+    assert.equal((await env.request('/api/admin/backups/config', { method: 'PUT', headers: adminHeaders, body: { password: 'backup-test-password' } })).status, 200);
 
     // 1. Konfiguration für automatische Backups ändern (Retention auf 2 setzen)
     const cfgRes = await env.request('/api/admin/backups/config', {
@@ -385,6 +389,7 @@ test('MongoDB: Backup und Restore im MongoDB-Cluster', async (t) => {
 
     const admin = await env.createUserAndLogin('mongoadmin', 'password123', 'admin@example.com');
     const adminHeaders = { Cookie: admin.cookie };
+    assert.equal((await env.request('/api/admin/backups/config', { method: 'PUT', headers: adminHeaders, body: { password: 'backup-test-password' } })).status, 200);
 
     // Aquarium und Messung anlegen
     const aqRes = await env.request('/api/aquariums', {

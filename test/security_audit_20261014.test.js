@@ -55,6 +55,7 @@ for (const backend of ['sqlite', 'mongodb']) test(`Sicherheitsaudit: Passwortwec
   assert.ok(raced.every(result => [200, 400, 401, 409].includes(result.status)));
   const { backupService } = require('../dist/backend/src/services/backup-service');
   const fs = require('node:fs'), path = require('node:path');
+  await backupService.saveAdminConfig({ password: 'backup-test-password' });
   const backup = await backupService.createBackup({ includeFiles: false });
   if (process.platform !== 'win32') assert.equal(fs.statSync(path.join(backupService.backupsDir, backup.filename)).mode & 0o777, 0o600);
   fs.chmodSync(path.join(backupService.backupsDir, backup.filename), 0o644);

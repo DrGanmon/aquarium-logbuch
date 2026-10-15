@@ -510,7 +510,7 @@ test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (
     // Prüfe Inhalt des Gzip-Backups
     const zlib = require('zlib');
     const backupContent = fs.readFileSync(migRes.backup.fullPath);
-    const unzipped = zlib.gunzipSync(backupContent).toString('utf8');
+    const unzipped = zlib.gunzipSync(require('../dist/backend/src/services/backup-crypto').decryptLocalBackup(backupContent)).toString('utf8');
     const backupJson = JSON.parse(unzipped);
     assert.equal(backupJson.dbType, 'sqlite');
     assert.ok(Array.isArray(backupJson.data.users));
@@ -551,7 +551,7 @@ test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (
       // Inhalt des Mongo-Backups prüfen
       const zlib = require('zlib');
       const backupContent = fs.readFileSync(migRes.backup.fullPath);
-      const unzipped = zlib.gunzipSync(backupContent).toString('utf8');
+      const unzipped = zlib.gunzipSync(require('../dist/backend/src/services/backup-crypto').decryptLocalBackup(backupContent)).toString('utf8');
       const backupJson = JSON.parse(unzipped);
       assert.equal(backupJson.dbType, 'mongodb');
       assert.ok(Array.isArray(backupJson.data.users));

@@ -1,3 +1,6 @@
+import { decryptBackup, decryptLocalBackup, encryptBackup, readBackupPassword, rewriteLocalBackup, saveBackupPassword } from './backup-crypto';
+import { randomBytes } from 'node:crypto';
+import { AppError } from '../utils/app-error';
 import { AI_PROVIDERS, encryptPersonalAiFields } from './ai-token-crypto';
 import { writeJsonFile } from './json-config-store';
 import { asError } from '../utils/app-error';
@@ -62,9 +65,10 @@ class BackupService {
     if (this.isBackingUp || this.isRestoring) throw new Error('Kontolöschung während Backup oder Wiederherstellung bitte erneut versuchen.');
     // Synchronous archive rewriting prevents a new backup starting halfway through cleanup.
     for (const name of fs.readdirSync(this.backupsDir)) {
-      if (!name.endsWith('.json.gz')) continue;
+      if (!name.endsWith('.json.gz') && !name.endsWith('.json.gz.enc')) continue;
       const archivePath = path.join(this.backupsDir, name);
-      const payload = JSON.parse(zlib.gunzipSync(fs.readFileSync(archivePath), { maxOutputLength: 512 * 1024 * 1024 }).toString('utf8'));
+      const original = fs.readFileSync(archivePath);
+      const payload = JSON.parse(zlib.gunzipSync(decryptLocalBackup(original), { maxOutputLength: 512 * 1024 * 1024 }).toString('utf8'));
       const data = payload.data || payload;
       const archivedUser = (data.users || []).find((entry: any) => Number(entry.id) === user.id && (entry.created_at ? entry.created_at === user.created_at : entry.username === (user as { username?: string }).username));
       if (!archivedUser) continue;
@@ -83,7 +87,7 @@ class BackupService {
       for (const collection of ['social_comments', 'social_likes']) data[collection] = (data[collection] || []).filter((entry: any) => !postIds.has(Number(entry.post_id)) && Number(entry.user_id) !== user.id);
       for (const filename of filenames) if (payload.files) delete payload.files[filename];
       const temporary = `${archivePath}.privacy-tmp`;
-      try { writePrivateArchive(temporary, zlib.gzipSync(Buffer.from(JSON.stringify(payload))));fs.renameSync(temporary, archivePath); }
+      try { writePrivateArchive(temporary, rewriteLocalBackup(original, zlib.gzipSync(Buffer.from(JSON.stringify(payload)))));fs.renameSync(temporary, archivePath); }
       finally { if (fs.existsSync(temporary)) fs.unlinkSync(temporary); }
     }
   }
@@ -100,7 +104,7 @@ class BackupService {
   /**
    * Lädt die aktuelle Backup-Konfiguration.
    */
-  getConfig() {
+  getConfig(): Record<string, any> {
     this._ensureDirs();
     if (!fs.existsSync(this.configFile)) {
       return { ...DEFAULT_CONFIG };
@@ -109,7 +113,7 @@ class BackupService {
       const data = JSON.parse(fs.readFileSync(this.configFile, 'utf8'));
       return {
         ...DEFAULT_CONFIG,
-        ...data,
+        ...Object.fromEntries(Object.keys(DEFAULT_CONFIG).filter(key => key in data).map(key => [key, data[key]])),
         enabled: Boolean(data.enabled),
         intervalHours: Math.max(1, Math.min(720, Number(data.intervalHours) || 24)),
         retentionCount: Math.max(1, Math.min(100, Number(data.retentionCount) || 10)),
@@ -130,7 +134,7 @@ class BackupService {
     const current = this.getConfig();
     const merged: Record<string, any> = {
       ...current,
-      ...newConfig,
+      ...Object.fromEntries(Object.keys(DEFAULT_CONFIG).filter(key => key in newConfig).map(key => [key, newConfig[key]])),
       enabled: newConfig.enabled !== undefined ? Boolean(newConfig.enabled) : current.enabled,
       intervalHours: newConfig.intervalHours !== undefined
         ? Math.max(1, Math.min(720, Number(newConfig.intervalHours) || 24))
@@ -150,6 +154,18 @@ class BackupService {
       );
     }
     return merged;
+  }
+
+  async getAdminConfig() {
+    return { ...this.getConfig(), passwordConfigured: Boolean(await readBackupPassword(getDb().getRawDb())) };
+  }
+
+  async saveAdminConfig(input: any = {}) {
+    if (input.password !== undefined && input.password !== '') await saveBackupPassword(getDb().getRawDb(), input.password);
+    if (input.enabled && !await readBackupPassword(getDb().getRawDb()))
+      throw new AppError('Bitte zuerst ein Backup-Passwort festlegen.', 400);
+    this.saveConfig(input);
+    return this.getAdminConfig();
   }
 
   /**
@@ -275,6 +291,7 @@ class BackupService {
       }
     }
 
+    delete rawData.app_secrets;
     // Migration snapshots also encrypt legacy tokens before any archive is written.
     if (Array.isArray(rawData.users)) rawData.users = rawData.users.map((user: any) => encryptPersonalAiFields(Number(user.id), user));
     const files = includeFiles ? await this.exportFiles() : {};
@@ -292,9 +309,9 @@ class BackupService {
   }
 
   /**
-   * Erstellt ein Backup und speichert es lokal als komprimierte .json.gz Datei.
+   * Erstellt ein Backup und speichert es lokal als komprimierte, verschlüsselte .json.gz.enc-Datei.
    */
-  async createBackup({ isAuto = false, includeFiles = null, customFilename = null, dbAdapter = null, db: rawDb = null, backupsDir = null }: any = {}) {
+  async createBackup({ isAuto = false, includeFiles = null, customFilename = null, dbAdapter = null, db: rawDb = null, backupsDir = null, preMigration = false }: any = {}) {
     while (this.isBackingUp) {
       await new Promise((resolve: any) => setTimeout(resolve, 50));
     }
@@ -305,18 +322,21 @@ class BackupService {
       const targetBackupsDir = backupsDir || this.backupsDir;
       fs.mkdirSync(targetBackupsDir, { recursive: true });
 
+      const password = await readBackupPassword(rawDb || dbAdapter?.getRawDb() || getDb().getRawDb());
+      if (!password && !preMigration) throw new AppError('Bitte zuerst in der Administration ein Backup-Passwort festlegen.', 400);
       const cfg = this.getConfig();
       const shouldIncludeFiles = includeFiles !== null ? Boolean(includeFiles) : cfg.includeFiles;
 
       const backupData = await this.generateBackupData({ includeFiles: shouldIncludeFiles, dbAdapter, db: rawDb });
       const jsonStr = JSON.stringify(backupData);
-      const gzipped = await gzipAsync(Buffer.from(jsonStr, 'utf8'));
+      const gzipped = await encryptBackup(await gzipAsync(Buffer.from(jsonStr, 'utf8')), password);
 
       const now = new Date();
       const pad = (n: any) => String(n).padStart(2, '0');
       const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
       const prefix = isAuto ? 'auto-backup' : 'manual-backup';
-      const filename = customFilename || `aquarium-${prefix}-${dateStr}.json.gz`;
+      const baseFilename = customFilename || `aquarium-${prefix}-${dateStr}-${randomBytes(4).toString('hex')}.json.gz`;
+      const filename = baseFilename.endsWith('.enc') ? baseFilename : `${baseFilename}.enc`;
       const fullPath = path.join(targetBackupsDir, filename);
 
       writePrivateArchive(fullPath, gzipped);
@@ -372,6 +392,7 @@ class BackupService {
       dbAdapter,
       db: rawDb,
       backupsDir,
+      preMigration: true,
     });
   }
 
@@ -414,7 +435,7 @@ class BackupService {
     const list = [];
 
     for (const filename of entries) {
-      if (!filename.endsWith('.json') && !filename.endsWith('.json.gz')) continue;
+      if (!filename.endsWith('.json') && !filename.endsWith('.json.gz') && !filename.endsWith('.json.gz.enc')) continue;
       const safe = path.basename(filename);
       const fullPath = path.join(this.backupsDir, safe);
       try {
@@ -787,7 +808,7 @@ class BackupService {
   /**
    * Stellt ein Backup (als Buffer oder Objekt) vollständig in die Datenbank und Dateiverzeichnis wieder her.
    */
-  async restoreBackup(backupInput?: any) {
+  async restoreBackup(backupInput?: any, password?: unknown) {
     if (this.isRestoring) {
       throw new Error('Eine Wiederherstellung läuft bereits.');
     }
@@ -797,6 +818,7 @@ class BackupService {
 
     this.isRestoring = true;
     try {
+      if (Buffer.isBuffer(backupInput)) backupInput = await decryptBackup(backupInput, password);
       let rawObj = backupInput;
       if (Buffer.isBuffer(backupInput)) {
         // Prüfe ob GZIP (Magic Bytes 0x1f, 0x8b)
@@ -848,9 +870,9 @@ class BackupService {
   /**
    * Stellt ein lokales Backup anhand des Dateinamens wieder her.
    */
-  async restoreFromLocalFile(filename?: any) {
+  async restoreFromLocalFile(filename?: any, password?: unknown) {
     const buf = this.getBackupBuffer(filename);
-    return this.restoreBackup(buf);
+    return this.restoreBackup(buf, password);
   }
 
   /**

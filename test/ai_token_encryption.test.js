@@ -7,7 +7,7 @@ const zlib = require('node:zlib');
 const { createTestEnvironment, createMongoTestEnvironment } = require('./helpers/env');
 
 for (const backend of ['sqlite', 'mongodb']) test(`Persönliche KI-Schlüssel: Verschlüsselung, Migration, Anbieter und Restore (${backend})`, { timeout: 90000 }, async t => {
-  const env = backend === 'sqlite' ? createTestEnvironment({ DB_TYPE: 'sqlite', AI_TOKEN_ENCRYPTION_KEY: null }) : await createMongoTestEnvironment({ AI_TOKEN_ENCRYPTION_KEY: null });
+  const env = backend === 'sqlite' ? createTestEnvironment({ DB_TYPE: 'sqlite', APP_ENCRYPTION_KEY: null }) : await createMongoTestEnvironment({ APP_ENCRYPTION_KEY: null });
   t.after(() => env.cleanup());
   const account = await env.createUserAndLogin('encrypted_ai');
   const other = await env.createUserAndLogin('other_ai');
@@ -37,7 +37,7 @@ for (const backend of ['sqlite', 'mongodb']) test(`Persönliche KI-Schlüssel: V
     assert.equal(JSON.stringify(saved.data).includes(tokens[provider]), false);
     assert.equal(JSON.stringify(saved.data).includes(stored[`${provider}_api_key`]), false);
   }
-  const masterFile = path.join(env.getDataDir(), 'ai-token-encryption.key');
+  const masterFile = path.join(env.getDataDir(), 'app-encryption.key');
   assert.match(fs.readFileSync(masterFile, 'utf8').trim(), /^[0-9a-f]{64}$/);
   if (process.platform !== 'win32') assert.equal(fs.statSync(masterFile).mode & 0o777, 0o600);
   const before = await read();
@@ -70,7 +70,7 @@ for (const backend of ['sqlite', 'mongodb']) test(`Persönliche KI-Schlüssel: V
   for (const provider of crypto.AI_PROVIDERS) assert.equal(crypto.personalAiToken(migrated, provider), tokens[provider]);
   const snapshot = backupService.listBackups().find(item => item.filename.includes('pre-migration-v6'));
   assert.ok(snapshot);
-  const snapshotText = zlib.gunzipSync(backupService.getBackupBuffer(snapshot.filename)).toString('utf8');
+  const snapshotText = zlib.gunzipSync(require('../dist/backend/src/services/backup-crypto').decryptLocalBackup(backupService.getBackupBuffer(snapshot.filename))).toString('utf8');
   for (const token of Object.values(tokens)) assert.equal(snapshotText.includes(token), false, 'Migrationsbackup darf keine Klartextschlüssel enthalten');
   const snapshotObject = JSON.parse(snapshotText);
   const snapUser = snapshotObject.data.users.find(user => user.id === account.id);
@@ -83,9 +83,9 @@ for (const backend of ['sqlite', 'mongodb']) test(`Persönliche KI-Schlüssel: V
   const serialized = JSON.stringify(backup);
   for (const token of Object.values(tokens)) assert.equal(serialized.includes(token), false);
   // A missing/wrong master key must reject a restore BEFORE replacing existing data.
-  process.env.AI_TOKEN_ENCRYPTION_KEY = '22'.repeat(32);
+  process.env.APP_ENCRYPTION_KEY = '22'.repeat(32);
   await assert.rejects(backupService.restoreBackup(backup), /nicht entschlüsselt/);
-  delete process.env.AI_TOKEN_ENCRYPTION_KEY;
+  delete process.env.APP_ENCRYPTION_KEY;
   assert.ok(await db.users.findById(other.id));
   await backupService.restoreBackup(backup);
   for (const provider of crypto.AI_PROVIDERS) assert.equal(crypto.personalAiToken(await db.users.findById(account.id), provider), tokens[provider]);
@@ -117,29 +117,29 @@ for (const backend of ['sqlite', 'mongodb']) test(`Persönliche KI-Schlüssel: V
 });
 
 test('KI-Master-Schlüssel: explizite Konfiguration und ungültige Werte', async t => {
-  const env = createTestEnvironment({ DB_TYPE: 'sqlite', AI_TOKEN_ENCRYPTION_KEY: 'ab'.repeat(32) });
+  const env = createTestEnvironment({ DB_TYPE: 'sqlite', APP_ENCRYPTION_KEY: 'ab'.repeat(32) });
   t.after(() => env.cleanup());
   const user = await env.createUserAndLogin('configured_ai');
   const db = require('../dist/backend/src/db');
   const crypto = require('../dist/backend/src/services/ai-token-crypto');
   await db.users.update(user.id, { openai_api_key: 'configured-personal-token-1234' });
-  assert.equal(fs.existsSync(path.join(env.getDataDir(), 'ai-token-encryption.key')), false);
+  assert.equal(fs.existsSync(path.join(env.getDataDir(), 'app-encryption.key')), false);
   const saved = await db.users.findById(user.id);
   assert.equal(crypto.personalAiToken(saved, 'openai'), 'configured-personal-token-1234');
-  process.env.AI_TOKEN_ENCRYPTION_KEY = 'too-short';
+  process.env.APP_ENCRYPTION_KEY = 'too-short';
   await assert.rejects(db.users.update(user.id, { openai_api_key: 'replacement-token-5678' }), /64 Hex/);
   assert.equal((await db.users.findById(user.id)).openai_api_key, saved.openai_api_key);
-  process.env.AI_TOKEN_ENCRYPTION_KEY = 'cd'.repeat(32);
+  process.env.APP_ENCRYPTION_KEY = 'cd'.repeat(32);
   await db.close();
   await assert.rejects(db.init(), /nicht entschlüsselt/);
   assert.equal(db.getRawDb(), null, 'Fehlgeschlagener Start muss die Verbindung schließen');
-  process.env.AI_TOKEN_ENCRYPTION_KEY = 'ab'.repeat(32);
+  process.env.APP_ENCRYPTION_KEY = 'ab'.repeat(32);
   await db.init();
   assert.equal(crypto.personalAiToken(await db.users.findById(user.id), 'openai'), 'configured-personal-token-1234');
 });
 
 test('KI-Master-Schlüssel: parallele Worker erzeugen atomar dieselbe persistente Datei', async t => {
-  const env = createTestEnvironment({ DB_TYPE: 'sqlite', AI_TOKEN_ENCRYPTION_KEY: null });
+  const env = createTestEnvironment({ DB_TYPE: 'sqlite', APP_ENCRYPTION_KEY: null });
   t.after(() => env.cleanup());
   await env.start();
   const { execFile } = require('node:child_process');
@@ -151,5 +151,5 @@ test('KI-Master-Schlüssel: parallele Worker erzeugen atomar dieselbe persistent
   })));
   for (const row of rows) assert.equal(crypto.personalAiToken({ id: 1, ...row }, 'openai'), 'concurrent-personal-token-1234');
   assert.equal(new Set(rows.map(row => row.openai_api_key)).size, 8);
-  assert.equal(fs.readdirSync(env.getDataDir()).filter(name => name.startsWith('ai-token-encryption.key.') && name.endsWith('.tmp')).length, 0);
+  assert.equal(fs.readdirSync(env.getDataDir()).filter(name => name.startsWith('app-encryption.key.') && name.endsWith('.tmp')).length, 0);
 });

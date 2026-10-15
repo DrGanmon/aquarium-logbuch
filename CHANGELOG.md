@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Persönliche KI-Schlüssel für OpenAI, Gemini und Claude in SQLite und MongoDB mit AES-256-GCM verschlüsseln, erste und letzte vier Zeichen separat zur Identifikation speichern und bestehende Schlüssel beim Start automatisch migrieren. Profilmaskierung, Anbieteraufrufe, verschlüsselte Backups sowie Wiederherstellung älterer Sicherungen anpassen; Schlüsselverwaltung, API-Dokumentation, Audit und Regressionstests ergänzen.
+- Gesamte Backup-Archive mit AES-256-GCM verschlüsseln, Backup-Passwort in der Administration festlegen und mit dem gemeinsamen App-Schlüssel verschlüsselt in SQLite/MongoDB speichern. Passwortgestützte Wiederherstellung, lokale Entschlüsselung und Bildbereinigung nach Passwortwechseln sowie verschlüsselte Migrationssicherungen ergänzen. KI-Verschlüsselungsschlüssel kompatibel in `APP_ENCRYPTION_KEY` umbenennen; Docker Compose, API-/Betriebsdokumentation und Regressionstests anpassen.
+
+## 0.1.8-ALPHA
+
+- 2026-10-15 · Persönliche KI-Schlüssel für OpenAI, Gemini und Claude in SQLite und MongoDB mit AES-256-GCM verschlüsseln, erste und letzte vier Zeichen separat zur Identifikation speichern und bestehende Schlüssel beim Start automatisch migrieren. Profilmaskierung, Anbieteraufrufe, verschlüsselte Backups sowie Wiederherstellung älterer Sicherungen anpassen; Schlüsselverwaltung, API-Dokumentation, Audit und Regressionstests ergänzen ([`218c8e8`](https://github.com/DrGanmon/aquarium-logbuch/commit/218c8e8405189e3555409ac1d34f2cd028dc3023)).
 
 ## 0.1.7-ALPHA
 
