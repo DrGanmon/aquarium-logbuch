@@ -1086,6 +1086,7 @@
     "nameExample": "z. B. Eisen-Volldünger"
   },
   "offline": {
+    "syncing": "Wird mit dem Server synchronisiert …",
     "logSaved": "Logbucheintrag lokal gespeichert. Die Synchronisierung erfolgt bei bestehender Verbindung.",
     "signIn": "Bitte erneut anmelden.",
     "accountChanged": "Die Anmeldung hat sich geändert. Bitte neu anmelden.",

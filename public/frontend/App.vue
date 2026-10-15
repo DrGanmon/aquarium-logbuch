@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { lazyComponent } from "./composables/lazy-component";
 import { computed, onMounted } from "vue";
+import { offlineState } from "./offline-store";
 import OfflineStatus from "./components/OfflineStatus.vue";
 import FrontendUpdate from "./components/FrontendUpdate.vue";
 import TermsConsent from "./components/TermsConsent.vue";
@@ -100,8 +101,12 @@ onMounted(initialize);
     id="toast"
     role="status"
     aria-live="polite"
-    :class="{ show: notification }"
+    :class="{ show: notification || (session.user && offlineState.syncing) }"
   >
-    {{ notification }}
+    <div v-if="notification">{{ notification }}</div>
+    <div v-if="session.user && offlineState.syncing" class="sync-toast">
+      <span class="sync-toast-spinner" aria-hidden="true">↻</span>
+      <span>{{ t("offline.syncing") }}</span>
+    </div>
   </div>
 </template>

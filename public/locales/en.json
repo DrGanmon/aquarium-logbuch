@@ -1086,6 +1086,7 @@
     "nameExample": "e.g. Iron fertilizer"
   },
   "offline": {
+    "syncing": "Syncing with the server …",
     "logSaved": "Log entry saved locally. It will sync when connected.",
     "signIn": "Please sign in again.",
     "accountChanged": "The signed-in account has changed. Please sign in again.",

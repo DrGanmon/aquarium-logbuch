@@ -544,6 +544,11 @@ dialog::backdrop { background: var(--dialog-backdrop); }
 
 #toast { position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%); background: var(--topbar-bg); color: var(--topbar-text); border: 1px solid var(--line); padding: .6rem 1rem; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .2s; max-width: 90vw; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 #toast.show { opacity: 1; }
+.sync-toast { display: flex; align-items: center; gap: .5rem; }
+#toast > div + .sync-toast { margin-top: .4rem; }
+.sync-toast-spinner { display: inline-block; animation: sync-toast-spin 1s linear infinite; }
+@keyframes sync-toast-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .sync-toast-spinner { animation: none; } }
 
 .auth { max-width: 380px; margin: 8vh auto 0; }
 .auth h1 { font-size: 2rem; }

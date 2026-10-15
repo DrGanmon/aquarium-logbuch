@@ -6,9 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Auch neue manuelle Logbucheinträge und Pflegemaßnahmen offline in derselben benutzergetrennten Warteschlange erfassen und automatisch synchronisieren. Wasserwechsel, Filterarbeiten, Pflanzenpflege, Düngung, Fütterung und sonstige Arbeiten einschließlich Zeitpunkt, Anteil, Details und Notizen unterstützen; Wiederholungen in SQLite/MongoDB atomar deduplizieren und offene Einträge gemeinsam anzeigen. Bestehende Offline-Messwerte, Backup-Belege und Online-Bearbeitung beibehalten; API-Dokumentation und Regressionstests ergänzen.
+- Während der Serversynchronisierung einen deutsch/englischen Status-Toast mit drehendem Symbol anzeigen, nach Abschluss automatisch ausblenden und bestehende Toast-Meldungen parallel erhalten; reduzierte Bewegung berücksichtigen.
 
 ## 0.2.1-ALPHA
+
+- 2026-10-15 · Auch neue manuelle Logbucheinträge und Pflegemaßnahmen offline in derselben benutzergetrennten Warteschlange erfassen und automatisch synchronisieren. Wasserwechsel, Filterarbeiten, Pflanzenpflege, Düngung, Fütterung und sonstige Arbeiten einschließlich Zeitpunkt, Anteil, Details und Notizen unterstützen; Wiederholungen in SQLite/MongoDB atomar deduplizieren und offene Einträge gemeinsam anzeigen. Bestehende Offline-Messwerte, Backup-Belege und Online-Bearbeitung beibehalten; API-Dokumentation und Regressionstests ergänzen (`b0b960a92837bc87f99daff4514339b3a3015671`).
 
 - 2026-10-15 · Neue Messwerte offline in einer benutzergetrennten IndexedDB-Warteschlange erfassen, bereits geladene Aquariendaten offline anzeigen und die App-Oberfläche für Offline-Neustarts speichern. Bei Verbindung automatisch synchronisieren, unabhängige Geräteeinträge zusammenführen und wiederholte Übertragungen samt Alarmen und Testverbrauch in SQLite/MongoDB atomar deduplizieren. Kontowechsel absichern, offene Einträge anzeigen sowie API-Dokumentation, Backups und Regressionstests ergänzen (`2a8390a26048d081ceee509d61ed793b09351584`).
 
