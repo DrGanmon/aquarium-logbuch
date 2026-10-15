@@ -309,7 +309,7 @@ class BackupService {
     this.isBackingUp = true;
     let maintenanceLease: Awaited<ReturnType<typeof acquireMaintenanceLease>> | null = null;
     try {
-      maintenanceLease = await acquireMaintenanceLease('backup');
+      if (!preMigration) maintenanceLease = await acquireMaintenanceLease('backup');
       this._ensureDirs();
       const targetBackupsDir = backupsDir || this.backupsDir;
       fs.mkdirSync(targetBackupsDir, { recursive: true });
@@ -320,7 +320,7 @@ class BackupService {
       const shouldIncludeFiles = includeFiles !== null ? Boolean(includeFiles) : cfg.includeFiles;
 
       const backupData = await this.generateBackupData({ includeFiles: shouldIncludeFiles, dbAdapter, db: rawDb });
-      await maintenanceLease.release();
+      await maintenanceLease?.release();
       maintenanceLease = null;
       const jsonStr = JSON.stringify(backupData);
       const gzipped = await encryptBackup(await gzipAsync(Buffer.from(jsonStr, 'utf8')), password);

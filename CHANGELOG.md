@@ -6,6 +6,10 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
+- Profilbild-Regressionstest auf ein vollständig enkodiertes JPEG umstellen, damit er die serverseitige Bilddekodierung korrekt abdeckt.
+- Backup-/Restore-Regressionstest gemäß der verpflichtenden Backup-Passwortkonfiguration ausführen.
+- MongoDB-Rollbacktest den Vorher-Snapshot erst nach der idempotenten Schema-Initialisierung der zweiten Instanz aufnehmen.
+- Erststart-Backups vor Datenbankmigrationen ohne Zugriff auf den noch nicht verfügbaren DB-Singleton erstellen und MongoDB-Social-Daten bei Initialisierung und Wiederverbindung über den aktuellen Client exportieren.
 - Aggregierte, nutzeranonyme Systemmetriken für Nutzer, Aquarien, Messungen, Pflegeeinträge, Besatz, Social-Beiträge, Sitzungen und KI-Anfragen/Token je Anbieter ergänzen. Admin-Passwortschutz, JSON-Endpunkt, SQLite-/MongoDB-Persistenz, Backup/Restore, Datenschutz-Hinweise und API-Dokumentation ergänzen; Tokens nur bei Anbieter-Usage erfassen und keine historischen Werte vortäuschen.
 - Navigationsbuttons für Artenkatalog, Social und Admin sowie den Social-Link im Footer mit passenden Emojis ergänzen.
 - Rechtliche KI-Transparenzhinweise auf Deutsch und Englisch um GitHub Copilot ergänzen und die Angaben im Regressionstest absichern.

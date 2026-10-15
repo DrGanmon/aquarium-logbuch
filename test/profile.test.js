@@ -3,14 +3,12 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
+const sharp = require('sharp');
 const { createTestEnvironment } = require('./helpers/env');
 
 // Minimal gültige 1x1 PNG- und JPEG-Bilder als Base64
 const TINY_PNG_BASE64 =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-
-const TINY_JPEG_BASE64 =
-  'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=';
 
 test('Benutzerprofil: Abruf, Aktualisierung und Validierung', async (t) => {
   const env = createTestEnvironment();
@@ -160,11 +158,14 @@ test('Benutzerprofil: Profilbild Upload, Anzeige, Austausch und Löschung', asyn
   const filesBefore = fs.readdirSync(uploadsDir);
   assert.strictEqual(filesBefore.length, 1);
   const oldFileName = filesBefore[0];
+  const tinyJpeg = await sharp({ create: { width: 2, height: 2, channels: 3, background: { r: 32, g: 96, b: 160 } } })
+    .jpeg({ quality: 85 })
+    .toBuffer();
 
   const uploadJpgRes = await env.request('/api/me/avatar', {
     method: 'POST',
     headers: { Cookie: user.cookie },
-    body: { image: TINY_JPEG_BASE64 },
+    body: { image: `data:image/jpeg;base64,${tinyJpeg.toString('base64')}` },
   });
   assert.strictEqual(uploadJpgRes.status, 200);
 

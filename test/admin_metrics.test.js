@@ -28,7 +28,7 @@ for (const backend of ['sqlite', 'mongodb']) {
     });
     assert.equal(log.status, 200);
 
-    const db = require('../../dist/backend/src/db');
+    const db = require('../dist/backend/src/db');
     await db.recordAiUsage('openai', { prompt_tokens: 10, completion_tokens: 4, total_tokens: 14 });
     await db.recordAiUsage('openai', null);
     await db.recordAiUsage('gemini', { promptTokenCount: 5, candidatesTokenCount: 3, totalTokenCount: 8 });

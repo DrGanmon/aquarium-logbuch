@@ -408,7 +408,7 @@ async function recordAiUsage(database: any, provider: string, usage: unknown) {
   try { await database.recordAiUsage(provider, usage); } catch { /* Metrics failures must not interrupt chat responses. */ }
 }
 
-function trackStreamUsage(stream: ReadableStream<Uint8Array>, database: any, provider: string) {
+function trackStreamUsage(stream: ReadableStream<Uint8Array<ArrayBufferLike>>, database: any, provider: string) {
   const decoder = new TextDecoder();
   let remainder = '';
   let usage: unknown;
@@ -422,13 +422,13 @@ function trackStreamUsage(stream: ReadableStream<Uint8Array>, database: any, pro
       if (event.usage && !recorded) usage = event.usage;
     } catch { /* Ignore non-JSON SSE frames. */ }
   };
-  return stream.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+  return stream.pipeThrough(new TransformStream<Uint8Array<ArrayBufferLike>, Uint8Array<ArrayBuffer>>({
     transform(chunk, controller) {
       remainder += decoder.decode(chunk, { stream: true });
       const lines = remainder.split(/\r?\n/);
       remainder = lines.pop() || '';
       for (const line of lines) inspectLine(line);
-      controller.enqueue(chunk);
+      controller.enqueue(new Uint8Array(chunk));
     },
     async flush() {
       remainder += decoder.decode();

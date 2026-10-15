@@ -245,7 +245,7 @@ test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (
       await rawDb.collection('maintenance_logs').insertOne({ id: 888, aquarium_id: 888, logged_at: '2025-01-01T10:00:00Z', type: 'fertilize', note: '5ml NPK Dünger' });
 
       // Führe Migrationen auf MongoDB explizit aus (v0 -> v1)
-      const mongoMigRes = await migrator.runMigrationsMongo(rawDb);
+      const mongoMigRes = await migrator.runMigrationsMongo(rawDb, { adapter: mongoAdapter });
       assert.equal(mongoMigRes.previousVersion, 0);
       assert.equal(mongoMigRes.currentVersion, 8);
 
@@ -297,7 +297,7 @@ test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (
       );
 
       // Migrationen in isolierter MongoDB Collection ausführen
-      const customMigRes = await migrator.runMigrationsMongo(rawDb, { migrationsDir: customMongoMigDir });
+      const customMigRes = await migrator.runMigrationsMongo(rawDb, { migrationsDir: customMongoMigDir, adapter: mongoAdapter });
       assert.equal(customMigRes.previousVersion, 0);
       assert.equal(customMigRes.currentVersion, 2);
       assert.equal(customMigRes.latestVersion, 2);

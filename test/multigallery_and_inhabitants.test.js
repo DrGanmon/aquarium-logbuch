@@ -366,6 +366,12 @@ test('Backup & Restore: Motto, Beschreibung, Mehrfach-Bildergalerie und Bewohner
   t.after(async () => await env.cleanup());
 
   const admin = await env.createUserAndLogin('backup_admin', 'password123', 'admin@example.com');
+  const backupConfig = await env.request('/api/admin/backups/config', {
+    method: 'PUT',
+    headers: { Cookie: admin.cookie },
+    body: { password: 'backup-test-password' },
+  });
+  assert.equal(backupConfig.status, 200);
 
   // Aquarium mit Motto, Beschreibung, mehreren Bildern und Bewohnern anlegen
   const createAq = await env.request('/api/aquariums', {
@@ -431,7 +437,7 @@ test('Backup & Restore: Motto, Beschreibung, Mehrfach-Bildergalerie und Bewohner
     method: 'POST',
     headers: { Cookie: admin.cookie },
   });
-  assert.strictEqual(restoreRes.status, 200);
+  assert.strictEqual(restoreRes.status, 200, JSON.stringify(restoreRes.data));
   assert.strictEqual(restoreRes.data.ok, true);
 
   // Wiederhergestelltes Becken prüfen

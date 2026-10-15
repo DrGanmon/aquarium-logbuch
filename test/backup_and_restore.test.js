@@ -449,7 +449,6 @@ test('MongoDB: Backup und Restore im MongoDB-Cluster', async (t) => {
     await env.createUserAndLogin('restore-atomic', 'password123', 'admin@example.com');
     const db = require('../dist/backend/src/db');
     const maintenance = require('../dist/backend/src/services/maintenance-coordinator');
-    const before = await db.exportAllData();
     assert.equal(maintenance.isBackupMaintenanceRequest('POST', '/api/admin/backups/create/'), true);
     assert.equal(maintenance.isBackupMaintenanceRequest('POST', '/api/admin/backups/restore-upload?source=test'), true);
 
@@ -464,6 +463,7 @@ test('MongoDB: Backup und Restore im MongoDB-Cluster', async (t) => {
       await secondInstance.cleanup();
     }
 
+    const before = await db.exportAllData();
     const invalidRestore = {
       ...before,
       users: [...before.users, { ...before.users[0], username: 'duplicate-restore-user' }],

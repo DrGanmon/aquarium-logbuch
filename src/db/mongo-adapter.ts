@@ -330,7 +330,7 @@ class MongoAdapter {
       invitations,
       aquarium_chats,
       dosing_pumps,
-      ...(await this.social.exportData(session)),
+      ...(await new SocialRepository(this.type, db).exportData(session)),
       ai_usage_metrics: await safeGetDocs('ai_usage_metrics', { provider: 1 }),
     };
   }
