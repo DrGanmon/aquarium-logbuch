@@ -6,12 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Deutsche und englische Projekt-README um Pflanzenkatalog und -bestand, neue Testsuiten, zentrale Benachrichtigungen, mehrere Datenbank-Administratoren, Ersteinrichtungs-Wizard, verschlüsselte KI-Schlüssel und Backups sowie anonyme Admin-Metriken ergänzen; veralteten Hinweis zur Administratoradresse im Schnellstart entfernen.
-- MongoDB-Compose beim authentifizierten Replica-Set-Start ein persistentes Keyfile mit restriktiven Dateirechten erzeugen lassen und die Betriebsanforderung dokumentieren.
-- Audit-Restrisiken mit den Sicherheitsnachträgen abgleichen, behobene Befunde markieren und den aktuellen Node-/Bun-Prüfstand dokumentieren.
+- Minor-Version auf `0.2.0-ALPHA` erhöhen und Revision sowie Patch zurücksetzen.
 
 ## 0.1.19-ALPHA
 
+- 2026-10-15 · Deutsche und englische Projekt-README um Pflanzenkatalog und -bestand, neue Testsuiten, zentrale Benachrichtigungen, mehrere Datenbank-Administratoren, Ersteinrichtungs-Wizard, verschlüsselte KI-Schlüssel und Backups sowie anonyme Admin-Metriken ergänzen; veralteten Hinweis zur Administratoradresse im Schnellstart entfernen ([`fb6d4f0`](https://github.com/DrGanmon/aquarium-logbuch/commit/fb6d4f069306628db7b606995b35eaa4eff83a1e)).
 - 2026-10-15 · Die normale Oberfläche, Registrierung, Anmeldung, OIDC und sonstige API bis zum Abschluss der Ersteinrichtung serverseitig sperren und den Registrierungsmodus im zweisprachigen Wizard abfragen und speichern. Healthcheck und Setup-Endpunkte bleiben erreichbar; API-Dokumentation und Regressionstests entsprechend erweitern ([`ce57967`](https://github.com/DrGanmon/aquarium-logbuch/commit/ce57967)).
 
 ## 0.1.18-ALPHA
@@ -28,6 +27,8 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## 0.1.15-ALPHA
 
+- 2026-10-15 · MongoDB-Compose beim authentifizierten Replica-Set-Start ein persistentes Keyfile mit restriktiven Dateirechten erzeugen lassen und die Betriebsanforderung dokumentieren ([`0af98c6`](https://github.com/DrGanmon/aquarium-logbuch/commit/0af98c66653a981e77c98bb02a8a771280a14ae8)).
+- 2026-10-15 · Audit-Restrisiken mit den Sicherheitsnachträgen abgleichen, behobene Befunde markieren und den aktuellen Node-/Bun-Prüfstand dokumentieren ([`38386ff`](https://github.com/DrGanmon/aquarium-logbuch/commit/38386ffbb48d9244484f2b28bce039877c12131e)).
 - 2026-10-15 · Erststart-Backups vor Schema-Migrationen ohne Zugriff auf den noch nicht verfügbaren DB-Singleton erstellen und MongoDB-Social-Daten bei Initialisierung und Wiederverbindung über den aktuellen Client exportieren. Backup-/Restore-Regressionstests und JPEG-Testfixture stabilisieren ([`62d8d27`](https://github.com/DrGanmon/aquarium-logbuch/commit/62d8d27b31015d9a4764e8d05d3e219adb7fe576)).
 
 ## 0.1.14-ALPHA
