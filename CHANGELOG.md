@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Gesamte Backup-Archive mit AES-256-GCM verschlüsseln, Backup-Passwort in der Administration festlegen und mit dem gemeinsamen App-Schlüssel verschlüsselt in SQLite/MongoDB speichern. Passwortgestützte Wiederherstellung, lokale Entschlüsselung und Bildbereinigung nach Passwortwechseln sowie verschlüsselte Migrationssicherungen ergänzen. KI-Verschlüsselungsschlüssel kompatibel in `APP_ENCRYPTION_KEY` umbenennen; Docker Compose, API-/Betriebsdokumentation und Regressionstests anpassen.
+- EXIF-Metadaten aus Aquarium-, Profil- und Bestandsbildern entfernen, Bilder anhand ihrer Orientierung normalisieren und auf höchstens 2048 Pixel Kantenlänge verkleinern; Social-Bilder weiterhin begrenzt neu enkodieren. Regressionstest und Audit-Nachtrag ergänzen.
+
+## 0.1.9-ALPHA
+
+- 2026-10-15 · Gesamte Backup-Archive mit AES-256-GCM verschlüsseln, Backup-Passwort in der Administration festlegen und mit dem gemeinsamen App-Schlüssel verschlüsselt in SQLite/MongoDB speichern. Passwortgestützte Wiederherstellung, lokale Entschlüsselung und Bildbereinigung nach Passwortwechseln sowie verschlüsselte Migrationssicherungen ergänzen. KI-Verschlüsselungsschlüssel kompatibel in `APP_ENCRYPTION_KEY` umbenennen; Docker Compose, API-/Betriebsdokumentation und Regressionstests anpassen ([`af0b4f0`](https://github.com/DrGanmon/aquarium-logbuch/commit/af0b4f07a94ad6e4aa209eaa18fe8a1513825570)).
 
 ## 0.1.8-ALPHA
 

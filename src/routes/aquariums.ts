@@ -357,7 +357,7 @@ router.post(
   auth,
   writeAquarium,
   wrap(async (req: Request, res: Response) => {
-    const { error, value } = saveAquariumImage(req.aq.id, req.body.image);
+    const { error, value } = await saveAquariumImage(req.aq.id, req.body.image);
     if (error !== undefined) return res.status(400).json({ error });
     const caption = str(req.body.caption, 200) || null;
     const isPrimary = req.body.is_primary ? 1 : 0;
@@ -448,7 +448,7 @@ router.post(
   auth,
   writeAquarium,
   wrap(async (req: Request, res: Response) => {
-    const { error, value } = saveAquariumImage(req.aq.id, req.body.image);
+    const { error, value } = await saveAquariumImage(req.aq.id, req.body.image);
     if (error !== undefined) return res.status(400).json({ error });
     const info = await db.aquariumImages.create({
       aquarium_id: req.aq.id,
@@ -542,7 +542,7 @@ router.post(
 
     let imageFile = null;
     if (req.body.image) {
-      const { error, value } = saveStockImage(Date.now(), req.body.image);
+      const { error, value } = await saveStockImage(Date.now(), req.body.image);
       if (error !== undefined) return res.status(400).json({ error });
       imageFile = value.filename;
     }
@@ -586,7 +586,7 @@ router.put(
 
     let imageFile = existing.image_file;
     if (req.body.image) {
-      const { error, value } = saveStockImage(sid, req.body.image, existing.image_file);
+      const { error, value } = await saveStockImage(sid, req.body.image, existing.image_file);
       if (error !== undefined) return res.status(400).json({ error });
       imageFile = value.filename;
     } else if (req.body.remove_image) {
@@ -636,7 +636,7 @@ router.post(
     if (!existing || existing.aquarium_id !== req.aq.id) {
       return res.status(404).json({ error: 'Bewohner nicht gefunden.' });
     }
-    const { error, value } = saveStockImage(sid, req.body.image, existing.image_file);
+    const { error, value } = await saveStockImage(sid, req.body.image, existing.image_file);
     if (error !== undefined) return res.status(400).json({ error });
     await db.stock.updateImage(sid, value.filename);
     res.json({ ok: true, image_url: `api/aquariums/${req.aq.id}/stock/${sid}/image?t=${Date.now()}` });

@@ -423,7 +423,7 @@ router.post(
   auth,
   wrap(async (req: Request, res: Response) => {
     const user = await db.users.findById(req.user.id);
-    const { error, value } = saveAvatar(req.user.id, req.body.image, user ? user.avatar_file : null);
+    const { error, value } = await saveAvatar(req.user.id, req.body.image, user ? user.avatar_file : null);
     if (error !== undefined) return res.status(400).json({ error });
     await db.users.update(req.user.id, { avatar_file: value.filename });
     res.json({ ok: true, avatarUrl: `api/me/avatar?t=${Date.now()}` });

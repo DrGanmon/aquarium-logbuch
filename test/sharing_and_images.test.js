@@ -5,6 +5,40 @@ require('fs');
 require('path');
 const { createTestEnvironment } = require('./helpers/env');
 
+test('Bild-Upload: EXIF entfernen und Auflösung begrenzen', async t => {
+  const env = createTestEnvironment();
+  t.after(async () => await env.cleanup());
+  const user = await env.createUserAndLogin('image_normalization', 'password123', 'image-normalization@test.local');
+  const aquarium = await env.request('/api/aquariums', {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: { name: 'Normalisierung', water_type: 'fresh', volume_l: 100 },
+  });
+  assert.equal(aquarium.status, 200, aquarium.text);
+  const aqId = aquarium.data.id;
+  const sharp = require('sharp');
+  const input = await sharp({ create: { width: 3000, height: 1000, channels: 3, background: '#123456' } })
+    .jpeg()
+    .withMetadata({ orientation: 6 })
+    .toBuffer();
+  assert.ok((await sharp(input).metadata()).exif);
+
+  const upload = await env.request(`/api/aquariums/${aqId}/image`, {
+    method: 'POST',
+    headers: { Cookie: user.cookie },
+    body: { image: `data:image/jpeg;base64,${input.toString('base64')}` },
+  });
+  assert.equal(upload.status, 200, upload.text);
+
+  const response = await fetch(`${await env.start()}/api/aquariums/${aqId}/image`, { headers: { Cookie: user.cookie } });
+  const output = await sharp(Buffer.from(await response.arrayBuffer())).metadata();
+  assert.equal(response.status, 200);
+  assert.equal(output.exif, undefined);
+  assert.equal(output.orientation, undefined);
+  assert.ok(output.width <= 2048 && output.height <= 2048);
+  assert.ok(output.height > output.width);
+});
+
 test('Aquarium-Bilder: Upload, Anzeige, Formate, Validierung und Löschen', async (t) => {
   const env = createTestEnvironment();
   t.after(async () => await env.cleanup());
