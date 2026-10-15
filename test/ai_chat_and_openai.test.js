@@ -913,11 +913,12 @@ test('KI-Streaming leitet Fetch-Webstreams als SSE weiter', async (t) => {
   const aquarium = await env.request('/api/aquariums', { method: 'POST', headers, body: { name: 'Streaming', water_type: 'fresh', volume_l: 100 } });
   const key = await env.request('/api/me/openai', { method: 'PUT', headers, body: { apiKey: 'sk-test-streaming-key', model: 'gpt-4o-mini', setAsActive: true } });
   assert.equal(key.status, 200);
-  const payload = 'data: {"choices":[{"delta":{"content":"Hallo"}}]}\n\ndata: [DONE]\n\n';
+  const payload = 'data: {"choices":[{"delta":{"content":"Hallo"}}]}\n\ndata: {"choices":[],"usage":{"prompt_tokens":3,"completion_tokens":2,"total_tokens":5}}\n\ndata: [DONE]\n\n';
   const originalFetch = global.fetch;
   global.fetch = async (url, options) => {
     if (String(url).startsWith('https://api.openai.com/')) {
       assert.equal(JSON.parse(options.body).stream, true);
+      assert.deepEqual(JSON.parse(options.body).stream_options, { include_usage: true });
       return new Response(payload, { headers: { 'Content-Type': 'text/event-stream' } });
     }
     return originalFetch(url, options);
@@ -927,6 +928,10 @@ test('KI-Streaming leitet Fetch-Webstreams als SSE weiter', async (t) => {
   assert.equal(response.status, 200);
   assert.match(response.headers.get('content-type'), /text\/event-stream/);
   assert.equal(response.text, payload);
+  const db = require('../dist/backend/src/db');
+  const metrics = await db.getAdminMetrics();
+  assert.equal(metrics.ai.providers.openai.requests, 1);
+  assert.equal(metrics.ai.providers.openai.totalTokens, 5);
 });
 
 test('KI-Chat: Fortschritt vor der Antwort, Speicherung und Fehler im Ereignisstrom', async t => {

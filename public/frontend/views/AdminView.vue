@@ -5,6 +5,7 @@ import { t } from "../state";
 const AdminPanel = lazyComponent(() => import("../components/AdminPanel.vue"));
 const tabs = [
   { id: "users", label: "admin.tabs.users", sections: ["users"] },
+  { id: "metrics", label: "admin.tabs.metrics", sections: ["metrics"] },
   {
     id: "registration",
     label: "admin.tabs.registration",

@@ -1,6 +1,6 @@
 # API / Swagger
 
-Die vollständige [OpenAPI-Spezifikation](openapi.json) beschreibt **124 Pfade mit 187 Operationen** des Repository-Standes vom 15.10.2026, Version `0.1.7-2-ALPHA`. Sie verwendet [OpenAPI 3.0.3](https://spec.openapis.org/oas/v3.0.3.html) und lässt sich in Swagger UI oder Swagger Editor importieren. Enthalten sind Konten, Kataloge, Aquarien, Bilder, Besatz, Messungen, Pflege, Dünger, Freigaben, Diagnose, KI-Chat, Social, Administration und OIDC.
+Die vollständige [OpenAPI-Spezifikation](openapi.json) beschreibt **126 Pfade mit 190 Operationen** des Repository-Standes vom 15.10.2026, Version `0.1.12-ALPHA`. Sie verwendet [OpenAPI 3.0.3](https://spec.openapis.org/oas/v3.0.3.html) und lässt sich in Swagger UI oder Swagger Editor importieren. Enthalten sind Konten, Kataloge, Aquarien, Bilder, Besatz, Messungen, Pflege, Dünger, Freigaben, Diagnose, KI-Chat, Social, Administration, Metriken und OIDC.
 
 ## In Swagger ansehen
 
@@ -17,6 +17,7 @@ Swagger beschreibt Cookie-Authentifizierung; das Browserwerkzeug kann ein HttpOn
 - Ein Body muss `Content-Type: application/json` haben und ein JSON-Objekt enthalten. Andere Inhaltstypen: `415`; Arrays oder primitive JSON-Werte: `400`. Es gibt keine Multipart-Uploads. Das globale JSON-Limit ist 50 MiB; vorgeschaltete Proxys können kleinere Limits setzen.
 - Aquarium-Rollen: `view`, `write`, `owner`; höhere Rollen schließen niedrigere ein. Die Anforderungen stehen an jeder Operation. Die Variable `ownAquarium` im Backend verlangt tatsächlich **Leserechte**. Unzugängliche Aquarien liefern `404`, unzureichende Rollen `403`.
 - Administrator-Routen benötigen eine Sitzung mit verifizierter E-Mail aus `ADMIN_EMAILS`.
+- `GET /metrics` ist ein separater JSON-Endpunkt und benötigt das im Adminbereich konfigurierte Bearer-Passwort. Er gibt nur aggregierte Summen und Durchschnittswerte ohne Nutzerkennungen aus.
 - Katalog- und Diagnosetexte unterstützen `lang=de|en`, alternativ `X-Language`; anschließend wird die Profilsprache berücksichtigt. `/api/terms` verwendet stattdessen `language=de|en`.
 
 ```sh
@@ -34,6 +35,24 @@ curl -b /tmp/aquarium-api-cookies.txt "$BASE_URL/api/aquariums"
 
 curl -b /tmp/aquarium-api-cookies.txt \
   "$BASE_URL/api/plants?lang=de&q=anubias&limit=24&offset=0"
+```
+
+## Systemmetriken
+
+Ein Administrator kann die Metrikübersicht über `GET /api/admin/metrics` abrufen und das Scrape-Passwort mit `PUT /api/admin/metrics` festlegen. Das Passwort ist 16 bis 256 Zeichen lang, wird mit scrypt gehasht in `DATA_DIR/metrics-access.json` gespeichert und nicht in Backups aufgenommen. Ein neues Passwort ersetzt das bisherige.
+
+Der unabhängige `GET /metrics`-Endpunkt verlangt `Authorization: Bearer <Passwort>`. Die JSON-Antwort enthält Nutzer- und Bestätigtenzahlen, Gesamtzahlen und Durchschnittswerte für Aquarien, Messungen und Pflegeeinträge, Social-Beiträge, Besatz, aktive Sitzungen sowie KI-Anfragen und Token je Anbieter. Erfolgreiche KI-Anfragen werden gezählt; Tokenwerte nur, wenn der Anbieter Usage-Daten meldet. Die Erfassung beginnt mit dieser Version; frühere Tokenwerte lassen sich nicht rückwirkend ermitteln. Die Datenbank speichert nur aufsummierte Provider-Zähler. Metriken enthalten keine Nutzer-IDs, Namen oder einzelnen Nutzungsverläufe. Antworten sind mit `Cache-Control: no-store` markiert; Fehlversuche sind begrenzt.
+
+```sh
+# Im Adminbereich zunächst das Scrape-Passwort festlegen.
+curl -b /tmp/aquarium-api-cookies.txt -X PUT "$BASE_URL/api/admin/metrics" \
+  -H 'Content-Type: application/json' \
+  -H 'X-Requested-With: XMLHttpRequest' \
+  --data '{"password":"ein-langes-geheimes-scrape-passwort"}'
+
+# Anschließend den JSON-Endpunkt mit demselben Passwort abrufen.
+curl -H 'Authorization: Bearer ein-langes-geheimes-scrape-passwort' \
+  "$BASE_URL/metrics"
 ```
 
 ## AGB und Social-Bilder

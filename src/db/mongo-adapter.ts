@@ -2,6 +2,7 @@ import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-cryp
 import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
 import { PlantRepository } from './plant-repository';
 import { SocialRepository } from "./social-repository";
+import { buildAdminMetrics, normalizeAiUsage } from './admin-metrics';
 import type { UserRecord, Aquarium, AccessRole, StockRecord, Measurement, AquariumImage, AquariumShare, Invitation } from '../types/domain';
 import type { MongoConnection } from '../types/database-driver';
 import type { RepositoryContract, UserQueries, AquariumQueries, StockRepository, PumpRepository, MeasurementQueries } from '../types/repositories';
@@ -122,6 +123,34 @@ class MongoAdapter {
 
   getSchemaVersion() {
     return this.schemaVersion;
+  }
+
+  async getAdminMetrics() {
+    const db = this.connection();
+    const count = (collection: string) => db.collection(collection).countDocuments();
+    const [users, verifiedUsers, aquariums, measurements, logbookEntries, socialPosts, activeSessions, animalRows, usageRows] = await Promise.all([
+      count('users'), db.collection('users').countDocuments({ email_verified: 1 }), count('aquariums'), count('measurements'),
+      count('maintenance_logs'), count('social_posts'), db.collection('sessions').countDocuments({ expires_at: { $gt: Date.now() } }),
+      db.collection('stock').aggregate([{ $group: { _id: null, total: { $sum: { $ifNull: ['$count', 0] } } } }]).toArray(),
+      db.collection('ai_usage_metrics').find({}, { projection: { _id: 0 } }).toArray(),
+    ]);
+    return buildAdminMetrics({ users, verifiedUsers, aquariums, measurements, logbookEntries, socialPosts,
+      animals: Number(animalRows[0]?.total) || 0, activeSessions }, usageRows as Array<Record<string, unknown>>);
+  }
+
+  async recordAiUsage(provider: string, usage: unknown) {
+    const normalized = normalizeAiUsage(provider, usage);
+    if (!normalized) return false;
+    const collection = this.connection().collection('ai_usage_metrics');
+    const update = { $inc: { input_tokens: normalized.inputTokens, output_tokens: normalized.outputTokens,
+      total_tokens: normalized.totalTokens, request_count: 1 }, $set: { updated_at: new Date().toISOString() } };
+    try {
+      await collection.updateOne({ provider }, update, { upsert: true });
+    } catch (error) {
+      if ((error as { code?: number }).code !== 11000) throw error;
+      await collection.updateOne({ provider }, update);
+    }
+    return true;
   }
 
   async getNextSequence(name: string, amount: number = 1) {
@@ -302,6 +331,7 @@ class MongoAdapter {
       aquarium_chats,
       dosing_pumps,
       ...(await this.social.exportData(session)),
+      ai_usage_metrics: await safeGetDocs('ai_usage_metrics', { provider: 1 }),
     };
   }
 
@@ -337,7 +367,7 @@ class MongoAdapter {
 
     await this.social.clear(session);
     // Collections leeren
-    for (const name of ['users', 'sessions', 'aquariums', 'aquarium_images', 'aquarium_shares', 'aquarium_plants', 'stock', 'measurements', 'alerts', 'maintenance_logs', 'invitations', 'aquarium_chats', 'dosing_pumps', 'counters']) {
+    for (const name of ['users', 'sessions', 'aquariums', 'aquarium_images', 'aquarium_shares', 'aquarium_plants', 'stock', 'measurements', 'alerts', 'maintenance_logs', 'invitations', 'aquarium_chats', 'dosing_pumps', 'ai_usage_metrics', 'counters']) {
       await db.collection(name).deleteMany({}, sessionOptions);
     }
 
@@ -354,6 +384,13 @@ class MongoAdapter {
     if (invitations.length > 0) await db.collection('invitations').insertMany(invitations, sessionOptions);
     if (chats.length > 0) await db.collection('aquarium_chats').insertMany(chats, sessionOptions);
     if (dosing_pumps.length > 0) await db.collection('dosing_pumps').insertMany(dosing_pumps, sessionOptions);
+    const aiUsage = (Array.isArray(data.ai_usage_metrics) ? data.ai_usage_metrics : []).filter((row: any) => ['openai', 'gemini', 'claude'].includes(row?.provider)).map((row: any) => {
+      const value = (count: unknown) => Number.isSafeInteger(Number(count)) && Number(count) >= 0 ? Number(count) : 0;
+      return { provider: row.provider, input_tokens: value(row.input_tokens), output_tokens: value(row.output_tokens),
+        total_tokens: value(row.total_tokens), request_count: value(row.request_count),
+        updated_at: typeof row.updated_at === 'string' ? row.updated_at : new Date().toISOString() };
+    });
+    if (aiUsage.length) await db.collection('ai_usage_metrics').insertMany(aiUsage, sessionOptions);
 
     // Aktive Sessions für bestehende Benutzer wiederherstellen
     const validSessions = currentSessions.filter((s: any) => userIds.includes(s.user_id));

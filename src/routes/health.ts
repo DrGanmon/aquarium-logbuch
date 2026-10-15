@@ -106,7 +106,7 @@ router.post('/aquariums/:id/diagnosis/chat', auth, ownAquarium, wrap(async (req,
   const progress = chatProgress(res, progressEnabled);
   try {
     progress.status('generating');
-    const result = await aiChatService.chatWithContext({ ...selectedAi, systemPrompt, messages, signal: controller.signal });
+    const result = await aiChatService.chatWithContext({ ...selectedAi, systemPrompt, messages, signal: controller.signal, customDb: db });
     if (progressEnabled) progress.done({ reply: result.reply });
     else res.json({ reply: result.reply, provider: selectedAi.provider, model: selectedAi.model });
   } catch (error) {

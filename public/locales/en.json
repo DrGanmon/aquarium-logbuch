@@ -590,7 +590,36 @@
       "registration": "Invitations & registration",
       "settings": "Settings",
       "backups": "Backups",
-      "logs": "Logs"
+      "logs": "Logs",
+      "metrics": "Metrics"
+    },
+    "metrics": {
+      "title": "System metrics",
+      "privacy": "Only totals and averages are shown. Individual users, IDs, and personal usage histories are not stored in metrics.",
+      "passwordLabel": "JSON endpoint password (16 to 256 characters)",
+      "passwordSet": "An access password is configured. Setting a new one replaces it.",
+      "passwordMissing": "No access password is configured yet; /metrics remains locked.",
+      "endpointInfo": "JSON endpoint: authenticate with Authorization: Bearer <password>.",
+      "overview": "Usage",
+      "measure": "Metric",
+      "total": "Total",
+      "perUserAverage": "Average per user",
+      "users": "Users",
+      "verifiedUsers": "Verified users",
+      "aquariums": "Aquariums",
+      "measurements": "Measurements",
+      "logbookEntries": "Logbook entries",
+      "socialPosts": "Social posts",
+      "animals": "Stocked animals",
+      "activeSessions": "Active sessions",
+      "aiUsage": "AI usage",
+      "aiSummary": "{requests} requests · {tokens} total tokens",
+      "aiTrackingNotice": "Successful AI requests are counted; tokens are counted only when the provider reports usage. Tracking starts with this version; historical values are not available retroactively.",
+      "provider": "Provider",
+      "requests": "Requests",
+      "inputTokens": "Input tokens",
+      "outputTokens": "Output tokens",
+      "totalTokens": "Total tokens"
     }
   },
   "legal": {

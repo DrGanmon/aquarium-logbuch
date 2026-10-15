@@ -590,7 +590,36 @@
       "registration": "Einladung & Registrierung",
       "settings": "Einstellungen",
       "backups": "Backups",
-      "logs": "Logs"
+      "logs": "Logs",
+      "metrics": "Metriken"
+    },
+    "metrics": {
+      "title": "Systemmetriken",
+      "privacy": "Es werden nur Gesamtzahlen und Durchschnittswerte angezeigt. Einzelne Nutzer, IDs oder deren Nutzungsverläufe werden nicht in den Metriken gespeichert.",
+      "passwordLabel": "Passwort für den JSON-Endpunkt (16 bis 256 Zeichen)",
+      "passwordSet": "Ein Zugangspasswort ist eingerichtet. Ein neues Passwort ersetzt es.",
+      "passwordMissing": "Noch kein Zugangspasswort eingerichtet; /metrics bleibt gesperrt.",
+      "endpointInfo": "JSON-Endpunkt: Zugriff mit Authorization: Bearer <Passwort>.",
+      "overview": "Nutzung",
+      "measure": "Metrik",
+      "total": "Gesamt",
+      "perUserAverage": "Durchschnitt je Nutzer",
+      "users": "Nutzer",
+      "verifiedUsers": "Bestätigte Nutzer",
+      "aquariums": "Aquarien",
+      "measurements": "Messungen",
+      "logbookEntries": "Logbucheinträge",
+      "socialPosts": "Social-Beiträge",
+      "animals": "Tiere im Bestand",
+      "activeSessions": "Aktive Sitzungen",
+      "aiUsage": "KI-Nutzung",
+      "aiSummary": "{requests} Anfragen · {tokens} Tokens insgesamt",
+      "aiTrackingNotice": "Erfolgreiche KI-Anfragen werden gezählt; Tokens nur, wenn der Anbieter Usage-Daten meldet. Die Erfassung beginnt mit dieser Version; frühere Werte sind nicht rückwirkend verfügbar.",
+      "provider": "Anbieter",
+      "requests": "Anfragen",
+      "inputTokens": "Eingabe-Tokens",
+      "outputTokens": "Ausgabe-Tokens",
+      "totalTokens": "Tokens gesamt"
     }
   },
   "legal": {

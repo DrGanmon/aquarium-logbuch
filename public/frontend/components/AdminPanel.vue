@@ -31,6 +31,22 @@ interface AdminResponse {
   backups?: Backup[];
   queue?: Record<string, unknown>;
 }
+interface ProviderMetrics {
+  requests: number;
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+}
+interface AdminMetrics {
+  users: { total: number; verified: number };
+  aquariums: { total: number; perUserAverage: number };
+  measurements: { total: number; perUserAverage: number };
+  logbookEntries: { total: number; perUserAverage: number };
+  socialPosts: number;
+  animals: number;
+  activeSessions: number;
+  ai: { requests: number; totalTokens: number; providers: Record<string, ProviderMetrics> };
+}
 const props = defineProps<{ section: string }>();
 const tab = ref(props.section);
 const users = ref<AdminUser[]>([]);
@@ -39,6 +55,8 @@ const editing = ref<AdminUser | null>();
 const userModel = reactive<FormData>({});
 const config = reactive<FormData>({});
 const backups = ref<Backup[]>([]);
+const metrics = ref<AdminMetrics | null>(null);
+const metricsPasswordConfigured = ref(false);
 const restorePassword = ref("");
 const queue = ref<Record<string, unknown>>({});
 const logs = computed(() => rawLogs.value.join("\n"));
@@ -86,6 +104,13 @@ const autoRefresh = ref(false);
 const error = ref("");
 const busy = ref(false);
 const testEmail = ref(session.user?.email || "");
+const aiProviders = [
+  { id: "openai", label: "OpenAI" },
+  { id: "gemini", label: "Google Gemini" },
+  { id: "claude", label: "Anthropic Claude" },
+];
+const formatMetric = (value: number) => new Intl.NumberFormat().format(value);
+const formatAverage = (value: number) => new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(value);
 let interval: ReturnType<typeof setInterval> | undefined;
 const tabs = [
   ["users", "👥 Benutzer"],
@@ -219,7 +244,13 @@ async function load() {
   const section = tab.value;
   error.value = "";
   try {
-    if (section === "users") {
+    if (section === "metrics") {
+      const result = await api<{ metrics: AdminMetrics; passwordConfigured: boolean }>("/admin/metrics", { signal: request.signal });
+      if (generation !== loadGeneration) return;
+      metrics.value = result.metrics;
+      metricsPasswordConfigured.value = result.passwordConfigured;
+      config.password = "";
+    } else if (section === "users") {
       const result = await api<AdminUser[]>("/admin/users", { signal: request.signal });
       if (generation === loadGeneration) users.value = result;
     } else if (section === "logs") {
@@ -257,7 +288,9 @@ async function action(path: string, method: string, body?: unknown) {
 }
 async function saveConfig() {
   const endpoint =
-    tab.value === "registration"
+    tab.value === "metrics"
+      ? "/admin/metrics"
+      : tab.value === "registration"
       ? "/admin/registration/config"
       : tab.value === "backups"
         ? "/admin/backups/config"
@@ -446,6 +479,54 @@ async function createBackup() {
         "
         >{{ logs }}</pre>
     </section>
+      <section v-else-if="tab === 'metrics'" class="card stack">
+        <template v-if="metrics">
+          <h2>{{ t('admin.metrics.title') }}</h2>
+          <p>{{ t('admin.metrics.privacy') }}</p>
+          <form class="row" @submit.prevent="saveConfig">
+            <label class="stack">{{ t('admin.metrics.passwordLabel') }}
+              <input v-model="config.password" type="password" minlength="16" maxlength="256" autocomplete="new-password" />
+            </label>
+            <button class="btn" :disabled="busy || String(config.password || '').length < 16">{{ t('common.save') }}</button>
+          </form>
+          <p class="muted">{{ t(metricsPasswordConfigured ? 'admin.metrics.passwordSet' : 'admin.metrics.passwordMissing') }}</p>
+          <p class="muted">{{ t('admin.metrics.endpointInfo') }} <code>/metrics</code></p>
+          <h3>{{ t('admin.metrics.overview') }}</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>{{ t('admin.metrics.measure') }}</th><th>{{ t('admin.metrics.total') }}</th><th>{{ t('admin.metrics.perUserAverage') }}</th></tr></thead>
+              <tbody>
+                <tr><th>{{ t('admin.metrics.users') }}</th><td>{{ formatMetric(metrics.users.total) }}</td><td>-</td></tr>
+                <tr><th>{{ t('admin.metrics.verifiedUsers') }}</th><td>{{ formatMetric(metrics.users.verified) }}</td><td>-</td></tr>
+                <tr><th>{{ t('admin.metrics.aquariums') }}</th><td>{{ formatMetric(metrics.aquariums.total) }}</td><td>{{ formatAverage(metrics.aquariums.perUserAverage) }}</td></tr>
+                <tr><th>{{ t('admin.metrics.measurements') }}</th><td>{{ formatMetric(metrics.measurements.total) }}</td><td>{{ formatAverage(metrics.measurements.perUserAverage) }}</td></tr>
+                <tr><th>{{ t('admin.metrics.logbookEntries') }}</th><td>{{ formatMetric(metrics.logbookEntries.total) }}</td><td>{{ formatAverage(metrics.logbookEntries.perUserAverage) }}</td></tr>
+                <tr><th>{{ t('admin.metrics.socialPosts') }}</th><td>{{ formatMetric(metrics.socialPosts) }}</td><td>-</td></tr>
+                <tr><th>{{ t('admin.metrics.animals') }}</th><td>{{ formatMetric(metrics.animals) }}</td><td>-</td></tr>
+                <tr><th>{{ t('admin.metrics.activeSessions') }}</th><td>{{ formatMetric(metrics.activeSessions) }}</td><td>-</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>{{ t('admin.metrics.aiUsage') }}</h3>
+          <p>{{ t('admin.metrics.aiSummary', { requests: formatMetric(metrics.ai.requests), tokens: formatMetric(metrics.ai.totalTokens) }) }}</p>
+          <p class="muted">{{ t('admin.metrics.aiTrackingNotice') }}</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>{{ t('admin.metrics.provider') }}</th><th>{{ t('admin.metrics.requests') }}</th><th>{{ t('admin.metrics.inputTokens') }}</th><th>{{ t('admin.metrics.outputTokens') }}</th><th>{{ t('admin.metrics.totalTokens') }}</th></tr></thead>
+              <tbody>
+                <tr v-for="provider in aiProviders" :key="provider.id">
+                  <th>{{ provider.label }}</th>
+                  <td>{{ formatMetric(metrics.ai.providers[provider.id]?.requests || 0) }}</td>
+                  <td>{{ formatMetric(metrics.ai.providers[provider.id]?.inputTokens || 0) }}</td>
+                  <td>{{ formatMetric(metrics.ai.providers[provider.id]?.outputTokens || 0) }}</td>
+                  <td>{{ formatMetric(metrics.ai.providers[provider.id]?.totalTokens || 0) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </template>
+        <p v-else role="status">{{ t('common.loading') }}</p>
+      </section>
     <template v-else
       ><form class="card stack" @submit.prevent="saveConfig">
         <h2>{{ tabs.find(([key]) => key === tab)?.[1] }}</h2>

@@ -21,6 +21,7 @@ import adminRoutes = require('./routes/admin');
 import oidcRoutes = require('./routes/oidc');
 import socialRoutes = require('./routes/social');
 import healthRoutes = require('./routes/health');
+import metricsRoutes = require('./routes/metrics');
 
 const app = express();
 app.disable('x-powered-by');
@@ -54,6 +55,7 @@ const maintenanceGate = async (req: Request, res: Response, next: NextFunction) 
 };
 app.use('/api', maintenanceGate);
 app.use('/auth', maintenanceGate);
+app.use('/metrics', maintenanceGate);
 app.use(express.json({ limit: '50mb' }));
 app.use('/api', csrfProtection);
 app.use('/api', (req, res, next) => {
@@ -71,6 +73,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/auth', oidcRoutes);
+app.use('/metrics', metricsRoutes);
 
 // Frontend: index.html mit <base href>, damit die App auch unter einem Unterpfad (APP_URL mit Pfad) läuft
 const publicDir = path.join(APP_ROOT, 'public');

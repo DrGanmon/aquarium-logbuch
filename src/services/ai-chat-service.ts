@@ -259,6 +259,7 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
     stream: Boolean(stream),
     max_completion_tokens: 1500,
   };
+  if (stream) payload.stream_options = { include_usage: true };
 
   if (!isReasoning) {
     payload.temperature = 0.7;
@@ -302,6 +303,10 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
       retryPayload.max_tokens = 1500;
       shouldRetry = true;
     }
+    if (errMsg.includes('stream_options') && (errMsg.includes('unsupported') || errMsg.includes('unknown') || errMsg.includes('extra fields') || errMsg.includes('parameter') || errMsg.includes('invalid'))) {
+      delete retryPayload.stream_options;
+      shouldRetry = true;
+    }
 
     if (shouldRetry) {
       response = await fetch(url, {
@@ -338,6 +343,10 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
         ) {
           delete retryPayload.max_completion_tokens;
           retryPayload.max_tokens = 1500;
+          secondRetry = true;
+        }
+        if (secondErrMsg.includes('stream_options') && retryPayload.stream_options !== undefined && (secondErrMsg.includes('unsupported') || secondErrMsg.includes('unknown') || secondErrMsg.includes('extra fields') || secondErrMsg.includes('parameter') || secondErrMsg.includes('invalid'))) {
+          delete retryPayload.stream_options;
           secondRetry = true;
         }
 
@@ -392,6 +401,44 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
     provider: 'openai',
     usage: data.usage || null,
   };
+}
+
+async function recordAiUsage(database: any, provider: string, usage: unknown) {
+  if (!usage || typeof database?.recordAiUsage !== 'function') return;
+  try { await database.recordAiUsage(provider, usage); } catch { /* Metrics failures must not interrupt chat responses. */ }
+}
+
+function trackStreamUsage(stream: ReadableStream<Uint8Array>, database: any, provider: string) {
+  const decoder = new TextDecoder();
+  let remainder = '';
+  let usage: unknown;
+  let recorded = false;
+  const inspectLine = (line: string) => {
+    if (!line.startsWith('data:')) return;
+    const payload = line.slice(5).trim();
+    if (!payload || payload === '[DONE]') return;
+    try {
+      const event = JSON.parse(payload);
+      if (event.usage && !recorded) usage = event.usage;
+    } catch { /* Ignore non-JSON SSE frames. */ }
+  };
+  return stream.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+    transform(chunk, controller) {
+      remainder += decoder.decode(chunk, { stream: true });
+      const lines = remainder.split(/\r?\n/);
+      remainder = lines.pop() || '';
+      for (const line of lines) inspectLine(line);
+      controller.enqueue(chunk);
+    },
+    async flush() {
+      remainder += decoder.decode();
+      if (remainder) inspectLine(remainder);
+      if (!recorded) {
+        recorded = true;
+        await recordAiUsage(database, provider, usage);
+      }
+    },
+  }));
 }
 
 /**
@@ -832,6 +879,8 @@ async function chatWithAquarium({
   }
 
   signal?.throwIfAborted();
+  if (result && 'stream' in result && result.stream) result.stream = trackStreamUsage(result.stream, database, activeProvider);
+  else await recordAiUsage(database, activeProvider, result?.usage);
   // Wenn die Antwort erfolgreich war und Historie gespeichert werden soll
   if (saveHistory && result && result.reply && database.aquariumChats) {
     onProgress?.("saving");
@@ -863,9 +912,9 @@ async function chatWithAquarium({
 }
 
 /** Stateless requests never read or write aquarium chat history. */
-async function chatWithContext({ apiKey, model, provider, systemPrompt, messages, signal }: {
+async function chatWithContext({ apiKey, model, provider, systemPrompt, messages, signal, customDb = db }: {
   apiKey: string; model: string; provider: 'openai' | 'gemini' | 'claude';
-  systemPrompt: string; messages: ChatMessage[]; signal?: AbortSignal;
+  systemPrompt: string; messages: ChatMessage[]; signal?: AbortSignal; customDb?: any;
 }) {
   signal?.throwIfAborted();
   const optimizedMessages = compressChatHistory(messages);
@@ -873,6 +922,7 @@ async function chatWithContext({ apiKey, model, provider, systemPrompt, messages
   const result = provider === 'gemini' ? await callGemini(options)
     : provider === 'claude' ? await callClaude(options) : await callOpenAi(options);
   signal?.throwIfAborted();
+  await recordAiUsage(customDb, provider, result?.usage);
   return result;
 }
 

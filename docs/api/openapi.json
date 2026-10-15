@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Aquarium-Logbuch API",
-    "version": "0.1.8-ALPHA",
-    "description": "API-Dokumentation des Repository-Standes vom 15.10.2026. Sitzung über HttpOnly-Cookie session; schreibende /api-Anfragen brauchen X-Requested-With und bei Body application/json. JSON-Objekte, keine Multipart-Uploads. Die Server-URL umfasst den APP_URL-Unterpfad, aber nicht /api. Dynamische /api- und /auth-Anfragen können während einer gemeinsamen Backup-/Restore-Wartung vorübergehend HTTP 503 erhalten. Erweiterbare Antwortschemata enthalten die dokumentierten Kernfelder; zusätzliche Katalog- und Anbieterfelder bleiben erlaubt. Persönliche KI-Schlüssel werden vor der Speicherung verschlüsselt; Profile zeigen nur die ersten und letzten vier Zeichen. Bestehende Schlüssel werden mit Datenbankschema 7 migriert."
+    "version": "0.1.12-ALPHA",
+    "description": "API-Dokumentation des Repository-Standes vom 15.10.2026. Sitzung über HttpOnly-Cookie session; schreibende /api-Anfragen brauchen X-Requested-With und bei Body application/json. JSON-Objekte, keine Multipart-Uploads. Die Server-URL umfasst den APP_URL-Unterpfad, aber nicht /api. Dynamische /api-, /auth- und /metrics-Anfragen können während einer gemeinsamen Backup-/Restore-Wartung vorübergehend HTTP 503 erhalten. Erweiterbare Antwortschemata enthalten die dokumentierten Kernfelder; zusätzliche Katalog- und Anbieterfelder bleiben erlaubt. Persönliche KI-Schlüssel werden vor der Speicherung verschlüsselt; Profile zeigen nur die ersten und letzten vier Zeichen. Datenbankschema 8 ergänzt anonyme Provider-Token-Summen."
   },
   "servers": [
     {
@@ -61,6 +61,113 @@
     }
   ],
   "paths": {
+    "/metrics": {
+      "get": {
+        "tags": ["Administration"],
+        "summary": "Anonyme Systemmetriken abrufen",
+        "operationId": "get_metrics",
+        "description": "Liefert aggregierte Gesamtzahlen und durchschnittliche Aquarien-, Messungs- und Logbucheinträge pro Nutzer. Erfolgreiche KI-Anfragen werden gezählt; Tokenwerte werden nur erfasst, wenn der Anbieter Usage-Daten meldet, ab Einführung dieser Erfassung. Historische Werte sind nicht rückwirkend verfügbar. Es werden keine Nutzerkennungen ausgegeben. Scrape-Passwort zuvor über PUT /api/admin/metrics festlegen.",
+        "security": [{ "MetricsBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Aggregierte Metriken; ohne Nutzerkennungen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": { "type": "object", "properties": { "total": { "type": "integer" }, "verified": { "type": "integer" } } },
+                    "aquariums": { "type": "object", "properties": { "total": { "type": "integer" }, "perUserAverage": { "type": "number" } } },
+                    "measurements": { "type": "object", "properties": { "total": { "type": "integer" }, "perUserAverage": { "type": "number" } } },
+                    "logbookEntries": { "type": "object", "properties": { "total": { "type": "integer" }, "perUserAverage": { "type": "number" } } },
+                    "socialPosts": { "type": "integer" },
+                    "animals": { "type": "integer" },
+                    "activeSessions": { "type": "integer" },
+                    "ai": {
+                      "type": "object",
+                      "properties": {
+                        "requests": { "type": "integer" },
+                        "totalTokens": { "type": "integer" },
+                        "providers": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                              "requests": { "type": "integer" },
+                              "inputTokens": { "type": "integer" },
+                              "outputTokens": { "type": "integer" },
+                              "totalTokens": { "type": "integer" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Error401" },
+          "429": { "$ref": "#/components/responses/Error429" },
+          "503": { "$ref": "#/components/responses/Error503" }
+        }
+      }
+    },
+    "/api/admin/metrics": {
+      "get": {
+        "tags": ["Administration"],
+        "summary": "Systemmetriken und Passwortstatus abrufen",
+        "operationId": "get_api_admin_metrics",
+        "description": "Gültige Sitzung und Administrator mit verifizierter ADMIN_EMAILS-Adresse erforderlich. Die Antwort enthält keine Nutzerkennungen.",
+        "security": [{ "SessionCookie": [] }],
+        "responses": {
+          "200": {
+            "description": "Aggregierte Metriken und Passwortstatus.",
+            "content": { "application/json": { "schema": { "type": "object", "properties": { "metrics": { "type": "object", "additionalProperties": true }, "passwordConfigured": { "type": "boolean" } } } } }
+          },
+          "401": { "$ref": "#/components/responses/Error401" },
+          "403": { "$ref": "#/components/responses/Error403" },
+          "503": { "$ref": "#/components/responses/Error503" },
+          "500": { "$ref": "#/components/responses/Error500" }
+        },
+        "x-admin-only": true
+      },
+      "put": {
+        "tags": ["Administration"],
+        "summary": "Scrape-Passwort festlegen oder ersetzen",
+        "operationId": "put_api_admin_metrics",
+        "description": "Gültige Sitzung und Administrator mit verifizierter ADMIN_EMAILS-Adresse erforderlich. Das Passwort muss 16 bis 256 Zeichen lang sein und wird serverseitig nur als scrypt-Hash gespeichert.",
+        "security": [{ "SessionCookie": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/RequestedWith" }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object", "properties": { "password": { "type": "string", "minLength": 16, "maxLength": 256 } }, "required": ["password"], "additionalProperties": true } } }
+        },
+        "responses": {
+          "200": {
+            "description": "Passwort gespeichert.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean" },
+                    "passwordConfigured": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error400" },
+          "401": { "$ref": "#/components/responses/Error401" },
+          "403": { "$ref": "#/components/responses/Error403" },
+          "415": { "$ref": "#/components/responses/Error415" },
+          "503": { "$ref": "#/components/responses/Error503" },
+          "500": { "$ref": "#/components/responses/Error500" }
+        },
+        "x-admin-only": true
+      }
+    },
     "/api/admin/users": {
       "get": {
         "tags": [
@@ -13968,6 +14075,12 @@
         "in": "cookie",
         "name": "session",
         "description": "Über POST /api/login oder OIDC erzeugt. HttpOnly, SameSite=Lax; Secure abhängig von Konfiguration."
+      },
+      "MetricsBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Password",
+        "description": "Das im Adminbereich festgelegte Scrape-Passwort als Bearer-Token."
       }
     },
     "parameters": {

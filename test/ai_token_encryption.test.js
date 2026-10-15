@@ -61,12 +61,12 @@ for (const backend of ['sqlite', 'mongodb']) test(`Persönliche KI-Schlüssel: V
 
   // A legacy version-6 database, including the snapshot created before migrating.
   await rawUpdate(Object.fromEntries(crypto.AI_PROVIDERS.map(provider => [`${provider}_api_key`, tokens[provider]])));
-  if (backend === 'sqlite') raw.prepare('DELETE FROM schema_version WHERE version = 7').run();
-  else await raw.collection('schema_version').deleteOne({ version: 7 });
+  if (backend === 'sqlite') raw.prepare('DELETE FROM schema_version WHERE version > 6').run();
+  else await raw.collection('schema_version').deleteMany({ version: { $gt: 6 } });
   await db.close();
   await db.init();
   const migrated = await (backend === 'sqlite' ? db.getRawDb().prepare('SELECT * FROM users WHERE id = ?').get(account.id) : db.getRawDb().collection('users').findOne({ id: account.id }));
-  assert.equal(db.getSchemaVersion(), 7);
+  assert.equal(db.getSchemaVersion(), 8);
   for (const provider of crypto.AI_PROVIDERS) assert.equal(crypto.personalAiToken(migrated, provider), tokens[provider]);
   const snapshot = backupService.listBackups().find(item => item.filename.includes('pre-migration-v6'));
   assert.ok(snapshot);

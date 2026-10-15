@@ -22,8 +22,25 @@ import legal_config_serviceModule = require('../services/legal-config-service');
 const { legalConfigService } = legal_config_serviceModule;
 import path = require('path');
 import logger = require('../utils/logger');
+import { metricsAccessService } from '../services/metrics-access-service';
 
 const router = express.Router();
+
+router.get('/metrics', auth, requireAdmin, wrap(async (_req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store').json({
+    metrics: await db.getAdminMetrics(),
+    passwordConfigured: metricsAccessService.isConfigured(),
+  });
+}));
+
+router.put('/metrics', auth, requireAdmin, wrap(async (req: Request, res: Response) => {
+  const password = req.body?.password;
+  if (typeof password !== 'string' || password.length < 16 || password.length > 256) {
+    return res.status(400).json({ error: 'Das Metrik-Passwort muss 16 bis 256 Zeichen lang sein.' });
+  }
+  await metricsAccessService.setPassword(password);
+  res.json({ ok: true, passwordConfigured: true });
+}));
 
 router.get(
   '/users',

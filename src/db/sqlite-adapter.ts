@@ -2,6 +2,7 @@ import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-cryp
 import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
 import { PlantRepository } from './plant-repository';
 import { SocialRepository } from "./social-repository";
+import { buildAdminMetrics, normalizeAiUsage } from './admin-metrics';
 import type { UserRecord, Aquarium, AccessRole, StockRecord, Measurement, DosingPump, AquariumImage, AquariumShare, Invitation } from '../types/domain';
 import type { SqliteConnection } from '../types/database-driver';
 import type { RepositoryContract, UserQueries, AquariumQueries, StockRepository, PumpRepository, MeasurementQueries } from '../types/repositories';
@@ -89,6 +90,29 @@ class SqliteAdapter {
   getSchemaVersion() {
     if (!this.db) return 0;
     return getCurrentVersion(this.db);
+  }
+
+  async getAdminMetrics() {
+    const db = this.connection();
+    const count = (table: string) => Number(db.prepare(`SELECT COUNT(*) AS total FROM ${table}`).get()?.total || 0);
+    const users = count('users');
+    const verifiedUsers = Number(db.prepare('SELECT COUNT(*) AS total FROM users WHERE email_verified = 1').get()?.total || 0);
+    const animals = Number(db.prepare('SELECT COALESCE(SUM(count), 0) AS total FROM stock').get()?.total || 0);
+    const activeSessions = Number(db.prepare('SELECT COUNT(*) AS total FROM sessions WHERE expires_at > ?').get(Date.now())?.total || 0);
+    const usageRows = db.prepare('SELECT provider, input_tokens, output_tokens, total_tokens, request_count FROM ai_usage_metrics').all();
+    return buildAdminMetrics({ users, verifiedUsers, aquariums: count('aquariums'), measurements: count('measurements'),
+      logbookEntries: count('maintenance_logs'), socialPosts: count('social_posts'), animals, activeSessions }, usageRows);
+  }
+
+  async recordAiUsage(provider: string, usage: unknown) {
+    const normalized = normalizeAiUsage(provider, usage);
+    if (!normalized) return false;
+    this.connection().prepare(`INSERT INTO ai_usage_metrics (provider, input_tokens, output_tokens, total_tokens, request_count, updated_at)
+      VALUES (?, ?, ?, ?, 1, ?) ON CONFLICT(provider) DO UPDATE SET input_tokens = input_tokens + excluded.input_tokens,
+      output_tokens = output_tokens + excluded.output_tokens, total_tokens = total_tokens + excluded.total_tokens,
+      request_count = request_count + 1, updated_at = excluded.updated_at`).run(provider, normalized.inputTokens,
+      normalized.outputTokens, normalized.totalTokens, new Date().toISOString());
+    return true;
   }
 
   async close() {
@@ -202,6 +226,7 @@ class SqliteAdapter {
       social_posts: safeGetAll('social_posts'),
       social_comments: safeGetAll('social_comments'),
       social_likes: safeGetAll('social_likes', 'post_id ASC, user_id ASC'),
+      ai_usage_metrics: safeGetAll('ai_usage_metrics', 'provider ASC'),
     };
   }
 
@@ -221,6 +246,7 @@ class SqliteAdapter {
     const invitations = Array.isArray(data.invitations) ? data.invitations : [];
     const chats = Array.isArray(data.aquarium_chats) ? data.aquarium_chats : [];
     const dosing_pumps = Array.isArray(data.dosing_pumps) ? data.dosing_pumps : [];
+    const aiUsage = Array.isArray(data.ai_usage_metrics) ? data.ai_usage_metrics : [];
 
     const validUserIds = new Set(users.map((u: any) => u.id));
     const currentSessions = db.prepare('SELECT * FROM sessions WHERE expires_at > ?').all(Date.now());
@@ -243,6 +269,7 @@ class SqliteAdapter {
       db.exec('DELETE FROM aquariums');
       db.exec('DELETE FROM sessions');
       db.exec('DELETE FROM users');
+      db.exec('DELETE FROM ai_usage_metrics');
 
       // Users
       const insertUser = db.prepare(`
@@ -489,6 +516,13 @@ class SqliteAdapter {
         db.prepare('INSERT INTO aquarium_plants (aquarium_id, plant_id, count) VALUES (?, ?, ?)').run(plant.aquarium_id, plant.plant_id, plant.count);
       }
       this.social.importSqliteData(data);
+      const insertUsage = db.prepare('INSERT INTO ai_usage_metrics (provider, input_tokens, output_tokens, total_tokens, request_count, updated_at) VALUES (?, ?, ?, ?, ?, ?)');
+      for (const row of aiUsage) {
+        if (!['openai', 'gemini', 'claude'].includes(row?.provider)) continue;
+        const value = (count: unknown) => Number.isSafeInteger(Number(count)) && Number(count) >= 0 ? Number(count) : 0;
+        insertUsage.run(row.provider, value(row.input_tokens), value(row.output_tokens), value(row.total_tokens), value(row.request_count),
+          typeof row.updated_at === 'string' ? row.updated_at : new Date().toISOString());
+      }
       db.pragma('foreign_keys = ON');
     });
 
