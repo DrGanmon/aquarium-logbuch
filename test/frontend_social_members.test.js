@@ -47,7 +47,7 @@ test('Veraltete Antworten ersetzen keine neue Social-Seite', async () => {
 test('API-Client: Mitgliederfehler enthält Status und Code ohne Abmeldung', async () => {
   const code = ts.transpileModule(fs.readFileSync('public/frontend/api.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const exports = {}, session = { user: { id: 1 } };
-  new Function('require', 'exports', 'fetch', code)(() => ({ session, language: vue.ref('de'), t: value => value }), exports,
+  new Function('require', 'exports', 'fetch', code)(name => name === './offline-store' ? { offlineState: {} } : name === './offline-workspace' ? { readWorkspace: async () => undefined } : name.endsWith('offline-catalog-query') ? { CatalogLookupError: class extends Error {} } : name === './offline-catalogs' ? { readOfflineCatalog: async () => undefined } : ({ session, language: vue.ref('de'), t: value => value }), exports,
     async () => new Response(JSON.stringify({ error: 'members only', code: 'MEMBERS_ONLY' }), { status: 403 }));
   await assert.rejects(exports.api('/social/posts/1'), error => error instanceof exports.ApiError && error.status === 403 && error.code === 'MEMBERS_ONLY');
   assert.equal(session.user.id, 1);

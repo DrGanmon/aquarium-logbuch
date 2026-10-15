@@ -11,7 +11,7 @@ function complete(snapshot: CatalogSnapshot) {
   if (!snapshot?.data) return false;
   if (snapshot.kind === 'species') return Array.isArray(snapshot.data.species) && Array.isArray(snapshot.data.categories);
   if (snapshot.kind === 'plants') return Array.isArray(snapshot.data.plants) && snapshot.data.fieldDefinitions && snapshot.data.sources && snapshot.data.searchText;
-  return snapshot.data.catalog && Array.isArray(snapshot.data.catalog.diseases) && Array.isArray(snapshot.data.catalog.species)
+  return snapshot.data.diagnosis?.fresh && snapshot.data.diagnosis?.salt && snapshot.data.catalog && Array.isArray(snapshot.data.catalog.diseases) && Array.isArray(snapshot.data.catalog.species)
     && Array.isArray(snapshot.data.diseases) && snapshot.data.associations?.fresh && snapshot.data.associations?.salt
     && Array.isArray(snapshot.data.medications?.items) && Array.isArray(snapshot.data.medicationDetails);
 }
@@ -77,4 +77,8 @@ export async function synchronizeCatalogs(owner: number, language: string, force
   });
   running.set(runKey, task);
   return task;
+}
+
+export async function readCatalogData(kind: CatalogName, lang: string) {
+  return snapshotFor(kind, lang);
 }

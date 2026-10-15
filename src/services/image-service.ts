@@ -1,3 +1,4 @@
+import { afterOfflineCommit, afterOfflineRollback } from '../db/offline-transaction';
 import { asError } from '../utils/app-error';
 import path = require('path');
 import fs = require('fs');
@@ -80,6 +81,7 @@ async function storeImage(prefix: string, id: number | undefined, base64Data: un
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
   const filename = `${prefix}_${id}_${Date.now()}_${crypto.randomBytes(4).toString('hex')}.${fmt.ext}`;
   fs.writeFileSync(path.join(UPLOADS_DIR, filename), output);
+  afterOfflineRollback(() => { const file = path.join(UPLOADS_DIR, filename);if (fs.existsSync(file)) fs.unlinkSync(file); });
 
   if (oldFilename) {
     deleteImage(oldFilename);
@@ -93,6 +95,7 @@ function saveImage(aquariumId?: number, base64Data?: unknown, oldFilename?: unkn
 
 function deleteImage(filename?: unknown, strict = false) {
   if (!filename || typeof filename !== 'string') return;
+  if (afterOfflineCommit(() => deleteImage(filename, strict))) return;
   const safeName = path.basename(filename);
   const fullPath = path.join(UPLOADS_DIR, safeName);
   try {

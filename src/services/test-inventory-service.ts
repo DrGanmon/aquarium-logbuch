@@ -1,3 +1,4 @@
+import { offlineTransactionActive, afterOfflineCommit } from '../db/offline-transaction';
 import { randomUUID } from 'node:crypto';
 import catalog = require('./suite-service');
 import mail = require('./mail-service');
@@ -106,6 +107,7 @@ class TestInventoryService {
     await this.checkUserReminders(db, userId);
   }
   async checkUserReminders(db: InventoryDatabase, userId: number): Promise<number> {
+    if (offlineTransactionActive()) { afterOfflineCommit(() => this.checkUserReminders(db, userId));return 0; }
     const config = this.mailer.getConfig();
     if (!config.enabled || !config.host) return 0;
     const claimed = await db.users.mutateTestInventory(userId, (inventory, user) => {

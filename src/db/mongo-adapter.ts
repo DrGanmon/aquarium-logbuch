@@ -1,3 +1,4 @@
+import { offlineConnection } from './offline-transaction';
 import { replayMeasurement, replayOperation } from './measurement-operation';
 import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-crypto';
 import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
@@ -34,6 +35,7 @@ class MongoAdapter {
   client: MongoClient | null;
   /** Dynamic rows/documents are validated by services; schemas differ across adapters. */
   db: MongoConnection | null;
+  private offlineProxy: any;
   _initialized: boolean;
   schemaVersion: number;
   _initPromise: Promise<this> | null = null;
@@ -118,6 +120,7 @@ class MongoAdapter {
       this.db = null;
     }
     this._initialized = false;
+    this.offlineProxy = undefined;
   }
 
   getRawDb() {
@@ -246,7 +249,7 @@ class MongoAdapter {
 
   private connection(): MongoConnection {
     if (!this.db) throw new Error('Datenbank ist nicht initialisiert.');
-    return this.db;
+    return this.offlineProxy ??= offlineConnection(this.db, 'mongodb');
   }
 
   _setupRepositories() {

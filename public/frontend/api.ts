@@ -1,3 +1,4 @@
+import { readWorkspace, enqueueWorkspace, localDiagnosis } from './offline-workspace';
 import { readOfflineCatalog } from './offline-catalogs';
 import { CatalogLookupError } from '../../src/shared/offline-catalog-query';
 import { activeOwner, readLocal, writeLocal, cacheable, offlineState } from './offline-store';
@@ -11,10 +12,11 @@ export interface RequestOptions {
   method?: string;
   body?: unknown;
   signal?: AbortSignal;
+  networkOnly?: boolean;
 }
 export async function api<T>(
   path: string,
-  { method = "GET", body, signal }: RequestOptions = {},
+  { method = "GET", body, signal, networkOnly = false }: RequestOptions = {},
 ): Promise<T> {
   const owner = session.user?.id ?? await activeOwner().catch(() => undefined);
   if (method === 'GET' && owner) {
@@ -25,6 +27,17 @@ export async function api<T>(
       if (error instanceof CatalogLookupError) throw new ApiError(error.message, error.status);
       if (signal?.aborted) throw error;
       // A storage failure must not prevent ordinary online requests.
+    }
+  }
+  if (owner && !networkOnly && !path.startsWith('/offline/')) {
+    if (method !== 'GET') {
+      const diagnosis = !navigator.onLine ? await localDiagnosis(Number(owner), language.value, path, body) : undefined;
+      if (diagnosis !== undefined) return diagnosis as T;
+      const queued = await enqueueWorkspace(Number(owner), language.value, path, method, body);
+      if (queued) { window.dispatchEvent(new Event('aquarium-outbox-changed'));return queued.result as T; }
+    } else if (path !== '/me' && (!path.startsWith('/notifications') || !navigator.onLine)) {
+      const local = await readWorkspace(Number(owner), language.value, path);
+      if (local !== undefined) return local as T;
     }
   }
   const cacheKey = `${owner}:${path === "/me" ? "identity" : language.value}:${path}`;
@@ -45,7 +58,13 @@ export async function api<T>(
   } catch (error) {
     if (error instanceof TypeError && !signal?.aborted) {
       offlineState.offline = true;
+      if (method === 'POST' && owner) {
+        const diagnosis = await localDiagnosis(Number(owner), language.value, path, body);
+        if (diagnosis !== undefined) return diagnosis as T;
+      }
       if (method === 'GET' && owner) {
+        const workspace = await readWorkspace(Number(owner), language.value, path);
+        if (workspace !== undefined) return workspace as T;
         if (path === '/setup/status') return { required: false } as T;
         if (cacheable(path)) {
           const cached = await readLocal<T>(cacheKey).catch(() => undefined);
@@ -67,13 +86,13 @@ export async function api<T>(
   if (response.status === 413) throw new Error(t('social.uploadTooLarge'));
   if (response.status === 401) await writeLocal('activeOwner', undefined).catch(() => {});
   if (!response.ok)
-    throw new ApiError(
+    throw Object.assign(new ApiError(
       typeof data === "object" && data && "error" in data
         ? String(data.error)
         : `HTTP ${response.status}`,
       response.status,
       typeof data === 'object' && data && 'code' in data && typeof data.code === 'string' ? data.code : undefined,
-    );
+    ), { conflict: typeof data === 'object' && data && 'conflict' in data ? data.conflict : undefined });
   if (method === 'GET' && cacheable(path)) {
     const dataOwner = path === '/me' ? (data as { id?: number }).id : owner;
     if (dataOwner) {

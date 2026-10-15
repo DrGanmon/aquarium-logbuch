@@ -1,3 +1,4 @@
+import { calculateThresholds } from '../shared/thresholds';
 import type { WaterType } from '../types/domain';
 import type { WaterTest, Thresholds } from '../types/catalog';
 /*
@@ -88,42 +89,7 @@ function isBounded(r: Partial<Thresholds> | null | undefined) {
   return r && (r.okMin != null || r.okMax != null || r.critMin != null || r.critMax != null);
 }
 
-const maxN = (a: number | null | undefined, b: number | null | undefined) => (a == null ? b ?? null : b == null ? a : Math.max(a, b));
-const minN = (a: number | null | undefined, b: number | null | undefined) => (a == null ? b ?? null : b == null ? a : Math.min(a, b));
-
-/**
- * Grenzwerte für ein Becken berechnen (Wassertyp + Besatzprofile).
- * Gibt { thresholds: {param: range}, conflicts: [param keys] } zurück.
- */
-function thresholdsFor(waterType: WaterType, profileKeys: string[], customParams: WaterTest[] | null = null) {
-  const type = waterType === 'salt' ? 'salt' : 'fresh';
-  const thresholds: Record<string, Thresholds> = {};
-  const conflicts = [];
-  const params = customParams || suiteService.getAllKnownParameters();
-  for (const p of params) {
-    const baseRange = type === 'fresh' && profileKeys.includes('sulawesi')
-      ? { ...(p[type] || {}), ...(PROFILES.sulawesi.fresh[p.key] || {}) }
-      : { ...(p[type] || {}) };
-    let range: Thresholds = { ...baseRange };
-    if (type === 'fresh') {
-      for (const key of new Set<string>(profileKeys)) {
-        const ov = PROFILES[key] && PROFILES[key].fresh && PROFILES[key].fresh[p.key];
-        if (!ov) continue;
-        range = {
-          okMin: maxN(range.okMin, ov.okMin), okMax: minN(range.okMax, ov.okMax),
-          critMin: maxN(range.critMin, ov.critMin), critMax: minN(range.critMax, ov.critMax),
-        };
-      }
-      if (range.okMin != null && range.okMax != null && range.okMin > range.okMax) {
-        conflicts.push(p.key);
-        // Fallback auf Grundwerte, damit trotzdem bewertet werden kann
-        range = { ...(p[type] || {}) };
-      }
-    }
-    thresholds[p.key] = range;
-  }
-  return { thresholds, conflicts };
-}
+function thresholdsFor(waterType: WaterType, profileKeys: string[], customParams: WaterTest[] | null = null) { return calculateThresholds(waterType, profileKeys, PROFILES, customParams || suiteService.getAllKnownParameters()); }
 
 /** Bewertet einen Wert: 'ok' | 'warn' | 'crit' (oder null, wenn keine Grenzen existieren). */
 function evaluate(range: Partial<Thresholds> | null | undefined, value: number): 'ok' | 'warn' | 'crit' | null {

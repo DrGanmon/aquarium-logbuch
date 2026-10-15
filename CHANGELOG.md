@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Gesundheits-, Arten- und Pflanzenkataloge je Sprache vollständig für Offline-Suche, Filter und Detailansichten in IndexedDB vorhalten. Neue authentifizierte Snapshot-API mit SHA-256/ETag und 304 ergänzen, Kataloge nach Benutzereinträgen und höchstens alle zwölf Stunden prüfen, vollständige Stände atomar ersetzen und offene Ansichten aktualisieren. Lokale Katalogbilder beim Ansehen begrenzt zwischenspeichern; Fortschritt, Fehleranzeige, API-Dokumentation und Regressionstests ergänzen. Diagnoseberechnung und KI bleiben serverabhängig.
+- Vollständige Aquariendaten, private Bilder und Einstellungen benutzergetrennt offline bereitstellen; Aquarium-, Besatz-, Pflanzen-, Pflege-, Messungs-, Dünger- und Galerieaktionen dauerhaft einreihen und mit temporären IDs, atomaren Wiederholungsbelegen sowie sichtbaren Versionskonflikten zwischen Geräten synchronisieren. Diagnose, Verträglichkeit, Schwellenwerte, Zyklen und CSV lokal ausführen; Testbestand und sichere Profilfelder unterstützen. Statusanzeige, API-Dokumentation und Regressionstests erweitern. Authentifizierung, Kontosicherheit, KI, Freigaben, Social und Administration bleiben online.
+
+## 0.2.3-ALPHA
+
+- 2026-10-15 · Gesundheits-, Arten- und Pflanzenkataloge je Sprache vollständig für Offline-Suche, Filter und Detailansichten in IndexedDB vorhalten. Neue authentifizierte Snapshot-API mit SHA-256/ETag und 304 ergänzen, Kataloge nach Benutzereinträgen und höchstens alle zwölf Stunden prüfen, vollständige Stände atomar ersetzen und offene Ansichten aktualisieren. Lokale Katalogbilder beim Ansehen begrenzt zwischenspeichern; Fortschritt, Fehleranzeige, API-Dokumentation und Regressionstests ergänzen. Diagnoseberechnung und KI bleiben serverabhängig (`52dc3e02befc016a9c0af308e66c0c824e7bcd9b`).
 
 ## 0.2.2-ALPHA
 

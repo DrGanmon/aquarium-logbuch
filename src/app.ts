@@ -15,6 +15,7 @@ const { securityHeaders, csrfProtection } = securityModule;
 import logger = require('./utils/logger');
 
 import authRoutes = require('./routes/auth');
+import offlineRoutes = require('./routes/offline');
 import configRoutes = require('./routes/config');
 import aquariumRoutes = require('./routes/aquariums');
 import shareRoutes = require('./routes/shares');
@@ -96,6 +97,7 @@ app.use('/api', setupGate);
 app.use('/auth', setupGate);
 
 // API Routen
+app.use('/api/offline', offlineRoutes);
 app.use('/api', authRoutes);
 app.use('/api/setup', setupRoutes);
 app.use('/api', configRoutes);

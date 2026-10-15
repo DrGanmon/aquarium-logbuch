@@ -112,7 +112,9 @@ async function action(path: string, method: string, body?: unknown) {
   }
 }
 async function save() {
-  await action("/me", "PUT", { ...model, language: language.value });
+  const body: FormData = { ...model, language: language.value };
+  if (body.email === session.user?.email) delete body.email;
+  await action("/me", "PUT", body);
 }
 async function avatar(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0];

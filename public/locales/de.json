@@ -1086,6 +1086,16 @@
     "nameExample": "z. B. Eisen-Volldünger"
   },
   "offline": {
+    "deleting": "Löschen",
+    "changing": "Änderung",
+    "workspaceReady": "Aquariendaten offline verfügbar · Stand:",
+    "workspacePreparing": "Aquariendaten werden für die Offline-Nutzung vorbereitet.",
+    "workspaceError": "Aquariendaten oder Bilder konnten nicht vollständig aktualisiert werden.",
+    "photos": "Bilder werden gespeichert:",
+    "localChange": "Meine Änderung ansehen",
+    "serverChange": "Aktuellen Serverstand ansehen",
+    "keepLocal": "Meine Änderung auf den aktuellen Stand anwenden",
+    "rebaseConfirm": "Deine Änderung auf den angezeigten Serverstand anwenden? Geänderte Felder werden dabei ersetzt.",
     "diagnosisOnline": "Der Diagnose-Assistent benötigt eine Verbindung zum Server. Krankheits- und Medikamentenkataloge sind offline verfügbar, sobald sie heruntergeladen wurden.",
     "catalogSyncing": "Kataloge werden für die Offline-Nutzung aktualisiert …",
     "catalogError": "Offline-Kataloge konnten nicht aktualisiert werden.",
@@ -1098,7 +1108,7 @@
     "entries": "Lokal gespeicherte Einträge",
     "aquarium": "Aquarium",
     "discard": "Lokalen Eintrag verwerfen",
-    "discardConfirm": "Diesen lokalen Eintrag endgültig entfernen? Ein bereits am Server gespeicherter Eintrag bleibt bestehen.",
+    "discardConfirm": "Diesen lokalen Eintrag und davon abhängige Änderungen endgültig verwerfen? Bereits synchronisierte Daten bleiben erhalten.",
     "sync": "Jetzt synchronisieren",
     "saved": "Messung lokal gespeichert. Die Synchronisierung erfolgt bei bestehender Verbindung."
   }

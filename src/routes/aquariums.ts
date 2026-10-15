@@ -1,3 +1,4 @@
+import { offlineTransactionActive } from '../db/offline-transaction';
 import { getPlantCatalog } from '../services/plant-service';
 import { chatProgress } from '../utils/chat-progress';
 import { asError } from '../utils/app-error';
@@ -86,7 +87,7 @@ router.post(
 
     cleanRecentCreates();
     const dedupKey = JSON.stringify([req.user.id, value]);
-    const recent = recentAquariumCreates.get(dedupKey);
+    const recent = offlineTransactionActive() ? undefined : recentAquariumCreates.get(dedupKey);
     if (recent && Date.now() - recent.timestamp < 3000) {
       return res.json(await recent.result);
     }
@@ -110,7 +111,7 @@ router.post(
       fertilize_reminder_mail: value.fertilize_reminder_mail,
     });
     if (recentAquariumCreates.size >= 1000) recentAquariumCreates.delete(recentAquariumCreates.keys().next().value!);
-    recentAquariumCreates.set(dedupKey, { result, timestamp: Date.now() });
+    if (!offlineTransactionActive()) recentAquariumCreates.set(dedupKey, { result, timestamp: Date.now() });
     try { res.json(await result); }
     catch (error) {
       if (recentAquariumCreates.get(dedupKey)?.result === result) recentAquariumCreates.delete(dedupKey);

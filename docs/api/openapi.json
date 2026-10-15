@@ -68,7 +68,7 @@
         ],
         "summary": "Vollständigen Offline-Katalog mit Inhaltsversion abrufen",
         "operationId": "get_api_catalogs_catalog",
-        "description": "Gültige Sitzung erforderlich, keine Aquarium-Rolle. Nur gemeinsame Referenzdaten ohne Benutzer-/Aquariendaten. Pro Prozess, Katalog und Sprache einmal aus den geladenen Daten erstellt. SHA-256 umfasst Schema, Katalog, Sprache und Inhalt. If-None-Match erlaubt 304 ohne Body. Krankheiten einschließlich artspezifischer Hinweise, Quellen und Medikamentendetails; keine Diagnoseausführung, KI, Bilddateien oder Benutzerdaten. Bestehende Setup- und Wartungssperren gelten.",
+        "description": "Gültige Sitzung erforderlich, keine Aquarium-Rolle. Nur gemeinsame Referenzdaten ohne Benutzer-/Aquariendaten. Pro Prozess, Katalog und Sprache einmal aus den geladenen Daten erstellt. SHA-256 umfasst Schema, Katalog, Sprache und Inhalt. If-None-Match erlaubt 304 ohne Body. Krankheiten einschließlich artspezifischer Hinweise, Quellen und Medikamentendetails; einschließlich Diagnose-Regeldokumenten für lokale Berechnung; keine KI, Bilddateien oder Benutzerdaten. Bestehende Setup- und Wartungssperren gelten.",
         "security": [
           {
             "SessionCookie": []
@@ -14345,6 +14345,225 @@
           }
         }
       }
+    },
+    "/api/offline/state": {
+      "get": {
+        "tags": [
+          "Offline"
+        ],
+        "summary": "Vollständigen persönlichen Offline-Stand abrufen",
+        "operationId": "get_api_offline_state",
+        "description": "Gültige Sitzung. Konsistenter Snapshot aller aktuell lesbaren eigenen und geteilten Aquarien sowie eigener Einstellungen. Rollen bleiben enthalten; keine Sicherheits-/Social-/Admin-Daten. ETag berücksichtigt den Inhalt ohne Abrufzeitpunkt; exakt gleiches If-None-Match liefert 304. Bestehende Setup-/Wartungssperren gelten. Bilddateien separat authentifiziert abrufen.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Language"
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Exakt das zuvor erhaltene ETag."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vollständiger Stand; Cache-Control: private, no-cache.",
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Aquarium-User": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfflineWorkspaceSnapshot"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Unverändert, kein Body.",
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Aquarium-User": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error428"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/offline/operations": {
+      "post": {
+        "tags": [
+          "Offline"
+        ],
+        "summary": "Offline-Aktion atomar und wiederholbar anwenden",
+        "operationId": "post_api_offline_operations",
+        "description": "Gültige Sitzung und X-Requested-With. Aquarium benötigt write, Löschen eines Aquariums owner. Führt dieselben Validatoren wie die jeweiligen direkten Endpunkte aus. UUID, Änderung, Testverbrauch, Warnungen und Ergebnisbeleg werden in SQLite/MongoDB gemeinsam bestätigt. Ein verlorenes Ergebnis kann mit exakt derselben UUID/Nutzlast erneut abgerufen werden, auch nach späterer Löschung. Andere UUIDs unabhängiger Neuanlagen bleiben getrennte Einträge. Bearbeitungen vergleichen base gegen den aktuellen Stand, andernfalls 409 mit conflict. Eigene Folgeaktionen verwenden after:UUID. Geänderte Nutzlast unter bereits verwendeter UUID: 409 ohne conflict. Konto-/Passwort-/E-Mail-/KI-/Freigabe-/Social-/Admin-Aktionen sind ausgeschlossen. Bodies entsprechen dem jeweiligen Zielendpunkt; CSV-Ergebnisse enthalten zusätzlich entries mit erzeugten Messungs-IDs. Lokale Warnungen können über offline_alerts:[{operation:UUID,param:Parameter}] ihrer zuvor synchronisierten Messung zugeordnet werden.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OfflineWorkspaceOperation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Gespeichertes Ergebnis der Aktion; wiederholte Übertragung liefert denselben Beleg.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "result",
+                    "target",
+                    "version",
+                    "deleteVersion",
+                    "versions"
+                  ],
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "additionalProperties": true
+                    },
+                    "target": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
+                    "deleteVersion": {
+                      "type": "string"
+                    },
+                    "versions": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Konflikt, fehlende Abhängigkeit oder abweichende Nutzlast derselben UUID. conflict nur bei Versionskonflikt.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "conflict": {
+                      "type": "object",
+                      "required": [
+                        "current",
+                        "version"
+                      ],
+                      "properties": {
+                        "current": {
+                          "description": "Aktueller Serverstand; Struktur abhängig von der Ressource.",
+                          "nullable": true
+                        },
+                        "version": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Anfrage überschreitet das HTTP-Body-Limit."
+          },
+          "415": {
+            "description": "Content-Type muss application/json sein."
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error428"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -14677,6 +14896,24 @@
                       "type": "object",
                       "additionalProperties": true
                     }
+                  },
+                  "diagnosis": {
+                    "type": "object",
+                    "required": [
+                      "fresh",
+                      "salt"
+                    ],
+                    "properties": {
+                      "fresh": {
+                        "type": "object",
+                        "additionalProperties": true
+                      },
+                      "salt": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    },
+                    "description": "Vollständige Regeln und Fragen für dieselbe lokale Diagnoseberechnung wie auf dem Server."
                   }
                 },
                 "required": [
@@ -14684,7 +14921,8 @@
                   "diseases",
                   "associations",
                   "medications",
-                  "medicationDetails"
+                  "medicationDetails",
+                  "diagnosis"
                 ],
                 "additionalProperties": true
               }
@@ -15988,6 +16226,134 @@
           "lastBackupFile": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "OfflineWorkspaceSnapshot": {
+        "type": "object",
+        "required": [
+          "schema",
+          "version",
+          "owner",
+          "language",
+          "updatedAt",
+          "responses",
+          "versions",
+          "rules"
+        ],
+        "properties": {
+          "schema": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "version": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "integer"
+          },
+          "language": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "responses": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Vollständige GET-Antworten, indiziert durch relative API-Pfade: Aquarienliste, Detail, Besatz, Pflanzen, alle Messungen, Pflege, Dünger, Bildmetadaten, Bewohner sowie eigenes Profil, Konfiguration und Testbestand je Suite. Keine Bildbytes, Social-, Admin-, Freigabe- oder KI-Daten."
+          },
+          "versions": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "SHA-256-Fingerprints pro kanonischer Ressource. DELETE /aquariums/{id} umfasst auch alle Kinddaten."
+          },
+          "rules": {
+            "type": "object",
+            "required": [
+              "profiles",
+              "parameters"
+            ],
+            "properties": {
+              "profiles": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "parameters": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "OfflineWorkspaceOperation": {
+        "type": "object",
+        "required": [
+          "id",
+          "owner",
+          "path",
+          "method",
+          "body"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID v4, dauerhaft pro logischer Aktion verwenden."
+          },
+          "owner": {
+            "type": "integer",
+            "description": "Muss mit der aktuellen Sitzungs-ID übereinstimmen."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "workspace"
+            ]
+          },
+          "aquarium": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "POST",
+              "PUT",
+              "DELETE"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "Relativer API-Pfad ohne /api. Ausschließlich explizit freigegebene Aquarium-/Bestands-/Pflanzen-/Messungs-/Pflege-/Dünger-/Bildaktionen, Warnungsquittierung sowie /me (sichere Profilfelder), /me/tests, /me/test-inventory/{key}, /me/avatar. Negative lokale IDs zuerst durch bestätigte Server-IDs ersetzen."
+          },
+          "body": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "base": {
+            "type": "string",
+            "nullable": true,
+            "description": "Für Bearbeitung/Löschung und Bild-/Avatar-/Dosieränderungen: Fingerprint der Ressource, missing bei fehlender Ressource oder after:UUID einer eigenen bestätigten Vorgängeraktion. Für unabhängige Neuanlagen null."
+          },
+          "temporaryIds": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Lokale IDs für Zuordnung der Ergebnis-IDs; werden serverseitig nicht als Datenbank-IDs verwendet."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

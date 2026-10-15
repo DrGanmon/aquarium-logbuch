@@ -101,12 +101,12 @@ onMounted(initialize);
     id="toast"
     role="status"
     aria-live="polite"
-    :class="{ show: notification || (session.user && (offlineState.syncing || offlineState.catalogSyncing)) }"
+    :class="{ show: notification || (session.user && (offlineState.syncing || offlineState.workspaceSyncing || offlineState.catalogSyncing)) }"
   >
     <div v-if="notification">{{ notification }}</div>
-    <div v-if="session.user && (offlineState.syncing || offlineState.catalogSyncing)" class="sync-toast">
+    <div v-if="session.user && (offlineState.syncing || offlineState.workspaceSyncing || offlineState.catalogSyncing)" class="sync-toast">
       <span class="sync-toast-spinner" aria-hidden="true">↻</span>
-      <span>{{ t(offlineState.syncing ? "offline.syncing" : "offline.catalogSyncing") }}</span>
+      <span>{{ t(offlineState.catalogSyncing && !offlineState.syncing && !offlineState.workspaceSyncing ? "offline.catalogSyncing" : "offline.syncing") }}</span>
     </div>
   </div>
 </template>

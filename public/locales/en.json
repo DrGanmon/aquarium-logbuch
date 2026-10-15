@@ -1086,6 +1086,16 @@
     "nameExample": "e.g. Iron fertilizer"
   },
   "offline": {
+    "deleting": "Delete",
+    "changing": "Change",
+    "workspaceReady": "Aquarium data available offline · Updated:",
+    "workspacePreparing": "Preparing aquarium data for offline use.",
+    "workspaceError": "Aquarium data or photos could not be fully updated.",
+    "photos": "Saving photos:",
+    "localChange": "View my change",
+    "serverChange": "View current server data",
+    "keepLocal": "Apply my change to the current version",
+    "rebaseConfirm": "Apply your change to the displayed server version? Fields included in your change will be replaced.",
     "diagnosisOnline": "The diagnosis assistant requires a server connection. Disease and medication catalogs are available offline once downloaded.",
     "catalogSyncing": "Updating catalogs for offline use …",
     "catalogError": "Offline catalogs could not be updated.",
@@ -1098,7 +1108,7 @@
     "entries": "Locally saved entries",
     "aquarium": "Aquarium",
     "discard": "Discard local entry",
-    "discardConfirm": "Permanently remove this local entry? An entry already saved on the server will remain.",
+    "discardConfirm": "Permanently discard this local entry and dependent changes? Already synchronized data is retained.",
     "sync": "Sync now",
     "saved": "Measurement saved locally. It will sync when connected."
   }

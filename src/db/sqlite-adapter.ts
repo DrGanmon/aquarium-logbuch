@@ -1,3 +1,4 @@
+import { offlineConnection } from './offline-transaction';
 import { replayMeasurement, replayOperation } from './measurement-operation';
 import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-crypto';
 import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
@@ -30,6 +31,7 @@ class SqliteAdapter {
   dbPath: string;
   /** Dynamic rows/documents are validated by services; schemas differ across adapters. */
   db: SqliteConnection | null;
+  private offlineProxy: any;
   _initialized: boolean;
   _initPromise: Promise<this> | null = null;
   users!: RepositoryContract<ReturnType<SqliteAdapter['build_users']>, UserQueries>;
@@ -128,6 +130,7 @@ class SqliteAdapter {
       this.db = null;
     }
     this._initialized = false;
+    this.offlineProxy = undefined;
   }
 
   getRawDb() {
@@ -136,7 +139,7 @@ class SqliteAdapter {
 
   private connection(): SqliteConnection {
     if (!this.db) throw new Error('Datenbank ist nicht initialisiert.');
-    return this.db;
+    return this.offlineProxy ??= offlineConnection(this.db, 'sqlite');
   }
 
   _setupRepositories() {

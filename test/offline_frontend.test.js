@@ -21,6 +21,7 @@ function syncFixture() {
   let currentUser = 7;
   class ApiError extends Error { constructor(message, status) { super(message);this.status = status; } }
   const imports = {
+    './offline-workspace': { synchronizeWorkspace: async () => {}, mappingFor: async () => ({}), remapOperation: item => item },
     './offline-catalogs': { synchronizeCatalogs: async () => {} },
     vue: { watch() {} },
     './state': { session, language: { value: 'de' }, t: key => key },
@@ -122,6 +123,7 @@ function apiFixture() {
   let response = new Response(JSON.stringify({ aquarium: { id: 42 } }), { headers: { 'X-Aquarium-User': '7', 'Content-Type': 'application/json' } });
   let failure;
   const api = load('public/frontend/api.ts', {
+    './offline-workspace': { readWorkspace: async () => undefined, enqueueWorkspace: async () => undefined, localDiagnosis: async () => undefined },
     './offline-catalogs': { readOfflineCatalog: async () => undefined },
     '../../src/shared/offline-catalog-query': { CatalogLookupError: class extends Error {} },
     './state': { session, language: { value: 'de' }, t: key => key },
@@ -171,10 +173,11 @@ test('Offline-Sync: mixed outbox routes log entries and legacy measurements to t
   await f.sync.synchronize();
   assert.deepEqual(f.calls.map(call => call.path), ['/aquariums/42/measurements', '/aquariums/42/maintenance']);
   assert.equal(f.calls[1].body, log.body);
+  assert.equal(f.calls[0].networkOnly, true, 'Legacy UUIDs must reach their original deduplicating endpoint instead of being queued again');
   assert.equal(f.queued.length, 0);
 });
 
-test('Catalog photos: viewed public images survive offline, private images bypass the bounded cache', async () => {
+test('Catalog photos: viewed public images survive offline, private images bypass the shared bounded cache', async () => {
   const listeners = {}, images = new Map(), tasks = [];
   let offline = false;
   const scopeUrl = 'https://example.test/aquarium/';
@@ -203,6 +206,44 @@ test('Catalog photos: viewed public images survive offline, private images bypas
   listeners.fetch(event);
   assert.equal(await (await result).text(), 'photo');
   let intercepted = false;
-  listeners.fetch({ request: new Request(scopeUrl + 'api/aquariums/1/images/2'), respondWith: () => { intercepted = true; } });
-  assert.equal(intercepted, false);
+  offline = false;
+  listeners.fetch({ request: new Request(scopeUrl + 'api/aquariums/1/images/2'), respondWith: promise => { intercepted = true;result = promise; } });
+  assert.equal(intercepted, true);
+  assert.equal(await (await result).text(), 'photo');
+  assert.equal(images.has(scopeUrl + 'api/aquariums/1/images/2'), false);
+});
+
+test('Offline photos: decode data URLs locally under connect-src self, persist owner-specific bytes before queueing', async () => {
+  const records = new Map(), pending = [];
+  records.set('workspace:1:7:de', { schema: 1, owner: 7, language: 'de', updatedAt: new Date().toISOString(), responses: { '/aquariums': [], '/me': { id: 7 }, '/config': { suites: [], userPreferences: {} } }, versions: {}, rules: { profiles: {}, parameters: [] } });
+  const workspace = load('public/frontend/offline-workspace.ts', {
+    './offline-store': { offlineState: {}, readLocal: async key => records.get(key), writeLocal: async (key, value) => records.set(key, value), pendingFor: async () => pending,
+      storePending: async item => { assert.ok(records.get('private-image:7:me/avatar') instanceof Blob);pending.push(item); } },
+    './offline-catalogs': { readCatalogData: async () => undefined },
+    '../../src/shared/offline-workspace': require('../dist/backend/src/shared/offline-workspace'),
+    '../../src/shared/offline-workspace-model': require('../dist/backend/src/shared/offline-workspace-model'),
+    '../../src/shared/diagnosis': require('../dist/backend/src/shared/diagnosis'),
+    '../../src/utils/app-error': require('../dist/backend/src/utils/app-error'),
+  }, { crypto: require('node:crypto').webcrypto, navigator: { onLine: false }, Blob, atob, Uint8Array, Event, window: { dispatchEvent() {} },
+    fetch: async () => { throw new Error('Network access forbidden while decoding an image'); } });
+  await workspace.enqueueWorkspace(7, 'de', '/me/avatar', 'POST', { image: 'data:image/png;base64,AQID' });
+  assert.equal(pending.length, 1);
+  assert.deepEqual([...new Uint8Array(await records.get('private-image:7:me/avatar').arrayBuffer())], [1, 2, 3]);
+  await assert.rejects(workspace.enqueueWorkspace(7, 'de', '/me/avatar', 'POST', { image: 'data:text/html;base64,AQID' }));
+  assert.equal(pending.length, 1);
+});
+
+test('Private photos: pending bytes take precedence over network and never cross account boundaries', async () => {
+ const listeners = {}, records = new Map([['activeOwner', 7], ['private-image:7:aquariums/1/images/-2', new Blob(['local'], { type: 'image/png' })], ['private-image:7:aquariums/1/images/-2:pending', 'operation']]);
+ const pending = new Map([['operation', { owner: 7 }]]);let calls = 0, task;
+ const database = { close() {}, transaction: store => ({ objectStore: () => ({ get: key => { const request = {};queueMicrotask(() => { request.result = (store === 'records' ? records : pending).get(key);request.onsuccess(); });return request; } }) }) };
+ load('public/frontend/service-worker.ts', {}, {
+   self: { registration: { scope: 'https://example.test/' }, location: { origin: 'https://example.test' }, addEventListener: (type, listener) => { listeners[type] = listener; } },
+   URL, Request, Response, Blob, Map, Set, indexedDB: { open: () => { const request = {};queueMicrotask(() => { request.result = database;request.onsuccess(); });return request; } },
+   fetch: async () => { calls++;throw new TypeError('offline'); },
+ });
+ const event = { request: new Request('https://example.test/api/aquariums/1/images/-2'), respondWith: promise => { task = promise; }, waitUntil() {} };
+ listeners.fetch(event);assert.equal(await (await task).text(), 'local');assert.equal(calls, 0);
+ records.set('activeOwner', 8);
+ listeners.fetch(event);assert.equal((await task).type, 'error');assert.equal(calls, 1);
 });

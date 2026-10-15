@@ -90,6 +90,60 @@ scope.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== scope.location.origin) return;
+  const privateBase = new URL('./', scope.registration.scope).pathname;
+  const privatePath = url.pathname.startsWith(privateBase) ? url.pathname.slice(privateBase.length) : '';
+  if (/^api\/(?:me\/avatar|aquariums\/-?\d+\/(?:image|images\/-?\d+|stock\/-?\d+\/image))$/.test(privatePath)) {
+    event.respondWith((async () => {
+      let database: IDBDatabase | undefined;
+      const open = () => new Promise<IDBDatabase>((resolve, reject) => {
+        const request = indexedDB.open(`aquarium-offline:${privateBase}`, 1);
+        request.onupgradeneeded = () => {
+          if (!request.result.objectStoreNames.contains('records')) request.result.createObjectStore('records');
+          if (!request.result.objectStoreNames.contains('outbox')) request.result.createObjectStore('outbox', { keyPath: 'id' });
+        };
+        request.onsuccess = () => resolve(request.result);request.onerror = () => reject(request.error);
+      });
+      const read = (key: string) => new Promise<any>((resolve, reject) => {
+        const request = database!.transaction('records').objectStore('records').get(key);
+        request.onsuccess = () => resolve(request.result);request.onerror = () => reject(request.error);
+      });
+      try {
+        database = await open();
+        const owner = await read('activeOwner');
+        const pendingId = owner ? await read(`private-image:${owner}:${privatePath.slice(4)}:pending`) : undefined;
+        const pending = pendingId ? await new Promise<any>((resolve, reject) => {
+          const request = database!.transaction('outbox').objectStore('outbox').get(pendingId);
+          request.onsuccess = () => resolve(request.result);request.onerror = () => reject(request.error);
+        }) : undefined;
+        if (owner && pending?.owner === owner) {
+          const local = await read(`private-image:${owner}:${privatePath.slice(4)}`);
+          if (local instanceof Blob) { database.close();return new Response(local, { headers: { 'Content-Type': local.type, 'Cache-Control': 'no-store' } }); }
+        }
+        try {
+          const response = await fetch(request);
+          if (owner && response.ok && response.headers.get('X-Aquarium-User') === String(owner) && response.headers.get('Content-Type')?.startsWith('image/')) {
+            const copy = response.clone();
+            event.waitUntil((async () => {
+              const blob = await copy.blob();
+              if (await read('activeOwner') !== owner) return;
+              await new Promise<void>((resolve, reject) => {
+                const tx = database!.transaction('records', 'readwrite');
+                tx.objectStore('records').put(blob, `private-image:${owner}:${privatePath.slice(4)}`);
+                tx.oncomplete = () => resolve();tx.onabort = () => reject(tx.error);
+              });
+            })().catch(() => {}).finally(() => database?.close()));
+          } else database?.close();
+          return response;
+        } catch {
+          if (!owner) { database?.close();return Response.error(); }
+          const blob = await read(`private-image:${owner}:${privatePath.slice(4)}`);
+          database?.close();
+          return blob instanceof Blob ? new Response(blob, { headers: { 'Content-Type': blob.type, 'Cache-Control': 'no-store' } }) : Response.error();
+        }
+      } catch { database?.close();return fetch(request); }
+    })());
+    return;
+  }
   const basePath = new URL('./', scope.registration.scope).pathname;
   const imagePath = url.pathname.startsWith(basePath) ? url.pathname.slice(basePath.length) : '';
   if (/^(species-images|plants-images)\/[^/]+\.(webp|png|jpe?g|avif)$/i.test(imagePath)) {

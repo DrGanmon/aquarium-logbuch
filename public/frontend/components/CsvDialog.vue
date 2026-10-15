@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { runWorkerTask } from "../worker-client";
+import { generateCsv } from "../../../src/shared/measurement-csv";
 import Modal from "./Modal.vue";
 import { api } from "../api";
 import { session, t, errorMessage } from "../state";
@@ -95,10 +96,19 @@ async function submit() {
     busy.value = false;
   }
 }
-const exportUrl = computed(
-  () =>
-    `api/aquariums/${props.id}/measurements/export?${new URLSearchParams({ delimiter: delimiter.value, from: from.value, to: to.value })}`,
-);
+async function downloadCsv() {
+  busy.value = true;error.value = '';
+  try {
+    const query = new URLSearchParams({ all: "true", from: from.value, to: to.value });
+    const measurements = await api(`/aquariums/${props.id}/measurements?${query}`);
+    const csv = generateCsv(measurements, { delimiter: delimiter.value || ';', includeBOM: true, parameters: session.config?.allParameters || [] });
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const link = document.createElement('a');link.href = url;link.download = `messwerte_${props.id}_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (caught) { error.value = errorMessage(caught); }
+  finally { busy.value = false; }
+}
+
 </script>
 <template>
   <Modal
@@ -125,7 +135,7 @@ const exportUrl = computed(
           <label>Von<input v-model="from" type="date" /></label
           ><label>Bis<input v-model="to" type="date" /></label>
         </div>
-        <a class="btn" :href="exportUrl" download>📤 Herunterladen</a></template
+        <button type="button" class="btn" :disabled="busy" @click="downloadCsv">📤 Herunterladen</button></template
       ><template v-else
         ><div
           class="csv-drop-zone stack"

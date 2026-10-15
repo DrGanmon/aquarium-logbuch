@@ -13,7 +13,7 @@ function fixture() {
   const data = {
     species: { species: [{ id: 'test', name: 'Test fish', scientificName: 'Fish', waterType: 'fresh' }], categories: [] },
     plants: { plants: [], fieldDefinitions: {}, sources: {}, searchText: {} },
-    health: { catalog: { diseases: [], species: [] }, diseases: [], associations: { fresh: {}, salt: {} }, medications: { items: [] }, medicationDetails: [] },
+    health: { catalog: { diseases: [], species: [] }, diseases: [], associations: { fresh: {}, salt: {} }, diagnosis: { fresh: {}, salt: {} }, medications: { items: [] }, medicationDetails: [] },
   };
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync('public/frontend/offline-catalogs.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
