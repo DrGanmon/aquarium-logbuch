@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, shallowRef, computed, watch, onBeforeUnmount } from 'vue';
+import { useCatalogRevision } from "../composables/catalog-revision";
 import { api } from '../api';
 import { useProgressiveList } from '../composables/progressive-list';
 import { language, t, errorMessage } from '../state';
@@ -16,9 +17,10 @@ const matches = computed(() => {
     && (!query || [item.name, item.category, ...item.activeSubstances, ...item.productExamples.map(product => product.name)].join(' ').toLocaleLowerCase().includes(query)));
 });
 const { visible: shown, hasMore, sentinel, more } = useProgressiveList(matches);
+const revision = useCatalogRevision("health");
 let request: AbortController | undefined;
 watch(water, () => { disease.value = ''; });
-watch([water, language], async () => {
+watch([water, language, revision], async () => {
   request?.abort(); const current = new AbortController(); request = current;
   loading.value = true; error.value = '';
   try {

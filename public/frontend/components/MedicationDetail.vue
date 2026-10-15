@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onBeforeUnmount } from 'vue';
 import Modal from './Modal.vue';
+import { useCatalogRevision } from "../composables/catalog-revision";
 import { api } from '../api';
 import { language, t, errorMessage } from '../state';
 import type { MedicationDetail } from '../health-types';
@@ -8,8 +9,9 @@ const props = withDefaults(defineProps<{ medicationId: string; showDiseaseLinks?
 const emit = defineEmits<{ close: []; disease: [id: string] }>();
 const medication = ref<MedicationDetail>();
 const error = ref('');
+const revision = useCatalogRevision("health");
 let request: AbortController | undefined;
-watch([() => props.medicationId, language], async () => {
+watch([() => props.medicationId, language, revision], async () => {
   request?.abort(); const current = new AbortController(); request = current;
   medication.value = undefined; error.value = '';
   try {

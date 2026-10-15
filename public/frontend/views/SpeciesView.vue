@@ -2,6 +2,7 @@
 import { lazyComponent } from "../composables/lazy-component";
 import { onMounted, onBeforeUnmount, ref, watch } from "vue";
 import { useCatalogSearch } from "../composables/catalog-search";
+import { useCatalogRevision } from "../composables/catalog-revision";
 import { api } from "../api";
 import { t, errorMessage, language } from "../state";
 import { route } from "../router";
@@ -10,6 +11,8 @@ const AddSpeciesDialog = lazyComponent(() => import("../components/AddSpeciesDia
 const SpeciesDetail = lazyComponent(() => import("../components/SpeciesDetail.vue"));
 const { shown, total, next, search, water, category, categories, pageError, loading, sentinel, load, retry } = useCatalogSearch<Species>("species");
 const selected = ref<Species>(), adding = ref<Species>();
+const revision = useCatalogRevision("species");
+watch(revision, () => { if (selected.value) void loadDetail(selected.value.id); });
 const error = ref("");
 let detailRequest: AbortController | undefined;
 let disposed = false;

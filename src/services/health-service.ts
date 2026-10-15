@@ -169,6 +169,18 @@ export class HealthService {
     return null;
   }
 
+  /** Read-only reference data; diagnosis execution and aquarium data are excluded. */
+  offlineSnapshot(language = 'de') {
+    const catalog = this.catalog({ language });
+    return {
+      catalog,
+      diseases: catalog.diseases.map(item => this.disease(item.id, language)!),
+      associations: { fresh: this.bundle('fresh', language).diseases.speciesIndex, salt: this.bundle('salt', language).diseases.speciesIndex },
+      medications: this.medications({ language }),
+      medicationDetails: this.medications({ language }).items.map(item => this.medication(item.id, language)!),
+    };
+  }
+
   private measurable(question: HealthQuestion, context: HealthContext, document: DiagnosisDocument): CheckedMeasurement {
     if (!question.measurable) return { evidence: [], missing: [] };
     const evidence = new Map<string, AutomaticAnswer['evidence'][number]>();

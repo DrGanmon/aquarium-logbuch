@@ -8,18 +8,20 @@ const vue = require('vue');
 function moduleFor(file, request = async () => {}) {
   const timers = new Map();let timerId = 0, dispose;
   const language = vue.ref('de');
+  const revision = vue.ref(0);
   const code = ts.transpileModule(fs.readFileSync(`public/frontend/composables/${file}.ts`, 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;
   const exports = {};
   new Function('require', 'exports', 'window', 'setTimeout', 'clearTimeout', code)(name => {
     if (name === 'vue') return { ...vue, onBeforeUnmount: fn => { dispose = fn; } };
+    if (name === './catalog-revision') return { useCatalogRevision: () => revision };
     if (name === '../api') return { api: request };
     if (name === '../state') return { language, errorMessage: e => e.message };
     throw new Error(name);
   }, exports, {}, fn => { const id = ++timerId;timers.set(id, fn);return id; }, id => timers.delete(id));
   const scope = vue.effectScope();
-  return { exports, language, scope,
+  return { exports, language, revision, scope,
     async flush() { await vue.nextTick();const pending = [...timers.values()];timers.clear();pending.forEach(fn => fn());await new Promise(resolve => setImmediate(resolve));await vue.nextTick(); },
     dispose() { dispose();scope.stop(); }, timers };
 }
@@ -88,4 +90,14 @@ test('Krankheitssuche indexiert einmal, bündelt Eingaben und berücksichtigt ne
   items.value = [{ name: 'Fin rot', signs: 'Flossen' }];assert.equal(matches.value[0].name, 'Fin rot');assert.equal(indexed, 3);
   search.value = '';await vue.nextTick();assert.equal(matches.value, items.value);
   search.value = 'pending';await vue.nextTick();module.dispose();await module.flush();assert.equal(matches.value, items.value);
+});
+
+test('Committed catalog updates invalidate cached search pages', async () => {
+  let generation = 1;
+  const module = moduleFor('catalog-search', async () => page('species', `generation-${generation}`));
+  const app = module.scope.run(() => module.exports.useCatalogSearch('species'));
+  await module.flush();assert.equal(app.shown.value[0].id, 'generation-1');
+  generation = 2;module.revision.value++;
+  await module.flush();assert.equal(app.shown.value[0].id, 'generation-2');
+  module.dispose();
 });

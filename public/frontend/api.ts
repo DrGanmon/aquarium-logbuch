@@ -1,3 +1,5 @@
+import { readOfflineCatalog } from './offline-catalogs';
+import { CatalogLookupError } from '../../src/shared/offline-catalog-query';
 import { activeOwner, readLocal, writeLocal, cacheable, offlineState } from './offline-store';
 import { session, language, t } from "./state";
 export class ApiError extends Error {
@@ -15,6 +17,16 @@ export async function api<T>(
   { method = "GET", body, signal }: RequestOptions = {},
 ): Promise<T> {
   const owner = session.user?.id ?? await activeOwner().catch(() => undefined);
+  if (method === 'GET' && owner) {
+    try {
+      const local = await readOfflineCatalog(path, language.value, signal);
+      if (local !== undefined) return local as T;
+    } catch (error) {
+      if (error instanceof CatalogLookupError) throw new ApiError(error.message, error.status);
+      if (signal?.aborted) throw error;
+      // A storage failure must not prevent ordinary online requests.
+    }
+  }
   const cacheKey = `${owner}:${path === "/me" ? "identity" : language.value}:${path}`;
   let response: Response;
   try {

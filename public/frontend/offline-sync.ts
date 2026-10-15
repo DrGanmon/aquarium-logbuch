@@ -1,6 +1,7 @@
+import { synchronizeCatalogs } from './offline-catalogs';
 import { watch } from 'vue';
 import { api, ApiError } from './api';
-import { session, t } from './state';
+import { session, t, language } from './state';
 import { offlineState, pendingFor, storePending, type PendingMeasurement, type MaintenanceBody, type PendingEntry } from './offline-store';
 
 export async function refreshPending() {
@@ -57,14 +58,17 @@ export async function synchronize() {
   } finally {
     await refreshPending().catch(() => {});
     offlineState.syncing = false;
-    if ((changed || synchronized) && Number(session.user?.id) === owner) window.dispatchEvent(new Event('aquarium-synchronized'));
+    if ((changed || synchronized) && Number(session.user?.id) === owner) {
+      window.dispatchEvent(new Event('aquarium-synchronized'));
+      if (!offlineState.pending.length) void synchronizeCatalogs(owner, language.value);
+    }
   }
 }
 let started = false;
 export function startOfflineSync() {
   if (started) return;
   started = true;
-  watch(() => session.user?.id, () => { void refreshPending().catch(() => {}); void synchronize(); }, { immediate: true });
+  watch(() => `${session.user?.id}:${language.value}`, () => { void refreshPending().catch(() => {}); void synchronize(); }, { immediate: true });
   window.addEventListener('online', () => { void synchronize(); });
   window.addEventListener('offline', () => { offlineState.offline = true; });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') void synchronize(); });

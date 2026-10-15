@@ -21,8 +21,9 @@ function syncFixture() {
   let currentUser = 7;
   class ApiError extends Error { constructor(message, status) { super(message);this.status = status; } }
   const imports = {
+    './offline-catalogs': { synchronizeCatalogs: async () => {} },
     vue: { watch() {} },
-    './state': { session, t: key => key },
+    './state': { session, language: { value: 'de' }, t: key => key },
     './api': { ApiError, api: async (path, options) => { calls.push({ path, ...options });if (failure) throw failure;return { id: 123 }; } },
     './offline-store': {
       offlineState: state,
@@ -121,6 +122,8 @@ function apiFixture() {
   let response = new Response(JSON.stringify({ aquarium: { id: 42 } }), { headers: { 'X-Aquarium-User': '7', 'Content-Type': 'application/json' } });
   let failure;
   const api = load('public/frontend/api.ts', {
+    './offline-catalogs': { readOfflineCatalog: async () => undefined },
+    '../../src/shared/offline-catalog-query': { CatalogLookupError: class extends Error {} },
     './state': { session, language: { value: 'de' }, t: key => key },
     './offline-store': { activeOwner: async () => records.get('activeOwner'), readLocal: async key => records.get(key),
       writeLocal: async (key, value) => { if (value === undefined) records.delete(key);else records.set(key, value); },
@@ -169,4 +172,37 @@ test('Offline-Sync: mixed outbox routes log entries and legacy measurements to t
   assert.deepEqual(f.calls.map(call => call.path), ['/aquariums/42/measurements', '/aquariums/42/maintenance']);
   assert.equal(f.calls[1].body, log.body);
   assert.equal(f.queued.length, 0);
+});
+
+test('Catalog photos: viewed public images survive offline, private images bypass the bounded cache', async () => {
+  const listeners = {}, images = new Map(), tasks = [];
+  let offline = false;
+  const scopeUrl = 'https://example.test/aquarium/';
+  const cache = {
+    match: async request => images.get(request.url)?.clone(),
+    put: async (request, response) => images.set(request.url, response),
+    keys: async () => [...images.keys()].map(url => new Request(url)),
+    delete: async request => images.delete(request.url),
+  };
+  for (let index = 0; index < 200; index++) images.set(scopeUrl + `species-images/old-${index}.webp`, new Response('old'));
+  load('public/frontend/service-worker.ts', {}, {
+    self: { registration: { scope: scopeUrl }, location: { origin: 'https://example.test' }, addEventListener: (type, listener) => { listeners[type] = listener; } },
+    URL, Request, Response, Map, Set,
+    caches: { open: async () => cache },
+    fetch: async () => { if (offline) throw new TypeError('offline');return new Response('photo', { headers: { 'Content-Type': 'image/webp', 'Content-Length': '5' } }); },
+  });
+  let result;
+  const request = new Request(scopeUrl + 'plants-images/anubias.webp');
+  const event = { request, respondWith: promise => { result = promise; }, waitUntil: promise => tasks.push(promise) };
+  listeners.fetch(event);
+  assert.equal(await (await result).text(), 'photo');
+  await Promise.all(tasks);
+  assert.equal(images.size, 200);
+  assert.equal(images.has(scopeUrl + 'species-images/old-0.webp'), false);
+  offline = true;
+  listeners.fetch(event);
+  assert.equal(await (await result).text(), 'photo');
+  let intercepted = false;
+  listeners.fetch({ request: new Request(scopeUrl + 'api/aquariums/1/images/2'), respondWith: () => { intercepted = true; } });
+  assert.equal(intercepted, false);
 });

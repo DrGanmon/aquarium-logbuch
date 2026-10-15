@@ -1086,6 +1086,9 @@
     "nameExample": "e.g. Iron fertilizer"
   },
   "offline": {
+    "diagnosisOnline": "The diagnosis assistant requires a server connection. Disease and medication catalogs are available offline once downloaded.",
+    "catalogSyncing": "Updating catalogs for offline use …",
+    "catalogError": "Offline catalogs could not be updated.",
     "syncing": "Syncing with the server …",
     "logSaved": "Log entry saved locally. It will sync when connected.",
     "signIn": "Please sign in again.",

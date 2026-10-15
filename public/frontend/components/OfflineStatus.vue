@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { offlineState, storePending } from '../offline-store';
+import { synchronizeCatalogs } from '../offline-catalogs';
+import { language } from '../state';
 import { refreshPending, synchronize } from '../offline-sync';
 import { t, session } from '../state';
+async function retryCatalogs() { if (session.user) await synchronizeCatalogs(Number(session.user.id), language.value, true); }
 async function discard(item: typeof offlineState.pending[number]) {
   if (!confirm(t('offline.discardConfirm'))) return;
   await storePending(item, true);
@@ -9,8 +12,9 @@ async function discard(item: typeof offlineState.pending[number]) {
 }
 </script>
 <template>
-  <aside v-if="offlineState.offline || offlineState.pending.length || offlineState.error" class="card stack" aria-live="polite">
-    <p>{{ offlineState.offline ? t('offline.offline') : t('offline.pending', { count: offlineState.pending.length }) }}</p>
+  <aside v-if="offlineState.offline || offlineState.pending.length || offlineState.error || offlineState.catalogError" class="card stack" aria-live="polite">
+    <p v-if="offlineState.offline || offlineState.pending.length">{{ offlineState.offline ? t('offline.offline') : t('offline.pending', { count: offlineState.pending.length }) }}</p>
+    <p v-if="offlineState.catalogError" role="alert">{{ t('offline.catalogError') }} {{ offlineState.catalogError }} <button type="button" class="btn small ghost" :disabled="offlineState.catalogSyncing || offlineState.syncing || offlineState.pending.length > 0" @click="retryCatalogs">{{ t('detail.lazyRetry') }}</button></p>
     <p v-if="offlineState.error" role="alert">{{ offlineState.error }}</p>
     <details v-if="offlineState.pending.length">
       <summary>{{ t('offline.entries') }} ({{ offlineState.pending.length }})</summary>

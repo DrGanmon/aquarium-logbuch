@@ -1086,6 +1086,9 @@
     "nameExample": "z. B. Eisen-Volldünger"
   },
   "offline": {
+    "diagnosisOnline": "Der Diagnose-Assistent benötigt eine Verbindung zum Server. Krankheits- und Medikamentenkataloge sind offline verfügbar, sobald sie heruntergeladen wurden.",
+    "catalogSyncing": "Kataloge werden für die Offline-Nutzung aktualisiert …",
+    "catalogError": "Offline-Kataloge konnten nicht aktualisiert werden.",
     "syncing": "Wird mit dem Server synchronisiert …",
     "logSaved": "Logbucheintrag lokal gespeichert. Die Synchronisierung erfolgt bei bestehender Verbindung.",
     "signIn": "Bitte erneut anmelden.",

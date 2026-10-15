@@ -166,3 +166,19 @@ Cookie: session=…
 ```
 
 Bei Erfolg und Wiederholung: HTTP 200 mit `{"ok":true,"id":123}`. Dieselbe Operations-ID mit anderem normalisiertem Inhalt oder Aquarium liefert 409; ungültige UUID/fehlender Zeitpunkt 400, unpassende Benutzer-ID 403. Auch nach dem Löschen und nach Backup/Restore erzeugt eine Wiederholung keinen neuen Eintrag. Operations-IDs für Messungen und Pflegeeinträge sind getrennt, damit bestehende Offline-Messwerte unverändert synchronisierbar bleiben. Die bestehende Belegtabelle/-Collection `measurement_operations` speichert beide Eintragsarten; eine weitere Datenbankmigration oder ein zusätzlicher Docker-Dienst ist nicht erforderlich.
+
+## Offline-Referenzkataloge
+
+Die PWA hält Arten, Pflanzen und Gesundheitsreferenzen je Sprache als vollständige Katalogstände in IndexedDB vor. Nach erfolgreichem Abgleich ausstehender Benutzereinträge werden fehlende Kataloge im Hintergrund geladen. Bei vorhandenen Katalogen erfolgt frühestens nach zwölf Stunden ein Versionsabgleich; ein Sprachwechsel lädt die fehlende Sprachfassung. Der 30-Sekunden-Abgleich der Benutzereinträge lädt die Referenzdaten nicht ständig neu. Während eines Downloads zeigt der Sync-Toast den Katalogabgleich; bei Fehlern bleiben vorherige Stände erhalten. Automatische Wiederholungen pausieren fünf Minuten, manuelle Wiederholung bleibt möglich, sobald keine Benutzereinträge mehr ausstehen.
+
+```http
+GET /api/catalogs/health?lang=de
+Cookie: session=…
+If-None-Match: "<zuvor gespeicherter SHA-256-Hash>"
+```
+
+HTTP 200 liefert `{schema:1,kind:"health",language:"de",version:"<SHA-256>",data:{…}}`; derselbe Hash steht als `ETag` im Header. HTTP 304 bedeutet unverändert und hat keinen Body. `catalog` ist `species`, `plants` oder `health`; `lang` unterstützt `de` und `en`, alternativ `X-Language`/Sitzungssprache. Unbekannter Katalog: 404; ungültige Sprache: 400; fehlende/abgelaufene Sitzung: 401; Setup/Wartung: 428/503. Der Client prüft `X-Aquarium-User`, bevor Antworten gespeichert werden. Snapshots und Prüfzeitpunkte werden getrennt gespeichert, damit 304 keine großen Datenbestände neu schreibt. Ein neuer Stand ersetzt den bisherigen erst nach vollständigem Download, Strukturprüfung und erfolgreicher lokaler Transaktion. Serverstände werden einmal pro Prozess berechnet; Änderungen an Katalogdateien benötigen einen Neustart der Anwendung.
+
+Arten-/Pflanzensuche, Filter, Seiten und Details sowie Krankheits- und Medikamentenlisten/-details werden aus vorhandenen Snapshots lokal beantwortet, auch für zuvor nicht geöffnete Einträge und Suchanfragen. Aktualisierte Katalogstände erneuern offene Listen und Details. Artspezifische Symptome und Behandlungshinweise sowie Quellen und Bildnachweise bleiben enthalten. Die Daten sind gemeinsame, nur lesbare Referenzen; private Aquarien-/Benutzerdaten sind nicht enthalten. Der Diagnose-Assistent und KI-Anfragen benötigen weiterhin den Server. Neue Bestandszuordnungen bleiben ebenfalls online erforderlich.
+
+Lokale Arten-/Pflanzenbilder werden erst beim Ansehen im Service Worker gespeichert, online erneut geladen und offline wiederverwendet. Der Cache enthält höchstens 200 Bilder und übernimmt nur erfolgreiche Bildantworten bis 2 MiB laut Content-Length. Kein vollständiger Bilddownload beim App-Start, keine privaten Uploads und keine externen Bilder. Katalogtexte bleiben auch ohne gespeichertes Bild nutzbar. Browserspeicher ist begrenzt und kann gelöscht werden; fehlende Kataloge werden bei Verbindung erneut geladen. Docker Compose benötigt keinen zusätzlichen Dienst und keine weitere Datenbankmigration.

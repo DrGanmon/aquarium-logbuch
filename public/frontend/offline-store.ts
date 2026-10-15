@@ -21,7 +21,7 @@ export interface PendingMaintenance {
   error?: string;
 }
 export type PendingEntry = PendingMeasurement | PendingMaintenance;
-export const offlineState = reactive({ offline: !navigator.onLine, pending: [] as PendingEntry[], syncing: false, error: '' });
+export const offlineState = reactive({ offline: !navigator.onLine, pending: [] as PendingEntry[], syncing: false, error: '', catalogSyncing: false, catalogError: '' });
 let database: Promise<IDBDatabase> | undefined;
 function open() {
   return database ??= new Promise<IDBDatabase>((resolve, reject) => {

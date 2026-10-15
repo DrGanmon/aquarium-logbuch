@@ -1,3 +1,4 @@
+import { useCatalogRevision } from './catalog-revision';
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import { api } from "../api";
 import { errorMessage, language } from "../state";
@@ -12,11 +13,13 @@ interface CatalogPage<T> {
 
 /** Keep cards stable while typing; only completed pages enter the bounded cache. */
 export function useCatalogSearch<T>(collection: "species" | "plants") {
+  const revision = useCatalogRevision(collection);
   const shown = shallowRef<T[]>([]), total = ref(0), next = ref<number | null>(null);
   const search = ref(""), water = ref("all"), category = ref("all"), categories = shallowRef<string[]>([]);
   const pageError = ref(""), loading = ref(true), sentinel = ref<HTMLElement>();
-  const criteria = computed(() => JSON.stringify([search.value.trim(), water.value, category.value, language.value]));
+  const criteria = computed(() => JSON.stringify([search.value.trim(), water.value, category.value, language.value, revision.value]));
   const pages = new Map<string, CatalogPage<T>>();
+  watch(revision, () => pages.clear(), { flush: "sync" });
   let request: AbortController | undefined;
   let observer: IntersectionObserver | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;

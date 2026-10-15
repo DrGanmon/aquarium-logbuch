@@ -90,6 +90,28 @@ scope.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== scope.location.origin) return;
+  const basePath = new URL('./', scope.registration.scope).pathname;
+  const imagePath = url.pathname.startsWith(basePath) ? url.pathname.slice(basePath.length) : '';
+  if (/^(species-images|plants-images)\/[^/]+\.(webp|png|jpe?g|avif)$/i.test(imagePath)) {
+    event.respondWith((async () => {
+      const cache = await caches.open(`aquarium-catalog-images:${scope.registration.scope}`);
+      try {
+        const response = await fetch(request);
+        if (response.ok && response.headers.get('Content-Type')?.startsWith('image/') && Number(response.headers.get('Content-Length') || 0) <= 2 * 1024 * 1024) {
+          const copy = response.clone();
+          event.waitUntil((async () => {
+            await cache.put(request, copy);
+            const keys = await cache.keys();
+            for (const key of keys.slice(0, Math.max(0, keys.length - 200))) await cache.delete(key);
+          })().catch(() => {}));
+        }
+        return response;
+      } catch {
+        return (await cache.match(request)) || Response.error();
+      }
+    })());
+    return;
+  }
   if (request.mode === 'navigate' && (url.pathname === new URL('./', scope.registration.scope).pathname || url.pathname === new URL('index.html', scope.registration.scope).pathname)) {
     event.respondWith(fetch(request).catch(async () => {
       const cached = await (await caches.open(shellCache)).match(scope.registration.scope);

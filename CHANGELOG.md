@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Während der Serversynchronisierung einen deutsch/englischen Status-Toast mit drehendem Symbol anzeigen, nach Abschluss automatisch ausblenden und bestehende Toast-Meldungen parallel erhalten; reduzierte Bewegung berücksichtigen.
+- Gesundheits-, Arten- und Pflanzenkataloge je Sprache vollständig für Offline-Suche, Filter und Detailansichten in IndexedDB vorhalten. Neue authentifizierte Snapshot-API mit SHA-256/ETag und 304 ergänzen, Kataloge nach Benutzereinträgen und höchstens alle zwölf Stunden prüfen, vollständige Stände atomar ersetzen und offene Ansichten aktualisieren. Lokale Katalogbilder beim Ansehen begrenzt zwischenspeichern; Fortschritt, Fehleranzeige, API-Dokumentation und Regressionstests ergänzen. Diagnoseberechnung und KI bleiben serverabhängig.
+
+## 0.2.2-ALPHA
+
+- 2026-10-15 · Während der Serversynchronisierung einen deutsch/englischen Status-Toast mit drehendem Symbol anzeigen, nach Abschluss automatisch ausblenden und bestehende Toast-Meldungen parallel erhalten; reduzierte Bewegung berücksichtigen (`e92faad3c9588d418ef1321ab9e87ac465caf08b`).
 
 ## 0.2.1-ALPHA
 

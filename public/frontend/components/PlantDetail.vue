@@ -2,6 +2,7 @@
 import { ref, watch, onBeforeUnmount } from "vue";
 import CatalogPhoto from "./CatalogPhoto.vue";
 import Modal from "./Modal.vue";
+import { useCatalogRevision } from "../composables/catalog-revision";
 import { api } from "../api";
 import { t, language, errorMessage } from "../state";
 import type { Plant, PlantCatalog, PlantRange } from "../../../src/shared/plants";
@@ -9,9 +10,10 @@ const props = defineProps<{ plantId: string }>();
 defineEmits<{ close: [] }>();
 interface Detail { plant: Plant; fieldDefinitions: PlantCatalog['fieldDefinitions']; notes: string[]; sources: PlantCatalog['sources'][string][] }
 const detail = ref<Detail>(), error = ref(""), loading = ref(false);
+const revision = useCatalogRevision("plants");
 let request: AbortController | undefined;
 onBeforeUnmount(() => request?.abort());
-watch(() => [props.plantId, language.value], load, { immediate: true });
+watch(() => [props.plantId, language.value, revision.value], load, { immediate: true });
 async function load() {
   request?.abort();const current = new AbortController();request = current;
   detail.value = undefined;error.value = "";loading.value = true;

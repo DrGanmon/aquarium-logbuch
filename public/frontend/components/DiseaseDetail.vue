@@ -2,6 +2,7 @@
 import { ref, watch, onBeforeUnmount } from 'vue';
 import MedicationDetail from './MedicationDetail.vue';
 import Modal from './Modal.vue';
+import { useCatalogRevision } from "../composables/catalog-revision";
 import { api } from '../api';
 import { language, t, errorMessage } from '../state';
 import type { DiseaseDetail } from '../health-types';
@@ -10,8 +11,9 @@ const emit = defineEmits<{ close: [] }>();
 const disease = ref<DiseaseDetail>();
 const error = ref('');
 const selectedMedication = ref<string>();
+const revision = useCatalogRevision("health");
 let request: AbortController | undefined;
-watch([() => props.diseaseId, () => props.speciesId, language], async () => {
+watch([() => props.diseaseId, () => props.speciesId, language, revision], async () => {
   request?.abort();
   const current = new AbortController(); request = current;
   disease.value = undefined; error.value = '';

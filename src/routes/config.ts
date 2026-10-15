@@ -1,3 +1,5 @@
+import { catalogSnapshot } from '../services/offline-catalog-service';
+import { CATALOG_NAMES, type CatalogName } from '../shared/offline-catalog';
 import { getPlantCatalog, searchPlants } from '../services/plant-service';
 import { searchSpecies } from '../shared/species-search';
 import { asError } from '../utils/app-error';
@@ -99,6 +101,19 @@ router.get(
     });
   })
 );
+
+router.get('/catalogs/:catalog', auth, (req: Request, res: Response) => {
+  const kind = String(req.params.catalog);
+  if (!CATALOG_NAMES.includes(kind as CatalogName)) return res.status(404).json({ error: 'Katalog nicht gefunden.' });
+  const requested = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de').toLowerCase();
+  if (!['de', 'en'].includes(requested)) return res.status(400).json({ error: 'Ungültige Katalogsprache.' });
+  const snapshot = catalogSnapshot(kind as CatalogName, requested as 'de' | 'en');
+  const etag = `"${snapshot.version}"`;
+  res.setHeader('ETag', etag);
+  res.setHeader('Cache-Control', 'private, no-cache');
+  if (String(req.headers['if-none-match'] || '').split(',').map(value => value.trim().replace(/^W\//, '')).some(value => value === etag || value === '*')) return res.status(304).end();
+  return res.type('json').send(snapshot.body);
+});
 
 router.get('/plants', auth, (req: Request, res: Response) => {
   const lang = String(req.query.lang || req.headers['x-language'] || req.user?.language || 'de');

@@ -61,6 +61,137 @@
     }
   ],
   "paths": {
+    "/api/catalogs/{catalog}": {
+      "get": {
+        "tags": [
+          "Kataloge"
+        ],
+        "summary": "Vollständigen Offline-Katalog mit Inhaltsversion abrufen",
+        "operationId": "get_api_catalogs_catalog",
+        "description": "Gültige Sitzung erforderlich, keine Aquarium-Rolle. Nur gemeinsame Referenzdaten ohne Benutzer-/Aquariendaten. Pro Prozess, Katalog und Sprache einmal aus den geladenen Daten erstellt. SHA-256 umfasst Schema, Katalog, Sprache und Inhalt. If-None-Match erlaubt 304 ohne Body. Krankheiten einschließlich artspezifischer Hinweise, Quellen und Medikamentendetails; keine Diagnoseausführung, KI, Bilddateien oder Benutzerdaten. Bestehende Setup- und Wartungssperren gelten.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "catalog",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "species",
+                "plants",
+                "health"
+              ]
+            },
+            "description": "Referenzkatalog."
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "de",
+                "en"
+              ]
+            },
+            "description": "Sprache. Standard: X-Language, sonst Sitzungssprache, sonst de."
+          },
+          {
+            "name": "X-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "de",
+                "en"
+              ]
+            },
+            "description": "Katalogsprache, wenn lang fehlt."
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Zuvor erhaltenes ETag; starke/schwache ETags, kommagetrennte Liste oder * erlaubt."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vollständiger, konsistenter Katalogstand.",
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "In Anführungszeichen gesetzter SHA-256-Inhalts-Hash."
+              },
+              "X-Aquarium-User": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "ID der authentifizierten Sitzung."
+              },
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "private, no-cache"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfflineCatalogSnapshot"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Katalog unverändert, kein Antwortbody. ETag und X-Aquarium-User werden mitgeliefert.",
+            "headers": {
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Aquarium-User": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "428": {
+            "$ref": "#/components/responses/Error428"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
     "/metrics": {
       "get": {
         "tags": ["Administration"],
@@ -14258,6 +14389,317 @@
       }
     },
     "schemas": {
+      "OfflineCatalogSnapshot": {
+        "description": "Versionierter Katalogstand. Erweiterbare Einträge entsprechen den bestehenden Arten-, Pflanzen-, Krankheits- und Medikamenten-Detailantworten inklusive Bildnachweisen, Quellen und Sicherheitshinweisen.",
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "integer",
+                "enum": [
+                  1
+                ]
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "species"
+                ]
+              },
+              "language": {
+                "type": "string",
+                "enum": [
+                  "de",
+                  "en"
+                ]
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "species": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "species",
+                  "categories"
+                ],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "schema",
+              "kind",
+              "language",
+              "version",
+              "data"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "integer",
+                "enum": [
+                  1
+                ]
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "plants"
+                ]
+              },
+              "language": {
+                "type": "string",
+                "enum": [
+                  "de",
+                  "en"
+                ]
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "plants": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "fieldDefinitions": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "notes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "sources": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "searchText": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "description": "Vollständiger Suchtext pro Pflanzen-ID, einschließlich beider Sprachen."
+                  }
+                },
+                "required": [
+                  "plants",
+                  "fieldDefinitions",
+                  "notes",
+                  "sources",
+                  "searchText"
+                ],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "schema",
+              "kind",
+              "language",
+              "version",
+              "data"
+            ],
+            "additionalProperties": true
+          },
+          {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "integer",
+                "enum": [
+                  1
+                ]
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "health"
+                ]
+              },
+              "language": {
+                "type": "string",
+                "enum": [
+                  "de",
+                  "en"
+                ]
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "catalog": {
+                    "type": "object",
+                    "properties": {
+                      "diseases": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": true
+                        }
+                      },
+                      "species": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": true
+                        }
+                      },
+                      "total": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "diseases",
+                      "species",
+                      "total"
+                    ],
+                    "additionalProperties": true
+                  },
+                  "diseases": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "associations": {
+                    "type": "object",
+                    "properties": {
+                      "fresh": {
+                        "type": "object",
+                        "additionalProperties": true
+                      },
+                      "salt": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    },
+                    "required": [
+                      "fresh",
+                      "salt"
+                    ],
+                    "additionalProperties": true
+                  },
+                  "medications": {
+                    "type": "object",
+                    "properties": {
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": true
+                        }
+                      },
+                      "total": {
+                        "type": "integer"
+                      },
+                      "version": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "disclaimer": {
+                        "type": "string"
+                      },
+                      "homePharmacyScale": {
+                        "type": "string"
+                      },
+                      "homePharmacyCriteria": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "legalNotes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "legalStatusVerifiedNote": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "items",
+                      "total",
+                      "disclaimer",
+                      "legalNotes"
+                    ],
+                    "additionalProperties": true
+                  },
+                  "medicationDetails": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                },
+                "required": [
+                  "catalog",
+                  "diseases",
+                  "associations",
+                  "medications",
+                  "medicationDetails"
+                ],
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "schema",
+              "kind",
+              "language",
+              "version",
+              "data"
+            ],
+            "additionalProperties": true
+          }
+        ]
+      },
       "Record": {
         "type": "object",
         "properties": {},
