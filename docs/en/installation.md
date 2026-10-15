@@ -110,7 +110,7 @@ The GitHub workflow builds the application image for `linux/amd64` and `linux/ar
 | `WORKERS` | `1` (or `auto` in Docker) | Number of worker processes (`auto` = all CPU cores) |
 | `WORKER_THREADS` | `auto` | Number of worker threads for heavy tasks (Scrypt, data analysis) |
 
-MongoDB must run as a replica set, including single-node deployments. Multi-collection backups use snapshot reads, and restores execute atomically in a transaction. The Compose template initializes a single-node replica set automatically. For an external MongoDB deployment, configure the URI with its replica-set name, for example `replicaSet=rs0`.
+MongoDB must run as a replica set, including single-node deployments. Multi-collection backups use snapshot reads, and restores execute atomically in a transaction. The Compose template initializes an authenticated single-node replica set and generates a random, access-restricted keyfile automatically. The keyfile is kept in the persistent `mongo-keyfile` volume; do not delete it while retaining existing MongoDB data or generate different keyfiles for members of one replica set. For an external MongoDB deployment, configure the URI with its replica-set name, for example `replicaSet=rs0`, and use the same keyfile on every replica-set member.
 
 ## Reverse proxy and OIDC
 

@@ -111,7 +111,7 @@ Der GitHub-Workflow baut das App-Image für `linux/amd64` und `linux/arm64` und 
 | `WORKERS` | `1` (bzw. `auto` in Docker) | Anzahl der Worker-Prozesse (`auto` = alle CPU-Kerne) |
 | `WORKER_THREADS` | `auto` | Anzahl der Worker-Threads für rechenintensive Aufgaben (Scrypt, Datenanalyse) |
 
-MongoDB muss als Replica Set betrieben werden, auch bei einem einzelnen Knoten. Mehr-Collection-Backups verwenden Snapshot-Lesevorgänge; Restores laufen atomar in einer Transaktion. Die Compose-Vorlage richtet ein Einzelknoten-Replica-Set automatisch ein. Bei eigener MongoDB muss die URI ein Replica Set angeben, zum Beispiel `replicaSet=rs0`.
+MongoDB muss als Replica Set betrieben werden, auch bei einem einzelnen Knoten. Mehr-Collection-Backups verwenden Snapshot-Lesevorgänge; Restores laufen atomar in einer Transaktion. Die Compose-Vorlage richtet ein authentifiziertes Einzelknoten-Replica-Set samt zufällig erzeugtem, zugriffsgeschütztem Keyfile automatisch ein. Das Keyfile liegt im persistenten Volume `mongo-keyfile`; dieses Volume bei bestehenden Mongo-Daten nicht löschen oder zwischen Instanzen unterschiedlich erzeugen. Bei eigener MongoDB muss die URI ein Replica Set angeben, zum Beispiel `replicaSet=rs0`, und jedes Replica-Set-Mitglied benötigt dasselbe Keyfile.
 
 ## Reverse Proxy und OIDC
 

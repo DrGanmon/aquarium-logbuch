@@ -46,8 +46,7 @@ services:
   mongo:
     image: mongo:7
     restart: unless-stopped
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
-    environment:
+    entrypoint: ["bash", "-c", "head -c 756 /dev/urandom | base64 > /tmp/mongo-keyfile && chmod 400 /tmp/mongo-keyfile && chown 999:999 /tmp/mongo-keyfile && exec docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all --keyFile /tmp/mongo-keyfile"]
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: aquarium_secret_password
       MONGO_INITDB_DATABASE: aquarium

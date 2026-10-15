@@ -6,6 +6,7 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
+- MongoDB-Compose beim authentifizierten Replica-Set-Start ein persistentes Keyfile mit restriktiven Dateirechten erzeugen lassen und die Betriebsanforderung dokumentieren.
 - Audit-Restrisiken mit den Sicherheitsnachträgen abgleichen, behobene Befunde markieren und den aktuellen Node-/Bun-Prüfstand dokumentieren.
 
 ## 0.1.15-ALPHA
