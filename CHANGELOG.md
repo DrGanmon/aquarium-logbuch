@@ -7,6 +7,7 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 ## Unveröffentlicht
 
 - Minor-Version auf `0.2.0-ALPHA` erhöhen und Revision sowie Patch zurücksetzen.
+- Supervisor-Start im Entwicklungsmodus nicht mehr fälschlich am Setup-Gate scheitern lassen; der echte Laufzeit-Test mit zwei Worker-Prozessen kann damit den gemeinsamen HTTP-Port sauber starten.
 
 ## 0.1.19-ALPHA
 

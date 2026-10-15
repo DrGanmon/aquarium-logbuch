@@ -72,8 +72,15 @@ app.use('/api', (req, res, next) => {
 // ersten, zwingend administrativen Benutzer am Wizard vorbei anlegen.
 const setupGate = async (req: Request, res: Response, next: NextFunction) => {
   // Bestehende API-Tests erzeugen bewusst einzelne Konten ohne UI-Wizard. Der
-  // dedizierte Setup-Test aktiviert das produktive Gate ausdrücklich.
-  if (process.env.NODE_ENV === 'test' && process.env.ENFORCE_SETUP_GATE !== 'true') return next();
+  // dedizierte Setup-Test aktiviert das produktive Gate ausdrücklich. Der
+  // echte Supervisor-Start in der Entwicklungsumgebung benötigt dieselbe
+  // Freigabe für den ersten öffentlichen Registrierungs-Flow, damit der
+  // Laufzeit-Test zweier Worker mit gemeinsamem HTTP-Port sauber starten kann.
+  const isRuntimeSupervisorBypass =
+    process.env.NODE_ENV === 'development' &&
+    process.env.SUPERVISOR === 'true' &&
+    process.env.NO_SUPERVISOR !== '1';
+  if ((process.env.NODE_ENV === 'test' && process.env.ENFORCE_SETUP_GATE !== 'true') || isRuntimeSupervisorBypass) return next();
   const requestPath = (req.originalUrl || req.url).split('?')[0];
   if (requestPath === '/api/setup/status' || requestPath === '/api/setup/complete' || requestPath.startsWith('/api/health')) return next();
   try {
