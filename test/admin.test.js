@@ -72,6 +72,15 @@ test('Admin: Zugriffsschutz und Benutzerverwaltung', async (t) => {
   const managedUserId = newUserRes.data.id;
   assert.ok(managedUserId > 0);
 
+  // Weitere Administratoren werden über die Datenbankrolle verwaltet.
+  const promoteRes = await env.request(`/api/admin/users/${managedUserId}`, {
+    method: 'PUT', headers: { Cookie: adminUser.cookie },
+    body: { username: 'managed_user', email: 'managed@example.com', oidcSub: 'pocket-id-sub-999', isAdmin: true },
+  });
+  assert.strictEqual(promoteRes.status, 200);
+  const promotedLogin = await env.request('/api/login', { method: 'POST', body: { username: 'managed_user', password: 'managedpassword123' } });
+  assert.strictEqual((await env.request('/api/admin/users', { headers: { Cookie: promotedLogin.cookieHeader } })).status, 200);
+
   // Validierung: Duplizierter Benutzername, E-Mail oder oidcSub -> 409
   const dupNameRes = await env.request('/api/admin/users', {
     method: 'POST',
@@ -103,9 +112,16 @@ test('Admin: Zugriffsschutz und Benutzerverwaltung', async (t) => {
       email: 'newemail@example.com',
       password: 'newmanagedpassword456',
       oidcSub: 'updated-sub-999',
+      isAdmin: true,
     },
   });
   assert.strictEqual(editUserRes.status, 200);
+
+  const selfDemote = await env.request(`/api/admin/users/${adminUser.id}`, {
+    method: 'PUT', headers: { Cookie: adminUser.cookie },
+    body: { username: 'admin_boss', email: 'admin@example.com', isAdmin: false },
+  });
+  assert.strictEqual(selfDemote.status, 400);
 
   // Prüfen ob geänderter Benutzer sich mit neuem Passwort einloggen kann
   const loginNewPw = await env.request('/api/login', {

@@ -3,8 +3,6 @@ import { AppError, asError } from '../utils/app-error';
 import type { Request, Response, RequestHandler } from 'express';
 import express = require('express');
 import db = require('../db');
-import envModule = require('../config/env');
-const { isEmailAdmin } = envModule;
 import cryptoModule = require('../utils/crypto');
 const { hashPassword } = cryptoModule;
 import helpersModule = require('../utils/helpers');
@@ -57,7 +55,7 @@ router.get(
         oidcSub: u.oidc_sub || null,
         hasPassword: !!(u.password_hash && u.password_hash.includes(':')),
         hasOidc: !!u.oidc_sub,
-        isAdmin: Boolean(u.email_verified) && isEmailAdmin(u.email),
+        isAdmin: Boolean(u.is_admin),
         aquariumCount: u.aquarium_count || 0,
         createdAt: u.created_at,
       }))
@@ -75,6 +73,7 @@ router.post(
     const oidcSub = req.body.oidcSub ? str(req.body.oidcSub, 255) : null;
     const password = typeof req.body.password === 'string' && req.body.password.length > 0 ? req.body.password : null;
     const emailVerified = req.body.emailVerified !== undefined ? Boolean(req.body.emailVerified) : true;
+    const isAdmin = Boolean(req.body.isAdmin);
     if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) {
       return res.status(400).json({ error: 'Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).' });
     }
@@ -100,8 +99,9 @@ router.post(
       oidc_sub: oidcSub,
       email,
       email_verified: emailVerified ? 1 : 0,
+      is_admin: isAdmin ? 1 : 0,
     });
-    res.json({ id: created.id, username, email, oidcSub, emailVerified: Boolean(created.email_verified), isAdmin: Boolean(created.email_verified) && isEmailAdmin(email) });
+    res.json({ id: created.id, username, email, oidcSub, emailVerified: Boolean(created.email_verified), isAdmin: Boolean(created.is_admin) });
   })
 );
 
@@ -118,6 +118,7 @@ router.put(
     const oidcSub = req.body.oidcSub !== undefined ? (req.body.oidcSub ? str(req.body.oidcSub, 255) : null) : undefined;
     const password = typeof req.body.password === 'string' && req.body.password.length > 0 ? req.body.password : null;
     const emailVerified = req.body.emailVerified !== undefined ? Boolean(req.body.emailVerified) : undefined;
+    const isAdmin = req.body.isAdmin !== undefined ? Boolean(req.body.isAdmin) : undefined;
     if (!/^[\p{L}\p{N}_.-]{3,40}$/u.test(username)) {
       return res.status(400).json({ error: 'Benutzername: 3–40 Zeichen (Buchstaben, Zahlen, _ . -).' });
     }
@@ -148,6 +149,10 @@ router.put(
     };
     if (emailVerified !== undefined) {
       updateFields.email_verified = emailVerified ? 1 : 0;
+    }
+    if (isAdmin !== undefined) {
+      if (id === req.user.id && !isAdmin) return res.status(400).json({ error: 'Die eigenen Administrator-Rechte können nicht entfernt werden.' });
+      updateFields.is_admin = isAdmin ? 1 : 0;
     }
     if (password) {
       updateFields.password_hash = await hashPassword(password);

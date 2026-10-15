@@ -17,6 +17,8 @@ npm start            # startet die App (Standard: SQLite unter http://localhost:
 - **Build:** `npm run build` und `npm run dist` kompilieren zuerst das TypeScript-Backend nach `../../dist/backend` und erzeugen danach das Entwicklungs- bzw. Produktions-Bundle unter `public/dist/`. Beide führen vorher die Typprüfung aus. `npm run build:backend` baut nur das Backend; nach Backend-Änderungen neu bauen und den Server neu starten. `npm test` baut das Backend vor den Tests automatisch neu. Chart.js wird als Modul gebündelt. Vite baut den Rechen-Worker; der TypeScript-Service-Worker wird als `dist/sw.js` erzeugt und über `/sw.js` ausgeliefert.
 - **Betrieb:** Express wählt die gebauten Produktions- oder Entwicklungsdateien und unterstützt `APP_URL` mit Unterpfad. Der stabile Einstiegspunkt `../../server.js` lädt das kompilierte `server.ts`. Ohne Backend-Build erscheint ein Einrichtungshinweis beim Start; fehlt nur das Frontend, antwortet dessen Seite mit HTTP 503. Im Betrieb werden weder der TypeScript-Compiler noch Entwicklungsabhängigkeiten benötigt. `npm run build:watch` / `npm run dist:watch` beobachten Frontendänderungen; das Backend wird beim Start dieser Befehle einmal kompiliert. Docker erstellt weiterhin den Produktions-Build beim Image-Bau.
 
+Beim ersten Aufruf einer leeren Installation führt ein zweisprachiger Einrichtungsassistent durch das erste Administrator-Konto sowie SMTP- und Backup-Einstellungen. Er ist nur verfügbar, solange noch kein Benutzer existiert. Weitere Administratoren lassen sich anschließend in der Benutzerverwaltung bestimmen. Beim Upgrade werden bisher über `ADMIN_EMAIL` erkannte und bereits bestätigte Konten einmalig als Administratoren in die Datenbank übernommen.
+
 ## Bun: Installation, Build, Tests und Start
 
 Bun **ab 1.4.3** wird als vollständige Runtime unterstützt; Node muss für diesen Ablauf nicht installiert sein:
@@ -45,7 +47,7 @@ Der Controller legt `rate-limits.sqlite` und `rate-limit-controller.key` mit pri
 
 Alle folgenden Befehle werden im Hauptverzeichnis des Repositorys ausgeführt. `--project-directory .` erhält den bisherigen Compose-Projektnamen und die Zuordnung der benannten Volumes. Für den lokalen Bun-Image-Build: `docker build -f docker/Dockerfile -t aquarium-logbuch:bun .`.
 
-Beide Compose-Dateien verwenden das [offizielle Container-Image](https://github.com/DrGanmon/aquarium-logbuch/pkgs/container/aquarium-logbuch) `ghcr.io/drganmon/aquarium-logbuch:latest`. Ein lokaler Build ist nicht erforderlich. Passe vor dem Start die Umgebungsvariablen in der jeweiligen Compose-Datei an (insbesondere `APP_URL`, `ADMIN_EMAIL` und das MongoDB-Passwort). Eine Vorlage für alle verfügbaren Umgebungsvariablen befindet sich in [example.env](../../docker/example.env).
+Beide Compose-Dateien verwenden das [offizielle Container-Image](https://github.com/DrGanmon/aquarium-logbuch/pkgs/container/aquarium-logbuch) `ghcr.io/drganmon/aquarium-logbuch:latest`. Ein lokaler Build ist nicht erforderlich. Passe vor dem Start die Umgebungsvariablen in der jeweiligen Compose-Datei an (insbesondere `APP_URL` und das MongoDB-Passwort). Eine Vorlage für alle verfügbaren Umgebungsvariablen befindet sich in [example.env](../../docker/example.env).
 
 ```bash
 # Images herunterladen und App samt MongoDB-Container starten
@@ -86,7 +88,7 @@ Der GitHub-Workflow baut das App-Image für `linux/amd64` und `linux/arm64` und 
 | `OIDC_PROVIDER_NAME` | `Pocket ID` | Beschriftung des Anmelde-Buttons |
 | `LOCAL_LOGIN` | automatisch | Lokale Anmeldung mit Passwort. Standard: aus, wenn OIDC aktiv ist, sonst an |
 | `OIDC_LINK_BY_USERNAME` | false | `true` verknüpft beim ersten OIDC-Login ein vorhandenes lokales Konto mit gleichem Benutzernamen und gleicher, vom Provider bestätigter E-Mail-Adresse |
-| `ADMIN_EMAIL` | (leer) | E-Mail-Adresse des Administrators (oder mehrere durch Komma getrennt) für den Admin-Bereich / Benutzerverwaltung |
+| `ADMIN_EMAIL` | (leer) | Nur Upgrade-Kompatibilität: bestätigte bestehende Konten mit diesen E-Mail-Adressen werden einmalig in Datenbank-Administratoren migriert |
 | `CONTACT_EMAIL` | `ADMIN_EMAIL` | Optionale Support- & Kontakt-E-Mail-Adresse für Impressum & Kontaktseite |
 
 | `IMPRINT_EMAIL` | `CONTACT_EMAIL` | Optionale E-Mail-Adresse für Anbieterkennzeichnung / Impressum gem. § 5 DDG |

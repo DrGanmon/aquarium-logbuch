@@ -6,7 +6,8 @@ export const session = reactive<{
   user: User | null;
   config: AppConfig | null;
   ready: boolean;
-}>({ user: null, config: null, ready: false });
+  setupRequired: boolean;
+}>({ user: null, config: null, ready: false, setupRequired: false });
 export const language = ref<Language>(
   localStorage.getItem("aquarium_lang") === "en" ? "en" : "de",
 );

@@ -15,6 +15,9 @@ export const route = computed(() => {
 });
 export async function initialize() {
   try {
+    const setup = await api<{ required: boolean }>("/setup/status");
+    session.setupRequired = setup.required;
+    if (setup.required) { location.hash = "#/setup"; return; }
     await refreshSession();
   } catch {
     session.user = null;

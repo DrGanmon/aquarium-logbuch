@@ -279,8 +279,8 @@ class SqliteAdapter {
 
       // Users
       const insertUser = db.prepare(`
-        INSERT INTO users (id, username, password_hash, email, oidc_sub, first_name, last_name, bio, avatar_file, selected_suite, selected_tests, default_graph_range, email_verified, email_verify_token, email_verify_expires, password_reset_token, password_reset_expires, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO users (id, username, password_hash, email, oidc_sub, first_name, last_name, bio, avatar_file, selected_suite, selected_tests, default_graph_range, email_verified, email_verify_token, email_verify_expires, password_reset_token, password_reset_expires, created_at, is_admin)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       for (const u of users) {
         insertUser.run(
@@ -301,7 +301,8 @@ class SqliteAdapter {
           u.email_verify_expires || null,
           u.password_reset_token || null,
           u.password_reset_expires || null,
-          u.created_at || new Date().toISOString()
+          u.created_at || new Date().toISOString(),
+          u.is_admin ? 1 : 0
         );
         db.prepare('UPDATE users SET test_inventory = ?, terms_version = ?, terms_accepted_at = ? WHERE id = ?').run(u.test_inventory || '{}', u.terms_version || null, u.terms_accepted_at || null, u.id);
         for (const provider of AI_PROVIDERS) db.prepare(`UPDATE users SET ${provider}_api_key = ?, ${provider}_api_key_prefix = ?, ${provider}_api_key_suffix = ?, ${provider}_model = ? WHERE id = ?`).run(u[`${provider}_api_key`] || null, u[`${provider}_api_key_prefix`] || null, u[`${provider}_api_key_suffix`] || null, u[`${provider}_model`] || null, u.id);
@@ -589,11 +590,11 @@ class SqliteAdapter {
         password_reset_token = null,
         password_reset_expires = null,
         language = 'de',
-        terms_version = null, terms_accepted_at = null,
+        terms_version = null, terms_accepted_at = null, is_admin = 0,
       }: any) {
         const info = db
           .prepare(
-            'INSERT INTO users (username, password_hash, email, oidc_sub, email_verified, email_verify_token, email_verify_expires, password_reset_token, password_reset_expires, language, terms_version, terms_accepted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO users (username, password_hash, email, oidc_sub, email_verified, email_verify_token, email_verify_expires, password_reset_token, password_reset_expires, language, terms_version, terms_accepted_at, is_admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
           )
           .run(
             username,
@@ -605,7 +606,7 @@ class SqliteAdapter {
             email_verify_expires,
             password_reset_token,
             password_reset_expires,
-            language === 'en' ? 'en' : 'de', terms_version, terms_accepted_at
+            language === 'en' ? 'en' : 'de', terms_version, terms_accepted_at, is_admin ? 1 : 0
           );
         const id = Number(info.lastInsertRowid);
         return {
@@ -616,7 +617,7 @@ class SqliteAdapter {
           email_verified: email_verified ? 1 : 0,
           email_verify_token,
           email_verify_expires,
-          language: language === 'en' ? 'en' : 'de', terms_version, terms_accepted_at,
+          language: language === 'en' ? 'en' : 'de', terms_version, terms_accepted_at, is_admin: is_admin ? 1 : 0,
         };
       },
       async mutateTestInventory(id?: any, mutate?: any) {
@@ -660,14 +661,14 @@ class SqliteAdapter {
           'claude_api_key',
           'claude_model',
           'ai_provider',
-          'language', 'terms_version', 'terms_accepted_at',
+          'language', 'terms_version', 'terms_accepted_at', 'is_admin',
         ];
 
         for (const k of allowed) {
           if (fields[k as keyof UserRecord] !== undefined) {
             setClauses.push(`${k} = ?`);
             let val = fields[k as keyof UserRecord];
-            if (k === 'email_verified') val = val ? 1 : 0;
+            if (k === 'email_verified' || k === 'is_admin') val = val ? 1 : 0;
             params.push(val);
           }
         }
@@ -706,7 +707,7 @@ class SqliteAdapter {
         return db
           .prepare<UserRecord>(
             `
-          SELECT u.id, u.username, u.email, u.oidc_sub, u.password_hash, u.created_at, u.email_verified,
+          SELECT u.id, u.username, u.email, u.oidc_sub, u.password_hash, u.created_at, u.email_verified, u.is_admin,
                  COUNT(a.id) AS aquarium_count
           FROM users u
           LEFT JOIN aquariums a ON a.user_id = u.id
@@ -737,7 +738,7 @@ class SqliteAdapter {
           db
             .prepare(
               `
-          SELECT s.token_hash, s.user_id, s.expires_at, s.id_token, u.username, u.email, u.email_verified, u.language
+          SELECT s.token_hash, s.user_id, s.expires_at, s.id_token, u.username, u.email, u.email_verified, u.language, u.is_admin
           FROM sessions s
           JOIN users u ON u.id = s.user_id
           WHERE s.token_hash = ?

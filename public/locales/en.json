@@ -1,4 +1,26 @@
 {
+  "setup": {
+    "title": "Initial setup",
+    "intro": "Configure the first administrator, email delivery and automatic backups.",
+    "admin": "Administrator account",
+    "smtp": "Email delivery (SMTP)",
+    "smtpEnable": "Enable SMTP",
+    "host": "SMTP host",
+    "port": "Port",
+    "smtpSecure": "Use implicit TLS",
+    "smtpUser": "SMTP username",
+    "smtpPassword": "SMTP password",
+    "smtpFrom": "Sender",
+    "backup": "Backup",
+    "backupEnable": "Enable automatic backups",
+    "backupPassword": "Backup password (at least 12 characters)",
+    "interval": "Interval in hours",
+    "retention": "Number of backups to retain",
+    "includeFiles": "Include images in backups",
+    "acceptTerms": "I accept the terms of use, version {version}.",
+    "complete": "Complete setup",
+    "passwordMismatch": "The passwords do not match."
+  },
   "notifications": {
     "title": "Notifications",
     "shortTitle": "Alerts",

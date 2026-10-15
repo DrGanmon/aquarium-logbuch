@@ -1,4 +1,26 @@
 {
+  "setup": {
+    "title": "Ersteinrichtung",
+    "intro": "Richte den ersten Administrator, den E-Mail-Versand und automatische Sicherungen ein.",
+    "admin": "Administrator-Konto",
+    "smtp": "E-Mail-Versand (SMTP)",
+    "smtpEnable": "SMTP aktivieren",
+    "host": "SMTP-Host",
+    "port": "Port",
+    "smtpSecure": "Direktes TLS verwenden",
+    "smtpUser": "SMTP-Benutzer",
+    "smtpPassword": "SMTP-Passwort",
+    "smtpFrom": "Absender",
+    "backup": "Datensicherung",
+    "backupEnable": "Automatische Backups aktivieren",
+    "backupPassword": "Backup-Passwort (mindestens 12 Zeichen)",
+    "interval": "Intervall in Stunden",
+    "retention": "Anzahl aufzubewahrender Backups",
+    "includeFiles": "Bilder in Backups einschließen",
+    "acceptTerms": "Ich akzeptiere die AGB in Version {version}.",
+    "complete": "Einrichtung abschließen",
+    "passwordMismatch": "Die Passwörter stimmen nicht überein."
+  },
   "notifications": {
     "title": "Benachrichtigungen",
     "shortTitle": "Hinweise",

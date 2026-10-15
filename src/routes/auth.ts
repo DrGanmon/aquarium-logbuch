@@ -10,7 +10,6 @@ const {
   ALLOW_REGISTRATION,
   OIDC_ENABLED,
   OIDC_PROVIDER_NAME,
-  isEmailAdmin,
   APP_URL,
   DEFAULT_AI_PROVIDER,
   OPENAI_API_KEY,
@@ -19,6 +18,7 @@ const {
   GEMINI_MODEL,
   CLAUDE_API_KEY,
   CLAUDE_MODEL,
+  isEmailAdmin,
 } = require('../config/env');
 import oidc_serviceModule = require('../services/oidc-service');
 const { oidc } = oidc_serviceModule;
@@ -62,7 +62,7 @@ function serializeMe(u?: any) {
     }
   }
   const regConfig = registrationService.getConfig();
-  const isAdmin = Boolean(u.email_verified) && isEmailAdmin(u.email);
+  const isAdmin = Boolean(u.is_admin);
 
   const storedOpenaiKey = (u.openai_api_key || '').trim();
   const storedGeminiKey = (u.gemini_api_key || '').trim();
@@ -200,7 +200,7 @@ router.post(
     }
 
     const inviter = invitation?.created_by ? await db.users.findById(invitation.created_by) : null;
-    const trustedInvite = inviter && inviter.email_verified && isEmailAdmin(inviter.email);
+    const trustedInvite = inviter && Boolean(inviter.is_admin);
     const isMailInviteVerified = trustedInvite && invitation && invitation.type === 'mail' && invitation.email && invitation.email.toLowerCase() === email.toLowerCase();
     const emailVerified = isMailInviteVerified ? 1 : 0;
     let verifyToken = null;
@@ -223,6 +223,7 @@ router.post(
       password_hash: passwordHash,
       email,
       email_verified: emailVerified,
+      is_admin: emailVerified && isEmailAdmin(email) ? 1 : 0,
       email_verify_token: verifyToken,
       email_verify_expires: verifyExpires,
       language, terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString(),
@@ -1129,6 +1130,7 @@ router.all(
       email_verified: 1,
       email_verify_token: null,
       email_verify_expires: null,
+      ...(isEmailAdmin(user.email) ? { is_admin: 1 } : {}),
     }, { email_verify_token: token, email: user.email });
     if (!verified) return res.status(400).json({ error: 'Bestätigungslink bereits verwendet oder ersetzt.' });
     res.json({
@@ -1257,7 +1259,7 @@ router.post(
       return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
     }
 
-    if (isEmailAdmin(user.email)) {
+    if (user.is_admin) {
       return res.status(400).json({ error: 'Der Administrator-Account kann nicht über die Profil-Löschung entfernt werden.' });
     }
 
@@ -1323,7 +1325,7 @@ router.all(
       return res.status(400).json({ error: 'Dieser Bestätigungslink ist abgelaufen. Bitte fordere einen neuen an.' });
     }
 
-    if (isEmailAdmin(user.email)) {
+    if (user.is_admin) {
       return res.status(400).json({ error: 'Der Administrator-Account kann nicht gelöscht werden.' });
     }
 

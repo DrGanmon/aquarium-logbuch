@@ -204,9 +204,9 @@ test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (
       const rawDb = mongoAdapter.getRawDb();
 
       // 1. Schema-Version prüfen
-      assert.equal(mongoAdapter.getSchemaVersion(), 9, 'MongoAdapter muss Schema-Version 9 melden');
+      assert.equal(mongoAdapter.getSchemaVersion(), 10, 'MongoAdapter muss Schema-Version 10 melden');
       const v = await migrator.getCurrentVersionMongo(rawDb);
-      assert.equal(v, 9, 'migrator.getCurrentVersionMongo muss Version 9 zurückgeben');
+      assert.equal(v, 10, 'migrator.getCurrentVersionMongo muss Version 10 zurückgeben');
 
       // 2. Testen, dass Dosierpumpen auf Mongo einwandfrei funktionieren
       const testAqId = 99999;
@@ -247,7 +247,7 @@ test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (
       // Führe Migrationen auf MongoDB explizit aus (v0 -> v1)
       const mongoMigRes = await migrator.runMigrationsMongo(rawDb, { adapter: mongoAdapter });
       assert.equal(mongoMigRes.previousVersion, 0);
-      assert.equal(mongoMigRes.currentVersion, 9);
+      assert.equal(mongoMigRes.currentVersion, 10);
 
       // Verifiziere, dass alle Dokumente in MongoDB nun die erforderlichen Felder besitzen
       const legacyUserDoc = await rawDb.collection('users').findOne({ id: 888 });
@@ -334,9 +334,9 @@ test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (
     // 2. Migrationen ausführen (Default: v0 -> v1 aus src/db/migrations/001_dosing_pumps.js)
     const runRes = await migrator.runMigrations(rawDb);
     assert.equal(runRes.previousVersion, 0);
-    assert.equal(runRes.currentVersion, 9);
-    assert.equal(runRes.latestVersion, 9);
-    assert.equal(runRes.applied.length, 9);
+    assert.equal(runRes.currentVersion, 10);
+    assert.equal(runRes.latestVersion, 10);
+    assert.equal(runRes.applied.length, 10);
     assert.equal(runRes.applied[0].version, 1);
     assert.equal(runRes.applied[0].name, '001_dosing_pumps');
     assert.equal(runRes.applied[1].name, '002_test_inventory');
@@ -345,7 +345,7 @@ test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (
     assert.ok(rawDb.prepare('PRAGMA table_info(users)').all().some(column => column.name === 'test_inventory'));
 
     // Versionsnummer nach Migration prüfen
-    assert.equal(migrator.getCurrentVersion(rawDb), 9);
+    assert.equal(migrator.getCurrentVersion(rawDb), 10);
     const verRow = rawDb.prepare('SELECT version, name, applied_at FROM schema_version WHERE version = 1').get();
     assert.ok(verRow, 'schema_version Tabelle muss Version 1 enthalten');
     assert.equal(verRow.version, 1);
@@ -353,8 +353,8 @@ test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (
 
     // 3. Erneuter Start: Version vergleichen und nichts erneut ausführen
     const runResAgain = await migrator.runMigrations(rawDb);
-    assert.equal(runResAgain.previousVersion, 9);
-    assert.equal(runResAgain.currentVersion, 9);
+    assert.equal(runResAgain.previousVersion, 10);
+    assert.equal(runResAgain.currentVersion, 10);
     assert.equal(runResAgain.applied.length, 0, 'Bereits migrierte Versionen dürfen nicht erneut ausgeführt werden');
 
     rawDb.close();
@@ -362,7 +362,7 @@ test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (
     // 4. SqliteAdapter Schema-Version-Methode und Bestandsdatenmigration testen
     const adapter = new SqliteAdapter({ dbPath: migDbPath, dataDir: tmpDir });
     await adapter.init();
-    assert.equal(adapter.getSchemaVersion(), 9, 'Adapter muss aktuelle Schema-Version 9 melden');
+    assert.equal(adapter.getSchemaVersion(), 10, 'Adapter muss aktuelle Schema-Version 10 melden');
     await adapter.close();
 
     // 5. Test mit Altdatenbank auf v0 mit Bestandsdaten (Dünge-Logs und Aquarien), die auf v1 migriert werden
@@ -382,7 +382,7 @@ test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (
     // Führe Migration auf v1 aus
     const bestandMigRes = await migrator.runMigrations(bestandDb);
     assert.equal(bestandMigRes.previousVersion, 0);
-    assert.equal(bestandMigRes.currentVersion, 9);
+    assert.equal(bestandMigRes.currentVersion, 10);
 
     // Prüfe Bestandsdatenmigration
     const updatedUser = bestandDb.prepare('SELECT language FROM users WHERE id = 1').get();
@@ -502,7 +502,7 @@ test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (
 
     // Führe Migration aus mit speziellem backupsDir
     const migRes = await migrator.runMigrations(db, { backupsDir });
-    assert.equal(migRes.currentVersion, 9);
+    assert.equal(migRes.currentVersion, 10);
     assert.ok(migRes.backup, 'Ein Backup-Objekt muss bei Migrationen zurückgegeben werden');
     assert.ok(fs.existsSync(migRes.backup.fullPath), 'Die Backup-Datei muss existieren');
     assert.match(migRes.backup.filename, /^aquarium-auto-backup-pre-migration-v0-/);
@@ -544,7 +544,7 @@ test('Database Migrations & Backward Compatibility', { timeout: 60000 }, async (
 
       // Migration ausführen mit benutzerdefiniertem backupsDir
       const migRes = await migrator.runMigrationsMongo(rawDb, { backupsDir: mongoBackupDir, adapter: mongoAdapter });
-      assert.equal(migRes.currentVersion, 9);
+      assert.equal(migRes.currentVersion, 10);
       assert.ok(migRes.backup, 'Backup-Objekt muss bei Mongo-Migration vorhanden sein');
       assert.ok(fs.existsSync(migRes.backup.fullPath), 'Mongo-Backup-Datei muss existieren');
 

@@ -73,7 +73,7 @@ for (const backend of ['sqlite', 'mongodb']) {
     assert.equal((await env.request('/api/social/posts')).data.posts.length, 0);
     const { saveSocialImage } = require('../dist/backend/src/services/social-image-service');
     await assert.rejects(saveSocialImage('data:image/png;base64,' + Buffer.alloc(10 * 1024 * 1024 + 1).toString('base64')), error => error.status === 400);
-    assert.equal(db.type === 'sqlite' ? db.getSchemaVersion() : await db.getSchemaVersion(), 9);
+    assert.equal(db.type === 'sqlite' ? db.getSchemaVersion() : await db.getSchemaVersion(), 10);
   });
 }
 

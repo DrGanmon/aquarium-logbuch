@@ -8922,6 +8922,58 @@
         }
       }
     },
+    "/api/setup/status": {
+      "get": {
+        "tags": ["Ersteinrichtung"],
+        "summary": "Status der Ersteinrichtung abrufen",
+        "operationId": "get_api_setup_status",
+        "description": "Öffentlich aufrufbar. required ist ausschließlich wahr, solange noch kein Benutzerkonto existiert.",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Einrichtungsstatus.",
+            "content": { "application/json": { "schema": { "type": "object", "properties": {
+              "required": { "type": "boolean" }, "localLogin": { "type": "boolean" }, "termsVersion": { "type": "string" }
+            }, "required": ["required", "localLogin", "termsVersion"] } } }
+          },
+          "500": { "$ref": "#/components/responses/Error500" }
+        }
+      }
+    },
+    "/api/setup/complete": {
+      "post": {
+        "tags": ["Ersteinrichtung"],
+        "summary": "Ersteinrichtung abschließen",
+        "operationId": "post_api_setup_complete",
+        "description": "Nur ohne vorhandene Benutzer und bei aktivem lokalen Login verfügbar. Erstellt den ersten Datenbank-Administrator, speichert SMTP- und Backup-Konfiguration und startet eine Sitzung.",
+        "security": [],
+        "parameters": [{ "$ref": "#/components/parameters/RequestedWith" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": {
+          "type": "object",
+          "properties": {
+            "username": { "type": "string", "minLength": 3, "maxLength": 40 },
+            "email": { "type": "string", "format": "email" },
+            "password": { "type": "string", "format": "password", "minLength": 8, "maxLength": 200, "writeOnly": true },
+            "language": { "type": "string", "enum": ["de", "en"] },
+            "acceptTerms": { "type": "boolean", "enum": [true] },
+            "termsVersion": { "type": "string" },
+            "smtp": { "$ref": "#/components/schemas/MailConfigInput" },
+            "backup": { "$ref": "#/components/schemas/BackupConfigInput" }
+          },
+          "required": ["username", "email", "password", "acceptTerms", "termsVersion", "smtp", "backup"],
+          "additionalProperties": false
+        } } } },
+        "responses": {
+          "201": { "description": "Ersteinrichtung abgeschlossen; Sitzungscookie gesetzt.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Ok" } } } },
+          "400": { "$ref": "#/components/responses/Error400" },
+          "403": { "$ref": "#/components/responses/Error403" },
+          "409": { "$ref": "#/components/responses/Error409" },
+          "415": { "$ref": "#/components/responses/Error415" },
+          "500": { "$ref": "#/components/responses/Error500" }
+        }
+      }
+    },
     "/api/registration": {
       "get": {
         "tags": [

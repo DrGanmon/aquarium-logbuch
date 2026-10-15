@@ -2,8 +2,6 @@ import type { Aquarium, AccessRole, SessionUser } from '../types/domain';
 import { asError } from '../utils/app-error';
 import type { Request, Response, NextFunction } from 'express';
 import db = require('../db');
-import envModule = require('../config/env');
-const { isEmailAdmin } = envModule;
 import cryptoModule = require('../utils/crypto');
 const { sha } = cryptoModule;
 import cookiesModule = require('../utils/cookies');
@@ -22,7 +20,7 @@ async function auth(req: Request, res: Response, next: NextFunction) {
       username: row.username,
       email: row.email || null,
       language: row.language || 'de',
-      isAdmin: Boolean(row.email_verified) && isEmailAdmin(row.email),
+      isAdmin: Boolean(row.is_admin),
     };
     next();
   } catch (caught: unknown) {

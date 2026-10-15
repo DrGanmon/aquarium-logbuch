@@ -490,7 +490,7 @@ class MongoAdapter {
         password_reset_token = null,
         password_reset_expires = null,
         language = 'de',
-        terms_version = null, terms_accepted_at = null,
+        terms_version = null, terms_accepted_at = null, is_admin = 0,
       }: any) {
         const id = await self.getNextSequence('users');
         const doc: Record<string, any> = {
@@ -508,6 +508,7 @@ class MongoAdapter {
           default_graph_range: null,
           oidc_sub: oidc_sub || null,
           email_verified: email_verified ? 1 : 0,
+          is_admin: is_admin ? 1 : 0,
           email_verify_token: email_verify_token || null,
           email_verify_expires: email_verify_expires || null,
           password_reset_token: password_reset_token || null,
@@ -523,7 +524,7 @@ class MongoAdapter {
           created_at: new Date().toISOString(),
         };
         await db.collection('users').insertOne(doc);
-        return { id, username, email, oidc_sub, email_verified: email_verified ? 1 : 0, language: doc.language, terms_version, terms_accepted_at };
+        return { id, username, email, oidc_sub, email_verified: email_verified ? 1 : 0, is_admin: is_admin ? 1 : 0, language: doc.language, terms_version, terms_accepted_at };
       },
       async mutateTestInventory(id?: any, mutate?: any) {
         const users = db.collection<UserRecord & { _id?: number }>('users');
@@ -571,13 +572,13 @@ class MongoAdapter {
           'claude_api_key',
           'claude_model',
           'ai_provider',
-          'language', 'terms_version', 'terms_accepted_at',
+          'language', 'terms_version', 'terms_accepted_at', 'is_admin',
         ];
 
         for (const k of allowed) {
           if (fields[k as keyof UserRecord] !== undefined) {
             let val = fields[k as keyof UserRecord];
-            if (k === 'email_verified') val = val ? 1 : 0;
+            if (k === 'email_verified' || k === 'is_admin') val = val ? 1 : 0;
             updateFields[k] = val;
           }
         }
@@ -626,6 +627,7 @@ class MongoAdapter {
           oidc_sub: u.oidc_sub || null,
           password_hash: u.password_hash || '',
           email_verified: u.email_verified !== undefined ? u.email_verified : 1,
+          is_admin: u.is_admin || false,
           created_at: u.created_at,
           aquarium_count: countMap.get(u.id) || 0,
         }));
@@ -668,6 +670,7 @@ class MongoAdapter {
           username: u.username,
           email: u.email,
           email_verified: u.email_verified,
+          is_admin: u.is_admin || false,
           language: u.language || 'de',
         };
       },

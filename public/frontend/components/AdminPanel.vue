@@ -133,6 +133,7 @@ const userFields = computed<Field[]>(() => [
   { key: "password", label: t("auth.password"), type: "password" },
   { key: "oidcSub", label: "OIDC Sub" },
   { key: "emailVerified", label: "E-Mail bestätigt", type: "checkbox" },
+  { key: "isAdmin", label: "Administrator", type: "checkbox" },
 ]);
 const fields = computed<Field[]>(() =>
   tab.value === "mail"
@@ -309,6 +310,7 @@ function editUser(user: AdminUser | null) {
     password: "",
     oidcSub: "",
     emailVerified: true,
+    isAdmin: false,
     ...user,
   });
 }

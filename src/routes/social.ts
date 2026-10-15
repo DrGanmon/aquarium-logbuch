@@ -6,8 +6,6 @@ import source0 = require('../utils/cookies');
 const { parseCookies } = source0;
 import source1 = require('../utils/crypto');
 const { sha } = source1;
-import source2 = require('../config/env');
-const { isEmailAdmin } = source2;
 import { TERMS_VERSION } from '../services/terms-service';
 import { AppError } from '../utils/app-error';
 const wrap = (handler: RequestHandler): RequestHandler => async (req, res, next) => {
@@ -36,7 +34,7 @@ const viewer = async (req: Request, _res: Response, next: NextFunction) => {
     const token = parseCookies(req).session;
     const session = token ? await db.sessions.find(sha(token)) : null;
     if (session && session.expires_at > Date.now()) req.user = { id: session.user_id, username: session.username, email: session.email || null,
-      language: session.language || 'de', isAdmin: Boolean(session.email_verified) && isEmailAdmin(session.email) };
+      language: session.language || 'de', isAdmin: Boolean(session.is_admin) };
     next();
   } catch (error) { next(error); }
 };

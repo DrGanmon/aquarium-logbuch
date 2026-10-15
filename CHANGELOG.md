@@ -6,6 +6,7 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
+- Administratorrechte als Datenbankrolle für mehrere Benutzer verwalten, bisherige bestätigte `ADMIN_EMAIL`-Konten migrieren und einen zweisprachigen, nur bei leerer Installation verfügbaren Setup-Wizard für erstes Admin-Konto, SMTP und automatische Backups ergänzen. Benutzerverwaltung, Sitzungen, Dokumentation und Regressionstests anpassen.
 - Gemeinsamen zweisprachigen Benachrichtigungsbereich mit Kopfzeilenzähler ergänzen: Likes und Kommentare zu eigenen Social-Beiträgen persistent melden, als gelesen markieren und offene Wasserwertwarnungen aus allen zugänglichen Becken anzeigen und quittieren. SQLite-/MongoDB-Migration, Backup/Restore, API-Dokumentation und Regressionstests ergänzen.
 - Vier neue, vollständig deutsch und englisch verfügbare Wassertest-Suiten für Amtra PRO TEST, sera aqua-test box, sera Einzeltests und Tetra Test integrieren und ihre Lokalisierung mit einem Regressionstest absichern.
 - MongoDB-Compose beim authentifizierten Replica-Set-Start ein persistentes Keyfile mit restriktiven Dateirechten erzeugen lassen und die Betriebsanforderung dokumentieren.

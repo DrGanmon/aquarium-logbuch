@@ -2,9 +2,9 @@ import type { Aquarium, AccessRole, SessionUser, UserRecord, StockRecord, Dosing
 import type { InventoryRepository } from './inventory';
 export type RepositoryContract<Base, Contract> = Omit<Base, keyof Contract> & Contract;
 export interface UserQueries extends InventoryRepository {
-  create(input: Pick<UserRecord, 'username'> & Partial<Omit<UserRecord, 'id' | 'created_at'>>): Promise<Pick<UserRecord, 'id' | 'username' | 'email' | 'oidc_sub' | 'email_verified' | 'language'>>;
+  create(input: Pick<UserRecord, 'username'> & Partial<Omit<UserRecord, 'id' | 'created_at'>>): Promise<Pick<UserRecord, 'id' | 'username' | 'email' | 'oidc_sub' | 'email_verified' | 'is_admin' | 'language'>>;
   update(id: number, fields: Partial<Omit<UserRecord, 'id' | 'created_at'>>, expected?: Partial<UserRecord>): Promise<boolean>;
-  listForAdmin(): Promise<Pick<UserRecord, 'id' | 'username' | 'email' | 'oidc_sub' | 'password_hash' | 'created_at' | 'email_verified'>[]>;
+  listForAdmin(): Promise<Pick<UserRecord, 'id' | 'username' | 'email' | 'oidc_sub' | 'password_hash' | 'created_at' | 'email_verified' | 'is_admin'>[]>;
   findById(id: number): Promise<UserRecord | null>;
   findByUsername(username: string, excludeId?: number | null): Promise<UserRecord | null>;
   findByEmail(email: string, excludeId?: number | null): Promise<UserRecord | null>;

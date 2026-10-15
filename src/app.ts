@@ -23,6 +23,7 @@ import socialRoutes = require('./routes/social');
 import notificationRoutes = require('./routes/notifications');
 import healthRoutes = require('./routes/health');
 import metricsRoutes = require('./routes/metrics');
+import setupRoutes = require('./routes/setup');
 
 const app = express();
 app.disable('x-powered-by');
@@ -67,6 +68,7 @@ app.use('/api', (req, res, next) => {
 
 // API Routen
 app.use('/api', authRoutes);
+app.use('/api/setup', setupRoutes);
 app.use('/api', configRoutes);
 app.use('/api/shares', shareRoutes);
 app.use('/api/aquariums', aquariumRoutes);

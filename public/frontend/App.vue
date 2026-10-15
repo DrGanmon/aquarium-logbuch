@@ -8,6 +8,7 @@ import SiteFooter from "./components/SiteFooter.vue";
 import { session, language, notification, t } from "./state";
 import { route, initialize, toggleLanguage, logout } from "./router";
 const AuthView = lazyComponent(() => import("./views/AuthView.vue"));
+const SetupView = lazyComponent(() => import("./views/SetupView.vue"));
 const AquariumList = lazyComponent(() => import("./views/AquariumList.vue"));
 const AquariumView = lazyComponent(() => import("./views/AquariumView.vue"));
 const MeasureView = lazyComponent(() => import("./views/MeasureView.vue"));
@@ -58,6 +59,7 @@ onMounted(initialize);
     <p v-if="!session.ready" class="muted" role="status">
       {{ t("common.loading") }}
     </p>
+    <SetupView v-else-if="session.setupRequired" />
     <LegalView v-else-if="legalPage" :key="legalPage" :page="legalPage" />
     <ShareView
       v-else-if="route.path === '/share/invite'"

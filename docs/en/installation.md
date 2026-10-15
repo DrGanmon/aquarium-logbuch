@@ -17,6 +17,8 @@ npm start            # Start app (default: SQLite at http://localhost:3000)
 - **Build:** `npm run build` produces an unminified development bundle; `npm run dist` produces the minified production bundle in `../../public/dist`. Both run the type check first. Chart.js is bundled as a module; Vite builds the computation worker, and the TypeScript service worker is emitted as `dist/sw.js` and served at `/sw.js`.
 - **Hosting:** Express selects the built production or development assets and supports an `APP_URL` with a subpath. A missing build returns HTTP 503 with setup instructions. `npm run build:watch` / `npm run dist:watch` rebuild on changes. Docker continues to run the production build during image creation.
 
+On first access to an empty installation, a bilingual setup wizard collects the first administrator account plus SMTP and backup settings. It is available only while no user exists. Further administrators can then be assigned in user management. During upgrades, confirmed accounts previously recognized through `ADMIN_EMAIL` are migrated once to database-backed administrator roles.
+
 ## Bun: install, build, test and start
 
 Bun **1.4.3 or newer** is supported throughout; Node is not required for this workflow:
@@ -44,7 +46,7 @@ The controller stores `rate-limits.sqlite` and `rate-limit-controller.key` with 
 
 Run the following commands from the repository root. `--project-directory .` preserves the existing Compose project name and named volume mapping. For a local Bun image build: `docker build -f docker/Dockerfile -t aquarium-logbuch:bun .`.
 
-Both Compose files use the [official container image](https://github.com/DrGanmon/aquarium-logbuch/pkgs/container/aquarium-logbuch) `ghcr.io/drganmon/aquarium-logbuch:latest`. No local build is required. Before starting, adjust the environment variables in the respective Compose file (especially `APP_URL`, `ADMIN_EMAIL`, and the MongoDB password). A template for all available environment variables is provided in [example.env](../../docker/example.env).
+Both Compose files use the [official container image](https://github.com/DrGanmon/aquarium-logbuch/pkgs/container/aquarium-logbuch) `ghcr.io/drganmon/aquarium-logbuch:latest`. No local build is required. Before starting, adjust the environment variables in the respective Compose file (especially `APP_URL` and the MongoDB password). A template for all available environment variables is provided in [example.env](../../docker/example.env).
 
 ```bash
 # Download images and start the application and MongoDB container
@@ -85,7 +87,7 @@ The GitHub workflow builds the application image for `linux/amd64` and `linux/ar
 | `OIDC_PROVIDER_NAME` | `Pocket ID` | Login button label |
 | `LOCAL_LOGIN` | auto | Local password login. Default: disabled if OIDC is configured, else enabled |
 | `OIDC_LINK_BY_USERNAME` | false | `true` links existing local accounts with matching usernames and the same provider-verified email address on first OIDC login |
-| `ADMIN_EMAIL` | (empty) | Administrator email address (comma-separated for multiple admins) |
+| `ADMIN_EMAIL` | (empty) | Upgrade compatibility only: confirmed existing accounts with these addresses are migrated once to database administrators |
 
 | `CONTACT_EMAIL` | `ADMIN_EMAIL` | Support and contact email for imprint & contact pages |
 | `IMPRINT_EMAIL` | `CONTACT_EMAIL` | Email address for statutory provider identification |
