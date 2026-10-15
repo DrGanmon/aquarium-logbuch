@@ -134,3 +134,22 @@ curl -b /tmp/aquarium-api-cookies.txt -X POST "$BASE_URL/api/admin/backups/creat
 Zur Wiederherstellung über `POST /api/admin/backups/restore-upload` ein JSON-Objekt mit `backupBase64` (Base64 der vollständigen Archivdatei) und optional `password` senden. Auch `POST /api/admin/backups/{filename}/restore` akzeptiert `{"password":"damaliges-passwort"}`. Ein falsches Passwort oder eine manipulierte Datei ergibt HTTP 400 vor Änderungen an Datenbank und Bildern. Ohne Passwort wird der lokale App-Schlüssel verwendet. Alte JSON-/gzip-Dateien bleiben importierbar.
 
 Das Format `AQLBENC1` enthält einen längenbegrenzten, authentifizierten Header, einen zufälligen Salt, IV und AES-256-GCM-Chiffretext. scrypt (N=32768, r=8, p=1) leitet den Archivschlüssel vom Passwort ab. Eine mit dem separaten App-Schlüssel verschlüsselte Kopie des Archivschlüssels ermöglicht lokale Wiederherstellung und Bildbereinigung auch nach Passwortwechseln. Das Passwort selbst wird nicht exportiert. Heruntergeladene ältere Archive behalten ihr ursprüngliches Passwort. Migrationssicherungen vor der ersten Passwortkonfiguration sind ausschließlich mit dem App-Schlüssel entschlüsselbar.
+
+## Offline-Messwerte und mehrere Geräte
+
+Die PWA speichert neue Messungen pro Benutzer in IndexedDB und überträgt sie bei geöffneter App nach Wiederherstellung der Verbindung, beim Aktivieren und regelmäßig alle 30 Sekunden. Erster Login und Laden der gewünschten Aquarien/Testkonfiguration müssen online erfolgen. Der Produktionsbuild speichert die App-Oberfläche einschließlich aller Ansichten im Service Worker; HTTPS oder localhost sind erforderlich. Bereits geladene Listen und Details stehen offline zur Verfügung. Andere Schreibvorgänge bleiben online erforderlich. Docker Compose benötigt dafür keinen zusätzlichen Dienst.
+
+Für jede neue Messung einmal eine UUID v4 erzeugen und denselben Inhalt bei Übertragungswiederholungen beibehalten:
+
+```http
+POST /api/aquariums/42/measurements
+Content-Type: application/json
+X-Requested-With: fetch
+Cookie: session=…
+
+{"operation_id":"5b758776-47d8-46b2-b4c4-f4873a80d724","operation_user_id":7,"measured_at":"2026-10-15T12:00:00.000Z","values":{"ph":7.2},"selectedTests":["jbl-pro:ph"],"note":"Offline erfasst"}
+```
+
+`operation_user_id` muss zur Sitzung gehören. Authentifizierte Antworten enthalten `X-Aquarium-User` mit der aktuellen Benutzer-ID; die PWA prüft diese vor dem Speichern geladener Daten, damit ein Kontowechsel in einem anderen Tab keine fremden Daten im lokalen Benutzerbestand ablegt. Eine Wiederholung liefert HTTP 200 mit derselben Messungs-ID und den ursprünglichen Alarmen, ohne weitere Messung, Alarme oder Reagenzverbrauch zu erzeugen. Abweichender Inhalt bei gleicher Operations-ID liefert 409. Zwei Geräte mit verschiedenen UUIDs erzeugen zwei Messungen; gleiche Messwerte werden nicht automatisch gelöscht oder zusammengeführt. Wiederholungsbelege bleiben nach dem Löschen einer Messung erhalten und sind Bestandteil neuer Backups. Alte Backups besitzen diese Belege nicht.
+
+Bei abgelaufener Anmeldung pausiert die Übertragung; lokale Eingaben bleiben erhalten und sind nach erneuter Anmeldung desselben Benutzers erreichbar. Abmelden entfernt die aktive Offline-Identität, behält aber offene Eingaben kontogetrennt. Lokale Daten liegen im Browserprofil; Browserdaten-Löschen, Speicherverlust oder Geräteverlust können noch nicht synchronisierte Daten entfernen. Berechtigungsentzug wird beim nächsten Serverkontakt durchgesetzt. Synchronisierung bei geschlossener App ist nicht garantiert. Es gibt noch keine Offline-Bearbeitung oder -Löschung bestehender Messungen und keine automatische Erkennung unabhängig erfasster Duplikate.

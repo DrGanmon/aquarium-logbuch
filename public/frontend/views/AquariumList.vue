@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { lazyComponent } from "../composables/lazy-component";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onBeforeUnmount, ref, watch } from "vue";
 import { api } from "../api";
 import { t, session, fmtDate, errorMessage, language } from "../state";
 import type { Aquarium, Share, Id } from "../types";
@@ -16,7 +16,11 @@ const shared = computed(() => list.value.filter((a) => a.role !== "owner"));
 const shown = computed(() => (tab.value === "own" ? own.value : shared.value));
 watch(tab, (value) => localStorage.setItem("aquarium_list_tab", value));
 watch(language, load);
-onMounted(load);
+onMounted(() => {
+  void load();
+  window.addEventListener('aquarium-synchronized', load);
+});
+onBeforeUnmount(() => window.removeEventListener('aquarium-synchronized', load));
 async function load() {
   try {
     [list.value, pending.value] = await Promise.all([

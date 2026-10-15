@@ -22,6 +22,7 @@ async function auth(req: Request, res: Response, next: NextFunction) {
       language: row.language || 'de',
       isAdmin: Boolean(row.is_admin),
     };
+    res.setHeader('X-Aquarium-User', String(req.user.id));
     next();
   } catch (caught: unknown) {
     const e = asError(caught);

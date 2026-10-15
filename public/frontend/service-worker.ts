@@ -11,12 +11,25 @@ interface Timer {
   endTime: number;
   url: string;
 }
+// Build-time values include all lazy chunks so previously unopened views work offline.
+const offlineAssets: string[] = /* OFFLINE_ASSETS */ [];
+const offlineBuild: string = /* OFFLINE_BUILD */ 'dev';
+const shellPrefix = `aquarium-shell:${scope.registration.scope}:`;
+const shellCache = shellPrefix + offlineBuild;
+const shellUrls = new Set(offlineAssets.map(asset => new URL(asset, scope.registration.scope).href));
 const activeTimers = new Map<string, ReturnType<typeof setTimeout>>();
-scope.addEventListener("install", () => {
-  void scope.skipWaiting();
+scope.addEventListener("install", (event) => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(shellCache);
+    await cache.addAll([...shellUrls].map(url => new Request(url, { cache: 'reload' })));
+    await scope.skipWaiting();
+  })());
 });
 scope.addEventListener("activate", (event) => {
-  event.waitUntil(scope.clients.claim());
+  event.waitUntil((async () => {
+    for (const name of await caches.keys()) if (name.startsWith(shellPrefix) && name !== shellCache) await caches.delete(name);
+    await scope.clients.claim();
+  })());
 });
 scope.addEventListener("message", (event: ExtendableMessageEvent) => {
   const data = event.data as Timer;
@@ -69,4 +82,20 @@ scope.addEventListener("notificationclick", (event) => {
       }
     })(),
   );
+});
+
+// User data is stored separately in IndexedDB, never in the shared shell cache.
+scope.addEventListener('fetch', (event) => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  if (url.origin !== scope.location.origin) return;
+  if (request.mode === 'navigate' && (url.pathname === new URL('./', scope.registration.scope).pathname || url.pathname === new URL('index.html', scope.registration.scope).pathname)) {
+    event.respondWith(fetch(request).catch(async () => {
+      const cached = await (await caches.open(shellCache)).match(scope.registration.scope);
+      return cached || Response.error();
+    }));
+  } else if (shellUrls.has(url.href)) {
+    event.respondWith((async () => (await (await caches.open(shellCache)).match(request)) || fetch(request))());
+  }
 });

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { lazyComponent } from "./composables/lazy-component";
 import { computed, onMounted } from "vue";
+import OfflineStatus from "./components/OfflineStatus.vue";
 import FrontendUpdate from "./components/FrontendUpdate.vue";
 import TermsConsent from "./components/TermsConsent.vue";
 import Topbar from "./components/Topbar.vue";
@@ -56,6 +57,7 @@ onMounted(initialize);
     @logout="logout"
   />
   <main id="app" tabindex="-1">
+    <OfflineStatus v-if="session.user" />
     <p v-if="!session.ready" class="muted" role="status">
       {{ t("common.loading") }}
     </p>

@@ -677,6 +677,13 @@ router.post(
   auth,
   writeAquarium,
   wrap(async (req: Request, res: Response) => {
+    const operationId = req.body.operation_id;
+    if (operationId !== undefined && (typeof operationId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(operationId) || !req.body.measured_at)) {
+      return res.status(400).json({ error: 'operation_id muss eine UUID v4 sein und benötigt measured_at.' });
+    }
+    if (operationId && req.body.operation_user_id !== req.user.id) {
+      return res.status(403).json({ error: 'Die Offline-Messung gehört zu einer anderen Benutzersitzung.' });
+    }
     const values = req.body.values && typeof req.body.values === 'object' ? req.body.values : {};
     const selection = req.body.selectedTests;
     if (selection !== undefined && !cfg.suiteService.validateSelection(selection, req.body.suiteId)) {
@@ -720,18 +727,29 @@ router.post(
       }
     }
 
-    const info = await db.measurements.create({
-      aquarium_id: req.aq.id,
-      measured_at: iso,
-      note: str(req.body.note, 500),
-      created_by: req.user.id,
-      values: cleanValues,
-      alerts: alertsToCreate,
-      suite_id: req.body.suiteId || null,
-      test_selection: selection,
-    });
-
-    res.json({ id: info.id, alerts: alertsToCreate });
+    let info;
+    try {
+      info = await db.measurements.create({
+        aquarium_id: req.aq.id,
+        measured_at: iso,
+        note: str(req.body.note, 500),
+        created_by: req.user.id,
+        values: cleanValues,
+        alerts: alertsToCreate,
+        suite_id: req.body.suiteId || null,
+        test_selection: selection,
+        operation_key: operationId ? `${req.user.id}:${operationId.toLowerCase()}` : null,
+        request_hash: operationId ? crypto.createHash('sha256').update(JSON.stringify({
+          aquarium_id: req.aq.id, measured_at: iso, note: str(req.body.note, 500),
+          values: Object.fromEntries(Object.entries(cleanValues).sort(([a], [b]) => a.localeCompare(b))),
+          suite_id: req.body.suiteId || null, selection: selection ? [...selection].sort() : null,
+        })).digest('hex') : null,
+      });
+    } catch (error) {
+      if ((error as { status?: number }).status === 409) return res.status(409).json({ error: (error as Error).message });
+      throw error;
+    }
+    res.json({ id: info.id, alerts: info.alerts ?? alertsToCreate });
   })
 );
 

@@ -996,7 +996,6 @@
     "existingNotice": "Please accept the current terms to continue using the application. Your consent is saved for your account.",
     "confirm": "Accept terms",
     "signOut": "Sign out",
-
     "title": "Terms of use",
     "version": "Version",
     "required": "Please accept the current terms.",
@@ -1085,5 +1084,17 @@
     "saved": "Fertilizer saved.",
     "name": "Name",
     "nameExample": "e.g. Iron fertilizer"
+  },
+  "offline": {
+    "signIn": "Please sign in again.",
+    "accountChanged": "The signed-in account has changed. Please sign in again.",
+    "offline": "Offline · Showing locally saved data.",
+    "pending": "{{count}} measurements waiting to sync.",
+    "entries": "Locally saved measurements",
+    "aquarium": "Aquarium",
+    "discard": "Discard local entry",
+    "discardConfirm": "Permanently remove this local entry? A measurement already saved on the server will remain.",
+    "sync": "Sync now",
+    "saved": "Measurement saved locally. It will sync when connected."
   }
 }

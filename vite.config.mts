@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { readFileSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import ts from "typescript";
+import { createHash } from "node:crypto";
 import versioning from "./scripts/version.js";
 
 const publicRoot = fileURLToPath(new URL("./public", import.meta.url));
@@ -50,30 +51,37 @@ export default defineConfig(({ mode }) => {
               });
           }
         },
-        generateBundle() {
-          this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify({ version: appVersion }) + "\n" });
-          const source = readFileSync(
-            join(publicRoot, "frontend/service-worker.ts"),
-            "utf8",
-          );
-          const result = ts.transpileModule(source, {
-            compilerOptions: {
-              target: ts.ScriptTarget.ES2022,
-              module: ts.ModuleKind.ESNext,
-              sourceMap: true,
-            },
-            fileName: "sw.ts",
-          });
-          this.emitFile({
-            type: "asset",
-            fileName: "sw.js",
-            source: result.outputText.replace(/export \{};?\s*/g, ""),
-          });
-          this.emitFile({
-            type: "asset",
-            fileName: "sw.js.map",
-            source: result.sourceMapText || "",
-          });
+        generateBundle: {
+          order: "post",
+          handler(_options, bundle) {
+            this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify({ version: appVersion }) + "\n" });
+            const workerSource = readFileSync(
+              join(publicRoot, "frontend/service-worker.ts"),
+              "utf8",
+            );
+            const assets = Object.keys(bundle).filter(name => /\.(js|css)$/.test(name)).map(name => `dist/${name}`);
+            const buildId = createHash('sha256').update(Object.values(bundle).map(item => item.type === 'chunk' ? item.code : String(item.source)).join('')).digest('hex').slice(0, 16);
+            const source = workerSource.replace('/* OFFLINE_ASSETS */ []', JSON.stringify(['./', 'manifest.json', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', ...assets]))
+              .replace("/* OFFLINE_BUILD */ 'dev'", JSON.stringify(buildId));
+            const result = ts.transpileModule(source, {
+              compilerOptions: {
+                target: ts.ScriptTarget.ES2022,
+                module: ts.ModuleKind.ESNext,
+                sourceMap: true,
+              },
+              fileName: "sw.ts",
+            });
+            this.emitFile({
+              type: "asset",
+              fileName: "sw.js",
+              source: result.outputText.replace(/export \{};?\s*/g, ""),
+            });
+            this.emitFile({
+              type: "asset",
+              fileName: "sw.js.map",
+              source: result.sourceMapText || "",
+            });
+          },
         },
       },
     ],

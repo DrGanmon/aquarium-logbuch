@@ -100,7 +100,18 @@ const logBusy = computed(() => timeline.loading.value || moreLoading.value);
 const resources = [gallery, history, residents, plantsResource, pumpsResource, timeline];
 let detailController: AbortController | undefined;
 onBeforeUnmount(() => { detailController?.abort(); paginationController?.abort(); });
-onMounted(load);
+onMounted(() => {
+  void load();
+  window.addEventListener('aquarium-synchronized', load);
+  window.addEventListener('online', load);
+  document.addEventListener('visibilitychange', refreshVisible);
+});
+function refreshVisible() { if (document.visibilityState === 'visible') void load(); }
+onBeforeUnmount(() => {
+  window.removeEventListener('aquarium-synchronized', load);
+  window.removeEventListener('online', load);
+  document.removeEventListener('visibilitychange', refreshVisible);
+});
 watch(language, load);
 watch([range, from, to], () => {
   localStorage.setItem("aquarium_graph_range", range.value);

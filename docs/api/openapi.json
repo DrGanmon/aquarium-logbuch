@@ -3,7 +3,7 @@
   "info": {
     "title": "Aquarium-Logbuch API",
     "version": "0.1.12-ALPHA",
-    "description": "API-Dokumentation des Repository-Standes vom 15.10.2026. Sitzung über HttpOnly-Cookie session; schreibende /api-Anfragen brauchen X-Requested-With und bei Body application/json. JSON-Objekte, keine Multipart-Uploads. Die Server-URL umfasst den APP_URL-Unterpfad, aber nicht /api. Vor Abschluss einer erforderlichen Ersteinrichtung antworten alle /api- und /auth-Endpunkte außer Setup und Healthcheck mit HTTP 428 und SETUP_REQUIRED. Dynamische /api-, /auth- und /metrics-Anfragen können während einer gemeinsamen Backup-/Restore-Wartung vorübergehend HTTP 503 erhalten. Erweiterbare Antwortschemata enthalten die dokumentierten Kernfelder; zusätzliche Katalog- und Anbieterfelder bleiben erlaubt. Persönliche KI-Schlüssel werden vor der Speicherung verschlüsselt; Profile zeigen nur die ersten und letzten vier Zeichen. Datenbankschema 10 ergänzt Datenbank-Administratoren."
+    "description": "API-Dokumentation des Repository-Standes vom 15.10.2026. Sitzung über HttpOnly-Cookie session; schreibende /api-Anfragen brauchen X-Requested-With und bei Body application/json. JSON-Objekte, keine Multipart-Uploads. Die Server-URL umfasst den APP_URL-Unterpfad, aber nicht /api. Vor Abschluss einer erforderlichen Ersteinrichtung antworten alle /api- und /auth-Endpunkte außer Setup und Healthcheck mit HTTP 428 und SETUP_REQUIRED. Dynamische /api-, /auth- und /metrics-Anfragen können während einer gemeinsamen Backup-/Restore-Wartung vorübergehend HTTP 503 erhalten. Erweiterbare Antwortschemata enthalten die dokumentierten Kernfelder; zusätzliche Katalog- und Anbieterfelder bleiben erlaubt. Persönliche KI-Schlüssel werden vor der Speicherung verschlüsselt; Profile zeigen nur die ersten und letzten vier Zeichen. Datenbankschema 10 ergänzt Datenbank-Administratoren. Authentifizierte Antworten enthalten den Header X-Aquarium-User (Benutzer-ID), den Offline-Clients zur Trennung lokaler Kontodaten prüfen."
   },
   "servers": [
     {
@@ -4105,7 +4105,7 @@
         ],
         "summary": "Messungen anlegen/ausführen",
         "operationId": "post_api_aquariums_id_measurements",
-        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher. ",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher.  Optional idempotent über operation_id (UUID v4) zusammen mit measured_at und operation_user_id. Messung, Alarme, Testverbrauch und Wiederholungsbeleg werden atomar gespeichert. Wiederholungen liefern dieselbe ID und die ursprünglichen Alarme, auch nach Löschen der Messung. Unabhängige UUIDs bleiben getrennte Messungen, selbst bei gleichen Werten. 400 bei ungültiger UUID oder fehlendem Messdatum; 403 bei abweichendem operation_user_id oder fehlenden Schreibrechten; 409 bei gleicher Operations-ID mit anderem Inhalt oder Aquarium. Bestehende Validierungs-, Sitzungs- und Setup-Regeln gelten weiter.",
         "security": [
           {
             "SessionCookie": []
@@ -4162,6 +4162,24 @@
           },
           "500": {
             "$ref": "#/components/responses/Error500"
+          },
+          "409": {
+            "description": "Operations-ID wurde bereits mit anderem Messungsinhalt oder Aquarium verwendet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
           }
         },
         "x-aquarium-role": "write",
@@ -14614,6 +14632,15 @@
           "note": {
             "type": "string",
             "maxLength": 500
+          },
+          "operation_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optionale UUID v4 für idempotente Offline-Erfassung. Bei Wiederholung pro Benutzer identisch lassen; measured_at und operation_user_id sind dann erforderlich."
+          },
+          "operation_user_id": {
+            "type": "integer",
+            "description": "Bei operation_id erforderlich: ID des Benutzers, der den Eintrag offline erstellt hat. Muss zur aktuellen Sitzung gehören."
           }
         },
         "required": [

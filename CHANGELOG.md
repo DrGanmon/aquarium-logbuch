@@ -6,9 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- CI-Tests für KI-Schlüssel auf die aktuelle Schemaversion und den Produktionslayout-Test auf das verpflichtende Setup samt Freigabe nach Abschluss abstimmen; fehlenden MongoDB-Umgebungsblock in Docker Compose ergänzen.
+- Neue Messwerte offline in einer benutzergetrennten IndexedDB-Warteschlange erfassen, bereits geladene Aquariendaten offline anzeigen und die App-Oberfläche für Offline-Neustarts speichern. Bei Verbindung automatisch synchronisieren, unabhängige Geräteeinträge zusammenführen und wiederholte Übertragungen samt Alarmen und Testverbrauch in SQLite/MongoDB atomar deduplizieren. Kontowechsel absichern, offene Einträge anzeigen sowie API-Dokumentation, Backups und Regressionstests ergänzen.
 
 ## 0.2.0-ALPHA
+
+- 2026-10-15 · CI-Tests an aktuelle Migrationen und das Setup-Gate anpassen sowie Compose um den fehlenden MongoDB-Umgebungsblock ergänzen (`6319e871df9cac7301a1eca1d80f2cf06924ada9`).
 
 - 2026-10-15 · Supervisor-Start im Entwicklungsmodus nicht mehr fälschlich am Setup-Gate scheitern lassen; der echte Laufzeit-Test mit zwei Worker-Prozessen kann damit den gemeinsamen HTTP-Port sauber starten (`7cb6a8982b250cdf9d3ef4b84e3f710e13eb103f`).
 - 2026-10-15 · Minor-Version auf `0.2.0-ALPHA` erhöhen und Revision sowie Patch zurücksetzen (`461226c26e1b714aad30c357468fe331ca73df3c`).

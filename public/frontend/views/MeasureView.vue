@@ -9,6 +9,7 @@ import {
 } from "vue";
 import TestSelection from "../components/TestSelection.vue";
 import { initialTestSelection, resolveTests } from "../composables/test-selection";
+import { enqueueMeasurement } from "../offline-sync";
 import { api } from "../api";
 import { session, t, errorMessage, localDateTime, toast } from "../state";
 import type { AquariumDetail } from "../types";
@@ -113,7 +114,7 @@ function visibility() {
 }
 onMounted(async () => {
   try {
-    detail.value = await api(`/aquariums/${props.id}`, { signal: lifecycle.signal });
+    detail.value = await api(`/aquariums/${props.id}?summary=true`, { signal: lifecycle.signal });
     if (disposed) return;
     if (detail.value?.role === "view") {
       location.hash = `#/a/${props.id}`;
@@ -209,18 +210,15 @@ async function save() {
     }
     if (!Object.keys(parsed).length)
       throw new Error("Bitte mindestens einen Messwert eingeben.");
-    await api(`/aquariums/${props.id}/measurements`, {
-      method: "POST",
-      body: {
+    await enqueueMeasurement(props.id, {
         values: parsed,
         selectedTests: [...selected.value],
         measured_at: new Date(when.value).toISOString(),
         note: note.value,
-      },
     });
     Object.keys(timers).forEach(reset);
     sessionStorage.removeItem(timerKey);
-    toast(t("measure.saveSuccess"));
+    toast(t("offline.saved"));
     location.hash = `#/a/${props.id}`;
   } catch (e) {
     error.value = errorMessage(e);

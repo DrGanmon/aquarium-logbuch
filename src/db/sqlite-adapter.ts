@@ -1,3 +1,4 @@
+import { replayMeasurement } from './measurement-operation';
 import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-crypto';
 import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
 import { PlantRepository } from './plant-repository';
@@ -221,6 +222,7 @@ class SqliteAdapter {
       stock,
       aquarium_plants: safeGetAll('aquarium_plants', 'aquarium_id ASC, plant_id ASC'),
       measurements,
+      measurement_operations: safeGetAll('measurement_operations', 'operation_key ASC'),
       alerts,
       maintenance_logs,
       invitations,
@@ -267,6 +269,7 @@ class SqliteAdapter {
       db.exec('DELETE FROM alerts');
       db.exec('DELETE FROM measurement_values');
       db.exec('DELETE FROM measurements');
+      db.exec('DELETE FROM measurement_operations');
       db.exec('DELETE FROM maintenance_logs');
       db.exec('DELETE FROM aquarium_plants');
       db.exec('DELETE FROM stock');
@@ -418,6 +421,10 @@ class SqliteAdapter {
         }
       }
 
+      for (const operation of data.measurement_operations || []) {
+        db.prepare('INSERT INTO measurement_operations (operation_key, request_hash, response) VALUES (?, ?, ?)')
+          .run(operation.operation_key, operation.request_hash, operation.response);
+      }
       // Alerts
       const insertAlert = db.prepare(`
         INSERT INTO alerts (id, aquarium_id, measurement_id, param, level, value, message, created_at, acked_at)
@@ -1380,7 +1387,7 @@ class SqliteAdapter {
         for (const v of vals) values[v.param] = v.value;
         return { ...m, values };
       },
-      async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [], suite_id = null, test_selection = undefined }: any) {
+      async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [], suite_id = null, test_selection = undefined, operation_key = null, request_hash = null }: any) {
         const insertMeas = db.prepare('INSERT INTO measurements (aquarium_id, measured_at, note, created_by) VALUES (?, ?, ?, ?)');
         const insertVal = db.prepare('INSERT INTO measurement_values (measurement_id, param, value) VALUES (?, ?, ?)');
         const insertAlert = db.prepare(
@@ -1388,7 +1395,12 @@ class SqliteAdapter {
         );
 
         let measId;
+        let replay: { id: number; alerts: unknown[] } | undefined;
         const tx = db.transaction(() => {
+          if (operation_key) {
+            const receipt = db.prepare('SELECT * FROM measurement_operations WHERE operation_key = ?').get(operation_key);
+            if (receipt) { replay = replayMeasurement(receipt as { request_hash: string; response: string }, request_hash); return; }
+          }
           const info = insertMeas.run(aquarium_id, measured_at, note, created_by);
           measId = Number(info.lastInsertRowid);
           for (const [param, val] of Object.entries(values)) {
@@ -1405,11 +1417,14 @@ class SqliteAdapter {
               db.prepare('UPDATE users SET test_inventory = ? WHERE id = ?').run(JSON.stringify(inventory), created_by);
             }
           }
+          if (operation_key) db.prepare('INSERT INTO measurement_operations (operation_key, request_hash, response) VALUES (?, ?, ?)')
+            .run(operation_key, request_hash, JSON.stringify({ id: measId, alerts }));
         });
 
-        tx();
+        tx.immediate();
+        if (replay) return replay;
         if (created_by) await require('../services/test-inventory-service').checkUserReminders(self, created_by);
-        return { id: measId };
+        return { id: measId, alerts };
       },
       async delete(id?: any, aquariumId: any = null) {
         let res;

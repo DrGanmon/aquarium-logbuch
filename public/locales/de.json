@@ -996,7 +996,6 @@
     "existingNotice": "Bitte stimme den aktuellen AGB zu, um die Anwendung weiter zu nutzen. Deine Zustimmung wird für dein Konto gespeichert.",
     "confirm": "AGB zustimmen",
     "signOut": "Abmelden",
-
     "title": "Allgemeine Geschäftsbedingungen (AGB)",
     "version": "Fassung",
     "required": "Bitte die aktuellen AGB akzeptieren.",
@@ -1085,5 +1084,17 @@
     "saved": "Dünger gespeichert.",
     "name": "Name",
     "nameExample": "z. B. Eisen-Volldünger"
+  },
+  "offline": {
+    "signIn": "Bitte erneut anmelden.",
+    "accountChanged": "Die Anmeldung hat sich geändert. Bitte neu anmelden.",
+    "offline": "Offline · Angezeigt werden lokal gespeicherte Daten.",
+    "pending": "{{count}} Messungen warten auf Synchronisierung.",
+    "entries": "Lokal gespeicherte Messungen",
+    "aquarium": "Aquarium",
+    "discard": "Lokalen Eintrag verwerfen",
+    "discardConfirm": "Diesen lokalen Eintrag endgültig entfernen? Eine bereits am Server gespeicherte Messung bleibt bestehen.",
+    "sync": "Jetzt synchronisieren",
+    "saved": "Messung lokal gespeichert. Die Synchronisierung erfolgt bei bestehender Verbindung."
   }
 }

@@ -1,0 +1,55 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { randomUUID } = require('node:crypto');
+const { createTestEnvironment, createMongoTestEnvironment } = require('./helpers/env');
+
+for (const backend of ['sqlite', 'mongodb']) {
+  test(`Offline-Messwerte: parallele Geräte, Wiederholungen, Kontowechsel und Backup (${backend})`, { timeout: 90000 }, async t => {
+    const env = backend === 'mongodb' ? await createMongoTestEnvironment() : createTestEnvironment({ DB_TYPE: 'sqlite' });
+    t.after(() => env.cleanup());
+    const user = await env.createUserAndLogin('offline_owner');
+    const headers = { Cookie: user.cookie };
+    const me = (await env.request('/api/me', { headers })).data;
+    const aq = await env.request('/api/aquariums', { method: 'POST', headers, body: { name: 'Offline', volume_l: 100 } });
+    assert.equal(aq.status, 200);
+    const path = `/api/aquariums/${aq.data.id}/measurements`;
+    const body = { operation_id: randomUUID(), operation_user_id: me.id, measured_at: new Date().toISOString(), values: { ph: 6 }, selectedTests: ['jbl-pro:ph'], note: 'Handy' };
+    const post = data => env.request(path, { method: 'POST', headers, body: data });
+    assert.equal((await post({ ...body, operation_id: 'invalid' })).status, 400);
+    assert.equal((await post({ ...body, measured_at: undefined })).status, 400);
+    assert.equal((await post({ ...body, operation_user_id: undefined })).status, 403);
+    assert.equal((await post({ ...body, operation_user_id: me.id + 1 })).status, 403);
+    const inventory = async () => (await env.request('/api/me/test-inventory?suiteId=jbl-pro', { headers })).data.items.find(item => item.key === 'ph').used;
+    const before = await inventory();
+    const tablet = { ...body, operation_id: randomUUID(), note: 'Tablet' };
+    const responses = await Promise.all([post(body), post(body), post(tablet), post(body), post(tablet)]);
+    for (const response of responses) assert.equal(response.status, 200, JSON.stringify(response.data));
+    assert.deepEqual(responses[0].data, responses[1].data);
+    assert.deepEqual(responses[0].data, responses[3].data);
+    assert.deepEqual(responses[2].data, responses[4].data);
+    assert.notEqual(responses[0].data.id, responses[2].data.id);
+    let rows = (await env.request(path, { headers })).data;
+    assert.equal(rows.length, 2, 'Each independent device entry is retained');
+    assert.equal(await inventory(), before + 2, 'Retries must not consume more reagent');
+    const db = require('../dist/backend/src/db');
+    const initialAlerts = await db.alerts.listAllForAquarium(aq.data.id);
+    assert.equal(initialAlerts.length, responses[0].data.alerts.length + responses[2].data.alerts.length);
+    assert.equal((await post({ ...body, values: { ph: 7.2 } })).status, 409);
+    const aq2 = await env.request('/api/aquariums', { method: 'POST', headers, body: { name: 'Other', volume_l: 50 } });
+    assert.equal((await env.request(`/api/aquariums/${aq2.data.id}/measurements`, { method: 'POST', headers, body })).status, 409);
+    const other = await env.createUserAndLogin('offline_other');
+    assert.equal((await env.request(path, { method: 'POST', headers: { Cookie: other.cookie }, body })).status, 404);
+    const deleted = await env.request(`${path}/${responses[0].data.id}`, { method: 'DELETE', headers });
+    assert.equal(deleted.status, 200);
+    assert.deepEqual((await post(body)).data, responses[0].data);
+    rows = (await env.request(path, { headers })).data;
+    assert.equal(rows.length, 1, 'A retry must not resurrect a deleted measurement');
+    const snapshot = await db.exportAllData();
+    assert.equal(snapshot.measurement_operations.length, 2);
+    await db.importAllData(snapshot);
+    assert.deepEqual((await post(body)).data, responses[0].data, 'Receipts survive restore');
+    assert.equal((await env.request(path, { headers })).data.length, 1);
+    assert.equal(await inventory(), before + 2);
+  });
+}

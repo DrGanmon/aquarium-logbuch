@@ -1,3 +1,4 @@
+import { replayMeasurement } from './measurement-operation';
 import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-crypto';
 import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
 import { PlantRepository } from './plant-repository';
@@ -328,6 +329,7 @@ class MongoAdapter {
       stock,
       aquarium_plants: await safeGetDocs('aquarium_plants'),
       measurements,
+      measurement_operations: await safeGetDocs('measurement_operations', { operation_key: 1 }),
       alerts,
       maintenance_logs,
       invitations,
@@ -373,7 +375,7 @@ class MongoAdapter {
     await this.notifications.clear(session);
     await this.social.clear(session);
     // Collections leeren
-    for (const name of ['users', 'sessions', 'aquariums', 'aquarium_images', 'aquarium_shares', 'aquarium_plants', 'stock', 'measurements', 'alerts', 'maintenance_logs', 'invitations', 'aquarium_chats', 'dosing_pumps', 'ai_usage_metrics', 'counters']) {
+    for (const name of ['users', 'sessions', 'aquariums', 'aquarium_images', 'aquarium_shares', 'aquarium_plants', 'stock', 'measurements', 'measurement_operations', 'alerts', 'maintenance_logs', 'invitations', 'aquarium_chats', 'dosing_pumps', 'ai_usage_metrics', 'counters']) {
       await db.collection(name).deleteMany({}, sessionOptions);
     }
 
@@ -385,6 +387,7 @@ class MongoAdapter {
     if (data.aquarium_plants?.length) await db.collection('aquarium_plants').insertMany(data.aquarium_plants, sessionOptions);
     if (stock.length > 0) await db.collection('stock').insertMany(stock, sessionOptions);
     if (measurements.length > 0) await db.collection('measurements').insertMany(measurements, sessionOptions);
+    if (data.measurement_operations?.length) await db.collection('measurement_operations').insertMany(data.measurement_operations, sessionOptions);
     if (alerts.length > 0) await db.collection('alerts').insertMany(alerts, sessionOptions);
     if (maintenance.length > 0) await db.collection('maintenance_logs').insertMany(maintenance, sessionOptions);
     if (invitations.length > 0) await db.collection('invitations').insertMany(invitations, sessionOptions);
@@ -850,7 +853,7 @@ class MongoAdapter {
         for (const image of images) deleteImage(image.filename);
         for (const stock of stocks) deleteImage(stock.image_file);
         // Cascade cleanup: independent collections can be removed concurrently.
-        await Promise.all(['aquarium_images', 'aquarium_plants', 'stock', 'measurements', 'alerts', 'aquarium_shares', 'maintenance_logs', 'aquarium_chats', 'dosing_pumps']
+        await Promise.all(['aquarium_images', 'aquarium_plants', 'stock', 'measurements', 'measurement_operations', 'alerts', 'aquarium_shares', 'maintenance_logs', 'aquarium_chats', 'dosing_pumps']
           .map(collection => db.collection(collection).deleteMany({ aquarium_id: numId })));
         return true;
       },
@@ -1345,7 +1348,42 @@ class MongoAdapter {
       async findLastForAquarium(aquariumId?: any) {
         return (await db.collection<Measurement & { _id?: number }>('measurements').findOne({ aquarium_id: Number(aquariumId) }, { sort: { measured_at: -1 } })) || null;
       },
-      async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [], suite_id = null, test_selection = undefined }: any) {
+      async create({ aquarium_id, measured_at, note = null, created_by = null, values = {}, alerts = [], suite_id = null, test_selection = undefined, operation_key = null, request_hash = null }: any) {
+        if (operation_key) {
+          const operations = db.collection('measurement_operations');
+          const receipt = await operations.findOne({ operation_key });
+          if (receipt) return replayMeasurement(receipt as unknown as { request_hash: string; response: string }, request_hash);
+          const measId = await self.getNextSequence('measurements');
+          const alertDocs: Record<string, any>[] = [];
+          for (const a of alerts) {
+            const id = await self.getNextSequence('alerts');
+            alertDocs.push({ ...a, _id: id, id, aquarium_id: Number(aquarium_id), measurement_id: measId,
+              created_at: new Date().toISOString(), acked_at: null });
+          }
+          const response = { id: measId, alerts };
+          const session = self.client!.startSession();
+          try {
+            await session.withTransaction(async () => {
+              await operations.insertOne({ operation_key, request_hash, response: JSON.stringify(response) }, { session });
+              await db.collection('measurements').insertOne({ _id: measId, id: measId, aquarium_id: Number(aquarium_id),
+                measured_at, note, created_by: Number(created_by), values }, { session });
+              if (alertDocs.length) await db.collection('alerts').insertMany(alertDocs, { session });
+              const user = await db.collection<UserRecord & { _id?: number }>('users').findOne({ id: Number(created_by) }, { session });
+              if (user) {
+                const inventory = JSON.parse(user.test_inventory || '{}');
+                require('../services/test-inventory-service').applyUsage(inventory, user, values, suite_id, test_selection);
+                await db.collection('users').updateOne({ id: user.id }, { $set: { test_inventory: JSON.stringify(inventory) } }, { session });
+              }
+            });
+          } catch (error) {
+            if ((error as { code?: number }).code !== 11000) throw error;
+            const existing = await operations.findOne({ operation_key });
+            if (!existing) throw error;
+            return replayMeasurement(existing as unknown as { request_hash: string; response: string }, request_hash);
+          } finally { await session.endSession(); }
+          await require('../services/test-inventory-service').checkUserReminders(self, created_by);
+          return response;
+        }
         const measId = await self.getNextSequence('measurements');
         const doc: Record<string, any> = {
           _id: measId,
@@ -1375,7 +1413,7 @@ class MongoAdapter {
         }
 
         if (created_by) await require('../services/test-inventory-service').recordUsage(self, created_by, values, suite_id, test_selection);
-        return { id: measId };
+        return { id: measId, alerts };
       },
       async delete(id?: any, aquariumId: any = null) {
         const numId = Number(id);

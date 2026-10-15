@@ -1,3 +1,5 @@
+import { writeLocal } from './offline-store';
+import { startOfflineSync } from './offline-sync';
 import { ref, computed } from "vue";
 import { session, language, toast, errorMessage } from "./state";
 import { api, refreshSession } from "./api";
@@ -14,6 +16,7 @@ export const route = computed(() => {
   };
 });
 export async function initialize() {
+  startOfflineSync();
   try {
     const setup = await api<{ required: boolean }>("/setup/status");
     session.setupRequired = setup.required;
@@ -41,6 +44,7 @@ export async function toggleLanguage() {
 export async function logout() {
   try {
     await api("/logout", { method: "POST" });
+    await writeLocal('activeOwner', undefined);
     session.user = null;
     session.config = null;
     location.hash = "#/";
