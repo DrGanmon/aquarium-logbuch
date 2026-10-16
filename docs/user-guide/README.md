@@ -4,7 +4,7 @@ Die veröffentlichbaren Dateien liegen unter `public/handbuch/`. Der vorhandene 
 
 ## Inhalte bearbeiten
 
-1. Deutsche Texte in `chapters.json`, englische Texte in `chapters.en.json` und die Oberflächentexte beider Sprachen in `locales.json` pflegen. Kapitel-IDs, Reihenfolge, Bildzuordnungen und Anzahl der Schritte und Hinweise müssen übereinstimmen. Der Generator lehnt unvollständige Fassungen ab. Die Reihenfolge bestimmt Inhaltsverzeichnis und Kapitelnummern.
+1. Deutsche Texte in `chapters.json`, englische Texte in `chapters.en.json` und die Oberflächentexte beider Sprachen in `locales.json` pflegen. Kapitel-IDs, Reihenfolge, Bildzuordnungen und Anzahl der Schritte und Hinweise müssen übereinstimmen. Der Generator lehnt unvollständige Fassungen ab. Die Reihenfolge bestimmt Inhaltsverzeichnis und Kapitelnummern. `groups.json` ordnet jedes Kapitel genau einem Themenbereich zu und enthält dessen deutsche und englische Überschrift und Einführung. Gruppenreihenfolge und Kapitelreihenfolge müssen übereinstimmen; alte Kapitel-IDs als stabile Links erhalten.
 2. Screenshots mit ausschließlich erfundenen Konten und Aquariendaten aufnehmen. Keine echten Personen, E-Mail-Adressen, Schlüssel, Tokens oder Backup-Inhalte zeigen. Die Beispielillustration der Demo wurde für dieses Handbuch erstellt.
 3. Screenshots als WebP unter `public/handbuch/images/` speichern; Breite und Höhe in `images/manifest.json` eintragen. Bildnamen entsprechen dem Feld `image` des Kapitels.
 4. Gestaltung bei Bedarf in `guide.css` anpassen.
@@ -13,7 +13,7 @@ Die veröffentlichbaren Dateien liegen unter `public/handbuch/`. Der vorhandene 
 
 Weitere Sprachen: Eine vollständig übersetzte Kapiteldatei `chapters.<Sprachcode>.json` anlegen und einen Eintrag mit Sprachname, Zielverzeichnis, Kapiteldatei und allen Oberflächentexten in `locales.json` ergänzen. Sprachcodes folgen `xx` oder `xx-XX`; die deutsche Standardadresse bleibt unverändert. Danach neu erzeugen und alle Sprachfassungen prüfen. Bilder und CSS werden gemeinsam verwendet, nicht pro Sprache kopiert. Die vorhandenen Aufnahmen zeigen Deutsch; dies wird in beiden Fassungen erklärt und Bildbeschreibungen sind übersetzt.
 
-Eine Versionsnummer gehört nicht in die Einführung des Nutzerhandbuchs. Bei UI-Änderungen die betroffenen Screenshots und Schrittfolgen aktualisieren. Bei neuen Funktionen ein passendes Kapitel ergänzen.
+Eine Versionsnummer gehört nicht in die Einführung des Nutzerhandbuchs. Bei UI-Änderungen die betroffenen Screenshots und Schrittfolgen aktualisieren. Bei neuen Funktionen ein passendes Kapitel ergänzen. Jedes Kapitel enthält unter `features` kurze Erklärungen zu Zweck und Wirkung der Funktionen und unter `steps` die eigentliche Bedienfolge. Die Anzahl der Funktionserklärungen muss ebenso wie Schritte und Hinweise in allen Sprachen übereinstimmen. Bereiche und Funktionen werden auf fehlende Übersetzungen geprüft.
 
 ## Geschwindigkeit und Datenschutz
 

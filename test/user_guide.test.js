@@ -22,6 +22,13 @@ test('Nutzerhandbuch: erzeugte Dateien, Kapitelanker und Screenshots sind vollst
     assert.match(html, new RegExp(`<html lang="${language}">`));
     assert.ok(html.includes(`aria-label="${locale.languages}"`));
     for (const chapter of chapters) assert.ok(chapter.steps.length >= 3, chapter.id);
+    for (const chapter of chapters) {
+      assert.ok(chapter.features.length >= 2, chapter.id);
+      for (const feature of chapter.features) {
+        assert.ok(feature.title.trim() && feature.text.trim(), chapter.id);
+        assert.ok(html.includes(`<dt>${feature.title}</dt>`), chapter.id);
+      }
+    }
     for (const [, id] of html.matchAll(/href="#([^"]+)"/g)) assert.ok(html.includes(`id="${id}"`), `Fehlender Anker: ${id}`);
     for (const [, target] of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
       if (target.startsWith('#') || target.startsWith('https://')) continue;
@@ -87,10 +94,33 @@ test('Nutzerhandbuch: englische Kapitel vollständig übersetzt, unbekannte Spra
     for (const [note, item] of chapter.extra.entries()) {
       assert.notEqual(item.title, original.extra[note].title);assert.notEqual(item.text, original.extra[note].text);
     }
+    assert.equal(chapter.features.length, original.features.length);
+    for (const [feature, item] of chapter.features.entries()) {
+      assert.ok(item.title.trim());assert.notEqual(item.text, original.features[feature].text);
+    }
     if (chapter.image) assert.notEqual(chapter.caption, original.caption);
   }
   assert.match(renderUserGuide('en'), /Screenshots show the German interface/);
   assert.throws(() => renderUserGuide('../../secret'), /Unbekannte Handbuchsprache/);
+});
+
+test('Nutzerhandbuch: Themenbereiche decken alle Kapitel genau einmal in beiden Sprachen ab', () => {
+  const groups = JSON.parse(fs.readFileSync('docs/user-guide/groups.json', 'utf8'));
+  const chapters = JSON.parse(fs.readFileSync('docs/user-guide/chapters.json', 'utf8'));
+  assert.equal(groups.length, 9);assert.equal(chapters.length, 40);
+  assert.deepEqual(groups.flatMap(group => group.chapters), chapters.map(chapter => chapter.id));
+  assert.equal(new Set(groups.flatMap(group => group.chapters)).size, chapters.length);
+  for (const language of ['de', 'en']) {
+    const html = renderUserGuide(language);
+    assert.equal([...html.matchAll(/class="guide-group"/g)].length, groups.length);
+    for (const group of groups) {
+      assert.ok(html.includes(`href="#bereich-${group.id}"`));
+      assert.ok(html.includes(`id="bereich-${group.id}"`));
+      assert.ok(html.includes(group[language].title));
+    }
+    assert.match(html, /href="#schnellstart"/);
+    assert.match(html, /<h4>[^<]+<\/h4><dl class="features">/);
+  }
 });
 
 test('Nutzerhandbuch: fehlende Kapitel oder Übersetzungen verhindern unvollständige Ausgabe', t => {
@@ -110,4 +140,13 @@ test('Nutzerhandbuch: fehlende Kapitel oder Übersetzungen verhindern unvollstä
   chapters[0].steps[0] = '';
   fs.writeFileSync(file, JSON.stringify(chapters));
   assert.throws(() => build(), /Fehlender Kapiteltext/);
+  chapters[0].steps[0] = 'Restored step';
+  chapters[0].features.pop();
+  fs.writeFileSync(file, JSON.stringify(chapters));
+  assert.throws(() => build(), /Abweichende Kapitelstruktur/);
+  const groupsFile = path.join(temporary, 'docs/user-guide/groups.json');
+  const groups = JSON.parse(fs.readFileSync(groupsFile, 'utf8'));
+  groups[0].chapters.push(groups[0].chapters[0]);
+  fs.writeFileSync(groupsFile, JSON.stringify(groups));
+  assert.throws(() => build(), /jedes Kapitel genau einmal/);
 });

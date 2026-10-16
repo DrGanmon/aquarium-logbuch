@@ -1,0 +1,159 @@
+[
+  {
+    "id": "einstieg",
+    "chapters": [
+      "schnellstart",
+      "start",
+      "ueberblick"
+    ],
+    "de": {
+      "title": "Ankommen und starten",
+      "intro": "Konto öffnen, Orientierung finden und das erste Becken einrichten."
+    },
+    "en": {
+      "title": "Getting started",
+      "intro": "Sign in, find your way around and begin with your first tank."
+    }
+  },
+  {
+    "id": "aquarien",
+    "chapters": [
+      "aquarium",
+      "zyklen",
+      "messung",
+      "verlauf",
+      "pflege",
+      "duengung",
+      "fotos",
+      "csv"
+    ],
+    "de": {
+      "title": "Aquarien, Messungen und Pflege",
+      "intro": "Becken verwalten, Wasser prüfen und erledigte Arbeiten festhalten."
+    },
+    "en": {
+      "title": "Tanks, readings and care",
+      "intro": "Manage tanks, test the water and record completed work."
+    }
+  },
+  {
+    "id": "lebewesen",
+    "chapters": [
+      "arten",
+      "besatz",
+      "formen",
+      "pflanzen"
+    ],
+    "de": {
+      "title": "Tiere, Pflanzen und Formen",
+      "intro": "Kataloge verstehen, den Bestand pflegen und die konkrete Form auswählen."
+    },
+    "en": {
+      "title": "Animals, plants and forms",
+      "intro": "Use the catalogs, maintain stock and choose the actual form."
+    }
+  },
+  {
+    "id": "gesundheit",
+    "chapters": [
+      "gesundheit",
+      "diagnose-bild",
+      "mittel",
+      "ki"
+    ],
+    "de": {
+      "title": "Gesundheit und KI",
+      "intro": "Anzeichen nachschlagen, Fragen beantworten und optionale Hilfe nutzen."
+    },
+    "en": {
+      "title": "Health and AI",
+      "intro": "Look up signs, answer questions and use optional assistance."
+    }
+  },
+  {
+    "id": "konto",
+    "chapters": [
+      "profil",
+      "zugang",
+      "kontoloeschen",
+      "verbrauch",
+      "nachkaufen"
+    ],
+    "de": {
+      "title": "Konto, Einstellungen und Wassertests",
+      "intro": "Zugang und Darstellung anpassen sowie den Testverbrauch im Blick behalten."
+    },
+    "en": {
+      "title": "Account, settings and tests",
+      "intro": "Manage access and appearance and keep track of test supplies."
+    }
+  },
+  {
+    "id": "gemeinsam",
+    "chapters": [
+      "teilen",
+      "social",
+      "hinweise",
+      "rechtliches"
+    ],
+    "de": {
+      "title": "Teilen, Social und Hinweise",
+      "intro": "Zusammenarbeiten und die Sichtbarkeit deiner Inhalte bewusst wählen."
+    },
+    "en": {
+      "title": "Sharing, Social and notifications",
+      "intro": "Work together and deliberately choose who can see your content."
+    }
+  },
+  {
+    "id": "unterwegs",
+    "chapters": [
+      "offline",
+      "konflikte",
+      "online-funktionen",
+      "updates"
+    ],
+    "de": {
+      "title": "Handy, Offline-Nutzung und Updates",
+      "intro": "Unterwegs weiterarbeiten, Änderungen abgleichen und Updates übernehmen."
+    },
+    "en": {
+      "title": "Mobile, offline use and updates",
+      "intro": "Keep working on the go, synchronize changes and apply updates."
+    }
+  },
+  {
+    "id": "betrieb",
+    "chapters": [
+      "einrichtung",
+      "admin",
+      "admin-einladungen",
+      "admin-metriken",
+      "mail",
+      "admin-logs",
+      "backups"
+    ],
+    "de": {
+      "title": "Für Betreiber und Administratoren",
+      "intro": "Benutzer, Einladungen, E-Mail, Protokolle und Sicherungen verwalten."
+    },
+    "en": {
+      "title": "For operators and administrators",
+      "intro": "Manage users, invitations, email, logs and backups."
+    }
+  },
+  {
+    "id": "hilfe",
+    "chapters": [
+      "hilfe"
+    ],
+    "de": {
+      "title": "Hilfe bei Problemen",
+      "intro": "Die häufigsten Ursachen prüfen und gezielt Unterstützung anfordern."
+    },
+    "en": {
+      "title": "Help with problems",
+      "intro": "Check common causes and ask for help with useful details."
+    }
+  }
+]

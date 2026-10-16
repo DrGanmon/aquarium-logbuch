@@ -1,5 +1,34 @@
 [
   {
+    "id": "schnellstart",
+    "title": "Your first tank in a few steps",
+    "intro": "Ready to get started? This short route covers the essentials. The other chapters explain each feature in more detail.",
+    "image": null,
+    "caption": null,
+    "steps": [
+      "Sign in and create your first tank with a name, water type and size.",
+      "Add animals and plants from the catalogs. Deliberately choose any relevant forms or L-numbers.",
+      "Open “New measurement”, choose your test methods and save your first readings.",
+      "Record the next care task in the log. Then set a suitable measurement cycle.",
+      "Open your profile for language, appearance and test usage. For offline use, first wait for the initial online synchronization to finish."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Tank",
+        "text": "All records belonging to one tank are kept together here."
+      },
+      {
+        "title": "Readings and log",
+        "text": "Readings record values; the log records completed work."
+      },
+      {
+        "title": "Add more later",
+        "text": "You can use photos, sharing, AI and Social later as needed."
+      }
+    ]
+  },
+  {
     "id": "start",
     "title": "Sign in and get started",
     "intro": "You need the address of your aquarium app and a user account. You can read this guide without signing in.",
@@ -16,6 +45,20 @@
       {
         "title": "Forgot your password?",
         "text": "Use the password reset option on the sign-in page and open the link in the email. This requires configured email delivery. Never share your password or confirmation links."
+      }
+    ],
+    "features": [
+      {
+        "title": "Sign in",
+        "text": "Your account opens your own tanks and tanks shared with you. Use the same account on each visit."
+      },
+      {
+        "title": "Register and verify email",
+        "text": "Registration creates an account. Email verification confirms that the address belongs to you."
+      },
+      {
+        "title": "Invitation or external sign-in",
+        "text": "An invitation allows registration on restricted servers. Pocket ID is an alternative sign-in method configured by the operator."
       }
     ]
   },
@@ -37,6 +80,20 @@
         "title": "Why do some sections appear only when scrolling?",
         "text": "Charts, residents, plants and the logbook load progressively. Scroll to the section you need. If loading fails, you can retry that section."
       }
+    ],
+    "features": [
+      {
+        "title": "Tank cards",
+        "text": "Each card represents a tank. Tap it to open its readings, residents and care records."
+      },
+      {
+        "title": "Owned and shared tanks",
+        "text": "You manage your own tanks. A shared tank’s permission determines whether you can only read or also change records."
+      },
+      {
+        "title": "Language and appearance",
+        "text": "The header lets you switch between German and English and between light, dark and system appearance."
+      }
     ]
   },
   {
@@ -56,6 +113,49 @@
       {
         "title": "Water type and residents belong together",
         "text": "The water type affects available species, plants and assessments. Before changing it, check whether the existing residents are suitable."
+      }
+    ],
+    "features": [
+      {
+        "title": "Name, water type and size",
+        "text": "These fields describe your tank. Water type and size help put readings and animal care into context."
+      },
+      {
+        "title": "Description and cover image",
+        "text": "A motto, text and photo make multiple tanks easier to distinguish. They do not replace readings or care records."
+      },
+      {
+        "title": "Edit and delete",
+        "text": "Editing corrects tank details. Deleting removes the tank and its associated records and requires deliberate confirmation."
+      }
+    ]
+  },
+  {
+    "id": "zyklen",
+    "title": "Remember the next water test",
+    "intro": "The measurement cycle shows when you plan to check the water again. It does not take readings automatically.",
+    "image": "messzyklus",
+    "caption": "The measurement cycle shows its status and next due date in the tank.",
+    "steps": [
+      "Open the tank and choose “Configure cycles” beside the measurement cycle.",
+      "Choose an interval in days or weeks. Select a weekday where offered. An interval of zero disables the cycle.",
+      "Enable an email reminder if needed, then save. This requires a verified address and working email delivery.",
+      "Read the next due date on the cycle card. “Measure now” opens the usual measurement form.",
+      "Save a test you actually performed. Check the updated due date and change the cycle if your routine changes."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Interval",
+        "text": "This sets how often you want to test, for example every seven days."
+      },
+      {
+        "title": "Due or overdue",
+        "text": "The status compares the planned date with the current time."
+      },
+      {
+        "title": "Plan doses separately",
+        "text": "Fertilizers have their own plans in the fertilizer area. A measurement cycle is not a dosing plan."
       }
     ]
   },
@@ -81,6 +181,24 @@
       {
         "title": "Changing methods during a measurement",
         "text": "Changing the test method may discard a running timer and an unsaved value for that parameter. Choose the method before starting the test whenever possible."
+      },
+      {
+        "title": "Parameter and unit",
+        "text": "A parameter is a measured quantity, such as temperature or pH. Its unit appears beside the field, for example °C or mg/l. Use the unit and result of your actual test; different units are not interchangeable without conversion."
+      }
+    ],
+    "features": [
+      {
+        "title": "Choose a test method",
+        "text": "Choose the test you actually use. The selection determines the timers offered and which test inventory receives the usage."
+      },
+      {
+        "title": "Start a timer",
+        "text": "A timer reminds you of a test’s reaction time. It does not perform the test or enter its result."
+      },
+      {
+        "title": "Save readings and time",
+        "text": "Only completed values are saved. An earlier timestamp is useful when recording a test you performed before opening the app."
       }
     ]
   },
@@ -103,6 +221,20 @@
         "title": "Colors provide guidance",
         "text": "Assessments depend on water type, stocking profiles and available thresholds. They do not replace a professional assessment of your aquarium."
       }
+    ],
+    "features": [
+      {
+        "title": "Latest readings",
+        "text": "The tank shows the latest available reading for each parameter. Check its date: an old reading may not describe today’s conditions."
+      },
+      {
+        "title": "Charts and target ranges",
+        "text": "The line shows changes over time. Highlighted ranges help compare readings with stored limits; they do not explain the cause of a deviation."
+      },
+      {
+        "title": "Table and warnings",
+        "text": "The table shows individual readings and notes. A warning highlights a deviation; acknowledging it only records that you have seen it."
+      }
     ]
   },
   {
@@ -123,6 +255,20 @@
         "title": "Set up reminders",
         "text": "Use “Configure cycles” to set measurement and fertilization intervals, such as every seven days or on a specific weekday. The app shows due tasks. Email reminders require enabled reminders and configured email delivery."
       }
+    ],
+    "features": [
+      {
+        "title": "Record care work",
+        "text": "A log entry records work such as filter care, feeding or pruning. This helps explain later changes."
+      },
+      {
+        "title": "Water change percentage",
+        "text": "The percentage describes how much water you replaced. In a 100-litre tank, 30 percent is about 30 litres."
+      },
+      {
+        "title": "Filter and correct activities",
+        "text": "The combined timeline distinguishes care work from readings. With write permission, you can edit or delete incorrect care entries."
+      }
     ]
   },
   {
@@ -138,57 +284,21 @@
       "For automatic pump schedules, the app records due doses according to the plan. Check your physical pump independently.",
       "Edit or pause a plan when your fertilization changes. Removing a plan leaves existing logbook entries intact."
     ],
-    "extra": []
-  },
-  {
-    "id": "arten",
-    "title": "Use the species catalog as a reference",
-    "intro": "You can look up a species without adding a new resident.",
-    "image": "arten",
-    "caption": "Searching for L144: the parent card names the matching form.",
-    "steps": [
-      "Open “Species catalog” in the header.",
-      "Filter by water type and category, or search for a species, cultivar or trade name. Matching forms lead to one shared parent card. “Matching forms” lists their names directly on the card.",
-      "Open a result. Read its water requirements, group guidance, minimum tank volume, care information and image credits.",
-      "If appropriate, add the species to an aquarium from its details or open the linked health information."
-    ],
-    "extra": []
-  },
-  {
-    "id": "besatz",
-    "title": "Animals and compatibility",
-    "intro": "Add animals through the species catalog whenever possible so their care requirements can be associated with them.",
-    "image": "besatz",
-    "caption": "Adding bristlenose catfish: L183 is selected as a separate species with its own parameters.",
-    "steps": [
-      "Open “Species catalog” and search for the species. Check its water type, tank volume and group requirements.",
-      "Choose “Add to aquarium” from the parent entry. Select a documented form or variety in “Form / subspecies”, or leave it unspecified. Then enter the quantity; individual animals can have names. The Ancistrus card also offers documented L-numbers. “Separate species” and “Undescribed / unidentified species” are not subspecies; check their own parameters in the selection hint.",
-      "In the aquarium, you can also add custom residents, change quantities and names, or upload a portrait. “Form / subspecies” identifies the selected form, including individually named animals and offline.",
-      "For known species, “Species details” opens their information again. You can also start the diagnosis assistant from a resident.",
-      "Read compatibility guidance on group size, tank size, behavior and requirements. Custom entries without a catalog match have less automatic information.",
-      "Remove animals that are no longer in the tank so assessments and thresholds reflect the current stock."
-    ],
-    "extra": [
+    "extra": [],
+    "features": [
       {
-        "title": "Browse the species catalog",
-        "text": "Filter by water type and category or search by name. Viewing an image does not share your aquarium. Sources and image credits are listed in the species details."
+        "title": "Manual fertilizer",
+        "text": "The plan reminds you when to dose. Confirm only after adding the fertilizer; confirmation creates the corresponding log entry."
+      },
+      {
+        "title": "Dosing pump plan",
+        "text": "An automatic plan records scheduled doses. The app does not operate or monitor a physical pump."
+      },
+      {
+        "title": "Amount, interval and pause",
+        "text": "Millilitres specify the dose and the interval specifies how often it occurs. Pausing stops future plan actions without deleting the history."
       }
     ]
-  },
-  {
-    "id": "pflanzen",
-    "title": "Find plants and add them to a tank",
-    "intro": "The plant catalog helps you find suitable plants and record the stock in your aquarium.",
-    "image": "pflanzen",
-    "caption": "Plants in the aquarium: selected forms such as Pangolino are explicitly identified.",
-    "steps": [
-      "Open “Plants” in the header. Filter by water type or category, or search for a species or cultivar name. Forms appear under a shared parent card; “Matching forms” lists the forms found by your search.",
-      "Open a plant and read its placement, lighting, growth and care guidance.",
-      "Choose “Add to aquarium”, select a suitable aquarium and, if offered, the specific form in “Form / subspecies”. Enter the quantity and save. The selected form keeps its own stock entry. In the aquarium, “Form / subspecies” also identifies the selected form, including offline.",
-      "In the aquarium’s plant section, you can change quantities or remove plants.",
-      "To record trimming or planting in your history, add a separate logbook entry for that work."
-    ],
-    "extra": []
   },
   {
     "id": "fotos",
@@ -203,25 +313,19 @@
       "With sufficient permission, you can delete images you no longer need.",
       "Upload a resident portrait in the residents section. Change your own avatar in your profile."
     ],
-    "extra": []
-  },
-  {
-    "id": "teilen",
-    "title": "Share an aquarium with other people",
-    "intro": "Sharing an aquarium is different from publishing a Social post. An aquarium share is granted to a specific user account.",
-    "image": "freigaben",
-    "caption": "An existing write-access share for the fictional leo_demo account.",
-    "steps": [
-      "Open an aquarium you own and choose “Share aquarium”. Search for the other account’s username or email address.",
-      "Choose “Read” if the person should only view the tank. “Write” also lets them maintain supported data.",
-      "The invited person accepts the invitation. They can then find the tank under “Shared with me”.",
-      "You can review existing shares, change roles or revoke access. Only the owner manages shares.",
-      "Invitations and permission changes require a server connection."
-    ],
-    "extra": [
+    "extra": [],
+    "features": [
       {
-        "title": "What do the roles mean?",
-        "text": "Read access allows viewing data, history, residents and images. Write access additionally allows actions such as measurements, care entries and stocking changes. Only the owner can delete the entire aquarium. Revoking access cannot retroactively erase offline copies already saved on another person’s device."
+        "title": "Gallery and cover image",
+        "text": "The gallery collects photos for a tank. A cover image helps you recognize that tank."
+      },
+      {
+        "title": "Resident photo and avatar",
+        "text": "A resident photo belongs to an animal or group. Your avatar belongs to your user profile. Each has its own upload field."
+      },
+      {
+        "title": "Private or published",
+        "text": "A gallery photo does not automatically become a public post. For Social, deliberately create a separate post and choose its visibility."
       }
     ]
   },
@@ -243,6 +347,141 @@
       {
         "title": "Before large imports",
         "text": "Keep the original file and back up important existing data first. Intentionally importing the same file again is a new action; synchronization deduplication does not replace checking your import selection."
+      }
+    ],
+    "features": [
+      {
+        "title": "Export",
+        "text": "Export downloads readings as a table. It is useful for your own analysis but does not contain all app data such as photos or accounts."
+      },
+      {
+        "title": "Map columns",
+        "text": "During import, tell the app which column contains a date, reading or note. The preview shows how it understands the file."
+      },
+      {
+        "title": "Check an import",
+        "text": "Check timestamps, units and decimal values before importing. Importing a file again can create additional records."
+      }
+    ]
+  },
+  {
+    "id": "arten",
+    "title": "Use the species catalog as a reference",
+    "intro": "You can look up a species without adding a new resident.",
+    "image": "arten",
+    "caption": "Searching for L144: the parent card names the matching form.",
+    "steps": [
+      "Open “Species catalog” in the header.",
+      "Filter by water type and category, or search for a species, cultivar or trade name. Matching forms lead to one shared parent card. “Matching forms” lists their names directly on the card.",
+      "Open a result. Read its water requirements, group guidance, minimum tank volume, care information and image credits.",
+      "If appropriate, add the species to an aquarium from its details or open the linked health information."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Search and filter",
+        "text": "Search by name or trade name. Water type and category narrow the list when you do not yet know the exact name."
+      },
+      {
+        "title": "Matching forms",
+        "text": "If your search matches a form, the shared card names it. You do not need to look for a separate card."
+      },
+      {
+        "title": "Species details",
+        "text": "Details explain water requirements, tank size, social needs and behavior. Check the specific selection before adding it."
+      }
+    ]
+  },
+  {
+    "id": "besatz",
+    "title": "Animals and compatibility",
+    "intro": "Add animals through the species catalog whenever possible so their care requirements can be associated with them.",
+    "image": "bestand",
+    "caption": "Residents in the tank: name, quantity and actual form remain visible together.",
+    "steps": [
+      "Open “Species catalog” and search for the species. Check its water type, tank volume and group requirements.",
+      "Choose “Add to aquarium” from the parent entry. Select a documented form or variety in “Form / subspecies”, or leave it unspecified. Then enter the quantity; individual animals can have names. The Ancistrus card also offers documented L-numbers. “Separate species” and “Undescribed / unidentified species” are not subspecies; check their own parameters in the selection hint.",
+      "In the aquarium, you can also add custom residents, change quantities and names, or upload a portrait. “Form / subspecies” identifies the selected form, including individually named animals and offline.",
+      "For known species, “Species details” opens their information again. You can also start the diagnosis assistant from a resident.",
+      "Read compatibility guidance on group size, tank size, behavior and requirements. Custom entries without a catalog match have less automatic information.",
+      "Remove animals that are no longer in the tank so assessments and thresholds reflect the current stock."
+    ],
+    "extra": [
+      {
+        "title": "Browse the species catalog",
+        "text": "Filter by water type and category or search by name. Viewing an image does not share your aquarium. Sources and image credits are listed in the species details."
+      }
+    ],
+    "features": [
+      {
+        "title": "Add from the catalog",
+        "text": "The catalog entry connects a resident to care information and the health area. The selected form receives its own stock entry."
+      },
+      {
+        "title": "Group or individual animal",
+        "text": "The quantity represents a group. Individual names let you track animals separately, for example a pleco named “Goldie”."
+      },
+      {
+        "title": "Compatibility and custom entries",
+        "text": "Hints compare known requirements. Custom entries may lack catalog information; no warning is not a guarantee of suitable care."
+      }
+    ]
+  },
+  {
+    "id": "formen",
+    "title": "Choose cultivated forms, plant cultivars and L-numbers",
+    "intro": "A shared card can contain several selectable entries. A trade name or L-number is not automatically a scientific subspecies.",
+    "image": "besatz",
+    "caption": "L183 is labeled as a separate species and the selection shows its own parameters.",
+    "steps": [
+      "Search the appropriate catalog for a form, for example “Pangolino”, “Gold” or “L183”. The parent card identifies the matching entry.",
+      "Open “Add to aquarium”. Choose the tank and then the form. For bristlenose catfish, the field is “Species / L-number / form”.",
+      "Read the selection hint. Separate Ancistrus species have their own parameters; the shared card’s base parameters do not apply to every L-number.",
+      "Enter the quantity and save. The tank keeps the actual selection visible, including for individually named animals.",
+      "If identification is uncertain, do not invent a subspecies. Use the unspecified base entry or a suitable custom entry and clarify the identification."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Cultivated form or cultivar",
+        "text": "This is a selectively bred appearance, such as a particular color or leaf shape."
+      },
+      {
+        "title": "Separate species",
+        "text": "Sharing a selection card does not make a separate species a subspecies of another."
+      },
+      {
+        "title": "L-number and synonyms",
+        "text": "L-numbers identify particular loricariid catfish. Several numbers may find the same entry; not every L-number catfish belongs to Ancistrus."
+      }
+    ]
+  },
+  {
+    "id": "pflanzen",
+    "title": "Find plants and add them to a tank",
+    "intro": "The plant catalog helps you find suitable plants and record the stock in your aquarium.",
+    "image": "pflanzen",
+    "caption": "Plants in the aquarium: selected forms such as Pangolino are explicitly identified.",
+    "steps": [
+      "Open “Plants” in the header. Filter by water type or category, or search for a species or cultivar name. Forms appear under a shared parent card; “Matching forms” lists the forms found by your search.",
+      "Open a plant and read its placement, lighting, growth and care guidance.",
+      "Choose “Add to aquarium”, select a suitable aquarium and, if offered, the specific form in “Form / subspecies”. Enter the quantity and save. The selected form keeps its own stock entry. In the aquarium, “Form / subspecies” also identifies the selected form, including offline.",
+      "In the aquarium’s plant section, you can change quantities or remove plants.",
+      "To record trimming or planting in your history, add a separate logbook entry for that work."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Look up plants",
+        "text": "Details help with lighting, placement, growth and care. The catalog also includes labeled moss and algae entries."
+      },
+      {
+        "title": "Choose a cultivar",
+        "text": "Cultivars such as Pangolino and Pinto appear under their shared card. Select one when adding; it remains identifiable in the tank."
+      },
+      {
+        "title": "Change total quantity",
+        "text": "The quantity is the total stock of that plant in the tank. Changing three to five means five in total, not eight."
       }
     ]
   },
@@ -269,6 +508,20 @@
         "title": "Do not medicate based only on a list of matches",
         "text": "Read the entry’s guidance, product instructions and professional advice. An association shown in the catalog is not an individual treatment recommendation."
       }
+    ],
+    "features": [
+      {
+        "title": "Disease catalog",
+        "text": "It explains typical signs, possible causes and further information. Search and filters help you find relevant entries."
+      },
+      {
+        "title": "Diagnosis assistant",
+        "text": "The assistant asks questions and ranks possible causes. It does not examine the animal and cannot replace a professional diagnosis."
+      },
+      {
+        "title": "Look up treatments",
+        "text": "Linked treatments and supplies provide further information. A match is not a recommendation to medicate immediately."
+      }
     ]
   },
   {
@@ -282,7 +535,21 @@
       "Start the questionnaire and answer each question in turn.",
       "Review the result together with water readings, husbandry conditions and animal behavior. You can restart the assistant with updated information."
     ],
-    "extra": []
+    "extra": [],
+    "features": [
+      {
+        "title": "Tank and resident",
+        "text": "The selection determines which animal and water type your answers refer to. Individual names and stored forms help identify it."
+      },
+      {
+        "title": "Yes, no or unknown",
+        "text": "Answer only what you have observed. “Unknown” is better than a guess and is considered in the result."
+      },
+      {
+        "title": "Interpret the result",
+        "text": "The list provides guidance. Consider recent readings, natural coloration, care conditions and behavior together."
+      }
+    ]
   },
   {
     "id": "mittel",
@@ -296,7 +563,21 @@
       "Open the medication details. Pay particular attention to warnings, restrictions, sources and legal information.",
       "Consult a knowledgeable professional or veterinarian where needed; do not apply a treatment based solely on a search result."
     ],
-    "extra": []
+    "extra": [],
+    "features": [
+      {
+        "title": "Medication or supply",
+        "text": "This area contains information about treatments and supportive measures. Read the details instead of deciding by product name alone."
+      },
+      {
+        "title": "Warnings and other residents",
+        "text": "Consider fish, shrimp, snails and plants. The same treatment can have different suitability for different residents."
+      },
+      {
+        "title": "Sources and use",
+        "text": "Sources show the basis of the information. Follow the instructions for the actual product and veterinary advice where appropriate."
+      }
+    ]
   },
   {
     "id": "ki",
@@ -316,6 +597,20 @@
       {
         "title": "What data is sent?",
         "text": "An AI request sends your message and relevant aquarium context to the selected provider. Aquarium chats may save a conversation history; a chat after diagnosis is not saved as aquarium chat history when closed. Check the provider’s costs, privacy terms and responses. Never include keys in screenshots or Social posts."
+      }
+    ],
+    "features": [
+      {
+        "title": "Provider, model and key",
+        "text": "The provider processes your request and the model answers it. An API key is your personal provider credential and should not appear in screenshots or posts."
+      },
+      {
+        "title": "Test the connection",
+        "text": "The test checks the saved credentials. A successful connection does not guarantee the accuracy of later answers."
+      },
+      {
+        "title": "Ask about a tank",
+        "text": "Quick questions or your own text start a request using the offered tank context. This needs internet and may incur provider charges."
       }
     ]
   },
@@ -338,6 +633,78 @@
         "title": "Delete your account",
         "text": "Request account deletion in your profile, then confirm using the time-limited email link. This also removes associated aquariums you own and your Social content. Back up important data and synchronize pending changes first. Protected administrator accounts may have deletion restrictions."
       }
+    ],
+    "features": [
+      {
+        "title": "Personal details",
+        "text": "Your name, bio and avatar describe your account. Your username also helps other users find you for sharing."
+      },
+      {
+        "title": "Appearance and chart period",
+        "text": "Choose the language, design and initial chart period here. You can still change the period in an individual chart."
+      },
+      {
+        "title": "Timer notifications",
+        "text": "Browser permission allows supported timer notifications. Sound settings, background rules and power saving can affect delivery."
+      }
+    ]
+  },
+  {
+    "id": "zugang",
+    "title": "Forgotten password or sign-in changes",
+    "intro": "This chapter helps you regain account access. These actions require a reachable server.",
+    "image": "passwort",
+    "caption": "Password recovery starts on the sign-in page.",
+    "steps": [
+      "Choose “Forgot password?” on the sign-in page and enter your username or email address.",
+      "Open the email and follow its link. Enter and repeat a new password, then sign in with it.",
+      "If no email arrives, check spam and the address. Ask the operator if delivery is broken; for privacy, the message may not reveal whether an account exists.",
+      "If already signed in, change your password under “Password & sign-in” in your profile. An existing local password is required as well.",
+      "For external sign-in, check the OIDC link in your profile. Before unlinking, make sure another working sign-in method exists."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Reset password",
+        "text": "An email link lets you replace a forgotten local password."
+      },
+      {
+        "title": "Verify email",
+        "text": "Verification belongs to your account address. You can request another verification email when needed."
+      },
+      {
+        "title": "External sign-in",
+        "text": "Pocket ID or another configured provider manages a separate login; change that password at the provider."
+      }
+    ]
+  },
+  {
+    "id": "kontoloeschen",
+    "title": "Delete your own account",
+    "intro": "Account deletion is permanent. Save needed data and synchronize pending device actions first.",
+    "image": null,
+    "caption": null,
+    "steps": [
+      "Open your profile and scroll to “Delete account” in the profile tab. Read the explanation.",
+      "For local sign-in, enter the required password and deliberately confirm that you want to delete the account.",
+      "Request the confirmation email. Until you complete deletion, the request is not a successful deletion.",
+      "Open the email link and confirm deletion on the dedicated page. Follow the success message.",
+      "If the email is missing or its link fails, contact the operator. Clearing browser data does not delete your server account."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Sign out",
+        "text": "Signing out ends the session; the account and its server data remain."
+      },
+      {
+        "title": "Delete account",
+        "text": "This is a separate action with confirmation and effects on associated data."
+      },
+      {
+        "title": "Save first",
+        "text": "Export readings you need or ask the operator about a suitable backup."
+      }
     ]
   },
   {
@@ -359,6 +726,20 @@
         "title": "Why is the assignment wrong?",
         "text": "Check your selected method and suite. A test strip should not count as consumption of a liquid test. The app counts based on the test selection used for the measurement."
       }
+    ],
+    "features": [
+      {
+        "title": "Test selection",
+        "text": "Store your preferred testing methods here. You can select individual methods or entire test suites."
+      },
+      {
+        "title": "Variant and capacity",
+        "text": "Choose the package or refill variant. Capacity describes the expected number of tests available from that refill."
+      },
+      {
+        "title": "Used and reset",
+        "text": "Enter already used reagent as the starting value. Reset only for a new refill; deleting readings does not refill the bottle."
+      }
     ]
   },
   {
@@ -373,7 +754,55 @@
       "When starting a new bottle or refill, reset only the corresponding counter.",
       "Enable a purchase reminder if needed. At 75 percent consumption, an email may be queued once per refill if the address and mail delivery are ready."
     ],
-    "extra": []
+    "extra": [],
+    "features": [
+      {
+        "title": "Usage level",
+        "text": "The display estimates how many tests remain. It does not replace checking the actual fill level and expiry date."
+      },
+      {
+        "title": "Restock reminder",
+        "text": "An enabled email reminder can be queued once per refill after 75 percent usage. It requires a verified address and working email delivery."
+      },
+      {
+        "title": "New refill",
+        "text": "Resetting starts usage tracking for that refill again. Other tests and counters stay unchanged."
+      }
+    ]
+  },
+  {
+    "id": "teilen",
+    "title": "Share an aquarium with other people",
+    "intro": "Sharing an aquarium is different from publishing a Social post. An aquarium share is granted to a specific user account.",
+    "image": "freigaben",
+    "caption": "An existing write-access share for the fictional leo_demo account.",
+    "steps": [
+      "Open an aquarium you own and choose “Share aquarium”. Search for the other account’s username or email address.",
+      "Choose “Read” if the person should only view the tank. “Write” also lets them maintain supported data.",
+      "The invited person accepts the invitation. They can then find the tank under “Shared with me”.",
+      "You can review existing shares, change roles or revoke access. Only the owner manages shares.",
+      "Invitations and permission changes require a server connection."
+    ],
+    "extra": [
+      {
+        "title": "What do the roles mean?",
+        "text": "Read access allows viewing data, history, residents and images. Write access additionally allows actions such as measurements, care entries and stocking changes. Only the owner can delete the entire aquarium. Revoking access cannot retroactively erase offline copies already saved on another person’s device."
+      }
+    ],
+    "features": [
+      {
+        "title": "Read access",
+        "text": "The person can view the shared tank. This does not give them ownership or administration rights."
+      },
+      {
+        "title": "Write access",
+        "text": "The person can also maintain supported tank records. Only the owner manages sharing permissions."
+      },
+      {
+        "title": "Invitation and removal",
+        "text": "A new share must be accepted. You can resend pending invitations or remove access later."
+      }
+    ]
   },
   {
     "id": "social",
@@ -394,6 +823,20 @@
         "title": "Before uploading",
         "text": "Use only images you have permission to publish. Check for visible people, addresses, documents or credentials. Social images are resized on the server; animated GIFs are processed as still images."
       }
+    ],
+    "features": [
+      {
+        "title": "Public or server-only",
+        "text": "Public posts can be read without signing in. Server-only posts are intended for users signed in to this server."
+      },
+      {
+        "title": "Likes and comments",
+        "text": "A heart records a reaction and a comment adds a message below a post. You need an account to react."
+      },
+      {
+        "title": "Share a link and delete",
+        "text": "Sharing passes on a link but does not change visibility. You can remove your own posts and comments; administrators can moderate content."
+      }
     ]
   },
   {
@@ -408,7 +851,50 @@
       "Mark Social notifications as read. With sufficient permission, you can acknowledge water-parameter warnings.",
       "Acknowledging records that you have seen the warning. It does not change the reading or fix the cause in your tank."
     ],
-    "extra": []
+    "extra": [],
+    "features": [
+      {
+        "title": "Post reactions",
+        "text": "These notifications show likes and comments. Marking them read clears the unread status without deleting the post or comment."
+      },
+      {
+        "title": "Water warnings",
+        "text": "A warning takes you to the affected tank. Check the reading and tank conditions before acknowledging it."
+      },
+      {
+        "title": "Read does not mean resolved",
+        "text": "Acknowledging a warning does not change a reading. You still need to perform any necessary care or repeat test."
+      }
+    ]
+  },
+  {
+    "id": "rechtliches",
+    "title": "Visibility, terms and contact",
+    "intro": "The page footer links to operator details, privacy information, terms and contact. This public guide can be read without an account.",
+    "image": null,
+    "caption": null,
+    "steps": [
+      "Use the footer links for legal information, privacy, terms or contact, depending on what you need.",
+      "Read the terms before registration. A new version can require signed-in users to consent again.",
+      "Confirm only if you agree. If you do not want to continue, you can sign out from the consent dialog.",
+      "Distinguish tank shares, server-only Social posts and public posts. Sharing a link does not automatically make private content public.",
+      "For account or server questions, contact the listed operator. Do not send passwords, API keys or unsanitized backups."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Private tank",
+        "text": "Access depends on the account and tank sharing permissions."
+      },
+      {
+        "title": "Public post",
+        "text": "The content is intended for visitors without an account as well."
+      },
+      {
+        "title": "Guide and contact",
+        "text": "The guide explains usage. The operator helps with access, email and this server’s setup."
+      }
+    ]
   },
   {
     "id": "offline",
@@ -437,6 +923,50 @@
         "title": "Local data is not a backup",
         "text": "Pending changes exist only on this device and are not included in server backups. Browser data can be deleted. Synchronize regularly. Sign in again after an account change if another tab has changed your session."
       }
+    ],
+    "features": [
+      {
+        "title": "On the home screen",
+        "text": "An installed web app opens like a separate application. Installing it alone does not download all tank data."
+      },
+      {
+        "title": "Saved locally",
+        "text": "Local means on this device in the browser you are using. Other devices and server backups receive a change only after successful synchronization."
+      },
+      {
+        "title": "Automatic synchronization",
+        "text": "With a reachable server, the open app synchronizes data. Offline, you can see the local data timestamp and try to synchronize manually."
+      }
+    ]
+  },
+  {
+    "id": "konflikte",
+    "title": "Understand pending changes and conflicts",
+    "intro": "When you work offline, a change waits on this device. If the same record changed elsewhere, the app needs your decision.",
+    "image": null,
+    "caption": null,
+    "steps": [
+      "Open the list of locally saved entries when synchronization is pending. Check which action is waiting.",
+      "Reconnect and keep the app open. Offline, you can use “Synchronize now”.",
+      "For a conflict, read the local and server versions. Decide which data is still correct.",
+      "“Apply local version” retries your change against the new starting point. Another conflict is possible if the record changes again.",
+      "“Discard” removes the local action; dependent actions may also be removed. Independent entries stay separate.",
+      "Before switching devices or clearing browser data, wait for synchronization to finish. For an error, also check current write permission."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Pending",
+        "text": "The change is saved locally but has not been confirmed by the server."
+      },
+      {
+        "title": "Conflict",
+        "text": "The same data changed since your starting point, so it is not simply overwritten."
+      },
+      {
+        "title": "Discard or apply",
+        "text": "You decide what happens to the pending local action. That decision is not a backup."
+      }
     ]
   },
   {
@@ -455,6 +985,20 @@
       {
         "title": "No automatic online actions",
         "text": "These requests are not stored persistently and are not replayed automatically when reconnecting. Changing the view or signed-in account discards the pending retry. Locally queued aquarium actions still synchronize through their separate offline queue."
+      }
+    ],
+    "features": [
+      {
+        "title": "Offline notice",
+        "text": "The notice means the request cannot reach the server. You can continue using local tank data that is already available."
+      },
+      {
+        "title": "Check now",
+        "text": "This button retries the paused request. It is different from synchronizing tank actions already saved locally."
+      },
+      {
+        "title": "Close",
+        "text": "Closing ends this attempt. It does not store the online request as a task for later."
       }
     ]
   },
@@ -476,6 +1020,20 @@
         "title": "Catalogs are not downloaded on every click",
         "text": "Existing offline catalogs are normally checked at most every twelve hours. Failed catalog synchronization can be retried. New data appears in the relevant views after successful synchronization."
       }
+    ],
+    "features": [
+      {
+        "title": "New interface",
+        "text": "A prepared interface update can be activated with “Load now”. This reloads the tab, so save unfinished input first."
+      },
+      {
+        "title": "Continue for now",
+        "text": "“Later” lets you continue in the open version. Once all previous tabs are closed, the browser can activate a waiting update normally."
+      },
+      {
+        "title": "New catalog data",
+        "text": "Species, plant and health changes are loaded separately. These data changes do not need an interface update notice."
+      }
     ]
   },
   {
@@ -496,22 +1054,50 @@
         "title": "Install or update",
         "text": "The repository’s technical documentation describes installation and server configuration. This user guide explains everyday use. Docker commands and server credentials belong with the operator."
       }
+    ],
+    "features": [
+      {
+        "title": "First administrator account",
+        "text": "This account manages the new installation. Regular users do not need administrator access."
+      },
+      {
+        "title": "Registration and email",
+        "text": "Registration mode determines who can create an account. Email delivery is needed for confirmations, invitations and reminders."
+      },
+      {
+        "title": "Public address and backups",
+        "text": "Mobile and offline use need a suitable HTTPS address. Backups preserve the server state for a later emergency."
+      }
     ]
   },
   {
     "id": "admin",
-    "title": "Administration: users and registration",
+    "title": "Manage users and administrator access",
     "intro": "Only authorized administrator accounts can see the admin area. Regular users do not need it for aquarium care.",
     "image": "admin",
     "caption": "The demo administrator’s user management view.",
     "steps": [
-      "Open “Admin” in the header. Under “User management”, search accounts, create users or edit the available account details.",
-      "Grant administrator rights only to people allowed to manage server data and users. Check which data is affected before deleting an account.",
-      "Under “Invitations & registration”, set the registration mode and manage codes and email invitations.",
-      "Check expiration and usage limits before sending an invitation. Revoke invitations you no longer need.",
-      "“Metrics” shows the available aggregated usage data. A requested statistics password is separate from a regular account password."
+      "Open “Admin” and the user management tab. Search by username or email address.",
+      "If needed, create an account using the available fields. Give each person their own account.",
+      "To correct details, edit the right user. Check the address and email verification status before saving.",
+      "Grant administrator access only to people who may manage users and server settings. A tank share is sufficient for working on one tank.",
+      "Delete an account only after checking the consequences and confirmation. Save any needed data first."
     ],
-    "extra": []
+    "extra": [],
+    "features": [
+      {
+        "title": "Manage users",
+        "text": "You can find or create accounts and change the available account details. Check the affected person before each change."
+      },
+      {
+        "title": "Administrator access",
+        "text": "Administrators can manage server-wide settings and users. This is broader than write access to one tank."
+      },
+      {
+        "title": "Delete accounts",
+        "text": "Deleting a user can affect associated data. Read the confirmation and save any needed data first."
+      }
+    ]
   },
   {
     "id": "admin-einladungen",
@@ -525,7 +1111,21 @@
       "Create a code or email invitation and set its expiration and usage limit.",
       "Share invitations only with the intended person and revoke invitations you no longer need."
     ],
-    "extra": []
+    "extra": [],
+    "features": [
+      {
+        "title": "Registration mode",
+        "text": "Open allows normal registration. Invitation modes require a valid code; closed prevents new registrations."
+      },
+      {
+        "title": "Code or email",
+        "text": "A code can be passed to the intended person. An email invitation sends access through the configured mail server."
+      },
+      {
+        "title": "Expiry and usage limit",
+        "text": "These settings limit how long and how often an invitation can be used. Revoking invalidates an invitation you no longer need."
+      }
+    ]
   },
   {
     "id": "admin-metriken",
@@ -538,11 +1138,25 @@
       "If needed, set up the separate metrics password or use it to unlock the view.",
       "Read the aggregated figures and available breakdowns. These are operational statistics, not assessments of your aquariums."
     ],
-    "extra": []
+    "extra": [],
+    "features": [
+      {
+        "title": "Summary counts",
+        "text": "The overview shows aggregate operating figures such as accounts and tanks. It does not rate the quality of animal care."
+      },
+      {
+        "title": "AI usage",
+        "text": "Requests and reported token counts provide a usage overview. They do not replace the provider’s billing information. Tokens are small pieces of text counted by an AI provider during processing."
+      },
+      {
+        "title": "Additional lock",
+        "text": "The metrics password provides extra protection for this area. It is independent of your normal account password."
+      }
+    ]
   },
   {
     "id": "mail",
-    "title": "Administration: email, legal details and logs",
+    "title": "Email delivery and operator details",
     "intro": "These settings affect everyone using your installation.",
     "image": "mail",
     "caption": "Email delivery and operator settings in the demo.",
@@ -553,7 +1167,21 @@
       "Maintain the available operator, contact and legal details for your installation. Public pages are also linked in the footer.",
       "Under “Logs”, search messages and filter by severity. Older entries load progressively; review logs for personal data before sharing them."
     ],
-    "extra": []
+    "extra": [],
+    "features": [
+      {
+        "title": "SMTP connection",
+        "text": "SMTP is how the app sends email. The mail provider supplies the host, port, encryption settings and credentials."
+      },
+      {
+        "title": "Test email and queue",
+        "text": "A test email checks delivery. The queue shows pending or failed deliveries; it is not an inbox."
+      },
+      {
+        "title": "Operator details",
+        "text": "Contact information and legal details apply to the whole installation. Check the public pages after saving changes."
+      }
+    ]
   },
   {
     "id": "admin-logs",
@@ -567,7 +1195,21 @@
       "Load older entries if the message you need is not yet visible.",
       "Read each message together with its timestamp and the action performed. Remove personal data and credentials before sharing an excerpt."
     ],
-    "extra": []
+    "extra": [],
+    "features": [
+      {
+        "title": "Filter messages",
+        "text": "Severity and search terms help locate relevant events. Warnings and errors can have causes other than incorrect user input."
+      },
+      {
+        "title": "Compare timestamps",
+        "text": "Compare the log time with when the problem occurred. This helps connect an error to the relevant action."
+      },
+      {
+        "title": "Share or clear logs",
+        "text": "Share only checked excerpts without personal data or credentials. Clearing removes diagnostic information and does not fix the cause."
+      }
+    ]
   },
   {
     "id": "backups",
@@ -587,6 +1229,20 @@
       {
         "title": "Backups are confidential",
         "text": "Backups may contain account, aquarium and image data. Do not share them publicly. Local automatic backups alone do not protect against loss of the entire server."
+      }
+    ],
+    "features": [
+      {
+        "title": "Create a backup",
+        "text": "A backup contains the saved server state. Depending on the options, it includes images and encryption; pending device actions are absent until synchronized."
+      },
+      {
+        "title": "Automatic backups and retention",
+        "text": "A schedule creates backups regularly. Retention determines which older backups are kept."
+      },
+      {
+        "title": "Restore",
+        "text": "Restoring replaces the server data. Keep the password and server encryption key safe and stored separately."
       }
     ]
   },
@@ -609,6 +1265,20 @@
       {
         "title": "Share this guide publicly",
         "text": "The address ends in /handbuch/en/ and requires no sign-in. All accounts and aquarium data shown are fictional. Screenshots show the real app; depending on language, device, permissions and server configuration, buttons may look different or be unavailable."
+      }
+    ],
+    "features": [
+      {
+        "title": "Permission or connection",
+        "text": "Missing permissions and an unreachable server are different problems. Read the message in the affected area first."
+      },
+      {
+        "title": "Try again",
+        "text": "Reload a failed section or use “Check now”. Before sending again, check whether the action already arrived."
+      },
+      {
+        "title": "Ask for help",
+        "text": "State the action, area and exact error. A sanitized screenshot helps; credentials should never be included."
       }
     ]
   }

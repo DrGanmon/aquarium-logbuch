@@ -126,5 +126,17 @@
   "online-funktionen": {
     "width": 390,
     "height": 844
+  },
+  "passwort": {
+    "width": 1440,
+    "height": 1000
+  },
+  "messzyklus": {
+    "width": 1440,
+    "height": 1000
+  },
+  "bestand": {
+    "width": 1440,
+    "height": 1000
   }
 }

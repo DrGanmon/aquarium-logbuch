@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Antennenwelse um 69 recherchierte Auswahleinträge erweitern und insgesamt 79 belegte Ancistrus-L-Nummern einschließlich Synonymen und L144 auffindbar machen. Arten und unbestimmte Referenzeinträge gemeinsam auswählbar halten, ohne sie taxonomisch als Unterformen oder mit geerbten Haltungswerten zu behandeln. Artbezogene Profilwerte, Aquarium-/Offline-Anzeige und allgemeine Health-Zuordnung ergänzen; widersprüchliche und fehlende Angaben dokumentieren.
+- Öffentliches Nutzerhandbuch auf Deutsch und Englisch neu gliedern: neun Themenbereiche mit 40 Kapiteln, kurzen Erklärungen aller Bedienfunktionen und klaren Schrittfolgen. Schnellstart, Passwort-Hilfe, Messzyklus, Formen/L-Nummern, Kontolöschung, Sichtbarkeit und Synchronisationskonflikte als eigene Kapitel ergänzen. Neue echte Demo-Screenshots, gruppierte Navigation sowie Handy- und Druckdarstellung pflegen; statische Auslieferung ohne zusätzliche App-Last erhalten.
+
+## 0.3.4-ALPHA
+
+- Antennenwelse um 69 recherchierte Auswahleinträge erweitern und insgesamt 79 belegte Ancistrus-L-Nummern einschließlich Synonymen und L144 auffindbar machen. Arten und unbestimmte Referenzeinträge gemeinsam auswählbar halten, ohne sie taxonomisch als Unterformen oder mit geerbten Haltungswerten zu behandeln. Artbezogene Profilwerte, Aquarium-/Offline-Anzeige und allgemeine Health-Zuordnung ergänzen; widersprüchliche und fehlende Angaben dokumentieren. (`d4a74345af89ed97ff51311e255ab34b30cb7bfe`, 2026-10-16).
 
 ## 0.3.3-ALPHA
 
