@@ -1018,7 +1018,7 @@
     "extra": [
       {
         "title": "Kataloge werden nicht bei jedem Klick neu heruntergeladen",
-        "text": "Bereits vorhandene Offline-Kataloge werden regulär höchstens alle zwölf Stunden geprüft. Bei einem fehlgeschlagenen Katalogabgleich gibt es eine Wiederholungsmöglichkeit. Neue Daten erscheinen nach erfolgreichem Abgleich in den betroffenen Ansichten."
+        "text": "Bereits vorhandene Offline-Kataloge werden regulär höchstens alle zwölf Stunden geprüft. Bei einem fehlgeschlagenen Katalogabgleich gibt es eine Wiederholungsmöglichkeit. Neue Daten erscheinen nach erfolgreichem Abgleich in den betroffenen Ansichten. Nach einer Änderung der Katalogleselogik prüft die App vorhandene Kataloge einmalig früher. Geöffnete Formauswahlen werden nach dem erfolgreichen Abgleich ergänzt; deine Auswahl und Eingaben bleiben erhalten."
       }
     ],
     "features": [

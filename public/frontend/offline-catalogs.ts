@@ -5,6 +5,8 @@ import { activeOwner, readLocal, writeLocal, offlineState } from './offline-stor
 const memory = new Map<string, CatalogSnapshot>();
 const running = new Map<string, Promise<void>>();
 const retryAfter = new Map<string, number>();
+// Revalidate once after query/selection semantics change; retain legacy snapshots offline.
+const READER_REVISION = 2;
 const CHECK_INTERVAL = 12 * 60 * 60 * 1000;
 const keyFor = (kind: CatalogName, lang: string) => `catalog:${CATALOG_SCHEMA}:${lang}:${kind}`;
 function complete(snapshot: CatalogSnapshot) {
@@ -48,7 +50,8 @@ export async function synchronizeCatalogs(owner: number, language: string, force
       const key = keyFor(kind, lang);
       const previous = await snapshotFor(kind, lang);
       const checked = await readLocal<number>(`${key}:checked`);
-      if (!force && previous && checked && Date.now() - checked < CHECK_INTERVAL) continue;
+      const reader = await readLocal<number>(`${key}:checked-reader`);
+      if (!force && previous && reader === READER_REVISION && checked && Date.now() - checked < CHECK_INTERVAL) continue;
       offlineState.catalogSyncing = true;
       const response = await fetch(`api/catalogs/${kind}?lang=${lang}`, {
         credentials: 'same-origin', cache: 'no-store', signal: AbortSignal.timeout(60000),
@@ -58,6 +61,7 @@ export async function synchronizeCatalogs(owner: number, language: string, force
       if (await activeOwner() !== owner || response.headers.get('X-Aquarium-User') !== String(owner)) return;
       if (response.status === 304 && previous) {
         await writeLocal(`${key}:checked`, Date.now());
+        await writeLocal(`${key}:checked-reader`, READER_REVISION);
         continue;
       }
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -66,6 +70,7 @@ export async function synchronizeCatalogs(owner: number, language: string, force
       await writeLocal(key, snapshot);
       memory.set(key, snapshot);
       await writeLocal(`${key}:checked`, Date.now());
+      await writeLocal(`${key}:checked-reader`, READER_REVISION);
       window.dispatchEvent(new CustomEvent('aquarium-catalogs-updated', { detail: { kind, language: lang } }));
     }
   })().catch(error => {

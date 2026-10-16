@@ -1018,7 +1018,7 @@
     "extra": [
       {
         "title": "Catalogs are not downloaded on every click",
-        "text": "Existing offline catalogs are normally checked at most every twelve hours. Failed catalog synchronization can be retried. New data appears in the relevant views after successful synchronization."
+        "text": "Existing offline catalogs are normally checked at most every twelve hours. Failed catalog synchronization can be retried. New data appears in the relevant views after successful synchronization. After the catalog-reading logic changes, the app checks existing catalogs earlier once. Open form selections update after successful synchronization; your selection and input are preserved."
       }
     ],
     "features": [

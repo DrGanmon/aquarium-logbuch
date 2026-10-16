@@ -6,9 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Öffentliches Nutzerhandbuch auf Deutsch und Englisch neu gliedern: neun Themenbereiche mit 40 Kapiteln, kurzen Erklärungen aller Bedienfunktionen und klaren Schrittfolgen. Schnellstart, Passwort-Hilfe, Messzyklus, Formen/L-Nummern, Kontolöschung, Sichtbarkeit und Synchronisationskonflikte als eigene Kapitel ergänzen. Neue echte Demo-Screenshots, gruppierte Navigation sowie Handy- und Druckdarstellung pflegen; statische Auslieferung ohne zusätzliche App-Last erhalten.
+- Ältere Offline-Kataloge nach einer geänderten Katalogleselogik einmalig vor Ablauf der Zwölf-Stunden-Frist bedingt neu prüfen, vorhandene Daten bei Fehlern erhalten und anschließend wieder regulär drosseln. Geöffnete Tier-/Pflanzen-Hinzufügen-Dialoge nach erfolgreichem Katalogabgleich aktualisieren, ohne Aquarium, Anzahl oder gewählte Form zurückzusetzen. Offline-Speicherung und deduplizierte Übertragung konkreter Formen mit SQLite und MongoDB absichern.
 
 ## 0.3.4-ALPHA
+
+- Öffentliches Nutzerhandbuch auf Deutsch und Englisch neu gliedern: neun Themenbereiche mit 40 Kapiteln, kurzen Erklärungen aller Bedienfunktionen und klaren Schrittfolgen. Schnellstart, Passwort-Hilfe, Messzyklus, Formen/L-Nummern, Kontolöschung, Sichtbarkeit und Synchronisationskonflikte als eigene Kapitel ergänzen. Neue echte Demo-Screenshots, gruppierte Navigation sowie Handy- und Druckdarstellung pflegen; statische Auslieferung ohne zusätzliche App-Last erhalten. (`094e8c7a5f6020f283994e22aea085463c100149`, 2026-10-16).
 
 - Antennenwelse um 69 recherchierte Auswahleinträge erweitern und insgesamt 79 belegte Ancistrus-L-Nummern einschließlich Synonymen und L144 auffindbar machen. Arten und unbestimmte Referenzeinträge gemeinsam auswählbar halten, ohne sie taxonomisch als Unterformen oder mit geerbten Haltungswerten zu behandeln. Artbezogene Profilwerte, Aquarium-/Offline-Anzeige und allgemeine Health-Zuordnung ergänzen; widersprüchliche und fehlende Angaben dokumentieren. (`d4a74345af89ed97ff51311e255ab34b30cb7bfe`, 2026-10-16).
 

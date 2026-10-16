@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref, watch } from "vue";
+import { useCatalogDefinition } from "../composables/catalog-definition";
 import VariantSelect from "./VariantSelect.vue";
 import Modal from "./Modal.vue";
 import { api } from "../api";
@@ -7,7 +8,7 @@ import { t, errorMessage, toast } from "../state";
 import type { Aquarium, Species, Id } from "../types";
 const props = defineProps<{ species: Species }>();
 const emit = defineEmits<{ close: []; added: [] }>();
-const definition = ref(props.species), selectedId = ref(props.species.id);
+const selectedId = ref(props.species.id);
 watch(selectedId, id => { count.value = Math.max(1, definition.value.variants?.find(item => item.id === id)?.minGroupCount || definition.value.minGroupCount || 1); });
 const aquariums = ref<Aquarium[]>([]);
 const aquariumId = ref<Id | "">("");
@@ -19,6 +20,7 @@ const loading = ref(true);
 const busy = ref(false);
 const error = ref("");
 const request = new AbortController();
+const { definition, refresh: refreshDefinition } = useCatalogDefinition("species", props.species, caught => { error.value = errorMessage(caught); });
 const eligible = computed(() => aquariums.value.filter((aq) => ["owner", "write"].includes(aq.role || "") && aq.water_type === props.species.waterType));
 const validCount = computed(() => Number.isInteger(count.value) && count.value >= 1 && count.value <= 10000);
 const pageCount = computed(() => Math.ceil((validCount.value ? count.value : 0) / 10));
@@ -28,8 +30,7 @@ async function loadAquariums() {
   loading.value = true;
   error.value = "";
   try {
-    const detail = await api<{ species: Species }>(`/species/${encodeURIComponent(props.species.variantOf || props.species.selectionOf || props.species.id)}`, { signal: request.signal });
-    definition.value = detail.species;
+    await refreshDefinition();
     aquariums.value = await api<Aquarium[]>("/aquariums", { signal: request.signal });
     if (eligible.value.length === 1) aquariumId.value = eligible.value[0]!.id;
   } catch (e) { if (!request.signal.aborted) error.value = errorMessage(e); }

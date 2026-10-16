@@ -9,7 +9,7 @@ const query = require('../dist/backend/src/shared/offline-catalog-query');
 function fixture() {
   const records = new Map(), writes = [], calls = [], events = [];
   const state = {};
-  let owner = 7, fail, wrongOwner = false;
+  let owner = 7, fail, wrongOwner = false, version = 'a'.repeat(64);
   const data = {
     species: { species: [{ id: 'test', name: 'Test fish', scientificName: 'Fish', waterType: 'fresh' }], categories: [] },
     plants: { plants: [], fieldDefinitions: {}, sources: {}, searchText: {} },
@@ -31,11 +31,11 @@ function fixture() {
       if (fail === 'transport') throw new TypeError('Download interrupted');
       const headers = { 'X-Aquarium-User': wrongOwner ? '8' : '7' };
       if (fail === 'malformed') return new Response(JSON.stringify({ schema: 1, kind, language: 'de', version: 'b'.repeat(64), data: {} }), { headers });
-      if (options.headers['If-None-Match']) return new Response(null, { status: 304, headers });
-      return new Response(JSON.stringify({ schema: 1, kind, language: path.includes('lang=en') ? 'en' : 'de', version: 'a'.repeat(64), data: data[kind] }), { headers });
+      if (options.headers['If-None-Match'] === '"' + version + '"') return new Response(null, { status: 304, headers });
+      return new Response(JSON.stringify({ schema: 1, kind, language: path.includes('lang=en') ? 'en' : 'de', version, data: data[kind] }), { headers });
     }, Response,
   });
-  return { exports, records, writes, calls, events, state, fail: value => { fail = value; }, owner: value => { owner = value; }, wrongOwner: () => { wrongOwner = true; } };
+  return { exports, records, writes, calls, events, state, data, version: value => { version = value; }, fail: value => { fail = value; }, owner: value => { owner = value; }, wrongOwner: () => { wrongOwner = true; } };
 }
 
 test('Catalog sync: complete snapshots persist once, 12-hour throttle avoids polling payloads, 304 keeps data untouched', async () => {
@@ -44,7 +44,7 @@ test('Catalog sync: complete snapshots persist once, 12-hour throttle avoids pol
   assert.equal(f.calls.length, 3);
   assert.equal(f.events.length, 3);
   assert.equal(f.state.catalogSyncing, false);
-  const snapshotWrites = () => f.writes.filter(key => !key.endsWith(':checked')).length;
+  const snapshotWrites = () => f.writes.filter(key => !key.includes(':checked')).length;
   assert.equal(snapshotWrites(), 3);
   await f.exports.synchronizeCatalogs(7, 'de');
   assert.equal(f.calls.length, 3);
@@ -84,4 +84,34 @@ test('Catalog sync: account changes prevent committing responses and parallel re
   const count = f.calls.length;
   await f.exports.synchronizeCatalogs(7, 'de', true);
   assert.equal(f.calls.length, count);
+});
+
+test('Catalog sync: a reader upgrade revalidates recently checked legacy snapshots once without deleting them', async () => {
+  const f = fixture();
+  await f.exports.synchronizeCatalogs(7, 'de');
+  for (const kind of ['species', 'plants', 'health']) f.records.delete(`catalog:1:de:${kind}:checked-reader`);
+  const previous = f.records.get('catalog:1:de:species');
+  const before = f.calls.length;
+  await f.exports.synchronizeCatalogs(7, 'de');
+  assert.equal(f.calls.length, before + 3, 'A new catalog reader must not wait 12 hours for pre-variant snapshots');
+  assert.equal(f.records.get('catalog:1:de:species'), previous, '304 retains the existing offline data');
+  assert.equal(f.calls[before].options.headers['If-None-Match'], '"' + previous.version + '"');
+  await f.exports.synchronizeCatalogs(7, 'de');
+  assert.equal(f.calls.length, before + 3, 'The regular 12-hour throttle resumes after validation');
+});
+
+test('Catalog sync: a new reader replaces stale pre-variant data and retains old data if that attempt fails', async () => {
+  const f = fixture();
+  await f.exports.synchronizeCatalogs(7, 'de');
+  for (const kind of ['species', 'plants', 'health']) f.records.delete(`catalog:1:de:${kind}:checked-reader`);
+  f.data.species.species.push({ id: 'test-gold', name: 'Gold', waterType: 'fresh', variantOf: 'test', variantKind: 'color' });
+  f.version('b'.repeat(64));f.fail('transport');
+  await f.exports.synchronizeCatalogs(7, 'de');
+  assert.equal((await f.exports.readOfflineCatalog('/species?limit=24&q=Gold', 'de')).total, 0);
+  assert.equal(f.records.has('catalog:1:de:species:checked-reader'), false);
+  f.fail(undefined);
+  await f.exports.synchronizeCatalogs(7, 'de', true);
+  const result = await f.exports.readOfflineCatalog('/species?limit=24&q=Gold', 'de');
+  assert.equal(result.total, 1);assert.equal(result.species[0].id, 'test');
+  assert.equal(result.species[0].variants[0].id, 'test-gold');
 });

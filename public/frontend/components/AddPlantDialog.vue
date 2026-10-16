@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref, watch } from "vue";
+import { useCatalogDefinition } from "../composables/catalog-definition";
 import VariantSelect from "./VariantSelect.vue";
 import Modal from "./Modal.vue";
 import { api } from "../api";
@@ -8,10 +9,11 @@ import type { Aquarium, Id, AquariumPlant } from "../types";
 import type { PlantSummary } from "../../../src/shared/plants";
 const props = defineProps<{ plant: PlantSummary; aquariumId?: string }>();
 const emit = defineEmits<{ close: []; added: [] }>();
-const definition = ref(props.plant), selectedId = ref(props.plant.id);
+const selectedId = ref(props.plant.id);
 const aquariums = ref<Aquarium[]>([]), selectedAquariumId = ref<Id | "">("");
 const count = ref(1), loading = ref(true), busy = ref(false), countLoading = ref(false), error = ref("");
 const request = new AbortController();
+const { definition, refresh: refreshDefinition } = useCatalogDefinition("plants", props.plant, caught => { error.value = errorMessage(caught); });
 let countRequest: AbortController | undefined;
 const eligible = computed(() => aquariums.value.filter(aq => ['owner', 'write'].includes(aq.role || '') && aq.water_type === props.plant.waterType));
 const valid = computed(() => Number.isInteger(count.value) && count.value >= 1 && count.value <= 10000);
@@ -20,8 +22,7 @@ onMounted(load);
 async function load() {
   loading.value = true;error.value = '';
   try {
-    const detail = await api<{ plant: PlantSummary }>(`/plants/${encodeURIComponent(props.plant.variantOf || props.plant.id)}`, { signal: request.signal });
-    definition.value = detail.plant;
+    await refreshDefinition();
     aquariums.value = await api<Aquarium[]>('/aquariums', { signal: request.signal });
     selectedAquariumId.value = eligible.value.find(aq => String(aq.id) === props.aquariumId)?.id || (eligible.value.length === 1 ? eligible.value[0]!.id : '');
   } catch (caught) { if (!request.signal.aborted) error.value = errorMessage(caught); }

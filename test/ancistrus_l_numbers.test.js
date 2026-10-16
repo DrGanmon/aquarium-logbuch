@@ -62,3 +62,37 @@ for (const type of ['sqlite', 'mongodb']) test(`Ancistrus: Suche, Bestand, Healt
     assert.ok(residents.every(entry => entry.supported));
   }
 });
+
+for (const type of ['sqlite', 'mongodb']) test(`Offline forms: animal and plant choices survive local writes, server replay and duplicate delivery (${type})`, { timeout: 90000 }, async t => {
+  const { randomUUID } = require('node:crypto');
+  const { applyLocalOperation, deriveWorkspace } = require('../dist/backend/src/shared/offline-workspace-model');
+  const env = type === 'mongodb' ? await createMongoTestEnvironment() : createTestEnvironment();t.after(() => env.cleanup());
+  const user = await env.createUserAndLogin('offline_forms_' + type), headers = { Cookie: user.cookie };
+  const owner = (await env.request('/api/me', { headers })).data.id;
+  const aquarium = (await env.request('/api/aquariums', { method: 'POST', headers, body: { name: 'Offline forms', water_type: 'fresh', volume_l: 300 } })).data;
+  const root = '/aquariums/' + aquarium.id;
+  const snapshot = (await env.request('/api/offline/state', { headers })).data;
+  const catalogs = {};
+  for (const kind of ['species', 'plants', 'health']) catalogs[kind] = (await env.request('/api/catalogs/' + kind + '?lang=de', { headers })).data;
+  const inputs = [
+    [root + '/stock/catalog', 'POST', { speciesId: 'ancistrus-dolichopterus', count: 1, names: ['L183'] }],
+    [root + '/stock/catalog', 'POST', { speciesId: 'trichopodus-trichopterus-gold', count: 1, names: ['Goldie'] }],
+    [root + '/plants/anubias-nana-pangolino', 'PUT', { count: 2 }],
+    [root + '/plants/anubias-nana-pinto', 'PUT', { count: 5 }],
+  ];
+  const commands = inputs.map(([path, method, body], index) => ({ id: randomUUID(), owner, kind: 'workspace', aquarium: String(aquarium.id), path, method, body, base: method === 'PUT' ? 'missing' : null, temporaryIds: [-100 - index], createdAt: new Date().toISOString() }));
+  for (const command of commands) applyLocalOperation(snapshot, command, catalogs);
+  deriveWorkspace(snapshot, catalogs);
+  assert.deepEqual(snapshot.responses[root + '/stock'].map(row => row.speciesId), ['ancistrus-dolichopterus', 'trichopodus-trichopterus-gold']);
+  assert.ok(snapshot.responses[root + '/stock'].every(row => row.variantName));
+  assert.deepEqual(snapshot.responses[root + '/plants'].map(row => [row.plant_id, row.count]), [['anubias-nana-pangolino', 2], ['anubias-nana-pinto', 5]]);
+  for (const command of commands) {
+    const saved = await env.request('/api/offline/operations', { method: 'POST', headers, body: command });
+    assert.equal(saved.status, 200, saved.text);
+    assert.deepEqual((await env.request('/api/offline/operations', { method: 'POST', headers, body: command })).data, saved.data);
+  }
+  const stock = (await env.request('/api' + root + '/stock', { headers })).data;
+  assert.deepEqual(stock.map(row => row.speciesId).sort(), ['ancistrus-dolichopterus', 'trichopodus-trichopterus-gold']);
+  const plants = (await env.request('/api' + root + '/plants', { headers })).data;
+  assert.deepEqual(plants.map(row => [row.plant_id, row.count]).sort(), [['anubias-nana-pangolino', 2], ['anubias-nana-pinto', 5]]);
+});
