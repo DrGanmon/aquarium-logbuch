@@ -42,7 +42,7 @@ export async function toggleLanguage() {
 export async function logout() {
   try {
     await api("/logout", { method: "POST" });
-    await writeLocal('activeOwner', undefined);
+    await writeLocal('activeOwner', undefined).catch(() => {});
     session.user = null;
     session.config = null;
     location.hash = "#/";

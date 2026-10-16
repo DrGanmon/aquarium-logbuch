@@ -38,6 +38,18 @@ function syncFixture() {
   });
   return { sync, session, state, queued, calls, events, ApiError, fail: value => { failure = value; }, user: value => { currentUser = value; } };
 }
+test('Offline sign-out: storage failure still clears the authenticated interface after server logout', async () => {
+ const session = { user: { id: 7 }, config: { private: true } }, location = { hash: '#/a/42' };
+ let loggedOut = false;
+ const router = load('public/frontend/router.ts', {
+  './offline-store': { writeLocal: async () => { throw new Error('Storage unavailable'); } },
+  './offline-sync': { startOfflineSync() {} },
+  vue: { ref: value => ({ value }), computed: fn => fn },
+  './state': { session, language: { value: 'de' }, toast: () => assert.fail('Successful server logout must complete'), errorMessage: error => error.message },
+  './api': { api: async path => { assert.equal(path, '/logout');loggedOut = true; } },
+ }, { location, window: { addEventListener() {} } });
+ await router.logout();assert.equal(loggedOut, true);assert.equal(session.user, null);assert.equal(session.config, null);assert.equal(location.hash, '#/');
+});
 
 test('Offline-Sync: lost response retains operation ID; retry removes only acknowledged entries', async () => {
   const f = syncFixture();
@@ -154,6 +166,16 @@ test('Offline reads: data from a changed account never enters the previous accou
   assert.equal(f.records.size, 0);
   assert.equal(f.session.user, null);
 });
+test('Offline reads: a sign-out or account switch in another tab invalidates stale local identity', async () => {
+  for (const owner of [undefined, 8]) {
+    const f = apiFixture();
+    await f.api.api('/aquariums/42');
+    f.records.set('activeOwner', owner);f.fail(new TypeError('offline'));
+    await assert.rejects(f.api.api('/aquariums/42'), error => error.status === 409);
+    assert.equal(f.session.user, null);
+    assert.equal(f.records.get('activeOwner'), owner, 'Do not sign out the other tab\'s account');
+  }
+});
 
 test('Offline identity survives language changes without mixing accounts', async () => {
   const f = apiFixture();
@@ -253,6 +275,7 @@ function updateWorkerFixture(fail = false) {
  const listeners = {}, cachesByName = new Map(), downloaded = [];
  const base = 'https://example.test/aquarium/', prefix = `aquarium-shell:${base}:`, old = 'a'.repeat(64), next = 'b'.repeat(64);
  let windows = [{ id: 'old-tab', url: base }], skips = 0;
+ const registration = { scope: base, installing: null, waiting: null };
  const open = async name => {
   if (!cachesByName.has(name)) {
    const rows = new Map();
@@ -268,14 +291,30 @@ function updateWorkerFixture(fail = false) {
   await cache.put(base, new Response('old HTML'));await cache.put(base + 'dist/app.min.js', new Response('old app'));await cache.put(base + 'dist/chunk-kept.js', new Response('kept chunk'));
   await open('another-app');
   load('public/frontend/service-worker.ts', {}, {
-   self: { registration: { scope: base }, location: { origin: 'https://example.test' }, addEventListener: (type, listener) => { listeners[type] = listener; }, skipWaiting: async () => { skips++; }, clients: { claim: async () => {}, matchAll: async () => windows } },
+   self: { registration, location: { origin: 'https://example.test' }, addEventListener: (type, listener) => { listeners[type] = listener; }, skipWaiting: async () => { skips++; }, clients: { claim: async () => {}, matchAll: async () => windows } },
    URL, Request, Response, Map, Set, caches: { open, keys: async () => [...cachesByName.keys()], delete: async name => cachesByName.delete(name) },
    fetch: async () => { throw new TypeError('No network needed for cached build'); },
   }, source => source.replace('/* OFFLINE_ASSETS */ []', JSON.stringify(['./', 'dist/app.min.js', 'dist/chunk-kept.js'])).replace('/* OFFLINE_REVISIONS */ {}', JSON.stringify({ './': 'new-html', 'dist/app.min.js': 'new-app', 'dist/chunk-kept.js': 'same' })).replace("/* OFFLINE_BUILD */ 'dev'", JSON.stringify(next)));
  };
  const event = async (type, data = {}) => { let task;listeners[type]({ ...data, waitUntil: promise => { task = promise; }, respondWith: promise => { task = promise; } });return task; };
- return { initialize, event, downloaded, cachesByName, base, prefix, old, next, skips: () => skips, windows: value => { windows = value; } };
+ return { initialize, event, downloaded, cachesByName, base, prefix, old, next, registration, skips: () => skips, windows: value => { windows = value; } };
 }
+test('Frontend cache: cleanup preserves installing and waiting update caches', async () => {
+ for (const state of ['installing', 'waiting']) {
+  const f = updateWorkerFixture();await f.initialize();await f.event('install');
+  f.windows([{ id: 'new-tab', url: f.base }]);f.registration[state] = {};
+  await f.event('message', { source: { id: 'new-tab' }, data: { type: 'CLIENT_VERSION', version: f.next } });
+  assert.equal(f.cachesByName.has(f.prefix + f.old), true);
+  f.registration[state] = null;
+  await f.event('message', { source: { id: 'new-tab' }, data: { type: 'CLIENT_VERSION', version: f.next } });
+  assert.equal(f.cachesByName.has(f.prefix + f.old), false);
+ }
+});
+test('Frontend cache: worker identifies its actual version to the requesting tab', async () => {
+ const f = updateWorkerFixture();await f.initialize();let message;
+ await f.event('message', { source: { postMessage: value => { message = value; } }, data: { type: 'GET_FRONTEND_VERSION' } });
+ assert.equal(message.type, 'FRONTEND_VERSION');assert.equal(message.version, f.next);
+});
 test('Frontend cache: copy unchanged files, wait for confirmation, retain old tabs and serve coherent HTML', async () => {
  const f = updateWorkerFixture();await f.initialize();await f.event('install');
  assert.deepEqual(f.downloaded.sort(), [f.base, f.base + 'dist/app.min.js'].sort());assert.equal(f.skips(), 0);

@@ -18,7 +18,13 @@ export async function api<T>(
   path: string,
   { method = "GET", body, signal, networkOnly = false }: RequestOptions = {},
 ): Promise<T> {
-  const owner = session.user?.id ?? await activeOwner().catch(() => undefined);
+  const storedOwner = await activeOwner().catch(() => session.user?.id);
+  if (session.user && storedOwner !== session.user.id && !['/login', '/register'].includes(path)) {
+    // Another tab may have signed out or switched accounts while this tab stayed open.
+    session.user = null;session.config = null;
+    throw new ApiError(t('offline.accountChanged'), 409);
+  }
+  const owner = session.user?.id ?? storedOwner;
   if (method === 'GET' && owner) {
     try {
       const local = await readOfflineCatalog(path, language.value, signal);

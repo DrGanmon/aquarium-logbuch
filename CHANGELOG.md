@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Frontend unabhängig von der App-Version über einen reproduzierbaren SHA-256-Inhaltshash und eine eigene Build-Versionsdatei versionieren. Beim Service-Worker-Update unveränderte Dateien übernehmen, neue Fassungen erst nach Bestätigung aktivieren und alte Dateien für offene Tabs erhalten. Footer-Version zur Laufzeit laden; Update-Hinweis, Dokumentation und Regressionstests für Inhaltsänderungen, stabile Builds und Offline-Caches anpassen. Docker Compose benötigt keine zusätzliche Konfiguration.
+- Sicherheits- und Fehlerprüfung der sechs lokalen Offline-/Frontend-Commits: lokale Sitzungen bei Kontowechsel oder Abmeldung in einem anderen Tab verwerfen, wiederholte Offline-Aktionen nach Entzug einer Freigabe sperren und erfolgreiche Abmeldungen auch bei lokalem Speicherfehler abschließen. Caches installierender oder wartender Frontend-Updates vor Bereinigung schützen, die tatsächlich vorbereitete Fassung prüfen und bereits in anderen Tabs aktivierte Updates nach Bestätigung laden. API-Dokumentation und Regressionstests ergänzen.
+
+## 0.2.5-ALPHA
+
+- 2026-10-16 · Frontend unabhängig von der App-Version über einen reproduzierbaren SHA-256-Inhaltshash und eine eigene Build-Versionsdatei versionieren. Beim Service-Worker-Update unveränderte Dateien übernehmen, neue Fassungen erst nach Bestätigung aktivieren und alte Dateien für offene Tabs erhalten. Footer-Version zur Laufzeit laden; Update-Hinweis, Dokumentation und Regressionstests für Inhaltsänderungen, stabile Builds und Offline-Caches anpassen. Docker Compose benötigt keine zusätzliche Konfiguration (`a7d537fce3bf5439e933b499f0f2836f0df8f75b`).
 
 ## 0.2.4-ALPHA
 

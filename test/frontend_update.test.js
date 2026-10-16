@@ -57,9 +57,26 @@ test('Frontend: Update erst nach Vorbereitung und Klick aktivieren; andere Tabs 
   const app = setup(async () => response(NEXT));app.mount();await app.flush();
   assert.equal(app.state.ready.value, false);app.events.controllerchange();assert.equal(app.reloads(), 0);
   app.registration.waiting = { postMessage: message => app.messages.push(message) };app.events.updatefound();
+  assert.equal(app.state.ready.value, false, 'A waiting worker must identify the offered build first');
+  app.events.message({ source: app.registration.waiting, data: { type: 'FRONTEND_VERSION', version: NEXT } });
   assert.equal(app.state.ready.value, true);
   app.state.reload();assert.deepEqual(app.messages.at(-1), { type: 'ACTIVATE_UPDATE', version: NEXT });assert.equal(app.reloads(), 0);
   app.events.controllerchange();assert.equal(app.reloads(), 1);app.unmount();
+});
+test('Frontend: nach Aktivierung in einem anderen Tab erst nach Bestätigung neu laden', async () => {
+  const app = setup(async () => response(NEXT));app.mount();await app.flush();
+  app.events.controllerchange();
+  app.events.message({ source: app.navigator.serviceWorker.controller, data: { type: 'FRONTEND_VERSION', version: NEXT } });
+  assert.equal(app.state.ready.value, true);assert.equal(app.reloads(), 0);
+  app.state.reload();assert.equal(app.reloads(), 1);app.unmount();
+});
+test('Frontend: ein anderer wartender Build ist nicht für das angebotene Update bereit', async () => {
+  const app = setup(async () => response(NEXT));app.mount();await app.flush();
+  app.registration.waiting = { postMessage: message => app.messages.push(message) };app.events.updatefound();
+  app.events.message({ source: app.registration.waiting, data: { type: 'FRONTEND_VERSION', version: CURRENT } });
+  assert.equal(app.state.ready.value, false);
+  app.state.reload();assert.equal(app.reloads(), 0);assert.ok(!app.messages.some(message => message.type === 'ACTIVATE_UPDATE'));
+  app.unmount();
 });
 test('Frontend: Netzwerkfehler erneut versuchen; offline, versteckte und abgebaute Ansichten prüfen nicht', async () => {
   let calls = 0;

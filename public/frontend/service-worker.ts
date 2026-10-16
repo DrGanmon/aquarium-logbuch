@@ -57,7 +57,11 @@ async function rememberClient(id: string, version: string, prune = true) {
   // Unknown tabs may still use an old build. Keep their caches until they identify themselves.
   if (windows.some(client => !versions[client.id])) return;
   const keep = new Set([shellCache, ...Object.values(versions).map(version => shellPrefix + version)]);
-  for (const name of await shellNames()) if (!keep.has(name)) await caches.delete(name);
+  for (const name of await shellNames()) {
+    // A different worker may already be preparing its cache or waiting for approval.
+    if (scope.registration.installing || scope.registration.waiting) return;
+    if (!keep.has(name)) await caches.delete(name);
+  }
 }
 scope.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
@@ -70,6 +74,10 @@ scope.addEventListener("activate", (event) => {
 scope.addEventListener("message", (event: ExtendableMessageEvent) => {
   const data = event.data as Timer & { version?: string };
   if (!data?.type) return;
+  if (data.type === 'GET_FRONTEND_VERSION') {
+    event.source?.postMessage({ type: 'FRONTEND_VERSION', version: offlineBuild });
+    return;
+  }
   if (data.type === 'ACTIVATE_UPDATE') {
     if (data.version === offlineBuild) event.waitUntil(scope.skipWaiting());
     return;

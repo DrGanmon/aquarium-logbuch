@@ -99,6 +99,11 @@ export async function applyWorkspaceOperation(original: Request, command: Worksp
     const previous = await findReceipt(key);
     if (previous) {
       if (previous.request_hash !== hash) throw new AppError('Die Operations-ID wurde bereits für andere Daten verwendet.', 409);
+      // Replays must respect revoked shares too. Deleted targets retain their receipts
+      // so a lost response can still be acknowledged without recreating anything.
+      if (command.path.startsWith('/aquariums/') && await db.aquariums.findById(Number(command.path.split('/')[2]))) {
+        await authorize(original, command.path, command.method);
+      }
       return JSON.parse(previous.response);
     }
     await authorize(original, command.path, command.method);
