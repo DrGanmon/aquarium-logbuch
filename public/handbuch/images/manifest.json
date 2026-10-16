@@ -1,0 +1,126 @@
+{
+  "anmeldung": {
+    "width": 1440,
+    "height": 1000
+  },
+  "uebersicht": {
+    "width": 1440,
+    "height": 1000
+  },
+  "aquarium-anlegen": {
+    "width": 1440,
+    "height": 1000
+  },
+  "messung": {
+    "width": 1440,
+    "height": 1000
+  },
+  "verlauf": {
+    "width": 1440,
+    "height": 1000
+  },
+  "logbuch": {
+    "width": 1440,
+    "height": 1000
+  },
+  "duenger": {
+    "width": 1440,
+    "height": 1000
+  },
+  "arten": {
+    "width": 1440,
+    "height": 1000
+  },
+  "besatz": {
+    "width": 1440,
+    "height": 1000
+  },
+  "pflanzen": {
+    "width": 1440,
+    "height": 1000
+  },
+  "galerie": {
+    "width": 1440,
+    "height": 1000
+  },
+  "freigaben": {
+    "width": 1440,
+    "height": 1000
+  },
+  "csv-import": {
+    "width": 1440,
+    "height": 1000
+  },
+  "gesundheit": {
+    "width": 1440,
+    "height": 1000
+  },
+  "diagnose": {
+    "width": 1440,
+    "height": 1000
+  },
+  "medikamente": {
+    "width": 1440,
+    "height": 1000
+  },
+  "ki-einstellungen": {
+    "width": 1440,
+    "height": 1000
+  },
+  "profil": {
+    "width": 1440,
+    "height": 1000
+  },
+  "testverbrauch": {
+    "width": 1440,
+    "height": 1000
+  },
+  "verbrauch": {
+    "width": 1440,
+    "height": 1000
+  },
+  "social": {
+    "width": 1440,
+    "height": 1000
+  },
+  "hinweise": {
+    "width": 1440,
+    "height": 1000
+  },
+  "offline": {
+    "width": 390,
+    "height": 844
+  },
+  "updates": {
+    "width": 1440,
+    "height": 1000
+  },
+  "einrichtung": {
+    "width": 1905,
+    "height": 2053
+  },
+  "admin": {
+    "width": 1440,
+    "height": 1000
+  },
+  "registrierung": {
+    "width": 1440,
+    "height": 1000
+  },
+  "metriken": {
+    "width": 1440,
+    "height": 1000
+  },
+  "mail": {
+    "width": 1440,
+    "height": 1000
+  },
+  "logs": {
+    "width": 1440,
+    "height": 1000
+  },
+  "backups": {
+    "width": 1440,
+    "height": 1000
+  }
+}

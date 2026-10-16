@@ -8,6 +8,8 @@ Aquarium-Logbuch ist eine selbst gehostete Web-App für Wasserwerte, Besatz und 
 
 **Deutsch** · [English](README.en.md) · [Handbuch](docs/de/README.md) · [Changelog](CHANGELOG.md)
 
+**Neu dabei?** Öffne das öffentliche **Nutzerhandbuch** über den Link im App-Footer oder unter `<App-Adresse>/handbuch/`. Es erklärt alle Bereiche mit Schrittfolgen und Demo-Screenshots, funktioniert ohne Anmeldung und lädt seine Bilder erst beim Lesen. [Handbuch pflegen oder separat bereitstellen](docs/user-guide/README.md).
+
 ## Transparenzhinweis: KI-generierte Software
 
 **Diese App wurde mithilfe generativer KI geschrieben und weiterentwickelt.** Quellcode und Dokumentation enthalten KI-generierte Inhalte. Dieser Hinweis dient der freiwilligen Transparenz in Anlehnung an [Artikel 50 des EU AI Act (Verordnung (EU) 2024/1689)](https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-50); er ist keine Erklärung vollständiger Rechtskonformität. Aus der KI-gestützten Entwicklung allein folgt keine pauschale Kennzeichnungspflicht für jede Software.

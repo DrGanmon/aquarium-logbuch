@@ -47,7 +47,7 @@ Die Testparameter und Standardwerte liegen in `../../src/config/suites/jbl-pro-a
 
 ## Messablauf, Verlauf und CSV
 
-Wähle im Profil oder in der Messmaske (`#/a/:id/messen`) die Testsuite und die tatsächlich verwendeten Tests. Werte werden bereits bei der Eingabe bewertet; Dezimalkomma ist erlaubt. Mehrere Reaktionstimer können gleichzeitig laufen. Ton, Vibration, Bildschirm-Wachhalten und Systembenachrichtigungen hängen von Browserunterstützung und Berechtigungen ab. Der Service Worker verarbeitet Timer-Nachrichten, speichert aber keine Offline-Version der App; Betriebssysteme können Hintergrundprozesse unterbrechen. Im Profil lässt sich eine Testbenachrichtigung auslösen.
+Wähle im Profil oder in der Messmaske (`#/a/:id/messen`) die Testsuite und die tatsächlich verwendeten Tests. Werte werden bereits bei der Eingabe bewertet; Dezimalkomma ist erlaubt. Mehrere Reaktionstimer können gleichzeitig laufen. Ton, Vibration, Bildschirm-Wachhalten und Systembenachrichtigungen hängen von Browserunterstützung und Berechtigungen ab. Der Service Worker verarbeitet Timer-Nachrichten und hält die App-Oberfläche für Offline-Neustarts vor; Betriebssysteme können Hintergrundprozesse unterbrechen. Im Profil lässt sich eine Testbenachrichtigung auslösen.
 
 Im Aquarium zeigen Diagramme und Tabelle den Messverlauf. Schnellfilter reichen von sieben Tagen bis zum gesamten Verlauf; Start und Ende können frei gewählt werden. Standardmäßig werden 90 Tage angezeigt, sofern im Profil kein anderer Zeitraum hinterlegt ist. Auffällige Werte erzeugen Warnungen oder kritische Alarme, die bestätigt werden können.
 

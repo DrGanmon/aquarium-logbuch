@@ -2,13 +2,10 @@
 
 [Handbuch](README.md) · [English](../en/administration.md) · [Projektübersicht](../../README.md)
 
-Die Admin-Ansicht ist in fünf Tabs gegliedert: **Userverwaltung**, **Einladung & Registrierung** (Registrierungsmodi, Gültigkeiten, Einladungscodes und E-Mail-Einladungen), **Einstellungen** (Rechtliches sowie E-Mail/SMTP inklusive Testmail und Warteschlange), **Backups** und **Logs**.
+Die Admin-Ansicht ist in sechs Tabs gegliedert: **Userverwaltung**, **Metriken**, **Einladung & Registrierung**, **Einstellungen**, **Backups** und **Logs**. Eine bebilderte Einführung findest du im öffentlichen Nutzerhandbuch deiner App unter `/handbuch/#admin`.
 
-Für die erste lokale Administratorregistrierung muss der Mailversand bereits über `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` und `SMTP_FROM` eingerichtet sein, damit die Adresse bestätigt werden kann. Bei bestehenden unbestätigten Konten lässt sich der Bestätigungslink erneut anfordern.
+Bei einer leeren Installation legt der Einrichtungs-Assistent das erste Administratorkonto an und fragt SMTP, automatische Backups und Registrierungsmodus ab. Administratorrechte werden als Rolle in der Datenbank gespeichert; es sind mehrere Administratoren möglich. Die Administration kann entsprechende Rechte über die Benutzerverwaltung vergeben. Bestehende bestätigte Konten aus der früheren `ADMIN_EMAIL`-Konfiguration werden beim Übergang berücksichtigt; eine passende E-Mail-Adresse ersetzt keine dauerhafte Rollenverwaltung. Ohne eingerichteten Mailversand funktionieren E-Mail-Bestätigungen, Passwort-Reset und Mail-Erinnerungen nicht.
 
-Der Administrator wird anhand der bestätigten E-Mail-Adresse festgelegt. Dazu entweder in `src/config/app-config.ts` oder über die Umgebungsvariable `ADMIN_EMAIL` die gewünschte E-Mail-Adresse hinterlegen (z. B. `ADMIN_EMAIL=admin@example.com` bzw. kommagetrennt für mehrere).
-
-- Benutzer erhalten Administratorrechte erst mit einer bestätigten E-Mail-Adresse, die mit `ADMIN_EMAIL` übereinstimmt. Das gilt auch nach Änderungen der Profiladresse. OIDC muss dafür `email_verified: true` liefern. E-Mail-Einladungen eines bereits bestätigten Administrators gelten als ausdrücklich freigegebene Konten; Einladungen anderer Benutzer erfordern eine zusätzliche E-Mail-Bestätigung.
 - Im Header erscheint der Button **Admin** (`#/admin`).
 - Administratoren können alle registrierten Benutzer einsehen, neue Benutzer anlegen, bestehende Benutzer bearbeiten (Benutzername, E-Mail, Passwort ändern) und Benutzer samt deren Daten löschen.
 - **Registrierungs-Modi & Einladungs-Verwaltung:**

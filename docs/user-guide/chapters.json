@@ -1,0 +1,596 @@
+[
+  {
+    "id": "start",
+    "title": "Anmelden und loslegen",
+    "intro": "Du brauchst die Adresse deiner Aquarium-App und ein Benutzerkonto. Dieses Handbuch kannst du auch ohne Anmeldung lesen.",
+    "image": "anmeldung",
+    "caption": "Die Anmeldeseite. Welche Anmeldewege angeboten werden, legt der Betreiber fest.",
+    "steps": [
+      "Öffne die Adresse deiner App im Browser. Melde dich mit Benutzername oder E-Mail-Adresse und Passwort an.",
+      "Noch kein Konto? Wähle „Registrieren“, falls diese Möglichkeit freigeschaltet ist. Gib die verlangten Angaben ein und lies und akzeptiere die Nutzungsbedingungen.",
+      "Bestätige deine E-Mail-Adresse über den zugesandten Link. Kommt keine Nachricht an, prüfe den Spamordner und frage den Betreiber nach dem Mailversand.",
+      "Bei einer Einladung öffnest du zuerst den Einladungslink oder verwendest den Einladungscode bei der Registrierung.",
+      "Wenn dein Betreiber Pocket ID oder einen anderen OpenID-Connect-Anbieter eingerichtet hat, kannst du den angebotenen externen Anmeldeweg verwenden."
+    ],
+    "extra": [
+      {
+        "title": "Passwort vergessen?",
+        "text": "Nutze die Passwort-zurücksetzen-Funktion auf der Anmeldeseite und öffne den Link aus der E-Mail. Das funktioniert nur bei eingerichtetem Mailversand. Gib dein Passwort und Bestätigungslinks nicht weiter."
+      }
+    ]
+  },
+  {
+    "id": "ueberblick",
+    "title": "Deine Übersicht",
+    "intro": "Nach der Anmeldung siehst du deine Aquarien. Du kannst jederzeit über das Logo links oben hierher zurückkehren.",
+    "image": "uebersicht",
+    "caption": "Die Übersicht mit einem erfundenen Beispielbecken.",
+    "steps": [
+      "„Eigene Aquarien“ zeigt Becken, die dir gehören. „Mit mir geteilt“ enthält angenommene Freigaben anderer Benutzer.",
+      "Öffne ein Aquarium über seine Karte. Dort siehst du aktuelle Werte, Warnungen, Pflegezyklen und alle weiteren Bereiche.",
+      "Über die Kopfzeile erreichst du Arten, Pflanzen, Gesundheit, Social, Hinweise und dein Profil.",
+      "Wechsle mit der Sprachschaltfläche zwischen Deutsch und Englisch. Über das Farbsymbol wählst du ein helles, dunkles oder systemabhängiges Design.",
+      "Oben informiert dich der Offline-Status, ob deine Aquariendaten lokal verfügbar sind. „Jetzt synchronisieren“ stößt den Datenabgleich an."
+    ],
+    "extra": [
+      {
+        "title": "Warum erscheinen einige Bereiche erst beim Scrollen?",
+        "text": "Diagramme, Besatz, Pflanzen und Logbuch werden schrittweise geladen. Scrolle zum gewünschten Bereich. Bei einem Ladefehler kannst du den betroffenen Abschnitt erneut laden."
+      }
+    ]
+  },
+  {
+    "id": "aquarium",
+    "title": "Ein Aquarium anlegen oder ändern",
+    "intro": "Ein Aquarium ist der gemeinsame Ort für Messwerte, Tiere, Pflanzen, Fotos und Pflegemaßnahmen.",
+    "image": "aquarium-anlegen",
+    "caption": "Das Formular für ein neues Aquarium.",
+    "steps": [
+      "Wähle in der Übersicht „+ Neues Aquarium“. Trage einen Namen ein, an dem du das Becken wiedererkennst.",
+      "Wähle Süßwasser oder Meerwasser und gib das Volumen in Litern ein. Ergänze bei Bedarf Motto, Beschreibung und Notizen.",
+      "Prüfe die Angaben und speichere das Aquarium. Es erscheint anschließend in deiner Übersicht.",
+      "Zum Ändern öffnest du das Aquarium und wählst „Bearbeiten“. Pflegezyklen kannst du auch im Becken über „Zyklen einstellen“ anpassen.",
+      "Ein Aquarium löschen solltest du nur, wenn du seine Daten nicht mehr brauchst. Beachte die Bestätigung und exportiere oder sichere wichtige Daten vorher."
+    ],
+    "extra": [
+      {
+        "title": "Wasserart und Besatz gehören zusammen",
+        "text": "Die Wasserart beeinflusst verfügbare Arten, Pflanzen und Bewertungen. Prüfe vor einer Änderung, ob der vorhandene Besatz dazu passt."
+      }
+    ]
+  },
+  {
+    "id": "messung",
+    "title": "Wasserwerte messen und speichern",
+    "intro": "Du kannst einzelne Werte oder eine ganze Messreihe erfassen. Leere Felder werden nicht als Messung gespeichert.",
+    "image": "messung",
+    "caption": "Die Messmaske mit Testauswahl, Reaktionstimern und Wertefeldern.",
+    "steps": [
+      "Öffne dein Aquarium und wähle „Neue Messung“ oder „Jetzt messen“. Prüfe den Messzeitpunkt.",
+      "Öffne „Wassertests anpassen“ und wähle die tatsächlich benutzten Tests. Du darfst Methoden verschiedener Hersteller kombinieren.",
+      "„Suite übernehmen“ ersetzt die Auswahl durch diese Testsuite. „Suite ergänzen“ ergänzt sie; für denselben Wasserparameter bleibt eine Methode ausgewählt.",
+      "Führe den Wassertest nach seiner Gebrauchsanweisung durch. Starte bei Bedarf den Timer neben dem jeweiligen Parameter. Mehrere Timer können parallel laufen.",
+      "Trage den abgelesenen Wert ein. Ein Dezimalkomma ist erlaubt. Die Farbmarkierung hilft beim Einordnen.",
+      "Ergänze bei Bedarf eine Notiz und wähle „Messung speichern“. Im Aquarium erscheint die Messung im Verlauf und im Logbuch."
+    ],
+    "extra": [
+      {
+        "title": "Timer und Benachrichtigungen",
+        "text": "Über „Aktivieren“ kannst du Browser-Benachrichtigungen erlauben. Ton, Vibration und Wachhalten des Bildschirms hängen vom Gerät ab. Lass bei wichtigen Reaktionszeiten die App sichtbar; ein Handy kann Hintergrundprozesse anhalten."
+      },
+      {
+        "title": "Methodenwechsel während einer Messung",
+        "text": "Beim Wechsel der Testmethode kann der laufende Timer und ein noch nicht gespeicherter Wert dieses Parameters verworfen werden. Wähle die Methode deshalb möglichst vor dem Test."
+      }
+    ]
+  },
+  {
+    "id": "verlauf",
+    "title": "Diagramme, Tabelle und Warnungen verstehen",
+    "intro": "Die aktuellen Werte stehen oben im Aquarium. Der Verlauf zeigt dir, wie sich das Wasser über die Zeit entwickelt.",
+    "image": "verlauf",
+    "caption": "Messverlauf mit Zeitraumwahl und einem Beispieldiagramm.",
+    "steps": [
+      "Scrolle im Aquarium zu „Verlauf“. Wähle zum Beispiel sieben Tage, drei Monate, ein Jahr oder den gesamten Zeitraum.",
+      "Für einen eigenen Zeitraum wählst du „Benutzerdefiniert“ und stellst Beginn und Ende ein.",
+      "Vergleiche die Messkurve mit dem Zielbereich und den eingezeichneten kritischen Grenzen. Eine einzelne Messung erklärt noch nicht die Ursache einer Abweichung.",
+      "In der Messwerte-Tabelle findest du Zeitpunkt, Werte und Notizen. Weitere Zeilen werden bei Bedarf nachgeladen.",
+      "Warnungen findest du im Aquarium und unter „Hinweise“. Prüfe den Wert und die Situation im Becken, bevor du den Hinweis bestätigst.",
+      "Eine falsch erfasste Messung kannst du bei ausreichender Berechtigung löschen. Das setzt den bereits verbrauchten Wassertest nicht zurück."
+    ],
+    "extra": [
+      {
+        "title": "Farben sind eine Orientierung",
+        "text": "Bewertungen richten sich nach Wasserart, Besatzprofilen und verfügbaren Grenzwerten. Sie ersetzen keine fachliche Beurteilung deines Aquariums."
+      }
+    ]
+  },
+  {
+    "id": "pflege",
+    "title": "Pflege ins Logbuch eintragen",
+    "intro": "Im Logbuch hältst du fest, was du am Becken gemacht hast. Messungen erscheinen dort ebenfalls.",
+    "image": "logbuch",
+    "caption": "Ein neuer Logbucheintrag für einen Wasserwechsel.",
+    "steps": [
+      "Wähle im Aquarium „Neuer Logbuch-Eintrag“. Stelle Zeitpunkt und Art der Arbeit ein.",
+      "Für einen Wasserwechsel gibst du den gewechselten Anteil in Prozent an. Beschreibe andere Arbeiten in den passenden Feldern.",
+      "Du kannst unter anderem Wasserwechsel, Filterpflege, Pflanzenschnitt, neue Pflanzen, Reinigung, Düngung und Fütterung dokumentieren.",
+      "Speichere den Eintrag. Im Bereich „Aquarium-Logbuch & Aktivitäten“ kannst du nach Aktivitätsart filtern und ältere Einträge nachladen.",
+      "Bei eigenen oder entsprechend freigegebenen Aquarien kannst du Pflegeeinträge bearbeiten oder löschen."
+    ],
+    "extra": [
+      {
+        "title": "Erinnerungen einrichten",
+        "text": "Über „Zyklen einstellen“ legst du Intervalle für Messung und Düngung fest, zum Beispiel alle sieben Tage oder an einem Wochentag. Die App zeigt fällige Arbeiten an. E-Mail-Erinnerungen benötigen aktivierte Erinnerungen und eingerichteten Mailversand."
+      }
+    ]
+  },
+  {
+    "id": "duengung",
+    "title": "Dünger und Dosierpläne verwalten",
+    "intro": "Die App dokumentiert Düngungen und erinnert an geplante Arbeiten. Sie schaltet keine echte Dosierpumpe.",
+    "image": "duenger",
+    "caption": "Der Düngerbereich mit einem manuellen Beispieldünger.",
+    "steps": [
+      "Scrolle im Aquarium zu „Dünger“. Wähle „+ Manueller Dünger“ oder „+ Dosierpumpe“.",
+      "Gib einen verständlichen Namen, den Dünger, die Menge in Millilitern und das Intervall ein. Ergänze die angebotenen Zeit- und Erinnerungsfelder.",
+      "Bei einem manuellen Dünger bestätigst du die tatsächlich erledigte Dosierung über die angebotene Schaltfläche. Dadurch entsteht ein Logbucheintrag.",
+      "Bei automatischen Pumpenplänen dokumentiert die App fällige Dosierungen gemäß dem Plan. Kontrolliere die echte Pumpe unabhängig davon.",
+      "Bearbeite oder pausiere einen Plan, wenn sich die Düngung ändert. Beim Entfernen eines Plans bleiben bereits vorhandene Logbucheinträge erhalten."
+    ],
+    "extra": []
+  },
+  {
+    "id": "arten",
+    "title": "Artenkatalog als Nachschlagewerk",
+    "intro": "Du kannst auch ohne einen neuen Besatzeintrag nach einer Art suchen.",
+    "image": "arten",
+    "caption": "Der Artenkatalog mit Wasserart, Kategorien und Suche.",
+    "steps": [
+      "Öffne „Artenkatalog“ in der Kopfzeile.",
+      "Schränke die Liste über Wasserart und Kategorie ein oder suche mit einem Namen.",
+      "Öffne einen Treffer. Lies Wasseransprüche, Gruppenhinweise, Mindestvolumen, Haltung und Bildnachweise.",
+      "Füge eine passende Art bei Bedarf aus ihren Details zu einem Aquarium hinzu oder öffne den zugeordneten Gesundheitsbereich."
+    ],
+    "extra": []
+  },
+  {
+    "id": "besatz",
+    "title": "Tiere und Verträglichkeit",
+    "intro": "Erfasse Tiere möglichst über den Artenkatalog, damit ihre Haltungsanforderungen zugeordnet werden können.",
+    "image": "besatz",
+    "caption": "Besatz und Tierwohl mit zwei Beispielgruppen.",
+    "steps": [
+      "Öffne „Artenkatalog“ und suche nach der gewünschten Art. Prüfe Wasserart, Beckenvolumen und Gruppenhinweise.",
+      "Öffne die Artendetails und füge die Art mit der tatsächlichen Anzahl zu deinem Aquarium hinzu. Einzelne Tiere dürfen eigene Namen bekommen.",
+      "Im Aquarium kannst du auch freie Bewohner eintragen, Anzahl und Namen ändern sowie ein Porträt hochladen.",
+      "„Artendetails“ öffnet bei bekannten Arten die Informationen erneut. Über den Bewohner kannst du auch den Diagnose-Assistenten aufrufen.",
+      "Lies die Verträglichkeitshinweise zu Gruppengröße, Beckengröße, Verhalten und Ansprüchen. Bei freien Einträgen ohne Katalogtreffer stehen weniger automatische Informationen zur Verfügung.",
+      "Entferne Tiere, die nicht mehr im Becken sind, damit Auswertungen und Grenzwerte zum aktuellen Besatz passen."
+    ],
+    "extra": [
+      {
+        "title": "Artenkatalog durchsuchen",
+        "text": "Filtere nach Wasserart und Kategorie oder suche nach Namen. Ein Bild öffnet nicht automatisch eine Freigabe deines Aquariums. Quellen und Bildnachweise findest du in den Artendetails."
+      }
+    ]
+  },
+  {
+    "id": "pflanzen",
+    "title": "Pflanzen suchen und zum Becken hinzufügen",
+    "intro": "Der Pflanzenkatalog hilft dir, passende Pflanzen zu finden und den Bestand im Aquarium festzuhalten.",
+    "image": "pflanzen",
+    "caption": "Pflanzenkatalog mit Filtern und bebilderten Einträgen.",
+    "steps": [
+      "Öffne „Pflanzen“ in der Kopfzeile. Filtere nach Wasserart und Kategorie oder gib einen Suchbegriff ein.",
+      "Öffne eine Pflanze und lies die Hinweise zu Platzierung, Licht, Wachstum und Pflege.",
+      "Wähle ein Aquarium mit passender Wasserart und gib die Stückzahl an. Bestätige das Hinzufügen.",
+      "Im Pflanzenbereich des Aquariums kannst du Mengen ändern oder Pflanzen entfernen.",
+      "Einen Pflanzenschnitt oder eine Neupflanzung dokumentierst du zusätzlich im Logbuch, wenn du die Arbeit im Verlauf festhalten möchtest."
+    ],
+    "extra": []
+  },
+  {
+    "id": "fotos",
+    "title": "Fotos und Galerie",
+    "intro": "Galeriefotos gehören zunächst zu deinem Aquarium. Sie werden nicht automatisch im öffentlichen Social-Feed veröffentlicht.",
+    "image": "galerie",
+    "caption": "Die Galerie des Demo-Aquariums mit einer ausdrücklich künstlichen Beispielillustration.",
+    "steps": [
+      "Wähle im Aquarium „+ Foto hochladen“. Erlaubt sind PNG, JPG, WebP oder GIF bis zur angezeigten Grenze von fünf Megabyte.",
+      "Wähle ein eigenes Bild und ergänze eine Bildunterschrift. Du kannst das Foto als Titelbild des Aquariums festlegen.",
+      "Öffne ein Galeriebild für die Großansicht. Bildunterschriften und Titelbild lassen sich später ändern.",
+      "Nicht mehr benötigte Bilder kannst du mit ausreichender Berechtigung löschen.",
+      "Ein Porträt für einen Bewohner lädst du im Besatzbereich hoch. Deinen eigenen Avatar änderst du im Profil."
+    ],
+    "extra": []
+  },
+  {
+    "id": "teilen",
+    "title": "Ein Aquarium mit anderen teilen",
+    "intro": "Eine Aquariumfreigabe ist etwas anderes als ein öffentlicher Social-Beitrag. Eine Freigabe geht an ein bestimmtes Benutzerkonto.",
+    "image": "freigaben",
+    "caption": "Eine bestehende Schreibfreigabe für das erfundene Konto leo_demo.",
+    "steps": [
+      "Öffne dein eigenes Aquarium und wähle „Aquarium teilen“. Suche nach Benutzername oder E-Mail-Adresse des anderen Kontos.",
+      "Wähle „Lesen“, wenn die Person nur schauen soll. Mit „Schreiben“ kann sie zusätzlich unterstützte Daten pflegen.",
+      "Die eingeladene Person nimmt die Einladung an. Danach findet sie das Becken unter „Mit mir geteilt“.",
+      "Du kannst bestehende Freigaben prüfen, die Rolle ändern oder den Zugriff entziehen. Nur der Eigentümer verwaltet die Freigaben.",
+      "Einladungen und Rechteänderungen brauchen eine Serververbindung."
+    ],
+    "extra": [
+      {
+        "title": "Was bedeuten die Rollen?",
+        "text": "Lesen erlaubt das Ansehen von Daten, Verlauf, Besatz und Bildern. Schreiben erlaubt zusätzlich zum Beispiel Messungen, Pflege und Besatzänderungen. Das Löschen des gesamten Aquariums bleibt dem Eigentümer vorbehalten. Offline gespeicherte Kopien auf fremden Geräten lassen sich durch einen Rechteentzug nicht rückwirkend vom Gerät löschen."
+      }
+    ]
+  },
+  {
+    "id": "csv",
+    "title": "Messdaten importieren und exportieren",
+    "intro": "CSV ist ein einfaches Tabellenformat. Damit kannst du Daten übertragen oder in einem Tabellenprogramm auswerten.",
+    "image": "csv-import",
+    "caption": "CSV-Import mit Vorschau und Spaltenzuordnung.",
+    "steps": [
+      "Wähle im Aquarium „CSV-Export“, um Messdaten herunterzuladen. Für Excel eignet sich die angebotene Variante mit Semikolon; es entsteht eine CSV-Datei, keine XLSX-Datei.",
+      "Wähle „CSV-Import“, wenn du vorhandene Messwerte übernehmen möchtest. Lade eine Datei oder nutze das angebotene Texteingabefeld.",
+      "Prüfe das Trennzeichen und ob die erste Zeile Überschriften enthält.",
+      "Ordne jede benötigte Spalte einem Feld zu, zum Beispiel Datum, Uhrzeit, pH-Wert oder Notiz. Nicht benötigte Spalten kannst du ignorieren.",
+      "Kontrolliere die Vorschau und starte erst dann den Import. Beachte Hinweise zu ungültigen oder übersprungenen Zeilen.",
+      "Prüfe anschließend Verlauf und Tabelle. Importierte Messwerte werden bewertet und können Testverbrauch erzeugen."
+    ],
+    "extra": [
+      {
+        "title": "Vor größeren Importen",
+        "text": "Bewahre die Originaldatei auf und lasse wichtige vorhandene Daten vorher sichern. Ein zweiter absichtlicher Import derselben Datei ist eine neue Aktion; die Wiederholungssicherung beim Synchronisieren ersetzt keine Prüfung deiner Importauswahl."
+      }
+    ]
+  },
+  {
+    "id": "gesundheit",
+    "title": "Krankheiten, Diagnose und Behandlungsmittel",
+    "intro": "Der Gesundheitsbereich bietet Nachschlageinformationen und einen Frage-Assistenten. Er stellt keine sichere tierärztliche Diagnose.",
+    "image": "gesundheit",
+    "caption": "Der Gesundheitskatalog mit Suche und Filtern.",
+    "steps": [
+      "Öffne „Gesundheit“. Im Krankheitskatalog filterst du nach Wasserart, Bewohnerart oder Suchbegriff.",
+      "Öffne einen Eintrag und lies Symptome, Ursachen, Hinweise, Quellen und zugeordnete Behandlungsmittel.",
+      "Für den Diagnose-Assistenten wechselst du zum entsprechenden Reiter oder startest ihn aus einem Aquarium beziehungsweise bei einem Bewohner.",
+      "Wähle Aquarium und Bewohner. Beantworte die angezeigten Fragen möglichst genau. Aktuelle passende Wasserwerte können in die Einordnung einfließen.",
+      "Lies die Verdachtsliste, die zugrunde liegenden Angaben und die Grenzen des Ergebnisses. Bei Unsicherheit oder ernsthaften Symptomen hole fachliche Hilfe.",
+      "Unter „Medikamente & Hilfsmittel“ kannst du Mittel suchen und ihre Details, Warnungen, Quellen und rechtlichen Hinweise lesen."
+    ],
+    "extra": [
+      {
+        "title": "Offline und KI sind getrennt",
+        "text": "Nach dem Herunterladen der benötigten Kataloge und Aquariendaten kann die lokale Diagnose ohne Verbindung arbeiten. Ein optionaler anschließender KI-Chat benötigt eine Verbindung und eine eingerichtete KI-Konfiguration."
+      },
+      {
+        "title": "Medikamente nicht allein wegen einer Trefferliste anwenden",
+        "text": "Beachte die Hinweise im jeweiligen Eintrag, die Packungsangaben und fachliche Beratung. Eine angezeigte Zuordnung ist keine individuelle Behandlungsempfehlung."
+      }
+    ]
+  },
+  {
+    "id": "diagnose-bild",
+    "title": "So startest du den Diagnose-Assistenten",
+    "intro": "Wähle zuerst das betroffene Tier oder die Tiergruppe. Die Auswahl ist bereits vorbelegt, wenn du aus dem Besatz kommst.",
+    "image": "diagnose",
+    "caption": "Der Diagnose-Assistent mit Aquarium- und Bewohnerauswahl.",
+    "steps": [
+      "Prüfe die Auswahl von Aquarium und Bewohner.",
+      "Starte die Befragung und beantworte die nacheinander angezeigten Fragen.",
+      "Prüfe das Ergebnis gemeinsam mit Wasserwerten, Haltungsbedingungen und dem Verhalten der Tiere. Du kannst den Assistenten mit neuen Angaben erneut starten."
+    ],
+    "extra": []
+  },
+  {
+    "id": "mittel",
+    "title": "Medikamente und Hilfsmittel nachschlagen",
+    "intro": "Dieser Katalog ergänzt die Krankheitsdetails. Er ersetzt keine fachliche Beratung.",
+    "image": "medikamente",
+    "caption": "Medikamente und Hilfsmittel mit Suche und Filtermöglichkeiten.",
+    "steps": [
+      "Öffne „Gesundheit“ und dort „Medikamente & Hilfsmittel“.",
+      "Suche nach einem Namen oder grenze die Liste mit den angebotenen Filtern ein.",
+      "Öffne die Medikamentendetails. Lies besonders Warnungen, Einschränkungen, Quellen und rechtliche Angaben.",
+      "Stimme eine Behandlung bei Bedarf mit einer fachkundigen oder tierärztlichen Stelle ab; wende ein Mittel nicht allein aufgrund eines Suchtreffers an."
+    ],
+    "extra": []
+  },
+  {
+    "id": "ki",
+    "title": "Den optionalen KI-Assistenten einrichten",
+    "intro": "Die KI-Funktion ist freiwillig. Du kannst die Aquarienverwaltung auch ohne eigenen KI-Zugang verwenden.",
+    "image": "ki-einstellungen",
+    "caption": "KI-Einstellungen im Profil. Der Screenshot enthält keine echten Zugangsschlüssel.",
+    "steps": [
+      "Öffne über deinen Benutzernamen das Profil und wähle den KI-Reiter.",
+      "Wähle den angebotenen Anbieter, zum Beispiel OpenAI, Google Gemini oder Anthropic Claude. Hinterlege deinen persönlichen API-Schlüssel, wenn dein Betreiber keinen passenden Zugang bereitstellt.",
+      "Wähle ein verfügbares Modell und speichere die Angaben. Nutze den Verbindungstest, um die Einrichtung zu prüfen.",
+      "Im Aquarium öffnest du die KI-Schaltfläche, wenn ein nutzbarer Zugang eingerichtet ist. Schreibe eine Frage oder verwende eine Schnellfrage.",
+      "Während der Anfrage zeigt die App ihren Bearbeitungsstatus. Bei einem Fehler kannst du die Frage bearbeiten und erneut senden.",
+      "Nicht mehr benötigte persönliche Schlüssel kannst du im Profil löschen."
+    ],
+    "extra": [
+      {
+        "title": "Welche Daten werden gesendet?",
+        "text": "Bei einer KI-Anfrage werden deine Nachricht und passender Aquariumkontext an den gewählten Anbieter übertragen. Beim Aquarium-Chat kann ein Verlauf gespeichert werden; der Chat nach einer Diagnose wird beim Schließen nicht als Aquarium-Chatverlauf gespeichert. Prüfe Kosten, Datenschutz und Antworten des Anbieters. Schlüssel gehören niemals in Screenshots oder Social-Beiträge."
+      }
+    ]
+  },
+  {
+    "id": "profil",
+    "title": "Profil, Darstellung und Kontosicherheit",
+    "intro": "Klicke auf deinen Benutzernamen in der Kopfzeile. Die Reiter trennen persönliche Angaben, Darstellung, KI, Tests und gegebenenfalls Einladungen.",
+    "image": "profil",
+    "caption": "Das Profil des erfundenen Demo-Kontos.",
+    "steps": [
+      "Im Profil kannst du die angebotenen persönlichen Angaben, deine Bio und den Avatar ändern. Speichere deine Änderungen.",
+      "Im Darstellungsbereich wählst du Sprache, Farbschema und den Standardzeitraum der Diagramme. Dort kannst du unterstützte Benachrichtigungen prüfen.",
+      "Bei lokaler Anmeldung kannst du dein Passwort ändern. Bei einer geänderten E-Mail-Adresse kann eine erneute Bestätigung erforderlich sein.",
+      "Wenn dein Betreiber OpenID Connect eingerichtet hat, kannst du im vorgesehenen Bereich eine Verbindung zu diesem Zugang herstellen oder lösen.",
+      "Ist ein Einladungsmodus für Benutzer freigeschaltet, kannst du im Einladungsreiter Codes oder E-Mail-Einladungen erstellen und deren Status ansehen.",
+      "Zum Abmelden nutze „Abmelden“ in der Kopfzeile, besonders an gemeinsam verwendeten Geräten."
+    ],
+    "extra": [
+      {
+        "title": "Konto löschen",
+        "text": "Die Kontolöschung wird im Profil angefordert und anschließend über einen zeitlich begrenzten E-Mail-Link bestätigt. Dabei werden auch zugehörige eigene Aquariendaten und Social-Inhalte entfernt. Sichere wichtige Daten vorher und synchronisiere noch offene Änderungen. Bei geschützten Administratorkonten kann die Löschung eingeschränkt sein."
+      }
+    ]
+  },
+  {
+    "id": "verbrauch",
+    "title": "Wassertests auswählen und Verbrauch pflegen",
+    "intro": "Mit der Testauswahl legst du fest, wie du misst. Die Verbrauchsanzeige hilft dir beim Nachkaufen.",
+    "image": "testverbrauch",
+    "caption": "Testauswahl und Verbrauch im Profil.",
+    "steps": [
+      "Öffne im Profil den Reiter für Wassertests. Stelle deine verwendeten Methoden zusammen und speichere sie.",
+      "Im Verbrauchsbereich wählst du die passende Testsuite und gegebenenfalls die Variante oder Nachfüllgröße eines Tests.",
+      "Trage einmalig ein, wie viel du von deiner aktuellen Flasche bereits verbraucht hast. Die bisherige Messhistorie wird nicht nachträglich vollständig gezählt.",
+      "Neue gespeicherte Werte erhöhen den zugehörigen Verbrauch. Leere Werte zählen nicht. Das Löschen einer Messung macht verbrauchtes Reagens nicht wieder verfügbar.",
+      "Bei einer neuen Nachfüllung setzt du den betreffenden Zähler zurück. Passe die Reichweite an, wenn sie von der Voreinstellung abweicht.",
+      "Aktiviere bei Bedarf Nachkauferinnerungen. E-Mail-Hinweise benötigen eine bestätigte Adresse und eingerichteten Mailversand."
+    ],
+    "extra": [
+      {
+        "title": "Warum stimmt die Zuordnung nicht?",
+        "text": "Prüfe die ausgewählte Methode und Suite. Ein Teststreifen soll nicht als Verbrauch eines Tröpfchentests gezählt werden. Die App zählt anhand der bei der Messung verwendeten Testauswahl."
+      }
+    ]
+  },
+  {
+    "id": "nachkaufen",
+    "title": "Nachfüllungen und Nachkauferinnerungen",
+    "intro": "Die Verbrauchszähler helfen dir, den nächsten Einkauf rechtzeitig zu planen.",
+    "image": "verbrauch",
+    "caption": "Verbrauchsübersicht mit Reichweite und Nachfülloptionen für die gewählte Testsuite.",
+    "steps": [
+      "Öffne im Profil „Wassertests“ und scrolle zu „Wassertest-Verbrauch & Nachkaufen“.",
+      "Wähle die passende Testsuite und kontrolliere pro Test die Variante, Gesamtreichweite und den bereits verbrauchten Anteil.",
+      "Bei einer neuen Flasche oder Nachfüllung setzt du nur den betreffenden Zähler zurück.",
+      "Aktiviere bei Bedarf die Nachkauferinnerung. Ab 75 Prozent Verbrauch kann einmal je Nachfüllung eine E-Mail eingereiht werden, wenn Adresse und Mailversand dafür bereit sind."
+    ],
+    "extra": []
+  },
+  {
+    "id": "social",
+    "title": "Bilder teilen, liken und kommentieren",
+    "intro": "Der Social-Bereich ist ein eigener Bilderfeed. Deine privaten Galerie- und Bewohnerfotos werden dort nicht automatisch veröffentlicht.",
+    "image": "social",
+    "caption": "Ein serverinterner Demo-Beitrag mit künstlicher Beispielillustration.",
+    "steps": [
+      "Öffne „Social“. Ohne Anmeldung sind nur öffentliche Beiträge sichtbar; angemeldete Benutzer sehen zusätzlich serverinterne Beiträge.",
+      "Für einen eigenen Beitrag wählst du ein Bild und schreibst einen Begleittext. Beachte die angezeigten Grenzen für Bild und Text.",
+      "Prüfe die Sichtbarkeit vor dem Veröffentlichen. Neue Beiträge sind zunächst serverintern. Aktiviere „Im öffentlichen Feed anzeigen“ nur, wenn Besucher ohne Anmeldung den Beitrag sehen dürfen.",
+      "Mit dem Herz kannst du einen Beitrag liken und das Like wieder zurücknehmen. Öffne die Kommentare, um mitzulesen oder selbst zu schreiben.",
+      "„Teilen“ verwendet den Teilen-Dialog des Geräts oder kopiert den Beitragslink. Ein interner Link bleibt auch dann anmeldepflichtig.",
+      "Eigene Beiträge und Kommentare kannst du löschen. Administratoren können Inhalte moderieren."
+    ],
+    "extra": [
+      {
+        "title": "Vor dem Hochladen",
+        "text": "Verwende nur Bilder, die du veröffentlichen darfst. Prüfe, ob Personen, Adressen, Dokumente oder Zugangsdaten zu sehen sind. Social-Bilder werden serverseitig verkleinert; animierte GIFs werden als Standbild verarbeitet."
+      }
+    ]
+  },
+  {
+    "id": "hinweise",
+    "title": "Benachrichtigungen an einem Ort",
+    "intro": "Unter „Hinweise“ findest du Reaktionen auf deine Beiträge und Wasserwertwarnungen aus deinen zugänglichen Aquarien.",
+    "image": "hinweise",
+    "caption": "Der zentrale Hinweisbereich. Ein leerer Bereich bedeutet, dass aktuell keine Hinweise offen sind.",
+    "steps": [
+      "Öffne die Hinweisschaltfläche in der Kopfzeile.",
+      "Öffne den zugehörigen Beitrag oder das Aquarium, um den Anlass zu prüfen.",
+      "Social-Hinweise kannst du als gelesen markieren. Wasserwertwarnungen kannst du bei ausreichender Berechtigung bestätigen.",
+      "Das Bestätigen dokumentiert die Kenntnisnahme. Es ändert den Messwert nicht und behebt keine Ursache im Becken."
+    ],
+    "extra": []
+  },
+  {
+    "id": "offline",
+    "title": "Auf dem Handy und ohne Verbindung arbeiten",
+    "intro": "Öffne die App zuerst online und warte, bis deine Aquariendaten als offline verfügbar angezeigt werden.",
+    "image": "offline",
+    "caption": "Mobile Ansicht ohne Verbindung mit einer noch nicht übertragenen Demo-Messung.",
+    "steps": [
+      "Nutze auf dem Handy die HTTPS-Adresse deiner App. Eine HTTP-Adresse im Heimnetz reicht für die Offline-Funktionen nicht aus.",
+      "Du kannst die App über das Browsermenü zum Startbildschirm hinzufügen. Auf iPhone und Android unterscheiden sich die Namen der Menüpunkte.",
+      "Warte beim ersten Online-Start auf den Abgleich. Kataloge und Bilder können zusätzlich Zeit benötigen.",
+      "Ohne Verbindung kannst du synchronisierte Aquarien ansehen und unterstützte Mess-, Pflege- und Bearbeitungsaktionen lokal vormerken.",
+      "Die Offline-Anzeige zeigt offene Änderungen. Lass die App beim Wiederverbinden geöffnet und nutze bei Bedarf „Jetzt synchronisieren“.",
+      "Warte, bis keine offenen Änderungen mehr angezeigt werden, bevor du das Gerät wechselst oder Browserdaten löschst."
+    ],
+    "extra": [
+      {
+        "title": "Was braucht weiterhin Internet?",
+        "text": "Neue Anmeldung, Kontosicherheit, KI, Einladungen und Freigaben, Social und Administration benötigen eine Verbindung. Kataloge stehen offline erst nach dem Herunterladen bereit. Ein Betriebssystem kann eine geschlossene oder im Hintergrund befindliche App anhalten."
+      },
+      {
+        "title": "Wenn zwei Geräte dasselbe ändern",
+        "text": "Die App zeigt einen Konflikt. Vergleiche lokalen und Serverstand. „Lokalen Stand übernehmen“ versucht deine Fassung auf der neuen Basis zu speichern; ein neuer Konflikt ist möglich. „Verwerfen“ entfernt die lokale Aktion und gegebenenfalls abhängige Aktionen. Unabhängig neu erfasste Einträge verschiedener Geräte bleiben getrennt."
+      },
+      {
+        "title": "Lokale Daten sind keine Sicherung",
+        "text": "Noch nicht übertragene Aktionen liegen nur auf diesem Gerät und fehlen in Server-Backups. Browserdaten können gelöscht werden. Synchronisiere deshalb regelmäßig. Melde dich nach einem Kontowechsel neu an, wenn ein anderer Tab deine Sitzung geändert hat."
+      }
+    ]
+  },
+  {
+    "id": "updates",
+    "title": "Updates ohne überraschendes Neuladen",
+    "intro": "Eine neue App-Version bedeutet nicht automatisch, dass du die Oberfläche neu laden musst.",
+    "image": "updates",
+    "caption": "Der Update-Dialog der echten Anwendung; ein älterer geladener Frontend-Stand wurde in der Demo simuliert.",
+    "steps": [
+      "Wenn sich Frontend-Dateien geändert haben, erscheint „Neue Version verfügbar“. Beende laufende Messungen und speichere Eingaben.",
+      "Warte gegebenenfalls, bis das Update vorbereitet ist. „Jetzt laden“ aktiviert die vorbereitete Fassung und lädt diesen Tab neu.",
+      "Mit „Später“ kannst du zunächst weiterarbeiten. Eine andere neue Fassung kann erneut angeboten werden.",
+      "Reine Änderungen an Arten-, Pflanzen- oder Gesundheitsdaten werden separat abgeglichen. Sie benötigen keinen Frontend-Update-Dialog.",
+      "Bei einem fehlgeschlagenen Update stelle die Verbindung wieder her und versuche es erneut. Andere offene Tabs können noch ihre bisherige Fassung nutzen."
+    ],
+    "extra": [
+      {
+        "title": "Kataloge werden nicht bei jedem Klick neu heruntergeladen",
+        "text": "Bereits vorhandene Offline-Kataloge werden regulär höchstens alle zwölf Stunden geprüft. Bei einem fehlgeschlagenen Katalogabgleich gibt es eine Wiederholungsmöglichkeit. Neue Daten erscheinen nach erfolgreichem Abgleich in den betroffenen Ansichten."
+      }
+    ]
+  },
+  {
+    "id": "einrichtung",
+    "title": "Für Betreiber: die erste Einrichtung",
+    "intro": "Bei einer leeren Installation führt der Einrichtungs-Assistent durch die ersten Einstellungen. Danach verwaltest du die App im Admin-Bereich.",
+    "image": "einrichtung",
+    "caption": "Der Einrichtungs-Assistent einer isolierten, leeren Demo-Installation.",
+    "steps": [
+      "Öffne die neue Installation und lege das erste Administratorkonto an. Verwende eine erreichbare E-Mail-Adresse und ein eigenes starkes Passwort.",
+      "Wähle, wer sich registrieren darf: offen, per Einladung oder gar nicht. Du kannst den Modus später ändern.",
+      "Richte SMTP für E-Mail-Versand ein oder lasse ihn zunächst deaktiviert. Ohne Mailversand funktionieren Bestätigungsmails, Passwort-Reset und Mail-Erinnerungen nicht zuverlässig.",
+      "Konfiguriere bei Bedarf automatische Backups und bewahre das Sicherungspasswort sicher auf.",
+      "Schließe die Einrichtung ab. Für öffentliche Nutzung richte die korrekte öffentliche HTTPS-Adresse und gegebenenfalls den Reverse Proxy ein."
+    ],
+    "extra": [
+      {
+        "title": "Installieren oder aktualisieren",
+        "text": "Die Installation und Serverkonfiguration beschreibt die technische Dokumentation im Repository. Dieses Nutzerhandbuch erklärt die Bedienung. Docker-Befehle und Serverzugänge gehören in die Hände des Betreibers."
+      }
+    ]
+  },
+  {
+    "id": "admin",
+    "title": "Administration: Benutzer und Registrierung",
+    "intro": "Der Admin-Bereich ist nur für berechtigte Administratorkonten sichtbar. Normale Benutzer brauchen ihn für die Aquarienpflege nicht.",
+    "image": "admin",
+    "caption": "Die Benutzerverwaltung des Demo-Administrators.",
+    "steps": [
+      "Öffne „Admin“ in der Kopfzeile. Unter „Userverwaltung“ suchst du Konten, legst Benutzer an oder bearbeitest die angebotenen Kontodaten.",
+      "Vergib Administratorrechte nur an Personen, die Serverdaten und Benutzer verwalten dürfen. Prüfe vor einer Löschung, welche Daten betroffen sind.",
+      "Unter „Einladung & Registrierung“ stellst du den Registrierungsmodus ein und verwaltest Codes und E-Mail-Einladungen.",
+      "Prüfe Gültigkeit und Verwendungslimit, bevor du eine Einladung verschickst. Nicht mehr benötigte Einladungen kannst du widerrufen.",
+      "Unter „Metriken“ findest du die angebotenen zusammengefassten Nutzungswerte. Ein gegebenenfalls verlangtes Statistikpasswort ist getrennt von einem normalen Benutzerpasswort."
+    ],
+    "extra": []
+  },
+  {
+    "id": "admin-einladungen",
+    "title": "Administration: Einladungen verwalten",
+    "intro": "Mit Registrierung und Einladungen steuerst du, wer ein Konto auf deinem Server anlegen kann.",
+    "image": "registrierung",
+    "caption": "Registrierungsmodus und Einladungsverwaltung.",
+    "steps": [
+      "Öffne „Admin“ und „Einladung & Registrierung“.",
+      "Wähle offen, nur mit Admin-Einladung, mit Einladungen durch Benutzer oder geschlossen. Prüfe die Wirkung, bevor du speicherst.",
+      "Erstelle einen Code oder eine E-Mail-Einladung und stelle Gültigkeit und Verwendungslimit ein.",
+      "Teile Einladungen nur mit der vorgesehenen Person und widerrufe nicht mehr benötigte Einladungen."
+    ],
+    "extra": []
+  },
+  {
+    "id": "admin-metriken",
+    "title": "Administration: Metriken ansehen",
+    "intro": "Die Übersicht fasst die angebotenen Nutzungszahlen zusammen, zum Beispiel Benutzer, Aquarien und KI-Nutzung.",
+    "image": "metriken",
+    "caption": "Der Metrikenbereich mit der zusätzlichen Passwortabfrage.",
+    "steps": [
+      "Öffne „Admin“ und „Metriken“.",
+      "Richte bei Bedarf das gesonderte Metrikenpasswort ein beziehungsweise entsperre die Anzeige damit.",
+      "Lies die zusammengefassten Werte und die angebotene Aufschlüsselung. Es handelt sich um Betriebsinformationen, nicht um eine Bewertung deiner Aquarien."
+    ],
+    "extra": []
+  },
+  {
+    "id": "mail",
+    "title": "Administration: E-Mail, Rechtliches und Logs",
+    "intro": "Diese Einstellungen betreffen alle Benutzer deiner Installation.",
+    "image": "mail",
+    "caption": "Einstellungen für Mailversand und Betreiberangaben in der Demo.",
+    "steps": [
+      "Öffne im Admin-Bereich „Einstellungen“. Trage den SMTP-Server, Port, Verschlüsselung, Zugang und die Absenderadresse nach den Angaben deines Mailanbieters ein.",
+      "Speichere und sende eine Testmail. Kontrolliere, ob sie ankommt. Prüfe bei Fehlern Zugangsdaten, Verschlüsselung, Spamordner und Serverprotokoll.",
+      "Beobachte die Mail-Warteschlange, wenn Nachrichten verzögert verschickt werden. Nicht jede Nachricht wird sofort zugestellt.",
+      "Pflege die angebotenen Betreiber-, Kontakt- und rechtlichen Angaben für deine Installation. Die öffentlichen Seiten erreichst du auch über den Footer.",
+      "Unter „Logs“ kannst du nach Meldungen suchen und nach Schweregrad filtern. Ältere Einträge werden nachgeladen; gib Protokolle nur nach Prüfung auf persönliche Daten weiter."
+    ],
+    "extra": []
+  },
+  {
+    "id": "admin-logs",
+    "title": "Administration: Fehler im Protokoll finden",
+    "intro": "Das Systemprotokoll hilft dir, technische Störungen einzugrenzen.",
+    "image": "logs",
+    "caption": "Das Demo-Systemprotokoll mit Suche und Filter.",
+    "steps": [
+      "Öffne „Admin“ und „Logs“.",
+      "Wähle bei Bedarf eine Schwere wie Warnung oder Fehler und gib einen Suchbegriff ein.",
+      "Lade ältere Einträge nach, wenn die gesuchte Meldung noch nicht sichtbar ist.",
+      "Lies die Meldung zusammen mit Uhrzeit und der ausgeführten Aktion. Entferne persönliche Daten und Zugangsinformationen, bevor du einen Auszug weitergibst."
+    ],
+    "extra": []
+  },
+  {
+    "id": "backups",
+    "title": "Administration: sichern und wiederherstellen",
+    "intro": "Backups schützen bereits auf dem Server gespeicherte Daten. Noch offene Offline-Aktionen auf anderen Geräten sind darin nicht enthalten.",
+    "image": "backups",
+    "caption": "Der Backup-Bereich. In der Demo ist keine echte Wiederherstellung ausgeführt worden.",
+    "steps": [
+      "Öffne im Admin-Bereich „Backups“. Erstelle eine manuelle Sicherung und wähle die angebotenen Optionen für Bilder und Verschlüsselung.",
+      "Lade wichtige Sicherungen herunter und bewahre sie getrennt vom App-Server auf. Sichere auch den gemeinsamen App-Verschlüsselungsschlüssel des Servers separat.",
+      "Für automatische Sicherungen stellst du Intervall, Aufbewahrung und die angebotenen Passwort- und Dateieinstellungen ein.",
+      "Vor einer Wiederherstellung synchronisieren alle Benutzer ihre offenen Offline-Aktionen. Erstelle zusätzlich eine aktuelle Sicherung des jetzigen Serverstands.",
+      "Wähle nur eine vertrauenswürdige Sicherung und lies die Bestätigung. Eine Wiederherstellung ersetzt den Serverdatenbestand; sie fügt nicht einfach einzelne Zeilen hinzu.",
+      "Prüfe nach der Wiederherstellung Anmeldung, Aquarien und Bilder. Fehlende oder falsche Schlüssel und Passwörter können verschlüsselte Daten unlesbar machen."
+    ],
+    "extra": [
+      {
+        "title": "Sicherungen sind vertraulich",
+        "text": "Backups können Konto-, Aquarium- und Bilddaten enthalten. Teile sie nicht öffentlich. Eine lokale automatische Sicherung allein schützt nicht vor Verlust des gesamten Servers."
+      }
+    ]
+  },
+  {
+    "id": "hilfe",
+    "title": "Wenn etwas nicht funktioniert",
+    "intro": "Oft helfen diese Prüfungen, ohne dass du Daten löschen musst.",
+    "image": null,
+    "caption": null,
+    "steps": [
+      "Eine Schaltfläche fehlt: Prüfe, ob du angemeldet bist und ob das Aquarium dir gehört oder mit Schreibrecht geteilt wurde. Manche Funktionen schaltet der Betreiber frei.",
+      "Eine Ansicht lädt nicht: Prüfe die Verbindung und nutze „Erneut laden“ im betroffenen Bereich. Lösche Browserdaten nicht, solange noch Offline-Aktionen offen sind.",
+      "Ein Bild oder Katalog fehlt offline: Öffne die App online und warte auf den vollständigen Abgleich. Nicht jede Online-Funktion steht offline bereit.",
+      "Eine E-Mail fehlt: Prüfe den Spamordner und bitte den Betreiber, SMTP, Warteschlange und Protokolle zu kontrollieren.",
+      "Ein Timer meldet sich nicht: Prüfe Benachrichtigungsrechte, Lautstärke und Energiesparmodus. Halte die App bei wichtigen Reaktionszeiten sichtbar.",
+      "Eine lokale Aktion bleibt stehen: Lies den Fehler oder Konflikt, prüfe deine Berechtigung und bestätige bewusst, ob du den lokalen Stand übernehmen oder verwerfen möchtest.",
+      "Du brauchst Unterstützung: Notiere den betroffenen Bereich, die Aktion und die genaue Fehlermeldung. Schwärze persönliche Daten und verrate keine Passwörter oder API-Schlüssel."
+    ],
+    "extra": [
+      {
+        "title": "Dieses Handbuch öffentlich weitergeben",
+        "text": "Die Adresse endet auf /handbuch/ und benötigt keine Anmeldung. Alle abgebildeten Konten und Aquariendaten sind erfunden. Die Screenshots zeigen die echte Anwendung; je nach Sprache, Gerät, Rechten und Serverkonfiguration können Schaltflächen anders aussehen oder fehlen."
+      }
+    ]
+  }
+]

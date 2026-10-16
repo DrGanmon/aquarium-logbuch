@@ -27,6 +27,7 @@ test('Frontend: Katalogdaten und Katalogbilder ändern weder Frontend-Hash noch 
     };
   };
   const original = await compile();
+  assert.ok(!Object.keys(original.manifest.assets).some(name => name.includes('handbuch')), 'Das Handbuch gehört nicht in den Shell-Cache');
   for (const kind of ['species', 'plants', 'health']) {
     const directory = path.join(fixture, 'src/config', kind);
     const files = fs.readdirSync(directory, { recursive: true }).filter(name => name.endsWith('.json'));
@@ -45,6 +46,13 @@ test('Frontend: Katalogdaten und Katalogbilder ändern weder Frontend-Hash noch 
     fs.copyFileSync(path.join(fixture, 'public/icon-192.png'), path.join(directory, 'test.png'));
   }
   assert.deepEqual(await compile(), original, 'Katalogbilder gehören nicht zur Frontend-Version');
+
+  const guide = path.join(fixture, 'public/handbuch');
+  fs.mkdirSync(guide, { recursive: true });
+  fs.writeFileSync(path.join(guide, 'index.html'), '<h1>Geändertes öffentliches Nutzerhandbuch</h1>');
+  fs.writeFileSync(path.join(guide, 'guide.css'), 'body { color: green; }');
+  fs.copyFileSync(path.join(fixture, 'public/icon-192.png'), path.join(guide, 'neuer-screenshot.png'));
+  assert.deepEqual(await compile(), original, 'Handbuchtexte, Gestaltung und Screenshots dürfen Frontend-Hash und Service Worker nicht ändern');
 
   // Keep hashing actual UI changes: ignoring catalog views would hide real updates.
   const main = path.join(fixture, 'public/frontend/main.ts'), source = fs.readFileSync(main, 'utf8');

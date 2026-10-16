@@ -2,11 +2,10 @@
 
 [Manual](README.md) · [Deutsch](../de/administration.md) · [Project overview](../../README.en.md)
 
-The admin view is organized into five tabs: **User management**, **Invitations & registration** (registration modes, validity periods, invitation codes and email invitations), **Settings** (legal settings and email/SMTP, including test email and queue), **Backups**, and **Logs**.
+The admin view has six tabs: **User management**, **Metrics**, **Invitations & registration**, **Settings**, **Backups**, and **Logs**. An illustrated introduction is available in the public German user guide at `/handbuch/#admin` on your app server.
 
-Administrators are identified by their email address matching `ADMIN_EMAIL` in `src/config/app-config.ts` or environment variables (comma-separated for multiple admins).
+On an empty installation, the initial setup wizard creates the first administrator and collects SMTP, automated-backup and registration settings. Administrative privileges are stored as a database role; multiple administrators are supported. The user-management interface can grant the corresponding role. Existing verified accounts from the former `ADMIN_EMAIL` configuration are considered during migration; matching an email address is not a substitute for persistent role management. Verification emails, password resets and email reminders require configured outbound mail.
 
-- Users matching `ADMIN_EMAIL` receive administrative privileges.
 - An **Admin** button appears in the navigation bar (`#/admin`).
 - Administrators can view all users, create new accounts, edit credentials, and delete users along with their data.
 - **Registration Modes & Invitation Management:**

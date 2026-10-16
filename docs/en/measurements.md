@@ -46,7 +46,7 @@ Test parameters and default values are defined in `../../src/config/suites/jbl-p
 
 ## Measurement workflow, history and CSV
 
-Select a test suite and the tests you actually use in the profile or measurement form (`#/a/:id/messen`). Values are assessed while typing; decimal commas are accepted. Multiple reaction timers can run simultaneously. Sound, vibration, wake locks and system notifications depend on browser support and permissions. The service worker handles timer messages but does not cache an offline copy of the app; operating systems may suspend background processes. A test notification is available in the profile.
+Select a test suite and the tests you actually use in the profile or measurement form (`#/a/:id/messen`). Values are assessed while typing; decimal commas are accepted. Multiple reaction timers can run simultaneously. Sound, vibration, wake locks and system notifications depend on browser support and permissions. The service worker handles timer messages and caches the app shell for offline restarts; operating systems may suspend background processes. A test notification is available in the profile.
 
 Charts and the measurements table show tank history. Quick filters range from seven days to all records; custom start and end dates are supported. The default is 90 days unless a different profile preference is saved. Out-of-range values produce warnings or critical alarms that can be acknowledged.
 

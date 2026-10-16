@@ -17,6 +17,7 @@ import { appVersion as version } from "../composables/frontend-update";
         class="footer-nav"
         aria-label="Rechtliche Hinweise und Informationen"
       >
+        <a class="footer-link" href="handbuch/" target="_blank" rel="noopener noreferrer">{{ t("footer.userGuide") }}</a>
         <a class="footer-link" :href="'#/social'"><span aria-hidden="true">👥 </span>{{ t("social.title") }}</a>
         <a class="footer-link" :href="'#/impressum'">{{ t("footer.imprint") }}</a>
         <a class="footer-link" :href="'#/agb'">{{ t("footer.terms") }}</a>

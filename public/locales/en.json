@@ -230,6 +230,7 @@
     "plants": "Plants"
   },
   "footer": {
+    "userGuide": "📖 User guide (German)",
     "version": "Version",
     "copyright": "© 2026 Aquarium Logbook",
     "aiBadge": "🤖 AI-built (EU AI Act compliant)",
