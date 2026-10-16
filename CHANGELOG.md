@@ -6,6 +6,8 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
+- Öffentliches Nutzerhandbuch auf Deutsch und Englisch um eine clientseitige Suchfunktion erweitern: Kapitel, Funktionen, Schrittanleitungen und Hinweise direkt im Browser ohne App-Anfragen oder Tracking durchsuchen. Schnelle Treffervorschau mit Kontextausschnitten, Tastaturnavigation, dynamische Inhaltsverzeichnis-Hervorhebung und barrierefreie Statusmeldungen bereitstellen.
+
 - Ältere Offline-Kataloge nach einer geänderten Katalogleselogik einmalig vor Ablauf der Zwölf-Stunden-Frist bedingt neu prüfen, vorhandene Daten bei Fehlern erhalten und anschließend wieder regulär drosseln. Geöffnete Tier-/Pflanzen-Hinzufügen-Dialoge nach erfolgreichem Katalogabgleich aktualisieren, ohne Aquarium, Anzahl oder gewählte Form zurückzusetzen. Offline-Speicherung und deduplizierte Übertragung konkreter Formen mit SQLite und MongoDB absichern.
 
 ## 0.3.4-ALPHA

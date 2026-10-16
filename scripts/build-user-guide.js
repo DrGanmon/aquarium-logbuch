@@ -55,6 +55,7 @@ function renderUserGuide(language = 'de') {
   const localeUrl = locale => `${prefix}${locale.directory ? locale.directory + '/' : './'}`;
   const alternatives = Object.entries(locales).map(([code, locale]) => `<link rel="alternate" hreflang="${code}" href="${localeUrl(locale)}">`).join('');
   const languages = `<nav class="languages" aria-label="${escape(text.languages)}">${Object.entries(locales).map(([code, locale]) => `<a href="${localeUrl(locale)}" lang="${code}" hreflang="${code}"${code === language ? ' aria-current="page"' : ''}>${escape(locale.name)}</a>`).join('')}</nav>`;
+  const search = `<div id="guide-search" class="guide-search"><label for="guide-search-input" class="search-label">${escape(text.searchLabel)}</label><div class="search-input-wrapper"><input type="search" id="guide-search-input" placeholder="${escape(text.searchPlaceholder)}" autocomplete="off" spellcheck="false" data-empty-text="${escape(text.searchEmpty)}" data-count-text="${escape(text.searchCount)}"><button type="button" id="guide-search-clear" class="search-clear" aria-label="${escape(text.searchClear)}" hidden>×</button></div><div id="guide-search-status" class="search-status" role="status" aria-live="polite"></div><ul id="guide-search-results" class="search-results" hidden></ul></div>`;
   const numbered = new Map(chapters.map((chapter, index) => [chapter.id, { ...chapter, number: String(index + 1).padStart(2, '0') }]));
   const toc = groups.map(group => `<li class="toc-group"><details><summary class="toc-group-title">${escape(group[language].title)}</summary><ol>${group.chapters.map(id => { const chapter = numbered.get(id);return `<li><a href="#${id}"><span>${chapter.number}</span> ${escape(chapter.title)}</a></li>`; }).join('')}</ol></details></li>`).join('\n');
   const areas = `<nav class="areas" aria-label="${escape(text.areas)}">${groups.map(group => `<a href="#bereich-${group.id}"><strong>${escape(group[language].title)}</strong><span>${escape(group[language].intro)}</span></a>`).join('')}</nav>`;
@@ -72,15 +73,18 @@ function renderUserGuide(language = 'de') {
   const rendered = new Map(chapters.map((chapter, index) => [chapter.id, chapterSections[index]]));
   const sections = groups.map((group, index) => `<section class="guide-group" id="bereich-${group.id}" aria-labelledby="group-${group.id}"><header class="group-heading"><p class="eyebrow">${escape(text.area)} ${index + 1}</p><h2 id="group-${group.id}">${escape(group[language].title)}</h2><p>${escape(group[language].intro)}</p></header>${group.chapters.map(id => rendered.get(id)).join('\n')}</section>`).join('\n');
   return `<!doctype html>
-<html lang="${language}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${escape(text.description)}"><meta name="referrer" content="no-referrer"><title>${escape(text.title)} · Aquarium-Logbuch</title><link rel="stylesheet" href="${prefix}guide.css">${alternatives}</head>
+<html lang="${language}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${escape(text.description)}"><meta name="referrer" content="no-referrer"><title>${escape(text.title)} · Aquarium-Logbuch</title><link rel="stylesheet" href="${prefix}guide.css">${alternatives}<script src="${prefix}guide.js" defer></script></head>
 <body><a class="skip-link" href="#kapitel">${escape(text.skip)}</a><header class="hero"><div class="hero-inner">${languages}<p class="eyebrow">AQUARIUM-LOGBUCH · ${escape(text.title)}</p><h1>${text.heading.map(escape).join('<br>')}</h1><p>${escape(text.intro)}</p><div class="hero-meta">${text.badges.map(badge => `<span>${escape(badge)}</span>`).join('')}</div><a class="primary" href="#schnellstart">${escape(text.start)} <span aria-hidden="true">→</span></a></div></header>
-<div class="layout"><nav id="inhalt" class="toc" aria-label="${escape(text.contents)}"><details open><summary>${escape(text.question)}</summary><ol>${toc}</ol></details><p class="toc-note">${escape(text.tip)}</p></nav><main id="kapitel"><div class="welcome"><strong>${escape(text.welcome)}</strong><p>${escape(text.welcomeText)}</p><p>${escape(text.demo)}</p><p>${escape(text.screenshots)}</p></div>${areas}${sections}</main></div>
+<div class="layout"><nav id="inhalt" class="toc" aria-label="${escape(text.contents)}">${search}<details open><summary>${escape(text.question)}</summary><ol>${toc}</ol></details><p class="toc-note">${escape(text.tip)}</p></nav><main id="kapitel"><div class="welcome"><strong>${escape(text.welcome)}</strong><p>${escape(text.welcomeText)}</p><p>${escape(text.demo)}</p><p>${escape(text.screenshots)}</p></div>${areas}${sections}</main></div>
 <footer><p>Aquarium-Logbuch · ${escape(text.public)}</p><p>${escape(text.privacy)}</p><p><a href="https://github.com/DrGanmon/aquarium-logbuch">${escape(text.project)}</a> · <a href="#inhalt">${escape(text.contents)}</a></p></footer></body></html>\n`;
 }
 function buildUserGuide({ check = false } = {}) {
   const target = path.join(root, 'public/handbuch');
   const locales = loadLocales();
-  const files = { 'guide.css': fs.readFileSync(path.join(root, 'docs/user-guide/guide.css'), 'utf8') };
+  const files = {
+    'guide.css': fs.readFileSync(path.join(root, 'docs/user-guide/guide.css'), 'utf8'),
+    'guide.js': fs.readFileSync(path.join(root, 'docs/user-guide/guide.js'), 'utf8'),
+  };
   for (const [language, locale] of Object.entries(locales)) files[locale.directory ? `${locale.directory}/index.html` : 'index.html'] = renderUserGuide(language);
   for (const [name, content] of Object.entries(files)) {
     const file = path.join(target, name);

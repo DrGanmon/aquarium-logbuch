@@ -7,8 +7,8 @@ Die veröffentlichbaren Dateien liegen unter `public/handbuch/`. Der vorhandene 
 1. Deutsche Texte in `chapters.json`, englische Texte in `chapters.en.json` und die Oberflächentexte beider Sprachen in `locales.json` pflegen. Kapitel-IDs, Reihenfolge, Bildzuordnungen und Anzahl der Schritte und Hinweise müssen übereinstimmen. Der Generator lehnt unvollständige Fassungen ab. Die Reihenfolge bestimmt Inhaltsverzeichnis und Kapitelnummern. `groups.json` ordnet jedes Kapitel genau einem Themenbereich zu und enthält dessen deutsche und englische Überschrift und Einführung. Gruppenreihenfolge und Kapitelreihenfolge müssen übereinstimmen; alte Kapitel-IDs als stabile Links erhalten.
 2. Screenshots mit ausschließlich erfundenen Konten und Aquariendaten aufnehmen. Keine echten Personen, E-Mail-Adressen, Schlüssel, Tokens oder Backup-Inhalte zeigen. Die Beispielillustration der Demo wurde für dieses Handbuch erstellt.
 3. Screenshots als WebP unter `public/handbuch/images/` speichern; Breite und Höhe in `images/manifest.json` eintragen. Bildnamen entsprechen dem Feld `image` des Kapitels.
-4. Gestaltung bei Bedarf in `guide.css` anpassen.
-5. `node scripts/build-user-guide.js` ausführen. Die erzeugten Dateien `public/handbuch/index.html`, `public/handbuch/en/index.html` und `public/handbuch/guide.css` zusammen mit den Quellen und Bildern einchecken.
+4. Gestaltung und Suchlogik bei Bedarf in `guide.css` und `guide.js` anpassen.
+5. `node scripts/build-user-guide.js` ausführen. Die erzeugten Dateien `public/handbuch/index.html`, `public/handbuch/en/index.html`, `public/handbuch/guide.css` und `public/handbuch/guide.js` zusammen mit den Quellen und Bildern einchecken.
 6. `node scripts/build-user-guide.js --check` und `npm test -- test/user_guide.test.js test/frontend_catalog_isolation.test.js` ausführen. Desktop-, Handy- und Druckansicht prüfen.
 
 Weitere Sprachen: Eine vollständig übersetzte Kapiteldatei `chapters.<Sprachcode>.json` anlegen und einen Eintrag mit Sprachname, Zielverzeichnis, Kapiteldatei und allen Oberflächentexten in `locales.json` ergänzen. Sprachcodes folgen `xx` oder `xx-XX`; die deutsche Standardadresse bleibt unverändert. Danach neu erzeugen und alle Sprachfassungen prüfen. Bilder und CSS werden gemeinsam verwendet, nicht pro Sprache kopiert. Die vorhandenen Aufnahmen zeigen Deutsch; dies wird in beiden Fassungen erklärt und Bildbeschreibungen sind übersetzt.
@@ -19,7 +19,7 @@ Eine Versionsnummer gehört nicht in die Einführung des Nutzerhandbuchs. Bei UI
 
 - Die App importiert das Handbuch nicht. Es gehört weder zum Vite-Bundle noch zur Offline-Shell oder deren Frontend-Hash.
 - Kein automatisches Prefetch, Preload oder Vorladen des Handbuchs aus der App hinzufügen.
-- Die Handbuchseite verwendet kein JavaScript, Tracking, externe Schriftarten oder andere externe Ressourcen. Bilder haben feste Maße und werden mit `loading="lazy"` geladen.
+- Die Handbuchseite verwendet kein Tracking, keine externen Schriftarten oder andere externe Ressourcen. Die Suchfunktion läuft rein lokal im Browser über das mitgelieferte `guide.js` ohne externe Anfragen oder Abhängigkeiten. Bilder haben feste Maße und werden mit `loading="lazy"` geladen.
 - Keine App-API aufrufen und keine Anmeldung voraussetzen. Ein rein statischer Link darf das Handbuch bei Bedarf in einem eigenen Tab öffnen; dafür keine neue App-Komponente einführen.
 - Änderungen am Handbuch dürfen den Frontend-Inhaltshash und den Service Worker nicht verändern. Der Build-Regressionstest sichert diese Grenze ab.
 

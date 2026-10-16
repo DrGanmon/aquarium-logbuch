@@ -48,12 +48,22 @@ test('Nutzerhandbuch: erzeugte Dateien, Kapitelanker und Screenshots sind vollst
   }
 });
 
-test('Nutzerhandbuch: keine Skripte, externen Ressourcen oder automatischen App-Anfragen', () => {
+test('Nutzerhandbuch: lokale Suche, keine externen Ressourcen oder automatischen App-Anfragen', () => {
   const html = ['index.html', 'en/index.html'].map(file => fs.readFileSync(path.join(directory, file), 'utf8')).join('\n');
   const css = fs.readFileSync(path.join(directory, 'guide.css'), 'utf8');
-  assert.doesNotMatch(html, /<script\b|<iframe\b|<form\b|\bon\w+\s*=|rel="(?:preload|prefetch|preconnect)"/i);
+  const script = fs.readFileSync(path.join(directory, 'guide.js'), 'utf8');
+  assert.doesNotMatch(html, /<iframe\b|<form\b|\bon\w+\s*=|rel="(?:preload|prefetch|preconnect)"/i);
   assert.doesNotMatch(html, /(?:src|poster)="(?:https?:)?\/\//i);
   assert.doesNotMatch(css, /@import|url\(/i);
+  assert.doesNotMatch(script, /fetch\b|XMLHttpRequest\b|WebSocket\b|importScripts\b|\beval\b/i);
+  for (const file of ['index.html', 'en/index.html']) {
+    const page = fs.readFileSync(path.join(directory, file), 'utf8');
+    const prefix = file.startsWith('en/') ? '../' : '';
+    assert.match(page, new RegExp(`<script src="${prefix}guide\\.js" defer><\\/script>`));
+    assert.match(page, /id="guide-search"/);
+    assert.match(page, /id="guide-search-input"/);
+    assert.match(page, /id="guide-search-results"/);
+  }
   const images = [...html.matchAll(/<img\b[^>]*>/g)].map(match => match[0]);
   assert.ok(images.length >= 20);
   for (const image of images) {
@@ -74,6 +84,7 @@ test('Nutzerhandbuch: ohne Anmeldung und vor Ersteinrichtung öffentlich erreich
   assert.equal(response.status, 200);assert.match(response.headers.get('content-type'), /text\/html/);
   assert.match(response.text, /Nutzerhandbuch/);assert.equal(response.headers.get('set-cookie'), null);
   assert.equal((await env.request('/handbuch/guide.css')).status, 200);
+  assert.equal((await env.request('/handbuch/guide.js')).status, 200);
   const english = await env.request('/handbuch/en/');
   assert.equal(english.status, 200);assert.match(english.text, /<html lang="en">/);
   assert.match(english.text, /Sign in and get started/);assert.equal(english.headers.get('set-cookie'), null);
