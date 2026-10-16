@@ -6,9 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Online-Funktionen bei Verbindungsfehlern mit einem verständlichen Offline-Dialog und „Jetzt prüfen“ erneut versuchen lassen. Lokale Funktionen und Hintergrundabgleich erhalten; Wiederholungen nur im Arbeitsspeicher halten und bei Abbruch, Navigation oder Kontowechsel verwerfen. KI-Verbindungsabbrüche verständlich melden und KI-Streaming bedarfsgesteuert laden, um die bestehende Startbundle-Grenze einzuhalten; Regressionstests und Nutzerhandbuch mit echtem mobilen Screenshot ergänzen.
+- Nutzerhandbuch mit Screenshots direkt im Kopfbereich der deutschen README verlinken und von der technischen Dokumentation unterscheiden.
 
 ## 0.3.0-ALPHA
+
+- 2026-10-16 · Online-Funktionen bei Verbindungsfehlern mit einem verständlichen Offline-Dialog und „Jetzt prüfen“ erneut versuchen lassen. Lokale Funktionen und Hintergrundabgleich erhalten; Wiederholungen nur im Arbeitsspeicher halten und bei Abbruch, Navigation oder Kontowechsel verwerfen. KI-Verbindungsabbrüche verständlich melden und KI-Streaming bedarfsgesteuert laden, um die bestehende Startbundle-Grenze einzuhalten; Regressionstests und Nutzerhandbuch mit echtem mobilen Screenshot ergänzen (`4809015b4dd251e458edcf1dd79ea6a515431516`).
 
 - 2026-10-16 · Lokalen Datenstand und „Jetzt synchronisieren“ ausschließlich im Offline-Modus anzeigen und die Statuskarte bei gesunder Serververbindung ausblenden. Offene Änderungen, Konflikte und Fehler bleiben auch online sichtbar; der automatische Datenabgleich läuft weiter. Darstellungstests sowie Handbuchtexte und betroffene Demo-Screenshots aktualisieren (`1559304fbce7d13a8a75375fd9f0eebe056ba100`).
 

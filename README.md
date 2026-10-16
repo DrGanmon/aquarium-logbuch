@@ -6,9 +6,9 @@
 
 Aquarium-Logbuch ist eine selbst gehostete Web-App für Wasserwerte, Besatz und Aquarienpflege. Sie verbindet Messverläufe, Pflegeprotokolle und Erinnerungen und unterstützt mehrere Benutzer mit getrennten oder geteilten Aquarien. Ein Artenkatalog, ein Diagnose-Assistent und ein optionaler KI-Chat ergänzen die Verwaltung von Süß- und Meerwasserbecken.
 
-**Deutsch** · [English](README.en.md) · [Handbuch](docs/de/README.md) · [Changelog](CHANGELOG.md)
+**Deutsch** · [English](README.en.md) · [📖 Nutzerhandbuch mit Screenshots](public/handbuch/index.html) · [Technische Dokumentation](docs/de/README.md) · [Changelog](CHANGELOG.md)
 
-**Neu dabei?** Öffne das öffentliche **Nutzerhandbuch** über den Link im App-Footer oder unter `<App-Adresse>/handbuch/`. Es erklärt alle Bereiche mit Schrittfolgen und Demo-Screenshots, funktioniert ohne Anmeldung und lädt seine Bilder erst beim Lesen. [Handbuch pflegen oder separat bereitstellen](docs/user-guide/README.md).
+**Neu dabei?** Öffne das öffentliche **[Nutzerhandbuch](public/handbuch/index.html)** über den Link im App-Footer oder unter `<App-Adresse>/handbuch/`. Es erklärt alle Bereiche mit Schrittfolgen und Demo-Screenshots, funktioniert ohne Anmeldung und lädt seine Bilder erst beim Lesen. [Handbuch pflegen oder separat bereitstellen](docs/user-guide/README.md).
 
 ## Transparenzhinweis: KI-generierte Software
 
