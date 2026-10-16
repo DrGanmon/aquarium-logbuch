@@ -3465,7 +3465,33 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Record"
+                    "type": "object",
+                    "properties": {
+                      "aquarium_id": {
+                        "type": "integer"
+                      },
+                      "plant_id": {
+                        "type": "string"
+                      },
+                      "count": {
+                        "type": "integer"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "scientificName": {
+                        "type": "string"
+                      },
+                      "category": {
+                        "type": "string"
+                      },
+                      "variantName": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Lokalisierter Name der gespeicherten Unterform; null bei Stammarten oder nicht zugeordneten Einträgen."
+                      }
+                    },
+                    "additionalProperties": true
                   }
                 }
               }
@@ -16371,6 +16397,11 @@
           "image_file": {
             "type": "string",
             "nullable": true
+          },
+          "variantName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Lokalisierter Name der gespeicherten Unterform; null bei Stammarten oder nicht zugeordneten Einträgen."
           }
         },
         "additionalProperties": true

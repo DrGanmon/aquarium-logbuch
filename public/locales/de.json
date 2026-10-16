@@ -1115,6 +1115,7 @@
     "saved": "Messung lokal gespeichert. Die Synchronisierung erfolgt bei bestehender Verbindung."
   },
   "variants": {
+    "selected": "Form / Unterart:",
     "matches": "Gefundene Unterformen:",
     "label": "Form / Unterart",
     "base": "Grundform / nicht angegeben",

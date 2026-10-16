@@ -159,11 +159,11 @@
     "title": "Tiere und Verträglichkeit",
     "intro": "Erfasse Tiere möglichst über den Artenkatalog, damit ihre Haltungsanforderungen zugeordnet werden können.",
     "image": "besatz",
-    "caption": "Tiere hinzufügen: Die Goldform wird beim gemeinsamen Fadenfisch-Eintrag ausgewählt.",
+    "caption": "Aquariumbesatz: Auch beim Tier mit eigenem Namen wird die gewählte Goldform angezeigt.",
     "steps": [
       "Öffne „Artenkatalog“ und suche nach der gewünschten Art. Prüfe Wasserart, Beckenvolumen und Gruppenhinweise.",
       "Wähle beim Stammeintrag „Zum Aquarium hinzufügen“. Im Feld „Form / Unterart“ wählst du die belegte Form oder Varietät oder lässt sie offen. Trage dann die Anzahl ein; einzelne Tiere dürfen eigene Namen bekommen.",
-      "Im Aquarium kannst du auch freie Bewohner eintragen, Anzahl und Namen ändern sowie ein Porträt hochladen.",
+      "Im Aquarium kannst du auch freie Bewohner eintragen, Anzahl und Namen ändern sowie ein Porträt hochladen. Bei gespeicherten Formen zeigt „Form / Unterart“ die gewählte Form an, auch bei Tieren mit eigenem Namen und offline.",
       "„Artendetails“ öffnet bei bekannten Arten die Informationen erneut. Über den Bewohner kannst du auch den Diagnose-Assistenten aufrufen.",
       "Lies die Verträglichkeitshinweise zu Gruppengröße, Beckengröße, Verhalten und Ansprüchen. Bei freien Einträgen ohne Katalogtreffer stehen weniger automatische Informationen zur Verfügung.",
       "Entferne Tiere, die nicht mehr im Becken sind, damit Auswertungen und Grenzwerte zum aktuellen Besatz passen."
@@ -180,11 +180,11 @@
     "title": "Pflanzen suchen und zum Becken hinzufügen",
     "intro": "Der Pflanzenkatalog hilft dir, passende Pflanzen zu finden und den Bestand im Aquarium festzuhalten.",
     "image": "pflanzen",
-    "caption": "Suche nach Pangolino: Die Anubias-barteri-Kachel nennt die gefundene Unterform.",
+    "caption": "Pflanzenbestand im Aquarium: Gewählte Formen wie Pangolino werden ausdrücklich angezeigt.",
     "steps": [
       "Öffne „Pflanzen“ in der Kopfzeile. Filtere nach Wasserart und Kategorie oder suche nach Art- bzw. Sortennamen. Formen erscheinen unter einer gemeinsamen Stammkachel; „Gefundene Unterformen“ zeigt passende Formen zur Suche an.",
       "Öffne eine Pflanze und lies die Hinweise zu Platzierung, Licht, Wachstum und Pflege.",
-      "Wähle „Zum Aquarium hinzufügen“, ein passendes Aquarium und gegebenenfalls die konkrete Form im Feld „Form / Unterart“. Gib die Stückzahl an und speichere. Die ausgewählte Form bleibt im Bestand getrennt erkennbar.",
+      "Wähle „Zum Aquarium hinzufügen“, ein passendes Aquarium und gegebenenfalls die konkrete Form im Feld „Form / Unterart“. Gib die Stückzahl an und speichere. Die ausgewählte Form bleibt im Bestand getrennt erkennbar. Im Aquarium steht die gewählte Form zusätzlich unter „Form / Unterart“, auch offline.",
       "Im Pflanzenbereich des Aquariums kannst du Mengen ändern oder Pflanzen entfernen.",
       "Einen Pflanzenschnitt oder eine Neupflanzung dokumentierst du zusätzlich im Logbuch, wenn du die Arbeit im Verlauf festhalten möchtest."
     ],

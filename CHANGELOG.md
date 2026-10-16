@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Auf Tier- und Pflanzenkacheln die Namen der durch die Suche gefundenen Unterformen anzeigen; Trefferhinweis für deutsche und englische Oberfläche sowie Offline-Suche bereitstellen. API-Dokumentation und Handbuch ergänzen.
+- Gespeicherte Unterformen im Aquarium bei Tieren und Pflanzen ausdrücklich anzeigen, auch bei individuell benannten Tieren und offline. Vorhandene Bestände anhand ihrer stabilen Katalog-IDs auflösen; keine zusätzlichen Katalogabfragen pro Bewohner. Handbuch und API-Dokumentation ergänzen.
+
+## 0.3.2-ALPHA
+
+- Auf Tier- und Pflanzenkacheln die Namen der durch die Suche gefundenen Unterformen anzeigen; Trefferhinweis für deutsche und englische Oberfläche sowie Offline-Suche bereitstellen. API-Dokumentation und Handbuch ergänzen. (`3fa2ef01678d85d058beead66187529df42e2a22`, 2026-10-16).
 
 ## 0.3.1-ALPHA
 

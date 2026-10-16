@@ -65,9 +65,15 @@ for (const type of ['sqlite', 'mongodb']) test(`Wunschkatalog: Suche, Pflanzenbe
     assert.equal((await env.request(root + '/plants/' + id, { method: 'PUT', headers, body: { count: 2 } })).status, 200);
   }
   assert.equal((await env.request(root + '/plants', { headers })).data.length, requests.length);
-  for (const id of fish) assert.equal((await env.request(root + '/stock/catalog', { method: 'POST', headers, body: { speciesId: id, count: 1, names: [] } })).status, 200);
+  for (const id of fish) assert.equal((await env.request(root + '/stock/catalog', { method: 'POST', headers, body: { speciesId: id, count: 1, names: [id === fish[0] ? "Goldie" : "Lenny"] } })).status, 200);
   for (const lang of ['de', 'en']) {
     const localized = { ...headers, 'X-Language': lang };
+    const speciesCatalog = require('../dist/backend/src/services/species-service');
+    const plantsCatalog = require('../dist/backend/src/services/plant-service').getPlantCatalog(lang);
+    const stock = (await env.request(root + '/stock', { headers: localized })).data;
+    for (const entry of stock) assert.equal(entry.variantName, speciesCatalog.getSpeciesById(entry.speciesId, lang).name);
+    const planted = (await env.request(root + '/plants', { headers: localized })).data;
+    for (const entry of planted) { const definition = plantsCatalog.plants.find(plant => plant.id === entry.plant_id);assert.equal(entry.variantName, definition.variantOf ? definition.name : null); }
     const residents = await env.request(`/api/health/aquariums/${created.data.id}/residents`, { headers: localized });
     assert.equal(residents.status, 200);assert.equal(residents.data.residents.length, 2);
     for (const resident of residents.data.residents) {
@@ -83,5 +89,14 @@ for (const type of ['sqlite', 'mongodb']) test(`Wunschkatalog: Suche, Pflanzenbe
     const health = await env.request('/api/catalogs/health?lang=' + lang, { headers });
     assert.equal(health.status, 200);
     for (const id of fish) assert.ok(health.data.data.catalog.species.some(species => species.id === id));
+    const workspace = (await env.request('/api/offline/state', { headers: localized })).data;
+    const definitions = (await env.request('/api/catalogs/species?lang=' + lang, { headers })).data;
+    const { deriveWorkspace } = require('../dist/backend/src/shared/offline-workspace-model');
+    // Simulate an older workspace that has not received the new presentation field yet.
+    for (const entry of [...workspace.responses[root.replace('/api', '') + '/stock'], ...workspace.responses[root.replace('/api', '') + '/plants']]) delete entry.variantName;
+    deriveWorkspace(workspace, { species: definitions, plants: plants.data });
+    assert.deepEqual(workspace.responses[root.replace('/api', '') + '/stock'].map(entry => entry.variantName), stock.map(entry => entry.variantName));
+    assert.deepEqual(workspace.responses[root.replace('/api', '') + '/plants'].map(entry => entry.variantName), planted.map(entry => entry.variantName));
+
   }
 });

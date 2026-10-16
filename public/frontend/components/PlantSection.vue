@@ -31,7 +31,7 @@ async function mutate(item: AquariumPlant, method: string, body?: unknown) {
     <p v-if="!plants.length" class="muted">{{ t('plantStock.empty') }}</p>
     <div class="stock-list">
       <div v-for="item in plants" :key="item.plant_id" class="stock-item">
-        <div><strong>{{ item.name }} <span class="tag">{{ item.count }} ×</span></strong><div class="muted"><em>{{ item.scientificName }}</em> · {{ item.category }}</div></div>
+        <div><strong>{{ item.name }} <span class="tag">{{ item.count }} ×</span></strong><div class="muted"><em>{{ item.scientificName }}</em> · {{ item.category }}</div><div v-if="item.variantName" class="muted"><strong>{{ t("variants.selected") }}</strong> {{ item.variantName }}</div></div>
         <div class="row">
           <button class="btn small ghost" @click="selected = item.plant_id">{{ t('common.details') }}</button>
           <template v-if="!readonly">

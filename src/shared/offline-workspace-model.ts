@@ -198,6 +198,14 @@ export function deriveWorkspace(snapshot: WorkspaceSnapshot, catalogs: { species
     const rows = (r[root + '/measurements?all=true'] || []).sort((a: any, b: any) => a.measured_at.localeCompare(b.measured_at));
     const stock = r[root + '/stock'] || [], logs = (r[root + '/maintenance'] || []).sort((a: any, b: any) => b.logged_at.localeCompare(a.logged_at));
     for (const entry of stock) { entry.has_image = Boolean(entry.image_file);entry.image_url = entry.image_file ? `api/aquariums/${aquarium.id}/stock/${entry.id}/image` : null; }
+    if (catalogs.species) for (const entry of stock) {
+      const species = catalogs.species.data.species.find(item => item.id === entry.speciesId || item.id === entry.species || [item.name, item.name_de, item.name_en, item.scientificName].some(name => name && name.toLowerCase() === entry.species.toLowerCase()));
+      entry.variantName = species?.variantOf ? species.name : null;
+    }
+    if (catalogs.plants) for (const entry of r[root + '/plants'] || []) {
+      const plant = catalogs.plants.data.plants.find(item => item.id === entry.plant_id);
+      entry.variantName = plant?.variantOf ? plant.name : null;
+    }
     const profiles: string[] = [...new Set<string>(stock.map((entry: any) => entry.profile || 'allgemein'))];
     const ranges = calculateThresholds(detail.aquarium.water_type, profiles, snapshot.rules.profiles, snapshot.rules.parameters);
     Object.assign(detail, ranges, { profiles, stock });

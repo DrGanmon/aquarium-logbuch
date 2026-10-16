@@ -81,9 +81,10 @@ async function remove(stock: Stock) {
           <div v-else class="stock-avatar-placeholder">🐠</div>
           <div>
             <strong class="stock-name-title"
-              >{{ item.name || item.species }}
+              >{{ item.name || item.variantName || item.species }}
               <span class="tag">{{ item.count }} ×</span></strong
             >
+            <div v-if="item.variantName" class="stock-species-sub"><strong>{{ t("variants.selected") }}</strong> {{ item.variantName }}</div>
             <div class="stock-species-sub">
               {{ item.species }} · {{ session.config?.profiles[item.profile] }}
             </div>

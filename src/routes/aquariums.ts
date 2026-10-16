@@ -54,6 +54,7 @@ function enrichStock(stockRows?: any, lang?: any) {
     return {
       ...s,
       speciesId: sp?.id || null,
+      variantName: sp?.variantOf ? sp.name : null,
       scientificName: sp?.scientificName || null,
       category: sp?.category || null,
       category_de: sp?.category_de || null,
@@ -482,7 +483,7 @@ router.get('/:id/plants', auth, ownAquarium, wrap(async (req: Request, res: Resp
   const rows = await db.plants.listForAquarium(req.aq.id);
   res.json(rows.map(row => {
     const plant = catalog.plants.find(item => item.id === row.plant_id);
-    return { ...row, name: plant?.name || row.plant_id, scientificName: plant?.scientificName || '', category: plant?.category || '' };
+    return { ...row, name: plant?.name || row.plant_id, scientificName: plant?.scientificName || '', category: plant?.category || '', variantName: plant?.variantOf ? plant.name : null };
   }));
 }));
 router.put('/:id/plants/:plantId', auth, writeAquarium, wrap(async (req: Request, res: Response) => {

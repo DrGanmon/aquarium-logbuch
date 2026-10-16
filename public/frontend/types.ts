@@ -169,6 +169,7 @@ export interface Aquarium {
   fertilize_reminder_mail?: number | boolean;
 }
 export interface Stock {
+  variantName?: string | null;
   speciesId?: string | null;
   id: Id;
   species: string;
@@ -294,4 +295,4 @@ export interface Field {
   options?: Record<string, string>;
 }
 
-export interface AquariumPlant { aquarium_id: number; plant_id: string; count: number; name: string; scientificName: string; category: string }
+export interface AquariumPlant { variantName?: string | null; aquarium_id: number; plant_id: string; count: number; name: string; scientificName: string; category: string }
