@@ -6,9 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Nutzerhandbuch mit Screenshots direkt im Kopfbereich der deutschen README verlinken und von der technischen Dokumentation unterscheiden.
+- README um vier echte Demo-Screenshots ergänzen: acht Aquarien und Pflanzenkatalog im hellen Design sowie Aquarium-Messverläufe mit einer zweimonatigen Messreihe und Artenkatalog im dunklen Design. Bilder komprimiert unter `docs/screenshots` ablegen, in voller Größe verlinken und Aufnahmehinweise dokumentieren; keine zusätzlichen App-Ressourcen laden. Nutzerhandbuch-Links auf `https://aquarium-logbuch.de/handbuch` ausrichten.
 
 ## 0.3.0-ALPHA
+
+- 2026-10-16 · Nutzerhandbuch mit Screenshots direkt im Kopfbereich der deutschen README verlinken und von der technischen Dokumentation unterscheiden (`13652220affb0b42837294495987ee1ba2c04499`).
 
 - 2026-10-16 · Online-Funktionen bei Verbindungsfehlern mit einem verständlichen Offline-Dialog und „Jetzt prüfen“ erneut versuchen lassen. Lokale Funktionen und Hintergrundabgleich erhalten; Wiederholungen nur im Arbeitsspeicher halten und bei Abbruch, Navigation oder Kontowechsel verwerfen. KI-Verbindungsabbrüche verständlich melden und KI-Streaming bedarfsgesteuert laden, um die bestehende Startbundle-Grenze einzuhalten; Regressionstests und Nutzerhandbuch mit echtem mobilen Screenshot ergänzen (`4809015b4dd251e458edcf1dd79ea6a515431516`).
 

@@ -6,15 +6,27 @@
 
 Aquarium-Logbuch ist eine selbst gehostete Web-App für Wasserwerte, Besatz und Aquarienpflege. Sie verbindet Messverläufe, Pflegeprotokolle und Erinnerungen und unterstützt mehrere Benutzer mit getrennten oder geteilten Aquarien. Ein Artenkatalog, ein Diagnose-Assistent und ein optionaler KI-Chat ergänzen die Verwaltung von Süß- und Meerwasserbecken.
 
-**Deutsch** · [English](README.en.md) · [📖 Nutzerhandbuch mit Screenshots](public/handbuch/index.html) · [Technische Dokumentation](docs/de/README.md) · [Changelog](CHANGELOG.md)
+**Deutsch** · [English](README.en.md) · [📖 Nutzerhandbuch mit Screenshots](https://aquarium-logbuch.de/handbuch) · [Technische Dokumentation](docs/de/README.md) · [Changelog](CHANGELOG.md)
 
-**Neu dabei?** Öffne das öffentliche **[Nutzerhandbuch](public/handbuch/index.html)** über den Link im App-Footer oder unter `<App-Adresse>/handbuch/`. Es erklärt alle Bereiche mit Schrittfolgen und Demo-Screenshots, funktioniert ohne Anmeldung und lädt seine Bilder erst beim Lesen. [Handbuch pflegen oder separat bereitstellen](docs/user-guide/README.md).
+**Neu dabei?** Öffne das öffentliche **[Nutzerhandbuch](https://aquarium-logbuch.de/handbuch)** über den Link im App-Footer oder unter `<App-Adresse>/handbuch/`. Es erklärt alle Bereiche mit Schrittfolgen und Demo-Screenshots, funktioniert ohne Anmeldung und lädt seine Bilder erst beim Lesen. [Handbuch pflegen oder separat bereitstellen](docs/user-guide/README.md).
 
 ## Transparenzhinweis: KI-generierte Software
 
 **Diese App wurde mithilfe generativer KI geschrieben und weiterentwickelt.** Quellcode und Dokumentation enthalten KI-generierte Inhalte. Dieser Hinweis dient der freiwilligen Transparenz in Anlehnung an [Artikel 50 des EU AI Act (Verordnung (EU) 2024/1689)](https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-50); er ist keine Erklärung vollständiger Rechtskonformität. Aus der KI-gestützten Entwicklung allein folgt keine pauschale Kennzeichnungspflicht für jede Software.
 
 Im optionalen KI-Chat interagierst du mit einem KI-System; dessen Antworten sind automatisch generiert und können fehlerhaft oder unvollständig sein. Prüfe Empfehlungen vor der Anwendung. Wasserwertbewertungen und Verdachtsdiagnosen ersetzen keine fachliche oder tierärztliche Untersuchung. Beim Absenden einer Chat-Anfrage werden Nachrichten und Aquariumkontext an den ausgewählten KI-Anbieter übermittelt; Details stehen im [KI-Handbuch](docs/de/ai-chat.md).
+
+## Einblicke in die App
+
+Echte App-Ansichten mit fiktiven Demo-Daten: zwei im hellen und zwei im dunklen Design. Klicke auf ein Bild, um es in voller Größe zu öffnen.
+
+| Aquarienübersicht · hell | Aquariumdetails mit Messverläufen · dunkel |
+| --- | --- |
+| [![Aquarienübersicht im hellen Design mit acht Demo-Aquarien und ihrem Status](docs/screenshots/aquarien-light.webp)](docs/screenshots/aquarien-light.webp) | [![Aquariumdetails im dunklen Design mit acht Wasserwertdiagrammen und täglichen Messungen über zwei Monate](docs/screenshots/messwerte-dark.webp)](docs/screenshots/messwerte-dark.webp) |
+| **Pflanzenübersicht · hell** | **Fische und Artenkatalog · dunkel** |
+| [![Pflanzenkatalog im hellen Design mit Suche, Filtern und Pflanzenbeschreibungen](docs/screenshots/pflanzen-light.webp)](docs/screenshots/pflanzen-light.webp) | [![Artenkatalog im dunklen Design mit Fischen, Wirbellosen und Haltungsanforderungen](docs/screenshots/fische-dark.webp)](docs/screenshots/fische-dark.webp) |
+
+Weitere Ansichten und Schrittfolgen findest du im [öffentlichen Nutzerhandbuch](https://aquarium-logbuch.de/handbuch).
 
 ## Features für Benutzer
 
