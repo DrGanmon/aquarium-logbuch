@@ -5,7 +5,7 @@ defineProps<{ modelValue: string; rootId: string; variants?: CatalogVariant[]; d
 defineEmits<{ 'update:modelValue': [value: string] }>();
 </script>
 <template>
-  <label v-if="variants?.length">{{ t('variants.label') }}
+  <label v-if="variants?.length">{{ t(rootId === 'ancistrus-sp' ? 'variants.speciesLabel' : 'variants.label') }}
     <select :value="modelValue" :disabled="disabled" @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)">
       <option :value="rootId">{{ t('variants.base') }}</option>
       <option v-for="variant in variants" :key="variant.id" :value="variant.id">{{ variant.name }} · {{ t('variants.' + variant.kind) }}</option>

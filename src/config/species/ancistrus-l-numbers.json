@@ -1,0 +1,3177 @@
+{
+  "id": "ancistrus-l-numbers",
+  "name": "Antennenwelse: L-Nummern",
+  "description": "Recherchierte Ancistrus-L-Nummern; Auswahlgruppe, keine taxonomischen Unterarten. Quellen und Abgrenzungen: docs/ancistrus-l-numbers-2026-10-16.md.",
+  "species": [
+    {
+      "id": "ancistrus-sp-l032",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L032",
+      "name_en": "Ancistrus sp. · L032",
+      "scientificName": "Ancistrus sp. (L032)",
+      "aliases": [
+        "L32",
+        "L032",
+        "L 32",
+        "L 032"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 30.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L032: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–30 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L032: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–30 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l032/"
+      ]
+    },
+    {
+      "id": "ancistrus-ranunculus",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "species",
+      "name": "Ancistrus ranunculus · L034",
+      "name_en": "Ancistrus ranunculus · L034",
+      "scientificName": "Ancistrus ranunculus",
+      "aliases": [
+        "L34",
+        "L034",
+        "L 34",
+        "L 034"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 26.0,
+        "max": 30.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller",
+        "requires_high_flow"
+      ],
+      "diet": "carnivore",
+      "description": "L034: eigenständige Ancistrus-Art. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 26–30 °C, pH 5.5–7.5, Beckenlänge ab 80 cm.",
+      "description_en": "L034: a separate Ancistrus species. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 26–30 °C, pH 5.5–7.5, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten. L034 benötigt ausgeprägte Strömung und proteinreiches Futter.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species. L034 needs strong water movement and protein-rich food.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-ranunculus-l034-muller-rapp-py-daniel-zuanon-1994/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l043",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L043",
+      "name_en": "Ancistrus sp. · L043",
+      "scientificName": "Ancistrus sp. (L043)",
+      "aliases": [
+        "L43",
+        "L043",
+        "L 43",
+        "L 043"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 22.0,
+        "max": 27.0
+      },
+      "ph": {
+        "min": 5.0,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L043: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 22–27 °C, pH 5–7.5, Beckenlänge ab 80 cm.",
+      "description_en": "L043: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 22–27 °C, pH 5–7.5, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l043/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l045",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L045",
+      "name_en": "Ancistrus sp. · L045",
+      "scientificName": "Ancistrus sp. (L045)",
+      "aliases": [
+        "L45",
+        "L045",
+        "L 45",
+        "L 045"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 23.0,
+        "max": 28.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L045: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 23–28 °C, pH 5.5–7.5, Beckenlänge ab 80 cm.",
+      "description_en": "L045: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 23–28 °C, pH 5.5–7.5, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l045/"
+      ]
+    },
+    {
+      "id": "ancistrus-hoplogenys",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "species",
+      "name": "Ancistrus hoplogenys · L059",
+      "name_en": "Ancistrus hoplogenys · L059",
+      "scientificName": "Ancistrus hoplogenys",
+      "aliases": [
+        "L59",
+        "L059",
+        "L 59",
+        "L 059"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 26.0,
+        "max": 30.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 100,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L059: eigenständige Ancistrus-Art. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 26–30 °C, pH 5.5–7.5, Beckenlänge ab 100 cm.",
+      "description_en": "L059: a separate Ancistrus species. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 26–30 °C, pH 5.5–7.5, tank length from 100 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-hoplogenys-l059-guenther-1864/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l071",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L071 / L181 / L249",
+      "name_en": "Ancistrus sp. · L071 / L181 / L249",
+      "scientificName": "Ancistrus sp. (L071 / L181 / L249)",
+      "aliases": [
+        "L71",
+        "L071",
+        "L 71",
+        "L 071",
+        "L181",
+        "L 181",
+        "L249",
+        "L 249"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 120,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L071 / L181 / L249: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5.5–7.5, Beckenlänge ab 120 cm.",
+      "description_en": "L071 / L181 / L249: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5.5–7.5, tank length from 120 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l071/",
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l181/",
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l249/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l088",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L088",
+      "name_en": "Ancistrus sp. · L088",
+      "scientificName": "Ancistrus sp. (L088)",
+      "aliases": [
+        "L88",
+        "L088",
+        "L 88",
+        "L 088"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.0,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 100,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L088: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5–7.5, Beckenlänge ab 100 cm.",
+      "description_en": "L088: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5–7.5, tank length from 100 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l088/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l089",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L089",
+      "name_en": "Ancistrus sp. · L089",
+      "scientificName": "Ancistrus sp. (L089)",
+      "aliases": [
+        "L89",
+        "L089",
+        "L 89",
+        "L 089"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L089: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 6–8, Beckenlänge ab 60 cm.",
+      "description_en": "L089: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 6–8, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l089/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l100",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L100",
+      "name_en": "Ancistrus sp. · L100",
+      "scientificName": "Ancistrus sp. (L100)",
+      "aliases": [
+        "L100",
+        "L 100"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 26.0,
+        "max": 30.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L100: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 26–30 °C, pH 5.5–7.5, Beckenlänge ab 80 cm.",
+      "description_en": "L100: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 26–30 °C, pH 5.5–7.5, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l100/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l107",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L107 / L184",
+      "name_en": "Ancistrus sp. · L107 / L184",
+      "scientificName": "Ancistrus sp. (L107 / L184)",
+      "aliases": [
+        "L107",
+        "L 107",
+        "L184",
+        "L 184"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 4.5,
+        "max": 7.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 100,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L107 / L184: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 4.5–7, Beckenlänge ab 100 cm.",
+      "description_en": "L107 / L184: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 4.5–7, tank length from 100 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l107/",
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l184/"
+      ]
+    },
+    {
+      "id": "ancistrus-maximus",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "species",
+      "name": "Ancistrus maximus · L110 / L157",
+      "name_en": "Ancistrus maximus · L110 / L157",
+      "scientificName": "Ancistrus maximus",
+      "aliases": [
+        "L110",
+        "L 110",
+        "L157",
+        "L 157"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 4.5,
+        "max": 7.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 120,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L110 / L157: eigenständige Ancistrus-Art. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 4.5–7, Beckenlänge ab 120 cm.",
+      "description_en": "L110 / L157: a separate Ancistrus species. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 4.5–7, tank length from 120 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-maximus-l110-oliveira-zuanon-zawadzki-rapp-py-daniel-2015/",
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-maximus-l157-oliveira-zuanon-zawadzki-rapp-py-daniel-2015/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l111",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L111",
+      "name_en": "Ancistrus sp. · L111",
+      "scientificName": "Ancistrus sp. (L111)",
+      "aliases": [
+        "L111",
+        "L 111"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 24.0,
+        "max": 28.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L111: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 24–28 °C, pH 6–8, Beckenlänge ab 60 cm.",
+      "description_en": "L111: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 24–28 °C, pH 6–8, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l111/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l120",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L120 / L182",
+      "name_en": "Ancistrus sp. · L120 / L182",
+      "scientificName": "Ancistrus sp. (L120 / L182)",
+      "aliases": [
+        "L120",
+        "L 120",
+        "L182",
+        "L 182"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 120,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L120 / L182: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 6–8, Beckenlänge ab 120 cm.",
+      "description_en": "L120 / L182: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 6–8, tank length from 120 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l120/",
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l182/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l125",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L125",
+      "name_en": "Ancistrus sp. · L125",
+      "scientificName": "Ancistrus sp. (L125)",
+      "aliases": [
+        "L125",
+        "L 125"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 24.0,
+        "max": 28.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L125: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 24–28 °C, pH 6–8, Beckenlänge ab 60 cm.",
+      "description_en": "L125: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 24–28 °C, pH 6–8, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l125/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l148",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L148",
+      "name_en": "Ancistrus sp. · L148",
+      "scientificName": "Ancistrus sp. (L148)",
+      "aliases": [
+        "L148",
+        "L 148"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.0,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L148: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5–7.5, Beckenlänge ab 80 cm.",
+      "description_en": "L148: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5–7.5, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l148/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l149",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L149",
+      "name_en": "Ancistrus sp. · L149",
+      "scientificName": "Ancistrus sp. (L149)",
+      "aliases": [
+        "L149",
+        "L 149"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 4.5,
+        "max": 7.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L149: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 4.5–7, Beckenlänge ab 60 cm.",
+      "description_en": "L149: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 4.5–7, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l149/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l150",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L150",
+      "name_en": "Ancistrus sp. · L150",
+      "scientificName": "Ancistrus sp. (L150)",
+      "aliases": [
+        "L150",
+        "L 150"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L150: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L150: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l150/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l156",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L156",
+      "name_en": "Ancistrus sp. · L156",
+      "scientificName": "Ancistrus sp. (L156)",
+      "aliases": [
+        "L156",
+        "L 156"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L156: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5.5–7.5, Beckenlänge ab 80 cm.",
+      "description_en": "L156: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5.5–7.5, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l156/"
+      ]
+    },
+    {
+      "id": "ancistrus-luzia",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "species",
+      "name": "Ancistrus luzia · L159",
+      "name_en": "Ancistrus luzia · L159",
+      "scientificName": "Ancistrus luzia",
+      "aliases": [
+        "L159",
+        "L 159"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 30.0
+      },
+      "ph": {
+        "min": 5.0,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L159: eigenständige Ancistrus-Art. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–30 °C, pH 5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L159: a separate Ancistrus species. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–30 °C, pH 5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-luzia-l159-neuhaus-britto-birindelli-sousa-2022/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l180",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L180",
+      "name_en": "Ancistrus sp. · L180",
+      "scientificName": "Ancistrus sp. (L180)",
+      "aliases": [
+        "L180",
+        "L 180"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L180: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5.5–7.5, Beckenlänge ab 80 cm.",
+      "description_en": "L180: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5.5–7.5, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l180/"
+      ]
+    },
+    {
+      "id": "ancistrus-dolichopterus",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "species",
+      "name": "Ancistrus dolichopterus · L183",
+      "name_en": "Ancistrus dolichopterus · L183",
+      "scientificName": "Ancistrus dolichopterus",
+      "aliases": [
+        "L183",
+        "L 183"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 24.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 4.5,
+        "max": 7.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 100,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L183: eigenständige Ancistrus-Art. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 24–29 °C, pH 4.5–7, Beckenlänge ab 100 cm.",
+      "description_en": "L183: a separate Ancistrus species. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 24–29 °C, pH 4.5–7, tank length from 100 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-dolichopterus-l183-kner-1854/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l213",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L213 / L370",
+      "name_en": "Ancistrus sp. · L213 / L370",
+      "scientificName": "Ancistrus sp. (L213 / L370)",
+      "aliases": [
+        "L213",
+        "L 213",
+        "L370",
+        "L 370"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 26.0,
+        "max": 30.0
+      },
+      "ph": {
+        "min": 5.0,
+        "max": 7.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L213 / L370: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 26–30 °C, pH 5–7, Beckenlänge ab 60 cm.",
+      "description_en": "L213 / L370: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 26–30 °C, pH 5–7, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l213/",
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l370/"
+      ]
+    },
+    {
+      "id": "ancistrus-alga",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "species",
+      "name": "Ancistrus alga · L237",
+      "name_en": "Ancistrus alga · L237",
+      "scientificName": "Ancistrus alga",
+      "aliases": [
+        "L237",
+        "L 237"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 100,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L237: eigenständige Ancistrus-Art. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 6–8, Beckenlänge ab 100 cm.",
+      "description_en": "L237: a separate Ancistrus species. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 6–8, tank length from 100 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-alga-l237-cope-1872/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l255",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L255",
+      "name_en": "Ancistrus sp. · L255",
+      "scientificName": "Ancistrus sp. (L255)",
+      "aliases": [
+        "L255",
+        "L 255"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 26.0,
+        "max": 30.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L255: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 26–30 °C, pH 5.5–7.5, Beckenlänge ab 80 cm. Die Zuordnung zu A. ranunculus ist zwischen den Quellen widersprüchlich; L255 bleibt getrennt erfassbar.",
+      "description_en": "L255: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 26–30 °C, pH 5.5–7.5, tank length from 80 cm. Sources disagree on assignment to A. ranunculus; L255 remains separately recordable.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-ranunculus-l255-muller-rapp-py-daniel-zuanon-1994/"
+      ]
+    },
+    {
+      "id": "ancistrus-yanesha",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "species",
+      "name": "Ancistrus yanesha · L267",
+      "name_en": "Ancistrus yanesha · L267",
+      "scientificName": "Ancistrus yanesha",
+      "aliases": [
+        "L267",
+        "L 267"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 22.0,
+        "max": 27.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 100,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L267: eigenständige Ancistrus-Art. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 22–27 °C, pH 6–8, Beckenlänge ab 100 cm.",
+      "description_en": "L267: a separate Ancistrus species. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 22–27 °C, pH 6–8, tank length from 100 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-yanesha-l267-neuhaus-meza-vargas-herrer-lujan-2023/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l279",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L279",
+      "name_en": "Ancistrus sp. · L279",
+      "scientificName": "Ancistrus sp. (L279)",
+      "aliases": [
+        "L279",
+        "L 279"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 22.0,
+        "max": 27.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L279: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 22–27 °C, pH 6–8, Beckenlänge ab 60 cm.",
+      "description_en": "L279: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 22–27 °C, pH 6–8, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l279/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l289",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L289 / L485",
+      "name_en": "Ancistrus sp. · L289 / L485",
+      "scientificName": "Ancistrus sp. (L289 / L485)",
+      "aliases": [
+        "L289",
+        "L 289",
+        "L485",
+        "L 485"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 26.0,
+        "max": 30.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L289 / L485: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 26–30 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L289 / L485: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 26–30 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l289/",
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l485/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l292",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L292",
+      "name_en": "Ancistrus sp. · L292",
+      "scientificName": "Ancistrus sp. (L292)",
+      "aliases": [
+        "L292",
+        "L 292"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": null,
+      "ph": null,
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": null,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L292: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Für diesen Eintrag fehlen in der ausgewerteten Profilquelle konkrete Wasserwerte; vor der Haltung separat klären.",
+      "description_en": "L292: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. The consulted profile does not provide specific water parameters for this entry; establish these before keeping it.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l292/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l293",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L293",
+      "name_en": "Ancistrus sp. · L293",
+      "scientificName": "Ancistrus sp. (L293)",
+      "aliases": [
+        "L293",
+        "L 293"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": null,
+      "ph": null,
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": null,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L293: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Für diesen Eintrag fehlen in der ausgewerteten Profilquelle konkrete Wasserwerte; vor der Haltung separat klären.",
+      "description_en": "L293: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. The consulted profile does not provide specific water parameters for this entry; establish these before keeping it.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l293/"
+      ]
+    },
+    {
+      "id": "ancistrus-nudiceps",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "species",
+      "name": "Ancistrus nudiceps · L304",
+      "name_en": "Ancistrus nudiceps · L304",
+      "scientificName": "Ancistrus nudiceps",
+      "aliases": [
+        "L304",
+        "L 304"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 23.0,
+        "max": 28.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 100,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L304: eigenständige Ancistrus-Art. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 23–28 °C, pH 6–8, Beckenlänge ab 100 cm.",
+      "description_en": "L304: a separate Ancistrus species. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 23–28 °C, pH 6–8, tank length from 100 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-nudiceps-l304/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l309",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L309",
+      "name_en": "Ancistrus sp. · L309",
+      "scientificName": "Ancistrus sp. (L309)",
+      "aliases": [
+        "L309",
+        "L 309"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 26.0,
+        "max": 30.0
+      },
+      "ph": {
+        "min": 5.0,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L309: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 26–30 °C, pH 5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L309: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 26–30 °C, pH 5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l309/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l325",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L325",
+      "name_en": "Ancistrus sp. · L325",
+      "scientificName": "Ancistrus sp. (L325)",
+      "aliases": [
+        "L325",
+        "L 325"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L325: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L325: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l325/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l327",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L327",
+      "name_en": "Ancistrus sp. · L327",
+      "scientificName": "Ancistrus sp. (L327)",
+      "aliases": [
+        "L327",
+        "L 327"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L327: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L327: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l327/"
+      ]
+    },
+    {
+      "id": "ancistrus-fulvus",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "species",
+      "name": "Ancistrus fulvus · L338",
+      "name_en": "Ancistrus fulvus · L338",
+      "scientificName": "Ancistrus fulvus",
+      "aliases": [
+        "L338",
+        "L 338"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 100,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L338: eigenständige Ancistrus-Art. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5.5–7.5, Beckenlänge ab 100 cm.",
+      "description_en": "L338: a separate Ancistrus species. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5.5–7.5, tank length from 100 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-fulvus-l338-holly-1929/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l344",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L344",
+      "name_en": "Ancistrus sp. · L344",
+      "scientificName": "Ancistrus sp. (L344)",
+      "aliases": [
+        "L344",
+        "L 344"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L344: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L344: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l344/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l349",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L349",
+      "name_en": "Ancistrus sp. · L349",
+      "scientificName": "Ancistrus sp. (L349)",
+      "aliases": [
+        "L349",
+        "L 349"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 23.0,
+        "max": 28.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L349: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 23–28 °C, pH 6–8, Beckenlänge ab 60 cm.",
+      "description_en": "L349: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 23–28 °C, pH 6–8, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l349/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l352",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L352",
+      "name_en": "Ancistrus sp. · L352",
+      "scientificName": "Ancistrus sp. (L352)",
+      "aliases": [
+        "L352",
+        "L 352"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 26.0,
+        "max": 30.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L352: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 26–30 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L352: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 26–30 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l352/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l355",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L355",
+      "name_en": "Ancistrus sp. · L355",
+      "scientificName": "Ancistrus sp. (L355)",
+      "aliases": [
+        "L355",
+        "L 355"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 26.0,
+        "max": 30.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L355: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 26–30 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L355: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 26–30 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l355/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l357",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L357",
+      "name_en": "Ancistrus sp. · L357",
+      "scientificName": "Ancistrus sp. (L357)",
+      "aliases": [
+        "L357",
+        "L 357"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 30.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L357: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–30 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L357: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–30 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l357/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l359",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L359",
+      "name_en": "Ancistrus sp. · L359",
+      "scientificName": "Ancistrus sp. (L359)",
+      "aliases": [
+        "L359",
+        "L 359"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 26.0,
+        "max": 30.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L359: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 26–30 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L359: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 26–30 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l359/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l369",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L369",
+      "name_en": "Ancistrus sp. · L369",
+      "scientificName": "Ancistrus sp. (L369)",
+      "aliases": [
+        "L369",
+        "L 369"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L369: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 6–8, Beckenlänge ab 60 cm.",
+      "description_en": "L369: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 6–8, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l369/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l371",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L371",
+      "name_en": "Ancistrus sp. · L371",
+      "scientificName": "Ancistrus sp. (L371)",
+      "aliases": [
+        "L371",
+        "L 371"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L371: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 6–8, Beckenlänge ab 80 cm.",
+      "description_en": "L371: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 6–8, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l371/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l372",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L372",
+      "name_en": "Ancistrus sp. · L372",
+      "scientificName": "Ancistrus sp. (L372)",
+      "aliases": [
+        "L372",
+        "L 372"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 24.0,
+        "max": 28.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L372: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 24–28 °C, pH 5.5–7, Beckenlänge ab 80 cm.",
+      "description_en": "L372: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 24–28 °C, pH 5.5–7, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l372/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l378",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L378",
+      "name_en": "Ancistrus sp. · L378",
+      "scientificName": "Ancistrus sp. (L378)",
+      "aliases": [
+        "L378",
+        "L 378"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L378: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 6–8, Beckenlänge ab 80 cm.",
+      "description_en": "L378: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 6–8, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l378/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l392",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L392 / L513",
+      "name_en": "Ancistrus sp. · L392 / L513",
+      "scientificName": "Ancistrus sp. (L392 / L513)",
+      "aliases": [
+        "L392",
+        "L 392",
+        "L513",
+        "L 513"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 22.0,
+        "max": 27.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 100,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L392 / L513: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 22–27 °C, pH 6–8.5, Beckenlänge ab 100 cm.",
+      "description_en": "L392 / L513: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 22–27 °C, pH 6–8.5, tank length from 100 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l392/",
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l513/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l393",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L393",
+      "name_en": "Ancistrus sp. · L393",
+      "scientificName": "Ancistrus sp. (L393)",
+      "aliases": [
+        "L393",
+        "L 393"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 22.0,
+        "max": 28.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L393: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 22–28 °C, pH 6–8, Beckenlänge ab 60 cm.",
+      "description_en": "L393: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 22–28 °C, pH 6–8, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l393/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l396",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L396",
+      "name_en": "Ancistrus sp. · L396",
+      "scientificName": "Ancistrus sp. (L396)",
+      "aliases": [
+        "L396",
+        "L 396"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 18.0,
+        "max": 25.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L396: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 18–25 °C, pH 6–8.5, Beckenlänge ab 60 cm.",
+      "description_en": "L396: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 18–25 °C, pH 6–8.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l396/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l421",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L421",
+      "name_en": "Ancistrus sp. · L421",
+      "scientificName": "Ancistrus sp. (L421)",
+      "aliases": [
+        "L421",
+        "L 421"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 24.0,
+        "max": 28.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L421: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 24–28 °C, pH 6–8.5, Beckenlänge ab 60 cm.",
+      "description_en": "L421: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 24–28 °C, pH 6–8.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l421/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l423",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L423",
+      "name_en": "Ancistrus sp. · L423",
+      "scientificName": "Ancistrus sp. (L423)",
+      "aliases": [
+        "L423",
+        "L 423"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L423: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L423: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l423/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l463",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L463",
+      "name_en": "Ancistrus sp. · L463",
+      "scientificName": "Ancistrus sp. (L463)",
+      "aliases": [
+        "L463",
+        "L 463"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 21.0,
+        "max": 27.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 100,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L463: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 21–27 °C, pH 6–8.5, Beckenlänge ab 100 cm.",
+      "description_en": "L463: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 21–27 °C, pH 6–8.5, tank length from 100 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l463/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l464",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L464",
+      "name_en": "Ancistrus sp. · L464",
+      "scientificName": "Ancistrus sp. (L464)",
+      "aliases": [
+        "L464",
+        "L 464"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 21.0,
+        "max": 27.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L464: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 21–27 °C, pH 6–8.5, Beckenlänge ab 80 cm.",
+      "description_en": "L464: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 21–27 °C, pH 6–8.5, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l464/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l480",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L480",
+      "name_en": "Ancistrus sp. · L480",
+      "scientificName": "Ancistrus sp. (L480)",
+      "aliases": [
+        "L480",
+        "L 480"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L480: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L480: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l480/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l481",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L481",
+      "name_en": "Ancistrus sp. · L481",
+      "scientificName": "Ancistrus sp. (L481)",
+      "aliases": [
+        "L481",
+        "L 481"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 120,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L481: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5.5–7.5, Beckenlänge ab 120 cm.",
+      "description_en": "L481: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5.5–7.5, tank length from 120 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l481/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l486",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L486",
+      "name_en": "Ancistrus sp. · L486",
+      "scientificName": "Ancistrus sp. (L486)",
+      "aliases": [
+        "L486",
+        "L 486"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 24.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L486: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 24–29 °C, pH 6–8, Beckenlänge ab 80 cm.",
+      "description_en": "L486: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 24–29 °C, pH 6–8, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l486/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l503",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L503",
+      "name_en": "Ancistrus sp. · L503",
+      "scientificName": "Ancistrus sp. (L503)",
+      "aliases": [
+        "L503",
+        "L 503"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 23.0,
+        "max": 28.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L503: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 23–28 °C, pH 5.5–7.5, Beckenlänge ab 80 cm.",
+      "description_en": "L503: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 23–28 °C, pH 5.5–7.5, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l503/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l504",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L504",
+      "name_en": "Ancistrus sp. · L504",
+      "scientificName": "Ancistrus sp. (L504)",
+      "aliases": [
+        "L504",
+        "L 504"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": null,
+      "ph": null,
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": null,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L504: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Für diesen Eintrag fehlen in der ausgewerteten Profilquelle konkrete Wasserwerte; vor der Haltung separat klären.",
+      "description_en": "L504: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. The consulted profile does not provide specific water parameters for this entry; establish these before keeping it.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l504/"
+      ]
+    },
+    {
+      "id": "ancistrus-marcapatae",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "species",
+      "name": "Ancistrus marcapatae · L505",
+      "name_en": "Ancistrus marcapatae · L505",
+      "scientificName": "Ancistrus marcapatae",
+      "aliases": [
+        "L505",
+        "L 505"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": null,
+      "ph": null,
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": null,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L505: eigenständige Ancistrus-Art. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Für diesen Eintrag fehlen in der ausgewerteten Profilquelle konkrete Wasserwerte; vor der Haltung separat klären.",
+      "description_en": "L505: a separate Ancistrus species. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. The consulted profile does not provide specific water parameters for this entry; establish these before keeping it.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-marcapatae-l505/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l506",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L506",
+      "name_en": "Ancistrus sp. · L506",
+      "scientificName": "Ancistrus sp. (L506)",
+      "aliases": [
+        "L506",
+        "L 506"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": null,
+      "ph": null,
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": null,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L506: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Für diesen Eintrag fehlen in der ausgewerteten Profilquelle konkrete Wasserwerte; vor der Haltung separat klären.",
+      "description_en": "L506: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. The consulted profile does not provide specific water parameters for this entry; establish these before keeping it.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l506/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l507",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L507",
+      "name_en": "Ancistrus sp. · L507",
+      "scientificName": "Ancistrus sp. (L507)",
+      "aliases": [
+        "L507",
+        "L 507"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": null,
+      "ph": null,
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": null,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L507: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Für diesen Eintrag fehlen in der ausgewerteten Profilquelle konkrete Wasserwerte; vor der Haltung separat klären.",
+      "description_en": "L507: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. The consulted profile does not provide specific water parameters for this entry; establish these before keeping it.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l507/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l508",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L508",
+      "name_en": "Ancistrus sp. · L508",
+      "scientificName": "Ancistrus sp. (L508)",
+      "aliases": [
+        "L508",
+        "L 508"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 18.0,
+        "max": 26.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L508: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 18–26 °C, pH 6–8, Beckenlänge ab 60 cm.",
+      "description_en": "L508: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 18–26 °C, pH 6–8, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l508/"
+      ]
+    },
+    {
+      "id": "ancistrus-maldonadoi",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "species",
+      "name": "Ancistrus maldonadoi · L509",
+      "name_en": "Ancistrus maldonadoi · L509",
+      "scientificName": "Ancistrus maldonadoi",
+      "aliases": [
+        "L509",
+        "L 509"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 18.0,
+        "max": 24.0
+      },
+      "ph": {
+        "min": 7.0,
+        "max": 8.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L509: eigenständige Ancistrus-Art. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 18–24 °C, pH 7–8.5, Beckenlänge ab 80 cm.",
+      "description_en": "L509: a separate Ancistrus species. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 18–24 °C, pH 7–8.5, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-maldonadoi-l509-bifi-ortega-2020/"
+      ]
+    },
+    {
+      "id": "ancistrus-greeni",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "species",
+      "name": "Ancistrus greeni · L510 / L512",
+      "name_en": "Ancistrus greeni · L510 / L512",
+      "scientificName": "Ancistrus greeni",
+      "aliases": [
+        "L510",
+        "L 510",
+        "L512",
+        "L 512"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 18.0,
+        "max": 24.0
+      },
+      "ph": {
+        "min": 7.0,
+        "max": 8.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L510 / L512: eigenständige Ancistrus-Art. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 18–24 °C, pH 7–8.5, Beckenlänge ab 60 cm.",
+      "description_en": "L510 / L512: a separate Ancistrus species. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 18–24 °C, pH 7–8.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-greeni-l510-isbruecker-2001/",
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-greeni-l512-isbruecker-2001/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l511",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L511",
+      "name_en": "Ancistrus sp. · L511",
+      "scientificName": "Ancistrus sp. (L511)",
+      "aliases": [
+        "L511",
+        "L 511"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": null,
+      "ph": null,
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": null,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L511: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Für diesen Eintrag fehlen in der ausgewerteten Profilquelle konkrete Wasserwerte; vor der Haltung separat klären.",
+      "description_en": "L511: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. The consulted profile does not provide specific water parameters for this entry; establish these before keeping it.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l511/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l514",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L514",
+      "name_en": "Ancistrus sp. · L514",
+      "scientificName": "Ancistrus sp. (L514)",
+      "aliases": [
+        "L514",
+        "L 514"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": null,
+      "ph": null,
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": null,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L514: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Für diesen Eintrag fehlen in der ausgewerteten Profilquelle konkrete Wasserwerte; vor der Haltung separat klären.",
+      "description_en": "L514: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. The consulted profile does not provide specific water parameters for this entry; establish these before keeping it.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l514/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l519",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L519",
+      "name_en": "Ancistrus sp. · L519",
+      "scientificName": "Ancistrus sp. (L519)",
+      "aliases": [
+        "L519",
+        "L 519"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 23.0,
+        "max": 28.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L519: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 23–28 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L519: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 23–28 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l519/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l521",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L521",
+      "name_en": "Ancistrus sp. · L521",
+      "scientificName": "Ancistrus sp. (L521)",
+      "aliases": [
+        "L521",
+        "L 521"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 20.0,
+        "max": 23.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L521: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 20–23 °C, pH 6–8, Beckenlänge ab 60 cm.",
+      "description_en": "L521: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 20–23 °C, pH 6–8, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l521/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l524",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L524",
+      "name_en": "Ancistrus sp. · L524",
+      "scientificName": "Ancistrus sp. (L524)",
+      "aliases": [
+        "L524",
+        "L 524"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 23.0,
+        "max": 28.0
+      },
+      "ph": {
+        "min": 4.5,
+        "max": 7.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L524: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 23–28 °C, pH 4.5–7, Beckenlänge ab 60 cm.",
+      "description_en": "L524: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 23–28 °C, pH 4.5–7, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l524/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l528",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L528",
+      "name_en": "Ancistrus sp. · L528",
+      "scientificName": "Ancistrus sp. (L528)",
+      "aliases": [
+        "L528",
+        "L 528"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 22.0,
+        "max": 27.0
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L528: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 22–27 °C, pH 6–8, Beckenlänge ab 80 cm.",
+      "description_en": "L528: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 22–27 °C, pH 6–8, tank length from 80 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l528/"
+      ]
+    },
+    {
+      "id": "ancistrus-sp-l529",
+      "selectionOf": "ancistrus-sp",
+      "selectionKind": "unclassified",
+      "name": "Ancistrus sp. · L529",
+      "name_en": "Ancistrus sp. · L529",
+      "scientificName": "Ancistrus sp. (L529)",
+      "aliases": [
+        "L529",
+        "L 529"
+      ],
+      "category": "Harnischwelse",
+      "category_en": "Loricariid Catfish",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 25.0,
+        "max": 29.0
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": null,
+      "kh": null,
+      "minVolumeL": null,
+      "minTankLengthCm": 60,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller"
+      ],
+      "diet": "omnivore",
+      "description": "L529: noch nicht sicher wissenschaftlich bestimmter Ancistrus-Eintrag. L-Nummern sind Handels-/Referenznummern, keine Unterarten des Braunen Antennenwelses. Profilangaben: 25–29 °C, pH 5.5–7.5, Beckenlänge ab 60 cm.",
+      "description_en": "L529: an Ancistrus entry without a secure scientific species identification. L-numbers are trade/reference identifiers, not subspecies of the common bristlenose. Profile parameters: 25–29 °C, pH 5.5–7.5, tank length from 60 cm.",
+      "decorHints": "Rückzugsplätze und gute Sauerstoffversorgung. Die konkrete Art und ihre Herkunft bestimmen die Anforderungen.",
+      "decorHints_en": "Provide refuges and good oxygenation. Requirements depend on the actual species and origin.",
+      "behaviorNotes": "Keine pauschale Übertragung der Haltungswerte des Braunen Antennenwelses. Art-/Fundortzuordnung prüfen; Männchen können Höhlen verteidigen. Health nutzt ein allgemeines Harnischwels-Profil ohne für diese Art validierte Wahrscheinlichkeiten.",
+      "behaviorNotes_en": "Do not transfer common bristlenose water requirements indiscriminately. Verify species/locality; males may defend caves. Health uses a general loricariid profile without probabilities validated for this species.",
+      "sources": [
+        "https://www.ancistrus.at/en/ancistrus/ancistrus-sp-l529/"
+      ]
+    }
+  ]
+}

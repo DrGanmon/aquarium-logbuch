@@ -12,7 +12,7 @@ const context = (speciesId, values = {}) => ({ speciesId, species: service.speci
 test('Gesundheitsdaten: vollständiger zweisprachiger Katalog, Filter, Alias und Quellen', () => {
   const german = service.catalog();
   assert.equal(german.total, 38);
-  assert.equal(german.species.length, 228);
+  assert.equal(german.species.length, 297);
   assert.equal(service.catalog({ waterType: 'fresh' }).total, 25);
   assert.equal(service.catalog({ waterType: 'salt' }).total, 13);
   const betta = service.catalog({ speciesId: 'betta-splendens' });

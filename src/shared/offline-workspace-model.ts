@@ -100,7 +100,7 @@ export function applyLocalOperation(snapshot: WorkspaceSnapshot, command: Worksp
           const entry = { ...existing, ...body, id: existing?.id ?? temporary, aquarium_id: id };
           entry.species = String(entry.species || '').trim().slice(0, 80);entry.count = Math.round(Number(entry.count ?? 1));
           if (!entry.species || !Number.isFinite(entry.count) || entry.count < 1 || entry.count > 10000) throw new AppError('Ungültiger Bewohner oder Anzahl.', 400);
-          const match = catalogs.species?.data.species.find(species => species.id === entry.species || species.name === entry.species || species.name_de === entry.species || species.name_en === entry.species);
+          const match = catalogs.species?.data.species.find(species => species.id === entry.species || species.name === entry.species || species.name_de === entry.species || species.name_en === entry.species || species.aliases?.includes(entry.species));
           if (body.image) entry.image_file = 'offline-' + command.id;
           if (body.remove_image) entry.image_file = null;
           delete entry.image;delete entry.remove_image;
@@ -199,8 +199,8 @@ export function deriveWorkspace(snapshot: WorkspaceSnapshot, catalogs: { species
     const stock = r[root + '/stock'] || [], logs = (r[root + '/maintenance'] || []).sort((a: any, b: any) => b.logged_at.localeCompare(a.logged_at));
     for (const entry of stock) { entry.has_image = Boolean(entry.image_file);entry.image_url = entry.image_file ? `api/aquariums/${aquarium.id}/stock/${entry.id}/image` : null; }
     if (catalogs.species) for (const entry of stock) {
-      const species = catalogs.species.data.species.find(item => item.id === entry.speciesId || item.id === entry.species || [item.name, item.name_de, item.name_en, item.scientificName].some(name => name && name.toLowerCase() === entry.species.toLowerCase()));
-      entry.variantName = species?.variantOf ? species.name : null;
+      const species = catalogs.species.data.species.find(item => item.id === entry.speciesId || item.id === entry.species || [item.name, item.name_de, item.name_en, item.scientificName, ...(item.aliases || [])].some(name => name && name.toLowerCase() === entry.species.toLowerCase()));
+      entry.variantName = (species?.variantOf || species?.selectionOf) ? species.name : null;
     }
     if (catalogs.plants) for (const entry of r[root + '/plants'] || []) {
       const plant = catalogs.plants.data.plants.find(item => item.id === entry.plant_id);
@@ -209,7 +209,7 @@ export function deriveWorkspace(snapshot: WorkspaceSnapshot, catalogs: { species
     const profiles: string[] = [...new Set<string>(stock.map((entry: any) => entry.profile || 'allgemein'))];
     const ranges = calculateThresholds(detail.aquarium.water_type, profiles, snapshot.rules.profiles, snapshot.rules.parameters);
     Object.assign(detail, ranges, { profiles, stock });
-    if (catalogs.species) detail.stockCompatibility = analyzeCompatibility(detail.aquarium, stock, snapshot.language, name => catalogs.species!.data.species.find(species => species.id === name || [species.name, species.name_de, species.name_en, species.scientificName].some(value => value?.toLowerCase() === name.toLowerCase())) as any || null);
+    if (catalogs.species) detail.stockCompatibility = analyzeCompatibility(detail.aquarium, stock, snapshot.language, name => catalogs.species!.data.species.find(species => species.id === name || [species.name, species.name_de, species.name_en, species.scientificName, ...(species.aliases || [])].some(value => value?.toLowerCase() === name.toLowerCase())) as any || null);
     const latest: Record<string, any> = {};
     for (const row of rows) for (const [key, value] of Object.entries(row.values)) {
       const range = detail.thresholds[key];
@@ -236,7 +236,7 @@ export function deriveWorkspace(snapshot: WorkspaceSnapshot, catalogs: { species
     for (const plan of plans) plan.next_due_at = !plan.is_active ? null : plan.mode === 'manual' ? manualDosingStatus(plan).next_due_at : nextAutomaticDosingAt(plan).toISOString();
     detail.dosing_pumps = plans;
     r[`/health/aquariums/${aquarium.id}/residents`] = { aquarium: { id: aquarium.id, name: aquarium.name, waterType: aquarium.water_type }, residents: stock.map((entry: any) => {
-      const species = catalogs.species?.data.species.find(item => item.id === entry.speciesId || item.name === entry.species || item.name_de === entry.species || item.name_en === entry.species);
+      const species = catalogs.species?.data.species.find(item => item.id === entry.speciesId || item.name === entry.species || item.name_de === entry.species || item.name_en === entry.species || item.aliases?.includes(entry.species));
       return { stockId: entry.id, name: entry.name || null, count: entry.count, speciesId: canonicalHealthSpeciesId(species?.id || entry.speciesId || entry.species), speciesName: species?.name || entry.species, scientificName: species?.scientificName || null, supported: Boolean(catalogs.health?.data.diagnosis[aquarium.water_type === 'salt' ? 'salt' : 'fresh'].species[canonicalHealthSpeciesId(species?.id || entry.speciesId || entry.species)]), ranges: species || null };
     }) };
     r[root + '/logs'] = [...logs.map((log: any) => ({ ...log, kind: 'maintenance', timestamp: log.logged_at, typeName: config.maintenanceTypes[log.type]?.label || log.type, icon: config.maintenanceTypes[log.type]?.icon || '📝' })), ...rows.map((measurement: any) => ({ ...measurement, kind: 'measurement', type: 'measurement', timestamp: measurement.measured_at }))].sort((a, b) => b.timestamp.localeCompare(a.timestamp));

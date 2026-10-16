@@ -2085,9 +2085,9 @@
     },
     {
       "id": "ancistrus-sp",
-      "name": "Brauner Antennenwels",
+      "name": "Antennenwelse (Ancistrus)",
       "scientificName": "Ancistrus sp.",
-      "category": "Panzerwelse & Saugwelse",
+      "category": "Harnischwelse",
       "waterType": "fresh",
       "profile": "allgemein",
       "temp": {
@@ -2129,7 +2129,14 @@
       "diet": "herbivore",
       "decorHints": "Wurzelholz (Moorkien, Mangrove) als Raspel- und Aufwuchsfläche sowie Rückzugsort; Tonröhren als Höhlen.",
       "behaviorNotes": "Einzeln, als Paar oder 1 Männchen mit mehreren Weibchen haltbar. Männchen besetzen Höhlen und verteidigen diese; mehrere Männchen nur in großen, strukturreichen Becken. Vermehrt sich im Aquarium sehr stark. Pflanzlich betonte Ernährung (Gemüse, Algentabletten), gelegentlich tierisches Futter.",
-      "description": "Der bekannteste Saugwels (bis ca. 12–13 cm). Männchen tragen geweihartige Tentakel auf der Schnauze. Handelstiere sind meist Nachzuchten unklarer Artzugehörigkeit (oft als A. cf. cirrhosus bezeichnet)."
+      "description": "Auswahl für Ancistrus: Braunen Antennenwels, L144-Handelsform oder belegten L-Nummern-Eintrag beim Hinzufügen wählen. Die Werte dieser Grundform gelten nur für den gewöhnlichen Braunen Antennenwels, nicht für alle Ancistrus-Arten.",
+      "name_en": "Bristlenose Catfish (Ancistrus)",
+      "aliases": [
+        "Brauner Antennenwels",
+        "Common Bristlenose Pleco",
+        "Ancistrus sp."
+      ],
+      "description_en": "Ancistrus selection: choose the common bristlenose, the L144 trade form or a documented L-number entry when adding. The base entry’s parameters apply only to the common bristlenose, not to all Ancistrus species."
     },
     {
       "id": "otocinclus-affinis",

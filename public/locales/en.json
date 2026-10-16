@@ -1115,6 +1115,9 @@
     "saved": "Measurement saved locally. It will sync when connected."
   },
   "variants": {
+    "speciesLabel": "Species / L-number / form",
+    "species": "Separate species",
+    "unclassified": "Undescribed / unidentified species",
     "selected": "Form / subspecies:",
     "matches": "Matching forms:",
     "label": "Form / subspecies",

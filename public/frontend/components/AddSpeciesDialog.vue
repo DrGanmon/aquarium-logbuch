@@ -28,7 +28,7 @@ async function loadAquariums() {
   loading.value = true;
   error.value = "";
   try {
-    const detail = await api<{ species: Species }>(`/species/${encodeURIComponent(props.species.variantOf || props.species.id)}`, { signal: request.signal });
+    const detail = await api<{ species: Species }>(`/species/${encodeURIComponent(props.species.variantOf || props.species.selectionOf || props.species.id)}`, { signal: request.signal });
     definition.value = detail.species;
     aquariums.value = await api<Aquarium[]>("/aquariums", { signal: request.signal });
     if (eligible.value.length === 1) aquariumId.value = eligible.value[0]!.id;

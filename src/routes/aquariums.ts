@@ -54,7 +54,7 @@ function enrichStock(stockRows?: any, lang?: any) {
     return {
       ...s,
       speciesId: sp?.id || null,
-      variantName: sp?.variantOf ? sp.name : null,
+      variantName: (sp?.variantOf || sp?.selectionOf) ? sp.name : null,
       scientificName: sp?.scientificName || null,
       category: sp?.category || null,
       category_de: sp?.category_de || null,

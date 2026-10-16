@@ -16365,6 +16365,18 @@
               "type": "string"
             },
             "description": "Nur bei aktiver Suche: Namen der passenden Unterformen dieser Stammkachel. Ohne Unterformtreffer oder Suchbegriff nicht enthalten; variants enthält weiterhin alle auswählbaren Formen."
+          },
+          "selectionOf": {
+            "type": "string",
+            "description": "ID einer reinen Auswahlgruppe. Keine taxonomische Variante und keine Vererbung von Haltungswerten."
+          },
+          "selectionKind": {
+            "type": "string",
+            "enum": [
+              "species",
+              "unclassified"
+            ],
+            "description": "Eigenständige Art oder unbestimmter Referenzeintrag innerhalb einer Auswahlgruppe."
           }
         },
         "required": [
@@ -16806,7 +16818,9 @@
               "color",
               "fin_form",
               "trade_form",
-              "hybrid"
+              "hybrid",
+              "species",
+              "unclassified"
             ]
           },
           "description": {
@@ -16817,7 +16831,8 @@
             "minimum": 1
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Auswahl beim Hinzufügen: echte Form oder unabhängig gepflegter Art-/Referenzeintrag; kind unterscheidet die Bedeutung."
       }
     },
     "responses": {

@@ -55,7 +55,7 @@ test('Arten liegen nur im gemeinsamen Katalog; Gesundheitsprofile speichern kein
       assert.ok(!ids.has(entry.id));ids.add(entry.id);
     }
   }
-  assert.equal(ids.size, 228);
+  assert.equal(ids.size, 297);
   for (const lang of ['de', 'en']) for (const water of ['freshwater', 'saltwater']) {
     const diseases = JSON.parse(fs.readFileSync(`src/config/health/${lang}/diseases-${water}.json`));
     const diagnosis = JSON.parse(fs.readFileSync(`src/config/health/${lang}/diagnosis-${water}.json`));

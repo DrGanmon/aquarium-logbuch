@@ -206,7 +206,7 @@ router.get('/species/:id', auth, (req: Request, res: Response) => {
   if (!sp) {
     return res.status(404).json({ error: 'Art nicht gefunden.' });
   }
-  res.json({ species: sp.variantOf ? sp : groupCatalogMatches(cfg.speciesService.getAllSpecies(lang)).find(item => item.id === sp.id) || sp });
+  res.json({ species: (sp.variantOf || sp.selectionOf) ? sp : groupCatalogMatches(cfg.speciesService.getAllSpecies(lang)).find(item => item.id === sp.id) || sp });
 });
 
 router.get('/suites', auth, (req: Request, res: Response) => {

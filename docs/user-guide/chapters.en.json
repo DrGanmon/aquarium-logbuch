@@ -159,10 +159,10 @@
     "title": "Animals and compatibility",
     "intro": "Add animals through the species catalog whenever possible so their care requirements can be associated with them.",
     "image": "besatz",
-    "caption": "Aquarium residents: the selected Gold form is shown even for an individually named animal.",
+    "caption": "Adding bristlenose catfish: L183 is selected as a separate species with its own parameters.",
     "steps": [
       "Open “Species catalog” and search for the species. Check its water type, tank volume and group requirements.",
-      "Choose “Add to aquarium” from the parent entry. Select a documented form or variety in “Form / subspecies”, or leave it unspecified. Then enter the quantity; individual animals can have names.",
+      "Choose “Add to aquarium” from the parent entry. Select a documented form or variety in “Form / subspecies”, or leave it unspecified. Then enter the quantity; individual animals can have names. The Ancistrus card also offers documented L-numbers. “Separate species” and “Undescribed / unidentified species” are not subspecies; check their own parameters in the selection hint.",
       "In the aquarium, you can also add custom residents, change quantities and names, or upload a portrait. “Form / subspecies” identifies the selected form, including individually named animals and offline.",
       "For known species, “Species details” opens their information again. You can also start the diagnosis assistant from a resident.",
       "Read compatibility guidance on group size, tank size, behavior and requirements. Custom entries without a catalog match have less automatic information.",

@@ -29,7 +29,7 @@ export function queryCatalog(snapshot: CatalogSnapshot, path: string): unknown {
         || data.species.find(item => names(item).some(name => name.includes(id)) || id.includes(item.name.toLowerCase()))
         || data.species.find(item => names(item).some(name => name.startsWith(id)) || item.scientificName?.toLowerCase().startsWith(id));
       if (!species) throw new CatalogLookupError('Art nicht gefunden.', 404);
-      return { species: species.variantOf ? species : groupCatalogMatches(data.species).find(item => item.id === species.id) || species };
+      return { species: (species.variantOf || species.selectionOf) ? species : groupCatalogMatches(data.species).find(item => item.id === species.id) || species };
     }
     const water = query.get('water_type') || query.get('waterType') || 'all';
     const category = query.get('category') || 'all';

@@ -159,10 +159,10 @@
     "title": "Tiere und Verträglichkeit",
     "intro": "Erfasse Tiere möglichst über den Artenkatalog, damit ihre Haltungsanforderungen zugeordnet werden können.",
     "image": "besatz",
-    "caption": "Aquariumbesatz: Auch beim Tier mit eigenem Namen wird die gewählte Goldform angezeigt.",
+    "caption": "Antennenwelse hinzufügen: L183 wird als eigenständige Art mit eigenen Profilwerten ausgewählt.",
     "steps": [
       "Öffne „Artenkatalog“ und suche nach der gewünschten Art. Prüfe Wasserart, Beckenvolumen und Gruppenhinweise.",
-      "Wähle beim Stammeintrag „Zum Aquarium hinzufügen“. Im Feld „Form / Unterart“ wählst du die belegte Form oder Varietät oder lässt sie offen. Trage dann die Anzahl ein; einzelne Tiere dürfen eigene Namen bekommen.",
+      "Wähle beim Stammeintrag „Zum Aquarium hinzufügen“. Im Feld „Form / Unterart“ wählst du die belegte Form oder Varietät oder lässt sie offen. Trage dann die Anzahl ein; einzelne Tiere dürfen eigene Namen bekommen. Unter „Antennenwelse (Ancistrus)“ findest du auch die dokumentierten L-Nummern. „Eigenständige Art“ und „Unbeschriebene / unbestimmte Art“ sind keine Unterarten; beachte die eigenen Profilwerte im Auswahlhinweis.",
       "Im Aquarium kannst du auch freie Bewohner eintragen, Anzahl und Namen ändern sowie ein Porträt hochladen. Bei gespeicherten Formen zeigt „Form / Unterart“ die gewählte Form an, auch bei Tieren mit eigenem Namen und offline.",
       "„Artendetails“ öffnet bei bekannten Arten die Informationen erneut. Über den Bewohner kannst du auch den Diagnose-Assistenten aufrufen.",
       "Lies die Verträglichkeitshinweise zu Gruppengröße, Beckengröße, Verhalten und Ansprüchen. Bei freien Einträgen ohne Katalogtreffer stehen weniger automatische Informationen zur Verfügung.",

@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Gespeicherte Unterformen im Aquarium bei Tieren und Pflanzen ausdrücklich anzeigen, auch bei individuell benannten Tieren und offline. Vorhandene Bestände anhand ihrer stabilen Katalog-IDs auflösen; keine zusätzlichen Katalogabfragen pro Bewohner. Handbuch und API-Dokumentation ergänzen.
+- Antennenwelse um 69 recherchierte Auswahleinträge erweitern und insgesamt 79 belegte Ancistrus-L-Nummern einschließlich Synonymen und L144 auffindbar machen. Arten und unbestimmte Referenzeinträge gemeinsam auswählbar halten, ohne sie taxonomisch als Unterformen oder mit geerbten Haltungswerten zu behandeln. Artbezogene Profilwerte, Aquarium-/Offline-Anzeige und allgemeine Health-Zuordnung ergänzen; widersprüchliche und fehlende Angaben dokumentieren.
+
+## 0.3.3-ALPHA
+
+- Gespeicherte Unterformen im Aquarium bei Tieren und Pflanzen ausdrücklich anzeigen, auch bei individuell benannten Tieren und offline. Vorhandene Bestände anhand ihrer stabilen Katalog-IDs auflösen; keine zusätzlichen Katalogabfragen pro Bewohner. Handbuch und API-Dokumentation ergänzen. (`17dafc143544b80e0ef731a27ea50cf76f8a0a0e`, 2026-10-16).
 
 ## 0.3.2-ALPHA
 

@@ -10,12 +10,12 @@ en/    Diseases, diagnosis question trees and medications/treatment agents (Engl
 
 ## Gemeinsame Artenquelle / Shared species source
 
-Alle 228 auswählbaren Tier-Einträge (147 Stammeinträge, 81 Formen) und ihre Wasseranforderungen liegen ausschließlich unter `src/config/species/`. Es gibt keinen separaten `health/species/`-Katalog. Health speichert nur artspezifische Krankheitszuordnungen, Vorsichtsmaßnahmen, Fragebäume und Ausgangsgewichte. Namen und wissenschaftliche Bezeichnungen werden vom gemeinsamen `SpeciesCatalog` in der angefragten Sprache ergänzt; Messwertregeln beziehen ihre Grenzwerte aus derselben Quelle wie der Artenkatalog und der Besatz.
+Alle 297 auswählbaren Tier-Einträge (147 Stammkacheln, 81 Formen und 69 unabhängig gepflegte Ancistrus-Auswahleinträge) und ihre Wasseranforderungen liegen ausschließlich unter `src/config/species/`. Es gibt keinen separaten `health/species/`-Katalog. Health speichert nur artspezifische Krankheitszuordnungen, Vorsichtsmaßnahmen, Fragebäume und Ausgangsgewichte. Namen und wissenschaftliche Bezeichnungen werden vom gemeinsamen `SpeciesCatalog` in der angefragten Sprache ergänzt; Messwertregeln beziehen ihre Grenzwerte aus derselben Quelle wie der Artenkatalog und der Besatz.
 
-All 228 selectable animal entries (147 parents, 81 forms) and their water requirements are defined only in `src/config/species/`. Health stores disease associations, cautions, question trees and priors keyed by species ID, rather than duplicating names or water requirements. The shared `SpeciesCatalog` supplies localized names and ranges at runtime.
+All 297 selectable animal entries (147 parent cards, 81 forms and 69 independent Ancistrus choices) and their water requirements are defined only in `src/config/species/`. Health stores disease associations, cautions, question trees and priors keyed by species ID, rather than duplicating names or water requirements. The shared `SpeciesCatalog` supplies localized names and ranges at runtime.
 
-`symphysodon-spp` bleibt ein Alias für `symphysodon-sp`; gespeicherte Zuordnungen verwenden die kanonische ID. Nach dem Zusammenführen des Alias enthalten die Gesundheitsdaten 118 Süßwasser-/Wirbellosenprofile und 31 Meerwasserprofile.
-`symphysodon-spp` remains an alias for `symphysodon-sp`. After merging that alias, the health data contains 118 freshwater/invertebrate profiles and 31 marine profiles.
+`symphysodon-spp` bleibt ein Alias für `symphysodon-sp`; gespeicherte Zuordnungen verwenden die kanonische ID. Nach dem Zusammenführen des Alias enthalten die Quelldaten 187 Süßwasser-/Wirbellosenprofile (einschließlich 69 allgemeiner Ancistrus-Zuordnungen) und 31 Meerwasserprofile.
+`symphysodon-spp` remains an alias for `symphysodon-sp`. After merging that alias, the source data contains 187 freshwater/invertebrate profiles (including 69 general Ancistrus associations) and 31 marine profiles.
 
 ## Dateien / Files
 
@@ -53,4 +53,6 @@ Keine tierärztliche Diagnose. Keine Dosierungsangaben. / Not a veterinary diagn
 
 Recherche, Handelsnamen und Grenzen: [Katalogergänzungen vom 16.10.2026](../../../docs/catalog-additions-2026-10-16.md).
 
-Weitere belegte Tierformen unter `species/cultivated-forms.json` erben die vorhandenen Haltungsangaben. `HealthService` ergänzt daraus im Arbeitsspeicher explizite Krankheits- und Diagnosezuordnungen anhand von `variantOf`, ohne neue Bäume oder Wahrscheinlichkeiten zu erfinden. Die Offline-Snapshots enthalten diese aufgelösten Profile. Die 118 vorhandenen Süßwasser-/Wirbellosenprofile in den Quelldateien bleiben als Ausgangsprofile erhalten. Forschung und Umfang: [Variantenrecherche](../../../docs/catalog-variants-2026-10-16.md).
+Weitere belegte Tierformen unter `species/cultivated-forms.json` erben die vorhandenen Haltungsangaben. `HealthService` ergänzt daraus im Arbeitsspeicher explizite Krankheits- und Diagnosezuordnungen anhand von `variantOf`, ohne neue Bäume oder Wahrscheinlichkeiten zu erfinden. Die Offline-Snapshots enthalten diese aufgelösten Profile. Die 118 bisherigen Süßwasser-/Wirbellosenprofile bleiben erhalten; hinzu kommen 69 allgemeine Ancistrus-Zuordnungen in den Quelldateien. Forschung und Umfang: [Variantenrecherche](../../../docs/catalog-variants-2026-10-16.md).
+
+Ancistrus-L-Einträge: `selectionOf` gruppiert nur die Oberfläche; keine Haltungs- oder Health-Vererbung. Die expliziten allgemeinen Health-Zuordnungen und ihre Grenzen sind in [der Recherche](../../../docs/ancistrus-l-numbers-2026-10-16.md) dokumentiert.

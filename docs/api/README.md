@@ -224,3 +224,5 @@ Beim Hinzufügen weiterhin die gewählte ID übergeben: zum Beispiel `speciesId:
 Bei aktiver Suche enthalten Stammkacheln zusätzlich `matchedVariants` mit den Namen der tatsächlich passenden Unterformen. Ohne Suchbegriff oder Unterformtreffer entfällt dieses Feld; `variants` bleibt die vollständige Auswahlliste. Dies gilt auch für Offline-Abfragen.
 
 Aquarium-Besatz und Pflanzenbestand enthalten `variantName`: den lokalisierten Namen der gespeicherten Unterform oder `null` für Stammarten und freie Einträge. Individuelle Tiernamen bleiben davon unabhängig. Der Offline-Arbeitsstand leitet dieselbe Anzeige aus den vorhandenen Katalogen ab.
+
+Ancistrus-L-Einträge verwenden `selectionOf`/`selectionKind` für eine gemeinsame Auswahl auf der Antennenwels-Kachel. `variants[].kind` kann dafür `species` oder `unclassified` lauten. Dies ist keine taxonomische Variantenbeziehung: Detaildaten, Wasserwerte, IDs und Health-Zuordnungen bleiben eigenständig. `variantName` im Bestand und `matchedVariants` bei der Suche nennen auch diese Auswahleinträge.

@@ -440,6 +440,8 @@ function normalizeSpecies(s: Record<string, unknown>, lang: string = 'de') {
 
   return {
     id,
+    selectionOf: s.selectionOf ? String(s.selectionOf) : undefined,
+    selectionKind: s.selectionKind as 'species' | 'unclassified' | undefined,
     variantOf: s.variantOf ? String(s.variantOf) : undefined,
     variantKind: s.variantKind as import('../shared/catalog-variants').VariantKind | undefined,
     aliases: Array.isArray(s.aliases) ? s.aliases.map(String) : [],
