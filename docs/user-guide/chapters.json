@@ -145,10 +145,10 @@
     "title": "Artenkatalog als Nachschlagewerk",
     "intro": "Du kannst auch ohne einen neuen Besatzeintrag nach einer Art suchen.",
     "image": "arten",
-    "caption": "Der Artenkatalog mit Wasserart, Kategorien und Suche.",
+    "caption": "Suche nach L144: Die Stammkachel nennt die gefundene Unterform.",
     "steps": [
       "Öffne „Artenkatalog“ in der Kopfzeile.",
-      "Schränke die Liste über Wasserart und Kategorie ein oder suche nach Art, Zuchtform oder Handelsname. Passende Formen führen zu einer gemeinsamen Stammkachel.",
+      "Schränke die Liste über Wasserart und Kategorie ein oder suche nach Art, Zuchtform oder Handelsname. Passende Formen führen zu einer gemeinsamen Stammkachel. Der Hinweis „Gefundene Unterformen“ nennt die passenden Formen direkt auf der Kachel.",
       "Öffne einen Treffer. Lies Wasseransprüche, Gruppenhinweise, Mindestvolumen, Haltung und Bildnachweise.",
       "Füge eine passende Art bei Bedarf aus ihren Details zu einem Aquarium hinzu oder öffne den zugeordneten Gesundheitsbereich."
     ],
@@ -180,9 +180,9 @@
     "title": "Pflanzen suchen und zum Becken hinzufügen",
     "intro": "Der Pflanzenkatalog hilft dir, passende Pflanzen zu finden und den Bestand im Aquarium festzuhalten.",
     "image": "pflanzen",
-    "caption": "Pflanzen hinzufügen: Pangolino wird unter dem gemeinsamen Anubias-barteri-Eintrag ausgewählt.",
+    "caption": "Suche nach Pangolino: Die Anubias-barteri-Kachel nennt die gefundene Unterform.",
     "steps": [
-      "Öffne „Pflanzen“ in der Kopfzeile. Filtere nach Wasserart und Kategorie oder suche nach Art- bzw. Sortennamen. Formen erscheinen unter einer gemeinsamen Stammkachel.",
+      "Öffne „Pflanzen“ in der Kopfzeile. Filtere nach Wasserart und Kategorie oder suche nach Art- bzw. Sortennamen. Formen erscheinen unter einer gemeinsamen Stammkachel; „Gefundene Unterformen“ zeigt passende Formen zur Suche an.",
       "Öffne eine Pflanze und lies die Hinweise zu Platzierung, Licht, Wachstum und Pflege.",
       "Wähle „Zum Aquarium hinzufügen“, ein passendes Aquarium und gegebenenfalls die konkrete Form im Feld „Form / Unterart“. Gib die Stückzahl an und speichere. Die ausgewählte Form bleibt im Bestand getrennt erkennbar.",
       "Im Pflanzenbereich des Aquariums kannst du Mengen ändern oder Pflanzen entfernen.",

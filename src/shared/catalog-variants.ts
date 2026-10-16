@@ -3,10 +3,10 @@ export type VariantKind = 'subspecies' | 'variety' | 'cultivar' | 'color' | 'fin
 export interface CatalogVariant { id: string; name: string; scientificName?: string; kind: VariantKind; description?: string; minGroupCount?: number }
 export interface VariantEntry {
   id: string; name: string; scientificName?: string; description?: string; waterType: string;
-  minGroupCount?: number; variantOf?: string; name_de?: string; name_en?: string; variantKind?: VariantKind; aliases?: string[]; variants?: CatalogVariant[];
+  minGroupCount?: number; variantOf?: string; name_de?: string; name_en?: string; variantKind?: VariantKind; aliases?: string[]; variants?: CatalogVariant[]; matchedVariants?: string[];
 }
 /** Group before pagination, including when only a child's name matched the search. */
-export function groupCatalogMatches<T extends VariantEntry>(all: T[], matches: T[] = all): T[] {
+export function groupCatalogMatches<T extends VariantEntry>(all: T[], matches: T[] = all, searching = false): T[] {
   const byId = new Map(all.map(item => [item.id, item]));
   const roots = new Map<string, string>();
   const rootFor = (item: T): string => {
@@ -34,6 +34,13 @@ export function groupCatalogMatches<T extends VariantEntry>(all: T[], matches: T
   for (const item of matches) {
     const id = rootFor(item);
     if (!result.has(id)) result.set(id, { ...byId.get(id)!, ...(variants.has(id) ? { variants: variants.get(id) } : {}) });
+  }
+  if (searching) for (const item of matches) {
+    const root = rootFor(item);
+    if (root !== item.id) {
+      const entry = result.get(root)!;
+      entry.matchedVariants = [...(entry.matchedVariants || []), item.name];
+    }
   }
   return [...result.values()];
 }

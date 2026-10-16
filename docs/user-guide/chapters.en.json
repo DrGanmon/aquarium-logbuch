@@ -145,10 +145,10 @@
     "title": "Use the species catalog as a reference",
     "intro": "You can look up a species without adding a new resident.",
     "image": "arten",
-    "caption": "The species catalog with water type, categories and search.",
+    "caption": "Searching for L144: the parent card names the matching form.",
     "steps": [
       "Open “Species catalog” in the header.",
-      "Filter by water type and category, or search for a species, cultivar or trade name. Matching forms lead to one shared parent card.",
+      "Filter by water type and category, or search for a species, cultivar or trade name. Matching forms lead to one shared parent card. “Matching forms” lists their names directly on the card.",
       "Open a result. Read its water requirements, group guidance, minimum tank volume, care information and image credits.",
       "If appropriate, add the species to an aquarium from its details or open the linked health information."
     ],
@@ -180,9 +180,9 @@
     "title": "Find plants and add them to a tank",
     "intro": "The plant catalog helps you find suitable plants and record the stock in your aquarium.",
     "image": "pflanzen",
-    "caption": "Adding plants: Pangolino is selected under the shared Anubias barteri entry.",
+    "caption": "Searching for Pangolino: the Anubias barteri card names the matching form.",
     "steps": [
-      "Open “Plants” in the header. Filter by water type or category, or search for a species or cultivar name. Forms appear under a shared parent card.",
+      "Open “Plants” in the header. Filter by water type or category, or search for a species or cultivar name. Forms appear under a shared parent card; “Matching forms” lists the forms found by your search.",
       "Open a plant and read its placement, lighting, growth and care guidance.",
       "Choose “Add to aquarium”, select a suitable aquarium and, if offered, the specific form in “Form / subspecies”. Enter the quantity and save. The selected form keeps its own stock entry.",
       "In the aquarium’s plant section, you can change quantities or remove plants.",

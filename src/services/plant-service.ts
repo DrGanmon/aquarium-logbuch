@@ -25,5 +25,5 @@ export function searchPlants(lang: string, query = '', water = 'all', category =
   const plants = catalog.plants.filter(plant =>
     (water === 'all' || plant.waterType === water) && (category === 'all' || plant.category === category) &&
     terms.every(term => searchText.get(plant.id)?.includes(term)));
-  return { plants: groupCatalogMatches(catalog.plants, plants), categories: [...new Set(catalog.plants.map(plant => plant.category))].sort((a, b) => a.localeCompare(b, lang === 'en' ? 'en' : 'de')) };
+  return { plants: groupCatalogMatches(catalog.plants, plants, terms.length > 0), categories: [...new Set(catalog.plants.map(plant => plant.category))].sort((a, b) => a.localeCompare(b, lang === 'en' ? 'en' : 'de')) };
 }

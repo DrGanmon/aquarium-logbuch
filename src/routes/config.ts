@@ -125,8 +125,8 @@ router.get('/plants', auth, (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Ungültige Seitenauswahl.' });
   const { plants, categories } = searchPlants(lang, String(req.query.q || ''),
     String(req.query.water_type || req.query.waterType || 'all'), String(req.query.category || 'all'));
-  const page = plants.slice(offset, offset + limit).map(({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate, variants }) =>
-    ({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate, variants }));
+  const page = plants.slice(offset, offset + limit).map(({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate, variants, matchedVariants }) =>
+    ({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate, variants, matchedVariants }));
   res.setHeader('Cache-Control', 'no-store').json({ plants: page, categories, total: plants.length,
     next: offset + page.length < plants.length ? offset + page.length : null });
 });
@@ -159,7 +159,7 @@ router.get('/species', auth, (req: Request, res: Response) => {
     const page = filtered.slice(offset, offset + limit).map((species: any) => ({
       id: species.id, name: species.name, scientificName: species.scientificName,
       category: species.category, profile: species.profile, waterType: species.waterType,
-      minVolumeL: species.minVolumeL, minGroupCount: species.minGroupCount, description: species.description, variants: species.variants,
+      minVolumeL: species.minVolumeL, minGroupCount: species.minGroupCount, description: species.description, variants: species.variants, matchedVariants: species.matchedVariants,
     }));
     return res.setHeader('Cache-Control', 'no-store').json({ species: page, total,
       next: offset + page.length < total ? offset + page.length : null,
@@ -188,7 +188,7 @@ router.get('/species', auth, (req: Request, res: Response) => {
     );
   }
   res.json({
-    species: groupCatalogMatches(cfg.speciesService.getAllSpecies(lang), list),
+    species: groupCatalogMatches(cfg.speciesService.getAllSpecies(lang), list, !!q),
     categories: cfg.speciesService.getCategories(lang),
   });
 });

@@ -1115,6 +1115,7 @@
     "saved": "Measurement saved locally. It will sync when connected."
   },
   "variants": {
+    "matches": "Matching forms:",
     "label": "Form / subspecies",
     "base": "Base entry / unspecified",
     "subspecies": "Subspecies",

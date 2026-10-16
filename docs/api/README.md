@@ -220,3 +220,5 @@ GET /api/plants/anubias-barteri-species
 ```
 
 Beim Hinzufügen weiterhin die gewählte ID übergeben: zum Beispiel `speciesId: "trichopodus-trichopterus-gold"` an den bestehenden Stock-Katalog-Endpunkt oder `PUT /api/aquariums/{id}/plants/anubias-nana-pangolino` mit `{"count": 2}`. Alte Detailpfade und gespeicherte IDs bleiben gültig. Gruppierung ist ausschließlich eine Darstellungs-/Suchfunktion; sie fasst Bestände verschiedener Varianten nicht zusammen. Authentifizierung, Rechte und Validierung der Hinzufügen-Endpunkte bleiben erhalten. Offline-Snapshots enthalten vollständige Einträge einschließlich Variantenbeziehungen und ermöglichen dieselbe Suche und Auswahl ohne Verbindung.
+
+Bei aktiver Suche enthalten Stammkacheln zusätzlich `matchedVariants` mit den Namen der tatsächlich passenden Unterformen. Ohne Suchbegriff oder Unterformtreffer entfällt dieses Feld; `variants` bleibt die vollständige Auswahlliste. Dies gilt auch für Offline-Abfragen.

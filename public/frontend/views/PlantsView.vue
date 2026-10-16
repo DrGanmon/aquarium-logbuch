@@ -65,6 +65,7 @@ function loadRouteDetail() {
           <span class="tag">{{ item.category }}</span>
         </div>
         <p>{{ item.description }}</p>
+        <p v-if="item.matchedVariants?.length" class="variant-matches"><strong>{{ t("variants.matches") }}</strong> {{ item.matchedVariants.join(" · ") }}</p>
         <div class="row">
           <button class="btn small ghost" @click.stop="open(item)">{{ t("common.details") }}</button>
           <button class="btn small" @click.stop="adding = item">{{ t("plantStock.add") }}</button>

@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Tier- und Pflanzenkataloge um recherchierte Formen erweitern: insgesamt 228 auswählbare Tier- und 199 Pflanzen-/Algen-Einträge. Zucht-/Farb-/Flossenformen, botanische Varietäten und Handelsformen finden, vor Pagination auf 147 Tier- bzw. 131 Pflanzen-Stammkacheln gruppieren und nur beim Hinzufügen auswählen. Bestehende IDs und getrennte Bestände erhalten; Health-Profile und Offline-Snapshots passend auflösen. Gelben Fadenfisch, L144 und die zuvor angefragten Pflanzen integrieren. Herkunft und Grenzen der Vererbung dokumentieren, Katalogabfragen bedarfsgesteuert laden sowie API-Dokumentation, zweisprachiges Handbuch, Screenshots und Regressionstests aktualisieren.
+- Auf Tier- und Pflanzenkacheln die Namen der durch die Suche gefundenen Unterformen anzeigen; Trefferhinweis für deutsche und englische Oberfläche sowie Offline-Suche bereitstellen. API-Dokumentation und Handbuch ergänzen.
+
+## 0.3.1-ALPHA
+
+- Tier- und Pflanzenkataloge um recherchierte Formen erweitern: insgesamt 228 auswählbare Tier- und 199 Pflanzen-/Algen-Einträge. Zucht-/Farb-/Flossenformen, botanische Varietäten und Handelsformen finden, vor Pagination auf 147 Tier- bzw. 131 Pflanzen-Stammkacheln gruppieren und nur beim Hinzufügen auswählen. Bestehende IDs und getrennte Bestände erhalten; Health-Profile und Offline-Snapshots passend auflösen. Gelben Fadenfisch, L144 und die zuvor angefragten Pflanzen integrieren. Herkunft und Grenzen der Vererbung dokumentieren, Katalogabfragen bedarfsgesteuert laden sowie API-Dokumentation, zweisprachiges Handbuch, Screenshots und Regressionstests aktualisieren. (`e1c00614b326fc2be3e49c586e9e0e615447db15`, 2026-10-16).
 
 ## 0.3.0-ALPHA
 

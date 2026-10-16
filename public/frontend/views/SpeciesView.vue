@@ -80,6 +80,7 @@ async function loadDetail(id: string) {
           ><span class="tag info">{{ item.minGroupCount }} Tiere</span>
         </div>
         <p>{{ item.description }}</p>
+        <p v-if="item.matchedVariants?.length" class="variant-matches"><strong>{{ t("variants.matches") }}</strong> {{ item.matchedVariants.join(" · ") }}</p>
         <div class="row">
           <button class="btn small ghost" @click.stop="open(item)">{{ t("common.details") }}</button>
           <button class="btn small" @click.stop="adding = item">{{ t("speciesAdd.title") }}</button>

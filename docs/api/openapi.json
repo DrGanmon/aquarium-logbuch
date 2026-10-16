@@ -16332,6 +16332,13 @@
               "$ref": "#/components/schemas/CatalogVariant"
             },
             "description": "Auswählbare Nachfahren; Speicherung verwendet deren stabile ID."
+          },
+          "matchedVariants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Nur bei aktiver Suche: Namen der passenden Unterformen dieser Stammkachel. Ohne Unterformtreffer oder Suchbegriff nicht enthalten; variants enthält weiterhin alle auswählbaren Formen."
           }
         },
         "required": [

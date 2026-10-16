@@ -35,6 +35,6 @@ export function searchSpecies<T extends SearchableSpecies>(data: {
     .filter(item => item.score > 0)
     .sort((a, b) => b.score - a.score || a.species.name.localeCompare(b.species.name))
     .map(item => item.species);
-  const grouped = groupCatalogMatches(data.species, filtered);
+  const grouped = groupCatalogMatches(data.species, filtered, words.length > 0);
   return { filtered: grouped, total: grouped.length };
 }

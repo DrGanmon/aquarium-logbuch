@@ -16,4 +16,4 @@ export interface PlantCatalog {
   fieldDefinitions: Record<string, string | Record<string, string>>; notes: string[];
   sources: Record<string, { title: string; publisher: string; url: string; type: string }>;
 }
-export type PlantSummary = Pick<Plant, 'id' | 'name' | 'scientificName' | 'category' | 'waterType' | 'description' | 'difficulty' | 'light' | 'growthRate' | 'variants' | 'variantOf' | 'variantKind'>;
+export type PlantSummary = Pick<Plant, 'id' | 'name' | 'scientificName' | 'category' | 'waterType' | 'description' | 'difficulty' | 'light' | 'growthRate' | 'variants' | 'variantOf' | 'variantKind' | 'matchedVariants'>;
