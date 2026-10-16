@@ -6,15 +6,27 @@
 
 Aquarium-Logbuch is a self-hosted web app for water parameters, residents and aquarium care. It combines measurement history, care logs and reminders, supporting multiple users with separate or shared tanks. A species catalog, diagnosis assistant and optional AI chat complement freshwater and saltwater tank management.
 
-[Deutsch](README.md) · **English** · [Manual](docs/en/README.md) · [Changelog](CHANGELOG.md)
+[Deutsch](README.md) · **English** · [📖 User guide with screenshots (German)](https://aquarium-logbuch.de/handbuch) · [Technical documentation](docs/en/README.md) · [Changelog](CHANGELOG.md)
 
-**Getting started?** Open the public **User guide (German)** from the app footer or at `<app-address>/handbuch/`. It explains all areas with step-by-step instructions and demo screenshots, requires no login and loads its images only when reading. [Maintenance and standalone hosting](docs/user-guide/README.md).
+**Getting started?** Open the public **[User guide (German)](https://aquarium-logbuch.de/handbuch)** from the app footer or at `<app-address>/handbuch/`. It explains all areas with step-by-step instructions and demo screenshots, requires no login and loads its images only when reading. [Maintenance and standalone hosting](docs/user-guide/README.md).
 
 ## Transparency notice: AI-generated software
 
 **This app was written and is developed with the help of generative AI.** Its source code and documentation contain AI-generated content. This voluntary disclosure follows the transparency approach of [Article 50 of the EU AI Act (Regulation (EU) 2024/1689)](https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-50); it is not a declaration of full legal compliance. AI-assisted development alone does not create a blanket labeling obligation for all software.
 
 In the optional AI chat, you interact with an AI system; its responses are automatically generated and may be incorrect or incomplete. Check recommendations before acting on them. Water assessments and suspected diagnoses do not replace professional or veterinary examination. Sending a chat request transfers messages and aquarium context to the selected AI provider; see the [AI manual](docs/en/ai-chat.md) for details.
+
+## A look inside the app
+
+Actual app views with fictional demo data: two in light mode and two in dark mode. Click an image to open it at full size. The screenshots show the German interface; the app also supports English.
+
+| Aquarium overview · light | Aquarium details with measurement history · dark |
+| --- | --- |
+| [![Aquarium overview in light mode with eight demo aquariums and their status](docs/screenshots/aquarien-light.webp)](docs/screenshots/aquarien-light.webp) | [![Aquarium details in dark mode with eight water-parameter charts and daily measurements over two months](docs/screenshots/messwerte-dark.webp)](docs/screenshots/messwerte-dark.webp) |
+| **Plant overview · light** | **Fish and species catalog · dark** |
+| [![Plant catalog in light mode with search, filters and plant descriptions](docs/screenshots/pflanzen-light.webp)](docs/screenshots/pflanzen-light.webp) | [![Species catalog in dark mode with fish, invertebrates and care requirements](docs/screenshots/fische-dark.webp)](docs/screenshots/fische-dark.webp) |
+
+Find more views and step-by-step instructions in the [public user guide (German)](https://aquarium-logbuch.de/handbuch).
 
 ## Features for users
 
@@ -49,6 +61,7 @@ In the optional AI chat, you interact with an AI system; its responses are autom
 - Bilingual initial-setup wizard for the first administrator account, SMTP, automated backups and registration mode; the rest of the application stays locked until setup is complete.
 - Database migrations, encrypted manual/automated backups and password-protected restore including uploads.
 - AMD64/ARM64 Docker images; Compose configurations for SQLite and MongoDB.
+- GitHub builds and publishes Docker images only when the app, server or shipped resources change; README-only and screenshot-only changes do not trigger a new version. [Build and versioning rules](docs/en/versioning.md#build-only-when-relevant-files-change).
 - Commit-based version calculation, type checking and parallel isolated tests for both database adapters and runtimes.
 
 ## Offline use and separate updates
