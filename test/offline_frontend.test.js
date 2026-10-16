@@ -134,8 +134,9 @@ function apiFixture() {
   const records = new Map([['activeOwner', 7]]);
   const state = { offline: false };
   let response = new Response(JSON.stringify({ aquarium: { id: 42 } }), { headers: { 'X-Aquarium-User': '7', 'Content-Type': 'application/json' } });
-  let failure;
+  let failure, retry;
   const api = load('public/frontend/api.ts', {
+    './online-request': { retryOnlineRequest: (...args) => retry(...args) },
     './offline-workspace': { readWorkspace: async () => undefined, enqueueWorkspace: async () => undefined, localDiagnosis: async () => undefined },
     './offline-catalogs': { readOfflineCatalog: async () => undefined },
     '../../src/shared/offline-catalog-query': { CatalogLookupError: class extends Error {} },
@@ -143,9 +144,28 @@ function apiFixture() {
     './offline-store': { activeOwner: async () => records.get('activeOwner'), readLocal: async key => records.get(key),
       writeLocal: async (key, value) => { if (value === undefined) records.delete(key);else records.set(key, value); },
       cacheable: path => ['/me', '/config', '/aquariums/42'].includes(path), offlineState: state },
-  }, { fetch: async () => { if (failure) throw failure;return response; } });
-  return { api, records, session, state, fail: value => { failure = value; }, respond: value => { response = value; } };
+  }, { navigator: { onLine: true }, fetch: async () => { if (failure) throw failure;return response; } });
+  return { api, records, session, state, retry: fn => { retry = fn; }, fail: value => { failure = value; }, respond: value => { response = value; } };
 }
+
+test('Online API: Offline-Hinweis wiederholt ursprüngliche Anfrage und verarbeitet echte HTTP-Fehler', async () => {
+  const f = apiFixture();f.fail(new TypeError('Failed to fetch'));
+  let retries = 0;
+  f.retry(async (request, signal, mutation, owner) => {
+    retries++;assert.equal(mutation, true);assert.equal(owner, 7);assert.equal(signal, undefined);
+    f.fail(undefined);f.respond(new Response(JSON.stringify({ error: 'Keine Berechtigung' }), { status: 403 }));
+    return request();
+  });
+  await assert.rejects(f.api.api('/social/posts', { method: 'POST', body: { text: 'Demo' } }), error => error.status === 403 && error.message === 'Keine Berechtigung');
+  assert.equal(retries, 1);
+});
+test('Online API: abgebrochene und Hintergrund-Anfragen öffnen keinen Retry-Dialog', async () => {
+  const f = apiFixture();f.retry(() => assert.fail('Kein Dialog'));
+  const controller = new AbortController();controller.abort();f.fail(controller.signal.reason);
+  await assert.rejects(f.api.api('/social/posts', { signal: controller.signal }), error => error.name === 'AbortError');
+  f.fail(new TypeError('offline'));
+  await assert.rejects(f.api.api('/social/posts', { networkOnly: true }), error => error.code === 'OFFLINE');
+});
 
 test('Offline reads: cached user data works after network failure but never masks HTTP 401', async () => {
   const f = apiFixture();
@@ -186,7 +206,7 @@ test('Offline identity survives language changes without mixing accounts', async
   f.fail(new TypeError('offline'));
   assert.equal((await f.api.api('/me')).id, 7);
   f.records.set('activeOwner', 8);
-  await assert.rejects(f.api.api('/me'), TypeError);
+  await assert.rejects(f.api.api('/me', { networkOnly: true }), error => error.code === 'OFFLINE');
 });
 
 test('Offline-Sync: mixed outbox routes log entries and legacy measurements to the correct endpoints', async () => {

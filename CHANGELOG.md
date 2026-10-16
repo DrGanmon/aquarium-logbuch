@@ -6,9 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Lokalen Datenstand und „Jetzt synchronisieren“ ausschließlich im Offline-Modus anzeigen und die Statuskarte bei gesunder Serververbindung ausblenden. Offene Änderungen, Konflikte und Fehler bleiben auch online sichtbar; der automatische Datenabgleich läuft weiter. Darstellungstests sowie Handbuchtexte und betroffene Demo-Screenshots aktualisieren.
+- Online-Funktionen bei Verbindungsfehlern mit einem verständlichen Offline-Dialog und „Jetzt prüfen“ erneut versuchen lassen. Lokale Funktionen und Hintergrundabgleich erhalten; Wiederholungen nur im Arbeitsspeicher halten und bei Abbruch, Navigation oder Kontowechsel verwerfen. KI-Verbindungsabbrüche verständlich melden und KI-Streaming bedarfsgesteuert laden, um die bestehende Startbundle-Grenze einzuhalten; Regressionstests und Nutzerhandbuch mit echtem mobilen Screenshot ergänzen.
 
 ## 0.3.0-ALPHA
+
+- 2026-10-16 · Lokalen Datenstand und „Jetzt synchronisieren“ ausschließlich im Offline-Modus anzeigen und die Statuskarte bei gesunder Serververbindung ausblenden. Offene Änderungen, Konflikte und Fehler bleiben auch online sichtbar; der automatische Datenabgleich läuft weiter. Darstellungstests sowie Handbuchtexte und betroffene Demo-Screenshots aktualisieren (`1559304fbce7d13a8a75375fd9f0eebe056ba100`).
 
 - 2026-10-16 · Öffentliches, ohne Anmeldung erreichbares Nutzerhandbuch unter `/handbuch/` mit 32 Kapiteln, 31 echten Demo-Screenshots, Schrittfolgen, Inhaltsverzeichnis, Handy- und Druckansicht ergänzen. Alle Anwendungsbereiche einschließlich Offline-Konflikten und Administration erklären und im App-Footer verlinken. Statische Auslieferung ohne JavaScript, Tracking oder externe Ressourcen; Bilder nur beim Lesen nachladen und Handbuchdateien aus Frontend-Hash und Offline-Shell heraushalten. Pflegeanleitung, Dokumentationsverweise und Regressionstests für öffentliche Erreichbarkeit, Vollständigkeit und Build-Isolation ergänzen; veraltete technische Angaben zu Offline-Betrieb und Administratorrollen korrigieren (`5fe2045361a9b64887a1d152111765b24e93faa7`).
 

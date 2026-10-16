@@ -122,5 +122,9 @@
   "backups": {
     "width": 1440,
     "height": 1000
+  },
+  "online-funktionen": {
+    "width": 390,
+    "height": 844
   }
 }

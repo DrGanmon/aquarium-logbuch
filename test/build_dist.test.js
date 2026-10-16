@@ -38,7 +38,7 @@ function staticGraph(entry, seen = new Set()) {
 function verifyLazyBuild(entry) {
   const initial = staticGraph(entry);
   const bytes = [...initial].reduce((sum, file) => sum + fs.statSync(path.join(distDir, file)).size, 0);
-  assert.ok(![...initial].some(file => /chunk-(AquariumView|HealthView|AdminPanel|WaterChart|ChatDialog|OfflineStatus)-/.test(file)), 'Heavy views, dialogs and authenticated offline controls stay outside startup dependencies');
+  assert.ok(![...initial].some(file => /chunk-(AquariumView|HealthView|AdminPanel|WaterChart|ChatDialog|OfflineStatus|online-request|chat-request)-/.test(file)), 'Heavy views, dialogs and authenticated offline controls stay outside startup dependencies');
   if (entry.includes('.min')) assert.ok(bytes < 350000, `Initial dependency graph must remain below 350 KB (got ${bytes})`);
   const files = fs.readdirSync(distDir).filter(file => file.endsWith('.js'));
   for (const file of files) {

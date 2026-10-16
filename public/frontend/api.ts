@@ -18,6 +18,7 @@ export async function api<T>(
   path: string,
   { method = "GET", body, signal, networkOnly = false }: RequestOptions = {},
 ): Promise<T> {
+  const requestOwner = session.user?.id;
   const storedOwner = await activeOwner().catch(() => session.user?.id);
   if (session.user && storedOwner !== session.user.id && !['/login', '/register'].includes(path)) {
     // Another tab may have signed out or switched accounts while this tab stayed open.
@@ -48,8 +49,7 @@ export async function api<T>(
   }
   const cacheKey = `${owner}:${path === "/me" ? "identity" : language.value}:${path}`;
   let response: Response;
-  try {
-    response = await fetch("api" + path, {
+  const request = () => fetch("api" + path, {
       method,
       signal,
       headers: {
@@ -60,6 +60,8 @@ export async function api<T>(
       credentials: "same-origin",
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+  try {
+    response = await request();
     offlineState.offline = false;
   } catch (error) {
     if (error instanceof TypeError && !signal?.aborted) {
@@ -78,7 +80,9 @@ export async function api<T>(
         }
       }
     }
-    throw error;
+    if (!(error instanceof TypeError) || signal?.aborted) throw error;
+    if (networkOnly) throw new ApiError(language.value === 'en' ? 'The client is offline.' : 'Der Client ist gerade offline.', 0, 'OFFLINE');
+    response = await (await import('./online-request')).retryOnlineRequest(request, signal, method !== 'GET', requestOwner);
   }
   if (response.ok && method === 'GET' && cacheable(path) && path !== '/me' && owner && response.headers.get('X-Aquarium-User') !== String(owner)) {
     await writeLocal('activeOwner', undefined).catch(() => {});
@@ -114,36 +118,7 @@ export async function refreshSession() {
   session.config = await api<import("./types").AppConfig>("/config");
 }
 
-/** Read application progress separately from the final AI reply. */
+/** Streaming AI support is loaded only when a conversation is started. */
 export async function chatRequest(path: string, body: unknown, signal: AbortSignal, onStatus: (stage: string) => void): Promise<{ reply: string }> {
-  const response = await fetch('api' + path, {
-    method: 'POST', signal, credentials: 'same-origin',
-    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch', 'X-Language': language.value },
-    body: JSON.stringify(body),
-  });
-  if (!response.ok) {
-    if (response.status === 401) session.user = null;
-    const data = await response.json().catch(() => ({}));
-    throw new Error(data.error || `HTTP ${response.status}`);
-  }
-  if (!response.body) throw new Error(tMissingResponse());
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let pending = '';
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      pending += decoder.decode(value, { stream: !done });
-      const lines = pending.split('\n');pending = lines.pop() || '';
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        const event = JSON.parse(line);
-        if (event.type === 'status' && typeof event.stage === 'string') onStatus(event.stage);
-        else if (event.type === 'error') throw new Error(event.error);
-        else if (event.type === 'done' && typeof event.reply === 'string') return { reply: event.reply };
-      }
-      if (done) throw new Error(tMissingResponse());
-    }
-  } finally { await reader.cancel().catch(() => {});reader.releaseLock(); }
+  return (await import('./chat-request')).chatRequest(path, body, signal, onStatus);
 }
-function tMissingResponse() { return language.value === 'en' ? 'The AI response was interrupted. Please try again.' : 'Die KI-Antwort wurde unterbrochen. Bitte erneut versuchen.'; }

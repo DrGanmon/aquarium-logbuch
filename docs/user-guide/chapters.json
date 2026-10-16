@@ -440,6 +440,25 @@
     ]
   },
   {
+    "id": "online-funktionen",
+    "title": "Online-Funktionen bei fehlender Verbindung",
+    "intro": "Einige Funktionen brauchen den Server, etwa Social, Freigaben, Kontosicherheit und KI. Ist er nicht erreichbar, erscheint ein verständlicher Offline-Hinweis.",
+    "image": "online-funktionen",
+    "caption": "Echte mobile Demo: Social ist offline; „Jetzt prüfen“ hat die Anfrage erneut versucht und zeigt die weiterhin fehlende Verbindung.",
+    "steps": [
+      "Prüfe deine WLAN- oder Mobilfunkverbindung. Auch bei verbundenem WLAN kann der App-Server unerreichbar sein.",
+      "Tippe auf „Jetzt prüfen“. Die App versucht dieselbe Anfrage erneut. Ohne Verbindung bleibt der Hinweis geöffnet; mit Verbindung wird die Aktion fortgesetzt.",
+      "Mit „Schließen“ kannst du die Anfrage abbrechen und lokale Aquariendaten weiter nutzen. Öffne die Funktion später erneut, um einen neuen Versuch zu starten.",
+      "Falls beim Speichern die Verbindung abbrach, prüfe vor dem Wiederholen, ob die Aktion bereits ausgeführt wurde. Eine Wiederholung kann sonst doppelte Änderungen auslösen."
+    ],
+    "extra": [
+      {
+        "title": "Keine automatischen Online-Aktionen",
+        "text": "Diese Anfragen werden nicht dauerhaft gespeichert und nicht automatisch bei Wiederverbindung ausgeführt. Beim Wechsel der Ansicht oder des angemeldeten Kontos wird die ausstehende Wiederholung verworfen. Bereits lokal vorgemerkte Aquarienaktionen werden weiterhin über die gesonderte Offline-Warteschlange synchronisiert."
+      }
+    ]
+  },
+  {
     "id": "updates",
     "title": "Updates ohne überraschendes Neuladen",
     "intro": "Eine neue App-Version bedeutet nicht automatisch, dass du die Oberfläche neu laden musst.",
