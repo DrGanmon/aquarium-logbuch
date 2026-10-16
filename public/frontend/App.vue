@@ -2,7 +2,6 @@
 import { lazyComponent } from "./composables/lazy-component";
 import { computed, onMounted } from "vue";
 import { offlineState } from "./offline-store";
-import OfflineStatus from "./components/OfflineStatus.vue";
 import FrontendUpdate from "./components/FrontendUpdate.vue";
 import TermsConsent from "./components/TermsConsent.vue";
 import Topbar from "./components/Topbar.vue";
@@ -10,6 +9,7 @@ import SiteFooter from "./components/SiteFooter.vue";
 import { session, language, notification, t } from "./state";
 import { route, initialize, toggleLanguage, logout } from "./router";
 const AuthView = lazyComponent(() => import("./views/AuthView.vue"));
+const OfflineStatus = lazyComponent(() => import("./components/OfflineStatus.vue"));
 const SetupView = lazyComponent(() => import("./views/SetupView.vue"));
 const AquariumList = lazyComponent(() => import("./views/AquariumList.vue"));
 const AquariumView = lazyComponent(() => import("./views/AquariumView.vue"));

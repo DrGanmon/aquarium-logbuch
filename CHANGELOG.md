@@ -6,9 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Sicherheits- und Fehlerprüfung der sechs lokalen Offline-/Frontend-Commits: lokale Sitzungen bei Kontowechsel oder Abmeldung in einem anderen Tab verwerfen, wiederholte Offline-Aktionen nach Entzug einer Freigabe sperren und erfolgreiche Abmeldungen auch bei lokalem Speicherfehler abschließen. Caches installierender oder wartender Frontend-Updates vor Bereinigung schützen, die tatsächlich vorbereitete Fassung prüfen und bereits in anderen Tabs aktivierte Updates nach Bestätigung laden. API-Dokumentation und Regressionstests ergänzen.
+- GitHub-Build unter Bun reparieren: Offline-Bedienelemente erst nach Anmeldung als eigenen Chunk laden, damit das Startbundle auch unter Bun 1.4.3 unter der bestehenden 350-KB-Grenze bleibt. Build-Regressionstest auf die Trennung erweitern; Node-22-/Bun-Produktionsbuilds und mobile Offline-Erfassung mit anschließender Synchronisierung prüfen.
 
 ## 0.2.5-ALPHA
+
+- 2026-10-16 · Sicherheits- und Fehlerprüfung der sechs lokalen Offline-/Frontend-Commits: lokale Sitzungen bei Kontowechsel oder Abmeldung in einem anderen Tab verwerfen, wiederholte Offline-Aktionen nach Entzug einer Freigabe sperren und erfolgreiche Abmeldungen auch bei lokalem Speicherfehler abschließen. Caches installierender oder wartender Frontend-Updates vor Bereinigung schützen, die tatsächlich vorbereitete Fassung prüfen und bereits in anderen Tabs aktivierte Updates nach Bestätigung laden. API-Dokumentation und Regressionstests ergänzen (`f7f2125c71a425340ccab97b1cefb31c8dd4fcdb`).
 
 - 2026-10-16 · Frontend unabhängig von der App-Version über einen reproduzierbaren SHA-256-Inhaltshash und eine eigene Build-Versionsdatei versionieren. Beim Service-Worker-Update unveränderte Dateien übernehmen, neue Fassungen erst nach Bestätigung aktivieren und alte Dateien für offene Tabs erhalten. Footer-Version zur Laufzeit laden; Update-Hinweis, Dokumentation und Regressionstests für Inhaltsänderungen, stabile Builds und Offline-Caches anpassen. Docker Compose benötigt keine zusätzliche Konfiguration (`a7d537fce3bf5439e933b499f0f2836f0df8f75b`).
 
