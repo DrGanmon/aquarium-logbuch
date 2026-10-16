@@ -29,7 +29,9 @@ Im optionalen KI-Chat interagierst du mit einem KI-System; dessen Antworten sind
 - **Daten mitnehmen und teilen:** CSV-Import mit Spaltenzuordnung, Excel-kompatibler CSV-Export und Aquariumfreigaben mit Lese- oder Schreibzugriff.
 - **Konto anpassen:** Profil, Avatar, Passwortverwaltung, lokale Anmeldung oder Pocket ID/OIDC und Einladungen.
 - **Mobil verwenden:** Deutsch/Englisch, helles/dunkles/systemabhängiges Design, Homescreen-Installation und Timer-Benachrichtigungen.
-- **Aktuell bleiben:** Popup bei neuerer Frontend-Version mit Angebot zum Neuladen.
+- **Offline arbeiten:** Bereits synchronisierte Aquarien, Messwerte, Pflegeprotokolle, Besatz, Pflanzen und Bilder lokal nutzen; Änderungen dauerhaft vormerken und bei Verbindung synchronisieren. Konflikte zwischen Geräten werden zur Entscheidung angezeigt.
+- **Kataloge offline nutzen:** Heruntergeladene Arten-, Pflanzen- und Gesundheitskataloge durchsuchen und Details anzeigen. Diagnoseberechnung, Verträglichkeitsprüfung und CSV-Verarbeitung laufen lokal; der KI-Chat benötigt weiterhin eine Verbindung.
+- **Aktuell bleiben:** Update-Angebot nur bei geänderten Frontend-Inhalten; Aktivierung und Neuladen nach Bestätigung. Reine Backend- oder Katalogdatenänderungen lösen keinen Frontend-Update-Hinweis aus.
 - **Social-Community:** Bilderfeed mit wählbarer öffentlicher oder serverinterner Sichtbarkeit, Texten, Profilbildern, Likes, Kommentaren und Teilen-Links; Uploads werden serverseitig auf 1600 Pixel begrenzt. [Details](docs/de/social.md).
 - **Benachrichtigungen bündeln:** Zentraler Bereich mit Zähler für Likes und Kommentare zu eigenen Beiträgen sowie offene Wasserwertwarnungen aus allen zugänglichen Aquarien.
 
@@ -46,6 +48,16 @@ Im optionalen KI-Chat interagierst du mit einem KI-System; dessen Antworten sind
 - Datenbankmigrationen, verschlüsselte manuelle/automatische Sicherungen und passwortgeschützte Wiederherstellung inklusive Uploads.
 - Docker-Images für AMD64/ARM64; Compose-Vorlagen für SQLite und MongoDB.
 - Automatische Versionsberechnung aus Commit-Typen, Typprüfung und parallel isolierte Tests für beide Datenbankadapter und Runtimes.
+
+## Offline-Betrieb und getrennte Updates
+
+Die App trennt drei Stände: die allgemeine App-Version, den Inhaltshash der Frontend-Dateien und die eigenen Inhaltsversionen der Arten-, Pflanzen- und Gesundheitskataloge. Das Frontend prüft beim Start, alle fünf Minuten in sichtbaren Tabs sowie bei Rückkehr zum Tab oder wiederhergestellter Verbindung nur eine kleine Versionsdatei. Der Hash wird beim Build erzeugt. Unveränderte Dateien werden aus dem bisherigen Service-Worker-Cache übernommen; andere offene Tabs können ihre bisherige Fassung weiterverwenden. Details stehen unter [Versionen und Updates](docs/de/versioning.md).
+
+Aquariendaten und ausstehende Änderungen liegen benutzergetrennt in IndexedDB. Nach einem ersten erfolgreichen Online-Abgleich sind lokale Erfassung und Bearbeitung auch ohne Verbindung möglich. Der Server prüft bei der Übertragung erneut Sitzung und Berechtigungen; Operations-IDs verhindern doppelte Einträge bei Wiederholungen. Konkurrierende Änderungen werden als Konflikt angezeigt und nicht still überschrieben. Noch nicht übertragene Änderungen liegen ausschließlich auf dem jeweiligen Gerät und sind nicht in Server-Backups enthalten.
+
+Referenzkataloge werden separat geladen und versioniert abgeglichen. Vorhandene Offline-Kataloge werden regulär höchstens alle zwölf Stunden geprüft. Reine Änderungen an Arten, Pflanzen, Krankheiten, Diagnosefragen, Medikamenten und Katalogbildern benötigen kein Frontend-Update. Änderungen an Ansichten oder Browserlogik erzeugen weiterhin eine neue Frontend-Fassung.
+
+Für Service Worker und Offline-Neustarts ist HTTPS erforderlich; `localhost` ist die Ausnahme für lokale Entwicklung. Auf dem Handy reicht eine HTTP-LAN-Adresse nicht aus. Browser und Betriebssystem können lokale Daten löschen; eine Homescreen-Installation ersetzt keine Datensicherung. Authentifizierung, Kontosicherheit, KI, Freigaben, Social und Administration benötigen weiterhin eine Serververbindung.
 
 ## Schnellstart
 
@@ -80,7 +92,7 @@ Für SQLite stattdessen `docker compose --project-directory . -f docker/docker-c
 
 ## Grenzen und Ausblick
 
-Grenzwerte und Verdachtsdiagnosen sind Orientierungshilfen und ersetzen keine fachliche Untersuchung. Timer-Benachrichtigungen hängen von Browser und Betriebssystem ab; die App bietet keinen vollständigen Offline-Modus. Dosierpumpenpläne steuern keine Hardware. Automatische E-Mails bei kritischen Grenzwert-Alarmen sind geplant.
+Grenzwerte und Verdachtsdiagnosen sind Orientierungshilfen und ersetzen keine fachliche Untersuchung. Timer-Benachrichtigungen und Hintergrundausführung hängen von Browser und Betriebssystem ab. Der Offline-Betrieb umfasst zuvor synchronisierte Daten und die unterstützten lokalen Aktionen; Funktionen mit Serverbedarf bleiben online. Dosierpumpenpläne steuern keine Hardware. Automatische E-Mails bei kritischen Grenzwert-Alarmen sind geplant.
 
 ## Lizenz
 

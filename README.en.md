@@ -29,7 +29,9 @@ In the optional AI chat, you interact with an AI system; its responses are autom
 - **Transfer and share data:** CSV import with column mapping, Excel-compatible CSV export and tank sharing with read or write access.
 - **Customize accounts:** Profiles, avatars, password management, local or Pocket ID/OIDC login and invitations.
 - **Use on mobile:** German/English, light/dark/system themes, home-screen installation and timer notifications.
-- **Stay up to date:** A popup offers to reload when a newer frontend version is available.
+- **Work offline:** Use previously synchronized aquariums, measurements, care logs, stock, plants and images locally; retain pending changes and synchronize when connected. Conflicts between devices are presented for review.
+- **Use catalogs offline:** Search downloaded species, plant and health catalogs and view their details. Diagnostic calculations, compatibility checks and CSV processing run locally; AI chat still requires a connection.
+- **Stay up to date:** Updates are offered only when frontend content changes; activation and reload require confirmation. Backend-only or catalog-data-only changes do not trigger frontend update prompts.
 - **Social community:** Photo feed with public or server-only visibility, captions, avatars, likes, comments and share links; uploads are resized server-side to 1600 pixels. [Details](docs/en/social.md).
 - **Centralize notifications:** A central area with a counter for likes and comments on your posts and open water-parameter warnings from all accessible aquariums.
 
@@ -46,6 +48,16 @@ In the optional AI chat, you interact with an AI system; its responses are autom
 - Database migrations, encrypted manual/automated backups and password-protected restore including uploads.
 - AMD64/ARM64 Docker images; Compose configurations for SQLite and MongoDB.
 - Commit-based version calculation, type checking and parallel isolated tests for both database adapters and runtimes.
+
+## Offline use and separate updates
+
+The app separates three versions: the overall app version, the frontend file content hash and independent content versions for species, plant and health catalogs. At startup, every five minutes in visible tabs, when returning to the tab and when reconnecting, the frontend checks only a small version file. Hashes are generated during the build. Unchanged files are reused from the previous service-worker cache; other open tabs can continue using their existing build. See [Versions and updates](docs/en/versioning.md).
+
+Aquarium data and pending changes are stored per user in IndexedDB. After a successful initial online synchronization, data can be recorded and edited offline. The server rechecks sessions and permissions during synchronization; operation IDs prevent duplicate entries on retries. Concurrent changes are shown as conflicts rather than silently overwritten. Pending changes exist only on the device that recorded them and are not included in server backups.
+
+Reference catalogs are downloaded and versioned separately. Existing offline catalogs are normally checked at most every twelve hours. Data-only changes to species, plants, diseases, diagnostic questions, medications and catalog images do not require a frontend update. Changes to views or browser logic still produce a new frontend build.
+
+Service workers and offline restarts require HTTPS; localhost is the exception for local development. An HTTP LAN address is insufficient on a phone. Browsers and operating systems may remove local data; home-screen installation does not replace backups. Authentication, account security, AI, sharing, social features and administration still require a server connection.
 
 ## Quick start
 
@@ -80,7 +92,7 @@ For SQLite, use `docker compose --project-directory . -f docker/docker-compose.s
 
 ## Limits and roadmap
 
-Target ranges and suspected diagnoses provide guidance and do not replace professional examination. Timer notifications depend on browser and operating system behavior; the app does not offer a complete offline mode. Dosing pump plans do not control hardware. Automatic emails for critical threshold alarms are planned.
+Target ranges and suspected diagnoses provide guidance and do not replace professional examination. Timer notifications and background execution depend on browser and operating system behavior. Offline use covers previously synchronized data and supported local operations; features that require the server remain online. Dosing pump plans do not control hardware. Automatic emails for critical threshold alarms are planned.
 
 ## License
 

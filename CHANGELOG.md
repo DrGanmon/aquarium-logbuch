@@ -6,9 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Arten-, Pflanzen- und Gesundheitskataloge einschließlich ihrer Bilddateien gegen versehentliche Aufnahme in Frontend- und Web-Worker-Bundles absichern. Reale Build-Vergleiche prüfen, dass reine Katalogänderungen weder Frontend-Inhaltshash noch Service Worker ändern, während Oberflächenänderungen weiterhin eine neue Fassung erzeugen. Datenabgleich bleibt separat versioniert; Dokumentation ergänzen.
+- Minor-Versionsbasis auf `0.3.0-ALPHA` erhöhen, Revision und Patch zurücksetzen und Paketmetadaten angleichen. Deutsche und englische README um die neuen Funktionen für Offline-Erfassung, Offline-Kataloge, lokale Diagnose und CSV-Verarbeitung, getrennte Updates, Synchronisierung und mobile Betriebsgrenzen ergänzen; keine feste Versionsangabe in die README aufnehmen. Architektur- und Sicherheitsvorgaben für das neue App-Konzept in `AGENTS.md` festhalten.
 
 ## 0.2.5-ALPHA
+
+- 2026-10-16 · Arten-, Pflanzen- und Gesundheitskataloge einschließlich ihrer Bilddateien gegen versehentliche Aufnahme in Frontend- und Web-Worker-Bundles absichern. Reale Build-Vergleiche prüfen, dass reine Katalogänderungen weder Frontend-Inhaltshash noch Service Worker ändern, während Oberflächenänderungen weiterhin eine neue Fassung erzeugen. Datenabgleich bleibt separat versioniert; Dokumentation ergänzen (`b1dd154296c8ae8b31f4d1f6846580629e15c78d`).
 
 - 2026-10-16 · GitHub-Build unter Bun reparieren: Offline-Bedienelemente erst nach Anmeldung als eigenen Chunk laden, damit das Startbundle auch unter Bun 1.4.3 unter der bestehenden 350-KB-Grenze bleibt. Build-Regressionstest auf die Trennung erweitern; Node-22-/Bun-Produktionsbuilds und mobile Offline-Erfassung mit anschließender Synchronisierung prüfen (`ec85f2bc26337bcc2ab8bc876ec823a893142f36`).
 
