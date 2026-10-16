@@ -139,7 +139,7 @@ function apiFixture() {
     './online-request': { retryOnlineRequest: (...args) => retry(...args) },
     './offline-workspace': { readWorkspace: async () => undefined, enqueueWorkspace: async () => undefined, localDiagnosis: async () => undefined },
     './offline-catalogs': { readOfflineCatalog: async () => undefined },
-    '../../src/shared/offline-catalog-query': { CatalogLookupError: class extends Error {} },
+    '../../src/shared/catalog-routing': { CatalogLookupError: class extends Error {} },
     './state': { session, language: { value: 'de' }, t: key => key },
     './offline-store': { activeOwner: async () => records.get('activeOwner'), readLocal: async key => records.get(key),
       writeLocal: async (key, value) => { if (value === undefined) records.delete(key);else records.set(key, value); },

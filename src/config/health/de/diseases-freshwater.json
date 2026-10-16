@@ -2,7 +2,7 @@
   "id": "diseases-freshwater",
   "name": "Krankheiten – Süßwasser (Fische und Wirbellose)",
   "description": "Häufige Krankheiten der Arten aus freshwater-popular.json, cichlids.json und invertebrates.json mit Zuordnung zu jeder Art.",
-  "version": "2026-10-13",
+  "version": "2026-10-16",
   "disclaimer": "Informationssammlung, kein Ersatz für eine tierärztliche Diagnose. Viele Krankheiten sehen ähnlich aus; eine sichere Diagnose gelingt oft nur per Mikroskop. Medikamente immer nach Packungsbeilage bzw. tierärztlicher Anweisung anwenden.",
   "legalNotes": [
     "Antibiotika und andere antimikrobiell wirksame Tierarzneimittel (z. B. Metronidazol) sind seit 28.01.2022 EU-weit verschreibungspflichtig (Art. 34 Abs. 1 Buchst. c VO (EU) 2019/6) – Bezug nur über Tierarzt bzw. Apotheke.",
@@ -17,7 +17,7 @@
     "activeSubstances.invertebrateSafe": "false = für Wirbellose giftig; null = Herstellerangabe prüfen."
   },
   "diseaseCount": 25,
-  "speciesCount": 116,
+  "speciesCount": 118,
   "diseases": [
     {
       "id": "ichthyophthiriasis",
@@ -104,7 +104,7 @@
         "ufifas-fa006",
         "noga-2010"
       ],
-      "affectedSpeciesCount": 96,
+      "affectedSpeciesCount": 98,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -201,7 +201,9 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -308,7 +310,7 @@
         "srac-amyloodinium",
         "noga-2010"
       ],
-      "affectedSpeciesCount": 96,
+      "affectedSpeciesCount": 98,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -405,7 +407,9 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -506,7 +510,7 @@
         "ufifas-fa109",
         "bastos-gomes-2017"
       ],
-      "affectedSpeciesCount": 96,
+      "affectedSpeciesCount": 98,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -603,7 +607,9 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -715,7 +721,7 @@
         "ufifas-fa033",
         "noga-2010"
       ],
-      "affectedSpeciesCount": 96,
+      "affectedSpeciesCount": 98,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -812,7 +818,9 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -908,7 +916,7 @@
         "angfa-worms",
         "noga-2010"
       ],
-      "affectedSpeciesCount": 96,
+      "affectedSpeciesCount": 98,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -1005,7 +1013,9 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -1288,7 +1298,7 @@
         "msd-bacterial",
         "bmel-zzf-2022"
       ],
-      "affectedSpeciesCount": 96,
+      "affectedSpeciesCount": 98,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -1385,7 +1395,9 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -1479,7 +1491,7 @@
         "noga-2010",
         "bmel-zzf-2022"
       ],
-      "affectedSpeciesCount": 96,
+      "affectedSpeciesCount": 98,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -1576,7 +1588,9 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -1681,7 +1695,7 @@
         "delghandi-2020",
         "glumpak-matanovic"
       ],
-      "affectedSpeciesCount": 96,
+      "affectedSpeciesCount": 98,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -1778,7 +1792,9 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -1854,7 +1870,7 @@
         "go-whittington-2006",
         "rimmer-dgiv"
       ],
-      "affectedSpeciesCount": 50,
+      "affectedSpeciesCount": 51,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -1905,7 +1921,8 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold"
       ],
       "recommendedMedications": [
         {
@@ -1977,7 +1994,7 @@
         "borrego-2017",
         "volpatti-2022"
       ],
-      "affectedSpeciesCount": 44,
+      "affectedSpeciesCount": 45,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -2022,7 +2039,8 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold"
       ],
       "recommendedMedications": []
     },
@@ -2091,7 +2109,7 @@
       "sources": [
         "noga-2010"
       ],
-      "affectedSpeciesCount": 96,
+      "affectedSpeciesCount": 98,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -2188,7 +2206,9 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -2288,7 +2308,7 @@
         "noga-2010",
         "bmel-zzf-2022"
       ],
-      "affectedSpeciesCount": 96,
+      "affectedSpeciesCount": 98,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -2385,7 +2405,9 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -2971,7 +2993,7 @@
         "sera-argulol",
         "oase-antiargulus"
       ],
-      "affectedSpeciesCount": 96,
+      "affectedSpeciesCount": 98,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -3068,7 +3090,9 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -3162,7 +3186,7 @@
         "sera-argulol",
         "oase-antiargulus"
       ],
-      "affectedSpeciesCount": 96,
+      "affectedSpeciesCount": 98,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -3259,7 +3283,9 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -3346,7 +3372,7 @@
         "sera-tremazol",
         "ufifas-cir716"
       ],
-      "affectedSpeciesCount": 96,
+      "affectedSpeciesCount": 98,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -3443,7 +3469,9 @@
         "julidochromis-regani",
         "altolamprologus-calvus",
         "cyprichromis-leptosoma",
-        "tropheus-moorii"
+        "tropheus-moorii",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -3645,7 +3673,7 @@
         "ufifas-fa16",
         "srac-nitrite"
       ],
-      "affectedSpeciesCount": 116,
+      "affectedSpeciesCount": 118,
       "affectedSpecies": [
         "betta-splendens",
         "trichogaster-lalius",
@@ -3762,7 +3790,9 @@
         "planorbella-duryi",
         "melanoides-tuberculata",
         "physella-acuta",
-        "tylomelania-spp"
+        "tylomelania-spp",
+        "trichopodus-trichopterus-gold",
+        "ancistrus-sp-l144"
       ],
       "recommendedMedications": [
         {
@@ -23050,6 +23080,358 @@
       "treatmentCautions": [
         "Kupfer und viele Fischmedikamente sind für diese Art tödlich – Fische nie im gemeinsamen Becken behandeln (UF/IFAS FA165).",
         "Sehr enge Wasserwerte – jede Medikamentengabe ist riskant."
+      ]
+    },
+    "trichopodus-trichopterus-gold": {
+      "diseases": [
+        {
+          "diseaseId": "ichthyophthiriasis",
+          "disease": "Weißpünktchenkrankheit (Ichthyophthiriasis)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Punkte gut auf langen Flossen sichtbar",
+            "hängt teilnahmslos an der Oberfläche",
+            "geklemmte Flossen"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "piscinoodiniosis",
+          "disease": "Samtkrankheit (Piscinoodiniose, „Oodinium“)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Goldstaub auf Körper und Flossen",
+            "geklemmte Flossen, hängt an der Oberfläche"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "skin-protozoa",
+          "disease": "Haut- und Kiementrübung durch Einzeller (Costia, Chilodonella, Trichodina)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Milchig-graue Hauttrübung",
+            "Scheuern",
+            "Atemnot"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-fw",
+          "disease": "Haut- und Kiemenwürmer (Monogenea: Gyrodactylus, Dactylogyrus)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "abgespreizte Kiemendeckel",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "camallanus",
+          "disease": "Rote Darmwürmer (Camallanose)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Rote Würmer am After",
+            "Abmagerung trotz Fressen"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "columnaris",
+          "disease": "Columnaris (Maulfäule, „Maulschimmel“)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Watteartiger Belag am Maul",
+            "helle Sattelflecken",
+            "Flossenzerfall"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "aeromonas-fin-rot",
+          "disease": "Flossenfäule und bakterielle Geschwüre (Aeromonas, Pseudomonas)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Ausgefranste Flossenränder",
+            "rote Blutungen",
+            "Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "mycobacteriosis",
+          "disease": "Fischtuberkulose (Mykobakteriose)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Abmagerung über Wochen",
+            "Geschwüre",
+            "einzelne Todesfälle"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "dgiv-isknv",
+          "disease": "Zwergfadenfisch-Iridovirus (DGIV / ISKNV)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Lethargie, dunkle Färbung, Bauchschwellung"
+          ],
+          "note": "Verwandte Fadenfische können ebenfalls betroffen sein.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lymphocystis-fw",
+          "disease": "Lymphocystis („Blumenkohlkrankheit“)",
+          "susceptibility": "gering",
+          "signs": [
+            "Blumenkohlartige weiße Knoten",
+            "Fisch sonst munter"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "saprolegniasis",
+          "disease": "Verpilzung (Saprolegniose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Watteartige weiße Fäden",
+            "meist an Verletzungen"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "dropsy",
+          "disease": "Bauchwassersucht (Syndrom)",
+          "susceptibility": "gering",
+          "signs": [
+            "Aufgetriebener Bauch",
+            "abstehende Schuppen"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "argulosis",
+          "disease": "Karpfenläuse (Argulose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Flache, ovale Läuse auf der Haut",
+            "Scheuern",
+            "gerötete Stellen"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lernaeosis",
+          "disease": "Ankerwürmer (Lernaeose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Fäden mit Eiersäckchen hängen aus der Haut",
+            "gerötete Einstichstelle"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "cestodiasis",
+          "disease": "Bandwürmer (Cestodose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Abmagerung trotz Fressen",
+            "weiße Wurmglieder am After"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning",
+          "disease": "Ammoniak- und Nitritvergiftung",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": []
+    },
+    "ancistrus-sp-l144": {
+      "diseases": [
+        {
+          "diseaseId": "ichthyophthiriasis",
+          "disease": "Weißpünktchenkrankheit (Ichthyophthiriasis)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Punktförmige Veränderungen an Körper und Flossen, Scheuern oder schnelle Atmung beobachten; auf heller Grundfarbe können Veränderungen wenig kontrastreich sein."
+          ],
+          "note": "Harnischwels mit Knochenplatten, nicht pauschal als schuppenlos einordnen. Verträglichkeit jedes Mittels für Welse und vorhandene Mitbewohner prüfen; Packungsangaben und tierärztliche Beratung beachten. Keine pauschale Dosierungsreduktion aus der Farbe oder L-Nummer ableiten.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "piscinoodiniosis",
+          "disease": "Samtkrankheit (Piscinoodiniose, „Oodinium“)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Feinen Belag zusammen mit Atmung und Scheuerverhalten beurteilen; natürliche gelbe Färbung ist kein Krankheitsbeleg."
+          ],
+          "note": "Harnischwels mit Knochenplatten, nicht pauschal als schuppenlos einordnen. Verträglichkeit jedes Mittels für Welse und vorhandene Mitbewohner prüfen; Packungsangaben und tierärztliche Beratung beachten. Keine pauschale Dosierungsreduktion aus der Farbe oder L-Nummer ableiten.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "skin-protozoa",
+          "disease": "Haut- und Kiementrübung durch Einzeller (Costia, Chilodonella, Trichodina)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Neue Hauttrübung, Scheuern und schnelle Kiemenbewegung beobachten."
+          ],
+          "note": "Harnischwels mit Knochenplatten, nicht pauschal als schuppenlos einordnen. Verträglichkeit jedes Mittels für Welse und vorhandene Mitbewohner prüfen; Packungsangaben und tierärztliche Beratung beachten. Keine pauschale Dosierungsreduktion aus der Farbe oder L-Nummer ableiten.",
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "monogenea-fw",
+          "disease": "Haut- und Kiemenwürmer (Monogenea: Gyrodactylus, Dactylogyrus)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Scheuern",
+            "abgespreizte Kiemendeckel",
+            "schnelle Atmung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "camallanus",
+          "disease": "Rote Darmwürmer (Camallanose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Rote Würmer am After, Abmagerung"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "columnaris",
+          "disease": "Columnaris (Maulfäule, „Maulschimmel“)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Watteartiger Belag am Maul",
+            "helle Sattelflecken",
+            "Flossenzerfall"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "aeromonas-fin-rot",
+          "disease": "Flossenfäule und bakterielle Geschwüre (Aeromonas, Pseudomonas)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Ausgefranste Flossenränder",
+            "rote Blutungen",
+            "Geschwüre"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "mycobacteriosis",
+          "disease": "Fischtuberkulose (Mykobakteriose)",
+          "susceptibility": "mittel",
+          "signs": [
+            "Abmagerung über Wochen",
+            "Geschwüre",
+            "einzelne Todesfälle"
+          ],
+          "contagious": "ja",
+          "zoonotic": true
+        },
+        {
+          "diseaseId": "saprolegniasis",
+          "disease": "Verpilzung (Saprolegniose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Watteartige weiße Fäden",
+            "meist an Verletzungen"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "dropsy",
+          "disease": "Bauchwassersucht (Syndrom)",
+          "susceptibility": "gering",
+          "signs": [
+            "Ungewöhnlich aufgetriebener Bauch; bei Harnischplatten nicht auf typische Schuppensträube warten."
+          ],
+          "contagious": "bedingt",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "argulosis",
+          "disease": "Karpfenläuse (Argulose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Flache, ovale Läuse auf der Haut",
+            "Scheuern",
+            "gerötete Stellen"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "lernaeosis",
+          "disease": "Ankerwürmer (Lernaeose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Fäden mit Eiersäckchen hängen aus der Haut",
+            "gerötete Einstichstelle"
+          ],
+          "contagious": "ja",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "cestodiasis",
+          "disease": "Bandwürmer (Cestodose)",
+          "susceptibility": "gering",
+          "signs": [
+            "Abmagerung trotz Fressen",
+            "weiße Wurmglieder am After"
+          ],
+          "contagious": "bedingt",
+          "zoonotic": false
+        },
+        {
+          "diseaseId": "ammonia-nitrite-poisoning",
+          "disease": "Ammoniak- und Nitritvergiftung",
+          "susceptibility": "mittel",
+          "signs": [
+            "Messbares Ammonium/Nitrit",
+            "Atemnot bei vielen Tieren"
+          ],
+          "contagious": "nein",
+          "zoonotic": false
+        }
+      ],
+      "treatmentCautions": [
+        "Harnischwels mit Knochenplatten, nicht pauschal als schuppenlos einordnen. Verträglichkeit jedes Mittels für Welse und vorhandene Mitbewohner prüfen; Packungsangaben und tierärztliche Beratung beachten. Keine pauschale Dosierungsreduktion aus der Farbe oder L-Nummer ableiten."
       ]
     }
   },

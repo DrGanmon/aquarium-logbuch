@@ -10,12 +10,12 @@ en/    Diseases, diagnosis question trees and medications/treatment agents (Engl
 
 ## Gemeinsame Artenquelle / Shared species source
 
-Alle 147 Arten und ihre Wasseranforderungen liegen ausschließlich unter `src/config/species/`. Es gibt keinen separaten `health/species/`-Katalog. Health speichert nur artspezifische Krankheitszuordnungen, Vorsichtsmaßnahmen, Fragebäume und Ausgangsgewichte. Namen und wissenschaftliche Bezeichnungen werden vom gemeinsamen `SpeciesCatalog` in der angefragten Sprache ergänzt; Messwertregeln beziehen ihre Grenzwerte aus derselben Quelle wie der Artenkatalog und der Besatz.
+Alle 228 auswählbaren Tier-Einträge (147 Stammeinträge, 81 Formen) und ihre Wasseranforderungen liegen ausschließlich unter `src/config/species/`. Es gibt keinen separaten `health/species/`-Katalog. Health speichert nur artspezifische Krankheitszuordnungen, Vorsichtsmaßnahmen, Fragebäume und Ausgangsgewichte. Namen und wissenschaftliche Bezeichnungen werden vom gemeinsamen `SpeciesCatalog` in der angefragten Sprache ergänzt; Messwertregeln beziehen ihre Grenzwerte aus derselben Quelle wie der Artenkatalog und der Besatz.
 
-All 147 species and their water requirements are defined only in `src/config/species/`. Health stores disease associations, cautions, question trees and priors keyed by species ID, rather than duplicating names or water requirements. The shared `SpeciesCatalog` supplies localized names and ranges at runtime.
+All 228 selectable animal entries (147 parents, 81 forms) and their water requirements are defined only in `src/config/species/`. Health stores disease associations, cautions, question trees and priors keyed by species ID, rather than duplicating names or water requirements. The shared `SpeciesCatalog` supplies localized names and ranges at runtime.
 
-`symphysodon-spp` bleibt ein Alias für `symphysodon-sp`; gespeicherte Zuordnungen verwenden die kanonische ID. Nach dem Zusammenführen des Alias enthalten die Gesundheitsdaten 116 Süßwasser-/Wirbellosenprofile und 31 Meerwasserprofile.
-`symphysodon-spp` remains an alias for `symphysodon-sp`. After merging that alias, the health data contains 116 freshwater/invertebrate profiles and 31 marine profiles.
+`symphysodon-spp` bleibt ein Alias für `symphysodon-sp`; gespeicherte Zuordnungen verwenden die kanonische ID. Nach dem Zusammenführen des Alias enthalten die Gesundheitsdaten 118 Süßwasser-/Wirbellosenprofile und 31 Meerwasserprofile.
+`symphysodon-spp` remains an alias for `symphysodon-sp`. After merging that alias, the health data contains 118 freshwater/invertebrate profiles and 31 marine profiles.
 
 ## Dateien / Files
 
@@ -44,3 +44,13 @@ Roles and home-pharmacy ratings are displayed as source information. Invertebrat
 `measurable.conditions` and `expression` describe measurable questions; `species.*` references the shared catalog. Parameters and units are defined in `parameters`. Recent stored readings may supply answers; missing or stale values are not considered normal. Matrix probabilities are source estimates, not clinically measured probabilities.
 
 Keine tierärztliche Diagnose. Keine Dosierungsangaben. / Not a veterinary diagnosis. No dose information.
+
+## Ergänzte Farb- und Handelsformen / Added color and trade forms
+
+`trichopodus-trichopterus-gold` verwendet den bestehenden Fragebaum und die Quellenschätzungen von `trichopodus-trichopterus`; `ancistrus-sp-l144` die von `ancistrus-sp`. Es werden keine neuen artspezifisch validierten Trefferquoten behauptet. Beide IDs haben eigene Einträge in Diagnoseprofilen, Krankheitsindex und betroffenen Arten. Hinweise berücksichtigen helle Grundfarbe bzw. Harnischplatten; natürliche Goldfarbe ist kein Krankheitszeichen. Alle Stammdaten und Wasserbereiche bleiben im gemeinsamen Artenkatalog. Pflanzen werden im Pflanzenbestand geführt, nicht als Tiere im Diagnoseassistenten.
+
+`trichopodus-trichopterus-gold` reuses the existing `trichopodus-trichopterus` tree and source-estimate weights; `ancistrus-sp-l144` reuses `ancistrus-sp`. These are not newly clinically validated probabilities. Both IDs have explicit diagnosis profiles, disease-index entries and affected-species associations. Hints account for pale coloration and bony plates; natural gold color is not a disease sign. Names and water ranges remain in the shared species catalog. Plants belong in the plant inventory, not the animal diagnosis assistant.
+
+Recherche, Handelsnamen und Grenzen: [Katalogergänzungen vom 16.10.2026](../../../docs/catalog-additions-2026-10-16.md).
+
+Weitere belegte Tierformen unter `species/cultivated-forms.json` erben die vorhandenen Haltungsangaben. `HealthService` ergänzt daraus im Arbeitsspeicher explizite Krankheits- und Diagnosezuordnungen anhand von `variantOf`, ohne neue Bäume oder Wahrscheinlichkeiten zu erfinden. Die Offline-Snapshots enthalten diese aufgelösten Profile. Die 118 vorhandenen Süßwasser-/Wirbellosenprofile in den Quelldateien bleiben als Ausgangsprofile erhalten. Forschung und Umfang: [Variantenrecherche](../../../docs/catalog-variants-2026-10-16.md).

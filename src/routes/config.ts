@@ -1,3 +1,4 @@
+import { groupCatalogMatches } from '../shared/catalog-variants';
 import { catalogSnapshot } from '../services/offline-catalog-service';
 import { CATALOG_NAMES, type CatalogName } from '../shared/offline-catalog';
 import { getPlantCatalog, searchPlants } from '../services/plant-service';
@@ -124,8 +125,8 @@ router.get('/plants', auth, (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Ungültige Seitenauswahl.' });
   const { plants, categories } = searchPlants(lang, String(req.query.q || ''),
     String(req.query.water_type || req.query.waterType || 'all'), String(req.query.category || 'all'));
-  const page = plants.slice(offset, offset + limit).map(({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate }) =>
-    ({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate }));
+  const page = plants.slice(offset, offset + limit).map(({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate, variants }) =>
+    ({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate, variants }));
   res.setHeader('Cache-Control', 'no-store').json({ plants: page, categories, total: plants.length,
     next: offset + page.length < plants.length ? offset + page.length : null });
 });
@@ -135,7 +136,7 @@ router.get('/plants/:id', auth, (req: Request, res: Response) => {
   const catalog = getPlantCatalog(lang);
   const plant = catalog.plants.find(item => item.id === req.params.id);
   if (!plant) return res.status(404).json({ error: 'Pflanze nicht gefunden.' });
-  res.json({ plant, fieldDefinitions: catalog.fieldDefinitions, notes: catalog.notes,
+  res.json({ plant: plant.variantOf ? plant : groupCatalogMatches(catalog.plants).find(item => item.id === plant.id) || plant, fieldDefinitions: catalog.fieldDefinitions, notes: catalog.notes,
     sources: plant.sources.map(id => catalog.sources[id]).filter(Boolean) });
 });
 
@@ -158,7 +159,7 @@ router.get('/species', auth, (req: Request, res: Response) => {
     const page = filtered.slice(offset, offset + limit).map((species: any) => ({
       id: species.id, name: species.name, scientificName: species.scientificName,
       category: species.category, profile: species.profile, waterType: species.waterType,
-      minVolumeL: species.minVolumeL, minGroupCount: species.minGroupCount, description: species.description,
+      minVolumeL: species.minVolumeL, minGroupCount: species.minGroupCount, description: species.description, variants: species.variants,
     }));
     return res.setHeader('Cache-Control', 'no-store').json({ species: page, total,
       next: offset + page.length < total ? offset + page.length : null,
@@ -183,11 +184,11 @@ router.get('/species', auth, (req: Request, res: Response) => {
       s.name_en?.toLowerCase().includes(q) ||
       s.scientificName.toLowerCase().includes(q) ||
       s.category.toLowerCase().includes(q) ||
-      s.tags.some((t: any) => t.includes(q))
+      s.tags.some((t: any) => t.includes(q)) || s.aliases?.some((alias: string) => alias.toLowerCase().includes(q))
     );
   }
   res.json({
-    species: list,
+    species: groupCatalogMatches(cfg.speciesService.getAllSpecies(lang), list),
     categories: cfg.speciesService.getCategories(lang),
   });
 });
@@ -205,7 +206,7 @@ router.get('/species/:id', auth, (req: Request, res: Response) => {
   if (!sp) {
     return res.status(404).json({ error: 'Art nicht gefunden.' });
   }
-  res.json({ species: sp });
+  res.json({ species: sp.variantOf ? sp : groupCatalogMatches(cfg.speciesService.getAllSpecies(lang)).find(item => item.id === sp.id) || sp });
 });
 
 router.get('/suites', auth, (req: Request, res: Response) => {

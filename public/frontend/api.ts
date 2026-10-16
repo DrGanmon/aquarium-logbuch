@@ -1,6 +1,6 @@
 import { readWorkspace, enqueueWorkspace, localDiagnosis } from './offline-workspace';
 import { readOfflineCatalog } from './offline-catalogs';
-import { CatalogLookupError } from '../../src/shared/offline-catalog-query';
+import { CatalogLookupError } from '../../src/shared/catalog-routing';
 import { activeOwner, readLocal, writeLocal, cacheable, offlineState } from './offline-store';
 import { session, language, t } from "./state";
 export class ApiError extends Error {

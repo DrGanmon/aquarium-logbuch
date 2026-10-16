@@ -1,5 +1,5 @@
 import { CATALOG_NAMES, CATALOG_SCHEMA, type CatalogName, type CatalogSnapshot } from '../../src/shared/offline-catalog';
-import { catalogForPath, queryCatalog } from '../../src/shared/offline-catalog-query';
+import { catalogForPath } from '../../src/shared/catalog-routing';
 import { activeOwner, readLocal, writeLocal, offlineState } from './offline-store';
 
 const memory = new Map<string, CatalogSnapshot>();
@@ -32,7 +32,7 @@ export async function readOfflineCatalog(path: string, language: string, signal?
   if (!['de', 'en'].includes(lang)) return undefined;
   const snapshot = await snapshotFor(kind, lang);
   if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
-  return snapshot ? queryCatalog(snapshot, path) : undefined;
+  return snapshot ? (await import('../../src/shared/offline-catalog-query')).queryCatalog(snapshot, path) : undefined;
 }
 /** Called only after user writes have been synchronized. Snapshot + version commit atomically. */
 export async function synchronizeCatalogs(owner: number, language: string, force = false) {

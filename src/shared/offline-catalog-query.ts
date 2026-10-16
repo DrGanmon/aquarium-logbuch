@@ -1,14 +1,9 @@
-import type { CatalogSnapshot, CatalogName } from './offline-catalog';
+import { groupCatalogMatches } from './catalog-variants';
+import type { CatalogSnapshot } from './offline-catalog';
 import { searchSpecies } from './species-search';
-export class CatalogLookupError extends Error {
-  constructor(message: string, public readonly status: number) { super(message); }
-}
-export function catalogForPath(path: string): CatalogName | undefined {
-  const pathname = path.split('?')[0]!;
-  if (/^\/species(?:\/[^/]+)?$/.test(pathname)) return 'species';
-  if (/^\/plants(?:\/[^/]+)?$/.test(pathname)) return 'plants';
-  if (/^\/health\/(?:catalog|diseases\/[^/]+|medications(?:\/[^/]+)?)$/.test(pathname)) return 'health';
-}
+import { CatalogLookupError } from './catalog-routing';
+export { CatalogLookupError, catalogForPath } from './catalog-routing';
+
 function page(query: URLSearchParams) {
   const integer = (name: string, fallback: number) => !query.has(name) ? fallback : /^\d+$/.test(query.get(name)!) ? Number(query.get(name)) : NaN;
   const limit = integer('limit', 24), offset = integer('offset', 0);
@@ -29,12 +24,12 @@ export function queryCatalog(snapshot: CatalogSnapshot, path: string): unknown {
       const id = canonical(parts[1].trim().toLowerCase());
       const names = (item: typeof data.species[number]) => [item.name, item.name_de, item.name_en].filter((value): value is string => Boolean(value)).map(value => value.toLowerCase());
       const species = data.species.find(item => item.id === id)
-        || data.species.find(item => names(item).includes(id))
+        || data.species.find(item => names(item).includes(id) || item.aliases?.some(alias => alias.toLowerCase() === id))
         || data.species.find(item => item.scientificName?.toLowerCase() === id)
         || data.species.find(item => names(item).some(name => name.includes(id)) || id.includes(item.name.toLowerCase()))
         || data.species.find(item => names(item).some(name => name.startsWith(id)) || item.scientificName?.toLowerCase().startsWith(id));
       if (!species) throw new CatalogLookupError('Art nicht gefunden.', 404);
-      return { species };
+      return { species: species.variantOf ? species : groupCatalogMatches(data.species).find(item => item.id === species.id) || species };
     }
     const water = query.get('water_type') || query.get('waterType') || 'all';
     const category = query.get('category') || 'all';
@@ -42,13 +37,13 @@ export function queryCatalog(snapshot: CatalogSnapshot, path: string): unknown {
       const rawWater = query.get('water_type') || query.get('waterType'), rawCategory = query.get('category');
       const filtered = data.species.filter(item => (!rawWater || item.waterType === rawWater)
         && (!rawCategory || [item.category, item.category_de, item.category_en].some(value => value?.toLowerCase() === category.toLowerCase()))
-        && (!q || [item.name, item.name_de, item.name_en, item.scientificName, item.category, item.category_de, item.category_en].some(value => value?.toLowerCase().includes(q)) || item.tags?.some(tag => tag.includes(q))));
-      return { species: filtered, categories: data.categories };
+        && (!q || [item.name, item.name_de, item.name_en, item.scientificName, item.category, item.category_de, item.category_en].some(value => value?.toLowerCase().includes(q)) || item.tags?.some(tag => tag.includes(q)) || item.aliases?.some(alias => alias.toLowerCase().includes(q))));
+      return { species: groupCatalogMatches(data.species, filtered), categories: data.categories };
     }
     const { filtered, total } = searchSpecies({ species: data.species, query: q, waterType: water, category });
     const { limit, offset } = page(query);
-    const species = filtered.slice(offset, offset + limit).map(({ id, name, scientificName, category, profile, waterType, minVolumeL, minGroupCount, description }) =>
-      ({ id, name, scientificName, category, profile, waterType, minVolumeL, minGroupCount, description }));
+    const species = filtered.slice(offset, offset + limit).map(({ id, name, scientificName, category, profile, waterType, minVolumeL, minGroupCount, description, variants }) =>
+      ({ id, name, scientificName, category, profile, waterType, minVolumeL, minGroupCount, description, variants }));
     return { species, total, next: offset + limit < total ? offset + limit : null, categories: data.categories };
   }
   if (snapshot.kind === 'plants') {
@@ -56,15 +51,16 @@ export function queryCatalog(snapshot: CatalogSnapshot, path: string): unknown {
     if (parts[1]) {
       const plant = data.plants.find(item => item.id === parts[1]);
       if (!plant) throw new CatalogLookupError('Pflanze nicht gefunden.', 404);
-      return { plant, fieldDefinitions: data.fieldDefinitions, notes: data.notes, sources: plant.sources.map(id => data.sources[id]).filter(Boolean) };
+      return { plant: plant.variantOf ? plant : groupCatalogMatches(data.plants).find(item => item.id === plant.id) || plant, fieldDefinitions: data.fieldDefinitions, notes: data.notes, sources: plant.sources.map(id => data.sources[id]).filter(Boolean) };
     }
     const { limit, offset } = page(query);
     const water = query.get('water_type') || query.get('waterType') || 'all', category = query.get('category') || 'all';
     const terms = q.split(/\s+/).filter(Boolean);
-    const filtered = data.plants.filter(plant => (water === 'all' || plant.waterType === water) && (category === 'all' || plant.category === category)
+    const matches = data.plants.filter(plant => (water === 'all' || plant.waterType === water) && (category === 'all' || plant.category === category)
       && terms.every(term => data.searchText[plant.id]?.includes(term)));
-    const plants = filtered.slice(offset, offset + limit).map(({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate }) =>
-      ({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate }));
+    const filtered = groupCatalogMatches(data.plants, matches);
+    const plants = filtered.slice(offset, offset + limit).map(({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate, variants }) =>
+      ({ id, name, scientificName, category, waterType, description, difficulty, light, growthRate, variants }));
     return { plants, total: filtered.length, next: offset + limit < filtered.length ? offset + limit : null,
       categories: [...new Set(data.plants.map(plant => plant.category))].sort((a, b) => a.localeCompare(b, snapshot.language)) };
   }

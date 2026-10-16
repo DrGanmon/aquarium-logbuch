@@ -2847,6 +2847,121 @@
       "decorHints": "Bepflanztes Becken mit Schwimmpflanzen, gedämpftem Licht, freiem Schwimmraum und leichter Strömung.",
       "behaviorNotes": "Sehr scheuer Schwarmfisch – einzeln oder in kleinen Gruppen verkümmert er. Mindestens 6, besser 10 Tiere. Nur mit ruhigen, friedlichen Arten halten. Meist Wildfänge.",
       "description": "Durchsichtiger Wels (ca. 6,5 cm) aus Thailand, oft als Indischer Glaswels gehandelt. Wurde erst 2013 beschrieben und vorher mit dem deutlich größeren K. bicirrhis verwechselt."
+    },
+    {
+      "id": "trichopodus-trichopterus-gold",
+      "name": "Gelber Fadenfisch (Gold)",
+      "scientificName": "Trichopodus trichopterus 'Gold'",
+      "category": "Labyrinthfische",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 24,
+        "max": 30,
+        "idealMin": 24,
+        "idealMax": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 8.5,
+        "idealMin": 6.5,
+        "idealMax": 7.5
+      },
+      "gh": {
+        "min": 3,
+        "max": 35,
+        "idealMin": 5,
+        "idealMax": 15
+      },
+      "kh": {
+        "min": 2,
+        "max": 12,
+        "idealMin": 3,
+        "idealMax": 8
+      },
+      "minVolumeL": 160,
+      "minTankLengthCm": 100,
+      "tankRegion": "top_middle",
+      "socialType": "harem",
+      "minGroupCount": 3,
+      "territorial": "strong",
+      "tags": [
+        "bubble_nest_builder",
+        "low_flow",
+        "surface_territory",
+        "surface_breather",
+        "gold_gourami",
+        "breeding_form"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Große Becken mit dichter Bepflanzung, Schwimmpflanzen und Sichtbarrieren.",
+      "behaviorNotes": "Männchen sind untereinander und oft auch gegenüber Weibchen und anderen Labyrinthfischen deutlich aggressiv. Nur ein Männchen pro Becken, ideal mit mehreren Weibchen. Nicht mit kleinen, scheuen Arten oder anderen Fadenfischen kombinieren. Kann kleine Fische und Jungfische fressen.",
+      "description": "Goldene Zuchtform des Blauen bzw. Dreipunkt-Fadenfischs, keine eigene Art. Etwa 15 cm groß; nicht mit dem deutlich kleineren Honiggurami verwechseln.",
+      "name_en": "Gold Gourami",
+      "category_en": "Labyrinth Fish",
+      "description_en": "Gold color morph of the three-spot or blue gourami, not a separate species. Reaches about 15 cm; not the much smaller honey gourami.",
+      "behaviorNotes_en": "Keep at most one male, with several females if kept as a group. Provide visual barriers and escape routes. Can harass other gouramis and timid fish; may eat fry.",
+      "decorHints_en": "Dense planting, floating cover, open swimming space and gentle flow. Keep access to the air above the water unobstructed.",
+      "variantOf": "trichopodus-trichopterus",
+      "variantKind": "color"
+    },
+    {
+      "id": "ancistrus-sp-l144",
+      "name": "Gelber Antennenwels / L-Wels L144 (Handelsform)",
+      "scientificName": "Ancistrus sp. 'L144' (Handelsform / trade form)",
+      "category": "Harnischwelse",
+      "waterType": "fresh",
+      "profile": "allgemein",
+      "temp": {
+        "min": 22,
+        "max": 27,
+        "idealMin": 23,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0,
+        "idealMin": 6.5,
+        "idealMax": 7.5
+      },
+      "gh": {
+        "min": 4,
+        "max": 20,
+        "idealMin": 5,
+        "idealMax": 15
+      },
+      "kh": {
+        "min": 2,
+        "max": 12,
+        "idealMin": 3,
+        "idealMax": 8
+      },
+      "minVolumeL": 100,
+      "minTankLengthCm": 80,
+      "tankRegion": "bottom",
+      "socialType": "solitary",
+      "minGroupCount": 1,
+      "territorial": "mild",
+      "tags": [
+        "bottom_territory",
+        "cave_dweller",
+        "algae_eater",
+        "l144",
+        "lemon",
+        "blue_eye",
+        "breeding_form"
+      ],
+      "diet": "omnivore",
+      "decorHints": "Höhlen, Wurzeln als Deckung und Aufwuchsfläche, strukturierte Bodenfläche und sauerstoffreiches Wasser.",
+      "behaviorNotes": "Einzeln möglich; Männchen verteidigen Höhlen. Mehrere Tiere nur mit genügend Bodenfläche und getrennten Verstecken. Pflanzlich betontes, abwechslungsreiches Sinkfutter anbieten; Algenaufwuchs allein genügt nicht. Keine pauschalen Haltungswerte auf alle L-Welse übertragen.",
+      "description": "Gelber Harnischwels aus dem Ancistrus-Komplex, im Handel auch als L144, Lemon oder Blue Eye angeboten. Kein Ohrgitter-Harnischwels. L144-Handelsnamen belegen weder eine sichere Artzuordnung noch die Abstammung vom ursprünglichen L144-Wildtier.",
+      "name_en": "Yellow Bristlenose Pleco / L144 (trade form)",
+      "category_en": "Loricariid Catfish",
+      "description_en": "Yellow Ancistrus bristlenose sold as L144, lemon or blue-eye pleco. Not an Otocinclus. Trade labels do not establish a species identification or descent from the original wild L144.",
+      "behaviorNotes_en": "Can be kept singly; males defend caves. Multiple specimens need enough bottom space and separate shelters. Feed varied, mainly plant-based sinking food; algae alone are insufficient. These requirements do not apply to every L-number pleco.",
+      "decorHints_en": "Caves, driftwood for shelter and grazing surfaces, structured bottom space and well-oxygenated water.",
+      "variantOf": "ancistrus-sp",
+      "variantKind": "trade_form"
     }
   ]
 }

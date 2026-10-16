@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref, watch } from "vue";
+import VariantSelect from "./VariantSelect.vue";
 import Modal from "./Modal.vue";
 import { api } from "../api";
 import { t, errorMessage, toast } from "../state";
 import type { Aquarium, Species, Id } from "../types";
 const props = defineProps<{ species: Species }>();
 const emit = defineEmits<{ close: []; added: [] }>();
+const definition = ref(props.species), selectedId = ref(props.species.id);
+watch(selectedId, id => { count.value = Math.max(1, definition.value.variants?.find(item => item.id === id)?.minGroupCount || definition.value.minGroupCount || 1); });
 const aquariums = ref<Aquarium[]>([]);
 const aquariumId = ref<Id | "">("");
 const count = ref(Math.max(1, props.species.minGroupCount || 1));
@@ -25,6 +28,8 @@ async function loadAquariums() {
   loading.value = true;
   error.value = "";
   try {
+    const detail = await api<{ species: Species }>(`/species/${encodeURIComponent(props.species.variantOf || props.species.id)}`, { signal: request.signal });
+    definition.value = detail.species;
     aquariums.value = await api<Aquarium[]>("/aquariums", { signal: request.signal });
     if (eligible.value.length === 1) aquariumId.value = eligible.value[0]!.id;
   } catch (e) { if (!request.signal.aborted) error.value = errorMessage(e); }
@@ -39,7 +44,7 @@ async function save() {
   try {
     await api(`/aquariums/${aquariumId.value}/stock/catalog`, {
       method: "POST",
-      body: { speciesId: props.species.id, count: count.value,
+      body: { speciesId: selectedId.value, count: count.value,
         names: useNames.value ? Array.from({ length: count.value }, (_, index) => names.value[index]?.trim() || "") : [] },
     });
     toast(t("speciesAdd.saved", { count: count.value, species: props.species.name }));
@@ -56,6 +61,7 @@ async function save() {
       <p v-if="error" class="error" role="alert">{{ error }} <button v-if="!aquariums.length && !loading" class="btn small ghost" type="button" @click="loadAquariums">{{ t('detail.lazyRetry') }}</button></p>
       <template v-if="!loading && eligible.length">
         <label>{{ t('speciesAdd.aquarium') }}<select v-model="aquariumId" required :disabled="busy"><option disabled value="">{{ t('speciesAdd.choose') }}</option><option v-for="aq in eligible" :key="aq.id" :value="aq.id">{{ aq.name }}{{ aq.volume_l ? ` · ${aq.volume_l} L` : '' }}</option></select></label>
+        <VariantSelect v-model="selectedId" :root-id="definition.id" :variants="definition.variants" :disabled="busy" />
         <label>{{ t('common.count') }}<input v-model.number="count" type="number" min="1" max="10000" step="1" required :disabled="busy" /></label>
         <label class="row"><input v-model="useNames" type="checkbox" :disabled="busy" />{{ t('speciesAdd.namesOptional') }}</label>
         <div v-if="useNames" class="stack">

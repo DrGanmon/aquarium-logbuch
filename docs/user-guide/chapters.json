@@ -148,7 +148,7 @@
     "caption": "Der Artenkatalog mit Wasserart, Kategorien und Suche.",
     "steps": [
       "Öffne „Artenkatalog“ in der Kopfzeile.",
-      "Schränke die Liste über Wasserart und Kategorie ein oder suche mit einem Namen.",
+      "Schränke die Liste über Wasserart und Kategorie ein oder suche nach Art, Zuchtform oder Handelsname. Passende Formen führen zu einer gemeinsamen Stammkachel.",
       "Öffne einen Treffer. Lies Wasseransprüche, Gruppenhinweise, Mindestvolumen, Haltung und Bildnachweise.",
       "Füge eine passende Art bei Bedarf aus ihren Details zu einem Aquarium hinzu oder öffne den zugeordneten Gesundheitsbereich."
     ],
@@ -159,10 +159,10 @@
     "title": "Tiere und Verträglichkeit",
     "intro": "Erfasse Tiere möglichst über den Artenkatalog, damit ihre Haltungsanforderungen zugeordnet werden können.",
     "image": "besatz",
-    "caption": "Besatz und Tierwohl mit zwei Beispielgruppen.",
+    "caption": "Tiere hinzufügen: Die Goldform wird beim gemeinsamen Fadenfisch-Eintrag ausgewählt.",
     "steps": [
       "Öffne „Artenkatalog“ und suche nach der gewünschten Art. Prüfe Wasserart, Beckenvolumen und Gruppenhinweise.",
-      "Öffne die Artendetails und füge die Art mit der tatsächlichen Anzahl zu deinem Aquarium hinzu. Einzelne Tiere dürfen eigene Namen bekommen.",
+      "Wähle beim Stammeintrag „Zum Aquarium hinzufügen“. Im Feld „Form / Unterart“ wählst du die belegte Form oder Varietät oder lässt sie offen. Trage dann die Anzahl ein; einzelne Tiere dürfen eigene Namen bekommen.",
       "Im Aquarium kannst du auch freie Bewohner eintragen, Anzahl und Namen ändern sowie ein Porträt hochladen.",
       "„Artendetails“ öffnet bei bekannten Arten die Informationen erneut. Über den Bewohner kannst du auch den Diagnose-Assistenten aufrufen.",
       "Lies die Verträglichkeitshinweise zu Gruppengröße, Beckengröße, Verhalten und Ansprüchen. Bei freien Einträgen ohne Katalogtreffer stehen weniger automatische Informationen zur Verfügung.",
@@ -180,11 +180,11 @@
     "title": "Pflanzen suchen und zum Becken hinzufügen",
     "intro": "Der Pflanzenkatalog hilft dir, passende Pflanzen zu finden und den Bestand im Aquarium festzuhalten.",
     "image": "pflanzen",
-    "caption": "Pflanzenkatalog mit Filtern und bebilderten Einträgen.",
+    "caption": "Pflanzen hinzufügen: Pangolino wird unter dem gemeinsamen Anubias-barteri-Eintrag ausgewählt.",
     "steps": [
-      "Öffne „Pflanzen“ in der Kopfzeile. Filtere nach Wasserart und Kategorie oder gib einen Suchbegriff ein.",
+      "Öffne „Pflanzen“ in der Kopfzeile. Filtere nach Wasserart und Kategorie oder suche nach Art- bzw. Sortennamen. Formen erscheinen unter einer gemeinsamen Stammkachel.",
       "Öffne eine Pflanze und lies die Hinweise zu Platzierung, Licht, Wachstum und Pflege.",
-      "Wähle ein Aquarium mit passender Wasserart und gib die Stückzahl an. Bestätige das Hinzufügen.",
+      "Wähle „Zum Aquarium hinzufügen“, ein passendes Aquarium und gegebenenfalls die konkrete Form im Feld „Form / Unterart“. Gib die Stückzahl an und speichere. Die ausgewählte Form bleibt im Bestand getrennt erkennbar.",
       "Im Pflanzenbereich des Aquariums kannst du Mengen ändern oder Pflanzen entfernen.",
       "Einen Pflanzenschnitt oder eine Neupflanzung dokumentierst du zusätzlich im Logbuch, wenn du die Arbeit im Verlauf festhalten möchtest."
     ],

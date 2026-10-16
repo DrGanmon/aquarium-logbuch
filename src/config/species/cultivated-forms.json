@@ -1,0 +1,1189 @@
+{
+  "id": "cultivated-forms",
+  "name": "Belegte Zucht- und Handelsformen",
+  "description": "Varianten bestehender Katalogeinträge; keine eigenen Kacheln. Quellen je Eintrag, keine erschöpfende Liste sämtlicher Handelsnamen.",
+  "species": [
+    {
+      "id": "trichopodus-trichopterus-opaline",
+      "variantOf": "trichopodus-trichopterus",
+      "variantKind": "color",
+      "name": "Blauer Fadenfisch · Marmor / Cosby",
+      "name_en": "Trichopodus trichopterus · Opaline",
+      "scientificName": "Trichopodus trichopterus 'Opaline'",
+      "aliases": [
+        "Cosby",
+        "Marmor",
+        "Marbled",
+        "Marmor / Cosby",
+        "Opaline"
+      ],
+      "description": "Marmor / Cosby – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Opaline – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/trichopodus-trichopterus"
+    },
+    {
+      "id": "trichopodus-trichopterus-silver",
+      "variantOf": "trichopodus-trichopterus",
+      "variantKind": "color",
+      "name": "Blauer Fadenfisch · Silber",
+      "name_en": "Trichopodus trichopterus · Silver",
+      "scientificName": "Trichopodus trichopterus 'Silver'",
+      "aliases": [
+        "Silber",
+        "Silver"
+      ],
+      "description": "Silber – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Silver – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/trichopodus-trichopterus"
+    },
+    {
+      "id": "betta-splendens-halfmoon",
+      "variantOf": "betta-splendens",
+      "variantKind": "fin_form",
+      "name": "Siamesischer Kampffisch · Halfmoon",
+      "name_en": "Betta splendens · Halfmoon",
+      "scientificName": "Betta splendens 'Halfmoon'",
+      "aliases": [
+        "Halbmond",
+        "Halfmoon",
+        "Halfmoon"
+      ],
+      "description": "Halfmoon – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Halfmoon – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.aquarium-dietzenbach.de/descriptions_betta_splendens"
+    },
+    {
+      "id": "betta-splendens-crowntail",
+      "variantOf": "betta-splendens",
+      "variantKind": "fin_form",
+      "name": "Siamesischer Kampffisch · Crowntail",
+      "name_en": "Betta splendens · Crowntail",
+      "scientificName": "Betta splendens 'Crowntail'",
+      "aliases": [
+        "Kronenschwanz",
+        "Crowntail",
+        "Crowntail"
+      ],
+      "description": "Crowntail – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Crowntail – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.aquarium-dietzenbach.de/descriptions_betta_splendens"
+    },
+    {
+      "id": "betta-splendens-plakat",
+      "variantOf": "betta-splendens",
+      "variantKind": "fin_form",
+      "name": "Siamesischer Kampffisch · Plakat",
+      "name_en": "Betta splendens · Plakat",
+      "scientificName": "Betta splendens 'Plakat'",
+      "aliases": [
+        "Plakat",
+        "Plakat"
+      ],
+      "description": "Plakat – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Plakat – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.aquarium-dietzenbach.de/descriptions_betta_splendens"
+    },
+    {
+      "id": "betta-splendens-veiltail",
+      "variantOf": "betta-splendens",
+      "variantKind": "fin_form",
+      "name": "Siamesischer Kampffisch · Veiltail",
+      "name_en": "Betta splendens · Veiltail",
+      "scientificName": "Betta splendens 'Veiltail'",
+      "aliases": [
+        "Schleierschwanz",
+        "Veiltail",
+        "Veiltail"
+      ],
+      "description": "Veiltail – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Veiltail – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.aquarium-dietzenbach.de/descriptions_betta_splendens"
+    },
+    {
+      "id": "poecilia-reticulata-fan",
+      "variantOf": "poecilia-reticulata",
+      "variantKind": "fin_form",
+      "name": "Guppy · Fächerschwanz",
+      "name_en": "Poecilia reticulata · Fantail",
+      "scientificName": "Poecilia reticulata 'Fantail'",
+      "aliases": [
+        "Fächerschwanz",
+        "Fantail"
+      ],
+      "description": "Fächerschwanz – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Fantail – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.oegg.net/guppyzucht/ikgh-guppystandard/"
+    },
+    {
+      "id": "poecilia-reticulata-delta",
+      "variantOf": "poecilia-reticulata",
+      "variantKind": "fin_form",
+      "name": "Guppy · Triangelschwanz",
+      "name_en": "Poecilia reticulata · Delta tail",
+      "scientificName": "Poecilia reticulata 'Delta tail'",
+      "aliases": [
+        "Triangelschwanz",
+        "Delta tail"
+      ],
+      "description": "Triangelschwanz – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Delta tail – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.oegg.net/guppyzucht/ikgh-guppystandard/"
+    },
+    {
+      "id": "poecilia-reticulata-veil",
+      "variantOf": "poecilia-reticulata",
+      "variantKind": "fin_form",
+      "name": "Guppy · Schleierschwanz",
+      "name_en": "Poecilia reticulata · Veiltail",
+      "scientificName": "Poecilia reticulata 'Veiltail'",
+      "aliases": [
+        "Schleierschwanz",
+        "Veiltail"
+      ],
+      "description": "Schleierschwanz – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Veiltail – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.oegg.net/guppyzucht/ikgh-guppystandard/"
+    },
+    {
+      "id": "poecilia-reticulata-flag",
+      "variantOf": "poecilia-reticulata",
+      "variantKind": "fin_form",
+      "name": "Guppy · Fahnenschwanz",
+      "name_en": "Poecilia reticulata · Flagtail",
+      "scientificName": "Poecilia reticulata 'Flagtail'",
+      "aliases": [
+        "Fahnenschwanz",
+        "Flagtail"
+      ],
+      "description": "Fahnenschwanz – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Flagtail – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.oegg.net/guppyzucht/ikgh-guppystandard/"
+    },
+    {
+      "id": "poecilia-reticulata-double-sword",
+      "variantOf": "poecilia-reticulata",
+      "variantKind": "fin_form",
+      "name": "Guppy · Doppelschwert",
+      "name_en": "Poecilia reticulata · Double sword",
+      "scientificName": "Poecilia reticulata 'Double sword'",
+      "aliases": [
+        "Doppelschwert",
+        "Double sword"
+      ],
+      "description": "Doppelschwert – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Double sword – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.oegg.net/guppyzucht/ikgh-guppystandard/"
+    },
+    {
+      "id": "poecilia-reticulata-top-sword",
+      "variantOf": "poecilia-reticulata",
+      "variantKind": "fin_form",
+      "name": "Guppy · Oberschwert",
+      "name_en": "Poecilia reticulata · Top sword",
+      "scientificName": "Poecilia reticulata 'Top sword'",
+      "aliases": [
+        "Oberschwert",
+        "Top sword"
+      ],
+      "description": "Oberschwert – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Top sword – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.oegg.net/guppyzucht/ikgh-guppystandard/"
+    },
+    {
+      "id": "poecilia-reticulata-bottom-sword",
+      "variantOf": "poecilia-reticulata",
+      "variantKind": "fin_form",
+      "name": "Guppy · Unterschwert",
+      "name_en": "Poecilia reticulata · Bottom sword",
+      "scientificName": "Poecilia reticulata 'Bottom sword'",
+      "aliases": [
+        "Unterschwert",
+        "Bottom sword"
+      ],
+      "description": "Unterschwert – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Bottom sword – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.oegg.net/guppyzucht/ikgh-guppystandard/"
+    },
+    {
+      "id": "poecilia-reticulata-lyre",
+      "variantOf": "poecilia-reticulata",
+      "variantKind": "fin_form",
+      "name": "Guppy · Leierschwanz",
+      "name_en": "Poecilia reticulata · Lyretail",
+      "scientificName": "Poecilia reticulata 'Lyretail'",
+      "aliases": [
+        "Leierschwanz",
+        "Lyretail"
+      ],
+      "description": "Leierschwanz – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Lyretail – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.oegg.net/guppyzucht/ikgh-guppystandard/"
+    },
+    {
+      "id": "poecilia-reticulata-spade",
+      "variantOf": "poecilia-reticulata",
+      "variantKind": "fin_form",
+      "name": "Guppy · Spatenschwanz",
+      "name_en": "Poecilia reticulata · Spadetail",
+      "scientificName": "Poecilia reticulata 'Spadetail'",
+      "aliases": [
+        "Spatenschwanz",
+        "Spadetail"
+      ],
+      "description": "Spatenschwanz – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Spadetail – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.oegg.net/guppyzucht/ikgh-guppystandard/"
+    },
+    {
+      "id": "poecilia-reticulata-spear",
+      "variantOf": "poecilia-reticulata",
+      "variantKind": "fin_form",
+      "name": "Guppy · Speerschwanz",
+      "name_en": "Poecilia reticulata · Speartail",
+      "scientificName": "Poecilia reticulata 'Speartail'",
+      "aliases": [
+        "Speerschwanz",
+        "Speartail"
+      ],
+      "description": "Speerschwanz – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Speartail – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.oegg.net/guppyzucht/ikgh-guppystandard/"
+    },
+    {
+      "id": "poecilia-reticulata-round",
+      "variantOf": "poecilia-reticulata",
+      "variantKind": "fin_form",
+      "name": "Guppy · Rundschwanz",
+      "name_en": "Poecilia reticulata · Roundtail",
+      "scientificName": "Poecilia reticulata 'Roundtail'",
+      "aliases": [
+        "Rundschwanz",
+        "Roundtail"
+      ],
+      "description": "Rundschwanz – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Roundtail – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.oegg.net/guppyzucht/ikgh-guppystandard/"
+    },
+    {
+      "id": "poecilia-reticulata-pin",
+      "variantOf": "poecilia-reticulata",
+      "variantKind": "fin_form",
+      "name": "Guppy · Nadelschwanz",
+      "name_en": "Poecilia reticulata · Pintail",
+      "scientificName": "Poecilia reticulata 'Pintail'",
+      "aliases": [
+        "Nadelschwanz",
+        "Pintail"
+      ],
+      "description": "Nadelschwanz – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Pintail – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.oegg.net/guppyzucht/ikgh-guppystandard/"
+    },
+    {
+      "id": "xiphophorus-maculatus-mickey-mouse",
+      "variantOf": "xiphophorus-maculatus",
+      "variantKind": "trade_form",
+      "name": "Platy · Mickey Mouse",
+      "name_en": "Xiphophorus maculatus · Mickey Mouse",
+      "scientificName": "Xiphophorus maculatus 'Mickey Mouse'",
+      "aliases": [
+        "Mickey Mouse",
+        "Mickey Mouse"
+      ],
+      "description": "Mickey Mouse – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Mickey Mouse – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/xiphophorus-maculatus"
+    },
+    {
+      "id": "xiphophorus-maculatus-wagtail",
+      "variantOf": "xiphophorus-maculatus",
+      "variantKind": "trade_form",
+      "name": "Platy · Wagtail",
+      "name_en": "Xiphophorus maculatus · Wagtail",
+      "scientificName": "Xiphophorus maculatus 'Wagtail'",
+      "aliases": [
+        "Wagtail",
+        "Wagtail"
+      ],
+      "description": "Wagtail – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Wagtail – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/xiphophorus-maculatus"
+    },
+    {
+      "id": "xiphophorus-maculatus-tuxedo",
+      "variantOf": "xiphophorus-maculatus",
+      "variantKind": "trade_form",
+      "name": "Platy · Tuxedo",
+      "name_en": "Xiphophorus maculatus · Tuxedo",
+      "scientificName": "Xiphophorus maculatus 'Tuxedo'",
+      "aliases": [
+        "Tuxedo",
+        "Tuxedo"
+      ],
+      "description": "Tuxedo – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Tuxedo – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/xiphophorus-maculatus"
+    },
+    {
+      "id": "xiphophorus-maculatus-moon",
+      "variantOf": "xiphophorus-maculatus",
+      "variantKind": "trade_form",
+      "name": "Platy · Moon",
+      "name_en": "Xiphophorus maculatus · Moon",
+      "scientificName": "Xiphophorus maculatus 'Moon'",
+      "aliases": [
+        "Moon",
+        "Moon"
+      ],
+      "description": "Moon – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Moon – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/xiphophorus-maculatus"
+    },
+    {
+      "id": "xiphophorus-maculatus-blue",
+      "variantOf": "xiphophorus-maculatus",
+      "variantKind": "trade_form",
+      "name": "Platy · Blue",
+      "name_en": "Xiphophorus maculatus · Blue",
+      "scientificName": "Xiphophorus maculatus 'Blue'",
+      "aliases": [
+        "Blue",
+        "Blue"
+      ],
+      "description": "Blue – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Blue – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/xiphophorus-maculatus"
+    },
+    {
+      "id": "xiphophorus-maculatus-red",
+      "variantOf": "xiphophorus-maculatus",
+      "variantKind": "trade_form",
+      "name": "Platy · Red",
+      "name_en": "Xiphophorus maculatus · Red",
+      "scientificName": "Xiphophorus maculatus 'Red'",
+      "aliases": [
+        "Red",
+        "Red"
+      ],
+      "description": "Red – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Red – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/xiphophorus-maculatus"
+    },
+    {
+      "id": "xiphophorus-maculatus-comet",
+      "variantOf": "xiphophorus-maculatus",
+      "variantKind": "trade_form",
+      "name": "Platy · Comet",
+      "name_en": "Xiphophorus maculatus · Comet",
+      "scientificName": "Xiphophorus maculatus 'Comet'",
+      "aliases": [
+        "Comet",
+        "Comet"
+      ],
+      "description": "Comet – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Comet – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/xiphophorus-maculatus"
+    },
+    {
+      "id": "xiphophorus-maculatus-hi-fin",
+      "variantOf": "xiphophorus-maculatus",
+      "variantKind": "trade_form",
+      "name": "Platy · Hi-fin",
+      "name_en": "Xiphophorus maculatus · Hi-fin",
+      "scientificName": "Xiphophorus maculatus 'Hi-fin'",
+      "aliases": [
+        "Hi-fin",
+        "Hi-fin"
+      ],
+      "description": "Hi-fin – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Hi-fin – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/xiphophorus-maculatus"
+    },
+    {
+      "id": "danio-rerio-leopard",
+      "variantOf": "danio-rerio",
+      "variantKind": "color",
+      "name": "Zebrabärbling · Leopard",
+      "name_en": "Danio rerio · Leopard",
+      "scientificName": "Danio rerio 'Leopard'",
+      "aliases": [
+        "frankei",
+        "Leopardbärbling",
+        "Leopard",
+        "Leopard"
+      ],
+      "description": "Leopard – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Leopard – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/danio-rerio"
+    },
+    {
+      "id": "danio-rerio-long-fin",
+      "variantOf": "danio-rerio",
+      "variantKind": "fin_form",
+      "name": "Zebrabärbling · Langflossen",
+      "name_en": "Danio rerio · Long-fin",
+      "scientificName": "Danio rerio 'Long-fin'",
+      "aliases": [
+        "Schleier",
+        "Langflossen",
+        "Long-fin"
+      ],
+      "description": "Langflossen – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Long-fin – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/danio-rerio"
+    },
+    {
+      "id": "danio-rerio-gold-long-fin",
+      "variantOf": "danio-rerio",
+      "variantKind": "fin_form",
+      "name": "Zebrabärbling · Gold-Langflossen",
+      "name_en": "Danio rerio · Golden long-fin",
+      "scientificName": "Danio rerio 'Golden long-fin'",
+      "aliases": [
+        "Gold-Langflossen",
+        "Golden long-fin"
+      ],
+      "description": "Gold-Langflossen – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Golden long-fin – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/danio-rerio"
+    },
+    {
+      "id": "tanichthys-albonubes-gold",
+      "variantOf": "tanichthys-albonubes",
+      "variantKind": "color",
+      "name": "Kardinalfisch · Gold",
+      "name_en": "Tanichthys albonubes · Golden",
+      "scientificName": "Tanichthys albonubes 'Golden'",
+      "aliases": [
+        "Gold",
+        "Golden"
+      ],
+      "description": "Gold – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Golden – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/tanichthys-albonubes"
+    },
+    {
+      "id": "tanichthys-albonubes-albino",
+      "variantOf": "tanichthys-albonubes",
+      "variantKind": "color",
+      "name": "Kardinalfisch · Albino",
+      "name_en": "Tanichthys albonubes · Albino",
+      "scientificName": "Tanichthys albonubes 'Albino'",
+      "aliases": [
+        "Albino",
+        "Albino"
+      ],
+      "description": "Albino – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Albino – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/tanichthys-albonubes"
+    },
+    {
+      "id": "tanichthys-albonubes-long-fin",
+      "variantOf": "tanichthys-albonubes",
+      "variantKind": "fin_form",
+      "name": "Kardinalfisch · Langflossen",
+      "name_en": "Tanichthys albonubes · Long-finned",
+      "scientificName": "Tanichthys albonubes 'Long-finned'",
+      "aliases": [
+        "Langflossen",
+        "Long-finned"
+      ],
+      "description": "Langflossen – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Long-finned – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/tanichthys-albonubes"
+    },
+    {
+      "id": "tanichthys-albonubes-super-red",
+      "variantOf": "tanichthys-albonubes",
+      "variantKind": "color",
+      "name": "Kardinalfisch · Super Red",
+      "name_en": "Tanichthys albonubes · Super Red",
+      "scientificName": "Tanichthys albonubes 'Super Red'",
+      "aliases": [
+        "Super Red",
+        "Super Red"
+      ],
+      "description": "Super Red – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Super Red – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/tanichthys-albonubes"
+    },
+    {
+      "id": "apistogramma-cacatuoides-double-red",
+      "variantOf": "apistogramma-cacatuoides",
+      "variantKind": "color",
+      "name": "Kakadu-Zwergbuntbarsch · Double Red",
+      "name_en": "Apistogramma cacatuoides · Double Red",
+      "scientificName": "Apistogramma cacatuoides 'Double Red'",
+      "aliases": [
+        "Double Red",
+        "Double Red"
+      ],
+      "description": "Double Red – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Double Red – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/apistogramma-cacatuoides"
+    },
+    {
+      "id": "apistogramma-cacatuoides-triple-red",
+      "variantOf": "apistogramma-cacatuoides",
+      "variantKind": "color",
+      "name": "Kakadu-Zwergbuntbarsch · Triple Red",
+      "name_en": "Apistogramma cacatuoides · Triple Red",
+      "scientificName": "Apistogramma cacatuoides 'Triple Red'",
+      "aliases": [
+        "Triple Red",
+        "Triple Red"
+      ],
+      "description": "Triple Red – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Triple Red – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/apistogramma-cacatuoides"
+    },
+    {
+      "id": "apistogramma-cacatuoides-gold",
+      "variantOf": "apistogramma-cacatuoides",
+      "variantKind": "color",
+      "name": "Kakadu-Zwergbuntbarsch · Gold",
+      "name_en": "Apistogramma cacatuoides · Gold",
+      "scientificName": "Apistogramma cacatuoides 'Gold'",
+      "aliases": [
+        "Gold",
+        "Gold"
+      ],
+      "description": "Gold – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Gold – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/apistogramma-cacatuoides"
+    },
+    {
+      "id": "apistogramma-cacatuoides-white-gold",
+      "variantOf": "apistogramma-cacatuoides",
+      "variantKind": "color",
+      "name": "Kakadu-Zwergbuntbarsch · White Gold",
+      "name_en": "Apistogramma cacatuoides · White Gold",
+      "scientificName": "Apistogramma cacatuoides 'White Gold'",
+      "aliases": [
+        "White Gold",
+        "White Gold"
+      ],
+      "description": "White Gold – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "White Gold – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/apistogramma-cacatuoides"
+    },
+    {
+      "id": "apistogramma-cacatuoides-orange-flash",
+      "variantOf": "apistogramma-cacatuoides",
+      "variantKind": "color",
+      "name": "Kakadu-Zwergbuntbarsch · Orange Flash",
+      "name_en": "Apistogramma cacatuoides · Orange Flash",
+      "scientificName": "Apistogramma cacatuoides 'Orange Flash'",
+      "aliases": [
+        "Orange Flash",
+        "Orange Flash"
+      ],
+      "description": "Orange Flash – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Orange Flash – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/apistogramma-cacatuoides"
+    },
+    {
+      "id": "apistogramma-cacatuoides-sunset",
+      "variantOf": "apistogramma-cacatuoides",
+      "variantKind": "color",
+      "name": "Kakadu-Zwergbuntbarsch · Sunset",
+      "name_en": "Apistogramma cacatuoides · Sunset",
+      "scientificName": "Apistogramma cacatuoides 'Sunset'",
+      "aliases": [
+        "Sunburst",
+        "Sunset",
+        "Sunset"
+      ],
+      "description": "Sunset – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Sunset – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/apistogramma-cacatuoides"
+    },
+    {
+      "id": "apistogramma-cacatuoides-albino",
+      "variantOf": "apistogramma-cacatuoides",
+      "variantKind": "color",
+      "name": "Kakadu-Zwergbuntbarsch · Albino",
+      "name_en": "Apistogramma cacatuoides · Albino",
+      "scientificName": "Apistogramma cacatuoides 'Albino'",
+      "aliases": [
+        "Albino",
+        "Albino"
+      ],
+      "description": "Albino – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Albino – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.seriouslyfish.com/species/apistogramma-cacatuoides"
+    },
+    {
+      "id": "neocaridina-davidi-red-fire",
+      "variantOf": "neocaridina-davidi",
+      "variantKind": "color",
+      "name": "Red Fire / Neocaridina Zwerggarnele · Red Fire",
+      "name_en": "Neocaridina davidi · Red Fire",
+      "scientificName": "Neocaridina davidi 'Red Fire'",
+      "aliases": [
+        "Red Fire",
+        "Red Fire"
+      ],
+      "description": "Red Fire – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Red Fire – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.garnelenhaus.de/wiki/neocaridina-davidi"
+    },
+    {
+      "id": "neocaridina-davidi-sakura-red",
+      "variantOf": "neocaridina-davidi",
+      "variantKind": "color",
+      "name": "Red Fire / Neocaridina Zwerggarnele · Sakura Red",
+      "name_en": "Neocaridina davidi · Sakura Red",
+      "scientificName": "Neocaridina davidi 'Sakura Red'",
+      "aliases": [
+        "Sakura Red",
+        "Sakura Red"
+      ],
+      "description": "Sakura Red – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Sakura Red – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.garnelenhaus.de/wiki/neocaridina-davidi"
+    },
+    {
+      "id": "neocaridina-davidi-yellow-fire",
+      "variantOf": "neocaridina-davidi",
+      "variantKind": "color",
+      "name": "Red Fire / Neocaridina Zwerggarnele · Yellow Fire",
+      "name_en": "Neocaridina davidi · Yellow Fire",
+      "scientificName": "Neocaridina davidi 'Yellow Fire'",
+      "aliases": [
+        "Yellow Fire",
+        "Yellow Fire"
+      ],
+      "description": "Yellow Fire – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Yellow Fire – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.garnelenhaus.de/wiki/neocaridina-davidi"
+    },
+    {
+      "id": "neocaridina-davidi-orange-sakura",
+      "variantOf": "neocaridina-davidi",
+      "variantKind": "color",
+      "name": "Red Fire / Neocaridina Zwerggarnele · Orange Sakura",
+      "name_en": "Neocaridina davidi · Orange Sakura",
+      "scientificName": "Neocaridina davidi 'Orange Sakura'",
+      "aliases": [
+        "Orange Sakura",
+        "Orange Sakura"
+      ],
+      "description": "Orange Sakura – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Orange Sakura – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.garnelenhaus.de/wiki/neocaridina-davidi"
+    },
+    {
+      "id": "neocaridina-davidi-blue-dream",
+      "variantOf": "neocaridina-davidi",
+      "variantKind": "color",
+      "name": "Red Fire / Neocaridina Zwerggarnele · Blue Dream",
+      "name_en": "Neocaridina davidi · Blue Dream",
+      "scientificName": "Neocaridina davidi 'Blue Dream'",
+      "aliases": [
+        "Blue Dream",
+        "Blue Dream"
+      ],
+      "description": "Blue Dream – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Blue Dream – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.garnelenhaus.de/wiki/neocaridina-davidi"
+    },
+    {
+      "id": "neocaridina-davidi-blue-jelly",
+      "variantOf": "neocaridina-davidi",
+      "variantKind": "color",
+      "name": "Red Fire / Neocaridina Zwerggarnele · Blue Jelly",
+      "name_en": "Neocaridina davidi · Blue Jelly",
+      "scientificName": "Neocaridina davidi 'Blue Jelly'",
+      "aliases": [
+        "Blue Jelly",
+        "Blue Jelly"
+      ],
+      "description": "Blue Jelly – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Blue Jelly – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.garnelenhaus.de/wiki/neocaridina-davidi"
+    },
+    {
+      "id": "neocaridina-davidi-bloody-mary",
+      "variantOf": "neocaridina-davidi",
+      "variantKind": "color",
+      "name": "Red Fire / Neocaridina Zwerggarnele · Bloody Mary",
+      "name_en": "Neocaridina davidi · Bloody Mary",
+      "scientificName": "Neocaridina davidi 'Bloody Mary'",
+      "aliases": [
+        "Bloody Mary",
+        "Bloody Mary"
+      ],
+      "description": "Bloody Mary – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Bloody Mary – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.garnelenhaus.de/wiki/neocaridina-davidi"
+    },
+    {
+      "id": "neocaridina-davidi-green-jade",
+      "variantOf": "neocaridina-davidi",
+      "variantKind": "color",
+      "name": "Red Fire / Neocaridina Zwerggarnele · Green Jade",
+      "name_en": "Neocaridina davidi · Green Jade",
+      "scientificName": "Neocaridina davidi 'Green Jade'",
+      "aliases": [
+        "Green Jade",
+        "Green Jade"
+      ],
+      "description": "Green Jade – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Green Jade – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.garnelenhaus.de/wiki/neocaridina-davidi"
+    },
+    {
+      "id": "neocaridina-davidi-chocolate",
+      "variantOf": "neocaridina-davidi",
+      "variantKind": "color",
+      "name": "Red Fire / Neocaridina Zwerggarnele · Chocolate",
+      "name_en": "Neocaridina davidi · Chocolate",
+      "scientificName": "Neocaridina davidi 'Chocolate'",
+      "aliases": [
+        "Chocolate",
+        "Chocolate"
+      ],
+      "description": "Chocolate – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Chocolate – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.garnelenhaus.de/wiki/neocaridina-davidi"
+    },
+    {
+      "id": "neocaridina-davidi-black-sakura",
+      "variantOf": "neocaridina-davidi",
+      "variantKind": "color",
+      "name": "Red Fire / Neocaridina Zwerggarnele · Black Sakura",
+      "name_en": "Neocaridina davidi · Black Sakura",
+      "scientificName": "Neocaridina davidi 'Black Sakura'",
+      "aliases": [
+        "Black Sakura",
+        "Black Sakura"
+      ],
+      "description": "Black Sakura – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Black Sakura – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.garnelenhaus.de/wiki/neocaridina-davidi"
+    },
+    {
+      "id": "neocaridina-davidi-red-rili",
+      "variantOf": "neocaridina-davidi",
+      "variantKind": "color",
+      "name": "Red Fire / Neocaridina Zwerggarnele · Red Rili",
+      "name_en": "Neocaridina davidi · Red Rili",
+      "scientificName": "Neocaridina davidi 'Red Rili'",
+      "aliases": [
+        "Red Rili",
+        "Red Rili"
+      ],
+      "description": "Red Rili – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Red Rili – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.garnelenhaus.de/wiki/neocaridina-davidi"
+    },
+    {
+      "id": "neocaridina-davidi-orange-rili",
+      "variantOf": "neocaridina-davidi",
+      "variantKind": "color",
+      "name": "Red Fire / Neocaridina Zwerggarnele · Orange Rili",
+      "name_en": "Neocaridina davidi · Orange Rili",
+      "scientificName": "Neocaridina davidi 'Orange Rili'",
+      "aliases": [
+        "Orange Rili",
+        "Orange Rili"
+      ],
+      "description": "Orange Rili – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Orange Rili – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.garnelenhaus.de/wiki/neocaridina-davidi"
+    },
+    {
+      "id": "neocaridina-davidi-carbon-rili",
+      "variantOf": "neocaridina-davidi",
+      "variantKind": "color",
+      "name": "Red Fire / Neocaridina Zwerggarnele · Carbon Rili",
+      "name_en": "Neocaridina davidi · Carbon Rili",
+      "scientificName": "Neocaridina davidi 'Carbon Rili'",
+      "aliases": [
+        "Carbon Rili",
+        "Carbon Rili"
+      ],
+      "description": "Carbon Rili – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Carbon Rili – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.garnelenhaus.de/wiki/neocaridina-davidi"
+    },
+    {
+      "id": "carassius-auratus-comet",
+      "variantOf": "carassius-auratus",
+      "variantKind": "cultivar",
+      "name": "Goldfisch · Comet",
+      "name_en": "Carassius auratus · Comet",
+      "scientificName": "Carassius auratus 'Comet'",
+      "aliases": [
+        "Comet",
+        "Comet"
+      ],
+      "description": "Comet – belegte Form; keine eigene Art. Haltung des Stammintrags beachten. Körper- und Flossenform können besondere Pflege erfordern; langsame Formen nicht mit schnellen Futterkonkurrenten vergesellschaften.",
+      "description_en": "Comet – documented form, not a separate species. Follow the parent entry’s care requirements. Body and fin shape may require adapted care; do not mix slow forms with fast feeding competitors.",
+      "variantSource": "https://www.bristol-aquarists.org.uk/goldfish/goldfish.htm"
+    },
+    {
+      "id": "carassius-auratus-shubunkin",
+      "variantOf": "carassius-auratus",
+      "variantKind": "cultivar",
+      "name": "Goldfisch · Shubunkin",
+      "name_en": "Carassius auratus · Shubunkin",
+      "scientificName": "Carassius auratus 'Shubunkin'",
+      "aliases": [
+        "Shubunkin",
+        "Shubunkin"
+      ],
+      "description": "Shubunkin – belegte Form; keine eigene Art. Haltung des Stammintrags beachten. Körper- und Flossenform können besondere Pflege erfordern; langsame Formen nicht mit schnellen Futterkonkurrenten vergesellschaften.",
+      "description_en": "Shubunkin – documented form, not a separate species. Follow the parent entry’s care requirements. Body and fin shape may require adapted care; do not mix slow forms with fast feeding competitors.",
+      "variantSource": "https://www.bristol-aquarists.org.uk/goldfish/goldfish.htm"
+    },
+    {
+      "id": "carassius-auratus-fantail",
+      "variantOf": "carassius-auratus",
+      "variantKind": "cultivar",
+      "name": "Goldfisch · Fantail",
+      "name_en": "Carassius auratus · Fantail",
+      "scientificName": "Carassius auratus 'Fantail'",
+      "aliases": [
+        "Fantail",
+        "Fantail"
+      ],
+      "description": "Fantail – belegte Form; keine eigene Art. Haltung des Stammintrags beachten. Körper- und Flossenform können besondere Pflege erfordern; langsame Formen nicht mit schnellen Futterkonkurrenten vergesellschaften.",
+      "description_en": "Fantail – documented form, not a separate species. Follow the parent entry’s care requirements. Body and fin shape may require adapted care; do not mix slow forms with fast feeding competitors.",
+      "variantSource": "https://www.bristol-aquarists.org.uk/goldfish/goldfish.htm"
+    },
+    {
+      "id": "carassius-auratus-ryukin",
+      "variantOf": "carassius-auratus",
+      "variantKind": "cultivar",
+      "name": "Goldfisch · Ryukin",
+      "name_en": "Carassius auratus · Ryukin",
+      "scientificName": "Carassius auratus 'Ryukin'",
+      "aliases": [
+        "Ryukin",
+        "Ryukin"
+      ],
+      "description": "Ryukin – belegte Form; keine eigene Art. Haltung des Stammintrags beachten. Körper- und Flossenform können besondere Pflege erfordern; langsame Formen nicht mit schnellen Futterkonkurrenten vergesellschaften.",
+      "description_en": "Ryukin – documented form, not a separate species. Follow the parent entry’s care requirements. Body and fin shape may require adapted care; do not mix slow forms with fast feeding competitors.",
+      "variantSource": "https://www.bristol-aquarists.org.uk/goldfish/goldfish.htm"
+    },
+    {
+      "id": "carassius-auratus-oranda",
+      "variantOf": "carassius-auratus",
+      "variantKind": "cultivar",
+      "name": "Goldfisch · Oranda",
+      "name_en": "Carassius auratus · Oranda",
+      "scientificName": "Carassius auratus 'Oranda'",
+      "aliases": [
+        "Oranda",
+        "Oranda"
+      ],
+      "description": "Oranda – belegte Form; keine eigene Art. Haltung des Stammintrags beachten. Körper- und Flossenform können besondere Pflege erfordern; langsame Formen nicht mit schnellen Futterkonkurrenten vergesellschaften.",
+      "description_en": "Oranda – documented form, not a separate species. Follow the parent entry’s care requirements. Body and fin shape may require adapted care; do not mix slow forms with fast feeding competitors.",
+      "variantSource": "https://www.bristol-aquarists.org.uk/goldfish/goldfish.htm"
+    },
+    {
+      "id": "carassius-auratus-ranchu",
+      "variantOf": "carassius-auratus",
+      "variantKind": "cultivar",
+      "name": "Goldfisch · Ranchu",
+      "name_en": "Carassius auratus · Ranchu",
+      "scientificName": "Carassius auratus 'Ranchu'",
+      "aliases": [
+        "Ranchu",
+        "Ranchu"
+      ],
+      "description": "Ranchu – belegte Form; keine eigene Art. Haltung des Stammintrags beachten. Körper- und Flossenform können besondere Pflege erfordern; langsame Formen nicht mit schnellen Futterkonkurrenten vergesellschaften.",
+      "description_en": "Ranchu – documented form, not a separate species. Follow the parent entry’s care requirements. Body and fin shape may require adapted care; do not mix slow forms with fast feeding competitors.",
+      "variantSource": "https://www.bristol-aquarists.org.uk/goldfish/goldfish.htm"
+    },
+    {
+      "id": "carassius-auratus-lionhead",
+      "variantOf": "carassius-auratus",
+      "variantKind": "cultivar",
+      "name": "Goldfisch · Lionhead",
+      "name_en": "Carassius auratus · Lionhead",
+      "scientificName": "Carassius auratus 'Lionhead'",
+      "aliases": [
+        "Lionhead",
+        "Lionhead"
+      ],
+      "description": "Lionhead – belegte Form; keine eigene Art. Haltung des Stammintrags beachten. Körper- und Flossenform können besondere Pflege erfordern; langsame Formen nicht mit schnellen Futterkonkurrenten vergesellschaften.",
+      "description_en": "Lionhead – documented form, not a separate species. Follow the parent entry’s care requirements. Body and fin shape may require adapted care; do not mix slow forms with fast feeding competitors.",
+      "variantSource": "https://www.bristol-aquarists.org.uk/goldfish/goldfish.htm"
+    },
+    {
+      "id": "carassius-auratus-black-moor",
+      "variantOf": "carassius-auratus",
+      "variantKind": "cultivar",
+      "name": "Goldfisch · Black Moor",
+      "name_en": "Carassius auratus · Black Moor",
+      "scientificName": "Carassius auratus 'Black Moor'",
+      "aliases": [
+        "Black Moor",
+        "Black Moor"
+      ],
+      "description": "Black Moor – belegte Form; keine eigene Art. Haltung des Stammintrags beachten. Körper- und Flossenform können besondere Pflege erfordern; langsame Formen nicht mit schnellen Futterkonkurrenten vergesellschaften.",
+      "description_en": "Black Moor – documented form, not a separate species. Follow the parent entry’s care requirements. Body and fin shape may require adapted care; do not mix slow forms with fast feeding competitors.",
+      "variantSource": "https://www.bristol-aquarists.org.uk/goldfish/goldfish.htm"
+    },
+    {
+      "id": "carassius-auratus-pearlscale",
+      "variantOf": "carassius-auratus",
+      "variantKind": "cultivar",
+      "name": "Goldfisch · Pearlscale",
+      "name_en": "Carassius auratus · Pearlscale",
+      "scientificName": "Carassius auratus 'Pearlscale'",
+      "aliases": [
+        "Pearlscale",
+        "Pearlscale"
+      ],
+      "description": "Pearlscale – belegte Form; keine eigene Art. Haltung des Stammintrags beachten. Körper- und Flossenform können besondere Pflege erfordern; langsame Formen nicht mit schnellen Futterkonkurrenten vergesellschaften.",
+      "description_en": "Pearlscale – documented form, not a separate species. Follow the parent entry’s care requirements. Body and fin shape may require adapted care; do not mix slow forms with fast feeding competitors.",
+      "variantSource": "https://www.bristol-aquarists.org.uk/goldfish/goldfish.htm"
+    },
+    {
+      "id": "carassius-auratus-bubble-eye",
+      "variantOf": "carassius-auratus",
+      "variantKind": "cultivar",
+      "name": "Goldfisch · Bubble Eye",
+      "name_en": "Carassius auratus · Bubble Eye",
+      "scientificName": "Carassius auratus 'Bubble Eye'",
+      "aliases": [
+        "Bubble Eye",
+        "Bubble Eye"
+      ],
+      "description": "Bubble Eye – belegte Form; keine eigene Art. Haltung des Stammintrags beachten. Körper- und Flossenform können besondere Pflege erfordern; langsame Formen nicht mit schnellen Futterkonkurrenten vergesellschaften.",
+      "description_en": "Bubble Eye – documented form, not a separate species. Follow the parent entry’s care requirements. Body and fin shape may require adapted care; do not mix slow forms with fast feeding competitors.",
+      "variantSource": "https://www.bristol-aquarists.org.uk/goldfish/goldfish.htm"
+    },
+    {
+      "id": "carassius-auratus-celestial",
+      "variantOf": "carassius-auratus",
+      "variantKind": "cultivar",
+      "name": "Goldfisch · Celestial",
+      "name_en": "Carassius auratus · Celestial",
+      "scientificName": "Carassius auratus 'Celestial'",
+      "aliases": [
+        "Celestial",
+        "Celestial"
+      ],
+      "description": "Celestial – belegte Form; keine eigene Art. Haltung des Stammintrags beachten. Körper- und Flossenform können besondere Pflege erfordern; langsame Formen nicht mit schnellen Futterkonkurrenten vergesellschaften.",
+      "description_en": "Celestial – documented form, not a separate species. Follow the parent entry’s care requirements. Body and fin shape may require adapted care; do not mix slow forms with fast feeding competitors.",
+      "variantSource": "https://www.bristol-aquarists.org.uk/goldfish/goldfish.htm"
+    },
+    {
+      "id": "carassius-auratus-wakin",
+      "variantOf": "carassius-auratus",
+      "variantKind": "cultivar",
+      "name": "Goldfisch · Wakin",
+      "name_en": "Carassius auratus · Wakin",
+      "scientificName": "Carassius auratus 'Wakin'",
+      "aliases": [
+        "Wakin",
+        "Wakin"
+      ],
+      "description": "Wakin – belegte Form; keine eigene Art. Haltung des Stammintrags beachten. Körper- und Flossenform können besondere Pflege erfordern; langsame Formen nicht mit schnellen Futterkonkurrenten vergesellschaften.",
+      "description_en": "Wakin – documented form, not a separate species. Follow the parent entry’s care requirements. Body and fin shape may require adapted care; do not mix slow forms with fast feeding competitors.",
+      "variantSource": "https://www.bristol-aquarists.org.uk/goldfish/goldfish.htm"
+    },
+    {
+      "id": "amphiprion-ocellaris-snowflake",
+      "variantOf": "amphiprion-ocellaris",
+      "variantKind": "color",
+      "name": "Falscher Clownfisch (Anemonenfisch) · Snowflake",
+      "name_en": "Amphiprion ocellaris · Snowflake",
+      "scientificName": "Amphiprion ocellaris 'Snowflake'",
+      "aliases": [
+        "Snowflake",
+        "Snowflake"
+      ],
+      "description": "Snowflake – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Snowflake – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.orafarm.com/product/snowflake-clownfish/"
+    },
+    {
+      "id": "amphiprion-ocellaris-black-snowflake",
+      "variantOf": "amphiprion-ocellaris",
+      "variantKind": "color",
+      "name": "Falscher Clownfisch (Anemonenfisch) · Black Snowflake",
+      "name_en": "Amphiprion ocellaris · Black Snowflake",
+      "scientificName": "Amphiprion ocellaris 'Black Snowflake'",
+      "aliases": [
+        "Black Snowflake",
+        "Black Snowflake"
+      ],
+      "description": "Black Snowflake – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Black Snowflake – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.orafarm.com/product/black-snowflake-clownfish/"
+    },
+    {
+      "id": "amphiprion-ocellaris-naked",
+      "variantOf": "amphiprion-ocellaris",
+      "variantKind": "color",
+      "name": "Falscher Clownfisch (Anemonenfisch) · Naked",
+      "name_en": "Amphiprion ocellaris · Naked",
+      "scientificName": "Amphiprion ocellaris 'Naked'",
+      "aliases": [
+        "Naked",
+        "Naked"
+      ],
+      "description": "Naked – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Naked – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.orafarm.com/product/naked-clownfish/"
+    },
+    {
+      "id": "amphiprion-ocellaris-midnight",
+      "variantOf": "amphiprion-ocellaris",
+      "variantKind": "color",
+      "name": "Falscher Clownfisch (Anemonenfisch) · Midnight",
+      "name_en": "Amphiprion ocellaris · Midnight",
+      "scientificName": "Amphiprion ocellaris 'Midnight'",
+      "aliases": [
+        "Midnight",
+        "Midnight"
+      ],
+      "description": "Midnight – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Midnight – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.orafarm.com/product/midnight-clownfish/"
+    },
+    {
+      "id": "amphiprion-percula-platinum",
+      "variantOf": "amphiprion-percula",
+      "variantKind": "color",
+      "name": "Orangeringel-Anemonenfisch · Platinum",
+      "name_en": "Amphiprion percula · Platinum",
+      "scientificName": "Amphiprion percula 'Platinum'",
+      "aliases": [
+        "Platinum",
+        "Platinum"
+      ],
+      "description": "Platinum – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Platinum – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.orafarm.com/product/platinum-clownfish/"
+    },
+    {
+      "id": "amphiprion-percula-picasso",
+      "variantOf": "amphiprion-percula",
+      "variantKind": "color",
+      "name": "Orangeringel-Anemonenfisch · Picasso",
+      "name_en": "Amphiprion percula · Picasso",
+      "scientificName": "Amphiprion percula 'Picasso'",
+      "aliases": [
+        "Picasso",
+        "Picasso"
+      ],
+      "description": "Picasso – belegte Form; keine eigene Art. Haltung des Stammintrags beachten.",
+      "description_en": "Picasso – documented form, not a separate species. Follow the parent entry’s care requirements.",
+      "variantSource": "https://www.orafarm.com/product/picasso-clownfish/"
+    },
+    {
+      "id": "puntigrus-tetrazona-albino",
+      "variantOf": "puntigrus-tetrazona",
+      "variantKind": "color",
+      "name": "Sumatrabarbe · Albino",
+      "name_en": "Tiger Barb · Albino",
+      "scientificName": "Puntigrus tetrazona 'Albino'",
+      "aliases": [],
+      "description": "Albino – belegte Farbform der Sumatrabarbe, keine eigene Art.",
+      "description_en": "Albino – documented tiger-barb color form, not a separate species.",
+      "variantSource": "https://www.seriouslyfish.com/species/puntigrus-tetrazona"
+    },
+    {
+      "id": "puntigrus-tetrazona-green",
+      "variantOf": "puntigrus-tetrazona",
+      "variantKind": "color",
+      "name": "Sumatrabarbe · Green",
+      "name_en": "Tiger Barb · Green",
+      "scientificName": "Puntigrus tetrazona 'Green'",
+      "aliases": [
+        "Moosgrün",
+        "Moosbarbe",
+        "Moss"
+      ],
+      "description": "Green – belegte Farbform der Sumatrabarbe, keine eigene Art.",
+      "description_en": "Green – documented tiger-barb color form, not a separate species.",
+      "variantSource": "https://www.seriouslyfish.com/species/puntigrus-tetrazona"
+    },
+    {
+      "id": "puntigrus-tetrazona-gold",
+      "variantOf": "puntigrus-tetrazona",
+      "variantKind": "color",
+      "name": "Sumatrabarbe · Golden",
+      "name_en": "Tiger Barb · Golden",
+      "scientificName": "Puntigrus tetrazona 'Golden'",
+      "aliases": [
+        "Gold"
+      ],
+      "description": "Golden – belegte Farbform der Sumatrabarbe, keine eigene Art.",
+      "description_en": "Golden – documented tiger-barb color form, not a separate species.",
+      "variantSource": "https://www.seriouslyfish.com/species/puntigrus-tetrazona"
+    },
+    {
+      "id": "puntigrus-tetrazona-platinum",
+      "variantOf": "puntigrus-tetrazona",
+      "variantKind": "color",
+      "name": "Sumatrabarbe · Platinum",
+      "name_en": "Tiger Barb · Platinum",
+      "scientificName": "Puntigrus tetrazona 'Platinum'",
+      "aliases": [
+        "Platin"
+      ],
+      "description": "Platinum – belegte Farbform der Sumatrabarbe, keine eigene Art.",
+      "description_en": "Platinum – documented tiger-barb color form, not a separate species.",
+      "variantSource": "https://www.seriouslyfish.com/species/puntigrus-tetrazona"
+    },
+    {
+      "id": "puntigrus-tetrazona-blushing",
+      "variantOf": "puntigrus-tetrazona",
+      "variantKind": "color",
+      "name": "Sumatrabarbe · Blushing",
+      "name_en": "Tiger Barb · Blushing",
+      "scientificName": "Puntigrus tetrazona 'Blushing'",
+      "aliases": [],
+      "description": "Blushing – belegte Farbform der Sumatrabarbe, keine eigene Art.",
+      "description_en": "Blushing – documented tiger-barb color form, not a separate species.",
+      "variantSource": "https://www.seriouslyfish.com/species/puntigrus-tetrazona"
+    },
+    {
+      "id": "puntigrus-tetrazona-black-marble",
+      "variantOf": "puntigrus-tetrazona",
+      "variantKind": "color",
+      "name": "Sumatrabarbe · Black Marble",
+      "name_en": "Tiger Barb · Black Marble",
+      "scientificName": "Puntigrus tetrazona 'Black Marble'",
+      "aliases": [],
+      "description": "Black Marble – belegte Farbform der Sumatrabarbe, keine eigene Art.",
+      "description_en": "Black Marble – documented tiger-barb color form, not a separate species.",
+      "variantSource": "https://www.seriouslyfish.com/species/puntigrus-tetrazona"
+    },
+    {
+      "id": "puntigrus-tetrazona-coral-red",
+      "variantOf": "puntigrus-tetrazona",
+      "variantKind": "color",
+      "name": "Sumatrabarbe · Coral Red",
+      "name_en": "Tiger Barb · Coral Red",
+      "scientificName": "Puntigrus tetrazona 'Coral Red'",
+      "aliases": [],
+      "description": "Coral Red – belegte Farbform der Sumatrabarbe, keine eigene Art.",
+      "description_en": "Coral Red – documented tiger-barb color form, not a separate species.",
+      "variantSource": "https://www.seriouslyfish.com/species/puntigrus-tetrazona"
+    },
+    {
+      "id": "trichogaster-chuna-gold",
+      "variantOf": "trichogaster-chuna",
+      "variantKind": "color",
+      "name": "Honiggurami · Gold",
+      "name_en": "Honey Gourami · Gold",
+      "scientificName": "Trichogaster chuna 'Gold'",
+      "aliases": [
+        "Golden Honey Gourami",
+        "Gold-Honiggurami"
+      ],
+      "description": "Goldform des Honigguramis; nicht mit dem wesentlich größeren Gold-Fadenfisch Trichopodus trichopterus verwechseln.",
+      "description_en": "Gold honey gourami; not the much larger gold Trichopodus trichopterus.",
+      "variantSource": "https://www.seriouslyfish.com/species/trichogaster-chuna/"
+    }
+  ]
+}

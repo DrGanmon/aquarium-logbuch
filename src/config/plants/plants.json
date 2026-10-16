@@ -1,7 +1,7 @@
 {
   "id": "plants",
   "name": "Aquarienpflanzen (Süß- und Meerwasser)",
-  "version": "2026-10-14",
+  "version": "2026-10-16",
   "description": "Gängige Aquarienpflanzen für Süßwasser sowie Makroalgen, Seegras und Mangroven für Meerwasser mit Platzierung, Wachstum, Höhe, Licht, CO2 und Wasserwerten.",
   "fieldDefinitions": {
     "placement": {
@@ -126,10 +126,7 @@
       }
     ]
   },
-  "plantCount": {
-    "freshwater": 134,
-    "saltwater": 15
-  },
+  "plantCount": 199,
   "plants": [
     {
       "id": "anubias-barteri-nana",
@@ -189,7 +186,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "variety"
     },
     {
       "id": "anubias-barteri",
@@ -243,7 +242,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "variety"
     },
     {
       "id": "microsorum-pteropus",
@@ -932,7 +933,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "cryptocoryne-crispatula",
+      "variantKind": "variety"
     },
     {
       "id": "echinodorus-bleheri",
@@ -984,7 +987,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "echinodorus-grisebachii",
+      "variantKind": "cultivar"
     },
     {
       "id": "echinodorus-ozelot",
@@ -1034,7 +1039,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
     },
     {
       "id": "helanthium-tenellum",
@@ -1192,7 +1199,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "vallisneria-spiralis",
+      "variantKind": "cultivar"
     },
     {
       "id": "vallisneria-americana",
@@ -1452,7 +1461,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "eleocharis-acicularis",
+      "variantKind": "cultivar"
     },
     {
       "id": "eleocharis-acicularis",
@@ -1597,8 +1608,14 @@
       ],
       "description": "Anspruchsloser Bodendecker; unter Wasser meist nur mit einzelnen, kleeartigen Blättern.",
       "careNotes": "Wächst auch ohne CO2, dann aber langsam.",
-      "sources": [],
-      "verifiedFields": [],
+      "sources": [
+        "requested-marsilea"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "light",
+        "co2Demand"
+      ],
       "legal": {
         "euInvasiveList": false
       }
@@ -1720,7 +1737,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "micranthemum-callitrichoides",
+      "variantKind": "trade_form"
     },
     {
       "id": "micranthemum-monte-carlo",
@@ -1777,7 +1796,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "micranthemum-tweediei",
+      "variantKind": "trade_form"
     },
     {
       "id": "staurogyne-repens",
@@ -2140,7 +2161,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "ludwigia-palustris",
+      "variantKind": "cultivar"
     },
     {
       "id": "alternanthera-reineckii-mini",
@@ -2198,7 +2221,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "alternanthera-reineckii",
+      "variantKind": "cultivar"
     },
     {
       "id": "alternanthera-reineckii",
@@ -2247,7 +2272,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "alternanthera-reineckii-species",
+      "variantKind": "cultivar"
     },
     {
       "id": "limnophila-sessiliflora",
@@ -3156,7 +3183,10 @@
       "name": "Zwerg-Speerblatt 'Petite'",
       "scientificName": "Anubias barteri var. nana 'Petite'",
       "synonyms": [
-        "Anubias 'Bonsai'"
+        "Anubias 'Bonsai'",
+        "Anubias barteri var. petite",
+        "Anubias barteri 'Petite'",
+        "Anubias petite"
       ],
       "category": "Rhizompflanze (Aufsitzer)",
       "waterType": "fresh",
@@ -3200,11 +3230,19 @@
       ],
       "description": "Sehr kleine Zuchtform ('Bonsai') mit nur wenige Zentimeter großen Blättern; ideal für Nano-Becken und Details auf Steinen.",
       "careNotes": "Wie alle Anubias langsam wachsend und anfällig für Algenaufwuchs auf alten Blättern.",
-      "sources": [],
-      "verifiedFields": [],
+      "sources": [
+        "requested-petite"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "light",
+        "co2Demand"
+      ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
     },
     {
       "id": "anubias-coffeefolia",
@@ -3255,7 +3293,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
     },
     {
       "id": "microsorum-windelov",
@@ -3307,7 +3347,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "microsorum-pteropus",
+      "variantKind": "cultivar"
     },
     {
       "id": "microsorum-narrow",
@@ -3358,7 +3400,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "microsorum-pteropus",
+      "variantKind": "cultivar"
     },
     {
       "id": "microsorum-trident",
@@ -3408,7 +3452,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "microsorum-pteropus",
+      "variantKind": "cultivar"
     },
     {
       "id": "hygrophila-pinnatifida",
@@ -3564,7 +3610,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "taxiphyllum-unidentified",
+      "variantKind": "trade_form"
     },
     {
       "id": "taxiphyllum-alternans",
@@ -3815,7 +3863,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "cryptocoryne-wendtii",
+      "variantKind": "cultivar"
     },
     {
       "id": "cryptocoryne-wendtii-tropica",
@@ -3871,7 +3921,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "cryptocoryne-wendtii",
+      "variantKind": "cultivar"
     },
     {
       "id": "cryptocoryne-lutea-hobbit",
@@ -3927,7 +3979,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "cryptocoryne-lutea",
+      "variantKind": "cultivar"
     },
     {
       "id": "cryptocoryne-affinis",
@@ -4171,7 +4225,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "cryptocoryne-wendtii",
+      "variantKind": "cultivar"
     },
     {
       "id": "lagenandra-meeboldii-red",
@@ -4221,7 +4277,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "lagenandra-meeboldii",
+      "variantKind": "cultivar"
     },
     {
       "id": "blyxa-japonica",
@@ -4328,7 +4386,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
     },
     {
       "id": "echinodorus-red-diamond",
@@ -4377,7 +4437,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
     },
     {
       "id": "echinodorus-cordifolius",
@@ -4431,8 +4493,10 @@
     {
       "id": "echinodorus-vesuvius",
       "name": "Echinodorus 'Vesuvius'",
-      "scientificName": "Echinodorus 'Vesuvius'",
-      "synonyms": [],
+      "scientificName": "Helanthium bolivianum 'Vesuvius'",
+      "synonyms": [
+        "Echinodorus 'Vesuvius'"
+      ],
       "category": "Rosettenpflanze (Schwertpflanze)",
       "waterType": "fresh",
       "origin": "Zuchtform",
@@ -4471,18 +4535,23 @@
       ],
       "description": "Schwertpflanze mit schmalen, spiralig gedrehten Blättern.",
       "careNotes": "Gutes Licht hält die Spiralform.",
-      "sources": [],
+      "sources": [
+        "variant-helanthium-taxonomy"
+      ],
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "helanthium-bolivianum",
+      "variantKind": "cultivar"
     },
     {
       "id": "helanthium-quadricostatus",
       "name": "Zwergschwertpflanze 'Quadricostatus'",
       "scientificName": "Helanthium bolivianum 'Quadricostatus'",
       "synonyms": [
-        "Echinodorus quadricostatus"
+        "Echinodorus quadricostatus",
+        "Helanthium quadricostatus"
       ],
       "category": "Rosettenpflanze (Ausläufer)",
       "waterType": "fresh",
@@ -4522,11 +4591,15 @@
       ],
       "description": "Schmalblättrige Zwergschwertpflanze, die schnell einen dichten Rasen bildet.",
       "careNotes": "Verbreitet sich stark über Ausläufer.",
-      "sources": [],
+      "sources": [
+        "variant-helanthium-taxonomy"
+      ],
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "helanthium-bolivianum",
+      "variantKind": "trade_form"
     },
     {
       "id": "echinodorus-argentinensis",
@@ -4624,7 +4697,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
     },
     {
       "id": "vallisneria-spiralis",
@@ -4775,7 +4850,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "vallisneria-spiralis",
+      "variantKind": "cultivar"
     },
     {
       "id": "eleocharis-vivipara",
@@ -5266,7 +5343,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "nymphoides-hydrophylla",
+      "variantKind": "trade_form"
     },
     {
       "id": "micranthemum-umbrosum",
@@ -5626,7 +5705,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "lobelia-cardinalis",
+      "variantKind": "cultivar"
     },
     {
       "id": "rotala-sp-green",
@@ -5675,7 +5756,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "rotala-rotundifolia",
+      "variantKind": "cultivar"
     },
     {
       "id": "rotala-hra",
@@ -5731,7 +5814,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "rotala-rotundifolia",
+      "variantKind": "cultivar"
     },
     {
       "id": "rotala-macrandra",
@@ -5844,7 +5929,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "rotala-mexicana",
+      "variantKind": "cultivar"
     },
     {
       "id": "ludwigia-arcuata",
@@ -5944,7 +6031,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "ludwigia-inclinata",
+      "variantKind": "variety"
     },
     {
       "id": "limnophila-aromatica",
@@ -6092,7 +6181,9 @@
       "legal": {
         "euInvasiveList": false,
         "note": "Wie Hygrophila polysperma: in den USA als invasiv eingestuft – nie in Gewässer gelangen lassen."
-      }
+      },
+      "variantOf": "hygrophila-polysperma",
+      "variantKind": "cultivar"
     },
     {
       "id": "hygrophila-corymbosa-53b",
@@ -6142,7 +6233,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "hygrophila-corymbosa",
+      "variantKind": "cultivar"
     },
     {
       "id": "hygrophila-araguaia",
@@ -6192,7 +6285,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "hygrophila-lancea",
+      "variantKind": "trade_form"
     },
     {
       "id": "myriophyllum-tuberculatum",
@@ -6340,7 +6435,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "lysimachia-nummularia",
+      "variantKind": "cultivar"
     },
     {
       "id": "bacopa-salzmannii",
@@ -6688,7 +6785,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "pogostemon-stellatus",
+      "variantKind": "cultivar"
     },
     {
       "id": "proserpinaca-palustris",
@@ -6785,7 +6884,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "alternanthera-reineckii",
+      "variantKind": "cultivar"
     },
     {
       "id": "ammannia-pedicellata-golden",
@@ -6836,7 +6937,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "ammannia-pedicellata",
+      "variantKind": "cultivar"
     },
     {
       "id": "spirodela-polyrhiza",
@@ -7802,6 +7905,2660 @@
       "legal": {
         "euInvasiveList": false
       }
+    },
+    {
+      "id": "hymenasplenium-obscurum",
+      "name": "Dunkler Streifenfarn",
+      "scientificName": "Hymenasplenium obscurum",
+      "synonyms": [
+        "Asplenium obscurum",
+        "Asplenium cf. normale",
+        "Crepidomanes auriculatum (misapplied trade name)"
+      ],
+      "category": "Rhizompflanze (Aufsitzer, Farn)",
+      "waterType": "fresh",
+      "origin": "Afrika und Asien; Aquarienpopulation aus Taiwan",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 18,
+        "max": 26,
+        "idealMin": 20,
+        "idealMax": 25
+      },
+      "ph": {
+        "min": 6,
+        "max": 8
+      },
+      "propagation": "Brutpflanzen an den Blättern, Rhizomteilung",
+      "substrate": "Auf Stein oder Holz befestigen; Rhizom freilassen.",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant"
+      ],
+      "description": "Langsam wachsender Aquarienfarn; früher unter einem falschen Crepidomanes-Namen gehandelt.",
+      "careNotes": "Auf Stein oder Holz befestigen; Rhizom freilassen.",
+      "sources": [
+        "requested-hymenasplenium"
+      ],
+      "verifiedFields": [
+        "temp",
+        "ph",
+        "kh",
+        "growthRate"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "kh": {
+        "min": 0,
+        "max": 14
+      }
+    },
+    {
+      "id": "anubias-nana-pangolino",
+      "name": "Anubias 'Pangolino'",
+      "scientificName": "Anubias barteri var. nana 'Pangolino'",
+      "synonyms": [
+        "Anubias barteri 'Pangolino'",
+        "Anubias nana 'Pangolino'"
+      ],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Zuchtform",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 1,
+        "max": 3
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 22,
+        "max": 28
+      },
+      "ph": {
+        "min": 5,
+        "max": 9
+      },
+      "propagation": "Teilung des Rhizoms",
+      "substrate": "Aufsitzer – auf Holz oder Stein binden/kleben, Rhizom nicht eingraben",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "nano",
+        "shade_tolerant"
+      ],
+      "description": "Sehr kleine Anubias-Zuchtform mit besonders langsamem Wachstum.",
+      "careNotes": "Auf Stein oder Holz befestigen; Rhizom freilassen.",
+      "sources": [
+        "requested-pangolino"
+      ],
+      "verifiedFields": [
+        "temp",
+        "ph",
+        "growthRate",
+        "light"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "anubias-nana-pinto",
+      "name": "Anubias 'Pinto'",
+      "scientificName": "Anubias barteri var. nana 'Pinto'",
+      "synonyms": [
+        "Anubias barteri 'Pinto'",
+        "Anubias nana 'Pinto'"
+      ],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Zuchtform",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 1,
+        "max": 8
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 22,
+        "max": 28
+      },
+      "ph": {
+        "min": 5,
+        "max": 9
+      },
+      "propagation": "Teilung des Rhizoms",
+      "substrate": "Aufsitzer – auf Holz oder Stein binden/kleben, Rhizom nicht eingraben",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "nano",
+        "shade_tolerant"
+      ],
+      "description": "Panaschierte Anubias-Zuchtform. Weiße Blattbereiche sind sortentypisch und nicht automatisch ein Mangel.",
+      "careNotes": "Auf Stein oder Holz befestigen; Rhizom freilassen.",
+      "sources": [
+        "requested-pinto"
+      ],
+      "verifiedFields": [
+        "temp",
+        "ph",
+        "growthRate",
+        "light"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "bucephalandra-kedagang",
+      "name": "Bucephalandra 'Kedagang'",
+      "scientificName": "Bucephalandra diabolica 'Kedagang'",
+      "synonyms": [
+        "Bucephalandra sp. 'Kedagang'",
+        "Bucephalandra sp. 'Kedagang'",
+        "Bucephalandra Kedegang"
+      ],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Asien (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 10,
+        "max": 20
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Rhizomteilung",
+      "substrate": "Auf Stein oder Holz befestigen; Rhizom freilassen.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Schmalblättrige Form mit punktierten Blättern und rötlichen Rhizomen.",
+      "careNotes": "Bedingungen stabil halten; Umstellungen können Blattverlust auslösen. Geschädigte Blätter entfernen und Neuaustrieb beobachten. Nicht einzeln belegte Wasserbereiche sind allgemeine Kulturorientierung, keine gemessenen Grenzen dieser Handelsform.",
+      "sources": [
+        "requested-kedagang"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "bucephalandra-diabolica",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "bucephalandra-pygmaea-bukit-kelam",
+      "name": "Bucephalandra 'Bukit Kelam / Sintang'",
+      "scientificName": "Bucephalandra pygmaea 'Bukit Kelam'",
+      "synonyms": [
+        "Bucephalandra sp. 'Bukit Kelam / Sintang'",
+        "Bucephalandra pygmea 'Bukit Kelam'",
+        "Bucephalandra Sintang",
+        "Bucephalandra Green Wavy"
+      ],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Asien (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 5,
+        "max": 15
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Rhizomteilung",
+      "substrate": "Auf Stein oder Holz befestigen; Rhizom freilassen.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Aufsitzer aus Borneo mit gewellten Blättern; Fundortform vom Bukit Kelam.",
+      "careNotes": "Bedingungen stabil halten; Umstellungen können Blattverlust auslösen. Geschädigte Blätter entfernen und Neuaustrieb beobachten. Nicht einzeln belegte Wasserbereiche sind allgemeine Kulturorientierung, keine gemessenen Grenzen dieser Handelsform.",
+      "sources": [
+        "requested-bukit-kelam"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "bucephalandra-pygmaea",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "bucephalandra-brownie-ghost",
+      "name": "Bucephalandra 'Brownie Ghost'",
+      "scientificName": "Bucephalandra sp. 'Brownie Ghost'",
+      "synonyms": [
+        "Bucephalandra sp. 'Brownie Ghost'"
+      ],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Asien (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 5,
+        "max": 10
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "recommended",
+      "temp": {
+        "min": 20,
+        "max": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Rhizomteilung",
+      "substrate": "Auf Stein oder Holz befestigen; Rhizom freilassen.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Handelsname für unterschiedliche Formen mit häufig dunkel schimmernden Blättern; genaue Art und Klon sind nicht gesichert.",
+      "careNotes": "Bedingungen stabil halten; Umstellungen können Blattverlust auslösen. Geschädigte Blätter entfernen und Neuaustrieb beobachten.",
+      "sources": [
+        "requested-brownie-ghost"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "temp",
+        "light"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "bucephalandra-spp",
+      "variantKind": "trade_form"
+    },
+    {
+      "id": "bucephalandra-mini-catherinae",
+      "name": "Bucephalandra 'Mini Catherinae'",
+      "scientificName": "Bucephalandra sp. 'Mini Catherinae'",
+      "synonyms": [
+        "Bucephalandra sp. 'Mini Catherinae'",
+        "Bucephalandra sp. Catherinae Mini",
+        "Bucephalandra catherinae mini"
+      ],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Asien (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 2,
+        "max": 5
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 26
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Rhizomteilung",
+      "substrate": "Auf Stein oder Holz befestigen; Rhizom freilassen.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Kleine, schmalblättrige Handelsform; botanische Artzuordnung nicht gesichert.",
+      "careNotes": "Bedingungen stabil halten; Umstellungen können Blattverlust auslösen. Geschädigte Blätter entfernen und Neuaustrieb beobachten.",
+      "sources": [
+        "requested-mini-catherinae"
+      ],
+      "verifiedFields": [
+        "temp",
+        "ph",
+        "gh",
+        "kh",
+        "growthRate",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "kh": {
+        "min": 1,
+        "max": 10
+      },
+      "variantOf": "bucephalandra-spp",
+      "variantKind": "trade_form"
+    },
+    {
+      "id": "bucephalandra-theia",
+      "name": "Bucephalandra 'Theia'",
+      "scientificName": "Bucephalandra sp. 'Theia'",
+      "synonyms": [
+        "Bucephalandra sp. 'Theia'"
+      ],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Asien (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 3,
+        "max": 7
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "recommended",
+      "temp": {
+        "min": 20,
+        "max": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Rhizomteilung",
+      "substrate": "Auf Stein oder Holz befestigen; Rhizom freilassen.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Kompakte Handelsform mit rundlichen Blättern, die unter Wasser rötliche Farbtöne entwickeln können.",
+      "careNotes": "Bedingungen stabil halten; Umstellungen können Blattverlust auslösen. Geschädigte Blätter entfernen und Neuaustrieb beobachten. Nicht einzeln belegte Wasserbereiche sind allgemeine Kulturorientierung, keine gemessenen Grenzen dieser Handelsform.",
+      "sources": [
+        "requested-theia"
+      ],
+      "verifiedFields": [
+        "growthRate"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "bucephalandra-spp",
+      "variantKind": "trade_form"
+    },
+    {
+      "id": "riccardia-graeffei",
+      "name": "Korallenmoos „graeffei“",
+      "scientificName": "Riccardia sp. \"graeffei\"",
+      "synonyms": [
+        "Riccardia graeffei",
+        "Mini Pellia graeffei"
+      ],
+      "category": "Lebermoos",
+      "waterType": "fresh",
+      "origin": "Asien",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 2,
+        "max": 4
+      },
+      "difficulty": "medium",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 18,
+        "max": 26,
+        "idealMin": 20,
+        "idealMax": 25
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Teilung",
+      "substrate": "Kleine Portionen auf Stein oder Holz befestigen.",
+      "tags": [
+        "nano",
+        "shrimp_friendly",
+        "aquascaping"
+      ],
+      "description": "Eigene Handelsform, vorläufig als Riccardia graeffei angesprochen; nicht pauschal mit R. chamedryfolia gleichsetzen.",
+      "careNotes": "Dicke Polster ausdünnen, damit sie sich nicht ablösen; Bruchstücke sind empfindlich. Nicht einzeln belegte Wasserbereiche sind allgemeine Kulturorientierung, keine gemessenen Grenzen dieser Handelsform.",
+      "sources": [
+        "requested-riccardia-graeffei"
+      ],
+      "verifiedFields": [
+        "light"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "riccardia-unidentified",
+      "variantKind": "trade_form"
+    },
+    {
+      "id": "aegagropila-linnaei",
+      "name": "Mooskugel / Algenball (Marimo)",
+      "scientificName": "Aegagropila linnaei",
+      "synonyms": [
+        "Cladophora aegagropila",
+        "Marimo",
+        "Mooskugel",
+        "Algenball",
+        "Moss ball"
+      ],
+      "category": "Grünalge (Süßwasser)",
+      "waterType": "fresh",
+      "origin": "Europa und Ostasien",
+      "placement": [
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 1,
+        "max": 10
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 10,
+        "max": 26
+      },
+      "ph": {
+        "min": 6,
+        "max": 8.5
+      },
+      "propagation": "Teilung",
+      "substrate": "Auf Boden oder Stein auflegen, nicht eingraben.",
+      "tags": [
+        "low_tech",
+        "nano",
+        "green_alga"
+      ],
+      "description": "Langsam wachsende Grünalge, kein Moos. Kugelige Wuchsform für Süßwasseraquarien.",
+      "careNotes": "Gelegentlich wenden und Ablagerungen vorsichtig in entnommenem Aquarienwasser ausspülen.",
+      "sources": [
+        "requested-marimo",
+        "requested-marimo-biosecurity"
+      ],
+      "verifiedFields": [
+        "temp",
+        "ph",
+        "growthRate",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "risks": [
+        "In Mooskugellieferungen wurden invasive Dreikantmuscheln nachgewiesen. Kontrollierte Herkunft wählen; Aquarieninhalt nie in natürliche Gewässer ausbringen."
+      ]
+    },
+    {
+      "id": "anubias-barteri-species",
+      "name": "Anubias barteri",
+      "scientificName": "Anubias barteri",
+      "synonyms": [],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Afrika (Westafrika)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 25,
+        "max": 40
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Teilung des Rhizoms",
+      "substrate": "Aufsitzer – auf Holz oder Stein binden/kleben, Rhizom nicht eingraben",
+      "herbivoreResistant": true,
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Botanischer Stammintrag; konkrete Form beim Hinzufügen zum Aquarium auswählen.",
+      "careNotes": "Auf Wurzeln binden; verträgt Schatten. Wie alle Anubias anfällig für Algenaufwuchs auf alten Blättern.",
+      "sources": [
+        "tropica-anubias-nana"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "bucephalandra-diabolica",
+      "name": "Bucephalandra diabolica",
+      "scientificName": "Bucephalandra diabolica",
+      "synonyms": [],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Asien (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 10,
+        "max": 20
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Rhizomteilung",
+      "substrate": "Auf Stein oder Holz befestigen; Rhizom freilassen.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Botanischer Stammintrag; konkrete Form beim Hinzufügen zum Aquarium auswählen.",
+      "careNotes": "Bedingungen stabil halten; Umstellungen können Blattverlust auslösen. Geschädigte Blätter entfernen und Neuaustrieb beobachten. Nicht einzeln belegte Wasserbereiche sind allgemeine Kulturorientierung, keine gemessenen Grenzen dieser Handelsform.",
+      "sources": [
+        "requested-kedagang"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "bucephalandra-pygmaea",
+      "name": "Bucephalandra pygmaea",
+      "scientificName": "Bucephalandra pygmaea",
+      "synonyms": [],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Asien (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 5,
+        "max": 15
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Rhizomteilung",
+      "substrate": "Auf Stein oder Holz befestigen; Rhizom freilassen.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Botanischer Stammintrag; konkrete Form beim Hinzufügen zum Aquarium auswählen.",
+      "careNotes": "Bedingungen stabil halten; Umstellungen können Blattverlust auslösen. Geschädigte Blätter entfernen und Neuaustrieb beobachten. Nicht einzeln belegte Wasserbereiche sind allgemeine Kulturorientierung, keine gemessenen Grenzen dieser Handelsform.",
+      "sources": [
+        "requested-bukit-kelam"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "cryptocoryne-crispatula",
+      "name": "Cryptocoryne crispatula",
+      "scientificName": "Cryptocoryne crispatula",
+      "synonyms": [],
+      "category": "Rosettenpflanze",
+      "waterType": "fresh",
+      "origin": "Asien (Thailand, Vietnam)",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 30,
+        "max": 70
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.5
+      },
+      "gh": {
+        "min": 5,
+        "max": 20
+      },
+      "propagation": "Ausläufer",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "herbivoreResistant": false,
+      "tags": [
+        "low_tech",
+        "hardwater_tolerant"
+      ],
+      "description": "Botanischer Stammintrag; konkrete Form beim Hinzufügen zum Aquarium auswählen.",
+      "careNotes": "Verträgt mittelhartes bis hartes Wasser gut.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "cryptocoryne-lutea",
+      "name": "Cryptocoryne lutea",
+      "scientificName": "Cryptocoryne lutea",
+      "synonyms": [],
+      "category": "Rosettenpflanze",
+      "waterType": "fresh",
+      "origin": "Zuchtform (Sri Lanka)",
+      "placement": [
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 3,
+        "max": 5
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Ausläufer",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "herbivoreResistant": false,
+      "tags": [
+        "nano",
+        "low_tech"
+      ],
+      "description": "Botanischer Stammintrag; konkrete Form beim Hinzufügen zum Aquarium auswählen.",
+      "careNotes": "Kein CO2 nötig.",
+      "sources": [
+        "greenaqua-crypt-hobbit"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "heightCm",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "lagenandra-meeboldii",
+      "name": "Lagenandra meeboldii",
+      "scientificName": "Lagenandra meeboldii",
+      "synonyms": [],
+      "category": "Rosettenpflanze",
+      "waterType": "fresh",
+      "origin": "Asien (Indien)",
+      "placement": [
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 10,
+        "max": 30
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Rhizomteilung",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "herbivoreResistant": true,
+      "tags": [
+        "low_tech",
+        "red_plant",
+        "shade_tolerant"
+      ],
+      "description": "Botanischer Stammintrag; konkrete Form beim Hinzufügen zum Aquarium auswählen.",
+      "careNotes": "Langsam und robust; wird von Pflanzenfressern meist verschont.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "echinodorus-hybrids",
+      "name": "Echinodorus-Zuchthybriden",
+      "scientificName": "Echinodorus (cultivated hybrids)",
+      "synonyms": [],
+      "category": "Rosettenpflanze (Schwertpflanze)",
+      "waterType": "fresh",
+      "origin": "Zuchtform",
+      "placement": [
+        "midground",
+        "solitary"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 20,
+        "max": 40
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventivpflanzen",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "herbivoreResistant": false,
+      "tags": [
+        "beginner",
+        "low_tech"
+      ],
+      "description": "Botanischer Stammintrag; konkrete Form beim Hinzufügen zum Aquarium auswählen.",
+      "careNotes": "Wurzeldüngung fördert die Fleckung.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "echinodorus-grisebachii",
+      "name": "Echinodorus grisebachii",
+      "scientificName": "Echinodorus grisebachii",
+      "synonyms": [],
+      "category": "Rosettenpflanze (Schwertpflanze)",
+      "waterType": "fresh",
+      "origin": "Südamerika",
+      "placement": [
+        "background",
+        "solitary"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 20,
+        "max": 50
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventivpflanzen am Blütenstand",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "herbivoreResistant": false,
+      "tags": [
+        "beginner",
+        "low_tech"
+      ],
+      "description": "Botanischer Stammintrag; konkrete Form beim Hinzufügen zum Aquarium auswählen.",
+      "careNotes": "Starker Wurzelzehrer – regelmäßig Düngekugeln an die Wurzeln geben. Wird in kleinen Becken zu groß.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "ludwigia-palustris",
+      "name": "Ludwigia palustris",
+      "scientificName": "Ludwigia palustris",
+      "synonyms": [],
+      "category": "Stängelpflanze",
+      "waterType": "fresh",
+      "origin": "Zuchtform",
+      "placement": [
+        "midground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 15,
+        "max": 30
+      },
+      "difficulty": "medium",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Stecklinge",
+      "substrate": "In Bodengrund stecken; Nährstoffe überwiegend aus dem Wasser",
+      "herbivoreResistant": false,
+      "tags": [
+        "red_plant",
+        "aquascaping"
+      ],
+      "description": "Botanischer Stammintrag; konkrete Form beim Hinzufügen zum Aquarium auswählen.",
+      "careNotes": "Volle Rotfärbung nur bei gutem Licht und Nährstoffversorgung.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "ludwigia-inclinata",
+      "name": "Ludwigia inclinata",
+      "scientificName": "Ludwigia inclinata",
+      "synonyms": [],
+      "category": "Stängelpflanze",
+      "waterType": "fresh",
+      "origin": "Südamerika",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 20,
+        "max": 40
+      },
+      "difficulty": "hard",
+      "light": "high",
+      "co2Demand": "high",
+      "co2": "required",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 24,
+        "idealMax": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.0
+      },
+      "gh": {
+        "min": 1,
+        "max": 8
+      },
+      "propagation": "Stecklinge",
+      "substrate": "In Bodengrund stecken; Nährstoffe überwiegend aus dem Wasser",
+      "herbivoreResistant": false,
+      "tags": [
+        "red_plant",
+        "high_tech",
+        "softwater"
+      ],
+      "description": "Botanischer Stammintrag; konkrete Form beim Hinzufügen zum Aquarium auswählen.",
+      "careNotes": "Braucht weiches Wasser, viel Licht, CO2 und gute Nährstoffversorgung.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "rotala-mexicana",
+      "name": "Rotala mexicana",
+      "scientificName": "Rotala mexicana",
+      "synonyms": [],
+      "category": "Stängelpflanze",
+      "waterType": "fresh",
+      "origin": "Zuchtform",
+      "placement": [
+        "foreground",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 5,
+        "max": 15
+      },
+      "difficulty": "medium",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Stecklinge",
+      "substrate": "In Bodengrund stecken; Nährstoffe überwiegend aus dem Wasser",
+      "herbivoreResistant": false,
+      "tags": [
+        "aquascaping",
+        "nano"
+      ],
+      "description": "Botanischer Stammintrag; konkrete Form beim Hinzufügen zum Aquarium auswählen.",
+      "careNotes": "Gut für Vordergrund und Nano-Becken.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "anubias-barteri-species-gold",
+      "name": "Anubias barteri 'Gold'",
+      "scientificName": "Anubias barteri 'Gold'",
+      "synonyms": [
+        "Gold"
+      ],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Afrika (Westafrika)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Teilung des Rhizoms",
+      "substrate": "Aufsitzer – auf Holz oder Stein binden/kleben, Rhizom nicht eingraben",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Gold – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "anubias-barteri-species-stardust",
+      "name": "Anubias barteri 'Stardust'",
+      "scientificName": "Anubias barteri 'Stardust'",
+      "synonyms": [
+        "Stardust"
+      ],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Afrika (Westafrika)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Teilung des Rhizoms",
+      "substrate": "Aufsitzer – auf Holz oder Stein binden/kleben, Rhizom nicht eingraben",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Stardust – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "anubias-barteri-species-mini-kirin",
+      "name": "Anubias barteri 'Mini Kirin'",
+      "scientificName": "Anubias barteri 'Mini Kirin'",
+      "synonyms": [
+        "Mini Kirin"
+      ],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Afrika (Westafrika)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Teilung des Rhizoms",
+      "substrate": "Aufsitzer – auf Holz oder Stein binden/kleben, Rhizom nicht eingraben",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Mini Kirin – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "cryptocoryne-wendtii-green",
+      "name": "Wendts Wasserkelch 'Green'",
+      "scientificName": "Cryptocoryne wendtii 'Green'",
+      "synonyms": [
+        "Green"
+      ],
+      "category": "Rosettenpflanze",
+      "waterType": "fresh",
+      "origin": "Asien (Sri Lanka)",
+      "placement": [
+        "foreground",
+        "midground"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 5.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 1,
+        "max": 25
+      },
+      "propagation": "Ausläufer",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant"
+      ],
+      "description": "Green – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "cryptocoryne-wendtii",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "cryptocoryne-wendtii-compact",
+      "name": "Wendts Wasserkelch 'Compact'",
+      "scientificName": "Cryptocoryne wendtii 'Compact'",
+      "synonyms": [
+        "Compact"
+      ],
+      "category": "Rosettenpflanze",
+      "waterType": "fresh",
+      "origin": "Asien (Sri Lanka)",
+      "placement": [
+        "foreground",
+        "midground"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 5.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 1,
+        "max": 25
+      },
+      "propagation": "Ausläufer",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant"
+      ],
+      "description": "Compact – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "cryptocoryne-wendtii",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "cryptocoryne-affinis-dark-orange",
+      "name": "Haertels Wasserkelch 'Dark Orange'",
+      "scientificName": "Cryptocoryne affinis 'Dark Orange'",
+      "synonyms": [
+        "Dark Orange"
+      ],
+      "category": "Rosettenpflanze",
+      "waterType": "fresh",
+      "origin": "Asien (Malaysia)",
+      "placement": [
+        "midground"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Ausläufer",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "tags": [
+        "low_tech",
+        "shade_tolerant"
+      ],
+      "description": "Dark Orange – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "cryptocoryne-affinis",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "echinodorus-grisebachii-tropica",
+      "name": "Echinodorus grisebachii 'Tropica'",
+      "scientificName": "Echinodorus grisebachii 'Tropica'",
+      "synonyms": [
+        "Tropica"
+      ],
+      "category": "Rosettenpflanze (Schwertpflanze)",
+      "waterType": "fresh",
+      "origin": "Südamerika",
+      "placement": [
+        "background",
+        "solitary"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventivpflanzen am Blütenstand",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "tags": [
+        "beginner",
+        "low_tech"
+      ],
+      "description": "Tropica – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "echinodorus-grisebachii",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "echinodorus-hybrids-python",
+      "name": "Echinodorus-Zuchthybriden 'Python'",
+      "scientificName": "Echinodorus (cultivated hybrids) 'Python'",
+      "synonyms": [
+        "Python"
+      ],
+      "category": "Rosettenpflanze (Schwertpflanze)",
+      "waterType": "fresh",
+      "origin": "Zuchtform",
+      "placement": [
+        "midground",
+        "solitary"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventivpflanzen",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "tags": [
+        "beginner",
+        "low_tech"
+      ],
+      "description": "Python – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
+    },
+    {
+      "id": "echinodorus-hybrids-green-chameleon",
+      "name": "Echinodorus-Zuchthybriden 'Green Chameleon'",
+      "scientificName": "Echinodorus (cultivated hybrids) 'Green Chameleon'",
+      "synonyms": [
+        "Green Chameleon"
+      ],
+      "category": "Rosettenpflanze (Schwertpflanze)",
+      "waterType": "fresh",
+      "origin": "Zuchtform",
+      "placement": [
+        "midground",
+        "solitary"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventivpflanzen",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "tags": [
+        "beginner",
+        "low_tech"
+      ],
+      "description": "Green Chameleon – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
+    },
+    {
+      "id": "echinodorus-hybrids-red-chameleon",
+      "name": "Echinodorus-Zuchthybriden 'Red Chameleon'",
+      "scientificName": "Echinodorus (cultivated hybrids) 'Red Chameleon'",
+      "synonyms": [
+        "Red Chameleon"
+      ],
+      "category": "Rosettenpflanze (Schwertpflanze)",
+      "waterType": "fresh",
+      "origin": "Zuchtform",
+      "placement": [
+        "midground",
+        "solitary"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventivpflanzen",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "tags": [
+        "beginner",
+        "low_tech"
+      ],
+      "description": "Red Chameleon – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
+    },
+    {
+      "id": "echinodorus-cordifolius-harbich-red",
+      "name": "Herzblättrige Schwertpflanze 'Harbich Red'",
+      "scientificName": "Echinodorus cordifolius 'Harbich Red'",
+      "synonyms": [
+        "Harbich Red"
+      ],
+      "category": "Rosettenpflanze (Schwertpflanze)",
+      "waterType": "fresh",
+      "origin": "Nord- und Mittelamerika",
+      "placement": [
+        "background",
+        "solitary"
+      ],
+      "growthRate": "fast",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 18,
+        "max": 28,
+        "idealMin": 20,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventivpflanzen",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "tags": [
+        "large_tank"
+      ],
+      "description": "Harbich Red – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "echinodorus-cordifolius",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "echinodorus-cordifolius-mini",
+      "name": "Herzblättrige Schwertpflanze 'Mini'",
+      "scientificName": "Echinodorus cordifolius 'Mini'",
+      "synonyms": [
+        "Mini"
+      ],
+      "category": "Rosettenpflanze (Schwertpflanze)",
+      "waterType": "fresh",
+      "origin": "Nord- und Mittelamerika",
+      "placement": [
+        "background",
+        "solitary"
+      ],
+      "growthRate": "fast",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 18,
+        "max": 28,
+        "idealMin": 20,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventivpflanzen",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "tags": [
+        "large_tank"
+      ],
+      "description": "Mini – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "echinodorus-cordifolius",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "hygrophila-corymbosa-compact",
+      "name": "Riesenwasserfreund 'Compact'",
+      "scientificName": "Hygrophila corymbosa 'Compact'",
+      "synonyms": [
+        "Compact"
+      ],
+      "category": "Stängelpflanze",
+      "waterType": "fresh",
+      "origin": "Asien",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "fast",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 18
+      },
+      "propagation": "Stecklinge",
+      "substrate": "In Bodengrund stecken; Nährstoffe überwiegend aus dem Wasser",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "nutrient_competitor"
+      ],
+      "description": "Compact – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "hygrophila-corymbosa",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "hygrophila-corymbosa-stricta",
+      "name": "Riesenwasserfreund 'Stricta'",
+      "scientificName": "Hygrophila corymbosa 'Stricta'",
+      "synonyms": [
+        "Stricta"
+      ],
+      "category": "Stängelpflanze",
+      "waterType": "fresh",
+      "origin": "Asien",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "fast",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 18
+      },
+      "propagation": "Stecklinge",
+      "substrate": "In Bodengrund stecken; Nährstoffe überwiegend aus dem Wasser",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "nutrient_competitor"
+      ],
+      "description": "Stricta – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "hygrophila-corymbosa",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "hygrophila-corymbosa-thailand",
+      "name": "Riesenwasserfreund 'Thailand'",
+      "scientificName": "Hygrophila corymbosa 'Thailand'",
+      "synonyms": [
+        "Thailand"
+      ],
+      "category": "Stängelpflanze",
+      "waterType": "fresh",
+      "origin": "Asien",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "fast",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 18
+      },
+      "propagation": "Stecklinge",
+      "substrate": "In Bodengrund stecken; Nährstoffe überwiegend aus dem Wasser",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "nutrient_competitor"
+      ],
+      "description": "Thailand – im Gärtnereikatalog geführte Zuchtform; beim Hinzufügen zum Aquarium auswählbar.",
+      "careNotes": "Kulturbereiche vom Stammintrag übernommen, keine separat gemessenen Grenzen dieser Zuchtform.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "hygrophila-corymbosa",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "micranthemum-callitrichoides",
+      "name": "Micranthemum callitrichoides",
+      "scientificName": "Micranthemum callitrichoides",
+      "synonyms": [],
+      "category": "Bodendecker",
+      "waterType": "fresh",
+      "origin": "Karibik (Kuba)",
+      "placement": [
+        "foreground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 3,
+        "max": 5
+      },
+      "difficulty": "medium",
+      "light": "high",
+      "co2Demand": "high",
+      "co2": "required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 1,
+        "max": 10
+      },
+      "propagation": "Teilung, Ausläufer",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "herbivoreResistant": false,
+      "tags": [
+        "aquascaping",
+        "high_tech",
+        "carpet",
+        "nano"
+      ],
+      "description": "Botanischer Stammintrag bzw. unbestimmte Handelsgruppe; belegte Form beim Hinzufügen wählen.",
+      "careNotes": "Teppich regelmäßig schneiden, sonst sterben die unteren Teile ab. Als genügsamere Alternative empfiehlt Tropica 'Monte Carlo'.",
+      "sources": [
+        "tropica-hc-cuba"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "heightCm",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "micranthemum-tweediei",
+      "name": "Micranthemum tweediei",
+      "scientificName": "Micranthemum tweediei",
+      "synonyms": [],
+      "category": "Bodendecker",
+      "waterType": "fresh",
+      "origin": "Südamerika (Argentinien)",
+      "placement": [
+        "foreground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 3,
+        "max": 5
+      },
+      "difficulty": "medium",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Teilung, Ausläufer",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "herbivoreResistant": false,
+      "tags": [
+        "aquascaping",
+        "carpet",
+        "nano"
+      ],
+      "description": "Botanischer Stammintrag bzw. unbestimmte Handelsgruppe; belegte Form beim Hinzufügen wählen.",
+      "careNotes": "Wächst auch im Halbschatten, wird mit gutem Licht und CO2 aber deutlich kompakter.",
+      "sources": [
+        "aquariumgardens-monte-carlo"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "heightCm",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "alternanthera-reineckii-species",
+      "name": "Alternanthera reineckii",
+      "scientificName": "Alternanthera reineckii",
+      "synonyms": [],
+      "category": "Stängelpflanze",
+      "waterType": "fresh",
+      "origin": "Südamerika",
+      "placement": [
+        "midground",
+        "background"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 15,
+        "max": 40
+      },
+      "difficulty": "medium",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 23,
+        "idealMax": 27
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Stecklinge",
+      "substrate": "In Bodengrund stecken; Nährstoffe überwiegend aus dem Wasser",
+      "herbivoreResistant": false,
+      "tags": [
+        "red_plant"
+      ],
+      "description": "Botanischer Stammintrag bzw. unbestimmte Handelsgruppe; belegte Form beim Hinzufügen wählen.",
+      "careNotes": "Bei Lichtmangel verlieren die unteren Blätter ihre Farbe und fallen ab.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "taxiphyllum-unidentified",
+      "name": "Taxiphyllum sp.",
+      "scientificName": "Taxiphyllum sp.",
+      "synonyms": [],
+      "category": "Moos",
+      "waterType": "fresh",
+      "origin": "Asien",
+      "placement": [
+        "epiphyte"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 3,
+        "max": 10
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Teilung",
+      "substrate": "Aufsitzer – auf Holz oder Stein binden/kleben, Rhizom nicht eingraben",
+      "herbivoreResistant": true,
+      "tags": [
+        "nano",
+        "shrimp_friendly",
+        "aquascaping"
+      ],
+      "description": "Botanischer Stammintrag bzw. unbestimmte Handelsgruppe; belegte Form beim Hinzufügen wählen.",
+      "careNotes": "Wächst nach oben – gut für senkrechte Akzente.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "nymphoides-hydrophylla",
+      "name": "Nymphoides hydrophylla",
+      "scientificName": "Nymphoides hydrophylla",
+      "synonyms": [],
+      "category": "Rosettenpflanze (Seekanne)",
+      "waterType": "fresh",
+      "origin": "Asien",
+      "placement": [
+        "foreground",
+        "midground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 10,
+        "max": 20
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Ableger an den Blattstielen",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "herbivoreResistant": false,
+      "tags": [
+        "low_tech"
+      ],
+      "description": "Botanischer Stammintrag bzw. unbestimmte Handelsgruppe; belegte Form beim Hinzufügen wählen.",
+      "careNotes": "Schwimmblätter entfernen.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "hygrophila-lancea",
+      "name": "Hygrophila lancea",
+      "scientificName": "Hygrophila lancea",
+      "synonyms": [],
+      "category": "Stängelpflanze",
+      "waterType": "fresh",
+      "origin": "Südamerika",
+      "placement": [
+        "foreground",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 5,
+        "max": 15
+      },
+      "difficulty": "medium",
+      "light": "high",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 23,
+        "idealMax": 27
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Stecklinge",
+      "substrate": "In Bodengrund stecken; Nährstoffe überwiegend aus dem Wasser",
+      "herbivoreResistant": false,
+      "tags": [
+        "red_plant",
+        "aquascaping"
+      ],
+      "description": "Botanischer Stammintrag bzw. unbestimmte Handelsgruppe; belegte Form beim Hinzufügen wählen.",
+      "careNotes": "Bei viel Licht kompakt und rot.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "lysimachia-nummularia",
+      "name": "Lysimachia nummularia",
+      "scientificName": "Lysimachia nummularia",
+      "synonyms": [],
+      "category": "Stängelpflanze",
+      "waterType": "fresh",
+      "origin": "Europa (Gartenform)",
+      "placement": [
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 10,
+        "max": 20
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 15,
+        "max": 26,
+        "idealMin": 18,
+        "idealMax": 24
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Stecklinge",
+      "substrate": "In Bodengrund stecken; Nährstoffe überwiegend aus dem Wasser",
+      "herbivoreResistant": false,
+      "tags": [
+        "coldwater_tolerant",
+        "low_tech"
+      ],
+      "description": "Botanischer Stammintrag bzw. unbestimmte Handelsgruppe; belegte Form beim Hinzufügen wählen.",
+      "careNotes": "Wächst submers langsam; dauerhaft über 26 °C ungünstig.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "pogostemon-stellatus",
+      "name": "Pogostemon stellatus",
+      "scientificName": "Pogostemon stellatus",
+      "synonyms": [],
+      "category": "Stängelpflanze",
+      "waterType": "fresh",
+      "origin": "Asien, Australien",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "fast",
+      "heightCm": {
+        "min": 20,
+        "max": 40
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 23,
+        "idealMax": 27
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Stecklinge",
+      "substrate": "In Bodengrund stecken; Nährstoffe überwiegend aus dem Wasser",
+      "herbivoreResistant": false,
+      "tags": [
+        "aquascaping"
+      ],
+      "description": "Botanischer Stammintrag bzw. unbestimmte Handelsgruppe; belegte Form beim Hinzufügen wählen.",
+      "careNotes": "Wächst schnell; regelmäßig kürzen.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "ammannia-pedicellata",
+      "name": "Ammannia pedicellata",
+      "scientificName": "Ammannia pedicellata",
+      "synonyms": [],
+      "category": "Stängelpflanze",
+      "waterType": "fresh",
+      "origin": "Zuchtform",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 20,
+        "max": 40
+      },
+      "difficulty": "hard",
+      "light": "high",
+      "co2Demand": "high",
+      "co2": "required",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 24,
+        "idealMax": 27
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 10
+      },
+      "propagation": "Stecklinge",
+      "substrate": "In Bodengrund stecken; Nährstoffe überwiegend aus dem Wasser",
+      "herbivoreResistant": false,
+      "tags": [
+        "high_tech",
+        "aquascaping"
+      ],
+      "description": "Botanischer Stammintrag bzw. unbestimmte Handelsgruppe; belegte Form beim Hinzufügen wählen.",
+      "careNotes": "Anspruchsvoll; braucht viel Licht und Nährstoffe.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "riccardia-unidentified",
+      "name": "Riccardia sp.",
+      "scientificName": "Riccardia sp.",
+      "synonyms": [],
+      "category": "Lebermoos",
+      "waterType": "fresh",
+      "origin": "Asien",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 2,
+        "max": 4
+      },
+      "difficulty": "medium",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 18,
+        "max": 26,
+        "idealMin": 20,
+        "idealMax": 25
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Teilung",
+      "substrate": "Kleine Portionen auf Stein oder Holz befestigen.",
+      "tags": [
+        "nano",
+        "shrimp_friendly",
+        "aquascaping"
+      ],
+      "description": "Botanischer Stammintrag bzw. unbestimmte Handelsgruppe; belegte Form beim Hinzufügen wählen.",
+      "careNotes": "Dicke Polster ausdünnen, damit sie sich nicht ablösen; Bruchstücke sind empfindlich. Nicht einzeln belegte Wasserbereiche sind allgemeine Kulturorientierung, keine gemessenen Grenzen dieser Handelsform.",
+      "sources": [
+        "requested-riccardia-graeffei"
+      ],
+      "verifiedFields": [
+        "light"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "anubias-barteri-angustifolia",
+      "name": "Anubias barteri var. angustifolia",
+      "scientificName": "Anubias barteri var. angustifolia",
+      "synonyms": [],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Afrika (Westafrika)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Teilung des Rhizoms",
+      "substrate": "Aufsitzer – auf Holz oder Stein binden/kleben, Rhizom nicht eingraben",
+      "herbivoreResistant": true,
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Botanische Varietät, keine eigene Art; unter Anubias barteri auswählbar.",
+      "careNotes": "Auf Wurzeln binden; verträgt Schatten. Wie alle Anubias anfällig für Algenaufwuchs auf alten Blättern.",
+      "sources": [
+        "variant-anubias-angustifolia"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "variety"
+    },
+    {
+      "id": "anubias-barteri-glabra",
+      "name": "Anubias barteri var. glabra",
+      "scientificName": "Anubias barteri var. glabra",
+      "synonyms": [],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Afrika (Westafrika)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Teilung des Rhizoms",
+      "substrate": "Aufsitzer – auf Holz oder Stein binden/kleben, Rhizom nicht eingraben",
+      "herbivoreResistant": true,
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Botanische Varietät, keine eigene Art; unter Anubias barteri auswählbar.",
+      "careNotes": "Auf Wurzeln binden; verträgt Schatten. Wie alle Anubias anfällig für Algenaufwuchs auf alten Blättern.",
+      "sources": [
+        "variant-anubias-glabra"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "variety"
+    },
+    {
+      "id": "anubias-barteri-caladiifolia",
+      "name": "Anubias barteri var. caladiifolia",
+      "scientificName": "Anubias barteri var. caladiifolia",
+      "synonyms": [],
+      "category": "Rhizompflanze (Aufsitzer)",
+      "waterType": "fresh",
+      "origin": "Afrika (Westafrika)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Teilung des Rhizoms",
+      "substrate": "Aufsitzer – auf Holz oder Stein binden/kleben, Rhizom nicht eingraben",
+      "herbivoreResistant": true,
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Botanische Varietät, keine eigene Art; unter Anubias barteri auswählbar.",
+      "careNotes": "Auf Wurzeln binden; verträgt Schatten. Wie alle Anubias anfällig für Algenaufwuchs auf alten Blättern.",
+      "sources": [
+        "variant-anubias-caladiifolia"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "variety"
+    },
+    {
+      "id": "helanthium-bolivianum",
+      "name": "Helanthium bolivianum",
+      "scientificName": "Helanthium bolivianum",
+      "synonyms": [],
+      "category": "Rosettenpflanze (Ausläufer)",
+      "waterType": "fresh",
+      "origin": "Südamerika",
+      "placement": [
+        "foreground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 5,
+        "max": 10
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Ausläufer",
+      "substrate": "Wurzelzehrer – nährstoffreicher Bodengrund bzw. Düngekugeln/-tabletten",
+      "herbivoreResistant": false,
+      "tags": [
+        "beginner",
+        "carpet"
+      ],
+      "description": "Schmalblättrige Zwergschwertpflanze, die schnell einen dichten Rasen bildet.",
+      "careNotes": "Verbreitet sich stark über Ausläufer.",
+      "sources": [
+        "variant-helanthium-taxonomy"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
     }
   ],
   "excludedSpecies": [
@@ -8103,6 +10860,114 @@
       "title": "Marine Plants / Algae (Seegräser und Makroalgen)",
       "publisher": "U.S. National Park Service, Biscayne National Park",
       "url": "https://www.nps.gov/bisc/learn/nature/marineplants.htm"
+    },
+    "requested-hymenasplenium": {
+      "title": "Hymenasplenium obscurum – Bestimmung und Kultur",
+      "publisher": "Flowgrow",
+      "url": "https://www.flowgrow.de/db/wasserpflanzen/hymenasplenium-obscurum",
+      "type": "Fachreferenz / Gärtnerei-Profil"
+    },
+    "requested-pangolino": {
+      "title": "Anubias nana 'Pangolino'",
+      "publisher": "Dennerle Plants",
+      "url": "https://dennerleplants.com/de/pflanzen/pflanzen/Anubiasnana%27Pangolino%27%2830198%29/27770",
+      "type": "Fachreferenz / Gärtnerei-Profil"
+    },
+    "requested-pinto": {
+      "title": "Anubias nana 'Pinto'",
+      "publisher": "Dennerle Plants",
+      "url": "https://dennerleplants.com/de/pflanzen/pflanzen/Anubias-nana-%27Pinto%27-%2830030%29/27813",
+      "type": "Fachreferenz / Gärtnerei-Profil"
+    },
+    "requested-petite": {
+      "title": "Anubias barteri 'Petite'",
+      "publisher": "Tropica Aquarium Plants",
+      "url": "https://tropica.com/en/plants/plantdetails/4554/4554",
+      "type": "Fachreferenz / Gärtnerei-Profil"
+    },
+    "requested-kedagang": {
+      "title": "Bucephalandra diabolica 'Kedagang'",
+      "publisher": "Tropica Aquarium Plants",
+      "url": "https://tropica.com/en/plants/plantdetails/Bucephalandra%27Kedagang%27%28139BCLP%29/31144",
+      "type": "Fachreferenz / Gärtnerei-Profil"
+    },
+    "requested-bukit-kelam": {
+      "title": "Bucephalandra pygmaea Bukit Kelam / Sintang",
+      "publisher": "Aquasabi",
+      "url": "https://www.aquasabi.de/Bucephalandra-pygmaea-Bukit-Kelam-Sintang",
+      "type": "Fachreferenz / Gärtnerei-Profil"
+    },
+    "requested-riccardia-graeffei": {
+      "title": "Riccardia sp. graeffei",
+      "publisher": "Aquasabi",
+      "url": "https://www.aquasabi.de/Riccardia-sp-graeffei",
+      "type": "Fachreferenz / Gärtnerei-Profil"
+    },
+    "requested-brownie-ghost": {
+      "title": "Bucephalandra sp. Brownie Ghost",
+      "publisher": "Aquasabi",
+      "url": "https://www.aquasabi.de/Bucephalandra-sp-Brownie-Ghost",
+      "type": "Fachreferenz / Gärtnerei-Profil"
+    },
+    "requested-marimo": {
+      "title": "Aegagropila linnaei",
+      "publisher": "Dennerle Plants",
+      "url": "https://dennerleplants.com/en/plants/plantdetails/Aegagropila-linnaei-superballs-pack-of-3-%2830036%29/23039",
+      "type": "Fachreferenz / Gärtnerei-Profil"
+    },
+    "requested-mini-catherinae": {
+      "title": "Bucephalandra sp. Mini Catherinae",
+      "publisher": "USCAPE",
+      "url": "https://www.uscape.de/bucephalandra-sp.-mini-catherinae-in-vitro",
+      "type": "Fachreferenz / Gärtnerei-Profil"
+    },
+    "requested-theia": {
+      "title": "Bucephalandra sp. Theia",
+      "publisher": "Aquasabi",
+      "url": "https://www.aquasabi.de/Bucephalandra-sp-Theia",
+      "type": "Fachreferenz / Gärtnerei-Profil"
+    },
+    "requested-marsilea": {
+      "title": "Marsilea hirsuta",
+      "publisher": "Tropica Aquarium Plants",
+      "url": "https://tropica.com/en/plants/plantdetails/4428/4428",
+      "type": "Fachreferenz / Gärtnerei-Profil"
+    },
+    "requested-marimo-biosecurity": {
+      "title": "Zebra mussels and moss balls",
+      "publisher": "U.S. Fish & Wildlife Service",
+      "url": "https://www.fws.gov/media/zebra-mussels-and-moss-balls-0",
+      "type": "Fachreferenz / Gärtnerei-Profil"
+    },
+    "variant-dennerle-2026": {
+      "title": "Potted plant varieties",
+      "publisher": "Dennerle Plants",
+      "url": "https://dennerleplants.com/en/plants/potted-plants/",
+      "type": "Nursery catalog"
+    },
+    "variant-anubias-angustifolia": {
+      "title": "Anubias barteri var. angustifolia",
+      "publisher": "Kew / nursery reference",
+      "url": "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A874394-1",
+      "type": "Taxonomy / nursery reference"
+    },
+    "variant-anubias-glabra": {
+      "title": "Anubias barteri var. glabra",
+      "publisher": "Kew / nursery reference",
+      "url": "https://dennerleplants.com/de/pflanzen/pflanzen/Anubiasbarterivar.glabraNEW%2830509%29/30165",
+      "type": "Taxonomy / nursery reference"
+    },
+    "variant-anubias-caladiifolia": {
+      "title": "Anubias barteri var. caladiifolia",
+      "publisher": "Kew / nursery reference",
+      "url": "https://tropica.com/en/plants/plantdetails/Anubiasbartericaladiifolia%28101UPCS%29/18816",
+      "type": "Taxonomy / nursery reference"
+    },
+    "variant-helanthium-taxonomy": {
+      "title": "Helanthium bolivianum ecological risk screening summary",
+      "publisher": "U.S. Fish & Wildlife Service",
+      "url": "https://www.fws.gov/sites/default/files/documents/Ecological-Risk-Screening-Summary-Bolivian-Chain-Sword.pdf",
+      "type": "Agency reference"
     }
   }
 }

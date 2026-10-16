@@ -6,9 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Öffentliches Nutzerhandbuch auf Deutsch und Englisch anbieten: alle 33 Kapitel einschließlich Bildbeschreibungen übersetzen, statische Sprachwahl und englische Adresse `/handbuch/en/` ergänzen. Weitere Sprachen über gemeinsame Sprachmetadaten ermöglichen, Vollständigkeit beim Generieren prüfen und Bilder/CSS ohne zusätzliche App-Anfragen gemeinsam verwenden. README-Links, Pflegeanleitung und Tests für beide Fassungen sowie die Build-Isolation aktualisieren.
+- Tier- und Pflanzenkataloge um recherchierte Formen erweitern: insgesamt 228 auswählbare Tier- und 199 Pflanzen-/Algen-Einträge. Zucht-/Farb-/Flossenformen, botanische Varietäten und Handelsformen finden, vor Pagination auf 147 Tier- bzw. 131 Pflanzen-Stammkacheln gruppieren und nur beim Hinzufügen auswählen. Bestehende IDs und getrennte Bestände erhalten; Health-Profile und Offline-Snapshots passend auflösen. Gelben Fadenfisch, L144 und die zuvor angefragten Pflanzen integrieren. Herkunft und Grenzen der Vererbung dokumentieren, Katalogabfragen bedarfsgesteuert laden sowie API-Dokumentation, zweisprachiges Handbuch, Screenshots und Regressionstests aktualisieren.
 
 ## 0.3.0-ALPHA
+
+- 2026-10-16 · Öffentliches Nutzerhandbuch auf Deutsch und Englisch anbieten: alle 33 Kapitel einschließlich Bildbeschreibungen übersetzen, statische Sprachwahl und englische Adresse `/handbuch/en/` ergänzen. Weitere Sprachen über gemeinsame Sprachmetadaten ermöglichen, Vollständigkeit beim Generieren prüfen und Bilder/CSS ohne zusätzliche App-Anfragen gemeinsam verwenden. README-Links, Pflegeanleitung und Tests für beide Fassungen sowie die Build-Isolation aktualisieren (`cd39f8c6e915094ef54c36f23cdc0765a4548a71`).
 
 - 2026-10-16 · Englische README an die deutsche Fassung angleichen: öffentliche Nutzerhandbuch-Links, vier Demo-Screenshots mit englischen Beschriftungen sowie die Regeln für Builds bei relevanten Änderungen ergänzen. Deutsche Sprache von Handbuch und Aufnahmen kenntlich machen (`5c2683155c70af3143a507b3acbb31e1fde86d63`).
 

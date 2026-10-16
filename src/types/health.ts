@@ -38,6 +38,7 @@ export interface DiseaseSpecies {
   treatmentCautions: string[];
 }
 export interface DiseaseDocument {
+  speciesCount?: number;
   version: string; disclaimer: string; legalNotes: string[]; diseases: Disease[];
   speciesIndex: Record<string, DiseaseSpecies>; sources: Record<string, HealthSource>;
 }

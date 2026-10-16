@@ -207,3 +207,16 @@ Berechtigungen und Sitzung werden bei jeder Übertragung erneut geprüft, einsch
 ## Statische Frontend-Versionen
 
 Die statischen Build-Dateien `dist/version.json` (`{version,frontendVersion}`) und `dist/frontend-version.json` (`{schema,version,assets}`) sind keine authentifizierten API-Endpunkte. Der erste Abruf erfolgt mit `cache: no-store`; die zweite Datei enthält den vollständigen Frontend-Inhaltshash und die Dateiversionen für den Offline-Cache. Die allgemeine App-Version löst kein Frontend-Update aus. Vorbereitung, Bestätigung und Verhalten mehrerer Tabs sind in [Versionen und Updates](../de/versioning.md) beschrieben.
+
+### Varianten in Tier- und Pflanzenkatalogen
+
+`GET /api/species` und `GET /api/plants` liefern eine Kachel je Stammeintrag. Farb-/Flossen-/Zuchtformen, botanische Varietäten, Unterarten und Handelsformen erscheinen im optionalen Array `variants` mit `id`, lokalisiertem `name`, optionalem `scientificName`, `description` und `minGroupCount` sowie `kind`. `subspecies` ist für belegte Unterarten vorgesehen; Handelsnamen werden dadurch nicht taxonomisch aufgewertet. Die Gruppierung erfolgt vor der Pagination. `total` und `next` beziehen sich auf Kacheln; eine Suche nach „L144“ liefert beispielsweise `ancistrus-sp` mit der Variante `ancistrus-sp-l144`.
+
+```http
+GET /api/species?q=L144&limit=24
+GET /api/plants?q=Pangolino&limit=24
+GET /api/species/trichopodus-trichopterus
+GET /api/plants/anubias-barteri-species
+```
+
+Beim Hinzufügen weiterhin die gewählte ID übergeben: zum Beispiel `speciesId: "trichopodus-trichopterus-gold"` an den bestehenden Stock-Katalog-Endpunkt oder `PUT /api/aquariums/{id}/plants/anubias-nana-pangolino` mit `{"count": 2}`. Alte Detailpfade und gespeicherte IDs bleiben gültig. Gruppierung ist ausschließlich eine Darstellungs-/Suchfunktion; sie fasst Bestände verschiedener Varianten nicht zusammen. Authentifizierung, Rechte und Validierung der Hinzufügen-Endpunkte bleiben erhalten. Offline-Snapshots enthalten vollständige Einträge einschließlich Variantenbeziehungen und ermöglichen dieselbe Suche und Auswahl ohne Verbindung.

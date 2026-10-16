@@ -1,6 +1,7 @@
+import type { VariantEntry } from './catalog-variants';
 import type { CatalogImage } from "./catalog-image";
 export interface PlantRange { min: number; max: number; idealMin?: number; idealMax?: number; unit?: string }
-export interface Plant {
+export interface Plant extends VariantEntry {
   image?: CatalogImage | null;
   id: string; name: string; scientificName: string; synonyms: string[]; category: string;
   waterType: 'fresh' | 'salt'; origin: string; placement: string[]; growthRate: string;
@@ -15,4 +16,4 @@ export interface PlantCatalog {
   fieldDefinitions: Record<string, string | Record<string, string>>; notes: string[];
   sources: Record<string, { title: string; publisher: string; url: string; type: string }>;
 }
-export type PlantSummary = Pick<Plant, 'id' | 'name' | 'scientificName' | 'category' | 'waterType' | 'description' | 'difficulty' | 'light' | 'growthRate'>;
+export type PlantSummary = Pick<Plant, 'id' | 'name' | 'scientificName' | 'category' | 'waterType' | 'description' | 'difficulty' | 'light' | 'growthRate' | 'variants' | 'variantOf' | 'variantKind'>;

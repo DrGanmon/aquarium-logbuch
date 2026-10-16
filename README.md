@@ -37,6 +37,7 @@ Weitere Ansichten und Schrittfolgen findest du im [öffentlichen Nutzerhandbuch]
 - **Pflege planen:** Messzyklen mit optionalen E-Mail-Erinnerungen; Düngerbereich mit individuellen Erinnerungen für manuelle Dünger und automatischer Protokollierung geplanter Pumpendosierungen.
 - **Wassertest-Verbrauch verfolgen:** Automatische Zählung, korrigierbare Füllmengen und Nachkauferinnerung ab 75 % Verbrauch.
 - **Besatz prüfen:** Artenkatalog mit Haltungsanforderungen, Bildern und Hinweisen zu Gruppen, Beckengröße und Verträglichkeit.
+- **Formen auswählen:** Zuchtformen, botanische Varietäten und Handelsnamen finden, ohne zusätzliche Kacheln; die konkrete Form erst beim Hinzufügen von Tieren oder Pflanzen auswählen.
 - **Pflanzen verwalten:** Zweisprachiger Pflanzenkatalog mit Pflegeanforderungen und Bildern sowie Pflanzenbestand mit Stückzahlen je Aquarium.
 - **Gesundheit einschätzen:** Krankheitskatalog, Diagnose-Assistent und Medikamente/Hilfsmittel mit Quellen, Rechtsstatus und Warnhinweisen.
 - **KI-Assistent nutzen:** Optionaler Aquarium-Chat mit OpenAI, Google Gemini oder Anthropic Claude und verschlüsselt gespeichertem persönlichem API-Schlüssel.

@@ -21,7 +21,7 @@ function fixture() {
     exports, URL, Error, DOMException, AbortSignal, Date,
     CustomEvent: class { constructor(type, options) { this.type = type;this.detail = options.detail; } },
     window: { dispatchEvent: event => events.push(event) },
-    require: name => name.endsWith('offline-catalog') ? shared : name.endsWith('offline-catalog-query') ? query : {
+    require: name => name.endsWith('offline-catalog') ? shared : (name.endsWith('offline-catalog-query') || name.endsWith('catalog-routing')) ? query : {
       activeOwner: async () => owner, readLocal: async key => records.get(key), offlineState: state,
       writeLocal: async (key, value) => { writes.push(key);records.set(key, value); },
     },

@@ -1,7 +1,7 @@
 {
   "id": "plants",
   "name": "Aquarium Plants (Freshwater and Marine)",
-  "version": "2026-10-14",
+  "version": "2026-10-16",
   "description": "Common freshwater aquarium plants plus macroalgae, seagrasses and mangroves for marine tanks, with placement, growth, height, light, CO2 and water parameters.",
   "fieldDefinitions": {
     "placement": {
@@ -126,10 +126,7 @@
       }
     ]
   },
-  "plantCount": {
-    "freshwater": 134,
-    "saltwater": 15
-  },
+  "plantCount": 199,
   "plants": [
     {
       "id": "anubias-barteri-nana",
@@ -189,7 +186,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "variety"
     },
     {
       "id": "anubias-barteri",
@@ -243,7 +242,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "variety"
     },
     {
       "id": "microsorum-pteropus",
@@ -932,7 +933,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "cryptocoryne-crispatula",
+      "variantKind": "variety"
     },
     {
       "id": "echinodorus-bleheri",
@@ -984,7 +987,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "echinodorus-grisebachii",
+      "variantKind": "cultivar"
     },
     {
       "id": "echinodorus-ozelot",
@@ -1034,7 +1039,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
     },
     {
       "id": "helanthium-tenellum",
@@ -1192,7 +1199,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "vallisneria-spiralis",
+      "variantKind": "cultivar"
     },
     {
       "id": "vallisneria-americana",
@@ -1452,7 +1461,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "eleocharis-acicularis",
+      "variantKind": "cultivar"
     },
     {
       "id": "eleocharis-acicularis",
@@ -1597,8 +1608,14 @@
       ],
       "description": "Undemanding carpeting plant; underwater usually only with single, clover-like leaves.",
       "careNotes": "Also grows without CO2, but slowly.",
-      "sources": [],
-      "verifiedFields": [],
+      "sources": [
+        "requested-marsilea"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "light",
+        "co2Demand"
+      ],
       "legal": {
         "euInvasiveList": false
       }
@@ -1720,7 +1737,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "micranthemum-callitrichoides",
+      "variantKind": "trade_form"
     },
     {
       "id": "micranthemum-monte-carlo",
@@ -1777,7 +1796,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "micranthemum-tweediei",
+      "variantKind": "trade_form"
     },
     {
       "id": "staurogyne-repens",
@@ -2140,7 +2161,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "ludwigia-palustris",
+      "variantKind": "cultivar"
     },
     {
       "id": "alternanthera-reineckii-mini",
@@ -2198,7 +2221,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "alternanthera-reineckii",
+      "variantKind": "cultivar"
     },
     {
       "id": "alternanthera-reineckii",
@@ -2247,7 +2272,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "alternanthera-reineckii-species",
+      "variantKind": "cultivar"
     },
     {
       "id": "limnophila-sessiliflora",
@@ -3156,7 +3183,10 @@
       "name": "Anubias nana 'Petite'",
       "scientificName": "Anubias barteri var. nana 'Petite'",
       "synonyms": [
-        "Anubias 'Bonsai'"
+        "Anubias 'Bonsai'",
+        "Anubias barteri var. petite",
+        "Anubias barteri 'Petite'",
+        "Anubias petite"
       ],
       "category": "Rhizome plant (epiphyte)",
       "waterType": "fresh",
@@ -3200,11 +3230,19 @@
       ],
       "description": "Very small cultivar ('Bonsai') with leaves only a few centimetres in size; ideal for nano tanks and details on stones.",
       "careNotes": "Like all Anubias slow-growing and prone to algae on old leaves.",
-      "sources": [],
-      "verifiedFields": [],
+      "sources": [
+        "requested-petite"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "light",
+        "co2Demand"
+      ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
     },
     {
       "id": "anubias-coffeefolia",
@@ -3255,7 +3293,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
     },
     {
       "id": "microsorum-windelov",
@@ -3307,7 +3347,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "microsorum-pteropus",
+      "variantKind": "cultivar"
     },
     {
       "id": "microsorum-narrow",
@@ -3358,7 +3400,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "microsorum-pteropus",
+      "variantKind": "cultivar"
     },
     {
       "id": "microsorum-trident",
@@ -3408,7 +3452,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "microsorum-pteropus",
+      "variantKind": "cultivar"
     },
     {
       "id": "hygrophila-pinnatifida",
@@ -3564,7 +3610,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "taxiphyllum-unidentified",
+      "variantKind": "trade_form"
     },
     {
       "id": "taxiphyllum-alternans",
@@ -3815,7 +3863,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "cryptocoryne-wendtii",
+      "variantKind": "cultivar"
     },
     {
       "id": "cryptocoryne-wendtii-tropica",
@@ -3871,7 +3921,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "cryptocoryne-wendtii",
+      "variantKind": "cultivar"
     },
     {
       "id": "cryptocoryne-lutea-hobbit",
@@ -3927,7 +3979,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "cryptocoryne-lutea",
+      "variantKind": "cultivar"
     },
     {
       "id": "cryptocoryne-affinis",
@@ -4171,7 +4225,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "cryptocoryne-wendtii",
+      "variantKind": "cultivar"
     },
     {
       "id": "lagenandra-meeboldii-red",
@@ -4221,7 +4277,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "lagenandra-meeboldii",
+      "variantKind": "cultivar"
     },
     {
       "id": "blyxa-japonica",
@@ -4328,7 +4386,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
     },
     {
       "id": "echinodorus-red-diamond",
@@ -4377,7 +4437,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
     },
     {
       "id": "echinodorus-cordifolius",
@@ -4431,8 +4493,10 @@
     {
       "id": "echinodorus-vesuvius",
       "name": "Echinodorus 'Vesuvius'",
-      "scientificName": "Echinodorus 'Vesuvius'",
-      "synonyms": [],
+      "scientificName": "Helanthium bolivianum 'Vesuvius'",
+      "synonyms": [
+        "Echinodorus 'Vesuvius'"
+      ],
       "category": "Rosette plant (sword plant)",
       "waterType": "fresh",
       "origin": "Cultivar",
@@ -4471,18 +4535,23 @@
       ],
       "description": "Sword plant with narrow, spirally twisted leaves.",
       "careNotes": "Good light maintains the spiral form.",
-      "sources": [],
+      "sources": [
+        "variant-helanthium-taxonomy"
+      ],
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "helanthium-bolivianum",
+      "variantKind": "cultivar"
     },
     {
       "id": "helanthium-quadricostatus",
       "name": "Dwarf Sword 'Quadricostatus'",
       "scientificName": "Helanthium bolivianum 'Quadricostatus'",
       "synonyms": [
-        "Echinodorus quadricostatus"
+        "Echinodorus quadricostatus",
+        "Helanthium quadricostatus"
       ],
       "category": "Rosette plant (runners)",
       "waterType": "fresh",
@@ -4522,11 +4591,15 @@
       ],
       "description": "Narrow-leaved dwarf sword that quickly forms a dense lawn.",
       "careNotes": "Spreads strongly via runners.",
-      "sources": [],
+      "sources": [
+        "variant-helanthium-taxonomy"
+      ],
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "helanthium-bolivianum",
+      "variantKind": "trade_form"
     },
     {
       "id": "echinodorus-argentinensis",
@@ -4624,7 +4697,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
     },
     {
       "id": "vallisneria-spiralis",
@@ -4775,7 +4850,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "vallisneria-spiralis",
+      "variantKind": "cultivar"
     },
     {
       "id": "eleocharis-vivipara",
@@ -5266,7 +5343,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "nymphoides-hydrophylla",
+      "variantKind": "trade_form"
     },
     {
       "id": "micranthemum-umbrosum",
@@ -5626,7 +5705,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "lobelia-cardinalis",
+      "variantKind": "cultivar"
     },
     {
       "id": "rotala-sp-green",
@@ -5675,7 +5756,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "rotala-rotundifolia",
+      "variantKind": "cultivar"
     },
     {
       "id": "rotala-hra",
@@ -5731,7 +5814,9 @@
       ],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "rotala-rotundifolia",
+      "variantKind": "cultivar"
     },
     {
       "id": "rotala-macrandra",
@@ -5844,7 +5929,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "rotala-mexicana",
+      "variantKind": "cultivar"
     },
     {
       "id": "ludwigia-arcuata",
@@ -5944,7 +6031,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "ludwigia-inclinata",
+      "variantKind": "variety"
     },
     {
       "id": "limnophila-aromatica",
@@ -6092,7 +6181,9 @@
       "legal": {
         "euInvasiveList": false,
         "note": "Like Hygrophila polysperma: classified as invasive in the USA – never let it get into natural waters."
-      }
+      },
+      "variantOf": "hygrophila-polysperma",
+      "variantKind": "cultivar"
     },
     {
       "id": "hygrophila-corymbosa-53b",
@@ -6142,7 +6233,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "hygrophila-corymbosa",
+      "variantKind": "cultivar"
     },
     {
       "id": "hygrophila-araguaia",
@@ -6192,7 +6285,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "hygrophila-lancea",
+      "variantKind": "trade_form"
     },
     {
       "id": "myriophyllum-tuberculatum",
@@ -6340,7 +6435,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "lysimachia-nummularia",
+      "variantKind": "cultivar"
     },
     {
       "id": "bacopa-salzmannii",
@@ -6688,7 +6785,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "pogostemon-stellatus",
+      "variantKind": "cultivar"
     },
     {
       "id": "proserpinaca-palustris",
@@ -6785,7 +6884,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "alternanthera-reineckii",
+      "variantKind": "cultivar"
     },
     {
       "id": "ammannia-pedicellata-golden",
@@ -6836,7 +6937,9 @@
       "verifiedFields": [],
       "legal": {
         "euInvasiveList": false
-      }
+      },
+      "variantOf": "ammannia-pedicellata",
+      "variantKind": "cultivar"
     },
     {
       "id": "spirodela-polyrhiza",
@@ -7802,6 +7905,2660 @@
       "legal": {
         "euInvasiveList": false
       }
+    },
+    {
+      "id": "hymenasplenium-obscurum",
+      "name": "Dark Spleenwort",
+      "scientificName": "Hymenasplenium obscurum",
+      "synonyms": [
+        "Asplenium obscurum",
+        "Asplenium cf. normale",
+        "Crepidomanes auriculatum (misapplied trade name)"
+      ],
+      "category": "Rhizome plant (epiphyte, fern)",
+      "waterType": "fresh",
+      "origin": "Africa and Asia; aquarium stock from Taiwan",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 18,
+        "max": 26,
+        "idealMin": 20,
+        "idealMax": 25
+      },
+      "ph": {
+        "min": 6,
+        "max": 8
+      },
+      "propagation": "Plantlets on the leaves, rhizome division",
+      "substrate": "Attach to rock or wood; leave the rhizome exposed.",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant"
+      ],
+      "description": "Slow-growing aquarium fern; formerly sold under an incorrect Crepidomanes name.",
+      "careNotes": "Attach to rock or wood; leave the rhizome exposed.",
+      "sources": [
+        "requested-hymenasplenium"
+      ],
+      "verifiedFields": [
+        "temp",
+        "ph",
+        "kh",
+        "growthRate"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "kh": {
+        "min": 0,
+        "max": 14
+      }
+    },
+    {
+      "id": "anubias-nana-pangolino",
+      "name": "Anubias 'Pangolino'",
+      "scientificName": "Anubias barteri var. nana 'Pangolino'",
+      "synonyms": [
+        "Anubias barteri 'Pangolino'",
+        "Anubias nana 'Pangolino'"
+      ],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Cultivar",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 1,
+        "max": 3
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 22,
+        "max": 28
+      },
+      "ph": {
+        "min": 5,
+        "max": 9
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Epiphyte – tie or glue to wood or stone, do not bury the rhizome",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "nano",
+        "shade_tolerant"
+      ],
+      "description": "Very small cultivated Anubias with exceptionally slow growth.",
+      "careNotes": "Attach to rock or wood; leave the rhizome exposed.",
+      "sources": [
+        "requested-pangolino"
+      ],
+      "verifiedFields": [
+        "temp",
+        "ph",
+        "growthRate",
+        "light"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "anubias-nana-pinto",
+      "name": "Anubias 'Pinto'",
+      "scientificName": "Anubias barteri var. nana 'Pinto'",
+      "synonyms": [
+        "Anubias barteri 'Pinto'",
+        "Anubias nana 'Pinto'"
+      ],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Cultivar",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 1,
+        "max": 8
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 22,
+        "max": 28
+      },
+      "ph": {
+        "min": 5,
+        "max": 9
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Epiphyte – tie or glue to wood or stone, do not bury the rhizome",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "nano",
+        "shade_tolerant"
+      ],
+      "description": "Variegated cultivated Anubias. White leaf areas are characteristic, not automatically a deficiency.",
+      "careNotes": "Attach to rock or wood; leave the rhizome exposed.",
+      "sources": [
+        "requested-pinto"
+      ],
+      "verifiedFields": [
+        "temp",
+        "ph",
+        "growthRate",
+        "light"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "bucephalandra-kedagang",
+      "name": "Bucephalandra 'Kedagang'",
+      "scientificName": "Bucephalandra diabolica 'Kedagang'",
+      "synonyms": [
+        "Bucephalandra sp. 'Kedagang'",
+        "Bucephalandra sp. 'Kedagang'",
+        "Bucephalandra Kedegang"
+      ],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Asia (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 10,
+        "max": 20
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Attach to rock or wood; leave the rhizome exposed.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Narrow-leaved form with spotted leaves and reddish rhizomes.",
+      "careNotes": "Keep conditions stable; changes can cause leaf loss. Remove damaged leaves and watch for new growth. Unverified water ranges are general cultivation guidance, not measured limits for this trade form.",
+      "sources": [
+        "requested-kedagang"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "bucephalandra-diabolica",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "bucephalandra-pygmaea-bukit-kelam",
+      "name": "Bucephalandra 'Bukit Kelam / Sintang'",
+      "scientificName": "Bucephalandra pygmaea 'Bukit Kelam'",
+      "synonyms": [
+        "Bucephalandra sp. 'Bukit Kelam / Sintang'",
+        "Bucephalandra pygmea 'Bukit Kelam'",
+        "Bucephalandra Sintang",
+        "Bucephalandra Green Wavy"
+      ],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Asia (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 5,
+        "max": 15
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Attach to rock or wood; leave the rhizome exposed.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Bornean epiphyte with wavy leaves; locality form from Bukit Kelam.",
+      "careNotes": "Keep conditions stable; changes can cause leaf loss. Remove damaged leaves and watch for new growth. Unverified water ranges are general cultivation guidance, not measured limits for this trade form.",
+      "sources": [
+        "requested-bukit-kelam"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "bucephalandra-pygmaea",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "bucephalandra-brownie-ghost",
+      "name": "Bucephalandra 'Brownie Ghost'",
+      "scientificName": "Bucephalandra sp. 'Brownie Ghost'",
+      "synonyms": [
+        "Bucephalandra sp. 'Brownie Ghost'"
+      ],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Asia (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 5,
+        "max": 10
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "recommended",
+      "temp": {
+        "min": 20,
+        "max": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Attach to rock or wood; leave the rhizome exposed.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Trade name covering different forms, often with dark iridescent leaves; exact species and clone are not guaranteed.",
+      "careNotes": "Keep conditions stable; changes can cause leaf loss. Remove damaged leaves and watch for new growth.",
+      "sources": [
+        "requested-brownie-ghost"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "temp",
+        "light"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "bucephalandra-spp",
+      "variantKind": "trade_form"
+    },
+    {
+      "id": "bucephalandra-mini-catherinae",
+      "name": "Bucephalandra 'Mini Catherinae'",
+      "scientificName": "Bucephalandra sp. 'Mini Catherinae'",
+      "synonyms": [
+        "Bucephalandra sp. 'Mini Catherinae'",
+        "Bucephalandra sp. Catherinae Mini",
+        "Bucephalandra catherinae mini"
+      ],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Asia (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 2,
+        "max": 5
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 26
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Attach to rock or wood; leave the rhizome exposed.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Small, narrow-leaved trade form; botanical species not established.",
+      "careNotes": "Keep conditions stable; changes can cause leaf loss. Remove damaged leaves and watch for new growth.",
+      "sources": [
+        "requested-mini-catherinae"
+      ],
+      "verifiedFields": [
+        "temp",
+        "ph",
+        "gh",
+        "kh",
+        "growthRate",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "kh": {
+        "min": 1,
+        "max": 10
+      },
+      "variantOf": "bucephalandra-spp",
+      "variantKind": "trade_form"
+    },
+    {
+      "id": "bucephalandra-theia",
+      "name": "Bucephalandra 'Theia'",
+      "scientificName": "Bucephalandra sp. 'Theia'",
+      "synonyms": [
+        "Bucephalandra sp. 'Theia'"
+      ],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Asia (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 3,
+        "max": 7
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "recommended",
+      "temp": {
+        "min": 20,
+        "max": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Attach to rock or wood; leave the rhizome exposed.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Compact trade form with rounded leaves that may develop reddish tones underwater.",
+      "careNotes": "Keep conditions stable; changes can cause leaf loss. Remove damaged leaves and watch for new growth. Unverified water ranges are general cultivation guidance, not measured limits for this trade form.",
+      "sources": [
+        "requested-theia"
+      ],
+      "verifiedFields": [
+        "growthRate"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "bucephalandra-spp",
+      "variantKind": "trade_form"
+    },
+    {
+      "id": "riccardia-graeffei",
+      "name": "Coral Liverwort “graeffei”",
+      "scientificName": "Riccardia sp. \"graeffei\"",
+      "synonyms": [
+        "Riccardia graeffei",
+        "Mini Pellia graeffei"
+      ],
+      "category": "Liverwort",
+      "waterType": "fresh",
+      "origin": "Asia",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 2,
+        "max": 4
+      },
+      "difficulty": "medium",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 18,
+        "max": 26,
+        "idealMin": 20,
+        "idealMax": 25
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Division",
+      "substrate": "Attach small portions to rock or wood.",
+      "tags": [
+        "nano",
+        "shrimp_friendly",
+        "aquascaping"
+      ],
+      "description": "Distinct trade form, tentatively identified as Riccardia graeffei; not automatically synonymous with R. chamedryfolia.",
+      "careNotes": "Thin thick cushions to prevent detachment; fragments are fragile. Unverified water ranges are general cultivation guidance, not measured limits for this trade form.",
+      "sources": [
+        "requested-riccardia-graeffei"
+      ],
+      "verifiedFields": [
+        "light"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "riccardia-unidentified",
+      "variantKind": "trade_form"
+    },
+    {
+      "id": "aegagropila-linnaei",
+      "name": "Marimo / Moss Ball",
+      "scientificName": "Aegagropila linnaei",
+      "synonyms": [
+        "Cladophora aegagropila",
+        "Marimo",
+        "Mooskugel",
+        "Algenball",
+        "Moss ball"
+      ],
+      "category": "Freshwater green alga",
+      "waterType": "fresh",
+      "origin": "Europe and East Asia",
+      "placement": [
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 1,
+        "max": 10
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 10,
+        "max": 26
+      },
+      "ph": {
+        "min": 6,
+        "max": 8.5
+      },
+      "propagation": "Division",
+      "substrate": "Rest on substrate or rock; do not bury.",
+      "tags": [
+        "low_tech",
+        "nano",
+        "green_alga"
+      ],
+      "description": "A slow-growing green alga, not a moss. A ball-shaped form kept in freshwater aquariums.",
+      "careNotes": "Turn occasionally for even growth and gently rinse off debris in removed aquarium water.",
+      "sources": [
+        "requested-marimo",
+        "requested-marimo-biosecurity"
+      ],
+      "verifiedFields": [
+        "temp",
+        "ph",
+        "growthRate",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "risks": [
+        "Moss balls have carried invasive zebra mussels in documented shipments. Use reputable stock; never release aquarium contents into natural waters."
+      ]
+    },
+    {
+      "id": "anubias-barteri-species",
+      "name": "Anubias barteri",
+      "scientificName": "Anubias barteri",
+      "synonyms": [],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Africa (West Africa)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 25,
+        "max": 40
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Epiphyte – tie or glue to wood or stone, do not bury the rhizome",
+      "herbivoreResistant": true,
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Botanical parent entry; select the specific form when adding it to an aquarium.",
+      "careNotes": "Tie to roots; tolerates shade. Like all Anubias prone to algae on old leaves.",
+      "sources": [
+        "tropica-anubias-nana"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "bucephalandra-diabolica",
+      "name": "Bucephalandra diabolica",
+      "scientificName": "Bucephalandra diabolica",
+      "synonyms": [],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Asia (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 10,
+        "max": 20
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Attach to rock or wood; leave the rhizome exposed.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Botanical parent entry; select the specific form when adding it to an aquarium.",
+      "careNotes": "Keep conditions stable; changes can cause leaf loss. Remove damaged leaves and watch for new growth. Unverified water ranges are general cultivation guidance, not measured limits for this trade form.",
+      "sources": [
+        "requested-kedagang"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "bucephalandra-pygmaea",
+      "name": "Bucephalandra pygmaea",
+      "scientificName": "Bucephalandra pygmaea",
+      "synonyms": [],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Asia (Borneo)",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 5,
+        "max": 15
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Attach to rock or wood; leave the rhizome exposed.",
+      "tags": [
+        "low_tech",
+        "nano"
+      ],
+      "description": "Botanical parent entry; select the specific form when adding it to an aquarium.",
+      "careNotes": "Keep conditions stable; changes can cause leaf loss. Remove damaged leaves and watch for new growth. Unverified water ranges are general cultivation guidance, not measured limits for this trade form.",
+      "sources": [
+        "requested-bukit-kelam"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "cryptocoryne-crispatula",
+      "name": "Cryptocoryne crispatula",
+      "scientificName": "Cryptocoryne crispatula",
+      "synonyms": [],
+      "category": "Rosette plant",
+      "waterType": "fresh",
+      "origin": "Asia (Thailand, Vietnam)",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 30,
+        "max": 70
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.5
+      },
+      "gh": {
+        "min": 5,
+        "max": 20
+      },
+      "propagation": "Runners",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "herbivoreResistant": false,
+      "tags": [
+        "low_tech",
+        "hardwater_tolerant"
+      ],
+      "description": "Botanical parent entry; select the specific form when adding it to an aquarium.",
+      "careNotes": "Tolerates moderately hard to hard water well.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "cryptocoryne-lutea",
+      "name": "Cryptocoryne lutea",
+      "scientificName": "Cryptocoryne lutea",
+      "synonyms": [],
+      "category": "Rosette plant",
+      "waterType": "fresh",
+      "origin": "Cultivar (Sri Lanka)",
+      "placement": [
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 3,
+        "max": 5
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Runners",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "herbivoreResistant": false,
+      "tags": [
+        "nano",
+        "low_tech"
+      ],
+      "description": "Botanical parent entry; select the specific form when adding it to an aquarium.",
+      "careNotes": "No CO2 required.",
+      "sources": [
+        "greenaqua-crypt-hobbit"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "heightCm",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "lagenandra-meeboldii",
+      "name": "Lagenandra meeboldii",
+      "scientificName": "Lagenandra meeboldii",
+      "synonyms": [],
+      "category": "Rosette plant",
+      "waterType": "fresh",
+      "origin": "Asia (India)",
+      "placement": [
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 10,
+        "max": 30
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "herbivoreResistant": true,
+      "tags": [
+        "low_tech",
+        "red_plant",
+        "shade_tolerant"
+      ],
+      "description": "Botanical parent entry; select the specific form when adding it to an aquarium.",
+      "careNotes": "Slow and hardy; usually left alone by herbivores.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "echinodorus-hybrids",
+      "name": "Echinodorus hybrids",
+      "scientificName": "Echinodorus (cultivated hybrids)",
+      "synonyms": [],
+      "category": "Rosette plant (sword plant)",
+      "waterType": "fresh",
+      "origin": "Cultivar",
+      "placement": [
+        "midground",
+        "solitary"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 20,
+        "max": 40
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventitious plantlets",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "herbivoreResistant": false,
+      "tags": [
+        "beginner",
+        "low_tech"
+      ],
+      "description": "Botanical parent entry; select the specific form when adding it to an aquarium.",
+      "careNotes": "Root fertilisation enhances the spotting.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "echinodorus-grisebachii",
+      "name": "Echinodorus grisebachii",
+      "scientificName": "Echinodorus grisebachii",
+      "synonyms": [],
+      "category": "Rosette plant (sword plant)",
+      "waterType": "fresh",
+      "origin": "South America",
+      "placement": [
+        "background",
+        "solitary"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 20,
+        "max": 50
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventitious plantlets on the flower stalk",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "herbivoreResistant": false,
+      "tags": [
+        "beginner",
+        "low_tech"
+      ],
+      "description": "Botanical parent entry; select the specific form when adding it to an aquarium.",
+      "careNotes": "Heavy root feeder – regularly place root tabs near the roots. Grows too large for small tanks.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "ludwigia-palustris",
+      "name": "Ludwigia palustris",
+      "scientificName": "Ludwigia palustris",
+      "synonyms": [],
+      "category": "Stem plant",
+      "waterType": "fresh",
+      "origin": "Cultivar",
+      "placement": [
+        "midground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 15,
+        "max": 30
+      },
+      "difficulty": "medium",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Cuttings",
+      "substrate": "Insert into the substrate; takes nutrients mainly from the water",
+      "herbivoreResistant": false,
+      "tags": [
+        "red_plant",
+        "aquascaping"
+      ],
+      "description": "Botanical parent entry; select the specific form when adding it to an aquarium.",
+      "careNotes": "Full red colour only with good light and nutrient supply.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "ludwigia-inclinata",
+      "name": "Ludwigia inclinata",
+      "scientificName": "Ludwigia inclinata",
+      "synonyms": [],
+      "category": "Stem plant",
+      "waterType": "fresh",
+      "origin": "South America",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 20,
+        "max": 40
+      },
+      "difficulty": "hard",
+      "light": "high",
+      "co2Demand": "high",
+      "co2": "required",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 24,
+        "idealMax": 27
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.0
+      },
+      "gh": {
+        "min": 1,
+        "max": 8
+      },
+      "propagation": "Cuttings",
+      "substrate": "Insert into the substrate; takes nutrients mainly from the water",
+      "herbivoreResistant": false,
+      "tags": [
+        "red_plant",
+        "high_tech",
+        "softwater"
+      ],
+      "description": "Botanical parent entry; select the specific form when adding it to an aquarium.",
+      "careNotes": "Needs soft water, plenty of light, CO2 and good nutrient supply.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "rotala-mexicana",
+      "name": "Rotala mexicana",
+      "scientificName": "Rotala mexicana",
+      "synonyms": [],
+      "category": "Stem plant",
+      "waterType": "fresh",
+      "origin": "Cultivar",
+      "placement": [
+        "foreground",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 5,
+        "max": 15
+      },
+      "difficulty": "medium",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Cuttings",
+      "substrate": "Insert into the substrate; takes nutrients mainly from the water",
+      "herbivoreResistant": false,
+      "tags": [
+        "aquascaping",
+        "nano"
+      ],
+      "description": "Botanical parent entry; select the specific form when adding it to an aquarium.",
+      "careNotes": "Good for the foreground and nano tanks.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "anubias-barteri-species-gold",
+      "name": "Anubias barteri 'Gold'",
+      "scientificName": "Anubias barteri 'Gold'",
+      "synonyms": [
+        "Gold"
+      ],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Africa (West Africa)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Epiphyte – tie or glue to wood or stone, do not bury the rhizome",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Gold – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "anubias-barteri-species-stardust",
+      "name": "Anubias barteri 'Stardust'",
+      "scientificName": "Anubias barteri 'Stardust'",
+      "synonyms": [
+        "Stardust"
+      ],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Africa (West Africa)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Epiphyte – tie or glue to wood or stone, do not bury the rhizome",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Stardust – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "anubias-barteri-species-mini-kirin",
+      "name": "Anubias barteri 'Mini Kirin'",
+      "scientificName": "Anubias barteri 'Mini Kirin'",
+      "synonyms": [
+        "Mini Kirin"
+      ],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Africa (West Africa)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Epiphyte – tie or glue to wood or stone, do not bury the rhizome",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Mini Kirin – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "cryptocoryne-wendtii-green",
+      "name": "Wendt's Water Trumpet 'Green'",
+      "scientificName": "Cryptocoryne wendtii 'Green'",
+      "synonyms": [
+        "Green"
+      ],
+      "category": "Rosette plant",
+      "waterType": "fresh",
+      "origin": "Asia (Sri Lanka)",
+      "placement": [
+        "foreground",
+        "midground"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 5.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 1,
+        "max": 25
+      },
+      "propagation": "Runners",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant"
+      ],
+      "description": "Green – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "cryptocoryne-wendtii",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "cryptocoryne-wendtii-compact",
+      "name": "Wendt's Water Trumpet 'Compact'",
+      "scientificName": "Cryptocoryne wendtii 'Compact'",
+      "synonyms": [
+        "Compact"
+      ],
+      "category": "Rosette plant",
+      "waterType": "fresh",
+      "origin": "Asia (Sri Lanka)",
+      "placement": [
+        "foreground",
+        "midground"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 5.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 1,
+        "max": 25
+      },
+      "propagation": "Runners",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant"
+      ],
+      "description": "Compact – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "cryptocoryne-wendtii",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "cryptocoryne-affinis-dark-orange",
+      "name": "Cryptocoryne affinis 'Dark Orange'",
+      "scientificName": "Cryptocoryne affinis 'Dark Orange'",
+      "synonyms": [
+        "Dark Orange"
+      ],
+      "category": "Rosette plant",
+      "waterType": "fresh",
+      "origin": "Asia (Malaysia)",
+      "placement": [
+        "midground"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Runners",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "tags": [
+        "low_tech",
+        "shade_tolerant"
+      ],
+      "description": "Dark Orange – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "cryptocoryne-affinis",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "echinodorus-grisebachii-tropica",
+      "name": "Echinodorus grisebachii 'Tropica'",
+      "scientificName": "Echinodorus grisebachii 'Tropica'",
+      "synonyms": [
+        "Tropica"
+      ],
+      "category": "Rosette plant (sword plant)",
+      "waterType": "fresh",
+      "origin": "South America",
+      "placement": [
+        "background",
+        "solitary"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventitious plantlets on the flower stalk",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "tags": [
+        "beginner",
+        "low_tech"
+      ],
+      "description": "Tropica – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "echinodorus-grisebachii",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "echinodorus-hybrids-python",
+      "name": "Echinodorus hybrids 'Python'",
+      "scientificName": "Echinodorus (cultivated hybrids) 'Python'",
+      "synonyms": [
+        "Python"
+      ],
+      "category": "Rosette plant (sword plant)",
+      "waterType": "fresh",
+      "origin": "Cultivar",
+      "placement": [
+        "midground",
+        "solitary"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventitious plantlets",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "tags": [
+        "beginner",
+        "low_tech"
+      ],
+      "description": "Python – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
+    },
+    {
+      "id": "echinodorus-hybrids-green-chameleon",
+      "name": "Echinodorus hybrids 'Green Chameleon'",
+      "scientificName": "Echinodorus (cultivated hybrids) 'Green Chameleon'",
+      "synonyms": [
+        "Green Chameleon"
+      ],
+      "category": "Rosette plant (sword plant)",
+      "waterType": "fresh",
+      "origin": "Cultivar",
+      "placement": [
+        "midground",
+        "solitary"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventitious plantlets",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "tags": [
+        "beginner",
+        "low_tech"
+      ],
+      "description": "Green Chameleon – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
+    },
+    {
+      "id": "echinodorus-hybrids-red-chameleon",
+      "name": "Echinodorus hybrids 'Red Chameleon'",
+      "scientificName": "Echinodorus (cultivated hybrids) 'Red Chameleon'",
+      "synonyms": [
+        "Red Chameleon"
+      ],
+      "category": "Rosette plant (sword plant)",
+      "waterType": "fresh",
+      "origin": "Cultivar",
+      "placement": [
+        "midground",
+        "solitary"
+      ],
+      "growthRate": "medium",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventitious plantlets",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "tags": [
+        "beginner",
+        "low_tech"
+      ],
+      "description": "Red Chameleon – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "echinodorus-hybrids",
+      "variantKind": "hybrid"
+    },
+    {
+      "id": "echinodorus-cordifolius-harbich-red",
+      "name": "Radican Sword 'Harbich Red'",
+      "scientificName": "Echinodorus cordifolius 'Harbich Red'",
+      "synonyms": [
+        "Harbich Red"
+      ],
+      "category": "Rosette plant (sword plant)",
+      "waterType": "fresh",
+      "origin": "North and Central America",
+      "placement": [
+        "background",
+        "solitary"
+      ],
+      "growthRate": "fast",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 18,
+        "max": 28,
+        "idealMin": 20,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventitious plantlets",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "tags": [
+        "large_tank"
+      ],
+      "description": "Harbich Red – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "echinodorus-cordifolius",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "echinodorus-cordifolius-mini",
+      "name": "Radican Sword 'Mini'",
+      "scientificName": "Echinodorus cordifolius 'Mini'",
+      "synonyms": [
+        "Mini"
+      ],
+      "category": "Rosette plant (sword plant)",
+      "waterType": "fresh",
+      "origin": "North and Central America",
+      "placement": [
+        "background",
+        "solitary"
+      ],
+      "growthRate": "fast",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 18,
+        "max": 28,
+        "idealMin": 20,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Adventitious plantlets",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "tags": [
+        "large_tank"
+      ],
+      "description": "Mini – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "echinodorus-cordifolius",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "hygrophila-corymbosa-compact",
+      "name": "Giant Hygrophila 'Compact'",
+      "scientificName": "Hygrophila corymbosa 'Compact'",
+      "synonyms": [
+        "Compact"
+      ],
+      "category": "Stem plant",
+      "waterType": "fresh",
+      "origin": "Asia",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "fast",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 18
+      },
+      "propagation": "Cuttings",
+      "substrate": "Insert into the substrate; takes nutrients mainly from the water",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "nutrient_competitor"
+      ],
+      "description": "Compact – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "hygrophila-corymbosa",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "hygrophila-corymbosa-stricta",
+      "name": "Giant Hygrophila 'Stricta'",
+      "scientificName": "Hygrophila corymbosa 'Stricta'",
+      "synonyms": [
+        "Stricta"
+      ],
+      "category": "Stem plant",
+      "waterType": "fresh",
+      "origin": "Asia",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "fast",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 18
+      },
+      "propagation": "Cuttings",
+      "substrate": "Insert into the substrate; takes nutrients mainly from the water",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "nutrient_competitor"
+      ],
+      "description": "Stricta – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "hygrophila-corymbosa",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "hygrophila-corymbosa-thailand",
+      "name": "Giant Hygrophila 'Thailand'",
+      "scientificName": "Hygrophila corymbosa 'Thailand'",
+      "synonyms": [
+        "Thailand"
+      ],
+      "category": "Stem plant",
+      "waterType": "fresh",
+      "origin": "Asia",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "fast",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 18
+      },
+      "propagation": "Cuttings",
+      "substrate": "Insert into the substrate; takes nutrients mainly from the water",
+      "tags": [
+        "beginner",
+        "low_tech",
+        "nutrient_competitor"
+      ],
+      "description": "Thailand – nursery-listed cultivated form; select it when adding to your aquarium.",
+      "careNotes": "Care ranges are inherited from the parent entry, not independently measured cultivar limits.",
+      "sources": [
+        "variant-dennerle-2026"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "hygrophila-corymbosa",
+      "variantKind": "cultivar"
+    },
+    {
+      "id": "micranthemum-callitrichoides",
+      "name": "Micranthemum callitrichoides",
+      "scientificName": "Micranthemum callitrichoides",
+      "synonyms": [],
+      "category": "Carpeting plant",
+      "waterType": "fresh",
+      "origin": "Caribbean (Cuba)",
+      "placement": [
+        "foreground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 3,
+        "max": 5
+      },
+      "difficulty": "medium",
+      "light": "high",
+      "co2Demand": "high",
+      "co2": "required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 5.5,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 1,
+        "max": 10
+      },
+      "propagation": "Division, runners",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "herbivoreResistant": false,
+      "tags": [
+        "aquascaping",
+        "high_tech",
+        "carpet",
+        "nano"
+      ],
+      "description": "Botanical or unidentified trade-group parent; choose the documented form when adding.",
+      "careNotes": "Trim the carpet regularly, otherwise the lower parts die. Tropica recommends 'Monte Carlo' as a less demanding alternative.",
+      "sources": [
+        "tropica-hc-cuba"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "heightCm",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "micranthemum-tweediei",
+      "name": "Micranthemum tweediei",
+      "scientificName": "Micranthemum tweediei",
+      "synonyms": [],
+      "category": "Carpeting plant",
+      "waterType": "fresh",
+      "origin": "South America (Argentina)",
+      "placement": [
+        "foreground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 3,
+        "max": 5
+      },
+      "difficulty": "medium",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Division, runners",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "herbivoreResistant": false,
+      "tags": [
+        "aquascaping",
+        "carpet",
+        "nano"
+      ],
+      "description": "Botanical or unidentified trade-group parent; choose the documented form when adding.",
+      "careNotes": "Also grows in partial shade, but becomes considerably more compact with good light and CO2.",
+      "sources": [
+        "aquariumgardens-monte-carlo"
+      ],
+      "verifiedFields": [
+        "growthRate",
+        "heightCm",
+        "light",
+        "co2Demand"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "alternanthera-reineckii-species",
+      "name": "Alternanthera reineckii",
+      "scientificName": "Alternanthera reineckii",
+      "synonyms": [],
+      "category": "Stem plant",
+      "waterType": "fresh",
+      "origin": "South America",
+      "placement": [
+        "midground",
+        "background"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 15,
+        "max": 40
+      },
+      "difficulty": "medium",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 23,
+        "idealMax": 27
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Cuttings",
+      "substrate": "Insert into the substrate; takes nutrients mainly from the water",
+      "herbivoreResistant": false,
+      "tags": [
+        "red_plant"
+      ],
+      "description": "Botanical or unidentified trade-group parent; choose the documented form when adding.",
+      "careNotes": "With insufficient light the lower leaves lose their colour and drop off.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "taxiphyllum-unidentified",
+      "name": "Taxiphyllum sp.",
+      "scientificName": "Taxiphyllum sp.",
+      "synonyms": [],
+      "category": "Moss",
+      "waterType": "fresh",
+      "origin": "Asia",
+      "placement": [
+        "epiphyte"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 3,
+        "max": 10
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 15
+      },
+      "propagation": "Division",
+      "substrate": "Epiphyte – tie or glue to wood or stone, do not bury the rhizome",
+      "herbivoreResistant": true,
+      "tags": [
+        "nano",
+        "shrimp_friendly",
+        "aquascaping"
+      ],
+      "description": "Botanical or unidentified trade-group parent; choose the documented form when adding.",
+      "careNotes": "Grows upwards – good for vertical accents.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "nymphoides-hydrophylla",
+      "name": "Nymphoides hydrophylla",
+      "scientificName": "Nymphoides hydrophylla",
+      "synonyms": [],
+      "category": "Rosette plant (floating heart)",
+      "waterType": "fresh",
+      "origin": "Asia",
+      "placement": [
+        "foreground",
+        "midground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 10,
+        "max": 20
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Plantlets on the leaf stalks",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "herbivoreResistant": false,
+      "tags": [
+        "low_tech"
+      ],
+      "description": "Botanical or unidentified trade-group parent; choose the documented form when adding.",
+      "careNotes": "Remove floating leaves.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "hygrophila-lancea",
+      "name": "Hygrophila lancea",
+      "scientificName": "Hygrophila lancea",
+      "synonyms": [],
+      "category": "Stem plant",
+      "waterType": "fresh",
+      "origin": "South America",
+      "placement": [
+        "foreground",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 5,
+        "max": 15
+      },
+      "difficulty": "medium",
+      "light": "high",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 23,
+        "idealMax": 27
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Cuttings",
+      "substrate": "Insert into the substrate; takes nutrients mainly from the water",
+      "herbivoreResistant": false,
+      "tags": [
+        "red_plant",
+        "aquascaping"
+      ],
+      "description": "Botanical or unidentified trade-group parent; choose the documented form when adding.",
+      "careNotes": "Compact and red in strong light.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "lysimachia-nummularia",
+      "name": "Lysimachia nummularia",
+      "scientificName": "Lysimachia nummularia",
+      "synonyms": [],
+      "category": "Stem plant",
+      "waterType": "fresh",
+      "origin": "Europe (garden form)",
+      "placement": [
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 10,
+        "max": 20
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 15,
+        "max": 26,
+        "idealMin": 18,
+        "idealMax": 24
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Cuttings",
+      "substrate": "Insert into the substrate; takes nutrients mainly from the water",
+      "herbivoreResistant": false,
+      "tags": [
+        "coldwater_tolerant",
+        "low_tech"
+      ],
+      "description": "Botanical or unidentified trade-group parent; choose the documented form when adding.",
+      "careNotes": "Grows slowly submersed; permanently above 26 °C is unfavourable.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "pogostemon-stellatus",
+      "name": "Pogostemon stellatus",
+      "scientificName": "Pogostemon stellatus",
+      "synonyms": [],
+      "category": "Stem plant",
+      "waterType": "fresh",
+      "origin": "Asia, Australia",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "fast",
+      "heightCm": {
+        "min": 20,
+        "max": 40
+      },
+      "difficulty": "easy",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 23,
+        "idealMax": 27
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Cuttings",
+      "substrate": "Insert into the substrate; takes nutrients mainly from the water",
+      "herbivoreResistant": false,
+      "tags": [
+        "aquascaping"
+      ],
+      "description": "Botanical or unidentified trade-group parent; choose the documented form when adding.",
+      "careNotes": "Grows fast; trim regularly.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "ammannia-pedicellata",
+      "name": "Ammannia pedicellata",
+      "scientificName": "Ammannia pedicellata",
+      "synonyms": [],
+      "category": "Stem plant",
+      "waterType": "fresh",
+      "origin": "Cultivar",
+      "placement": [
+        "background"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 20,
+        "max": 40
+      },
+      "difficulty": "hard",
+      "light": "high",
+      "co2Demand": "high",
+      "co2": "required",
+      "temp": {
+        "min": 22,
+        "max": 28,
+        "idealMin": 24,
+        "idealMax": 27
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 10
+      },
+      "propagation": "Cuttings",
+      "substrate": "Insert into the substrate; takes nutrients mainly from the water",
+      "herbivoreResistant": false,
+      "tags": [
+        "high_tech",
+        "aquascaping"
+      ],
+      "description": "Botanical or unidentified trade-group parent; choose the documented form when adding.",
+      "careNotes": "Demanding; needs plenty of light and nutrients.",
+      "sources": [],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "riccardia-unidentified",
+      "name": "Riccardia sp.",
+      "scientificName": "Riccardia sp.",
+      "synonyms": [],
+      "category": "Liverwort",
+      "waterType": "fresh",
+      "origin": "Asia",
+      "placement": [
+        "epiphyte",
+        "foreground"
+      ],
+      "growthRate": "slow",
+      "heightCm": {
+        "min": 2,
+        "max": 4
+      },
+      "difficulty": "medium",
+      "light": "medium",
+      "co2Demand": "medium",
+      "co2": "recommended",
+      "temp": {
+        "min": 18,
+        "max": 26,
+        "idealMin": 20,
+        "idealMax": 25
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Division",
+      "substrate": "Attach small portions to rock or wood.",
+      "tags": [
+        "nano",
+        "shrimp_friendly",
+        "aquascaping"
+      ],
+      "description": "Botanical or unidentified trade-group parent; choose the documented form when adding.",
+      "careNotes": "Thin thick cushions to prevent detachment; fragments are fragile. Unverified water ranges are general cultivation guidance, not measured limits for this trade form.",
+      "sources": [
+        "requested-riccardia-graeffei"
+      ],
+      "verifiedFields": [
+        "light"
+      ],
+      "legal": {
+        "euInvasiveList": false
+      }
+    },
+    {
+      "id": "anubias-barteri-angustifolia",
+      "name": "Anubias barteri var. angustifolia",
+      "scientificName": "Anubias barteri var. angustifolia",
+      "synonyms": [],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Africa (West Africa)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Epiphyte – tie or glue to wood or stone, do not bury the rhizome",
+      "herbivoreResistant": true,
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Botanical variety, not a separate species; select it under Anubias barteri.",
+      "careNotes": "Tie to roots; tolerates shade. Like all Anubias prone to algae on old leaves.",
+      "sources": [
+        "variant-anubias-angustifolia"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "variety"
+    },
+    {
+      "id": "anubias-barteri-glabra",
+      "name": "Anubias barteri var. glabra",
+      "scientificName": "Anubias barteri var. glabra",
+      "synonyms": [],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Africa (West Africa)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Epiphyte – tie or glue to wood or stone, do not bury the rhizome",
+      "herbivoreResistant": true,
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Botanical variety, not a separate species; select it under Anubias barteri.",
+      "careNotes": "Tie to roots; tolerates shade. Like all Anubias prone to algae on old leaves.",
+      "sources": [
+        "variant-anubias-glabra"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "variety"
+    },
+    {
+      "id": "anubias-barteri-caladiifolia",
+      "name": "Anubias barteri var. caladiifolia",
+      "scientificName": "Anubias barteri var. caladiifolia",
+      "synonyms": [],
+      "category": "Rhizome plant (epiphyte)",
+      "waterType": "fresh",
+      "origin": "Africa (West Africa)",
+      "placement": [
+        "epiphyte",
+        "midground"
+      ],
+      "growthRate": "slow",
+      "heightCm": null,
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 30,
+        "idealMin": 22,
+        "idealMax": 28
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 8.0
+      },
+      "gh": {
+        "min": 2,
+        "max": 20
+      },
+      "propagation": "Rhizome division",
+      "substrate": "Epiphyte – tie or glue to wood or stone, do not bury the rhizome",
+      "herbivoreResistant": true,
+      "tags": [
+        "beginner",
+        "low_tech",
+        "shade_tolerant",
+        "herbivore_resistant"
+      ],
+      "description": "Botanical variety, not a separate species; select it under Anubias barteri.",
+      "careNotes": "Tie to roots; tolerates shade. Like all Anubias prone to algae on old leaves.",
+      "sources": [
+        "variant-anubias-caladiifolia"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      },
+      "variantOf": "anubias-barteri-species",
+      "variantKind": "variety"
+    },
+    {
+      "id": "helanthium-bolivianum",
+      "name": "Helanthium bolivianum",
+      "scientificName": "Helanthium bolivianum",
+      "synonyms": [],
+      "category": "Rosette plant (runners)",
+      "waterType": "fresh",
+      "origin": "South America",
+      "placement": [
+        "foreground"
+      ],
+      "growthRate": "medium",
+      "heightCm": {
+        "min": 5,
+        "max": 10
+      },
+      "difficulty": "easy",
+      "light": "low",
+      "co2Demand": "low",
+      "co2": "not_required",
+      "temp": {
+        "min": 20,
+        "max": 28,
+        "idealMin": 22,
+        "idealMax": 26
+      },
+      "ph": {
+        "min": 6.0,
+        "max": 7.5
+      },
+      "gh": {
+        "min": 2,
+        "max": 12
+      },
+      "propagation": "Runners",
+      "substrate": "Root feeder – nutrient-rich substrate or root tabs",
+      "herbivoreResistant": false,
+      "tags": [
+        "beginner",
+        "carpet"
+      ],
+      "description": "Narrow-leaved dwarf sword that quickly forms a dense lawn.",
+      "careNotes": "Spreads strongly via runners.",
+      "sources": [
+        "variant-helanthium-taxonomy"
+      ],
+      "verifiedFields": [],
+      "legal": {
+        "euInvasiveList": false
+      }
     }
   ],
   "excludedSpecies": [
@@ -8103,6 +10860,114 @@
       "title": "Marine Plants / Algae (seagrasses and macroalgae)",
       "publisher": "U.S. National Park Service, Biscayne National Park",
       "url": "https://www.nps.gov/bisc/learn/nature/marineplants.htm"
+    },
+    "requested-hymenasplenium": {
+      "title": "Hymenasplenium obscurum – Bestimmung und Kultur",
+      "publisher": "Flowgrow",
+      "url": "https://www.flowgrow.de/db/wasserpflanzen/hymenasplenium-obscurum",
+      "type": "Specialist reference / nursery profile"
+    },
+    "requested-pangolino": {
+      "title": "Anubias nana 'Pangolino'",
+      "publisher": "Dennerle Plants",
+      "url": "https://dennerleplants.com/de/pflanzen/pflanzen/Anubiasnana%27Pangolino%27%2830198%29/27770",
+      "type": "Specialist reference / nursery profile"
+    },
+    "requested-pinto": {
+      "title": "Anubias nana 'Pinto'",
+      "publisher": "Dennerle Plants",
+      "url": "https://dennerleplants.com/de/pflanzen/pflanzen/Anubias-nana-%27Pinto%27-%2830030%29/27813",
+      "type": "Specialist reference / nursery profile"
+    },
+    "requested-petite": {
+      "title": "Anubias barteri 'Petite'",
+      "publisher": "Tropica Aquarium Plants",
+      "url": "https://tropica.com/en/plants/plantdetails/4554/4554",
+      "type": "Specialist reference / nursery profile"
+    },
+    "requested-kedagang": {
+      "title": "Bucephalandra diabolica 'Kedagang'",
+      "publisher": "Tropica Aquarium Plants",
+      "url": "https://tropica.com/en/plants/plantdetails/Bucephalandra%27Kedagang%27%28139BCLP%29/31144",
+      "type": "Specialist reference / nursery profile"
+    },
+    "requested-bukit-kelam": {
+      "title": "Bucephalandra pygmaea Bukit Kelam / Sintang",
+      "publisher": "Aquasabi",
+      "url": "https://www.aquasabi.de/Bucephalandra-pygmaea-Bukit-Kelam-Sintang",
+      "type": "Specialist reference / nursery profile"
+    },
+    "requested-riccardia-graeffei": {
+      "title": "Riccardia sp. graeffei",
+      "publisher": "Aquasabi",
+      "url": "https://www.aquasabi.de/Riccardia-sp-graeffei",
+      "type": "Specialist reference / nursery profile"
+    },
+    "requested-brownie-ghost": {
+      "title": "Bucephalandra sp. Brownie Ghost",
+      "publisher": "Aquasabi",
+      "url": "https://www.aquasabi.de/Bucephalandra-sp-Brownie-Ghost",
+      "type": "Specialist reference / nursery profile"
+    },
+    "requested-marimo": {
+      "title": "Aegagropila linnaei",
+      "publisher": "Dennerle Plants",
+      "url": "https://dennerleplants.com/en/plants/plantdetails/Aegagropila-linnaei-superballs-pack-of-3-%2830036%29/23039",
+      "type": "Specialist reference / nursery profile"
+    },
+    "requested-mini-catherinae": {
+      "title": "Bucephalandra sp. Mini Catherinae",
+      "publisher": "USCAPE",
+      "url": "https://www.uscape.de/bucephalandra-sp.-mini-catherinae-in-vitro",
+      "type": "Specialist reference / nursery profile"
+    },
+    "requested-theia": {
+      "title": "Bucephalandra sp. Theia",
+      "publisher": "Aquasabi",
+      "url": "https://www.aquasabi.de/Bucephalandra-sp-Theia",
+      "type": "Specialist reference / nursery profile"
+    },
+    "requested-marsilea": {
+      "title": "Marsilea hirsuta",
+      "publisher": "Tropica Aquarium Plants",
+      "url": "https://tropica.com/en/plants/plantdetails/4428/4428",
+      "type": "Specialist reference / nursery profile"
+    },
+    "requested-marimo-biosecurity": {
+      "title": "Zebra mussels and moss balls",
+      "publisher": "U.S. Fish & Wildlife Service",
+      "url": "https://www.fws.gov/media/zebra-mussels-and-moss-balls-0",
+      "type": "Specialist reference / nursery profile"
+    },
+    "variant-dennerle-2026": {
+      "title": "Potted plant varieties",
+      "publisher": "Dennerle Plants",
+      "url": "https://dennerleplants.com/en/plants/potted-plants/",
+      "type": "Nursery catalog"
+    },
+    "variant-anubias-angustifolia": {
+      "title": "Anubias barteri var. angustifolia",
+      "publisher": "Kew / nursery reference",
+      "url": "https://powo.science.kew.org/taxon/urn%3Alsid%3Aipni.org%3Anames%3A874394-1",
+      "type": "Taxonomy / nursery reference"
+    },
+    "variant-anubias-glabra": {
+      "title": "Anubias barteri var. glabra",
+      "publisher": "Kew / nursery reference",
+      "url": "https://dennerleplants.com/de/pflanzen/pflanzen/Anubiasbarterivar.glabraNEW%2830509%29/30165",
+      "type": "Taxonomy / nursery reference"
+    },
+    "variant-anubias-caladiifolia": {
+      "title": "Anubias barteri var. caladiifolia",
+      "publisher": "Kew / nursery reference",
+      "url": "https://tropica.com/en/plants/plantdetails/Anubiasbartericaladiifolia%28101UPCS%29/18816",
+      "type": "Taxonomy / nursery reference"
+    },
+    "variant-helanthium-taxonomy": {
+      "title": "Helanthium bolivianum ecological risk screening summary",
+      "publisher": "U.S. Fish & Wildlife Service",
+      "url": "https://www.fws.gov/sites/default/files/documents/Ecological-Risk-Screening-Summary-Bolivian-Chain-Sword.pdf",
+      "type": "Agency reference"
     }
   },
   "language": "en"

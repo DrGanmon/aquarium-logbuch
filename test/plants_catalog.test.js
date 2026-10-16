@@ -6,7 +6,7 @@ const de = require('../src/config/plants/plants.json');
 const en = require('../src/config/plants/plants.en.json');
 
 test('Pflanzenkatalog: identische IDs und auflösbare Quellen in beiden Sprachen', () => {
-  assert.equal(de.plants.length, 149);
+  assert.equal(de.plants.length, 199);
   assert.deepEqual(de.plants.map(p => p.id).sort(), en.plants.map(p => p.id).sort());
   for (const catalog of [de, en]) {
     assert.equal(new Set(catalog.plants.map(p => p.id)).size, catalog.plants.length);
@@ -25,7 +25,7 @@ test('Pflanzen-API: Authentifizierung, Seiten, zweisprachige Suche, Filter und D
   const headers = { Cookie: user.cookie };
   const request = (suffix = '', lang = 'de') => env.request(`/api/plants${suffix}`, { headers: { ...headers, 'X-Language': lang } });
   const first = await request('?limit=24');
-  assert.equal(first.status, 200);assert.equal(first.data.total, 149);assert.equal(first.data.next, 24);
+  assert.equal(first.status, 200);assert.equal(first.data.total, 131);assert.equal(first.data.next, 24);
   assert.equal(first.data.plants[0].temp, undefined);
   const ids = [];
   let next = 0;
@@ -33,14 +33,14 @@ test('Pflanzen-API: Authentifizierung, Seiten, zweisprachige Suche, Filter und D
     const page = await request(`?limit=24&offset=${next}`);
     ids.push(...page.data.plants.map(p => p.id));next = page.data.next;
   }
-  assert.equal(ids.length, 149);assert.equal(new Set(ids).size, 149);
-  assert.deepEqual(ids.sort(), de.plants.map(p => p.id).sort());
+  assert.equal(ids.length, 131);assert.equal(new Set(ids).size, 131);
+  assert.deepEqual(ids.sort(), de.plants.filter(p => !p.variantOf).map(p => p.id).sort());
   const last = de.plants.at(-1);
   const found = await request(`?q=${encodeURIComponent(last.scientificName)}`);
-  assert.ok(found.data.plants.some(p => p.id === last.id));
+  assert.ok(found.data.plants.some(p => p.id === (last.variantOf || last.id)));
   for (const lang of ['de', 'en']) {
     const found = await request('?q=Dwarf%20Anubias', lang);
-    assert.ok(found.data.plants.some(p => p.id === 'anubias-barteri-nana'));
+    assert.ok(found.data.plants.some(p => p.id === 'anubias-barteri-species'));
     const detail = await request('/anubias-barteri-nana', lang);
     const expected = (lang === 'de' ? de : en).plants[0];
     assert.equal(detail.status, 200);assert.deepEqual(detail.data.plant, { ...expected, image: require('../public/plants-images/manifest.json')[expected.id] || null });
@@ -48,10 +48,10 @@ test('Pflanzen-API: Authentifizierung, Seiten, zweisprachige Suche, Filter und D
     assert.ok(detail.data.fieldDefinitions.placement.epiphyte);assert.ok(detail.data.notes.length);
   }
   const reverse = await request('?q=Zwerg-Speerblatt', 'en');
-  assert.equal(reverse.data.plants[0].name, 'Dwarf Anubias');
+  assert.equal(reverse.data.plants[0].id, 'anubias-barteri-species');
   const category = last.category;
   const filtered = await request(`?water_type=salt&category=${encodeURIComponent(category)}`);
-  assert.equal(filtered.data.total, de.plants.filter(p => p.waterType === 'salt' && p.category === category).length);
+  assert.equal(filtered.data.total, de.plants.filter(p => !p.variantOf && p.waterType === 'salt' && p.category === category).length);
   assert.ok(filtered.data.plants.every(p => p.waterType === 'salt' && p.category === category));
   assert.deepEqual(filtered.data.categories, first.data.categories);
   const empty = await request('?q=does_not_exist');

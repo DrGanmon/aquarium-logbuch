@@ -1,3 +1,4 @@
+import type { VariantEntry } from '../../src/shared/catalog-variants';
 export type Id = string | number;
 export type Language = "de" | "en";
 export type Theme = "system" | "light" | "dark";
@@ -76,7 +77,7 @@ export interface SpeciesRange {
 }
 export type { CatalogImage as SpeciesImage } from "../../src/shared/catalog-image";
 import type { CatalogImage as SpeciesImage } from "../../src/shared/catalog-image";
-export interface Species {
+export interface Species extends VariantEntry {
   image?: SpeciesImage | null;
   id: string;
   name: string;

@@ -194,11 +194,17 @@
     },
     "/metrics": {
       "get": {
-        "tags": ["Administration"],
+        "tags": [
+          "Administration"
+        ],
         "summary": "Anonyme Systemmetriken abrufen",
         "operationId": "get_metrics",
         "description": "Liefert aggregierte Gesamtzahlen und durchschnittliche Aquarien-, Messungs- und Logbucheinträge pro Nutzer. Erfolgreiche KI-Anfragen werden gezählt; Tokenwerte werden nur erfasst, wenn der Anbieter Usage-Daten meldet, ab Einführung dieser Erfassung. Historische Werte sind nicht rückwirkend verfügbar. Es werden keine Nutzerkennungen ausgegeben. Scrape-Passwort zuvor über PUT /api/admin/metrics festlegen.",
-        "security": [{ "MetricsBearer": [] }],
+        "security": [
+          {
+            "MetricsBearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Aggregierte Metriken; ohne Nutzerkennungen.",
@@ -207,27 +213,85 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "users": { "type": "object", "properties": { "total": { "type": "integer" }, "verified": { "type": "integer" } } },
-                    "aquariums": { "type": "object", "properties": { "total": { "type": "integer" }, "perUserAverage": { "type": "number" } } },
-                    "measurements": { "type": "object", "properties": { "total": { "type": "integer" }, "perUserAverage": { "type": "number" } } },
-                    "logbookEntries": { "type": "object", "properties": { "total": { "type": "integer" }, "perUserAverage": { "type": "number" } } },
-                    "socialPosts": { "type": "integer" },
-                    "animals": { "type": "integer" },
-                    "activeSessions": { "type": "integer" },
+                    "users": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "verified": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    "aquariums": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "perUserAverage": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "measurements": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "perUserAverage": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "logbookEntries": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "perUserAverage": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "socialPosts": {
+                      "type": "integer"
+                    },
+                    "animals": {
+                      "type": "integer"
+                    },
+                    "activeSessions": {
+                      "type": "integer"
+                    },
                     "ai": {
                       "type": "object",
                       "properties": {
-                        "requests": { "type": "integer" },
-                        "totalTokens": { "type": "integer" },
+                        "requests": {
+                          "type": "integer"
+                        },
+                        "totalTokens": {
+                          "type": "integer"
+                        },
                         "providers": {
                           "type": "object",
                           "additionalProperties": {
                             "type": "object",
                             "properties": {
-                              "requests": { "type": "integer" },
-                              "inputTokens": { "type": "integer" },
-                              "outputTokens": { "type": "integer" },
-                              "totalTokens": { "type": "integer" }
+                              "requests": {
+                                "type": "integer"
+                              },
+                              "inputTokens": {
+                                "type": "integer"
+                              },
+                              "outputTokens": {
+                                "type": "integer"
+                              },
+                              "totalTokens": {
+                                "type": "integer"
+                              }
                             }
                           }
                         }
@@ -238,41 +302,103 @@
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Error401" },
-          "429": { "$ref": "#/components/responses/Error429" },
-          "503": { "$ref": "#/components/responses/Error503" }
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
         }
       }
     },
     "/api/admin/metrics": {
       "get": {
-        "tags": ["Administration"],
+        "tags": [
+          "Administration"
+        ],
         "summary": "Systemmetriken und Passwortstatus abrufen",
         "operationId": "get_api_admin_metrics",
         "description": "Gültige Sitzung und Administrator mit verifizierter ADMIN_EMAILS-Adresse erforderlich. Die Antwort enthält keine Nutzerkennungen.",
-        "security": [{ "SessionCookie": [] }],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Aggregierte Metriken und Passwortstatus.",
-            "content": { "application/json": { "schema": { "type": "object", "properties": { "metrics": { "type": "object", "additionalProperties": true }, "passwordConfigured": { "type": "boolean" } } } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metrics": {
+                      "type": "object",
+                      "additionalProperties": true
+                    },
+                    "passwordConfigured": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
           },
-          "401": { "$ref": "#/components/responses/Error401" },
-          "403": { "$ref": "#/components/responses/Error403" },
-          "503": { "$ref": "#/components/responses/Error503" },
-          "500": { "$ref": "#/components/responses/Error500" }
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
         },
         "x-admin-only": true
       },
       "put": {
-        "tags": ["Administration"],
+        "tags": [
+          "Administration"
+        ],
         "summary": "Scrape-Passwort festlegen oder ersetzen",
         "operationId": "put_api_admin_metrics",
         "description": "Gültige Sitzung und Administrator mit verifizierter ADMIN_EMAILS-Adresse erforderlich. Das Passwort muss 16 bis 256 Zeichen lang sein und wird serverseitig nur als scrypt-Hash gespeichert.",
-        "security": [{ "SessionCookie": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/RequestedWith" }],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "type": "object", "properties": { "password": { "type": "string", "minLength": 16, "maxLength": 256 } }, "required": ["password"], "additionalProperties": true } } }
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "minLength": 16,
+                    "maxLength": 256
+                  }
+                },
+                "required": [
+                  "password"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
         },
         "responses": {
           "200": {
@@ -282,19 +408,35 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "ok": { "type": "boolean" },
-                    "passwordConfigured": { "type": "boolean" }
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "passwordConfigured": {
+                      "type": "boolean"
+                    }
                   }
                 }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/Error400" },
-          "401": { "$ref": "#/components/responses/Error401" },
-          "403": { "$ref": "#/components/responses/Error403" },
-          "415": { "$ref": "#/components/responses/Error415" },
-          "503": { "$ref": "#/components/responses/Error503" },
-          "500": { "$ref": "#/components/responses/Error500" }
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
         },
         "x-admin-only": true
       }
@@ -9091,7 +9233,9 @@
     },
     "/api/setup/status": {
       "get": {
-        "tags": ["Ersteinrichtung"],
+        "tags": [
+          "Ersteinrichtung"
+        ],
         "summary": "Status der Ersteinrichtung abrufen",
         "operationId": "get_api_setup_status",
         "description": "Öffentlich aufrufbar. required ist ausschließlich wahr, solange noch kein Benutzerkonto existiert.",
@@ -9100,47 +9244,155 @@
         "responses": {
           "200": {
             "description": "Einrichtungsstatus.",
-            "content": { "application/json": { "schema": { "type": "object", "properties": {
-              "required": { "type": "boolean" }, "localLogin": { "type": "boolean" }, "termsVersion": { "type": "string" }
-            }, "required": ["required", "localLogin", "termsVersion"] } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "required": {
+                      "type": "boolean"
+                    },
+                    "localLogin": {
+                      "type": "boolean"
+                    },
+                    "termsVersion": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "required",
+                    "localLogin",
+                    "termsVersion"
+                  ]
+                }
+              }
+            }
           },
-          "500": { "$ref": "#/components/responses/Error500" }
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
         }
       }
     },
     "/api/setup/complete": {
       "post": {
-        "tags": ["Ersteinrichtung"],
+        "tags": [
+          "Ersteinrichtung"
+        ],
         "summary": "Ersteinrichtung abschließen",
         "operationId": "post_api_setup_complete",
         "description": "Nur ohne vorhandene Benutzer und bei aktivem lokalen Login verfügbar. Erstellt den ersten Datenbank-Administrator, speichert SMTP-, Backup- und Registrierungskonfiguration und startet eine Sitzung.",
         "security": [],
-        "parameters": [{ "$ref": "#/components/parameters/RequestedWith" }],
-        "requestBody": { "required": true, "content": { "application/json": { "schema": {
-          "type": "object",
-          "properties": {
-            "username": { "type": "string", "minLength": 3, "maxLength": 40 },
-            "email": { "type": "string", "format": "email" },
-            "password": { "type": "string", "format": "password", "minLength": 8, "maxLength": 200, "writeOnly": true },
-            "language": { "type": "string", "enum": ["de", "en"] },
-            "acceptTerms": { "type": "boolean", "enum": [true] },
-            "termsVersion": { "type": "string" },
-            "smtp": { "$ref": "#/components/schemas/MailConfigInput" },
-            "backup": { "$ref": "#/components/schemas/BackupConfigInput" },
-            "registration": { "type": "object", "properties": {
-              "mode": { "type": "string", "enum": ["open", "invite_admin", "invite_open", "closed"] }
-            }, "required": ["mode"], "additionalProperties": false }
-          },
-          "required": ["username", "email", "password", "acceptTerms", "termsVersion", "smtp", "backup", "registration"],
-          "additionalProperties": false
-        } } } },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 40
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 8,
+                    "maxLength": 200,
+                    "writeOnly": true
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "de",
+                      "en"
+                    ]
+                  },
+                  "acceptTerms": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ]
+                  },
+                  "termsVersion": {
+                    "type": "string"
+                  },
+                  "smtp": {
+                    "$ref": "#/components/schemas/MailConfigInput"
+                  },
+                  "backup": {
+                    "$ref": "#/components/schemas/BackupConfigInput"
+                  },
+                  "registration": {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "open",
+                          "invite_admin",
+                          "invite_open",
+                          "closed"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "mode"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "username",
+                  "email",
+                  "password",
+                  "acceptTerms",
+                  "termsVersion",
+                  "smtp",
+                  "backup",
+                  "registration"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
         "responses": {
-          "201": { "description": "Ersteinrichtung abgeschlossen; Sitzungscookie gesetzt.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Ok" } } } },
-          "400": { "$ref": "#/components/responses/Error400" },
-          "403": { "$ref": "#/components/responses/Error403" },
-          "409": { "$ref": "#/components/responses/Error409" },
-          "415": { "$ref": "#/components/responses/Error415" },
-          "500": { "$ref": "#/components/responses/Error500" }
+          "201": {
+            "description": "Ersteinrichtung abgeschlossen; Sitzungscookie gesetzt.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
         }
       }
     },
@@ -11712,7 +11964,7 @@
         ],
         "summary": "Pflanzen abrufen",
         "operationId": "get_api_plants",
-        "description": "Gültige Sitzung erforderlich.  Paginierte Antwort mit total und next (nächster Offset oder null); Pflanzen zusätzlich categories.",
+        "description": "Gültige Sitzung erforderlich.  Paginierte Antwort mit total und next (nächster Offset oder null); Pflanzen zusätzlich categories. Zuchtformen, Handelsformen und botanische Varietäten werden vor der Pagination auf eine Stammkachel zusammengeführt. Suche berücksichtigt Varianten und liefert den Stamm mit variants; total/next zählen Kacheln, nicht alle auswählbaren IDs.",
         "security": [
           {
             "SessionCookie": []
@@ -11850,7 +12102,7 @@
         ],
         "summary": "Pflanzen abrufen",
         "operationId": "get_api_plants_id",
-        "description": "Gültige Sitzung erforderlich.  Antwort mit plant, fieldDefinitions, notes und sources; plant.image optional bzw. null.",
+        "description": "Gültige Sitzung erforderlich.  Antwort mit plant, fieldDefinitions, notes und sources; plant.image optional bzw. null. Stamm-Details enthalten variants für die Auswahl beim Hinzufügen. Gespeicherte Varianten-IDs bleiben direkt abrufbar und enthalten variantOf/variantKind.",
         "security": [
           {
             "SessionCookie": []
@@ -11936,7 +12188,7 @@
         ],
         "summary": "Artenkatalog abrufen",
         "operationId": "get_api_species",
-        "description": "Gültige Sitzung erforderlich.  Paginierte Antwort mit total und next (nächster Offset oder null); Pflanzen zusätzlich categories.",
+        "description": "Gültige Sitzung erforderlich.  Paginierte Antwort mit total und next (nächster Offset oder null); Pflanzen zusätzlich categories. Zuchtformen, Handelsformen und botanische Varietäten werden vor der Pagination auf eine Stammkachel zusammengeführt. Suche berücksichtigt Varianten und liefert den Stamm mit variants; total/next zählen Kacheln, nicht alle auswählbaren IDs.",
         "security": [
           {
             "SessionCookie": []
@@ -12153,7 +12405,7 @@
         ],
         "summary": "Artenkatalog abrufen",
         "operationId": "get_api_species_id",
-        "description": "Gültige Sitzung erforderlich.  Vollständige Art inklusive image und Lizenznachweisen; ohne Bild image=null.",
+        "description": "Gültige Sitzung erforderlich.  Vollständige Art inklusive image und Lizenznachweisen; ohne Bild image=null. Stamm-Details enthalten variants für die Auswahl beim Hinzufügen. Gespeicherte Varianten-IDs bleiben direkt abrufbar und enthalten variantOf/variantKind.",
         "security": [
           {
             "SessionCookie": []
@@ -13605,58 +13857,161 @@
     },
     "/api/notifications": {
       "get": {
-        "tags": ["Benachrichtigungen"],
+        "tags": [
+          "Benachrichtigungen"
+        ],
         "summary": "Benachrichtigungen und offene Wasserwertwarnungen abrufen",
         "operationId": "get_api_notifications",
         "description": "Liefert Social-Benachrichtigungen des angemeldeten Nutzers sowie offene Wasserwertwarnungen aus allen für ihn zugänglichen Aquarien.",
-        "security": [{ "SessionCookie": [] }],
-        "parameters": [{ "name": "limit", "in": "query", "required": false, "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 } }],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Social-Benachrichtigungen, Wasserwertwarnungen und offene Anzahlen.",
-            "content": { "application/json": { "schema": {
-              "type": "object",
-              "properties": {
-                "social": { "type": "array", "items": { "type": "object", "additionalProperties": true } },
-                "water": { "type": "array", "items": { "type": "object", "additionalProperties": true } },
-                "unreadSocial": { "type": "integer", "minimum": 0 },
-                "openWater": { "type": "integer", "minimum": 0 }
-              },
-              "required": ["social", "water", "unreadSocial", "openWater"]
-            } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "social": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    },
+                    "water": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    },
+                    "unreadSocial": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "openWater": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "social",
+                    "water",
+                    "unreadSocial",
+                    "openWater"
+                  ]
+                }
+              }
+            }
           },
-          "400": { "$ref": "#/components/responses/Error400" },
-          "401": { "$ref": "#/components/responses/Error401" },
-          "500": { "$ref": "#/components/responses/Error500" }
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
         }
       }
     },
     "/api/notifications/read": {
       "post": {
-        "tags": ["Benachrichtigungen"],
+        "tags": [
+          "Benachrichtigungen"
+        ],
         "summary": "Social-Benachrichtigungen als gelesen markieren",
         "operationId": "post_api_notifications_read",
         "description": "Markiert die angegebenen eigenen Social-Benachrichtigungen oder bei fehlendem ids-Feld alle eigenen Social-Benachrichtigungen als gelesen.",
-        "security": [{ "SessionCookie": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/RequestedWith" }],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": {
-            "type": "object",
-            "properties": { "ids": { "type": "array", "uniqueItems": true, "items": { "type": "integer", "minimum": 1 } } },
-            "additionalProperties": false
-          } } }
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
         },
         "responses": {
           "200": {
             "description": "Gelesen-Markierung gespeichert.",
-            "content": { "application/json": { "schema": { "type": "object", "properties": { "ok": { "type": "boolean" }, "updated": { "type": "integer", "minimum": 0 } }, "required": ["ok", "updated"] } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "updated": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "ok",
+                    "updated"
+                  ]
+                }
+              }
+            }
           },
-          "400": { "$ref": "#/components/responses/Error400" },
-          "401": { "$ref": "#/components/responses/Error401" },
-          "403": { "$ref": "#/components/responses/Error403" },
-          "415": { "$ref": "#/components/responses/Error415" },
-          "500": { "$ref": "#/components/responses/Error500" }
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
         }
       }
     },
@@ -15948,6 +16303,35 @@
             },
             "additionalProperties": true,
             "nullable": true
+          },
+          "variantOf": {
+            "type": "string",
+            "description": "ID des übergeordneten Katalogeintrags; Varianten bleiben direkt abrufbar."
+          },
+          "variantKind": {
+            "type": "string",
+            "enum": [
+              "subspecies",
+              "variety",
+              "cultivar",
+              "color",
+              "fin_form",
+              "trade_form",
+              "hybrid"
+            ]
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogVariant"
+            },
+            "description": "Auswählbare Nachfahren; Speicherung verwendet deren stabile ID."
           }
         },
         "required": [
@@ -16356,6 +16740,46 @@
             "format": "date-time"
           }
         }
+      },
+      "CatalogVariant": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stabile ID für vorhandene Detail- und Hinzufügen-Endpunkte."
+          },
+          "name": {
+            "type": "string"
+          },
+          "scientificName": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "subspecies",
+              "variety",
+              "cultivar",
+              "color",
+              "fin_form",
+              "trade_form",
+              "hybrid"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "minGroupCount": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "additionalProperties": false
       }
     },
     "responses": {

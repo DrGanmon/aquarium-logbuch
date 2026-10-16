@@ -37,6 +37,28 @@ export class HealthService {
     const diagnosis = this.read(`${lang}/diagnosis-${waterFile(waterType)}.json`) as unknown as DiagnosisDocument;
     if (!Array.isArray(diseases.diseases) || !isRecord(diseases.speciesIndex) || !isRecord(diseases.sources)
       || !isRecord(diagnosis.species) || !isRecord(diagnosis.questions) || !isRecord(diagnosis.trees)) throw new Error('Unvollständige Gesundheitsdaten.');
+    // Forms share the parent's existing source estimates, not newly invented priors.
+    const catalog = this.species.getAllSpecies(lang);
+    const pending = catalog.filter(item => item.waterType === waterType && item.variantOf && !Object.hasOwn(diagnosis.species, item.id));
+    for (let pass = 0; pending.length && pass < catalog.length; pass++) {
+      for (let index = pending.length - 1; index >= 0; index--) {
+        const item = pending[index]!;
+        const parent = own(diagnosis.species, item.variantOf!);
+        const association = own(diseases.speciesIndex, item.variantOf!);
+        if (!parent || !association) continue;
+        diagnosis.species[item.id] = structuredClone(parent);
+        diseases.speciesIndex[item.id] = structuredClone(association);
+        if (item.variantKind === 'color' || item.variantKind === 'fin_form' || item.variantKind === 'cultivar') {
+          const hint = lang === 'en' ? 'Consider normal coloration and fin shape of this form. Assess new changes together with breathing and behavior; inherited probabilities are not validated for this form.' : 'Normale Färbung und Flossenform dieser Zuchtform berücksichtigen. Neue Veränderungen mit Atmung und Verhalten beurteilen; übernommene Wahrscheinlichkeiten sind nicht für diese Form validiert.';
+          for (const question of ['white_spots', 'dust', 'cloudy_skin']) diagnosis.species[item.id]!.questionHints[question] = hint;
+        }
+        for (const disease of diseases.diseases) if (disease.affectedSpecies.includes(item.variantOf!) && !disease.affectedSpecies.includes(item.id)) {
+          disease.affectedSpecies.push(item.id);disease.affectedSpeciesCount = disease.affectedSpecies.length;
+        }
+        pending.splice(index, 1);
+      }
+    }
+    diseases.speciesCount = Object.keys(diseases.speciesIndex).length;
     const diseaseIds = new Set(diseases.diseases.map(disease => disease.id));
     if (diseaseIds.size !== diseases.diseases.length) throw new Error('Doppelte Krankheits-IDs.');
     for (const [id, association] of Object.entries(diseases.speciesIndex)) {

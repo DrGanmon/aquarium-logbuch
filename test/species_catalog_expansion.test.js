@@ -7,9 +7,9 @@ const service = require('../dist/backend/src/services/species-service');
 const cfg = require('../dist/backend/src/config/app-config.js');
 
 test('Erweiterte Kataloge enthalten eindeutige IDs und behalten bisherige Arten', () => {
-  const catalogs = ['freshwater-popular', 'cichlids', 'invertebrates', 'saltwater'];
+  const catalogs = ['freshwater-popular', 'cichlids', 'invertebrates', 'saltwater', 'cultivated-forms'];
   const entries = catalogs.flatMap((name) => JSON.parse(fs.readFileSync(path.join(__dirname, '../src/config/species', `${name}.json`))).species);
-  assert.equal(entries.length, 147);
+  assert.equal(entries.length, 228);
   assert.equal(new Set(entries.map((s) => s.id)).size, entries.length);
   const oldEntries = ['betta-splendens', 'pterophyllum-scalare', 'symphysodon-sp', 'neocaridina-davidi', 'amphiprion-ocellaris'];
   for (const id of oldEntries) assert.ok(service.getSpeciesById(id), id);

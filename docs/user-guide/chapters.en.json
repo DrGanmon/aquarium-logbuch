@@ -148,7 +148,7 @@
     "caption": "The species catalog with water type, categories and search.",
     "steps": [
       "Open “Species catalog” in the header.",
-      "Filter by water type and category, or search by name.",
+      "Filter by water type and category, or search for a species, cultivar or trade name. Matching forms lead to one shared parent card.",
       "Open a result. Read its water requirements, group guidance, minimum tank volume, care information and image credits.",
       "If appropriate, add the species to an aquarium from its details or open the linked health information."
     ],
@@ -159,10 +159,10 @@
     "title": "Animals and compatibility",
     "intro": "Add animals through the species catalog whenever possible so their care requirements can be associated with them.",
     "image": "besatz",
-    "caption": "Residents and welfare information for two example groups.",
+    "caption": "Adding animals: the Gold form is selected under the shared three-spot gourami entry.",
     "steps": [
       "Open “Species catalog” and search for the species. Check its water type, tank volume and group requirements.",
-      "Open the species details and add the actual number of animals to your aquarium. You can give individual animals their own names.",
+      "Choose “Add to aquarium” from the parent entry. Select a documented form or variety in “Form / subspecies”, or leave it unspecified. Then enter the quantity; individual animals can have names.",
       "In the aquarium, you can also add custom residents, change quantities and names, or upload a portrait.",
       "For known species, “Species details” opens their information again. You can also start the diagnosis assistant from a resident.",
       "Read compatibility guidance on group size, tank size, behavior and requirements. Custom entries without a catalog match have less automatic information.",
@@ -180,11 +180,11 @@
     "title": "Find plants and add them to a tank",
     "intro": "The plant catalog helps you find suitable plants and record the stock in your aquarium.",
     "image": "pflanzen",
-    "caption": "The plant catalog with filters and illustrated entries.",
+    "caption": "Adding plants: Pangolino is selected under the shared Anubias barteri entry.",
     "steps": [
-      "Open “Plants” in the header. Filter by water type and category or enter a search term.",
+      "Open “Plants” in the header. Filter by water type or category, or search for a species or cultivar name. Forms appear under a shared parent card.",
       "Open a plant and read its placement, lighting, growth and care guidance.",
-      "Choose an aquarium with a suitable water type and enter the quantity. Confirm the addition.",
+      "Choose “Add to aquarium”, select a suitable aquarium and, if offered, the specific form in “Form / subspecies”. Enter the quantity and save. The selected form keeps its own stock entry.",
       "In the aquarium’s plant section, you can change quantities or remove plants.",
       "To record trimming or planting in your history, add a separate logbook entry for that work."
     ],

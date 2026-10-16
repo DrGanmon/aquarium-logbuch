@@ -1,3 +1,4 @@
+import { groupCatalogMatches, inheritCatalogVariants } from '../shared/catalog-variants';
 import fs = require('node:fs');
 import path = require('node:path');
 import { APP_ROOT } from '../utils/paths';
@@ -9,7 +10,7 @@ const images: Record<string, CatalogImage> = JSON.parse(fs.readFileSync(path.joi
 const catalogs = Object.fromEntries(['de', 'en'].map(lang => [lang,
   (() => {
     const catalog = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/plants', lang === 'en' ? 'plants.en.json' : 'plants.json'), 'utf8')) as PlantCatalog;
-    return { ...catalog, plants: catalog.plants.map(plant => ({ ...plant, image: images[plant.id] || null })) };
+    return { ...catalog, plants: inheritCatalogVariants(catalog.plants).map(plant => ({ ...plant, image: images[plant.id] || null })) };
   })(),
 ]));
 const translations = new Map(catalogs.en.plants.map(plant => [plant.id, plant]));
@@ -24,5 +25,5 @@ export function searchPlants(lang: string, query = '', water = 'all', category =
   const plants = catalog.plants.filter(plant =>
     (water === 'all' || plant.waterType === water) && (category === 'all' || plant.category === category) &&
     terms.every(term => searchText.get(plant.id)?.includes(term)));
-  return { plants, categories: [...new Set(catalog.plants.map(plant => plant.category))].sort((a, b) => a.localeCompare(b, lang === 'en' ? 'en' : 'de')) };
+  return { plants: groupCatalogMatches(catalog.plants, plants), categories: [...new Set(catalog.plants.map(plant => plant.category))].sort((a, b) => a.localeCompare(b, lang === 'en' ? 'en' : 'de')) };
 }

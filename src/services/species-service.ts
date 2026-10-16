@@ -1,3 +1,4 @@
+import { inheritCatalogVariants } from '../shared/catalog-variants';
 import { analyzeCompatibility } from '../shared/compatibility';
 import type { SpeciesCatalogDescriptor } from '../types/catalog';
 import { asRecord, isRecord } from '../utils/validation';
@@ -439,6 +440,9 @@ function normalizeSpecies(s: Record<string, unknown>, lang: string = 'de') {
 
   return {
     id,
+    variantOf: s.variantOf ? String(s.variantOf) : undefined,
+    variantKind: s.variantKind as import('../shared/catalog-variants').VariantKind | undefined,
+    aliases: Array.isArray(s.aliases) ? s.aliases.map(String) : [],
     name: isEn ? nameEn : nameDe,
     name_de: nameDe,
     name_en: nameEn,
@@ -544,8 +548,8 @@ class SpeciesCatalog {
     const cached = this.localized.get(key);
     if (cached) return cached;
     const map = new Map<string, ReturnType<typeof normalizeSpecies>>();
-    for (const item of rawList) {
-      const s = normalizeSpecies(item, key);
+    for (const item of inheritCatalogVariants(rawList as unknown as import('../shared/catalog-variants').VariantEntry[])) {
+      const s = normalizeSpecies(item as unknown as Record<string, unknown>, key);
       if (s.id && !map.has(s.id)) {
         map.set(s.id, s);
       }
@@ -576,7 +580,7 @@ class SpeciesCatalog {
     if (match) return match;
 
     // 2. Exakter Name-Match (deutsch oder englisch)
-    match = list.find((s) => s.name.toLowerCase() === q || s.name_de.toLowerCase() === q || s.name_en.toLowerCase() === q);
+    match = list.find((s) => s.name.toLowerCase() === q || s.name_de.toLowerCase() === q || s.name_en.toLowerCase() === q || s.aliases.some(alias => alias.toLowerCase() === q));
     if (match) return match;
 
     // 3. Exakter Wissenschaftlicher Name Match
