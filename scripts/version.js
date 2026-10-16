@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const root = path.resolve(__dirname, '..');
+const { commitChanges } = require('./build-changes');
 const pattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([1-9]\d*))?-ALPHA$/;
 function validateVersion(version) {
   if (!pattern.test(version)) throw new Error(`Ungültige Version: ${version}. Erwartet MAJOR.MINOR.REVISION[-PATCH]-ALPHA.`);
@@ -35,8 +36,11 @@ function resolveVersion({ cwd = root, override = process.env.APP_VERSION } = {})
   catch { return formatVersion(config); } // Exported sources / local Docker: use the recorded baseline.
   try {
     git(cwd, ['merge-base', '--is-ancestor', config.baseCommit, 'HEAD']);
-    const subjects = git(cwd, ['log', '--reverse', '--topo-order', '--no-merges', '--format=%s', `${config.baseCommit}..HEAD`]);
-    return applyCommits(config, subjects.split('\n'));
+    const commits = git(cwd, ['log', '--reverse', '--topo-order', '--no-merges', '--format=%H%x00%s', `${config.baseCommit}..HEAD`]);
+    const subjects = commits.split('\n').filter(Boolean).map(line => line.split('\0'))
+      .filter(([commit, subject]) => /^(?:feat|fix)(?:\([^\r\n)]+\))?!?:\s/i.test(subject) && commitChanges(cwd, commit).appChanged)
+      .map(([, subject]) => subject);
+    return applyCommits(config, subjects);
   } catch (error) {
     throw new Error('Versionsbasis fehlt in der Git-Historie. Vollständig auschecken (fetch-depth: 0) oder APP_VERSION angeben.', { cause: error });
   }

@@ -25,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      app_changed: ${{ steps.changes.outputs.app_changed }}
+      checks_changed: ${{ steps.changes.outputs.checks_changed }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -32,6 +34,14 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: '22'
+      - name: Detect application and test changes
+        id: changes
+        env:
+          BUILD_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          BUILD_HEAD: ${{ github.sha }}
+          BUILD_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
+          BUILD_FORCE: ${{ github.ref_type == 'tag' }}
+        run: node scripts/build-changes.js --github-output
       - name: Calculate revision and patch from commits
         id: version
         run: node scripts/version.js --github-output
@@ -47,6 +57,7 @@ jobs:
           fi
 
   runtime-check:
+    if: needs.version.outputs.checks_changed == 'true'
     needs: version
     env:
       APP_VERSION: ${{ needs.version.outputs.version }}
@@ -103,6 +114,7 @@ jobs:
           fi
 
   build-and-push:
+    if: needs.version.outputs.app_changed == 'true'
     needs: [version, runtime-check]
     runs-on: ubuntu-latest
     permissions:

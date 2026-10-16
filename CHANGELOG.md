@@ -6,9 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- README um vier echte Demo-Screenshots ergänzen: acht Aquarien und Pflanzenkatalog im hellen Design sowie Aquarium-Messverläufe mit einer zweimonatigen Messreihe und Artenkatalog im dunklen Design. Bilder komprimiert unter `docs/screenshots` ablegen, in voller Größe verlinken und Aufnahmehinweise dokumentieren; keine zusätzlichen App-Ressourcen laden. Nutzerhandbuch-Links auf `https://aquarium-logbuch.de/handbuch` ausrichten.
+- Docker-Pipeline anhand tatsächlicher Dateiänderungen steuern: reine Repository-Dokumentation und Screenshots ohne Build oder Veröffentlichung überspringen, reine Teständerungen weiterhin unter Node/Bun prüfen. Versionszähler nur für App-/Server-/Build-relevante Feature- und Fix-Commits erhöhen; ausgeliefertes Handbuch, Kataloge, Abhängigkeiten, Release-Tags und sichere Rückfälle berücksichtigen. Gemeinsame Änderungsprüfung, Git-Regressionstests und Dokumentation ergänzen.
 
 ## 0.3.0-ALPHA
+
+- 2026-10-16 · README um vier echte Demo-Screenshots ergänzen: acht Aquarien und Pflanzenkatalog im hellen Design sowie Aquarium-Messverläufe mit einer zweimonatigen Messreihe und Artenkatalog im dunklen Design. Bilder komprimiert unter `docs/screenshots` ablegen, in voller Größe verlinken und Aufnahmehinweise dokumentieren; keine zusätzlichen App-Ressourcen laden. Nutzerhandbuch-Links auf `https://aquarium-logbuch.de/handbuch` ausrichten (`3a95db20728c886585ea4530efb3e2657d17ef5e`).
 
 - 2026-10-16 · Nutzerhandbuch mit Screenshots direkt im Kopfbereich der deutschen README verlinken und von der technischen Dokumentation unterscheiden (`13652220affb0b42837294495987ee1ba2c04499`).
 

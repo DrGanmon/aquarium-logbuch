@@ -4,8 +4,8 @@
 
 Das Format ist **`MAJOR.MINOR.REVISION[-PATCH]-ALPHA`**; `ALPHA` ist immer enthalten. Die Version steht rechts im Footer. Ausgangspunkt ist `0.0.0-ALPHA`, festgelegt in `../../version.json` mit einem Git-Basiscommit.
 
-- Jeder Commit mit `feat:` oder `feat(bereich):` erhöht die **Revision** und setzt den Patch auf 0 zurück.
-- Jeder Commit mit `fix:` oder `fix(bereich):` erhöht den **Patch**. Patch 0 wird nicht angezeigt: `1.0.3-ALPHA` → Fix → `1.0.3-1-ALPHA` → Feature → `1.0.4-ALPHA`.
+- Jeder Commit mit Änderungen an App, Server oder Build-Eingaben und `feat:` oder `feat(bereich):` erhöht die **Revision** und setzt den Patch auf 0 zurück.
+- Jeder Commit mit solchen Änderungen und `fix:` oder `fix(bereich):` erhöht den **Patch**. Patch 0 wird nicht angezeigt: `1.0.3-ALPHA` → Fix → `1.0.3-1-ALPHA` → Feature → `1.0.4-ALPHA`.
 - Andere Commit-Typen ändern die Nummer nicht. Merge-Commits werden nicht doppelt gezählt. Auch `feat!:` und `fix!:` erhöhen ausschließlich Revision bzw. Patch; Major und Minor bleiben manuell.
 - **Major/Minor manuell:** `npm run version:major` bzw. `npm run version:minor` (mit Bun: `bun run version:major:bun` / `bun run version:minor:bun`). Diese Befehle setzen Revision/Patch zurück und speichern einen neuen Basiscommit. Danach die geänderten Versionsdateien beispielsweise mit `chore: manuelle Minor-Version erhöhen` committen. Ein Major-Sprung setzt zusätzlich Minor auf 0.
 - Die App prüft beim Start, alle fünf Minuten in sichtbaren Tabs sowie bei Rückkehr zum Tab oder Wiederherstellung der Verbindung die Frontend-Inhaltsversion ohne Browser-Cache. Bei einem anderen Hash bietet sie „Jetzt laden“ oder „Später“ an, auch bei einem Rollback. „Später“ unterdrückt diesen Hash bis zum nächsten Seitenaufruf. Reine App-/Backend-Versionsänderungen lösen kein Frontend-Update aus. Im Vite-Entwicklungsmodus übernimmt Hot Reload die Aktualisierung.
@@ -13,6 +13,14 @@ Das Format ist **`MAJOR.MINOR.REVISION[-PATCH]-ALPHA`**; `ALPHA` ist immer entha
 - Die Docker-Pipeline berechnet die Nummer einmal und verwendet denselben Wert für Footer, Backup-Metadaten, OCI-Label und den vollständigen Image-Tag, etwa `ghcr.io/drganmon/aquarium-logbuch:1.0.4-2-ALPHA`. Die Versions-Tags werden auf dem Default-Branch und bei passenden `v…`-Release-Tags veröffentlicht; `latest`, Branch- und SHA-Tags bleiben verfügbar. Pull Requests veröffentlichen keine Images.
 - **Compose fest auf eine Version setzen:** `AQUARIUM_VERSION=1.0.4-2-ALPHA docker compose --project-directory . -f docker/docker-compose.yml up -d`; alternativ `AQUARIUM_VERSION` in `.env` setzen. Ohne Angabe wird weiterhin `latest` verwendet.
 - **Lokales Docker-Image:** `APP_VERSION=$(node scripts/version.js)` und danach `docker build -f docker/Dockerfile --build-arg APP_VERSION="$APP_VERSION" -t "aquarium-logbuch:$APP_VERSION" .`. Ohne Git-Historie und ohne explizites `APP_VERSION` wird nur der in `../../version.json` hinterlegte Ausgangswert verwendet. Eine unvollständige Historie in einem Git-Checkout verursacht einen Fehler statt einer falschen Versionsnummer.
+
+## Builds nur bei relevanten Änderungen
+
+Die GitHub-Pipeline prüft mit `scripts/build-changes.js` die tatsächlich geänderten Dateien. Reine Änderungen an README, Changelog, `AGENTS.md`, Dokumentationsquellen unter `docs/` oder Entwicklungswerkzeugen unter `tools/` erzeugen kein Docker-Image und starten keine Laufzeit-Builds. Auch ein versehentlich mit `feat:` oder `fix:` benannter reiner Dokumentations-, Test- oder leerer Commit erhöht die App-Version nicht. Tests unter `test/` lösen weiterhin die Node-/Bun-Prüfungen aus, veröffentlichen allein aber kein Image.
+
+App- und Servercode, Katalogdaten, öffentliche Dateien, Abhängigkeiten, Versionsdateien, Docker-/Build-Konfiguration und CI-Workflow lösen weiterhin Builds aus. Das ausgelieferte Handbuch unter `public/handbuch/` gehört dazu, damit Änderungen daran im Image ankommen; seine Quellen unter `docs/user-guide/` allein reichen nicht. Unbekannte Dateipfade werden vorsichtshalber ebenfalls gebaut. Die bestehende Trennung von App-Version, Frontend-Hash und Katalogversionen bleibt erhalten.
+
+Bei Pushes wird der vorherige Branchstand mit dem neuen Stand verglichen; Pull Requests verwenden den gemeinsamen Vorfahren des Zielbranches. Neue Branches, fehlende Vergleichsobjekte und explizite Release-Tags führen vorsichtshalber zum vollständigen Build. Release-Tags müssen weiterhin zur berechneten Version passen. Manuell aufgerufene lokale Builds (`npm run dist` / `bun run dist:bun`) laufen weiterhin vollständig, damit fehlende oder gelöschte Build-Dateien wiederhergestellt werden.
 
 ## Eigene Frontend-Version
 

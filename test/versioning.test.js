@@ -31,13 +31,14 @@ test('Version: Git-Historie zählt Feats und Fixes reproduzierbar; manuelle Mino
   const baseCommit = git('rev-parse', 'HEAD');
   fs.writeFileSync(path.join(cwd, 'version.json'), JSON.stringify({ ...baseline, baseCommit }));
   git('add', 'version.json');git('commit', '-m', 'chore: version configuration');
-  git('commit', '--allow-empty', '-m', 'feat: one');git('commit', '--allow-empty', '-m', 'fix: one');git('commit', '--allow-empty', '-m', 'fix: two');
+  const appCommit = subject => { fs.appendFileSync(path.join(cwd, 'server.js'), '// ' + subject + '\n');git('add', 'server.js');git('commit', '-m', subject); };
+  appCommit('feat: one');appCommit('fix: one');appCommit('fix: two');
   assert.equal(resolveVersion({ cwd, override: '' }), '1.2.4-2-ALPHA');
   assert.equal(resolveVersion({ cwd, override: '' }), '1.2.4-2-ALPHA');
   assert.equal(bumpManual('minor', cwd), '1.3.0-ALPHA');
   assert.equal(resolveVersion({ cwd, override: '' }), '1.3.0-ALPHA');
   git('add', 'version.json');git('commit', '-m', 'chore: manual minor');
-  git('commit', '--allow-empty', '-m', 'feat: next');
+  appCommit('feat: next');
   assert.equal(resolveVersion({ cwd, override: '' }), '1.3.1-ALPHA');
   assert.equal(bumpManual('major', cwd), '2.0.0-ALPHA');
 });

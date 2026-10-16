@@ -4,13 +4,21 @@
 
 Versions use **`MAJOR.MINOR.REVISION[-PATCH]-ALPHA`**, always including `ALPHA`, and appear on the right of the footer. `../../version.json` records the initial `0.0.0-ALPHA` counters and Git baseline.
 
-Each `feat:` / `feat(scope):` commit increments revision and resets patch. Each `fix:` / `fix(scope):` increments patch. Patch 0 is omitted: `1.0.3-ALPHA` → fix → `1.0.3-1-ALPHA` → feature → `1.0.4-ALPHA`. Other commit types do not increment counters; merge commits are excluded to prevent double counting. Breaking-change markers do not automatically change major/minor.
+Each `feat:` / `feat(scope):` commit that changes application, server or build inputs increments revision and resets patch. Each `fix:` / `fix(scope):` with such changes increments patch. Patch 0 is omitted: `1.0.3-ALPHA` → fix → `1.0.3-1-ALPHA` → feature → `1.0.4-ALPHA`. Other commit types do not increment counters; merge commits are excluded to prevent double counting. Breaking-change markers do not automatically change major/minor.
 
 Use `npm run version:major` / `npm run version:minor` manually, or `bun run version:major:bun` / `bun run version:minor:bun`. These reset revision/patch and record a new baseline; major also resets minor. Commit the changed files using a message such as `chore: increase minor version`. `node scripts/version.js` prints the calculated version. Builds calculate it from Git history; commits become visible after rebuilding or restarting Vite.
 
 CI uses one calculated value for the footer, backup metadata, OCI label and full Docker tag, e.g. `ghcr.io/drganmon/aquarium-logbuch:1.0.4-2-ALPHA`. Version tags are published on the default branch and matching `v…` release tags. Existing latest/branch/SHA tags remain; pull requests do not publish images. Pin Compose with `AQUARIUM_VERSION=1.0.4-2-ALPHA docker compose --project-directory . -f docker/docker-compose.yml up -d`, or set the variable in `.env`; it defaults to `latest`.
 
 For a local Docker build, run `APP_VERSION=$(node scripts/version.js)` followed by `docker build -f docker/Dockerfile --build-arg APP_VERSION="$APP_VERSION" -t "aquarium-logbuch:$APP_VERSION" .`. Source archives without Git use the recorded baseline unless an explicit `APP_VERSION` is supplied. An incomplete Git checkout fails instead of silently producing an incorrect counter.
+
+## Build only when relevant files change
+
+GitHub uses `scripts/build-changes.js` to compare changed files. README, changelog, `AGENTS.md`, documentation and screenshots under `docs/`, and development tools under `tools/` do not trigger runtime builds or Docker publishing. Documentation-only, test-only and empty commits do not increase the version even when named `feat:` or `fix:`. Test changes still run the Node/Bun checks without publishing an image.
+
+Application/server code, catalogs, public assets, dependencies, version files, Docker/build configuration and CI workflows remain build inputs. The shipped manual under `public/handbuch/` must trigger a build so updates reach the image; changing its source under `docs/user-guide/` alone does not. Unknown paths trigger builds conservatively. App versions, frontend hashes and catalog versions remain separate.
+
+Pushes compare the previous branch state with the new state. Pull requests compare against the common ancestor of the target branch. New branches, missing comparison objects and explicit release tags force a full build; release tags must still match the calculated version. Explicit local builds (`npm run dist` / `bun run dist:bun`) always run, including when generated output needs to be restored.
 
 ## Frontend update notification
 

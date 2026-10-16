@@ -61,6 +61,7 @@ Weitere Ansichten und Schrittfolgen findest du im [öffentlichen Nutzerhandbuch]
 - Zweisprachiger Ersteinrichtungs-Wizard für das erste Admin-Konto, SMTP, automatische Backups und den Registrierungsmodus; die übrige Anwendung bleibt bis zum Abschluss gesperrt.
 - Datenbankmigrationen, verschlüsselte manuelle/automatische Sicherungen und passwortgeschützte Wiederherstellung inklusive Uploads.
 - Docker-Images für AMD64/ARM64; Compose-Vorlagen für SQLite und MongoDB.
+- GitHub baut und veröffentlicht Docker-Images nur bei Änderungen an App, Server oder ausgelieferten Ressourcen; reine README- und Screenshot-Änderungen lösen keine neue Version aus. [Build- und Versionsregeln](docs/de/versioning.md#builds-nur-bei-relevanten-änderungen).
 - Automatische Versionsberechnung aus Commit-Typen, Typprüfung und parallel isolierte Tests für beide Datenbankadapter und Runtimes.
 
 ## Offline-Betrieb und getrennte Updates
