@@ -6,9 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- GitHub-Build unter Bun reparieren: Offline-Bedienelemente erst nach Anmeldung als eigenen Chunk laden, damit das Startbundle auch unter Bun 1.4.3 unter der bestehenden 350-KB-Grenze bleibt. Build-Regressionstest auf die Trennung erweitern; Node-22-/Bun-Produktionsbuilds und mobile Offline-Erfassung mit anschließender Synchronisierung prüfen.
+- Arten-, Pflanzen- und Gesundheitskataloge einschließlich ihrer Bilddateien gegen versehentliche Aufnahme in Frontend- und Web-Worker-Bundles absichern. Reale Build-Vergleiche prüfen, dass reine Katalogänderungen weder Frontend-Inhaltshash noch Service Worker ändern, während Oberflächenänderungen weiterhin eine neue Fassung erzeugen. Datenabgleich bleibt separat versioniert; Dokumentation ergänzen.
 
 ## 0.2.5-ALPHA
+
+- 2026-10-16 · GitHub-Build unter Bun reparieren: Offline-Bedienelemente erst nach Anmeldung als eigenen Chunk laden, damit das Startbundle auch unter Bun 1.4.3 unter der bestehenden 350-KB-Grenze bleibt. Build-Regressionstest auf die Trennung erweitern; Node-22-/Bun-Produktionsbuilds und mobile Offline-Erfassung mit anschließender Synchronisierung prüfen (`ec85f2bc26337bcc2ab8bc876ec823a893142f36`).
 
 - 2026-10-16 · Sicherheits- und Fehlerprüfung der sechs lokalen Offline-/Frontend-Commits: lokale Sitzungen bei Kontowechsel oder Abmeldung in einem anderen Tab verwerfen, wiederholte Offline-Aktionen nach Entzug einer Freigabe sperren und erfolgreiche Abmeldungen auch bei lokalem Speicherfehler abschließen. Caches installierender oder wartender Frontend-Updates vor Bereinigung schützen, die tatsächlich vorbereitete Fassung prüfen und bereits in anderen Tabs aktivierte Updates nach Bestätigung laden. API-Dokumentation und Regressionstests ergänzen (`f7f2125c71a425340ccab97b1cefb31c8dd4fcdb`).
 

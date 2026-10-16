@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { fileURLToPath } from "node:url";
 import { readFileSync, readdirSync, rmSync } from "node:fs";
@@ -8,6 +8,20 @@ import revision from "./scripts/frontend-revision.js";
 import versioning from "./scripts/version.js";
 
 const publicRoot = fileURLToPath(new URL("./public", import.meta.url));
+function catalogDataBoundary(): Plugin {
+  return {
+    name: 'aquarium-catalog-data-boundary',
+    generateBundle() {
+      // Catalog data has its own versioned API; keep it out of shell identities.
+      for (const id of this.getModuleIds()) {
+        const modulePath = id.replaceAll('\\', '/').split('?')[0];
+        if (/\/(?:src\/config\/(?:species|plants|health)|public\/(?:species-images|plants-images))\//.test(modulePath)) {
+          this.error(`Katalogdaten dürfen nicht ins Frontend-Bundle importiert werden: ${id}. Stattdessen die Katalog-API verwenden.`);
+        }
+      }
+    },
+  };
+}
 export default defineConfig(({ mode }) => {
   const appVersion = versioning.resolveVersion();
   const minify = mode === "production";
@@ -23,6 +37,7 @@ export default defineConfig(({ mode }) => {
       ),
     },
     plugins: [
+      catalogDataBoundary(),
       vue({ template: { transformAssetUrls: false } }),
       {
         name: "aquarium-entries",
@@ -104,6 +119,7 @@ export default defineConfig(({ mode }) => {
       ),
     },
     worker: {
+      plugins: () => [catalogDataBoundary()],
       format: "es",
       rolldownOptions: { output: { entryFileNames: `worker${suffix}.js` } },
     },
