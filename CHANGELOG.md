@@ -6,9 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Öffentliches, ohne Anmeldung erreichbares Nutzerhandbuch unter `/handbuch/` mit 32 Kapiteln, 31 echten Demo-Screenshots, Schrittfolgen, Inhaltsverzeichnis, Handy- und Druckansicht ergänzen. Alle Anwendungsbereiche einschließlich Offline-Konflikten und Administration erklären und im App-Footer verlinken. Statische Auslieferung ohne JavaScript, Tracking oder externe Ressourcen; Bilder nur beim Lesen nachladen und Handbuchdateien aus Frontend-Hash und Offline-Shell heraushalten. Pflegeanleitung, Dokumentationsverweise und Regressionstests für öffentliche Erreichbarkeit, Vollständigkeit und Build-Isolation ergänzen; veraltete technische Angaben zu Offline-Betrieb und Administratorrollen korrigieren.
+- Lokalen Datenstand und „Jetzt synchronisieren“ ausschließlich im Offline-Modus anzeigen und die Statuskarte bei gesunder Serververbindung ausblenden. Offene Änderungen, Konflikte und Fehler bleiben auch online sichtbar; der automatische Datenabgleich läuft weiter. Darstellungstests sowie Handbuchtexte und betroffene Demo-Screenshots aktualisieren.
 
 ## 0.3.0-ALPHA
+
+- 2026-10-16 · Öffentliches, ohne Anmeldung erreichbares Nutzerhandbuch unter `/handbuch/` mit 32 Kapiteln, 31 echten Demo-Screenshots, Schrittfolgen, Inhaltsverzeichnis, Handy- und Druckansicht ergänzen. Alle Anwendungsbereiche einschließlich Offline-Konflikten und Administration erklären und im App-Footer verlinken. Statische Auslieferung ohne JavaScript, Tracking oder externe Ressourcen; Bilder nur beim Lesen nachladen und Handbuchdateien aus Frontend-Hash und Offline-Shell heraushalten. Pflegeanleitung, Dokumentationsverweise und Regressionstests für öffentliche Erreichbarkeit, Vollständigkeit und Build-Isolation ergänzen; veraltete technische Angaben zu Offline-Betrieb und Administratorrollen korrigieren (`5fe2045361a9b64887a1d152111765b24e93faa7`).
 
 - 2026-10-16 · Minor-Versionsbasis auf `0.3.0-ALPHA` erhöhen, Revision und Patch zurücksetzen und Paketmetadaten angleichen. Deutsche und englische README um die neuen Funktionen für Offline-Erfassung, Offline-Kataloge, lokale Diagnose und CSV-Verarbeitung, getrennte Updates, Synchronisierung und mobile Betriebsgrenzen ergänzen; keine feste Versionsangabe in die README aufnehmen. Architektur- und Sicherheitsvorgaben für das neue App-Konzept in `AGENTS.md` festhalten (`841cd6c330d9347ed0ee22c118e4112831fba220`).
 

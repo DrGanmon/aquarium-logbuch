@@ -24,9 +24,11 @@ function describe(body: Record<string, any>) {
 }
 </script>
 <template>
-  <aside class="card stack" aria-live="polite">
-    <p v-if="offlineState.workspaceUpdatedAt">{{ t('offline.workspaceReady') }} {{ new Date(offlineState.workspaceUpdatedAt).toLocaleString() }}</p>
-    <p v-else>{{ t('offline.workspacePreparing') }}</p>
+  <aside v-if="offlineState.offline || offlineState.pending.length || offlineState.workspaceError || offlineState.catalogError || offlineState.error" class="card stack" aria-live="polite">
+    <template v-if="offlineState.offline">
+      <p v-if="offlineState.workspaceUpdatedAt">{{ t('offline.workspaceReady') }} {{ new Date(offlineState.workspaceUpdatedAt).toLocaleString() }}</p>
+      <p v-else>{{ t('offline.workspacePreparing') }}</p>
+    </template>
     <p v-if="offlineState.photoProgress">{{ t('offline.photos') }} {{ offlineState.photoProgress }}</p>
     <p v-if="offlineState.offline || offlineState.pending.length">{{ offlineState.offline ? t('offline.offline') : t('offline.pending', { count: offlineState.pending.length }) }}</p>
     <p v-if="offlineState.workspaceError" role="alert">{{ t('offline.workspaceError') }} {{ offlineState.workspaceError }}</p>
@@ -50,6 +52,6 @@ function describe(body: Record<string, any>) {
         <button class="btn ghost" type="button" :disabled="offlineState.syncing" @click="discard(item)">{{ t('offline.discard') }}</button>
       </div>
     </details>
-    <button class="btn" type="button" :disabled="offlineState.syncing || offlineState.workspaceSyncing" @click="synchronize">{{ t('offline.sync') }}</button>
+    <button v-if="offlineState.offline" class="btn" type="button" :disabled="offlineState.syncing || offlineState.workspaceSyncing" @click="synchronize">{{ t('offline.sync') }}</button>
   </aside>
 </template>

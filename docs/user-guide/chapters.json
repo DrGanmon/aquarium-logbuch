@@ -30,7 +30,7 @@
       "Öffne ein Aquarium über seine Karte. Dort siehst du aktuelle Werte, Warnungen, Pflegezyklen und alle weiteren Bereiche.",
       "Über die Kopfzeile erreichst du Arten, Pflanzen, Gesundheit, Social, Hinweise und dein Profil.",
       "Wechsle mit der Sprachschaltfläche zwischen Deutsch und Englisch. Über das Farbsymbol wählst du ein helles, dunkles oder systemabhängiges Design.",
-      "Oben informiert dich der Offline-Status, ob deine Aquariendaten lokal verfügbar sind. „Jetzt synchronisieren“ stößt den Datenabgleich an."
+      "Online gleicht die App Daten automatisch mit dem Server ab. Nur im Offline-Modus erscheinen der lokale Datenstand und „Jetzt synchronisieren“. Sobald der Server wieder erreichbar ist, werden diese Elemente ausgeblendet. Offene Änderungen oder Fehler bleiben zur Prüfung sichtbar."
     ],
     "extra": [
       {
@@ -413,7 +413,7 @@
   {
     "id": "offline",
     "title": "Auf dem Handy und ohne Verbindung arbeiten",
-    "intro": "Öffne die App zuerst online und warte, bis deine Aquariendaten als offline verfügbar angezeigt werden.",
+    "intro": "Öffne die App zuerst online und warte, bis der automatische Abgleich deiner Aquariendaten abgeschlossen ist.",
     "image": "offline",
     "caption": "Mobile Ansicht ohne Verbindung mit einer noch nicht übertragenen Demo-Messung.",
     "steps": [
@@ -421,7 +421,7 @@
       "Du kannst die App über das Browsermenü zum Startbildschirm hinzufügen. Auf iPhone und Android unterscheiden sich die Namen der Menüpunkte.",
       "Warte beim ersten Online-Start auf den Abgleich. Kataloge und Bilder können zusätzlich Zeit benötigen.",
       "Ohne Verbindung kannst du synchronisierte Aquarien ansehen und unterstützte Mess-, Pflege- und Bearbeitungsaktionen lokal vormerken.",
-      "Die Offline-Anzeige zeigt offene Änderungen. Lass die App beim Wiederverbinden geöffnet und nutze bei Bedarf „Jetzt synchronisieren“.",
+      "Ohne Serververbindung siehst du den lokalen Datenstand, offene Änderungen und „Jetzt synchronisieren“. Bei Wiederverbindung werden die Daten automatisch abgeglichen; Datenstand und Schaltfläche verschwinden wieder. Lass die App dafür geöffnet.",
       "Warte, bis keine offenen Änderungen mehr angezeigt werden, bevor du das Gerät wechselst oder Browserdaten löschst."
     ],
     "extra": [
