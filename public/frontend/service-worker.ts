@@ -13,27 +13,75 @@ interface Timer {
 }
 // Build-time values include all lazy chunks so previously unopened views work offline.
 const offlineAssets: string[] = /* OFFLINE_ASSETS */ [];
+const offlineRevisions: Record<string, string> = /* OFFLINE_REVISIONS */ {};
 const offlineBuild: string = /* OFFLINE_BUILD */ 'dev';
 const shellPrefix = `aquarium-shell:${scope.registration.scope}:`;
 const shellCache = shellPrefix + offlineBuild;
 const shellUrls = new Set(offlineAssets.map(asset => new URL(asset, scope.registration.scope).href));
 const activeTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const revisionUrl = new URL('__frontend_revisions__', scope.registration.scope).href;
+const clientsUrl = new URL('__frontend_clients__', scope.registration.scope).href;
+let clientUpdates = Promise.resolve();
+async function shellNames() { return (await caches.keys()).filter(name => name.startsWith(shellPrefix)); }
 scope.addEventListener("install", (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(shellCache);
-    await cache.addAll([...shellUrls].map(url => new Request(url, { cache: 'reload' })));
-    await scope.skipWaiting();
+    const previous = await Promise.all((await shellNames()).filter(name => name !== shellCache).reverse().map(async name => {
+      const cache = await caches.open(name);
+      const revisions = await cache.match(revisionUrl);
+      return { cache, revisions: revisions ? await revisions.json() as Record<string, string> : {} };
+    }));
+    await Promise.all(offlineAssets.map(async asset => {
+      const url = new URL(asset, scope.registration.scope).href;
+      for (const old of previous) {
+        if (offlineRevisions[asset] && old.revisions[asset] === offlineRevisions[asset]) {
+          const response = await old.cache.match(url);
+          if (response) { await cache.put(url, response);return; }
+        }
+      }
+      await cache.add(new Request(url, { cache: 'no-cache' }));
+    }));
+    await cache.put(revisionUrl, new Response(JSON.stringify(offlineRevisions)));
+    // Updates wait for user confirmation; first installation activates normally.
   })());
 });
+async function rememberClient(id: string, version: string, prune = true) {
+  const cache = await caches.open(shellCache), saved = await cache.match(clientsUrl);
+  const versions: Record<string, string> = saved ? await saved.json() : {};
+  versions[id] = version;
+  if (!prune) { await cache.put(clientsUrl, new Response(JSON.stringify(versions)));return; }
+  const windows = (await scope.clients.matchAll({ type: 'window', includeUncontrolled: true })).filter(client => client.url.startsWith(scope.registration.scope));
+  const active = new Set(windows.map(client => client.id));
+  for (const key of Object.keys(versions)) if (!active.has(key)) delete versions[key];
+  await cache.put(clientsUrl, new Response(JSON.stringify(versions)));
+  // Unknown tabs may still use an old build. Keep their caches until they identify themselves.
+  if (windows.some(client => !versions[client.id])) return;
+  const keep = new Set([shellCache, ...Object.values(versions).map(version => shellPrefix + version)]);
+  for (const name of await shellNames()) if (!keep.has(name)) await caches.delete(name);
+}
 scope.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
-    for (const name of await caches.keys()) if (name.startsWith(shellPrefix) && name !== shellCache) await caches.delete(name);
+    if (!(await scope.clients.matchAll({ type: 'window', includeUncontrolled: true })).length) {
+      for (const name of await shellNames()) if (name !== shellCache) await caches.delete(name);
+    }
     await scope.clients.claim();
   })());
 });
 scope.addEventListener("message", (event: ExtendableMessageEvent) => {
-  const data = event.data as Timer;
+  const data = event.data as Timer & { version?: string };
   if (!data?.type) return;
+  if (data.type === 'ACTIVATE_UPDATE') {
+    if (data.version === offlineBuild) event.waitUntil(scope.skipWaiting());
+    return;
+  }
+  if (data.type === 'CLIENT_VERSION') {
+    if (data.version && /^[a-f0-9]{64}$/.test(data.version) && event.source && 'id' in event.source) {
+      const id = event.source.id, version = data.version;
+      clientUpdates = clientUpdates.catch(() => {}).then(() => rememberClient(id, version));
+      event.waitUntil(clientUpdates);
+    }
+    return;
+  }
   if (data.type === "SCHEDULE_TIMER") {
     clearTimeout(activeTimers.get(data.timerId));
     const timeout = setTimeout(
@@ -167,11 +215,28 @@ scope.addEventListener('fetch', (event) => {
     return;
   }
   if (request.mode === 'navigate' && (url.pathname === new URL('./', scope.registration.scope).pathname || url.pathname === new URL('index.html', scope.registration.scope).pathname)) {
-    event.respondWith(fetch(request).catch(async () => {
+    event.respondWith((async () => {
+      const id = event.resultingClientId || event.clientId;
+      if (id) {
+        clientUpdates = clientUpdates.catch(() => {}).then(() => rememberClient(id, offlineBuild, false));
+        await clientUpdates;
+      }
       const cached = await (await caches.open(shellCache)).match(scope.registration.scope);
-      return cached || Response.error();
-    }));
-  } else if (shellUrls.has(url.href)) {
-    event.respondWith((async () => (await (await caches.open(shellCache)).match(request)) || fetch(request))());
+      return cached || fetch(request);
+    })());
+  } else if (shellUrls.has(url.href) || (url.pathname.startsWith(basePath + 'dist/') && /\.(js|css)$/.test(url.pathname))) {
+    event.respondWith((async () => {
+      const cache = await caches.open(shellCache);
+      const clients = event.clientId ? await cache.match(clientsUrl) : undefined;
+      const version = clients ? (await clients.json())[event.clientId] : undefined;
+      const current = await (version && /^[a-f0-9]{64}$/.test(version) ? await caches.open(shellPrefix + version) : cache).match(request);
+      if (current) return current;
+      // Lazy imports in other open tabs can still refer to their previous build's chunks.
+      for (const name of await shellNames()) {
+        const previous = await (await caches.open(name)).match(request);
+        if (previous) return previous;
+      }
+      return fetch(request);
+    })());
   }
 });

@@ -136,9 +136,11 @@
   "frontendUpdate": {
     "title": "New version available",
     "message": "Frontend version {version} is available. Would you like to load it now?",
-    "warning": "The app will reload. Unsaved changes will be lost.",
+    "warning": "The app reloads only after you click. Finish active measurements and save your changes first.",
     "reload": "Load now",
-    "later": "Later"
+    "later": "Later",
+    "preparing": "The new version is being prepared for offline use.",
+    "failed": "The update could not be activated yet. Please try again."
   },
   "common": {
     "loadMore": "Load more entries",

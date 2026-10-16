@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { readFileSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import ts from "typescript";
-import { createHash } from "node:crypto";
+import revision from "./scripts/frontend-revision.js";
 import versioning from "./scripts/version.js";
 
 const publicRoot = fileURLToPath(new URL("./public", import.meta.url));
@@ -18,7 +18,6 @@ export default defineConfig(({ mode }) => {
     publicDir: false,
     base: "./",
     define: {
-      __APP_VERSION__: JSON.stringify(appVersion),
       "process.env.NODE_ENV": JSON.stringify(
         minify ? "production" : "development",
       ),
@@ -54,15 +53,20 @@ export default defineConfig(({ mode }) => {
         generateBundle: {
           order: "post",
           handler(_options, bundle) {
-            this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify({ version: appVersion }) + "\n" });
-            const workerSource = readFileSync(
-              join(publicRoot, "frontend/service-worker.ts"),
-              "utf8",
-            );
-            const assets = Object.keys(bundle).filter(name => /\.(js|css)$/.test(name)).map(name => `dist/${name}`);
-            const buildId = createHash('sha256').update(Object.values(bundle).map(item => item.type === 'chunk' ? item.code : String(item.source)).join('')).digest('hex').slice(0, 16);
-            const source = workerSource.replace('/* OFFLINE_ASSETS */ []', JSON.stringify(['./', 'manifest.json', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', ...assets]))
-              .replace("/* OFFLINE_BUILD */ 'dev'", JSON.stringify(buildId));
+            const workerSource = readFileSync(join(publicRoot, "frontend/service-worker.ts"), "utf8");
+            const files: Record<string, string | Uint8Array> = {};
+            for (const [name, item] of Object.entries(bundle)) {
+              if (/\.(js|css)$/.test(name)) files[`dist/${name}`] = item.type === 'chunk' ? item.code : item.source;
+            }
+            for (const name of ['index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon-16x16.png', 'favicon-32x32.png']) {
+              files[name === 'index.html' ? './' : name] = readFileSync(join(publicRoot, name));
+            }
+            const frontend = revision.frontendRevision(files, workerSource);
+            this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify({ version: appVersion, frontendVersion: frontend.version }) + "\n" });
+            this.emitFile({ type: "asset", fileName: "frontend-version.json", source: JSON.stringify(frontend) + "\n" });
+            const source = workerSource.replace('/* OFFLINE_ASSETS */ []', JSON.stringify(Object.keys(frontend.assets)))
+              .replace('/* OFFLINE_REVISIONS */ {}', JSON.stringify(frontend.assets))
+              .replace("/* OFFLINE_BUILD */ 'dev'", JSON.stringify(frontend.version));
             const result = ts.transpileModule(source, {
               compilerOptions: {
                 target: ts.ScriptTarget.ES2022,

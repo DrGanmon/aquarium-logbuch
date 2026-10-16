@@ -87,14 +87,15 @@ test('Offline shell: restart works from cached HTML/CSS, APIs bypass the shared 
   let offline = false;
   const shell = new Map();
   const cache = {
-    addAll: async requests => { for (const request of requests) shell.set(request.url, new Response(request.url.endsWith('.css') ? 'body{}' : '<html>App</html>')); },
+    add: async request => { shell.set(request.url, new Response(request.url.endsWith('.css') ? 'body{}' : '<html>App</html>')); },
+    put: async (request, response) => shell.set(typeof request === 'string' ? request : request.url, response),
     match: async request => shell.get(typeof request === 'string' ? request : request.url),
   };
   store.set(`aquarium-shell:${scopeUrl}:old`, cache);
   store.set('another-app', cache);
   load('public/frontend/service-worker.ts', {}, {
     self: { registration: { scope: scopeUrl }, location: { origin: 'https://example.test' },
-      addEventListener: (type, listener) => { listeners[type] = listener; }, skipWaiting: async () => {}, clients: { claim: async () => {} } },
+      addEventListener: (type, listener) => { listeners[type] = listener; }, skipWaiting: async () => {}, clients: { claim: async () => {}, matchAll: async () => [] } },
     URL, Request, Response, Map, Set,
     caches: { open: async key => { store.set(key, cache);return cache; }, keys: async () => [...store.keys()], delete: async key => store.delete(key) },
     fetch: async () => { if (offline) throw new TypeError('offline');return new Response('network'); },
@@ -246,4 +247,50 @@ test('Private photos: pending bytes take precedence over network and never cross
  listeners.fetch(event);assert.equal(await (await task).text(), 'local');assert.equal(calls, 0);
  records.set('activeOwner', 8);
  listeners.fetch(event);assert.equal((await task).type, 'error');assert.equal(calls, 1);
+});
+
+function updateWorkerFixture(fail = false) {
+ const listeners = {}, cachesByName = new Map(), downloaded = [];
+ const base = 'https://example.test/aquarium/', prefix = `aquarium-shell:${base}:`, old = 'a'.repeat(64), next = 'b'.repeat(64);
+ let windows = [{ id: 'old-tab', url: base }], skips = 0;
+ const open = async name => {
+  if (!cachesByName.has(name)) {
+   const rows = new Map();
+   cachesByName.set(name, { rows, match: async request => rows.get(typeof request === 'string' ? request : request.url)?.clone(),
+    put: async (request, response) => rows.set(typeof request === 'string' ? request : request.url, response.clone()),
+    add: async request => { downloaded.push(request.url);if (fail && request.url.endsWith('app.min.js')) throw new TypeError('interrupted');rows.set(request.url, new Response('new:' + request.url)); } });
+  }
+  return cachesByName.get(name);
+ };
+ const initialize = async () => {
+  const cache = await open(prefix + old);
+  await cache.put(base + '__frontend_revisions__', new Response(JSON.stringify({ './': 'old-html', 'dist/app.min.js': 'old-app', 'dist/chunk-kept.js': 'same' })));
+  await cache.put(base, new Response('old HTML'));await cache.put(base + 'dist/app.min.js', new Response('old app'));await cache.put(base + 'dist/chunk-kept.js', new Response('kept chunk'));
+  await open('another-app');
+  load('public/frontend/service-worker.ts', {}, {
+   self: { registration: { scope: base }, location: { origin: 'https://example.test' }, addEventListener: (type, listener) => { listeners[type] = listener; }, skipWaiting: async () => { skips++; }, clients: { claim: async () => {}, matchAll: async () => windows } },
+   URL, Request, Response, Map, Set, caches: { open, keys: async () => [...cachesByName.keys()], delete: async name => cachesByName.delete(name) },
+   fetch: async () => { throw new TypeError('No network needed for cached build'); },
+  }, source => source.replace('/* OFFLINE_ASSETS */ []', JSON.stringify(['./', 'dist/app.min.js', 'dist/chunk-kept.js'])).replace('/* OFFLINE_REVISIONS */ {}', JSON.stringify({ './': 'new-html', 'dist/app.min.js': 'new-app', 'dist/chunk-kept.js': 'same' })).replace("/* OFFLINE_BUILD */ 'dev'", JSON.stringify(next)));
+ };
+ const event = async (type, data = {}) => { let task;listeners[type]({ ...data, waitUntil: promise => { task = promise; }, respondWith: promise => { task = promise; } });return task; };
+ return { initialize, event, downloaded, cachesByName, base, prefix, old, next, skips: () => skips, windows: value => { windows = value; } };
+}
+test('Frontend cache: copy unchanged files, wait for confirmation, retain old tabs and serve coherent HTML', async () => {
+ const f = updateWorkerFixture();await f.initialize();await f.event('install');
+ assert.deepEqual(f.downloaded.sort(), [f.base, f.base + 'dist/app.min.js'].sort());assert.equal(f.skips(), 0);
+ await f.event('activate');assert.equal(f.cachesByName.has(f.prefix + f.old), true);
+ await f.event('message', { data: { type: 'ACTIVATE_UPDATE', version: f.old } });assert.equal(f.skips(), 0);
+ await f.event('message', { data: { type: 'ACTIVATE_UPDATE', version: f.next } });assert.equal(f.skips(), 1);
+ await f.event('message', { source: { id: 'old-tab' }, data: { type: 'CLIENT_VERSION', version: f.old } });
+ const asset = await f.event('fetch', { clientId: 'old-tab', request: new Request(f.base + 'dist/app.min.js') });assert.equal(await asset.text(), 'old app');
+ const html = await f.event('fetch', { resultingClientId: 'new-tab', request: { method: 'GET', mode: 'navigate', url: f.base } });assert.equal(await html.text(), 'new:' + f.base);
+ const newAsset = await f.event('fetch', { clientId: 'new-tab', request: new Request(f.base + 'dist/app.min.js') });assert.equal(await newAsset.text(), 'new:' + f.base + 'dist/app.min.js');
+ f.windows([{ id: 'new-tab', url: f.base }]);await f.event('message', { source: { id: 'new-tab' }, data: { type: 'CLIENT_VERSION', version: f.next } });
+ assert.equal(f.cachesByName.has(f.prefix + f.old), false);assert.equal(f.cachesByName.has('another-app'), true);
+});
+test('Frontend cache: interrupted installation preserves the active offline build', async () => {
+ const f = updateWorkerFixture(true);await f.initialize();await assert.rejects(f.event('install'), /interrupted/);
+ assert.equal(f.skips(), 0);assert.equal(f.cachesByName.has(f.prefix + f.old), true);
+ const cache = f.cachesByName.get(f.prefix + f.old);assert.equal(await (await cache.match(f.base)).text(), 'old HTML');
 });

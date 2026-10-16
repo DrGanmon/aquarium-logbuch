@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Translate } from "../types";
 defineProps<{ t: Translate }>();
-const version = __APP_VERSION__;
+import { appVersion as version } from "../composables/frontend-update";
 </script>
 
 <template>

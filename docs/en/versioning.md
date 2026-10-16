@@ -15,3 +15,11 @@ For a local Docker build, run `APP_VERSION=$(node scripts/version.js)` followed 
 ## Frontend update notification
 
 The app checks `dist/version.json` without browser caching at startup, every five minutes in visible tabs, when returning to the tab and when connectivity returns. A numerically newer version opens a dialog offering **Load now** or **Later**. Later dismisses that version until the next page load; a further newer version is offered again. Reloading discards unsaved input. Vite development mode uses hot reload instead. Failed checks are retried on subsequent triggers.
+
+## Independent frontend version
+
+Each build generates `public/dist/frontend-version.json` with `{schema:1,version,assets}`. The SHA-256 version covers JavaScript/CSS, the web worker, service-worker source and offline shell (HTML template, manifest and icons). Per-file hashes let the worker copy unchanged assets instead of downloading them again. App version numbers and source maps are excluded; backend-only releases do not trigger frontend updates. Shared code changes count when they change browser bundles. Do not edit or commit the generated file.
+
+`dist/version.json` retains the app `version` and adds `frontendVersion`. HTML metadata identifies the loaded frontend, and the footer receives the app version at runtime. Visible tabs check the small metadata file at startup, every five minutes, when returning to the tab and when reconnecting. A different hash, including a rollback, displays the update prompt. “Later” dismisses that hash until the next page load.
+
+Updates download in the background and wait for confirmation; the button stays disabled until installation finishes. “Load now” activates the offered worker and reloads only the requesting tab. Finish measurements and save inputs first. Other open tabs keep their old cached assets, including lazy views; caches are removed once all tabs have identified their versions and no longer need them. Unknown tabs prevent early cleanup. HTML and assets use a coherent cached build. Interrupted installations preserve the working offline build. Waiting updates can also activate normally after every old tab closes. Private IndexedDB data and catalog/photo caches are preserved. Service workers require HTTPS or localhost and an initial online visit. No Docker Compose changes are needed.

@@ -136,9 +136,11 @@
   "frontendUpdate": {
     "title": "Neue Version verfügbar",
     "message": "Frontend-Version {version} ist verfügbar. Möchtest du sie jetzt laden?",
-    "warning": "Die App wird neu geladen. Ungespeicherte Eingaben gehen dabei verloren.",
+    "warning": "Die App wird erst nach deinem Klick neu geladen. Beende vorher laufende Messungen und speichere deine Eingaben.",
     "reload": "Jetzt laden",
-    "later": "Später"
+    "later": "Später",
+    "preparing": "Die neue Fassung wird für die Offline-Nutzung vorbereitet.",
+    "failed": "Das Update konnte noch nicht aktiviert werden. Bitte erneut versuchen."
   },
   "common": {
     "loadMore": "Weitere Einträge laden",

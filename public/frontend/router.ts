@@ -27,8 +27,6 @@ export async function initialize() {
   } finally {
     session.ready = true;
   }
-  if ("serviceWorker" in navigator)
-    void navigator.serviceWorker.register("sw.js").catch(() => {});
 }
 export async function toggleLanguage() {
   language.value = language.value === "de" ? "en" : "de";

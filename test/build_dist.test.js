@@ -184,6 +184,23 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', { timeout: 600
 
   });
 
+  await t.test('Frontend-Hash bleibt bei reinen App-Versionsänderungen stabil', async () => {
+    const manifest = JSON.parse(fs.readFileSync(path.join(distDir, 'frontend-version.json'), 'utf8'));
+    assert.match(manifest.version, /^[a-f0-9]{64}$/);
+    const worker = fs.readFileSync(path.join(distDir, 'sw.js'), 'utf8');
+    const oldOverride = process.env.APP_VERSION;
+    try {
+      process.env.APP_VERSION = '99.1.2-ALPHA';
+      await buildFrontend({ minify: true });
+      assert.deepEqual(JSON.parse(fs.readFileSync(path.join(distDir, 'frontend-version.json'), 'utf8')), manifest);
+      assert.equal(fs.readFileSync(path.join(distDir, 'sw.js'), 'utf8'), worker);
+      assert.equal(JSON.parse(fs.readFileSync(path.join(distDir, 'version.json'), 'utf8')).version, '99.1.2-ALPHA');
+    } finally {
+      if (oldOverride === undefined) delete process.env.APP_VERSION;else process.env.APP_VERSION = oldOverride;
+      await buildFrontend({ minify: true });
+    }
+  });
+
   await t.test('Express bindet minifiziertes Bundle (dist/app.min.js & dist/style.min.css) bevorzugt ein', async () => {
     // Reuse the production bundle verified by the preceding awaited subtest.
     const { server, port } = await startAppServer();
@@ -195,6 +212,10 @@ test('Frontend Build vs. Dist Prozess (Unminified vs. Minified)', { timeout: 600
       assert.ok(html.includes('dist/app.min.js'), 'HTML bindet dist/app.min.js ein');
       assert.ok(html.includes('dist/style.min.css'), 'HTML bindet dist/style.min.css ein');
 
+      const version = JSON.parse(fs.readFileSync(path.join(distDir, 'frontend-version.json'), 'utf8')).version;
+      assert.ok(html.includes(`name="aquarium-frontend-version" content="${version}"`));
+      const metadata = await fetch(`http://127.0.0.1:${port}/dist/version.json`);
+      assert.equal((await metadata.json()).frontendVersion, version);
       await verifyServedBundles(port, 'app.min.js');
     } finally {
       server.close();

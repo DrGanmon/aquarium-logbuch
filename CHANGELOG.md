@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Vollständige Aquariendaten, private Bilder und Einstellungen benutzergetrennt offline bereitstellen; Aquarium-, Besatz-, Pflanzen-, Pflege-, Messungs-, Dünger- und Galerieaktionen dauerhaft einreihen und mit temporären IDs, atomaren Wiederholungsbelegen sowie sichtbaren Versionskonflikten zwischen Geräten synchronisieren. Diagnose, Verträglichkeit, Schwellenwerte, Zyklen und CSV lokal ausführen; Testbestand und sichere Profilfelder unterstützen. Statusanzeige, API-Dokumentation und Regressionstests erweitern. Authentifizierung, Kontosicherheit, KI, Freigaben, Social und Administration bleiben online.
+- Frontend unabhängig von der App-Version über einen reproduzierbaren SHA-256-Inhaltshash und eine eigene Build-Versionsdatei versionieren. Beim Service-Worker-Update unveränderte Dateien übernehmen, neue Fassungen erst nach Bestätigung aktivieren und alte Dateien für offene Tabs erhalten. Footer-Version zur Laufzeit laden; Update-Hinweis, Dokumentation und Regressionstests für Inhaltsänderungen, stabile Builds und Offline-Caches anpassen. Docker Compose benötigt keine zusätzliche Konfiguration.
+
+## 0.2.4-ALPHA
+
+- 2026-10-15 · Vollständige Aquariendaten, private Bilder und Einstellungen benutzergetrennt offline bereitstellen; Aquarium-, Besatz-, Pflanzen-, Pflege-, Messungs-, Dünger- und Galerieaktionen dauerhaft einreihen und mit temporären IDs, atomaren Wiederholungsbelegen sowie sichtbaren Versionskonflikten zwischen Geräten synchronisieren. Diagnose, Verträglichkeit, Schwellenwerte, Zyklen und CSV lokal ausführen; Testbestand und sichere Profilfelder unterstützen. Statusanzeige, API-Dokumentation und Regressionstests erweitern. Authentifizierung, Kontosicherheit, KI, Freigaben, Social und Administration bleiben online (`09f135a07d8d00fd76cc7752b4902f769ea9c988`).
 
 ## 0.2.3-ALPHA
 

@@ -140,7 +140,13 @@ function getIndexHtml() {
   html = html.replace(/<script type="module" src="[^"]+"><\/script>/, `<script type="module" src="${jsSrc}"></script>`);
   html = html.replace(/<link rel="stylesheet" href="[^"]*style[^"]*\.css"\s*\/?>/, `<link rel="stylesheet" href="${cssSrc}">`);
 
-  return html.replace('<head>', `<head>\n  <base href="${APP_PATH.replace(/["<>&]/g, '')}/">`);
+  let frontendVersion = '';
+  try { frontendVersion = JSON.parse(fs.readFileSync(path.join(publicDir, 'dist', 'frontend-version.json'), 'utf8')).version; } catch { /* Older builds have no frontend metadata. */ }
+  let appVersion = '';
+  try { appVersion = JSON.parse(fs.readFileSync(path.join(publicDir, 'dist', 'version.json'), 'utf8')).version; } catch { /* Development build without release metadata. */ }
+  const metadata = (/^[a-f0-9]{64}$/.test(frontendVersion) ? `<meta name="aquarium-frontend-version" content="${frontendVersion}">` : '')
+    + (/^[0-9.-]+-ALPHA$/.test(appVersion) ? `<meta name="aquarium-app-version" content="${appVersion}">` : '');
+  return html.replace('<head>', `<head>\n  ${metadata}\n  <base href="${APP_PATH.replace(/["<>&]/g, '')}/">`);
 }
 
 const sendIndex = (req: Request, res: Response) => {
