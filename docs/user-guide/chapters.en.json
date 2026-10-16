@@ -1,0 +1,615 @@
+[
+  {
+    "id": "start",
+    "title": "Sign in and get started",
+    "intro": "You need the address of your aquarium app and a user account. You can read this guide without signing in.",
+    "image": "anmeldung",
+    "caption": "The sign-in page. The server operator chooses which sign-in methods are available.",
+    "steps": [
+      "Open your app address in a browser. Sign in with your username or email address and password.",
+      "No account yet? Choose “Register” if registration is enabled. Enter the required information, then read and accept the terms of use.",
+      "Confirm your email address using the link you receive. If no message arrives, check your spam folder and ask the operator to check email delivery.",
+      "If you have an invitation, open its link first or enter the invitation code during registration.",
+      "If your operator has configured Pocket ID or another OpenID Connect provider, you can use the external sign-in option."
+    ],
+    "extra": [
+      {
+        "title": "Forgot your password?",
+        "text": "Use the password reset option on the sign-in page and open the link in the email. This requires configured email delivery. Never share your password or confirmation links."
+      }
+    ]
+  },
+  {
+    "id": "ueberblick",
+    "title": "Your overview",
+    "intro": "After signing in, you see your aquariums. Click the logo at the top left to return here at any time.",
+    "image": "uebersicht",
+    "caption": "The overview with a fictional example aquarium.",
+    "steps": [
+      "“My aquariums” shows tanks you own. “Shared with me” contains aquariums whose sharing invitations you have accepted.",
+      "Open an aquarium by selecting its card. You will find current readings, warnings, care cycles and the other sections there.",
+      "The header links to species, plants, health, Social, notifications and your profile.",
+      "Use the language button to switch between German and English. The theme button selects a light, dark or system theme.",
+      "When online, the app synchronizes data with the server automatically. The local data timestamp and “Synchronize now” appear only offline. They disappear when the server is reachable again. Pending changes and errors remain visible for review."
+    ],
+    "extra": [
+      {
+        "title": "Why do some sections appear only when scrolling?",
+        "text": "Charts, residents, plants and the logbook load progressively. Scroll to the section you need. If loading fails, you can retry that section."
+      }
+    ]
+  },
+  {
+    "id": "aquarium",
+    "title": "Create or edit an aquarium",
+    "intro": "An aquarium keeps measurements, animals, plants, photos and care activities together.",
+    "image": "aquarium-anlegen",
+    "caption": "The form for a new aquarium.",
+    "steps": [
+      "Choose “+ New aquarium” in the overview. Enter a name that helps you recognize the tank.",
+      "Choose freshwater or saltwater and enter its volume in liters. Add a motto, description and notes if needed.",
+      "Check the details and save the aquarium. It will appear in your overview.",
+      "To make changes, open the aquarium and choose “Edit”. You can also adjust care cycles using “Configure cycles” in the tank view.",
+      "Only delete an aquarium when you no longer need its data. Read the confirmation and export or back up important data first."
+    ],
+    "extra": [
+      {
+        "title": "Water type and residents belong together",
+        "text": "The water type affects available species, plants and assessments. Before changing it, check whether the existing residents are suitable."
+      }
+    ]
+  },
+  {
+    "id": "messung",
+    "title": "Measure and save water parameters",
+    "intro": "You can record individual readings or a complete set. Empty fields are not saved as measurements.",
+    "image": "messung",
+    "caption": "The measurement form with test selection, reaction timers and value fields.",
+    "steps": [
+      "Open your aquarium and choose “New measurement” or “Measure now”. Check the measurement time.",
+      "Open “Customize water tests” and select the tests you actually use. You can combine methods from different manufacturers.",
+      "“Apply suite” replaces your selection with that test suite. “Add suite” extends it; one method remains selected for each water parameter.",
+      "Follow the instructions supplied with your water test. Start the timer next to a parameter if needed. Several timers can run at the same time.",
+      "Enter the result you read. A decimal comma is accepted. The color indicator helps you interpret the value.",
+      "Add a note if needed and choose “Save measurement”. The reading appears in the aquarium history and logbook."
+    ],
+    "extra": [
+      {
+        "title": "Timers and notifications",
+        "text": "Choose “Enable” to allow browser notifications. Sound, vibration and keeping the screen awake depend on your device. Keep the app visible for important reaction times; phones may suspend background processes."
+      },
+      {
+        "title": "Changing methods during a measurement",
+        "text": "Changing the test method may discard a running timer and an unsaved value for that parameter. Choose the method before starting the test whenever possible."
+      }
+    ]
+  },
+  {
+    "id": "verlauf",
+    "title": "Understand charts, tables and warnings",
+    "intro": "Current readings appear near the top of the aquarium. The history shows how your water changes over time.",
+    "image": "verlauf",
+    "caption": "Measurement history with a date-range selector and an example chart.",
+    "steps": [
+      "Scroll to “History” in the aquarium. Choose a range such as seven days, three months, one year or all time.",
+      "For your own date range, choose “Custom” and set the start and end dates.",
+      "Compare the curve with the target range and marked critical limits. A single reading does not explain what caused a deviation.",
+      "The measurement table lists dates, values and notes. More rows load when needed.",
+      "Warnings appear in the aquarium and under “Notifications”. Check the reading and the conditions in your tank before acknowledging a warning.",
+      "With sufficient permission, you can delete an incorrectly recorded measurement. This does not restore the water test already consumed."
+    ],
+    "extra": [
+      {
+        "title": "Colors provide guidance",
+        "text": "Assessments depend on water type, stocking profiles and available thresholds. They do not replace a professional assessment of your aquarium."
+      }
+    ]
+  },
+  {
+    "id": "pflege",
+    "title": "Record care in the logbook",
+    "intro": "Use the logbook to record work on your tank. Measurements appear there too.",
+    "image": "logbuch",
+    "caption": "A new logbook entry for a water change.",
+    "steps": [
+      "Choose “New logbook entry” in the aquarium. Set the time and type of work.",
+      "For water changes, enter the percentage of water replaced. Describe other work in the appropriate fields.",
+      "You can document water changes, filter maintenance, plant trimming, new plants, cleaning, fertilization, feeding and other activities.",
+      "Save the entry. In “Aquarium logbook & activities”, filter by activity type or load older entries.",
+      "You can edit or delete care entries in your own aquariums or tanks shared with the appropriate permission."
+    ],
+    "extra": [
+      {
+        "title": "Set up reminders",
+        "text": "Use “Configure cycles” to set measurement and fertilization intervals, such as every seven days or on a specific weekday. The app shows due tasks. Email reminders require enabled reminders and configured email delivery."
+      }
+    ]
+  },
+  {
+    "id": "duengung",
+    "title": "Manage fertilizers and dosing plans",
+    "intro": "The app records fertilization and reminds you of planned work. It does not control a physical dosing pump.",
+    "image": "duenger",
+    "caption": "The fertilizer section with an example manual fertilizer.",
+    "steps": [
+      "Scroll to “Fertilizers” in the aquarium. Choose “+ Manual fertilizer” or “+ Dosing pump”.",
+      "Enter a clear name, the fertilizer, the amount in milliliters and the interval. Fill in the available time and reminder options.",
+      "For a manual fertilizer, confirm a dose you have actually administered using the provided button. This creates a logbook entry.",
+      "For automatic pump schedules, the app records due doses according to the plan. Check your physical pump independently.",
+      "Edit or pause a plan when your fertilization changes. Removing a plan leaves existing logbook entries intact."
+    ],
+    "extra": []
+  },
+  {
+    "id": "arten",
+    "title": "Use the species catalog as a reference",
+    "intro": "You can look up a species without adding a new resident.",
+    "image": "arten",
+    "caption": "The species catalog with water type, categories and search.",
+    "steps": [
+      "Open “Species catalog” in the header.",
+      "Filter by water type and category, or search by name.",
+      "Open a result. Read its water requirements, group guidance, minimum tank volume, care information and image credits.",
+      "If appropriate, add the species to an aquarium from its details or open the linked health information."
+    ],
+    "extra": []
+  },
+  {
+    "id": "besatz",
+    "title": "Animals and compatibility",
+    "intro": "Add animals through the species catalog whenever possible so their care requirements can be associated with them.",
+    "image": "besatz",
+    "caption": "Residents and welfare information for two example groups.",
+    "steps": [
+      "Open “Species catalog” and search for the species. Check its water type, tank volume and group requirements.",
+      "Open the species details and add the actual number of animals to your aquarium. You can give individual animals their own names.",
+      "In the aquarium, you can also add custom residents, change quantities and names, or upload a portrait.",
+      "For known species, “Species details” opens their information again. You can also start the diagnosis assistant from a resident.",
+      "Read compatibility guidance on group size, tank size, behavior and requirements. Custom entries without a catalog match have less automatic information.",
+      "Remove animals that are no longer in the tank so assessments and thresholds reflect the current stock."
+    ],
+    "extra": [
+      {
+        "title": "Browse the species catalog",
+        "text": "Filter by water type and category or search by name. Viewing an image does not share your aquarium. Sources and image credits are listed in the species details."
+      }
+    ]
+  },
+  {
+    "id": "pflanzen",
+    "title": "Find plants and add them to a tank",
+    "intro": "The plant catalog helps you find suitable plants and record the stock in your aquarium.",
+    "image": "pflanzen",
+    "caption": "The plant catalog with filters and illustrated entries.",
+    "steps": [
+      "Open “Plants” in the header. Filter by water type and category or enter a search term.",
+      "Open a plant and read its placement, lighting, growth and care guidance.",
+      "Choose an aquarium with a suitable water type and enter the quantity. Confirm the addition.",
+      "In the aquarium’s plant section, you can change quantities or remove plants.",
+      "To record trimming or planting in your history, add a separate logbook entry for that work."
+    ],
+    "extra": []
+  },
+  {
+    "id": "fotos",
+    "title": "Photos and gallery",
+    "intro": "Gallery photos belong to your aquarium. They are not automatically published in the public Social feed.",
+    "image": "galerie",
+    "caption": "The demo aquarium gallery with an explicitly artificial example illustration.",
+    "steps": [
+      "Choose “+ Upload photo” in the aquarium. PNG, JPG, WebP and GIF are supported up to the displayed five-megabyte limit.",
+      "Choose your own image and add a caption. You can set it as the aquarium’s cover photo.",
+      "Open a gallery image to view it at full size. You can change captions and the cover photo later.",
+      "With sufficient permission, you can delete images you no longer need.",
+      "Upload a resident portrait in the residents section. Change your own avatar in your profile."
+    ],
+    "extra": []
+  },
+  {
+    "id": "teilen",
+    "title": "Share an aquarium with other people",
+    "intro": "Sharing an aquarium is different from publishing a Social post. An aquarium share is granted to a specific user account.",
+    "image": "freigaben",
+    "caption": "An existing write-access share for the fictional leo_demo account.",
+    "steps": [
+      "Open an aquarium you own and choose “Share aquarium”. Search for the other account’s username or email address.",
+      "Choose “Read” if the person should only view the tank. “Write” also lets them maintain supported data.",
+      "The invited person accepts the invitation. They can then find the tank under “Shared with me”.",
+      "You can review existing shares, change roles or revoke access. Only the owner manages shares.",
+      "Invitations and permission changes require a server connection."
+    ],
+    "extra": [
+      {
+        "title": "What do the roles mean?",
+        "text": "Read access allows viewing data, history, residents and images. Write access additionally allows actions such as measurements, care entries and stocking changes. Only the owner can delete the entire aquarium. Revoking access cannot retroactively erase offline copies already saved on another person’s device."
+      }
+    ]
+  },
+  {
+    "id": "csv",
+    "title": "Import and export measurement data",
+    "intro": "CSV is a simple table format. Use it to transfer data or analyze it in a spreadsheet.",
+    "image": "csv-import",
+    "caption": "CSV import with a preview and column mapping.",
+    "steps": [
+      "Choose “CSV export” in the aquarium to download measurements. The semicolon option works well with Excel; it creates a CSV file, not an XLSX file.",
+      "Choose “CSV import” to bring in existing measurements. Upload a file or use the provided text field.",
+      "Check the delimiter and whether the first row contains column headers.",
+      "Map each required column to a field such as date, time, pH or note. Ignore columns you do not need.",
+      "Review the preview before starting the import. Read any notices about invalid or skipped rows.",
+      "After importing, check the history and table. Imported readings are assessed and may count toward test consumption."
+    ],
+    "extra": [
+      {
+        "title": "Before large imports",
+        "text": "Keep the original file and back up important existing data first. Intentionally importing the same file again is a new action; synchronization deduplication does not replace checking your import selection."
+      }
+    ]
+  },
+  {
+    "id": "gesundheit",
+    "title": "Diseases, diagnosis and treatments",
+    "intro": "The health section provides reference information and a question-based assistant. It cannot provide a definitive veterinary diagnosis.",
+    "image": "gesundheit",
+    "caption": "The health catalog with search and filters.",
+    "steps": [
+      "Open “Health”. Filter the disease catalog by water type, resident type or search term.",
+      "Open an entry and read its symptoms, causes, guidance, sources and associated treatments.",
+      "To use the diagnosis assistant, select its tab or launch it from an aquarium or resident.",
+      "Choose the aquarium and resident. Answer the questions as accurately as possible. Relevant current water readings may inform the assessment.",
+      "Read the list of possible conditions, the information it uses and the limits of the result. Seek professional help if you are unsure or symptoms are serious.",
+      "Under “Medications & supplies”, search for products and read their details, warnings, sources and legal information."
+    ],
+    "extra": [
+      {
+        "title": "Offline diagnosis and AI are separate",
+        "text": "Once the required catalogs and aquarium data have been downloaded, local diagnosis can work without a connection. An optional follow-up AI chat requires a connection and configured AI access."
+      },
+      {
+        "title": "Do not medicate based only on a list of matches",
+        "text": "Read the entry’s guidance, product instructions and professional advice. An association shown in the catalog is not an individual treatment recommendation."
+      }
+    ]
+  },
+  {
+    "id": "diagnose-bild",
+    "title": "Start the diagnosis assistant",
+    "intro": "First choose the affected animal or group. This is preselected if you start from the residents section.",
+    "image": "diagnose",
+    "caption": "The diagnosis assistant with aquarium and resident selection.",
+    "steps": [
+      "Check the aquarium and resident selection.",
+      "Start the questionnaire and answer each question in turn.",
+      "Review the result together with water readings, husbandry conditions and animal behavior. You can restart the assistant with updated information."
+    ],
+    "extra": []
+  },
+  {
+    "id": "mittel",
+    "title": "Look up medications and supplies",
+    "intro": "This catalog supplements disease details. It does not replace professional advice.",
+    "image": "medikamente",
+    "caption": "Medications and supplies with search and filters.",
+    "steps": [
+      "Open “Health”, then “Medications & supplies”.",
+      "Search by name or narrow down the list using the available filters.",
+      "Open the medication details. Pay particular attention to warnings, restrictions, sources and legal information.",
+      "Consult a knowledgeable professional or veterinarian where needed; do not apply a treatment based solely on a search result."
+    ],
+    "extra": []
+  },
+  {
+    "id": "ki",
+    "title": "Set up the optional AI assistant",
+    "intro": "AI is optional. You can manage your aquariums without your own AI access.",
+    "image": "ki-einstellungen",
+    "caption": "AI settings in the profile. No real access keys are shown.",
+    "steps": [
+      "Open your profile using your username and select the AI tab.",
+      "Choose an available provider, such as OpenAI, Google Gemini or Anthropic Claude. Enter your personal API key if the operator does not provide suitable access.",
+      "Choose an available model and save the settings. Use the connection test to check the setup.",
+      "In an aquarium, open the AI button once usable access is configured. Write a question or choose a quick question.",
+      "The app shows its progress while processing a request. If an error occurs, you can edit the question and send it again.",
+      "Remove personal keys you no longer need in your profile."
+    ],
+    "extra": [
+      {
+        "title": "What data is sent?",
+        "text": "An AI request sends your message and relevant aquarium context to the selected provider. Aquarium chats may save a conversation history; a chat after diagnosis is not saved as aquarium chat history when closed. Check the provider’s costs, privacy terms and responses. Never include keys in screenshots or Social posts."
+      }
+    ]
+  },
+  {
+    "id": "profil",
+    "title": "Profile, appearance and account security",
+    "intro": "Click your username in the header. Tabs separate personal details, appearance, AI, tests and invitations where available.",
+    "image": "profil",
+    "caption": "The fictional demo account’s profile.",
+    "steps": [
+      "Edit the available personal details, bio and avatar in your profile. Save your changes.",
+      "In the appearance section, choose your language, theme and default chart date range. You can also check supported notifications there.",
+      "With a local account, you can change your password. Changing your email address may require confirmation again.",
+      "If your operator has configured OpenID Connect, use the relevant section to link or unlink that sign-in method.",
+      "If user invitations are enabled, create codes or email invitations and view their status in the invitations tab.",
+      "Use “Sign out” in the header when finished, especially on shared devices."
+    ],
+    "extra": [
+      {
+        "title": "Delete your account",
+        "text": "Request account deletion in your profile, then confirm using the time-limited email link. This also removes associated aquariums you own and your Social content. Back up important data and synchronize pending changes first. Protected administrator accounts may have deletion restrictions."
+      }
+    ]
+  },
+  {
+    "id": "verbrauch",
+    "title": "Select water tests and manage consumption",
+    "intro": "Test selection defines how you measure. Consumption tracking helps you plan refills.",
+    "image": "testverbrauch",
+    "caption": "Test selection and consumption in the profile.",
+    "steps": [
+      "Open the water tests tab in your profile. Select the methods you use and save them.",
+      "In the consumption section, select the correct test suite and, where applicable, the variant or refill size.",
+      "Enter how much of your current bottle you have already used. Previous measurement history is not fully counted retroactively.",
+      "New saved readings increase the corresponding consumption. Empty values do not count. Deleting a measurement does not restore used reagent.",
+      "When adding a refill, reset that test’s counter. Adjust its capacity if it differs from the default.",
+      "Enable refill reminders if needed. Email notifications require a confirmed address and configured email delivery."
+    ],
+    "extra": [
+      {
+        "title": "Why is the assignment wrong?",
+        "text": "Check your selected method and suite. A test strip should not count as consumption of a liquid test. The app counts based on the test selection used for the measurement."
+      }
+    ]
+  },
+  {
+    "id": "nachkaufen",
+    "title": "Refills and purchase reminders",
+    "intro": "Consumption counters help you plan your next purchase in time.",
+    "image": "verbrauch",
+    "caption": "Consumption overview with capacity and refill options for the selected test suite.",
+    "steps": [
+      "Open “Water tests” in your profile and scroll to “Water test usage & refills”.",
+      "Select the correct suite and check each test’s variant, total capacity and amount already used.",
+      "When starting a new bottle or refill, reset only the corresponding counter.",
+      "Enable a purchase reminder if needed. At 75 percent consumption, an email may be queued once per refill if the address and mail delivery are ready."
+    ],
+    "extra": []
+  },
+  {
+    "id": "social",
+    "title": "Share photos, like and comment",
+    "intro": "Social has its own photo feed. Private gallery and resident photos are not published there automatically.",
+    "image": "social",
+    "caption": "A server-only demo post with an artificial example illustration.",
+    "steps": [
+      "Open “Social”. Visitors who are not signed in see only public posts; signed-in users also see server-only posts.",
+      "To create a post, choose an image and write a caption. Observe the displayed image and text limits.",
+      "Check visibility before publishing. New posts are server-only by default. Enable “Show in public feed” only if visitors without an account should see the post.",
+      "Use the heart to like a post or remove your like. Open comments to read them or add your own.",
+      "“Share” opens your device’s sharing dialog or copies the post link. Internal links still require sign-in.",
+      "You can delete your own posts and comments. Administrators can moderate content."
+    ],
+    "extra": [
+      {
+        "title": "Before uploading",
+        "text": "Use only images you have permission to publish. Check for visible people, addresses, documents or credentials. Social images are resized on the server; animated GIFs are processed as still images."
+      }
+    ]
+  },
+  {
+    "id": "hinweise",
+    "title": "Notifications in one place",
+    "intro": "“Notifications” collects reactions to your posts and water-parameter warnings from aquariums you can access.",
+    "image": "hinweise",
+    "caption": "The central notifications area. An empty section means no notifications are currently pending.",
+    "steps": [
+      "Open the notifications button in the header.",
+      "Open the associated post or aquarium to review what happened.",
+      "Mark Social notifications as read. With sufficient permission, you can acknowledge water-parameter warnings.",
+      "Acknowledging records that you have seen the warning. It does not change the reading or fix the cause in your tank."
+    ],
+    "extra": []
+  },
+  {
+    "id": "offline",
+    "title": "Work on your phone and without a connection",
+    "intro": "First open the app online and wait for automatic synchronization of your aquarium data to finish.",
+    "image": "offline",
+    "caption": "Mobile view without a connection and with a demo measurement waiting to upload.",
+    "steps": [
+      "Use your app’s HTTPS address on your phone. An HTTP address on your home network is not sufficient for offline features.",
+      "You can add the app to your home screen through the browser menu. Menu names differ between iPhone and Android.",
+      "Wait for synchronization on your first online visit. Catalogs and images may take additional time.",
+      "Without a connection, view synchronized aquariums and queue supported measurements, care entries and edits locally.",
+      "When the server is unavailable, you see the local data timestamp, pending changes and “Synchronize now”. Reconnecting synchronizes automatically and hides the timestamp and button. Keep the app open for this.",
+      "Before switching devices or deleting browser data, wait until no pending changes remain."
+    ],
+    "extra": [
+      {
+        "title": "What still needs a connection?",
+        "text": "New sign-ins, account security, AI, invitations and sharing, Social and administration require a connection. Catalogs are available offline only after downloading. Your operating system may suspend a closed or background app."
+      },
+      {
+        "title": "When two devices change the same data",
+        "text": "The app shows a conflict. Compare local and server data. “Keep local version” tries to save your version against the new baseline; another conflict is possible. “Discard” removes the local action and, where applicable, dependent actions. Independently recorded entries from different devices remain separate."
+      },
+      {
+        "title": "Local data is not a backup",
+        "text": "Pending changes exist only on this device and are not included in server backups. Browser data can be deleted. Synchronize regularly. Sign in again after an account change if another tab has changed your session."
+      }
+    ]
+  },
+  {
+    "id": "online-funktionen",
+    "title": "Online features when disconnected",
+    "intro": "Some features need the server, including Social, sharing, account security and AI. If it cannot be reached, a clear offline notice appears.",
+    "image": "online-funktionen",
+    "caption": "Actual mobile demo: Social is offline; “Check now” has retried the request and reports that the connection is still unavailable.",
+    "steps": [
+      "Check your Wi-Fi or mobile connection. Even with Wi-Fi connected, the app server may be unreachable.",
+      "Tap “Check now”. The app retries the same request. Without a connection, the notice stays open; with a connection, the action continues.",
+      "Use “Close” to cancel the request and continue using local aquarium data. Open the feature again later to start a new attempt.",
+      "If the connection broke while saving, check whether the action already succeeded before retrying. Otherwise, repeating it could create duplicate changes."
+    ],
+    "extra": [
+      {
+        "title": "No automatic online actions",
+        "text": "These requests are not stored persistently and are not replayed automatically when reconnecting. Changing the view or signed-in account discards the pending retry. Locally queued aquarium actions still synchronize through their separate offline queue."
+      }
+    ]
+  },
+  {
+    "id": "updates",
+    "title": "Updates without unexpected reloads",
+    "intro": "A new app version does not necessarily mean you need to reload the interface.",
+    "image": "updates",
+    "caption": "The real app’s update dialog; an older loaded frontend build was simulated in the demo.",
+    "steps": [
+      "If frontend files change, “New version available” appears. Finish ongoing measurements and save your input.",
+      "Wait for the update to be prepared if necessary. “Load now” activates the prepared build and reloads this tab.",
+      "Choose “Later” to keep working. Another new build may be offered again.",
+      "Changes only to species, plant or health data synchronize separately. They do not require a frontend update dialog.",
+      "If an update fails, restore the connection and retry. Other open tabs may still use their previous build."
+    ],
+    "extra": [
+      {
+        "title": "Catalogs are not downloaded on every click",
+        "text": "Existing offline catalogs are normally checked at most every twelve hours. Failed catalog synchronization can be retried. New data appears in the relevant views after successful synchronization."
+      }
+    ]
+  },
+  {
+    "id": "einrichtung",
+    "title": "For operators: initial setup",
+    "intro": "On an empty installation, the setup assistant guides you through the first settings. Afterwards, manage the app in the admin area.",
+    "image": "einrichtung",
+    "caption": "The setup assistant on an isolated, empty demo installation.",
+    "steps": [
+      "Open the new installation and create the first administrator account. Use a reachable email address and your own strong password.",
+      "Choose who can register: anyone, invited people only or nobody. You can change this later.",
+      "Configure SMTP for email delivery or leave it disabled for now. Without email delivery, confirmation messages, password resets and email reminders will not work reliably.",
+      "Configure automatic backups if needed and keep the backup password safe.",
+      "Complete setup. For public use, configure the correct public HTTPS address and reverse proxy if applicable."
+    ],
+    "extra": [
+      {
+        "title": "Install or update",
+        "text": "The repository’s technical documentation describes installation and server configuration. This user guide explains everyday use. Docker commands and server credentials belong with the operator."
+      }
+    ]
+  },
+  {
+    "id": "admin",
+    "title": "Administration: users and registration",
+    "intro": "Only authorized administrator accounts can see the admin area. Regular users do not need it for aquarium care.",
+    "image": "admin",
+    "caption": "The demo administrator’s user management view.",
+    "steps": [
+      "Open “Admin” in the header. Under “User management”, search accounts, create users or edit the available account details.",
+      "Grant administrator rights only to people allowed to manage server data and users. Check which data is affected before deleting an account.",
+      "Under “Invitations & registration”, set the registration mode and manage codes and email invitations.",
+      "Check expiration and usage limits before sending an invitation. Revoke invitations you no longer need.",
+      "“Metrics” shows the available aggregated usage data. A requested statistics password is separate from a regular account password."
+    ],
+    "extra": []
+  },
+  {
+    "id": "admin-einladungen",
+    "title": "Administration: manage invitations",
+    "intro": "Registration and invitations control who can create an account on your server.",
+    "image": "registrierung",
+    "caption": "Registration mode and invitation management.",
+    "steps": [
+      "Open “Admin”, then “Invitations & registration”.",
+      "Choose open registration, administrator invitations only, user invitations or closed registration. Check the effect before saving.",
+      "Create a code or email invitation and set its expiration and usage limit.",
+      "Share invitations only with the intended person and revoke invitations you no longer need."
+    ],
+    "extra": []
+  },
+  {
+    "id": "admin-metriken",
+    "title": "Administration: view metrics",
+    "intro": "This overview summarizes the available usage counts, such as users, aquariums and AI usage.",
+    "image": "metriken",
+    "caption": "The metrics area with its additional password prompt.",
+    "steps": [
+      "Open “Admin”, then “Metrics”.",
+      "If needed, set up the separate metrics password or use it to unlock the view.",
+      "Read the aggregated figures and available breakdowns. These are operational statistics, not assessments of your aquariums."
+    ],
+    "extra": []
+  },
+  {
+    "id": "mail",
+    "title": "Administration: email, legal details and logs",
+    "intro": "These settings affect everyone using your installation.",
+    "image": "mail",
+    "caption": "Email delivery and operator settings in the demo.",
+    "steps": [
+      "Open “Settings” in the admin area. Enter the SMTP server, port, encryption, credentials and sender address supplied by your email provider.",
+      "Save and send a test email. Check that it arrives. If it fails, review credentials, encryption, spam folders and server logs.",
+      "Check the mail queue when messages are delayed. Not every message is delivered immediately.",
+      "Maintain the available operator, contact and legal details for your installation. Public pages are also linked in the footer.",
+      "Under “Logs”, search messages and filter by severity. Older entries load progressively; review logs for personal data before sharing them."
+    ],
+    "extra": []
+  },
+  {
+    "id": "admin-logs",
+    "title": "Administration: find errors in logs",
+    "intro": "System logs help you investigate technical problems.",
+    "image": "logs",
+    "caption": "The demo system log with search and filters.",
+    "steps": [
+      "Open “Admin”, then “Logs”.",
+      "If needed, choose a severity such as warning or error and enter a search term.",
+      "Load older entries if the message you need is not yet visible.",
+      "Read each message together with its timestamp and the action performed. Remove personal data and credentials before sharing an excerpt."
+    ],
+    "extra": []
+  },
+  {
+    "id": "backups",
+    "title": "Administration: back up and restore",
+    "intro": "Backups protect data already saved on the server. Pending offline actions on other devices are not included.",
+    "image": "backups",
+    "caption": "The backup area. No actual restore was performed in the demo.",
+    "steps": [
+      "Open “Backups” in the admin area. Create a manual backup and choose the available image and encryption options.",
+      "Download important backups and store them separately from the app server. Back up the server’s shared app encryption key separately as well.",
+      "For automatic backups, set the interval, retention and available password and file options.",
+      "Before restoring, all users should synchronize pending offline actions. Also create a current backup of the existing server state.",
+      "Choose only a trusted backup and read the confirmation. Restoring replaces the server’s data; it does not simply append individual rows.",
+      "After restoring, check sign-in, aquariums and images. Missing or incorrect keys and passwords can make encrypted data unreadable."
+    ],
+    "extra": [
+      {
+        "title": "Backups are confidential",
+        "text": "Backups may contain account, aquarium and image data. Do not share them publicly. Local automatic backups alone do not protect against loss of the entire server."
+      }
+    ]
+  },
+  {
+    "id": "hilfe",
+    "title": "When something does not work",
+    "intro": "These checks often help without deleting any data.",
+    "image": null,
+    "caption": null,
+    "steps": [
+      "A button is missing: check that you are signed in and own the aquarium or have write access. Some features must be enabled by the operator.",
+      "A view does not load: check the connection and use “Retry” in that section. Do not delete browser data while offline actions are pending.",
+      "An image or catalog is missing offline: open the app online and wait for synchronization to finish. Not every online feature works offline.",
+      "An email is missing: check your spam folder and ask the operator to review SMTP, the queue and logs.",
+      "A timer gives no notification: check notification permissions, volume and battery-saving mode. Keep the app visible for important reaction times.",
+      "A local action remains pending: read the error or conflict, check your permission and deliberately choose whether to keep or discard the local version.",
+      "You need support: note the affected section, action and exact error message. Redact personal information and never disclose passwords or API keys."
+    ],
+    "extra": [
+      {
+        "title": "Share this guide publicly",
+        "text": "The address ends in /handbuch/en/ and requires no sign-in. All accounts and aquarium data shown are fictional. Screenshots show the real app; depending on language, device, permissions and server configuration, buttons may look different or be unavailable."
+      }
+    ]
+  }
+]

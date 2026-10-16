@@ -1,15 +1,17 @@
 # Öffentliches Nutzerhandbuch pflegen
 
-Die veröffentlichbaren Dateien liegen unter `public/handbuch/`. Der vorhandene statische Dateiserver der App liefert sie unter **`<App-Adresse>/handbuch/` ohne Anmeldung** aus, auch vor der Ersteinrichtung. Es gibt keine zusätzliche API, kein Frontend-Modul und keinen zusätzlichen Dienst. Das Verzeichnis lässt sich alternativ unverändert auf einem eigenen statischen Webserver bereitstellen.
+Die veröffentlichbaren Dateien liegen unter `public/handbuch/`. Der vorhandene statische Dateiserver der App liefert sie unter **`<App-Adresse>/handbuch/` ohne Anmeldung** aus, auch vor der Ersteinrichtung. Es gibt keine zusätzliche API, kein Frontend-Modul und keinen zusätzlichen Dienst. Deutsch bleibt unter `/handbuch/` erreichbar, Englisch unter `/handbuch/en/`. Die Sprachwahl oben im Handbuch verwendet normale Links und benötigt weder JavaScript noch Cookies. Das Verzeichnis lässt sich alternativ unverändert auf einem eigenen statischen Webserver bereitstellen.
 
 ## Inhalte bearbeiten
 
-1. Texte und Kapitel in `chapters.json` pflegen. Die Reihenfolge bestimmt Inhaltsverzeichnis und Kapitelnummern.
+1. Deutsche Texte in `chapters.json`, englische Texte in `chapters.en.json` und die Oberflächentexte beider Sprachen in `locales.json` pflegen. Kapitel-IDs, Reihenfolge, Bildzuordnungen und Anzahl der Schritte und Hinweise müssen übereinstimmen. Der Generator lehnt unvollständige Fassungen ab. Die Reihenfolge bestimmt Inhaltsverzeichnis und Kapitelnummern.
 2. Screenshots mit ausschließlich erfundenen Konten und Aquariendaten aufnehmen. Keine echten Personen, E-Mail-Adressen, Schlüssel, Tokens oder Backup-Inhalte zeigen. Die Beispielillustration der Demo wurde für dieses Handbuch erstellt.
 3. Screenshots als WebP unter `public/handbuch/images/` speichern; Breite und Höhe in `images/manifest.json` eintragen. Bildnamen entsprechen dem Feld `image` des Kapitels.
 4. Gestaltung bei Bedarf in `guide.css` anpassen.
-5. `node scripts/build-user-guide.js` ausführen. Die erzeugten Dateien `public/handbuch/index.html` und `guide.css` zusammen mit den Quellen und Bildern einchecken.
+5. `node scripts/build-user-guide.js` ausführen. Die erzeugten Dateien `public/handbuch/index.html`, `public/handbuch/en/index.html` und `public/handbuch/guide.css` zusammen mit den Quellen und Bildern einchecken.
 6. `node scripts/build-user-guide.js --check` und `npm test -- test/user_guide.test.js test/frontend_catalog_isolation.test.js` ausführen. Desktop-, Handy- und Druckansicht prüfen.
+
+Weitere Sprachen: Eine vollständig übersetzte Kapiteldatei `chapters.<Sprachcode>.json` anlegen und einen Eintrag mit Sprachname, Zielverzeichnis, Kapiteldatei und allen Oberflächentexten in `locales.json` ergänzen. Sprachcodes folgen `xx` oder `xx-XX`; die deutsche Standardadresse bleibt unverändert. Danach neu erzeugen und alle Sprachfassungen prüfen. Bilder und CSS werden gemeinsam verwendet, nicht pro Sprache kopiert. Die vorhandenen Aufnahmen zeigen Deutsch; dies wird in beiden Fassungen erklärt und Bildbeschreibungen sind übersetzt.
 
 Eine Versionsnummer gehört nicht in die Einführung des Nutzerhandbuchs. Bei UI-Änderungen die betroffenen Screenshots und Schrittfolgen aktualisieren. Bei neuen Funktionen ein passendes Kapitel ergänzen.
 
@@ -27,6 +29,6 @@ Die Screenshots stammen aus einer isolierten lokalen Testinstanz. Erzeuge solche
 
 ## Öffentlich bereitstellen
 
-Bei einer normalen App-Veröffentlichung werden die fertigen Dateien bereits durch das bestehende Dockerfile übernommen. Docker Compose benötigt keine Anpassung. Öffne nach dem Deployment die App-Adresse mit `/handbuch/` und prüfe die Seite in einem privaten Browserfenster ohne Anmeldung.
+Bei einer normalen App-Veröffentlichung werden die fertigen Dateien bereits durch das bestehende Dockerfile übernommen. Docker Compose benötigt keine Anpassung. Öffne nach dem Deployment die App-Adresse mit `/handbuch/` und `/handbuch/en/` und prüfe beide Seiten in einem privaten Browserfenster ohne Anmeldung.
 
 Für getrenntes Hosting nur den Inhalt von `public/handbuch/` kopieren; Node, Bun, die Datenbank und ein Build sind auf dem Dokumentationsserver nicht erforderlich. Die Dateien enthalten ausschließlich Handbuchtexte und Demo-Screenshots. Die technische Entwickler- und API-Dokumentation unter `docs/de/`, `docs/en/` und `docs/api/` bleibt getrennt erhalten.

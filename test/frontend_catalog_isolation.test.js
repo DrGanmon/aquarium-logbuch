@@ -50,6 +50,8 @@ test('Frontend: Katalogdaten und Katalogbilder ändern weder Frontend-Hash noch 
   const guide = path.join(fixture, 'public/handbuch');
   fs.mkdirSync(guide, { recursive: true });
   fs.writeFileSync(path.join(guide, 'index.html'), '<h1>Geändertes öffentliches Nutzerhandbuch</h1>');
+  fs.mkdirSync(path.join(guide, 'en'), { recursive: true });
+  fs.writeFileSync(path.join(guide, 'en/index.html'), '<h1>Updated English user guide</h1>');
   fs.writeFileSync(path.join(guide, 'guide.css'), 'body { color: green; }');
   fs.copyFileSync(path.join(fixture, 'public/icon-192.png'), path.join(guide, 'neuer-screenshot.png'));
   assert.deepEqual(await compile(), original, 'Handbuchtexte, Gestaltung und Screenshots dürfen Frontend-Hash und Service Worker nicht ändern');

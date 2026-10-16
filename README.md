@@ -8,7 +8,7 @@ Aquarium-Logbuch ist eine selbst gehostete Web-App für Wasserwerte, Besatz und 
 
 **Deutsch** · [English](README.en.md) · [📖 Nutzerhandbuch mit Screenshots](https://aquarium-logbuch.de/handbuch) · [Technische Dokumentation](docs/de/README.md) · [Changelog](CHANGELOG.md)
 
-**Neu dabei?** Öffne das öffentliche **[Nutzerhandbuch](https://aquarium-logbuch.de/handbuch)** über den Link im App-Footer oder unter `<App-Adresse>/handbuch/`. Es erklärt alle Bereiche mit Schrittfolgen und Demo-Screenshots, funktioniert ohne Anmeldung und lädt seine Bilder erst beim Lesen. [Handbuch pflegen oder separat bereitstellen](docs/user-guide/README.md).
+**Neu dabei?** Öffne das öffentliche **[Nutzerhandbuch](https://aquarium-logbuch.de/handbuch)** über den Link im App-Footer oder unter `<App-Adresse>/handbuch/`. Es ist auf Deutsch und [Englisch](https://aquarium-logbuch.de/handbuch/en/) verfügbar, erklärt alle Bereiche mit Schrittfolgen und Demo-Screenshots, funktioniert ohne Anmeldung und lädt seine Bilder erst beim Lesen. [Handbuch pflegen oder separat bereitstellen](docs/user-guide/README.md).
 
 ## Transparenzhinweis: KI-generierte Software
 

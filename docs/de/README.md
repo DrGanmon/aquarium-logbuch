@@ -1,6 +1,6 @@
 # Handbuch
 
-**Du suchst eine einfache Bedienungsanleitung mit Bildern?** Öffne in deiner App den Footer-Link **Nutzerhandbuch** oder die Adresse `<App-Adresse>/handbuch/`. Dort sind alle Funktionen Schritt für Schritt mit Demo-Screenshots erklärt – öffentlich und ohne Anmeldung. Die folgenden Kapitel ergänzen technische Details und Hinweise für Betreiber.
+**Du suchst eine einfache Bedienungsanleitung mit Bildern?** Öffne in deiner App den Footer-Link **Nutzerhandbuch** oder die Adresse `<App-Adresse>/handbuch/`. Das Handbuch ist auf Deutsch und unter `<App-Adresse>/handbuch/en/` auf Englisch verfügbar. Dort sind alle Funktionen Schritt für Schritt mit Demo-Screenshots erklärt – öffentlich und ohne Anmeldung. Die folgenden Kapitel ergänzen technische Details und Hinweise für Betreiber.
 
 [Deutsch](README.md) · [English](../en/README.md) · [Projektübersicht](../../README.md)
 

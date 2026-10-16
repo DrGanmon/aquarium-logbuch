@@ -6,9 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Englische README an die deutsche Fassung angleichen: öffentliche Nutzerhandbuch-Links, vier Demo-Screenshots mit englischen Beschriftungen sowie die Regeln für Builds bei relevanten Änderungen ergänzen. Deutsche Sprache von Handbuch und Aufnahmen kenntlich machen.
+- Öffentliches Nutzerhandbuch auf Deutsch und Englisch anbieten: alle 33 Kapitel einschließlich Bildbeschreibungen übersetzen, statische Sprachwahl und englische Adresse `/handbuch/en/` ergänzen. Weitere Sprachen über gemeinsame Sprachmetadaten ermöglichen, Vollständigkeit beim Generieren prüfen und Bilder/CSS ohne zusätzliche App-Anfragen gemeinsam verwenden. README-Links, Pflegeanleitung und Tests für beide Fassungen sowie die Build-Isolation aktualisieren.
 
 ## 0.3.0-ALPHA
+
+- 2026-10-16 · Englische README an die deutsche Fassung angleichen: öffentliche Nutzerhandbuch-Links, vier Demo-Screenshots mit englischen Beschriftungen sowie die Regeln für Builds bei relevanten Änderungen ergänzen. Deutsche Sprache von Handbuch und Aufnahmen kenntlich machen (`5c2683155c70af3143a507b3acbb31e1fde86d63`).
 
 - 2026-10-16 · Docker-Pipeline anhand tatsächlicher Dateiänderungen steuern: reine Repository-Dokumentation und Screenshots ohne Build oder Veröffentlichung überspringen, reine Teständerungen weiterhin unter Node/Bun prüfen. Versionszähler nur für App-/Server-/Build-relevante Feature- und Fix-Commits erhöhen; ausgeliefertes Handbuch, Kataloge, Abhängigkeiten, Release-Tags und sichere Rückfälle berücksichtigen. Gemeinsame Änderungsprüfung, Git-Regressionstests und Dokumentation ergänzen (`7670dbbe205afc70c2f7185384d439658f99b5db`).
 

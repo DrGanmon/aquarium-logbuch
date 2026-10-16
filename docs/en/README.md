@@ -1,6 +1,6 @@
 # Manual
 
-**Looking for an illustrated user guide?** Open **User guide (German)** in your app footer or visit `<app-address>/handbuch/`. This public guide explains all features with step-by-step instructions and demo screenshots, without login. The chapters below provide additional technical and operational details.
+**Looking for an illustrated user guide?** Open **User guide** in your app footer and choose English, or visit `<app-address>/handbuch/en/` directly. Available in English and German, this public guide explains all features with step-by-step instructions and demo screenshots, without login. The chapters below provide additional technical and operational details.
 
 [English](README.md) · [Deutsch](../de/README.md) · [Project overview](../../README.en.md)
 

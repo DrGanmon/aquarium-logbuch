@@ -6,9 +6,9 @@
 
 Aquarium-Logbuch is a self-hosted web app for water parameters, residents and aquarium care. It combines measurement history, care logs and reminders, supporting multiple users with separate or shared tanks. A species catalog, diagnosis assistant and optional AI chat complement freshwater and saltwater tank management.
 
-[Deutsch](README.md) · **English** · [📖 User guide with screenshots (German)](https://aquarium-logbuch.de/handbuch) · [Technical documentation](docs/en/README.md) · [Changelog](CHANGELOG.md)
+[Deutsch](README.md) · **English** · [📖 User guide with screenshots](https://aquarium-logbuch.de/handbuch/en/) · [Technical documentation](docs/en/README.md) · [Changelog](CHANGELOG.md)
 
-**Getting started?** Open the public **[User guide (German)](https://aquarium-logbuch.de/handbuch)** from the app footer or at `<app-address>/handbuch/`. It explains all areas with step-by-step instructions and demo screenshots, requires no login and loads its images only when reading. [Maintenance and standalone hosting](docs/user-guide/README.md).
+**Getting started?** Open the public **[User guide](https://aquarium-logbuch.de/handbuch/en/)** from the app footer or at `<app-address>/handbuch/en/`. It explains all areas with step-by-step instructions and demo screenshots, is available in English and German, requires no login and loads its images only when reading. [Maintenance and standalone hosting](docs/user-guide/README.md).
 
 ## Transparency notice: AI-generated software
 
@@ -26,7 +26,7 @@ Actual app views with fictional demo data: two in light mode and two in dark mod
 | **Plant overview · light** | **Fish and species catalog · dark** |
 | [![Plant catalog in light mode with search, filters and plant descriptions](docs/screenshots/pflanzen-light.webp)](docs/screenshots/pflanzen-light.webp) | [![Species catalog in dark mode with fish, invertebrates and care requirements](docs/screenshots/fische-dark.webp)](docs/screenshots/fische-dark.webp) |
 
-Find more views and step-by-step instructions in the [public user guide (German)](https://aquarium-logbuch.de/handbuch).
+Find more views and step-by-step instructions in the [public user guide](https://aquarium-logbuch.de/handbuch/en/).
 
 ## Features for users
 

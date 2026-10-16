@@ -3,22 +3,36 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { buildUserGuide } = require('../scripts/build-user-guide');
+const { buildUserGuide, renderUserGuide } = require('../scripts/build-user-guide');
 const { createTestEnvironment } = require('./helpers/env');
 const directory = path.resolve(__dirname, '../public/handbuch');
 
 test('Nutzerhandbuch: erzeugte Dateien, Kapitelanker und Screenshots sind vollständig', async () => {
   buildUserGuide({ check: true });
-  const html = fs.readFileSync(path.join(directory, 'index.html'), 'utf8');
   const sharp = require('sharp');
   const manifest = JSON.parse(fs.readFileSync(path.join(directory, 'images/manifest.json'), 'utf8'));
-  const chapters = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../docs/user-guide/chapters.json'), 'utf8'));
-  assert.ok(chapters.length >= 20);
-  for (const chapter of chapters) assert.ok(chapter.steps.length >= 3, chapter.id);
-  for (const [, id] of html.matchAll(/href="#([^"]+)"/g)) assert.ok(html.includes(`id="${id}"`), `Fehlender Anker: ${id}`);
-  for (const [, target] of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
-    if (target.startsWith('#') || target.startsWith('https://')) continue;
-    assert.ok(fs.existsSync(path.join(directory, target)), `Fehlende lokale Datei: ${target}`);
+  const locales = JSON.parse(fs.readFileSync('docs/user-guide/locales.json', 'utf8'));
+  const original = JSON.parse(fs.readFileSync('docs/user-guide/chapters.json', 'utf8'));
+  for (const [language, locale] of Object.entries(locales)) {
+    const base = path.join(directory, locale.directory);
+    const html = fs.readFileSync(path.join(base, 'index.html'), 'utf8');
+    const chapters = JSON.parse(fs.readFileSync(path.join('docs/user-guide', locale.chapters), 'utf8'));
+    assert.deepEqual(chapters.map(chapter => chapter.id), original.map(chapter => chapter.id));
+    assert.ok(chapters.length >= 20);
+    assert.match(html, new RegExp(`<html lang="${language}">`));
+    assert.ok(html.includes(`aria-label="${locale.languages}"`));
+    for (const chapter of chapters) assert.ok(chapter.steps.length >= 3, chapter.id);
+    for (const [, id] of html.matchAll(/href="#([^"]+)"/g)) assert.ok(html.includes(`id="${id}"`), `Fehlender Anker: ${id}`);
+    for (const [, target] of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
+      if (target.startsWith('#') || target.startsWith('https://')) continue;
+      assert.ok(fs.existsSync(path.join(base, target)), `Fehlende lokale Datei: ${target}`);
+    }
+    for (const [code, other] of Object.entries(locales)) {
+      const url = new URL(other.directory ? other.directory + '/' : './', 'https://example.test/handbuch/').pathname;
+      const target = new URL((locale.directory ? '../' : '') + (other.directory ? other.directory + '/' : './'), 'https://example.test/handbuch/' + (locale.directory ? locale.directory + '/' : '')).pathname;
+      assert.equal(target, url);
+      assert.ok(html.includes(`hreflang="${code}"`));
+    }
   }
   for (const [name, expected] of Object.entries(manifest)) {
     const metadata = await sharp(path.join(directory, `images/${name}.webp`)).metadata();
@@ -28,7 +42,7 @@ test('Nutzerhandbuch: erzeugte Dateien, Kapitelanker und Screenshots sind vollst
 });
 
 test('Nutzerhandbuch: keine Skripte, externen Ressourcen oder automatischen App-Anfragen', () => {
-  const html = fs.readFileSync(path.join(directory, 'index.html'), 'utf8');
+  const html = ['index.html', 'en/index.html'].map(file => fs.readFileSync(path.join(directory, file), 'utf8')).join('\n');
   const css = fs.readFileSync(path.join(directory, 'guide.css'), 'utf8');
   assert.doesNotMatch(html, /<script\b|<iframe\b|<form\b|\bon\w+\s*=|rel="(?:preload|prefetch|preconnect)"/i);
   assert.doesNotMatch(html, /(?:src|poster)="(?:https?:)?\/\//i);
@@ -53,6 +67,47 @@ test('Nutzerhandbuch: ohne Anmeldung und vor Ersteinrichtung öffentlich erreich
   assert.equal(response.status, 200);assert.match(response.headers.get('content-type'), /text\/html/);
   assert.match(response.text, /Nutzerhandbuch/);assert.equal(response.headers.get('set-cookie'), null);
   assert.equal((await env.request('/handbuch/guide.css')).status, 200);
+  const english = await env.request('/handbuch/en/');
+  assert.equal(english.status, 200);assert.match(english.text, /<html lang="en">/);
+  assert.match(english.text, /Sign in and get started/);assert.equal(english.headers.get('set-cookie'), null);
   const image = await env.request('/handbuch/images/uebersicht.webp');
   assert.equal(image.status, 200);assert.match(image.headers.get('content-type'), /image\/webp/);
+});
+
+
+test('Nutzerhandbuch: englische Kapitel vollständig übersetzt, unbekannte Sprache abweisen', () => {
+  const german = JSON.parse(fs.readFileSync('docs/user-guide/chapters.json', 'utf8'));
+  const english = JSON.parse(fs.readFileSync('docs/user-guide/chapters.en.json', 'utf8'));
+  for (const [index, chapter] of english.entries()) {
+    const original = german[index];
+    for (const field of ['title', 'intro']) assert.notEqual(chapter[field], original[field], chapter.id);
+    assert.equal(chapter.steps.length, original.steps.length);
+    assert.equal(chapter.extra.length, original.extra.length);
+    for (const [step, text] of chapter.steps.entries()) assert.notEqual(text, original.steps[step], chapter.id);
+    for (const [note, item] of chapter.extra.entries()) {
+      assert.notEqual(item.title, original.extra[note].title);assert.notEqual(item.text, original.extra[note].text);
+    }
+    if (chapter.image) assert.notEqual(chapter.caption, original.caption);
+  }
+  assert.match(renderUserGuide('en'), /Screenshots show the German interface/);
+  assert.throws(() => renderUserGuide('../../secret'), /Unbekannte Handbuchsprache/);
+});
+
+test('Nutzerhandbuch: fehlende Kapitel oder Übersetzungen verhindern unvollständige Ausgabe', t => {
+  const temporary = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'aquarium-guide-language-'));
+  t.after(() => fs.rmSync(temporary, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(temporary, 'scripts'));
+  fs.mkdirSync(path.join(temporary, 'public/handbuch/images'), { recursive: true });
+  fs.cpSync('docs/user-guide', path.join(temporary, 'docs/user-guide'), { recursive: true });
+  fs.copyFileSync('public/handbuch/images/manifest.json', path.join(temporary, 'public/handbuch/images/manifest.json'));
+  fs.copyFileSync('scripts/build-user-guide.js', path.join(temporary, 'scripts/build-user-guide.js'));
+  const { buildUserGuide: build } = require(path.join(temporary, 'scripts/build-user-guide.js'));
+  const file = path.join(temporary, 'docs/user-guide/chapters.en.json');
+  const chapters = JSON.parse(fs.readFileSync(file, 'utf8'));
+  fs.writeFileSync(file, JSON.stringify(chapters.slice(1)));
+  assert.throws(() => build(), /Unvollständige Kapitelübersetzung/);
+  assert.equal(fs.existsSync(path.join(temporary, 'public/handbuch/index.html')), false);
+  chapters[0].steps[0] = '';
+  fs.writeFileSync(file, JSON.stringify(chapters));
+  assert.throws(() => build(), /Fehlender Kapiteltext/);
 });
