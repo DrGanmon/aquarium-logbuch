@@ -3,6 +3,8 @@ import { language } from '../state';
 // Loaded with test selection, outside the initial application dependency graph.
 const labels = {
   "de": {
+    "success": "Du hast es geschafft!",
+    "resumeTest": "Test fortsetzen",
     "calibrate": "Messgerät kalibrieren",
     "testPaused": "Dein Test ist pausiert und lokal gesichert. Werte und Timer bleiben erhalten. Nach Abschluss oder Abbrechen kehrst du zum Test zurück.",
     "finishAndResume": "Abschließen und Test fortsetzen",
@@ -28,6 +30,8 @@ const labels = {
     "open": "{name}: Einrichtung / Kalibrierung"
   },
   "en": {
+    "success": "You did it!",
+    "resumeTest": "Resume test",
     "calibrate": "Calibrate meter",
     "testPaused": "Your test is paused and saved locally. Readings and timers are preserved. Completing or cancelling returns you to the test.",
     "finishAndResume": "Finish and resume test",

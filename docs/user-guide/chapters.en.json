@@ -226,7 +226,7 @@
       },
       {
         "title": "Before each use",
-        "text": "The short procedure covers samples, stable readings, units and cleaning. A completed checklist is not a calibration certificate. In an active test, Calibrate meter saves locally, pauses the form and reopens it afterwards."
+        "text": "The short procedure covers samples, stable readings, units and cleaning. A completed checklist is not a calibration certificate. In an active test, Calibrate meter saves locally, pauses the form and reopens it afterwards. Completing the full procedure shows “You did it!” with confetti; reduced motion keeps the message without animation."
       },
       {
         "title": "Read offline",
@@ -238,7 +238,7 @@
       "The wizard opens. Compare model, buttons and probe with the supplied manual; stop if they differ. Prepare the specified standards and clean containers.",
       "Perform each step on the meter. Confirm it only after a successful check; use the exact model manual for missing button instructions. Back lets you review previous steps.",
       "After calibration, check a fresh portion of the standard. Wait for stable sample readings and observe entry units; for example, 3.5% salinity equals 35 ppt.",
-      "Close the wizard and enter readings. In an active test, choose Calibrate meter directly on a measurement card. The test is saved locally and paused. The last confirmed step automatically reopens it; cancelling also returns without losing readings, notes or running timers. The meter button in test selection also opens the wizard."
+      "Close the wizard and enter readings. In an active test, choose Calibrate meter directly on a measurement card. The test is saved locally and paused. After the last confirmed step, confetti and “You did it!” appear. The test automatically reopens after this brief celebration; cancelling also returns without losing readings, notes or running timers. The meter button in test selection also opens the wizard."
     ],
     "extra": [
       {

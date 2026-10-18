@@ -83,19 +83,23 @@ test('Kalibrierung aus Messkarte: erst lokal sichern, dann pausieren; Daten und 
   } finally { scope.stop(); }
 });
 
-test('Kalibrierungsabschluss kehrt automatisch zum pausierten Test zurück', async () => {
+test('Kalibrierungsabschluss zeigt Erfolg und kehrt nach Konfetti zum pausierten Test zurück', async () => {
   const { descriptor } = parse(fs.readFileSync('public/frontend/components/DeviceSetupWizard.vue', 'utf8'));
   const js = ts.transpileModule(compileScript(descriptor, { id: 'return-to-test' }).content,
     { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText;
-  const exports = {}, emitted = [], scope = vue.effectScope();
-  new Function('require', 'exports', js)(id => id === 'vue' ? vue : id.endsWith('state') ? { session: vue.reactive({ user: { id: 1 } }) } :
-    id.endsWith('device-guide') ? require('../dist/backend/src/shared/device-guide') : {}, exports);
+  const exports = {}, emitted = [], scheduled = [], scope = vue.effectScope();
+  new Function('require', 'exports', 'setTimeout', 'clearTimeout', js)(id => id === 'vue' ? vue : id.endsWith('state') ? { session: vue.reactive({ user: { id: 1 } }) } :
+    id.endsWith('device-guide') ? require('../dist/backend/src/shared/device-guide') : {}, exports, callback => { scheduled.push(callback);return 1; }, () => {});
   const state = scope.run(() => exports.default.setup({ suite: suiteService.getSuite('yinmik-ez9908'), parameters: ['ph'], returnToTest: true },
     { expose() {}, emit: event => emitted.push(event) }));
   try {
     state.index.value = state.steps.value.length - 1;await vue.nextTick();
     state.next();assert.deepEqual(emitted, []);
     state.confirmed.value = true;state.next();
-    assert.deepEqual(emitted, ['close']);
+    assert.equal(state.celebrating.value, true);
+    assert.deepEqual(emitted, [], 'Success must remain visible before returning');
+    assert.equal(scheduled.length, 1);
+    state.next();assert.equal(scheduled.length, 1, 'Do not schedule duplicate completions');
+    scheduled[0]();assert.deepEqual(emitted, ['close']);
   } finally { scope.stop(); }
 });

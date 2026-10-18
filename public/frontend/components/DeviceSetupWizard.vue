@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { deviceText as dt } from "../composables/device-guide-labels";
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onBeforeUnmount } from 'vue';
 import type { Suite } from '../types';
 import { language, session, t } from '../state';
 import { deviceGuideSteps } from '../../../src/shared/device-guide';
@@ -17,14 +17,21 @@ const steps = computed(() => {
 });
 const current = computed(() => steps.value[index.value]);
 const done = computed(() => index.value >= steps.value.length);
+const celebrating = computed(() => done.value && mode.value === "all");
+let returnTimer: ReturnType<typeof setTimeout> | undefined;
+function restart() { clearTimeout(returnTimer);index.value = 0; }
+onBeforeUnmount(() => clearTimeout(returnTimer));
 const units = computed(() => props.suite.tests?.filter(test => props.parameters.includes(test.key)) || []);
 watch([index, mode], () => { confirmed.value = false; });
-watch(mode, () => { index.value = 0; });
+watch(mode, restart);
 watch(() => session.user?.id, () => emit('close'));
 function next() {
-  if (!confirmed.value) return;
+  if (!confirmed.value || done.value) return;
   index.value++;
-  if (done.value && props.returnToTest) emit("close");
+  if (done.value && props.returnToTest) {
+    if (celebrating.value) returnTimer = setTimeout(() => emit("close"), 2600);
+    else emit("close");
+  }
 }
 </script>
 <template>
@@ -54,11 +61,17 @@ function next() {
       </div>
     </template>
     <div v-else class="stack" role="status">
-      <h3>{{ dt('finished') }}</h3>
+      <div v-if="celebrating" class="confetti-rain" aria-hidden="true">
+        <i v-for="piece in 48" :key="piece" :style="{
+          '--x': `${(piece * 37) % 100}%`, '--delay': `${(piece % 7) * 45}ms`,
+          '--drift': `${((piece * 19) % 160) - 80}px`, '--color': ['#f4c542', '#ef6b85', '#52cbbd', '#8580e8', '#65b9f0'][piece % 5],
+        }" />
+      </div>
+      <h3 :class="{ 'success-message': celebrating }">{{ dt(celebrating ? 'success' : 'finished') }}</h3>
       <p>{{ dt('finishedHint') }}</p>
       <div class="row">
-        <button type="button" class="btn ghost" @click="index = 0">{{ dt('restart') }}</button>
-        <button type="button" class="btn" @click="emit('close')">{{ t('common.close') }}</button>
+        <button type="button" class="btn ghost" @click="restart">{{ dt('restart') }}</button>
+        <button type="button" class="btn" @click="emit('close')">{{ returnToTest ? dt('resumeTest') : t('common.close') }}</button>
       </div>
     </div>
     <details>
@@ -73,3 +86,17 @@ function next() {
     </details>
   </Modal>
 </template>
+
+<style scoped>
+.confetti-rain { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
+.confetti-rain i { position: absolute; left: var(--x); top: -20px; width: 9px; height: 15px;
+  background: var(--color); opacity: 0; border-radius: 2px;
+  animation: confetti-fall 2200ms var(--delay) ease-in forwards; }
+.success-message { text-align: center; font-size: 1.6rem; }
+@keyframes confetti-fall {
+  0% { opacity: 1; transform: translate3d(0, -20px, 0) rotate(0deg); }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--drift), 100vh, 0) rotate(620deg); }
+}
+@media (prefers-reduced-motion: reduce) { .confetti-rain { display: none; } }
+</style>

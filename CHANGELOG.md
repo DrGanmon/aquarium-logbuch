@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Kalibrierung direkt aus den Messkarten und der Testauswahl eines laufenden Tests starten. Entwurf vorab lokal sichern, Messformular während des Assistenten pausieren und nach Abschluss oder Abbrechen mit unveränderten Werten, Notiz und weiterlaufenden Timern wieder öffnen. Kontowechsel und Speicherfehler berücksichtigen; zweisprachige Anleitung, Demo-Screenshot und Regressionstests aktualisieren.
+- Erfolgreichen Abschluss von Einrichtung und Kalibrierung mit Konfettiregen und „Du hast es geschafft!“ feiern; pausierte Tests nach kurzer Erfolgsanzeige automatisch fortsetzen. Reduzierte Bewegung respektieren und englische Texte, Handbuch sowie Abschlussprüfung ergänzen.
+
+## 0.3.11-ALPHA
+
+- Kalibrierung direkt aus den Messkarten und der Testauswahl eines laufenden Tests starten. Entwurf vorab lokal sichern, Messformular während des Assistenten pausieren und nach Abschluss oder Abbrechen mit unveränderten Werten, Notiz und weiterlaufenden Timern wieder öffnen. Kontowechsel und Speicherfehler berücksichtigen; zweisprachige Anleitung, Demo-Screenshot und Regressionstests aktualisieren. (`ce1b128cb7de27ffa797d7feefa0e99e3c5b0bd2`, 2026-10-18).
 
 ## 0.3.10-ALPHA
 
