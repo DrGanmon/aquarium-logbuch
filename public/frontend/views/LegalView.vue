@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { api } from "../api";
-import { session, language, t, themeIcon, toggleTheme, errorMessage } from "../state";
+import { session, language, t as commonText, themeIcon, toggleTheme, errorMessage } from "../state";
+import legalDe from "../../locales/legal.de.json";
+import legalEn from "../../locales/legal.en.json";
+// Detailed legal copy is only loaded with this lazy view, including offline.
+function t(key: string, params: Record<string, unknown> = {}): string {
+  if (!key.startsWith("legal.content.")) return commonText(key, params);
+  const name = key.slice("legal.content.".length) as keyof typeof legalDe;
+  const value = (language.value === "en" ? legalEn : legalDe)[name] ?? key;
+  return value.replace(/\{\{?(\w+)\}?\}/g, (match, parameter: string) =>
+    params[parameter] === undefined ? match : String(params[parameter]));
+}
 const props = defineProps<{ page: string }>();
 const info = ref<{ contactEmail: string; imprintEmail: string }>({
   contactEmail: "",

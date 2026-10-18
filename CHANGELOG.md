@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Aufklappbaren FAB „Aktuelle Timer“ ausschließlich bei laufenden Timern anzeigen. Verbleibende Zeiten nach Aquarium gruppieren, früheste Ablaufzeit zuerst zeigen und Timer-Beenden sowie Öffnen des zugehörigen Tests anbieten. Bestehende Offline-Entwürfe und Geräteabgleich nutzen; abgelaufene Timer weiterhin gesondert melden. Zweisprachiges Handbuch, Demo-Screenshot und Regressionstests ergänzen.
+- CI-Fehler unter Node und Bun beheben: Migrations- und Social-Tests auf Schema-Version 12 einschließlich der Testentwürfe aktualisieren. Ausführliche deutsche und englische Rechtstexte mit der Rechtsansicht bedarfsgesteuert laden, damit auch Bun 1.4.3 die unveränderte 350-KB-Startbundle-Grenze einhält; öffentliche Links und Offline-Verfügbarkeit erhalten und Build-Prüfung ergänzen.
+
+## 0.3.13-ALPHA
+
+- Aufklappbaren FAB „Aktuelle Timer“ ausschließlich bei laufenden Timern anzeigen. Verbleibende Zeiten nach Aquarium gruppieren, früheste Ablaufzeit zuerst zeigen und Timer-Beenden sowie Öffnen des zugehörigen Tests anbieten. Bestehende Offline-Entwürfe und Geräteabgleich nutzen; abgelaufene Timer weiterhin gesondert melden. Zweisprachiges Handbuch, Demo-Screenshot und Regressionstests ergänzen. (`770872f03f1b5c94bd88625c9f68daff2a115495`, 2026-10-18).
 
 ## 0.3.12-ALPHA
 

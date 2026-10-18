@@ -35,8 +35,8 @@ test('Footer, Impressum, EU AI Act, Datenschutz & Lizenzen Validierung', async (
   const appJsPath = path.join(__dirname, '..', 'public/frontend/App.vue');
   const appJs = fs.readFileSync(appJsPath, 'utf8') + '\n' + (fs.existsSync(jsDir) ? readAllJs(jsDir) : '');
   const legalView = fs.readFileSync(path.join(jsDir, 'views/LegalView.vue'), 'utf8');
-  const legalDe = require('../public/locales/de.json').legal.content;
-  const legalEn = require('../public/locales/en.json').legal.content;
+  const legalDe = require('../public/locales/legal.de.json');
+  const legalEn = require('../public/locales/legal.en.json');
 
   const styleCssPath = path.join(__dirname, '..', 'public', 'style.css');
   const styleCss = fs.readFileSync(styleCssPath, 'utf8');

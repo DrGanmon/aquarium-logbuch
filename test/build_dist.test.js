@@ -37,6 +37,11 @@ function staticGraph(entry, seen = new Set()) {
 }
 function verifyLazyBuild(entry) {
   const initial = staticGraph(entry);
+  const legalMarker = require('../public/locales/legal.en.json').developmentNotice.slice(0, 70);
+  assert.ok(![...initial].some(file => fs.readFileSync(path.join(distDir, file), 'utf8').includes(legalMarker)),
+    'Detailed legal copy stays outside startup dependencies');
+  assert.ok(fs.readdirSync(distDir).filter(file => file.endsWith('.js')).some(file =>
+    fs.readFileSync(path.join(distDir, file), 'utf8').includes(legalMarker)), 'Legal copy remains available in a lazy chunk');
   const bytes = [...initial].reduce((sum, file) => sum + fs.statSync(path.join(distDir, file)).size, 0);
   assert.ok(![...initial].some(file => /chunk-(AquariumView|HealthView|AdminPanel|WaterChart|ChatDialog|OfflineStatus|online-request|chat-request)-/.test(file)), 'Heavy views, dialogs and authenticated offline controls stay outside startup dependencies');
   if (entry.includes('.min')) assert.ok(bytes < 350000, `Initial dependency graph must remain below 350 KB (got ${bytes})`);
