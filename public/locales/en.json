@@ -582,10 +582,29 @@
   "profile": {
     "tabs": {
       "profile": "Profile",
+      "tapWater": "Tap Water",
       "ui": "UI",
       "ai": "AI",
       "tests": "Water tests",
       "invites": "Invites"
+    },
+    "tapWater": {
+      "title": "Tap Water Parameters",
+      "desc": "Store the water parameters of your tap water (source water). These values are used by the AI assistant for practical recommendations on water changes, reverse osmosis, remineralization, and water conditioners.",
+      "suiteInfo": "Using parameters from your selected test suite: {suite}",
+      "measuredAtLabel": "Measured at / Date",
+      "noteLabel": "Notes on tap water",
+      "notePlaceholder": "e.g., Municipal water supply, autumn test...",
+      "saveBtn": "Save Tap Water Parameters",
+      "clearBtn": "Clear Values",
+      "clearConfirm": "Are you sure you want to clear your tap water parameters?",
+      "warningBannerTitle": "⚠️ Concerning source water parameters detected ({count}):",
+      "safeBanner": "✓ All entered parameters are within safe ranges.",
+      "emptyNotice": "No values entered yet. Enter your tap water values to instantly detect concerning parameters and enhance AI recommendations.",
+      "statusOk": "Safe",
+      "statusWarn": "Noticeable",
+      "statusCrit": "Critical",
+      "switchSuiteHint": "The displayed parameters are based on the test suite selected under 'Water Tests'."
     },
     "title": "User Profile & Settings",
     "avatarTitle": "Profile Picture",

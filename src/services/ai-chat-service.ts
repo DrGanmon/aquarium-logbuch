@@ -2,6 +2,7 @@ import { personalAiToken } from './ai-token-crypto';
 import type { UserRecord, StockRecord } from '../types/domain';
 import type { WaterTest } from '../types/catalog';
 import { isRecord } from '../utils/validation';
+import { evaluateTapWaterValue, getTapWaterWarning } from '../shared/tap-water';
 interface ChatMessage { role: 'user' | 'assistant'; content: string }
 interface CompressionOptions { maxRecent?: number; maxTotalChars?: number; maxOldTurnChars?: number }
 import db = require('../db');
@@ -37,11 +38,24 @@ function formatValue(p: Pick<WaterTest, 'decimals'> | null | undefined, val: num
 /**
  * Erstellt den strukturierten Kontext und System-Prompt für ein Aquarium.
  */
-async function buildAquariumSystemPrompt(aquariumId: number, customDb: typeof db | null = null) {
+async function buildAquariumSystemPrompt(aquariumId: number, customDb: typeof db | null = null, currentUserId?: number | null) {
   const database = customDb || db;
   const aq = await database.aquariums.findById(aquariumId);
   if (!aq) {
     throw new Error('Aquarium nicht gefunden.');
+  }
+
+  const ownerId = currentUserId || aq.user_id;
+  let tapWater = null;
+  if (ownerId && database.users) {
+    try {
+      const user = await database.users.findById(ownerId);
+      if (user?.tap_water) {
+        tapWater = typeof user.tap_water === 'string' ? JSON.parse(user.tap_water) : user.tap_water;
+      }
+    } catch {
+      tapWater = null;
+    }
   }
 
   // Besatz abrufen
@@ -193,9 +207,44 @@ async function buildAquariumSystemPrompt(aquariumId: number, customDb: typeof db
     });
   }
 
-  // 4. Letzte Wartungsarbeiten
+  // 4. Leitungswasser-Werte des Benutzers (Ausgangswasser)
+  if (tapWater && tapWater.values && Object.keys(tapWater.values).length > 0) {
+    contextText += `\n=== 4. LEITUNGSWASSER-WERTE (Ausgangswasser des Benutzers für Wasserwechsel) ===\n`;
+    const tapVals = Object.entries(tapWater.values);
+    const formattedTapVals = tapVals.map(([k, rawV]: [string, any]) => {
+      const v = typeof rawV === 'number' ? rawV : Number(rawV);
+      const p = paramMap.get(k) || { key: k, name: k, unit: '', decimals: 1 };
+      if (!Number.isFinite(v)) return null;
+      const status = evaluateTapWaterValue(k, v);
+      const warning = getTapWaterWarning(k, v, 'de');
+      let statusMark = ' ✓ [OK]';
+      if (status === 'crit') {
+        statusMark = ` ❌ [KRITISCH: ${warning?.message || 'Bedenklicher Wert'}]`;
+      } else if (status === 'warn') {
+        statusMark = ` ⚠️ [AUFFÄLLIG: ${warning?.message || 'Auffälliger Wert'}]`;
+      }
+      return `- ${p.name}: ${formatValue(p, v)} ${p.unit}${statusMark}`;
+    }).filter(Boolean);
+
+    if (formattedTapVals.length > 0) {
+      contextText += `${formattedTapVals.join('\n')}\n`;
+    }
+    if (tapWater.note) {
+      contextText += `Hinweis / Notiz zum Leitungswasser: ${String(tapWater.note).slice(0, 500)}\n`;
+    }
+    if (tapWater.measuredAt || tapWater.measured_at) {
+      contextText += `Stand / Messdatum: ${String(tapWater.measuredAt || tapWater.measured_at).slice(0, 50)}\n`;
+    }
+    contextText += `\n[WICHTIGE ANWEISUNG ZUM LEITUNGSWASSER]:\n`;
+    contextText += `- Berücksichtige diese Ausgangswasserwerte aktiv bei Wasserwechsel-Empfehlungen, Algenanalysen, Düngeplänen und Besatzberatung.\n`;
+    contextText += `- Falls Chlor oder Kupfer nachgewiesen sind (❌ oder ⚠️), weise den Nutzer bei Wasserwechseln unbedingt auf Wasseraufbereiter, Vorfilter oder Leitungsspülung hin.\n`;
+    contextText += `- Vergleiche bei Härteanfragen (GH, KH, pH) das Leitungswasser mit den Bedürfnissen des Besatzes und empfehle bei Bedarf Osmosewasser/Verschneiden oder Aufhärten.\n`;
+    contextText += `- Wenn Nährstoffe wie Nitrat (NO3), Phosphat (PO4) oder Silikat (SiO2) bereits im Leitungswasser vorhanden sind, beziehe das bei Algenproblemen (z. B. Kieselalgen) und Düngung ein.\n`;
+  }
+
+  // 5. Letzte Wartungsarbeiten
   if (maintenanceLogs.length > 0) {
-    contextText += `\n=== 4. LETZTE WARTUNGSMASSNAHMEN (Letzte 60 Tage) ===\n`;
+    contextText += `\n=== 5. LETZTE WARTUNGSMASSNAHMEN (Letzte 60 Tage) ===\n`;
     maintenanceLogs.slice(0, 8).forEach((ml: any) => {
       const dt = new Date(ml.logged_at).toLocaleDateString('de-DE');
       let line = `- ${dt}: ${ml.type}`;
@@ -206,8 +255,8 @@ async function buildAquariumSystemPrompt(aquariumId: number, customDb: typeof db
     });
   }
 
-  // 5. Verhaltensregeln
-  contextText += `\n=== 5. ANWEISUNGEN FÜR DEINE ANTWORTEN ===\n`;
+  // 6. Verhaltensregeln
+  contextText += `\n=== 6. ANWEISUNGEN FÜR DEINE ANTWORTEN ===\n`;
   contextText += `1. Antworte auf Deutsch, freundlich, empathisch und lösungsorientiert.\n`;
   contextText += `2. Analysiere bei Fragen zu Wasserwerten, Algen oder Fischgesundheit stets die Messwerte (vor allem pH, Temperatur, KH/GH, NO2, NO3, PO4, NH4) und weise proaktiv auf Ausreißer oder Gefahren hin.\n`;
   contextText += `3. Gib konkrete Handlungsempfehlungen (z. B. Wasserwechsel-Menge, Temperaturkorrektur, Filtereinstellung, Fütterungsanpassung).\n`;
@@ -867,7 +916,7 @@ async function chatWithAquarium({
 
   onProgress?.("context");
   // System-Prompt und Beckenkontext generieren
-  const { systemPrompt } = await buildAquariumSystemPrompt(aquariumId, database);
+  const { systemPrompt } = await buildAquariumSystemPrompt(aquariumId, database, user?.id);
 
   // Bestimme die aktuelle Benutzereingabe
   let userMessageText = '';

@@ -75,6 +75,15 @@ function serializeMe(u?: any) {
   const hasClaude = Boolean(storedClaudeKey || CLAUDE_API_KEY);
   const hasAnyKey = Boolean(hasOpenai || hasGemini || hasClaude);
 
+  let tapWater = null;
+  if (u.tap_water) {
+    try {
+      tapWater = typeof u.tap_water === 'string' ? JSON.parse(u.tap_water) : u.tap_water;
+    } catch {
+      tapWater = null;
+    }
+  }
+
   return {
     termsRequired: u.terms_version !== TERMS_VERSION || !u.terms_accepted_at,
     id: u.id,
@@ -86,6 +95,7 @@ function serializeMe(u?: any) {
     avatarUrl: u.avatar_file ? `api/me/avatar` : null,
     selectedSuite: u.selected_suite || 'jbl-pro',
     selectedTests: selectedTests,
+    tapWater: tapWater,
     defaultGraphRange: u.default_graph_range || '90',
     language: u.language || 'de',
     email: u.email || null,

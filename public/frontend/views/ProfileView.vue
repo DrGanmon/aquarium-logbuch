@@ -11,6 +11,7 @@ import type { Field, FormData, User } from "../types";
 const ProviderSettings = lazyComponent(() => import("../components/ProviderSettings.vue"));
 const Invitations = lazyComponent(() => import("../components/Invitations.vue"));
 const TestInventory = lazyComponent(() => import("../components/TestInventory.vue"));
+const TapWaterSettings = lazyComponent(() => import("../components/TapWaterSettings.vue"));
 const activeTab = ref("profile");
 const visitedTabs = ref(new Set([activeTab.value]));
 watch(activeTab, value => { visitedTabs.value.add(value); });
@@ -19,6 +20,7 @@ const canShowInvites = computed(() =>
 );
 const tabs = computed(() => [
   { id: "profile", label: "profile.tabs.profile" },
+  { id: "tapWater", label: "profile.tabs.tapWater" },
   { id: "ui", label: "profile.tabs.ui" },
   { id: "ai", label: "profile.tabs.ai" },
   { id: "tests", label: "profile.tabs.tests" },
@@ -355,6 +357,17 @@ async function saveRange() {
           </button>
         </form>
       </section>
+    </div>
+    <div
+      v-if="visitedTabs.has('tapWater')"
+      v-show="activeTab === 'tapWater'"
+      id="profile-panel-tapWater"
+      class="stack"
+      role="tabpanel"
+      aria-labelledby="profile-tab-tapWater"
+      tabindex="0"
+    >
+      <TapWaterSettings @switch-tab="activeTab = $event" />
     </div>
     <div
 

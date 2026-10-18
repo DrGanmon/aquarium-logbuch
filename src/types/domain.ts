@@ -36,6 +36,7 @@ export interface UserRecord {
   is_admin: number | boolean;
   oidc_sub: string | null; language: string; first_name: string | null; last_name: string | null; bio: string | null; avatar_file: string | null;
   selected_suite: string | null; selected_tests: string | null; default_graph_range: string | null; test_inventory: string | null;
+  tap_water?: string | null;
   email_verified: number | boolean; email_verify_token: string | null; email_verify_expires: number | null;
   password_reset_token: string | null; password_reset_expires: number | null; account_delete_token: string | null; account_delete_expires: number | null;
   openai_api_key_prefix?: string | null; openai_api_key_suffix?: string | null;

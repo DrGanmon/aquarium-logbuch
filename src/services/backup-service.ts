@@ -550,6 +550,7 @@ class BackupService {
         terms_accepted_at: typeof u.terms_accepted_at === 'string' ? u.terms_accepted_at : null,
         selected_suite: u.selected_suite ? String(u.selected_suite) : null,
         selected_tests: u.selected_tests ? String(u.selected_tests) : null,
+        tap_water: u.tap_water ? (typeof u.tap_water === 'string' ? u.tap_water : JSON.stringify(u.tap_water)) : null,
         test_inventory: require('./test-inventory-service').normalizeInventory(u.test_inventory),
         email_verified: u.email_verified !== undefined ? (u.email_verified ? 1 : 0) : 1,
         email_verify_token: u.email_verify_token ? String(u.email_verify_token) : null,

@@ -312,7 +312,7 @@ class SqliteAdapter {
           u.created_at || new Date().toISOString(),
           u.is_admin ? 1 : 0
         );
-        db.prepare('UPDATE users SET test_inventory = ?, terms_version = ?, terms_accepted_at = ? WHERE id = ?').run(u.test_inventory || '{}', u.terms_version || null, u.terms_accepted_at || null, u.id);
+        db.prepare('UPDATE users SET test_inventory = ?, terms_version = ?, terms_accepted_at = ?, tap_water = ? WHERE id = ?').run(u.test_inventory || '{}', u.terms_version || null, u.terms_accepted_at || null, u.tap_water || null, u.id);
         for (const provider of AI_PROVIDERS) db.prepare(`UPDATE users SET ${provider}_api_key = ?, ${provider}_api_key_prefix = ?, ${provider}_api_key_suffix = ?, ${provider}_model = ? WHERE id = ?`).run(u[`${provider}_api_key`] || null, u[`${provider}_api_key_prefix`] || null, u[`${provider}_api_key_suffix`] || null, u[`${provider}_model`] || null, u.id);
         db.prepare('UPDATE users SET ai_provider = ? WHERE id = ?').run(u.ai_provider || null, u.id);
       }
@@ -659,6 +659,7 @@ class SqliteAdapter {
           'selected_suite',
           'selected_tests',
           'default_graph_range',
+          'tap_water',
           'email_verified',
           'email_verify_token',
           'email_verify_expires',

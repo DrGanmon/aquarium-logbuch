@@ -36,6 +36,13 @@ export interface User {
   openaiKeySet?: boolean;
   geminiKeySet?: boolean;
   claudeKeySet?: boolean;
+  tapWater?: TapWaterData | null;
+}
+export interface TapWaterData {
+  values: Record<string, number | null>;
+  note?: string | null;
+  measuredAt?: string | null;
+  measured_at?: string | null;
 }
 export interface Range {
   okMin?: number | null;

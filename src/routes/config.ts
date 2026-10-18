@@ -295,4 +295,75 @@ router.put(
   })
 );
 
+router.get(
+  '/me/tap-water',
+  auth,
+  wrap(async (req: Request, res: Response) => {
+    const user = await db.users.findById(req.user.id);
+    if (!user) return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
+    let tapWater = null;
+    if (user.tap_water) {
+      try {
+        tapWater = typeof user.tap_water === 'string' ? JSON.parse(user.tap_water) : user.tap_water;
+      } catch {
+        tapWater = null;
+      }
+    }
+    res.json({ ok: true, tapWater });
+  })
+);
+
+router.put(
+  '/me/tap-water',
+  auth,
+  wrap(async (req: Request, res: Response) => {
+    const user = await db.users.findById(req.user.id);
+    if (!user) return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
+
+    const rawValues = req.body.values !== undefined ? req.body.values : req.body;
+    const values: Record<string, number> = {};
+    if (rawValues && typeof rawValues === 'object' && !Array.isArray(rawValues)) {
+      for (const [key, val] of Object.entries(rawValues)) {
+        if (key === 'note' || key === 'measuredAt' || key === 'measured_at') continue;
+        if (typeof key !== 'string' || key.length > 50) continue;
+        if (val === null || val === undefined || val === '') continue;
+        const num = typeof val === 'number' ? val : Number(String(val).replace(',', '.'));
+        if (Number.isFinite(num)) {
+          values[key] = num;
+        }
+      }
+    }
+
+    const note = req.body.note !== undefined ? (req.body.note ? str(req.body.note, 1000) : null) : null;
+    const measuredAt = req.body.measuredAt || req.body.measured_at || null;
+
+    const tapWaterData = Object.keys(values).length > 0 || note || measuredAt ? {
+      values,
+      note,
+      measuredAt: measuredAt ? String(measuredAt).slice(0, 50) : null,
+    } : null;
+
+    const tapWaterJson = tapWaterData ? JSON.stringify(tapWaterData) : null;
+    await db.users.update(req.user.id, { tap_water: tapWaterJson });
+
+    res.json({
+      ok: true,
+      tapWater: tapWaterData,
+      message: 'Leitungswasser-Werte gespeichert.',
+    });
+  })
+);
+
+router.delete(
+  '/me/tap-water',
+  auth,
+  wrap(async (req: Request, res: Response) => {
+    const user = await db.users.findById(req.user.id);
+    if (!user) return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
+
+    await db.users.update(req.user.id, { tap_water: null });
+    res.json({ ok: true, tapWater: null, message: 'Leitungswasser-Werte gelöscht.' });
+  })
+);
+
 export = router;

@@ -582,10 +582,29 @@
   "profile": {
     "tabs": {
       "profile": "Profil",
+      "tapWater": "Leitungswasser",
       "ui": "UI",
       "ai": "KI",
       "tests": "Wassertests",
       "invites": "Invites"
+    },
+    "tapWater": {
+      "title": "Leitungswasser-Werte",
+      "desc": "Hinterlege hier die Messwerte deines Leitungswassers (Ausgangswasser). Diese Werte werden beim KI-Assistenten für praxisnahe Empfehlungen zu Wasserwechseln, Osmosewasser, Aufhärtung und Wasseraufbereitern einbezogen.",
+      "suiteInfo": "Verwendet Parameter deiner ausgewählten Testsuite: {suite}",
+      "measuredAtLabel": "Messdatum / Stand",
+      "noteLabel": "Notizen zum Leitungswasser",
+      "notePlaceholder": "z. B. Wasserwerk Nord, Herbstmessung...",
+      "saveBtn": "Leitungswasser speichern",
+      "clearBtn": "Werte löschen",
+      "clearConfirm": "Möchtest du die hinterlegten Leitungswasser-Werte wirklich löschen?",
+      "warningBannerTitle": "⚠️ Bedenkliche Ausgangswerte erkannt ({count}):",
+      "safeBanner": "✓ Alle eingetragenen Werte liegen im unbedenklichen Bereich.",
+      "emptyNotice": "Noch keine Werte eingetragen. Gib deine Leitungswasserwerte ein, um bedenkliche Parameter sofort zu erkennen und die KI-Beratung zu verbessern.",
+      "statusOk": "Im grünen Bereich",
+      "statusWarn": "Auffällig",
+      "statusCrit": "Kritisch",
+      "switchSuiteHint": "Die angezeigten Parameter richten sich nach deiner unter „Wassertests“ ausgewählten Testsuite."
     },
     "title": "Benutzerprofil & Einstellungen",
     "avatarTitle": "Profilbild",
