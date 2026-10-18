@@ -4,7 +4,7 @@ import vue from 'eslint-plugin-vue';
 import globals from 'globals';
 
 export default ts.config(
-  { ignores: ['node_modules/**', 'dist/**', 'public/dist/**', 'data/**', '**/__pycache__/**'] },
+  { ignores: ['node_modules/**', 'dist/**', 'public/dist/**', 'android/app/src/main/assets/public/**', 'ios/App/App/public/**', 'data/**', '**/__pycache__/**'] },
   js.configs.recommended,
   ...ts.configs.recommended,
   ...vue.configs['flat/essential'],

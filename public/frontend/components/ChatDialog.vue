@@ -179,7 +179,7 @@ async function clear() {
             class="chat-avatar"
             :class="{ 'user-avatar': message.role === 'user' }"
           >
-            <img
+            <img v-server-image
               v-if="message.role === 'user' && session.user?.hasAvatar"
               class="chat-avatar-img"
               :src="'api/me/avatar'"

@@ -23,7 +23,7 @@ export async function chatRequest(path: string, body: unknown, signal: AbortSign
   }
   offlineState.offline = false;
   if (!response.ok) {
-    if (response.status === 401) session.user = null;
+    if (response.status === 401) { session.user = null;session.config = null; }
     const data = await response.json().catch(() => ({}));
     throw new Error(data.error || `HTTP ${response.status}`);
   }

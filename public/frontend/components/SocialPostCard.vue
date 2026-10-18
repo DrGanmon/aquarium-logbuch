@@ -66,10 +66,10 @@ async function share() {
 <template>
   <article class="social-post">
     <header class="social-post-header">
-      <div class="social-author"><img v-if="post.author.avatarUrl" :src="post.author.avatarUrl" class="social-avatar" decoding="async" loading="lazy" :alt="t('social.avatar', { username: post.author.username })" /><span v-else class="social-avatar social-avatar-placeholder" aria-hidden="true">{{ post.author.username.slice(0, 1).toUpperCase() }}</span><div><strong>{{ post.author.username }}</strong><time :datetime="post.created_at">{{ fmtDate(post.created_at) }}</time><span class="muted">{{ t(post.is_public ? 'social.publicBadge' : 'social.internalBadge') }}</span></div></div>
+      <div class="social-author"><img v-server-image v-if="post.author.avatarUrl" :src="post.author.avatarUrl" class="social-avatar" decoding="async" loading="lazy" :alt="t('social.avatar', { username: post.author.username })" /><span v-else class="social-avatar social-avatar-placeholder" aria-hidden="true">{{ post.author.username.slice(0, 1).toUpperCase() }}</span><div><strong>{{ post.author.username }}</strong><time :datetime="post.created_at">{{ fmtDate(post.created_at) }}</time><span class="muted">{{ t(post.is_public ? 'social.publicBadge' : 'social.internalBadge') }}</span></div></div>
       <button v-if="post.canDelete" type="button" class="btn small ghost" :disabled="busy" @click="remove">{{ t('social.delete') }}</button>
     </header>
-    <a :href="`#/social/${post.id}`" class="social-image-link"><img :src="post.imageUrl" :alt="post.text || t('social.photoBy', { username: post.author.username })" :width="post.width" :height="post.height" class="social-photo" loading="lazy" decoding="async" /></a>
+    <a :href="`#/social/${post.id}`" class="social-image-link"><img v-server-image :src="post.imageUrl" :alt="post.text || t('social.photoBy', { username: post.author.username })" :width="post.width" :height="post.height" class="social-photo" loading="lazy" decoding="async" /></a>
     <div class="social-post-content stack">
       <div class="social-actions">
         <button type="button" class="btn ghost social-like" :class="{ liked: post.liked }" :disabled="!session.user || busy" :aria-pressed="post.liked" :aria-label="t(post.liked ? 'social.unlike' : 'social.like')" @click="like"><span aria-hidden="true">{{ post.liked ? '♥' : '♡' }}</span> {{ post.likeCount }}</button>
@@ -82,7 +82,7 @@ async function share() {
         <p v-if="commentsBusy" role="status">{{ t('common.loading') }}</p>
         <p v-else-if="!comments.length && commentsLoaded" class="muted">{{ t('social.noComments') }}</p>
         <div v-for="item in comments" :key="item.id" class="social-comment">
-          <img v-if="item.author.avatarUrl" :src="item.author.avatarUrl" class="social-avatar" :alt="t('social.avatar', { username: item.author.username })" loading="lazy" /><span v-else class="social-avatar social-avatar-placeholder" aria-hidden="true">{{ item.author.username.slice(0, 1).toUpperCase() }}</span>
+          <img v-server-image v-if="item.author.avatarUrl" :src="item.author.avatarUrl" class="social-avatar" :alt="t('social.avatar', { username: item.author.username })" loading="lazy" /><span v-else class="social-avatar social-avatar-placeholder" aria-hidden="true">{{ item.author.username.slice(0, 1).toUpperCase() }}</span>
           <div class="social-comment-body"><p><strong>{{ item.author.username }}</strong> {{ item.text }}</p><time :datetime="item.created_at">{{ fmtDate(item.created_at) }}</time></div>
           <button v-if="item.canDelete" type="button" class="btn small ghost" :disabled="commentsBusy" :aria-label="t('social.deleteComment')" @click="removeComment(item)">✕</button>
         </div>

@@ -69,6 +69,17 @@ test('Mobile: native Netzwerkfehler aktivieren denselben Offline-Pfad wie Browse
   load('public/frontend/mobile-runtime.ts', { window, document }).installServerTransport('https://server.test/');
   await assert.rejects(window.fetch('api/me'), error => error instanceof TypeError && error.cause === failure);
 });
+test('Mobile: absolute eigene Server-URLs genauso behandeln, fremde Hosts und Installationen unverändert lassen', async () => {
+  const calls = [], document = { baseURI: 'https://localhost/', documentElement: { dataset: {} } };
+  const window = { fetch: async (input, options) => { calls.push({ input, options });return new Response('{}'); } };
+  load('public/frontend/mobile-runtime.ts', { window, document }).installServerTransport('https://server.test/app/');
+  await window.fetch('https://server.test/app/api/me', { credentials: 'same-origin' });
+  assert.equal(calls[0].options.credentials, 'include');
+  await window.fetch('https://other.test/api/me', { credentials: 'omit' });
+  assert.equal(calls[1].options.credentials, 'omit');
+  await window.fetch('https://server.test/other/api/me', { credentials: 'omit' });
+  assert.equal(calls[2].options.credentials, 'omit');
+});
 test('Mobile: Chat nutzt JSON ohne vorgetäuschte Live-Statusmeldungen; Web-Chat streamt weiterhin', async () => {
   for (const mobile of [true, false]) {
     const stages = [];

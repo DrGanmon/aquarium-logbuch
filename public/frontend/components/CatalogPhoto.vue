@@ -21,7 +21,7 @@ function safeLink(value?: string) {
 </script>
 <template>
       <figure v-if="image && !imageFailed" class="species-detail-photo">
-        <img :src="image.url" :alt="name" :width="image.width" :height="image.height" decoding="async" @error="imageFailed = true" />
+        <img v-server-image :src="image.url" :alt="name" :width="image.width" :height="image.height" decoding="async" @error="imageFailed = true" />
         <button ref="creditButton" class="species-photo-credit" type="button" :aria-label="label('credits')" :title="label('credits')" @click="showCredits = true">
           <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h3l2-3h6l2 3h3v13H4z" /><circle cx="12" cy="13" r="4" /></svg>
         </button>

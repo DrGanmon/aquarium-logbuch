@@ -122,7 +122,7 @@ function saved(id: Id) {
         class="card aq-card"
         :class="`s-${status(a)}`"
         :href="`#/a/${a.id}`"
-        ><img
+        ><img v-server-image
           v-if="a.has_image"
           class="aq-card-img"
           :src="`api/aquariums/${a.id}/image`"

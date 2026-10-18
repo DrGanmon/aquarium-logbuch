@@ -35,11 +35,25 @@ Native POST responses are buffered, so mobile chat uses the existing JSON reply 
 
 The native app does not register a service worker or offer web frontend updates. UI updates currently require a new app build; catalogs and user data synchronize separately through the API. Browser updates retain their existing confirmation flow.
 
+## Images and session expiry (second step)
+
+Image requests use the selected server and native cookie handling. Elements display local Blob URLs and release them on unmount or account changes. Late responses are discarded. Relative and absolute server image addresses support installations under a path; local previews stay local.
+
+Synchronized private images remain in per-user IndexedDB records. Valid queued image edits take precedence, and display requests do not overwrite those bytes. Only network failures allow cached-image fallback; HTTP 401/403/404 or a mismatched user identity never reveal an old cached image. A 401 response from `/me` also clears the expired frontend session.
+
+Viewed public species/plant images have a server-specific bounded cache of up to 200 images, each at most 2 MB. Social images remain online. Existing image credits and license details remain in the catalog views.
+
+![Offline image rendering in a browser demo with a fictional account and simulated native transport; not a device capture](../screenshots/capacitor-bilder-offline.webp)
+
+Demo photo in the screenshot: [5snake5, “Sewellia lineolata – Pracht-Flossensauger”](https://commons.wikimedia.org/wiki/File:Sewellia_lineolata_-_Pracht-Flossensauger.jpg), CC0 1.0; a crop of the existing catalog file.
+
+`test/mobile_session.test.js` exercises local login, API access, image upload/download, chat, expired sessions and logout against a real local backend. Native transport/cookie handling and the external AI provider are simulated. This does not replace Android/iOS TLS and cookie validation or the full offline workflow on a device.
+
 ## Remaining validation and features
 
 - Automated checks cover builds, addressing, transport, cancellation, server storage separation, chat and existing offline/catalog behavior. Browser inspection covers launcher rendering only.
 - Actual native login and the full online → offline edit → restart → online acknowledgement cycle still need testing on Android and iOS. Linux cannot build or test the native iOS app.
 - Mobile OIDC is hidden pending system-browser login and a secure app callback. OIDC-only accounts should use the web app.
-- Image rendering still relies on relative URLs and, in the browser, service-worker interception. Native image rendering and offline image delivery remain to be implemented; working JSON transport does not imply working images.
+- Aquarium, resident, profile, Social and catalog images now use a native image path loaded on demand. Browser checks use a simulated native transport; actual device cookie handling and rendering still need validation.
 - Downloads, CSV export, external links, deep links, back navigation, native timer notifications and resume behavior need further implementation or device verification. Background execution is not guaranteed.
 - Server compatibility checks, mobile CI, release signing/versioning and store distribution remain open.

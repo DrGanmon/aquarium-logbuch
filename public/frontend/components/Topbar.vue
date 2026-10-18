@@ -70,7 +70,7 @@ onBeforeUnmount(() => {
         href="#/profile"
         :title="t('nav.profile')"
       >
-        <img
+        <img v-server-image
           id="topbar-avatar"
           class="avatar-small"
           :src="avatar"

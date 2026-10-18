@@ -86,12 +86,13 @@ export async function api<T>(
   }
   if (response.ok && method === 'GET' && cacheable(path) && path !== '/me' && owner && response.headers.get('X-Aquarium-User') !== String(owner)) {
     await writeLocal('activeOwner', undefined).catch(() => {});
-    session.user = null;
+    session.user = null;session.config = null;
     throw new ApiError(t('offline.accountChanged'), 409);
   }
   const data: unknown = await response.json().catch(() => ({}));
-  if (response.status === 401 && !["/login", "/register", "/me"].includes(path))
-    session.user = null;
+  if (response.status === 401 && !["/login", "/register"].includes(path)) {
+    session.user = null;session.config = null;
+  }
   if (response.status === 428 && session.user) session.user.termsRequired = true;
   if (response.status === 413) throw new Error(t('social.uploadTooLarge'));
   if (response.status === 401) await writeLocal('activeOwner', undefined).catch(() => {});

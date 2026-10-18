@@ -338,7 +338,7 @@ async function leave() {
                 @click="lightbox = photoUrl(photo)"
                 @keydown.enter="lightbox = photoUrl(photo)"
               >
-                <img
+                <img v-server-image
                   class="gallery-img"
                   :src="photoUrl(photo)"
                   :alt="photo.caption || aquarium.name"
@@ -768,7 +768,7 @@ async function leave() {
               accept="image/png,image/jpeg,image/webp,image/gif"
               required
               @change="photoChanged" /></label
-          ><img
+          ><img v-server-image
             v-if="photoFile && modal === 'photo'"
             class="img-preview"
             :src="photoFile"
@@ -800,7 +800,7 @@ async function leave() {
         :title="t('common.imageLightboxTitle')"
         wide
         @close="lightbox = ''"
-        ><img
+        ><img v-server-image
           :src="lightbox"
           :alt="aquarium.name"
           style="max-width: 100%; max-height: 80vh; object-fit: contain"

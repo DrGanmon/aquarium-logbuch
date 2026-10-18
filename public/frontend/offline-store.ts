@@ -58,6 +58,26 @@ export async function writeLocal(key: string, value: unknown) {
   });
 }
 export async function activeOwner() { return readLocal<number>('activeOwner'); }
+/** Public catalog image bytes have a bounded, server-scoped store, never a private-image key. */
+export async function writeCatalogImage(path: string, blob: Blob) {
+  if (!/^(species-images|plants-images)\/[^/]+\.(webp|png|jpe?g|avif)$/i.test(path)) throw new Error('Ungültiger Katalogbildpfad.');
+  if (!blob.type.startsWith('image/') || blob.size > 2 * 1024 * 1024) return;
+  const db = await open();
+  return new Promise<void>((resolve, reject) => {
+    const tx = db.transaction('records', 'readwrite'), store = tx.objectStore('records');
+    const request = store.get('catalog-image-index');
+    request.onsuccess = () => {
+      const paths: string[] = Array.isArray(request.result) ? request.result.filter((item: unknown): item is string => typeof item === 'string' && item !== path && /^(species-images|plants-images)\/[^/]+\.(webp|png|jpe?g|avif)$/i.test(item)) : [];
+      paths.push(path);
+      for (const removed of paths.slice(0, Math.max(0, paths.length - 200))) store.delete(`catalog-image:${removed}`);
+      store.put(blob, `catalog-image:${path}`);
+      store.put(paths.slice(-200), 'catalog-image-index');
+    };
+    tx.oncomplete = () => resolve();
+    tx.onabort = () => reject(tx.error);
+    tx.onerror = () => reject(tx.error);
+  });
+}
 export async function pendingFor(owner: number) {
   const db = await open();
   return new Promise<PendingEntry[]>((resolve, reject) => {

@@ -70,7 +70,7 @@ async function remove(stock: Stock) {
     <div v-if="stock.length" class="stock-list">
       <div v-for="item in stock" :key="item.id" class="stock-item">
         <div class="stock-item-main">
-          <img
+          <img v-server-image
             v-if="item.has_image || item.image_file"
             class="stock-avatar"
             loading="lazy"

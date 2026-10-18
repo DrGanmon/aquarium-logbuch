@@ -62,7 +62,7 @@
       },
       {
         "title": "Mobiler Capacitor-Prototyp",
-        "text": "Die experimentelle Android-/iOS-App fragt beim Start nach der HTTPS-Adresse deines Servers. Wähle „Verbinden“. Über „Server wechseln“ im Footer gelangst du zurück zur Auswahl; offene Änderungen bleiben beim bisherigen Server gespeichert. OIDC, Bildanzeige, Datei-Export und native Benachrichtigungen sind noch nicht vollständig umgesetzt oder auf Geräten geprüft. Die Browser-Version bleibt regulär nutzbar."
+        "text": "Die experimentelle Android-/iOS-App fragt beim Start nach der HTTPS-Adresse deines Servers. Wähle „Verbinden“. Über „Server wechseln“ im Footer gelangst du zurück zur Auswahl; offene Änderungen bleiben beim bisherigen Server gespeichert. Bilder werden über den gewählten Server geladen; synchronisierte private Bilder und betrachtete Katalogbilder sind bei Netzwerkfehlern offline verfügbar. Kontowechsel entfernt angezeigte private Bilder. OIDC, Datei-Export und native Benachrichtigungen sind noch nicht vollständig umgesetzt oder auf Geräten geprüft. Die Browser-Version bleibt regulär nutzbar."
       }
     ]
   },

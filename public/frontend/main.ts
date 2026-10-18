@@ -1,5 +1,6 @@
 import "../style.css";
 import { createApp } from "vue";
 import App from "./App.vue";
+import { serverImage } from './server-image';
 
-createApp(App).mount("#vue-root");
+createApp(App).directive('server-image', serverImage).mount("#vue-root");

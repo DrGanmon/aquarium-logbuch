@@ -31,7 +31,11 @@ export function installServerTransport(server: string) {
   window.fetch = (input, init) => {
     const target = serverRequestUrl(input, base, document.baseURI);
     const original = typeof input === 'string' ? new URL(input, document.baseURI).href : input instanceof URL ? input.href : input.url;
-    if (target === original) return nativeFetch(input, init);
+    const targetUrl = new URL(target), serverUrl = new URL(base);
+    const trusted = targetUrl.origin === serverUrl.origin && targetUrl.pathname.startsWith(serverUrl.pathname)
+      && !targetUrl.username && !targetUrl.password
+      && /^(api(?:\/|$)|species-images\/|plants-images\/)/.test(targetUrl.pathname.slice(serverUrl.pathname.length));
+    if (target === original && !trusted) return nativeFetch(input, init);
     const signal = init?.signal ?? (input instanceof Request ? input.signal : undefined);
     signal?.throwIfAborted();
     const request = nativeFetch(input instanceof Request ? new Request(target, input) : target, { ...init, credentials: 'include' })

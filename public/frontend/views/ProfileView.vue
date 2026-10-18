@@ -230,7 +230,7 @@ async function saveRange() {
       <section class="card stack">
         <h2>Profilbild</h2>
         <div class="profile-avatar-row">
-          <img
+          <img v-server-image
             v-if="session.user?.hasAvatar"
             class="avatar-large"
             :src="'api/me/avatar?t=' + avatarVersion"

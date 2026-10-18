@@ -6,8 +6,16 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Minor-Version manuell auf `0.4.0-ALPHA` erhöhen; Revision und Patch zurücksetzen und Paketmetadaten sowie Git-Versionsbasis aktualisieren.
-- Experimentellen Capacitor-Unterbau für Android und iOS ergänzen: separates mobiles Build-Ziel, HTTPS-Serverauswahl, native HTTP-Anbindung und servergetrennte Offline-Datenbanken bereitstellen. Mobilen Chat ohne gepufferte Live-Statusmeldungen ausführen, Web-Updates erhalten und Grenzen, Build-Anleitung sowie Regressionstests dokumentieren.
+- Zweiten Capacitor-Schritt für Anmeldung, API, Bilder und Chat abschließen: Aquarium-, Bewohner-, Profil-, Social- und Katalogbilder über den ausgewählten Server laden; synchronisierte private Bilder kontogetrennt und öffentliche Katalogbilder begrenzt offline anzeigen. Lokale Bildänderungen bevorzugen, verspätete Antworten nach Kontowechsel verwerfen und Objekt-URLs freigeben. Abgelaufene Sitzungen bei `/me` vollständig aus der Oberfläche entfernen; Integrationstests mit echtem Backend und simuliertem nativen Cookie-Transport sowie zweisprachige Anleitungen ergänzen. Generierte native Browserpakete von Quellcode-Lintprüfungen ausnehmen.
+- Versionsbasis des Minor-Wechsels am tatsächlichen Versionscommit ausrichten, damit zuvor committete Features nicht erneut in der neuen Minor-Version zählen.
+
+## 0.4.0-ALPHA
+
+- Minor-Version manuell auf `0.4.0-ALPHA` erhöhen; Revision und Patch zurücksetzen und Paketmetadaten sowie Git-Versionsbasis aktualisieren. (`d71167f5595b0bad73bb90efb7c93b5c01aff027`, 2026-10-19).
+
+## 0.3.15-ALPHA
+
+- Experimentellen Capacitor-Unterbau für Android und iOS ergänzen: separates mobiles Build-Ziel, HTTPS-Serverauswahl, native HTTP-Anbindung und servergetrennte Offline-Datenbanken bereitstellen. Mobilen Chat ohne gepufferte Live-Statusmeldungen ausführen, Web-Updates erhalten und Grenzen, Build-Anleitung sowie Regressionstests dokumentieren. (`06365a881dbb941c72a7ce53bca59d53d6eb0ac6`, 2026-10-19).
 
 ## 0.3.14-ALPHA
 

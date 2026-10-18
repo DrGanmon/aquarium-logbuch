@@ -62,7 +62,7 @@
       },
       {
         "title": "Mobile Capacitor prototype",
-        "text": "The experimental Android/iOS app asks for your server’s HTTPS address at startup. Choose “Connect”. “Change server” in the footer returns to server selection; pending changes stay with the previous server. OIDC, image display, file export and native notifications are not yet fully implemented or verified on devices. The browser version remains available as usual."
+        "text": "The experimental Android/iOS app asks for your server’s HTTPS address at startup. Choose “Connect”. “Change server” in the footer returns to server selection; pending changes stay with the previous server. Images load through the selected server; synchronized private images and viewed catalog images remain available on network failures. Switching accounts clears displayed private images. OIDC, file export and native notifications are not yet fully implemented or verified on devices. The browser version remains available as usual."
       }
     ]
   },
