@@ -1,3 +1,4 @@
+import { validateMeasurementDraft, mergeMeasurementDraft, type MeasurementDraftData } from '../shared/measurement-draft';
 import { createHash } from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import type { Request } from 'express';
@@ -96,7 +97,7 @@ export async function applyWorkspaceOperation(original: Request, command: Worksp
   if (command.owner !== original.user.id) throw new AppError('Der Eintrag gehört zu einer anderen Benutzersitzung.', 403);
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(command.id) || !workspaceWrite(command.path, command.method, command.body)) throw new AppError('Ungültige Offline-Aktion.', 400);
   if (/\/-\d+(?=\/|$)/.test(command.path)) throw new AppError('Abhängige Einträge müssen zuerst synchronisiert werden.', 409);
-  const key = `${command.owner}:workspace:${command.id}`, hash = fingerprint({ id: command.id, owner: command.owner, path: command.path, method: command.method, body: command.body, base: command.base });
+  const key = `${command.owner}:workspace:${command.id}`, hash = fingerprint({ id: command.id, owner: command.owner, path: command.path, method: command.method, body: command.body, base: command.base, draftBase: command.draftBase });
   const execute = async () => offlineAtomic(db, async () => {
     const previous = await findReceipt(key);
     if (previous) {
@@ -110,21 +111,39 @@ export async function applyWorkspaceOperation(original: Request, command: Worksp
     }
     await authorize(original, command.path, command.method);
     const target = canonicalResource(command.path);
+    const body = { ...command.body };delete body.operation_id;delete body.operation_user_id;
     const needsBase = (command.method !== 'POST' || command.path.endsWith('/measurement-draft/complete') || /\/(image|avatar|dose)$/.test(command.path)) && !command.path.endsWith('/alerts/ack');
+    let priorDraftResponse: any;
     if (needsBase) {
       let expected = command.base;
+      let predecessor: any;
       if (expected?.startsWith('after:')) {
         const receipt = await findReceipt(`${command.owner}:workspace:${expected.slice(6)}`);
         if (!receipt) throw new AppError('Vorherige Änderung ist noch nicht synchronisiert.', 409);
         const prior = JSON.parse(receipt.response);
+        predecessor = prior;priorDraftResponse = prior;
         if (prior.target !== target && !prior.versions?.[(command.method === 'DELETE' ? 'DELETE ' : '') + target] && !prior.versions?.[target]) throw new AppError('Ungültige Änderungsabhängigkeit.', 400);
         expected = prior.versions?.[(command.method === 'DELETE' ? 'DELETE ' : '') + target] || prior.versions?.[target] || (command.method === 'DELETE' ? prior.deleteVersion : prior.version);
       }
       const current = await targetState(command.path, command.method, command.owner);
       const actual = current === null ? 'missing' : fingerprint(current);
-      if (!expected || expected !== actual) throw Object.assign(new AppError('Der Eintrag wurde auf einem anderen Gerät geändert. Bitte beide Stände prüfen.', 409), { conflict: { current, version: actual } });
+      let merged = false;
+      if (command.method === 'PUT' && command.path.endsWith('/measurement-draft')) {
+        const suites = cfg.suiteService.getSuites('de');
+        const local = validateMeasurementDraft(body, suites);
+        const remote = (current as { data?: MeasurementDraftData } | null)?.data;
+        const base = command.draftBase == null ? null : validateMeasurementDraft(command.draftBase, suites);
+        if (remote && remote.draftId === local.draftId && (!base || base.draftId === local.draftId) && expected) {
+          // Legacy clients without an observed base must not overwrite fields added by a merged predecessor.
+          const starting = base || (expected === actual && !predecessor?.result?.merged ? remote : null);
+          const merge = mergeMeasurementDraft(starting, local, remote);
+          if (merge.fields.length) throw Object.assign(new AppError('Einzelne Angaben unterscheiden sich. Bitte die betroffenen Werte auswählen.', 409), { conflict: { current, version: actual, draftMerge: merge } });
+          Object.assign(body, validateMeasurementDraft(merge.merged, suites));
+          merged = true;
+        }
+      }
+      if (!merged && (!expected || expected !== actual)) throw Object.assign(new AppError('Der Eintrag wurde auf einem anderen Gerät geändert. Bitte beide Stände prüfen.', 409), { conflict: { current, version: actual } });
     }
-    const body = { ...command.body };delete body.operation_id;delete body.operation_user_id;
     if (command.path.endsWith('/alerts/ack') && Array.isArray(body.offline_alerts)) {
       const ids = Array.isArray(body.ids) ? body.ids : [];
       for (const selector of body.offline_alerts) {
@@ -138,7 +157,35 @@ export async function applyWorkspaceOperation(original: Request, command: Worksp
     }
     const csvAquarium = command.path.endsWith('/measurements/import-csv') ? Number(command.path.split('/')[2]) : null;
     const before = csvAquarium ? new Set((await db.measurements.listForAquarium(csvAquarium, { all: true })).map(row => row.id)) : null;
+    if (command.path.endsWith('/measurement-draft/complete')) {
+      const state = await measurementDraftState(command.owner, Number(command.path.split('/')[2]));
+      if (state?.data) {
+        const draft = state.data;
+        const rawValues: Record<string, unknown> = { ...body.values };
+        const values: Record<string, number> = {};
+        const parameters = cfg.suiteService.resolveSelection(draft.selected);
+        for (const [key, raw] of Object.entries(rawValues)) {
+          const parameter = parameters.find(parameter => parameter.key === key);
+          const value = Number(typeof raw === 'string' ? raw.replace(',', '.') : raw);
+          if (!parameter || !Number.isFinite(value) || value < parameter.min || value > parameter.max) throw new AppError('Bitte gültige Messwerte eingeben.', 400);
+          values[key] = value;
+        }
+        if (priorDraftResponse?.result?.merged) {
+          body.note = draft.note;
+          body.measured_at = new Date(Date.parse(draft.when + 'Z') + draft.timeZoneOffset * 60000).toISOString();
+        }
+        for (const [key, text] of Object.entries(draft.values)) {
+          if (!text.trim()) continue;
+          const value = Number(text.trim().replace(',', '.'));
+          if (!Number.isFinite(value)) throw new AppError('Ein übernommener Messwert ist noch nicht vollständig. Bitte den Test prüfen.', 400);
+          if (values[key] !== undefined && values[key] !== value) throw Object.assign(new AppError('Ein Messwert wurde vor dem Abschluss geändert. Bitte den Test prüfen.', 409), { conflict: { current: state, version: fingerprint(state) } });
+          values[key] = value;
+        }
+        body.values = values;body.selectedTests = draft.selected;
+      }
+    }
     const result = await workspaceDispatch(original, command.path, command.method, body);
+    if (command.method === 'PUT' && command.path.endsWith('/measurement-draft')) result.merged = fingerprint(command.body) !== fingerprint(body);
     if (csvAquarium && before) result.entries = (await db.measurements.listForAquarium(csvAquarium, { all: true })).filter(row => !before.has(row.id)).sort((a, b) => a.id - b.id).map(row => ({ id: row.id }));
     let updatedTarget = target;
     if (command.method === 'POST' && result?.id && !command.path.endsWith('/measurement-draft/complete') && !/\/(image|avatar|dose)$/.test(command.path)) updatedTarget += '/' + result.id;

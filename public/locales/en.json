@@ -375,6 +375,11 @@
     "removeShare": "Revoke share"
   },
   "measure": {
+    "draftMergeIntro": "New and equal values are merged automatically. Choose a version only for the differing entries.",
+    "localDraftValue": "This device",
+    "serverDraftValue": "Other device",
+    "emptyDraftValue": "Not recorded",
+    "applyDraftValues": "Apply selected values",
     "draftSaving": "Saving test draft locally …",
     "draftStored": "Test draft saved locally. Devices sync when connected.",
     "timerNotifications": "Timer notifications",

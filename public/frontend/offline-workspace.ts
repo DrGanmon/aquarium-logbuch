@@ -1,3 +1,4 @@
+import { draftField, setDraftField, pruneDraftFields, type MeasurementDraftData } from '../../src/shared/measurement-draft';
 import { prepareCsvMeasurements } from '../../src/shared/measurement-csv';
 import { activeOwner, readLocal, writeLocal, pendingFor, storePending, commitWorkspaceAck, replacePending, offlineState, type PendingEntry } from './offline-store';
 import { readCatalogData } from './offline-catalogs';
@@ -42,7 +43,7 @@ export async function readWorkspace(owner: number, language: string, path: strin
     catch (error) { if (navigator.onLine && error instanceof AppError && error.status === 404) return undefined;throw error; }
   }
 }
-export async function enqueueWorkspace(owner: number, language: string, path: string, method: string, input: any, baseVersion?: string) {
+export async function enqueueWorkspace(owner: number, language: string, path: string, method: string, input: any, baseVersion?: string, draftBase?: MeasurementDraftData | null) {
   const body = cloneWorkspace(input || {});
   if (path === '/me' && body.email !== undefined) {
     const snapshot = await localWorkspace(owner, language);
@@ -67,6 +68,7 @@ export async function enqueueWorkspace(owner: number, language: string, path: st
     : baseVersion ?? (previous ? 'after:' + previous.id : snapshot.versions[(method === 'DELETE' ? 'DELETE ' : '') + resource] || snapshot.versions[resource] || 'missing');
   if (path.endsWith('/dose') && !body.logged_at) body.logged_at = new Date().toISOString();
   const command: WorkspaceOperation = { id, kind: 'workspace', owner, aquarium: path.split('/')[2] || '', method: method as WorkspaceOperation['method'], path, body, base, temporaryIds, createdAt: new Date().toISOString() };
+  if (method === 'PUT' && path.endsWith('/measurement-draft')) command.draftBase = cloneWorkspace(draftBase === undefined ? snapshot.responses[path] || null : draftBase);
   if (path.endsWith('/alerts/ack')) {
     command.base = null;
     const alerts = snapshot.responses[`/aquariums/${command.aquarium}`]?.alerts || [];
@@ -99,6 +101,7 @@ export async function acknowledgeWorkspace(item: WorkspaceOperation, response: a
   if (response.result?.entries) response.result.entries.forEach((entry: any, index: number) => { if (item.temporaryIds[index]) delta[item.temporaryIds[index]] = Number(entry.id); });
   const snapshot = cloneWorkspace(original);
   applyLocalOperation(snapshot, remapOperation(item, currentMap), await catalogs(language));
+  if (item.path.endsWith("/measurement-draft") && item.method === "PUT" && response.result?.draft) snapshot.responses[remapOperation(item, currentMap).path] = response.result.draft;
   const mapped = remapSnapshot(snapshot, { ...currentMap, ...delta });
   if (response.target) { mapped.versions[response.target] = response.version;mapped.versions['DELETE ' + response.target] = response.deleteVersion; }
   Object.assign(mapped.versions, response.versions || {});
@@ -180,3 +183,16 @@ export async function rebaseWorkspace(item: WorkspaceOperation) {
 }
 export async function mappingFor(owner: number) { return await readLocal<Record<string, number>>(`workspace-mapping:${owner}`) || {}; }
 export { remapOperation, workspaceWrite, workspaceKey };
+
+export async function resolveDraftWorkspace(item: WorkspaceOperation, choices: Record<string, 'local' | 'server'>) {
+  const conflict = item.conflict, merge = conflict?.draftMerge;
+  if (!conflict || !merge || !item.path.endsWith('/measurement-draft') || item.method !== 'PUT') return;
+  const remote = (conflict.current as { data?: MeasurementDraftData })?.data;
+  if (!remote || merge.fields.some(field => !['local', 'server'].includes(choices[field]))) throw new AppError('Bitte für jeden unterschiedlichen Wert eine Auswahl treffen.', 400);
+  const body = cloneWorkspace(merge.merged);
+  for (const field of merge.fields) setDraftField(body, field, draftField(choices[field] === 'local' ? item.body as MeasurementDraftData : remote, field));
+  pruneDraftFields(body);
+  await storePending({ ...item, body, draftBase: remote, base: conflict.version, error: undefined, conflict: undefined });
+  offlineState.pending = await pendingFor(item.owner);
+  window.dispatchEvent(new Event('aquarium-synchronized'));
+}

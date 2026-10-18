@@ -46,11 +46,11 @@ const draftWrap = (handler: (req: Request, res: Response) => Promise<unknown>): 
 async function draftCommand(req: Request, res: Response, method: 'PUT' | 'DELETE' | 'POST') {
   if ((req as any).offlineOperation) return false;
   const { applyWorkspaceOperation } = await import('../services/offline-workspace-service');
-  const { operation_id, base, ...body } = req.body || {};
+  const { operation_id, base, draftBase, ...body } = req.body || {};
   const result = await applyWorkspaceOperation(req, {
     id: operation_id, owner: req.user.id, kind: 'workspace', aquarium: String(req.params.id),
     path: `/aquariums/${req.params.id}/measurement-draft${method === 'POST' ? '/complete' : ''}`,
-    method, body, base, temporaryIds: [], createdAt: new Date().toISOString(),
+    method, body, base, draftBase, temporaryIds: [], createdAt: new Date().toISOString(),
   });
   res.json(result);return true;
 }
@@ -64,7 +64,7 @@ router.put('/:id/measurement-draft', auth, writeAquarium, draftWrap(async (req: 
   const { writeMeasurementDraft } = await import('../services/measurement-draft-service');
   const draft = validateMeasurementDraft(req.body, cfg.suiteService.getSuites('de'));
   await writeMeasurementDraft(req.user.id, Number(req.params.id), draft);
-  res.json({ ok: true });
+  res.json({ ok: true, draft });
 }));
 router.delete('/:id/measurement-draft', auth, writeAquarium, draftWrap(async (req: Request, res: Response) => {
   if (await draftCommand(req, res, 'DELETE')) return;

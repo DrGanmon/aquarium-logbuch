@@ -1,10 +1,39 @@
 <script setup lang="ts">
+import { reactive } from 'vue';
+import { draftField, type MeasurementDraftData } from '../../../src/shared/measurement-draft';
 import { offlineState } from '../offline-store';
 import { synchronizeCatalogs } from '../offline-catalogs';
-import { discardWorkspace, rebaseWorkspace } from '../offline-workspace';
-import { language, t, session } from '../state';
+import { discardWorkspace, rebaseWorkspace, resolveDraftWorkspace } from '../offline-workspace';
+import { language, t, session, errorMessage } from '../state';
 import { refreshPending, synchronize } from '../offline-sync';
 import type { WorkspaceOperation } from '../../../src/shared/offline-workspace';
+const draftChoices = reactive<Record<string, Record<string, 'local' | 'server'>>>({});
+function choices(item: WorkspaceOperation) {
+  const key = `${item.id}:${item.conflict?.version}`;
+  return draftChoices[key] ||= {};
+}
+function fieldTitle(field: string) {
+  const key = field.slice(field.indexOf('.') + 1);
+  const name = session.config?.allParameters.find(parameter => parameter.key === key)?.name || key;
+  return field.startsWith('values.') ? name : field.startsWith('timers.') ? `${t('measure.timerNotifications')} · ${name}`
+    : t(({ time: 'measure.dateTimeLabel', note: 'common.notesOptional', suite: 'testSelection.title', selected: 'testSelection.title' } as Record<string, string>)[field] || 'offline.localChange');
+}
+function fieldValue(draft: MeasurementDraftData, field: string) {
+  const value = draftField(draft, field);
+  if (value == null || value === '') return t('measure.emptyDraftValue');
+  if (field.startsWith('timers.')) return new Date(Number(value)).toLocaleString();
+  if (field === 'time') return `${draft.when.replace('T', ' ')} (UTC${draft.timeZoneOffset <= 0 ? '+' : '-'}${Math.abs(draft.timeZoneOffset / 60)})`;
+  if (field === 'selected') return draft.selected.map(reference => {
+    const [suite, key] = reference.split(':');
+    const method = session.config?.suites.find(item => item.id === suite);
+    return `${method?.name || suite}: ${method?.tests?.find(item => item.key === key)?.name || key}`;
+  }).join(', ');
+  return String(value);
+}
+async function resolveDraft(item: WorkspaceOperation) {
+  try { await resolveDraftWorkspace(item, choices(item));await synchronize(); }
+  catch (error) { offlineState.error = errorMessage(error); }
+}
 async function retryCatalogs() { if (session.user) await synchronizeCatalogs(Number(session.user.id), language.value, true); }
 async function discard(item: typeof offlineState.pending[number]) {
   if (!confirm(t('offline.discardConfirm'))) return;
@@ -41,7 +70,16 @@ function describe(body: Record<string, any>) {
           <p>{{ title(item) }} · {{ new Date(item.createdAt).toLocaleString() }}</p>
           <details><summary>{{ t('offline.localChange') }}</summary><pre>{{ describe(item.body) }}</pre></details>
           <details v-if="item.conflict"><summary>{{ t('offline.serverChange') }}</summary><pre>{{ JSON.stringify(item.conflict.current, null, 2) }}</pre></details>
-          <button v-if="item.conflict" class="btn" type="button" :disabled="offlineState.syncing" @click="rebase(item)">{{ t('offline.keepLocal') }}</button>
+          <div v-if="item.conflict?.draftMerge" class="stack draft-merge">
+            <p>{{ t('measure.draftMergeIntro') }}</p>
+            <fieldset v-for="field in item.conflict.draftMerge.fields" :key="field" class="stack draft-field">
+              <legend>{{ fieldTitle(field) }}</legend>
+              <label><input v-model="choices(item)[field]" type="radio" :name="`${item.id}:${item.conflict.version}:${field}`" value="local" /> {{ t('measure.localDraftValue') }}: {{ fieldValue(item.body as MeasurementDraftData, field) }}</label>
+              <label><input v-model="choices(item)[field]" type="radio" :name="`${item.id}:${item.conflict.version}:${field}`" value="server" /> {{ t('measure.serverDraftValue') }}: {{ fieldValue((item.conflict.current as { data: MeasurementDraftData }).data, field) }}</label>
+            </fieldset>
+            <button class="btn" type="button" :disabled="offlineState.syncing || item.conflict.draftMerge.fields.some(field => !choices(item)[field])" @click="resolveDraft(item)">{{ t('measure.applyDraftValues') }}</button>
+          </div>
+          <button v-if="item.conflict && !item.conflict.draftMerge" class="btn" type="button" :disabled="offlineState.syncing" @click="rebase(item)">{{ t('offline.keepLocal') }}</button>
         </template>
         <template v-else>
           <p>{{ t('offline.aquarium') }} {{ item.aquarium }} · {{ new Date(item.kind === 'maintenance' ? item.body.logged_at : item.body.measured_at).toLocaleString() }}</p>
@@ -55,3 +93,9 @@ function describe(body: Record<string, any>) {
     <button v-if="offlineState.offline" class="btn" type="button" :disabled="offlineState.syncing || offlineState.workspaceSyncing" @click="synchronize">{{ t('offline.sync') }}</button>
   </aside>
 </template>
+
+<style scoped>
+.draft-field { min-width: 0; border: 1px solid var(--line); border-radius: 8px; padding: .5rem .75rem; }
+.draft-field label { display: flex; min-height: 44px; overflow-wrap: anywhere; }
+.draft-merge button:disabled { opacity: .55; }
+</style>

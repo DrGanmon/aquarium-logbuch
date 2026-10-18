@@ -22,10 +22,10 @@ function setup() {
     if (id === '../offline-workspace') return {
       workspaceFor: async owner => snapshots[owner], synchronizeWorkspace: async () => {},
       localWorkspace: async owner => clone(snapshots[owner]),
-      enqueueWorkspace: async (owner, lang, path, method, body, base) => {
+      enqueueWorkspace: async (owner, lang, path, method, body, base, draftBase) => {
         if (gate) await gate;
         if (fail) throw new Error('Speicher voll');
-        commands.push({ owner, path, method, body: clone(body), base });
+        commands.push({ owner, path, method, body: clone(body), base, draftBase: clone(draftBase ?? null) });
         snapshots[owner].responses[path.replace('/complete', '')] = method === 'PUT' ? clone(body) : null;
         snapshots[owner].versions[path] = 'version-' + commands.length;
         return { result: { ok: true }, operationId: String(commands.length) };
@@ -91,5 +91,7 @@ test('Schnelle Folgeeingaben behalten ihre Operationsabhängigkeit während ein 
   release();await app.flushMeasurementDrafts();
   assert.equal(app.commands[0].base, 'missing');
   assert.equal(app.commands[1].base, 'after:1');
+  assert.equal(app.commands[0].draftBase, null);
+  assert.equal(app.commands[1].draftBase.values.ph, '7,2');
   assert.equal(app.commands[1].body.values.ph, '6,5');
 });

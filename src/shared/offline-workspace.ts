@@ -1,9 +1,11 @@
+import type { MeasurementDraftData, DraftMerge } from './measurement-draft';
 /** Only these operations may be queued. Account/security, social, sharing and admin actions remain online. */
 export interface WorkspaceOperation {
   id: string; owner: number; kind: 'workspace'; aquarium: string;
   method: 'POST' | 'PUT' | 'DELETE'; path: string; body: Record<string, any>;
   base: string | null; temporaryIds: number[]; createdAt: string; error?: string;
-  conflict?: { current: unknown; version: string };
+  draftBase?: MeasurementDraftData | null;
+  conflict?: { current: unknown; version: string; draftMerge?: DraftMerge };
 }
 export interface WorkspaceSnapshot {
   schema: 1; version?: string; owner: number; language: string; updatedAt: string;

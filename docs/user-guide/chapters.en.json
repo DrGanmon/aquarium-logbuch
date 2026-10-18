@@ -164,7 +164,7 @@
     "title": "Measure and save water parameters",
     "intro": "You can record individual readings or a complete set. Empty fields are not saved as measurements.",
     "image": "messung",
-    "caption": "The measurement form with a locally saved test draft, timer actions and open aquarium tests synced across devices.",
+    "caption": "A pH conflict with an individual value choice; independent readings remain in the test.",
     "steps": [
       "Open your aquarium and choose “New measurement” or “Measure now”. Check the measurement time.",
       "Open “Customize water tests” and select the tests you actually use. You can combine methods from different manufacturers.",
@@ -173,6 +173,7 @@
       "Enter the result you read. A decimal comma is accepted. The color indicator helps you interpret the value.",
       "Choose “Pause test” to return to the overview and measure at the next aquarium. Expand “Open tests” at the bottom right and select an aquarium to resume. Starting another test for the same aquarium asks whether you want to return to its open test.",
       "To switch devices, wait for pending changes to sync while connected and sign in with the same account on the other device. Open “Open tests” there. Offline you can continue previously downloaded drafts; let local saving finish before closing the app.",
+      "If differing entries are reported, expand the local changes and choose “This device” or “Other device” for each affected field. Select “Apply selected values”; equal values and independent additions need no decision.",
       "Add a note if needed and choose “Save measurement”. The reading appears in the aquarium history and logbook."
     ],
     "extra": [
@@ -190,7 +191,7 @@
       },
       {
         "title": "Offline and simultaneous editing",
-        "text": "Changes remain in the account-specific queue even offline. Devices sync on reconnect, when returning to the app and normally every 30 seconds while visible. If two devices edit the same draft, the pending changes area shows both versions. Keeping the local version requires your confirmation; discarding removes the local change and its dependent steps. No version is silently overwritten. Read-only aquarium shares do not expose drafts; users with write access each have their own tests. Timers keep their original deadlines and do not restart when switching devices. Mobile background notifications still depend on the device."
+        "text": "Changes remain in the account-specific queue even offline. Devices sync on reconnect, when returning to the app and normally every 30 seconds while visible. If one device adds pH and another adds nitrate, both readings are merged automatically. Equal numbers also match with decimal commas, decimal points or extra trailing zeroes. The starting point distinguishes unchanged entries from intentional corrections and clearing a field. Only conflicting entries require a choice for each affected field: “This device” or “Other device”. Make each choice and select “Apply selected values”; other additions are preserved. Simultaneous changes to notes, measurement times, methods and timers are also protected from silent overwrites. Closed or replaced test sessions are never restored automatically. Read-only shares do not expose drafts; users with write access each have their own tests. Timers keep their original deadlines. Mobile background notifications depend on the device."
       }
     ],
     "features": [
@@ -952,13 +953,14 @@
   {
     "id": "konflikte",
     "title": "Understand pending changes and conflicts",
-    "intro": "When you work offline, a change waits on this device. If the same record changed elsewhere, the app needs your decision.",
-    "image": null,
-    "caption": null,
+    "intro": "Changes recorded offline wait on this device. For open water tests, the app compares individual entries: additions and equal readings merge automatically. Conflicting changes require your choice.",
+    "image": "messung",
+    "caption": "A pH conflict with an individual value choice; independent readings remain in the test.",
     "steps": [
       "Open the list of locally saved entries when synchronization is pending. Check which action is waiting.",
       "Reconnect and keep the app open. Offline, you can use “Synchronize now”.",
       "For a conflict, read the local and server versions. Decide which data is still correct.",
+      "For water tests, choose “This device” or “Other device” only for the displayed differing fields and click “Apply selected values”. One-sided additions and equal numbers need no decision.",
       "“Apply local version” retries your change against the new starting point. Another conflict is possible if the record changes again.",
       "“Discard” removes the local action; dependent actions may also be removed. Independent entries stay separate.",
       "Before switching devices or clearing browser data, wait for synchronization to finish. For an error, also check current write permission."
@@ -976,6 +978,10 @@
       {
         "title": "Discard or apply",
         "text": "You decide what happens to the pending local action. That decision is not a backup."
+      },
+      {
+        "title": "Merge individual readings",
+        "text": "The sync compares the starting point, your entry and the other device’s current version. You can decide for each conflicting field while retaining other readings. Changes to different parameters and equal numbers do not trigger unnecessary prompts."
       }
     ]
   },

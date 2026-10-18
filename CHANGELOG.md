@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Offene und pausierte Wassertests je Konto und Aquarium dauerhaft in IndexedDB speichern und über Geräte hinweg mit der bestehenden Offline-Warteschlange synchronisieren. Rohwerte, Testauswahl, Notiz, ursprüngliche Messzeitzone und absolute Timer-Endzeiten erhalten; geöffnete Formulare aktualisieren und konkurrierende Änderungen zur ausdrücklichen Konfliktentscheidung anzeigen. Messung und Schließen des Entwurfs atomar deduplizieren; versionierte Löschmarkierungen verhindern die Rückkehr veralteter Tests. SQLite, MongoDB, Backups, Schreibfreigaben, Kontowechsel und temporäre Aquarium-IDs berücksichtigen. API-Dokumentation, zweisprachiges Nutzerhandbuch, Demo-Screenshot und Regressionstests ergänzen.
+- Gleichzeitige Änderungen offener Wassertests pro Feld anhand des lokalen Ausgangsstands abgleichen: einseitige Ergänzungen und Korrekturen zusammenführen, numerisch gleiche Werte einschließlich Dezimalkomma/-punkt unverändert lassen und nur widersprüchliche Angaben einzeln zur Auswahl anbieten. Unabhängige Messwerte bei Konfliktentscheidungen, nachfolgenden Offline-Schritten und dem atomaren Abschluss erhalten; geschlossene Testdurchläufe weiterhin schützen. Deutsche und englische Oberfläche, API-Dokumentation, Nutzerhandbuch, Demo-Screenshot sowie SQLite-/MongoDB- und Frontend-Regressionstests ergänzen.
+
+## 0.3.8-ALPHA
+
+- Offene und pausierte Wassertests je Konto und Aquarium dauerhaft in IndexedDB speichern und über Geräte hinweg mit der bestehenden Offline-Warteschlange synchronisieren. Rohwerte, Testauswahl, Notiz, ursprüngliche Messzeitzone und absolute Timer-Endzeiten erhalten; geöffnete Formulare aktualisieren und konkurrierende Änderungen zur ausdrücklichen Konfliktentscheidung anzeigen. Messung und Schließen des Entwurfs atomar deduplizieren; versionierte Löschmarkierungen verhindern die Rückkehr veralteter Tests. SQLite, MongoDB, Backups, Schreibfreigaben, Kontowechsel und temporäre Aquarium-IDs berücksichtigen. API-Dokumentation, zweisprachiges Nutzerhandbuch, Demo-Screenshot und Regressionstests ergänzen. (`f884a49f9a24db7e1927ec60cca0d0b6b961b4f9`, 2026-10-18).
 
 ## 0.3.7-ALPHA
 

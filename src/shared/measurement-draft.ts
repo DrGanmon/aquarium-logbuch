@@ -41,3 +41,66 @@ export function validateMeasurementDraft(input: any, suites: { id: string; tests
   }
   return { draftId: input.draftId, when: input.when, timeZoneOffset: input.timeZoneOffset, note: input.note, suite: input.suite, selected: [...input.selected], values, timers };
 }
+
+export interface DraftMerge {
+  merged: MeasurementDraftData;
+  fields: string[];
+}
+const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+function comparableValue(value: string | undefined) {
+  const text = (value || '').trim();
+  if (!text) return '';
+  const number = Number(text.replace(',', '.'));
+  if (Number.isFinite(number)) return number;
+  return text;
+}
+export function draftField(draft: MeasurementDraftData, field: string): unknown {
+  if (field === 'time') return { when: draft.when, timeZoneOffset: draft.timeZoneOffset };
+  if (field.startsWith('values.')) return draft.values[field.slice(7)];
+  if (field.startsWith('timers.')) return draft.timers[field.slice(7)];
+  return draft[field as 'note' | 'suite' | 'selected'];
+}
+export function setDraftField(draft: MeasurementDraftData, field: string, value: unknown) {
+  if (field === 'time') Object.assign(draft, value);
+  else if (field.startsWith('values.') || field.startsWith('timers.')) {
+    const object = field.startsWith('values.') ? draft.values : draft.timers;
+    const key = field.slice(7);
+    if (value === undefined) delete object[key];else (object as Record<string, unknown>)[key] = value;
+  } else (draft as unknown as Record<string, unknown>)[field] = value;
+}
+export function pruneDraftFields(draft: MeasurementDraftData) {
+  const keys = new Set(draft.selected.map(reference => reference.slice(reference.indexOf(':') + 1)));
+  for (const object of [draft.values, draft.timers]) for (const key of Object.keys(object)) if (!keys.has(key)) delete object[key];
+  return draft;
+}
+/** Compare changes with the locally observed starting point, including queued predecessors. */
+export function mergeMeasurementDraft(base: MeasurementDraftData | null, local: MeasurementDraftData, remote: MeasurementDraftData): DraftMerge {
+  const merged: MeasurementDraftData = JSON.parse(JSON.stringify(remote));
+  const fields: string[] = [];
+  const choose = (field: string, previous: unknown, mine: unknown, theirs: unknown, equal = same) => {
+    if (equal(mine, theirs) || (base && equal(mine, previous))) return theirs;
+    if ((base && equal(theirs, previous)) || (!base && (theirs === undefined || theirs === ''))) return mine;
+    fields.push(field);return theirs;
+  };
+  const selectedEqual = (a: unknown, b: unknown) => same([...(a as string[] || [])].sort(), [...(b as string[] || [])].sort());
+  for (const field of ['time', 'note', 'suite', 'selected']) {
+    setDraftField(merged, field, choose(field, base ? draftField(base, field) : undefined, draftField(local, field), draftField(remote, field), field === 'selected' ? selectedEqual : same));
+  }
+  for (const collection of ['values', 'timers'] as const) {
+    const keys = new Set([...Object.keys(base?.[collection] || {}), ...Object.keys(local[collection]), ...Object.keys(remote[collection])]);
+    for (const key of keys) {
+      const equal = collection === 'values' ? (a: unknown, b: unknown) => comparableValue(a as string | undefined) === comparableValue(b as string | undefined) : same;
+      if (collection === 'values' && !base && comparableValue(local.values[key]) === '') continue;
+      const value = choose(`${collection}.${key}`, base?.[collection][key], local[collection][key], remote[collection][key], equal);
+      setDraftField(merged, `${collection}.${key}`, value);
+    }
+  }
+  const selected = new Set(merged.selected.map(reference => reference.slice(reference.indexOf(':') + 1)));
+  // A method removal must never silently remove a value concurrently filled on another device.
+  if (Object.keys(merged.values).some(key => !selected.has(key) && comparableValue(merged.values[key]) !== '') || Object.keys(merged.timers).some(key => !selected.has(key))) {
+    if (!fields.includes('selected')) fields.push('selected');
+    merged.selected = [...remote.selected];
+  }
+  if (!fields.length) pruneDraftFields(merged);
+  return { merged, fields };
+}

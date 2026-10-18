@@ -1,4 +1,4 @@
-import { validateMeasurementDraft } from './measurement-draft';
+import { validateMeasurementDraft, mergeMeasurementDraft, setDraftField, draftField, pruneDraftFields } from './measurement-draft';
 import { prepareCsvMeasurements } from './measurement-csv';
 import type { WorkspaceOperation, WorkspaceSnapshot } from './offline-workspace';
 import { aquariumInput } from './aquarium-input';
@@ -77,7 +77,16 @@ export function applyLocalOperation(snapshot: WorkspaceSnapshot, command: Worksp
         if (!r[path] || r[path].draftId !== body.draftId) throw new AppError('Dieser Test wurde bereits geschlossen.', 409);
         result = applyLocalOperation(snapshot, { ...command, path: root + '/measurements' }, catalogs);
         r[path] = null;
-      } else r[path] = command.method === 'DELETE' ? null : validateMeasurementDraft(body, config.suites);
+      } else if (command.method === 'DELETE') r[path] = null;
+      else {
+        const local = validateMeasurementDraft(body, config.suites);
+        const remote = r[path];
+        if (remote?.draftId === local.draftId && command.draftBase !== undefined && (!command.draftBase || command.draftBase.draftId === local.draftId)) {
+          const merge = mergeMeasurementDraft(command.draftBase, local, remote);
+          for (const field of merge.fields) setDraftField(merge.merged, field, draftField(local, field));
+          r[path] = pruneDraftFields(merge.merged);
+        } else r[path] = local;
+      }
     } else if (type === 'plants') {
       const plants = list(root + '/plants');
       if (command.method === 'DELETE') r[root + '/plants'] = plants.filter(plant => plant.plant_id !== decodeURIComponent(item));

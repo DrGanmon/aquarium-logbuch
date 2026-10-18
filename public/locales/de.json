@@ -375,6 +375,11 @@
     "removeShare": "Freigabe aufheben"
   },
   "measure": {
+    "draftMergeIntro": "Ergänzungen und gleiche Werte werden automatisch zusammengeführt. Wähle nur für die unterschiedlichen Angaben den passenden Stand.",
+    "localDraftValue": "Dieses Gerät",
+    "serverDraftValue": "Anderes Gerät",
+    "emptyDraftValue": "Nicht erfasst",
+    "applyDraftValues": "Auswahl übernehmen",
     "draftSaving": "Testentwurf wird lokal gesichert …",
     "draftStored": "Testentwurf lokal gesichert. Geräteabgleich erfolgt bei Verbindung.",
     "timerNotifications": "Timer-Benachrichtigungen",

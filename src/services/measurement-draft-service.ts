@@ -10,6 +10,8 @@ export async function measurementDraftState(owner: number, aquarium: number): Pr
   return row ? { revision: row.revision, data: row.payload ? JSON.parse(row.payload) : null } : null;
 }
 export async function writeMeasurementDraft(owner: number, aquarium: number, data: MeasurementDraftData | null) {
+  const current = await measurementDraftState(owner, aquarium);
+  if (current && JSON.stringify(current.data) === JSON.stringify(data)) return;
   const raw = connection(), revision = randomUUID(), payload = data ? JSON.stringify(data) : null;
   if (db.type === 'sqlite') raw.prepare('INSERT INTO measurement_drafts (user_id, aquarium_id, revision, payload) VALUES (?, ?, ?, ?) ON CONFLICT(user_id, aquarium_id) DO UPDATE SET revision=excluded.revision, payload=excluded.payload').run(owner, aquarium, revision, payload);
   else await raw.collection('measurement_drafts').updateOne({ user_id: owner, aquarium_id: aquarium }, { $set: { revision, payload } }, { upsert: true });

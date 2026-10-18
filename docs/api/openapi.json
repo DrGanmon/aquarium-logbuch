@@ -14822,7 +14822,7 @@
         ],
         "summary": "Offline-Aktion atomar und wiederholbar anwenden",
         "operationId": "post_api_offline_operations",
-        "description": "Gültige Sitzung und X-Requested-With. Aquarium benötigt write, Löschen eines Aquariums owner. Führt dieselben Validatoren wie die jeweiligen direkten Endpunkte aus. UUID, Änderung, Testverbrauch, Warnungen und Ergebnisbeleg werden in SQLite/MongoDB gemeinsam bestätigt. Ein verlorenes Ergebnis kann mit exakt derselben UUID/Nutzlast erneut abgerufen werden, auch nach späterer Löschung. Andere UUIDs unabhängiger Neuanlagen bleiben getrennte Einträge. Bearbeitungen vergleichen base gegen den aktuellen Stand, andernfalls 409 mit conflict. Eigene Folgeaktionen verwenden after:UUID. Geänderte Nutzlast unter bereits verwendeter UUID: 409 ohne conflict. Konto-/Passwort-/E-Mail-/KI-/Freigabe-/Social-/Admin-Aktionen sind ausgeschlossen. Bodies entsprechen dem jeweiligen Zielendpunkt; CSV-Ergebnisse enthalten zusätzlich entries mit erzeugten Messungs-IDs. Lokale Warnungen können über offline_alerts:[{operation:UUID,param:Parameter}] ihrer zuvor synchronisierten Messung zugeordnet werden. Auch beim Belegabruf werden für bestehende Aquarien die aktuellen Berechtigungen geprüft: auf Lesen reduzierte Freigabe 403, entzogene Freigabe 404. Bereits gelöschte Zielaquarien bleiben über den gespeicherten Beleg ohne Neuanlage quittierbar. Offene/pausierte Testentwürfe unter /aquariums/{id}/measurement-draft sind benutzergetrennt enthalten (nur mit Schreibrecht); PUT/DELETE und POST auf /complete unterstützen denselben versionierten, atomar deduplizierten Abgleich einschließlich Löschmarkierungen.",
+        "description": "Gültige Sitzung und X-Requested-With. Aquarium benötigt write, Löschen eines Aquariums owner. Führt dieselben Validatoren wie die jeweiligen direkten Endpunkte aus. UUID, Änderung, Testverbrauch, Warnungen und Ergebnisbeleg werden in SQLite/MongoDB gemeinsam bestätigt. Ein verlorenes Ergebnis kann mit exakt derselben UUID/Nutzlast erneut abgerufen werden, auch nach späterer Löschung. Andere UUIDs unabhängiger Neuanlagen bleiben getrennte Einträge. Bearbeitungen vergleichen base gegen den aktuellen Stand, andernfalls 409 mit conflict. Eigene Folgeaktionen verwenden after:UUID. Geänderte Nutzlast unter bereits verwendeter UUID: 409 ohne conflict. Konto-/Passwort-/E-Mail-/KI-/Freigabe-/Social-/Admin-Aktionen sind ausgeschlossen. Bodies entsprechen dem jeweiligen Zielendpunkt; CSV-Ergebnisse enthalten zusätzlich entries mit erzeugten Messungs-IDs. Lokale Warnungen können über offline_alerts:[{operation:UUID,param:Parameter}] ihrer zuvor synchronisierten Messung zugeordnet werden. Auch beim Belegabruf werden für bestehende Aquarien die aktuellen Berechtigungen geprüft: auf Lesen reduzierte Freigabe 403, entzogene Freigabe 404. Bereits gelöschte Zielaquarien bleiben über den gespeicherten Beleg ohne Neuanlage quittierbar. Offene/pausierte Testentwürfe unter /aquariums/{id}/measurement-draft sind benutzergetrennt enthalten (nur mit Schreibrecht); PUT/DELETE und POST auf /complete unterstützen denselben versionierten, atomar deduplizierten Abgleich einschließlich Löschmarkierungen. PUT-Testentwürfe desselben offenen draftId werden mit draftBase feldweise zusammengeführt: einseitige Änderungen/Ergänzungen übernehmen, numerisch gleiche Werte unverändert lassen (Komma/Punkt), nur konkurrierende Abweichungen als 409 melden. Bei fehlendem Ausgangsentwurf konservativ ergänzen, unterschiedliche gefüllte Felder nicht überschreiben. 409 enthält optional conflict.draftMerge mit automatisch zusammengeführtem Kandidaten und genau den Konfliktfeldern; pro Feld entscheiden und mit aktuellem base und draftBase erneut übertragen. DELETE, Abschluss und fremde/geschlossene Testdurchläufe behalten den Versionsschutz. Der angenommene Entwurf steht für PUT in result.draft und muss beim lokalen Bestätigen übernommen werden.",
         "security": [
           {
             "SessionCookie": []
@@ -14908,6 +14908,9 @@
                         },
                         "version": {
                           "type": "string"
+                        },
+                        "draftMerge": {
+                          "$ref": "#/components/schemas/DraftMerge"
                         }
                       }
                     }
@@ -15103,7 +15106,7 @@
           "Messungen"
         ],
         "summary": "Eigenen Testentwurf versionsgeprüft speichern",
-        "description": "Sitzung und mindestens Schreibrecht am Aquarium erforderlich. Der Testentwurf ist benutzergetrennt, auch bei gemeinsam genutzten Aquarien. Schreibzugriffe laufen auch online atomar über den Offline-Operationspfad: operation_id (UUID v4) und base sind erforderlich; alternativ dieselbe Aktion in /api/offline/operations übermitteln. Ausgangsstand und Berechtigungen werden vor jeder Aktion, auch vor Belegwiederholungen, geprüft. Entwurf, neue Version und Wiederholungsbeleg werden gemeinsam gespeichert. ",
+        "description": "Sitzung und mindestens Schreibrecht am Aquarium erforderlich. Der Testentwurf ist benutzergetrennt, auch bei gemeinsam genutzten Aquarien. Schreibzugriffe laufen auch online atomar über den Offline-Operationspfad: operation_id (UUID v4) und base sind erforderlich; alternativ dieselbe Aktion in /api/offline/operations übermitteln. Ausgangsstand und Berechtigungen werden vor jeder Aktion, auch vor Belegwiederholungen, geprüft. Entwurf, neue Version und Wiederholungsbeleg werden gemeinsam gespeichert.  PUT-Testentwürfe desselben offenen draftId werden mit draftBase feldweise zusammengeführt: einseitige Änderungen/Ergänzungen übernehmen, numerisch gleiche Werte unverändert lassen (Komma/Punkt), nur konkurrierende Abweichungen als 409 melden. Bei fehlendem Ausgangsentwurf konservativ ergänzen, unterschiedliche gefüllte Felder nicht überschreiben. 409 enthält optional conflict.draftMerge mit automatisch zusammengeführtem Kandidaten und genau den Konfliktfeldern; pro Feld entscheiden und mit aktuellem base und draftBase erneut übertragen. DELETE, Abschluss und fremde/geschlossene Testdurchläufe behalten den Versionsschutz. Der angenommene Entwurf steht für PUT in result.draft und muss beim lokalen Bestätigen übernommen werden.",
         "operationId": "put_api_aquariums_id_measurement_draft",
         "security": [
           {
@@ -15178,6 +15181,9 @@
                         },
                         "version": {
                           "type": "string"
+                        },
+                        "draftMerge": {
+                          "$ref": "#/components/schemas/DraftMerge"
                         }
                       }
                     }
@@ -15312,7 +15318,7 @@
           "Messungen"
         ],
         "summary": "Testentwurf atomar als Messung abschließen",
-        "description": "Sitzung und mindestens Schreibrecht am Aquarium erforderlich. Der Testentwurf ist benutzergetrennt, auch bei gemeinsam genutzten Aquarien. Schreibzugriffe laufen auch online atomar über den Offline-Operationspfad: operation_id (UUID v4) und base sind erforderlich; alternativ dieselbe Aktion in /api/offline/operations übermitteln. Ausgangsstand und Berechtigungen werden vor jeder Aktion, auch vor Belegwiederholungen, geprüft. Entwurf, neue Version und Wiederholungsbeleg werden gemeinsam gespeichert. Messung, Alarme, Testverbrauch und Schließen des Entwurfs werden in derselben Transaktion ausgeführt. draftId muss zum offenen Test passen. Wiederholungen derselben Operations-ID liefern denselben Beleg; andere Geräte mit veraltetem Stand erhalten 409 statt einer doppelten Messung.",
+        "description": "Sitzung und mindestens Schreibrecht am Aquarium erforderlich. Der Testentwurf ist benutzergetrennt, auch bei gemeinsam genutzten Aquarien. Schreibzugriffe laufen auch online atomar über den Offline-Operationspfad: operation_id (UUID v4) und base sind erforderlich; alternativ dieselbe Aktion in /api/offline/operations übermitteln. Ausgangsstand und Berechtigungen werden vor jeder Aktion, auch vor Belegwiederholungen, geprüft. Entwurf, neue Version und Wiederholungsbeleg werden gemeinsam gespeichert. Messung, Alarme, Testverbrauch und Schließen des Entwurfs werden in derselben Transaktion ausgeführt. draftId muss zum offenen Test passen. Wiederholungen derselben Operations-ID liefern denselben Beleg; andere Geräte mit veraltetem Stand erhalten 409 statt einer doppelten Messung. Nach einem zusammengeführten Vorgängerschritt werden zusätzlich übernommene Messwerte und die angenommenen Methoden beim Abschluss eingeschlossen; widersprüchliche bereits gefüllte Abschlusswerte werden nicht still überschrieben.",
         "operationId": "post_api_aquariums_id_measurement_draft_complete",
         "security": [
           {
@@ -17271,6 +17277,74 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "draftBase": {
+            "type": "object",
+            "required": [
+              "draftId",
+              "when",
+              "note",
+              "values",
+              "suite",
+              "selected",
+              "timers",
+              "timeZoneOffset"
+            ],
+            "properties": {
+              "draftId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Stabile ID dieses Testdurchlaufs."
+              },
+              "when": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$",
+                "description": "Lokaler Messzeitpunkt ohne Zeitzone."
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 500
+              },
+              "values": {
+                "type": "object",
+                "maxProperties": 100,
+                "additionalProperties": {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                "description": "Unfertige Texteingaben, nur ausgewählte Parameter."
+              },
+              "suite": {
+                "type": "string"
+              },
+              "selected": {
+                "type": "array",
+                "maxItems": 100,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                },
+                "description": "Gültige suiteId:testKey-Referenzen, höchstens eine Methode je Parameter."
+              },
+              "timers": {
+                "type": "object",
+                "maxProperties": 100,
+                "additionalProperties": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 8640000000000000
+                },
+                "description": "Absolute Ablaufzeitpunkte als Unix-Millisekunden; nur ausgewählte Parameter."
+              },
+              "timeZoneOffset": {
+                "type": "integer",
+                "minimum": -840,
+                "maximum": 840,
+                "description": "Ursprünglicher Zeitzonenoffset des gewählten Messzeitpunkts in Minuten nach Date.getTimezoneOffset(); beim Gerätewechsel beibehalten."
+              }
+            },
+            "nullable": true,
+            "description": "Optionaler lokal beobachteter Entwurf vor dieser PUT-Änderung; null für eine Neuanlage. Auch für nachgelagerte Offline-Schritte den tatsächlich angezeigten Stand mitgeben. Werte werden gegen Ausgangsstand und aktuellen Entwurf einzeln abgeglichen; andere oder geschlossene draftId bleibt ein Versionskonflikt."
           }
         }
       },
@@ -17398,6 +17472,74 @@
           "base": {
             "type": "string",
             "description": "Ressourcen-Version aus OfflineWorkspaceSnapshot.versions oder after:<Operations-UUID>; initial missing nur bei noch nie vorhandenem Entwurf."
+          },
+          "draftBase": {
+            "type": "object",
+            "required": [
+              "draftId",
+              "when",
+              "note",
+              "values",
+              "suite",
+              "selected",
+              "timers",
+              "timeZoneOffset"
+            ],
+            "properties": {
+              "draftId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Stabile ID dieses Testdurchlaufs."
+              },
+              "when": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$",
+                "description": "Lokaler Messzeitpunkt ohne Zeitzone."
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 500
+              },
+              "values": {
+                "type": "object",
+                "maxProperties": 100,
+                "additionalProperties": {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                "description": "Unfertige Texteingaben, nur ausgewählte Parameter."
+              },
+              "suite": {
+                "type": "string"
+              },
+              "selected": {
+                "type": "array",
+                "maxItems": 100,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                },
+                "description": "Gültige suiteId:testKey-Referenzen, höchstens eine Methode je Parameter."
+              },
+              "timers": {
+                "type": "object",
+                "maxProperties": 100,
+                "additionalProperties": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 8640000000000000
+                },
+                "description": "Absolute Ablaufzeitpunkte als Unix-Millisekunden; nur ausgewählte Parameter."
+              },
+              "timeZoneOffset": {
+                "type": "integer",
+                "minimum": -840,
+                "maximum": 840,
+                "description": "Ursprünglicher Zeitzonenoffset des gewählten Messzeitpunkts in Minuten nach Date.getTimezoneOffset(); beim Gerätewechsel beibehalten."
+              }
+            },
+            "nullable": true,
+            "description": "Optionaler Ausgangsentwurf für den feldweisen PUT-Abgleich; null bei Neuanlage."
           }
         }
       },
@@ -17413,7 +17555,19 @@
         "properties": {
           "result": {
             "type": "object",
-            "additionalProperties": true
+            "additionalProperties": true,
+            "properties": {
+              "ok": {
+                "type": "boolean"
+              },
+              "draft": {
+                "$ref": "#/components/schemas/MeasurementDraft"
+              },
+              "merged": {
+                "type": "boolean",
+                "description": "Der angenommene Entwurf weicht vom gesendeten Vollentwurf ab (Zusammenführung oder Zahlendarstellung)."
+              }
+            }
           },
           "target": {
             "type": "string"
@@ -17429,6 +17583,25 @@
             "additionalProperties": {
               "type": "string"
             }
+          }
+        }
+      },
+      "DraftMerge": {
+        "type": "object",
+        "required": [
+          "merged",
+          "fields"
+        ],
+        "properties": {
+          "merged": {
+            "$ref": "#/components/schemas/MeasurementDraft"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Konfliktfelder: values.<Parameter>, timers.<Parameter>, time (Messzeit und Zeitzone gemeinsam), note, suite oder selected. Nur diese Felder benötigen eine ausdrückliche Entscheidung."
           }
         }
       }

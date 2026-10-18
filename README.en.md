@@ -30,7 +30,7 @@ Find more views and step-by-step instructions in the [public user guide](https:/
 
 ## Features for users
 
-- **Resume tests across devices:** Pause one test per aquarium, keep drafts in account-specific IndexedDB and resume them through the expandable “Open tests” button. Changes sync when connected, survive reloading, and use the offline queue with explicit conflict resolution. Saving a measurement and closing its draft happen atomically.
+- **Resume tests across devices:** Pause one test per aquarium, keep drafts in account-specific IndexedDB and resume them through the expandable “Open tests” button. Changes sync when connected, survive reloading, and use the offline queue. New and equal readings merge automatically; only differing entries require an individual choice. Saving a measurement and closing its draft happen atomically.
 - **Manage aquariums:** Tank details, equipment, photos, galleries and named residents with portraits.
 - **Record water parameters:** 18 parameters, freely combined tests from JBL, Amtra, sera and Tetra suites, live assessments and simultaneous reaction timers.
 - **Review history:** Charts with custom date ranges, warnings and alarms you can acknowledge.

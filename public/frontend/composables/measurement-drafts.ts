@@ -15,6 +15,7 @@ const pathFor = (id: string) => `/aquariums/${id}/measurement-draft`;
 const bodies = () => Object.fromEntries(Object.entries(measurementDrafts).map(([id, draft]) => [id, JSON.stringify({
   draftId: draft.draftId, when: draft.when, timeZoneOffset: draft.timeZoneOffset, note: draft.note, values: draft.values, suite: draft.suite, selected: draft.selected, timers: draft.timers,
 })]));
+const written = new Map<string, string>();
 const requested = new Map<string, string>(), dirty = new Set<string>(), bases = new Map<string, string>();
 let writes: Promise<void> = Promise.resolve();
 let generation = 0;
@@ -25,6 +26,7 @@ function apply(work: () => void) {
 function queue(id: string, body: string) {
   const owner = Number(session.user?.id), lang = language.value, epoch = generation, base = bases.get(id) || 'missing';
   if (!owner || requested.get(id) === body) return;
+  const startingBody = requested.get(id) ?? written.get(id);
   dirty.add(id);requested.set(id, body);draftSyncState.saving++;
   writes = writes.then(async () => {
     // Capture owner before awaiting so account changes cannot redirect queued writes.
@@ -33,9 +35,9 @@ function queue(id: string, body: string) {
       session.user = null;session.config = null;
       throw new Error('Das Konto wurde gewechselt.');
     }
-    const result = await enqueueWorkspace(owner, lang, pathFor(id), 'PUT', JSON.parse(body), bases.get(id) || base);
+    const result = await enqueueWorkspace(owner, lang, pathFor(id), 'PUT', JSON.parse(body), bases.get(id) || base, startingBody ? JSON.parse(startingBody) : null);
     if (!result) throw new Error('Der lokale Aquariumstand ist noch nicht verfügbar.');
-    if (epoch === generation) bases.set(id, 'after:' + result.operationId);
+    if (epoch === generation) { bases.set(id, 'after:' + result.operationId);written.set(id, body); }
     if (epoch === generation && bodies()[id] === body) {
       dirty.delete(id);
       if (!dirty.size) draftSyncState.error = '';
@@ -79,7 +81,7 @@ export async function loadMeasurementDrafts() {
       if (current) Object.assign(current, next);else measurementDrafts[id] = next;
     }
     for (const id of Object.keys(measurementDrafts)) if (!keep.has(id) && !dirty.has(id)) delete measurementDrafts[id];
-    for (const [id, body] of Object.entries(bodies())) if (!dirty.has(id)) requested.set(id, body);
+    for (const [id, body] of Object.entries(bodies())) if (!dirty.has(id)) { requested.set(id, body);written.set(id, body); }
     draftSyncState.ready = true;
   });
 }
@@ -108,7 +110,7 @@ export async function closeMeasurementDraft(id: string, measurement?: Record<str
   window.dispatchEvent(new Event('aquarium-outbox-changed'));
 }
 watch(() => session.user?.id, () => {
-  generation++;requested.clear();dirty.clear();bases.clear();
+  generation++;written.clear();requested.clear();dirty.clear();bases.clear();
   apply(() => { for (const id of Object.keys(measurementDrafts)) delete measurementDrafts[id]; });
   draftSyncState.ready = false;draftSyncState.error = '';
   const epoch = generation;

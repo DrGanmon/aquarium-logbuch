@@ -15,9 +15,10 @@ function fixture() {
   const exports = {};
   const imports = {
     vue,
+    '../../../src/shared/measurement-draft': require('../dist/backend/src/shared/measurement-draft'),
     '../offline-store': { offlineState: state },
     '../offline-catalogs': { synchronizeCatalogs() {} },
-    '../offline-workspace': { discardWorkspace() {}, rebaseWorkspace() {} },
+    '../offline-workspace': { discardWorkspace() {}, rebaseWorkspace() {}, resolveDraftWorkspace() {} },
     '../state': { t: key => key, language: vue.ref('de'), session: { user: { id: 7 } } },
     '../offline-sync': { refreshPending() {}, synchronize() {} },
   };
@@ -52,4 +53,16 @@ test('Offline-Status: offene Änderungen und Fehler bleiben online sichtbar, Dat
     f.state[field] = '';
   }
   assert.doesNotMatch(await f.render(), /<aside/);
+});
+
+test('Testkonflikte: nur unterschiedliche Felder auswählbar, keine pauschale Überschreibung', async () => {
+  const f = fixture();
+  const body = { draftId: 'draft', when: '2026-10-18T12:00', timeZoneOffset: -120, note: '', selected: ['drops:ph'], suite: 'drops', values: { ph: '7,2' }, timers: {} };
+  f.state.pending = [{ id: 'draft-conflict', owner: 7, aquarium: '42', kind: 'workspace', path: '/aquariums/42/measurement-draft', method: 'PUT', body, createdAt: '2026-10-18T12:00:00Z', conflict: { current: { data: { ...body, values: { ph: '7,4' } } }, version: 'different', draftMerge: { merged: body, fields: ['values.ph'] } } }];
+  const html = await f.render();
+  assert.match(html, /measure.draftMergeIntro/);
+  assert.match(html, /type="radio"/);
+  assert.match(html, /7,2/);assert.match(html, /7,4/);
+  assert.match(html, /disabled[^>]*>measure.applyDraftValues/);
+  assert.doesNotMatch(html, /offline.keepLocal/);
 });

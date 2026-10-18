@@ -164,7 +164,7 @@
     "title": "Wasserwerte messen und speichern",
     "intro": "Du kannst einzelne Werte oder eine ganze Messreihe erfassen. Leere Felder werden nicht als Messung gespeichert.",
     "image": "messung",
-    "caption": "Die Messmaske mit lokal gesichertem Testentwurf, Timer-Aktionen und offenen, geräteübergreifend synchronisierten Beckentests.",
+    "caption": "Ein pH-Konflikt mit Auswahl pro Wert; unabhängige Messwerte bleiben im Test erhalten.",
     "steps": [
       "Öffne dein Aquarium und wähle „Neue Messung“ oder „Jetzt messen“. Prüfe den Messzeitpunkt.",
       "Öffne „Wassertests anpassen“ und wähle die tatsächlich benutzten Tests. Du darfst Methoden verschiedener Hersteller kombinieren.",
@@ -173,6 +173,7 @@
       "Trage den abgelesenen Wert ein. Ein Dezimalkomma ist erlaubt. Die Farbmarkierung hilft beim Einordnen.",
       "Wähle „Test pausieren“, um zur Übersicht zu wechseln und am nächsten Aquarium weiterzumessen. Öffne „Offene Tests“ unten rechts und wähle ein Becken zum Fortsetzen. Beim erneuten Start am selben Becken fragt die App, ob du zum offenen Test zurückkehren möchtest.",
       "Für einen Gerätewechsel warte bei Verbindung auf den Abgleich offener Änderungen und melde dich auf dem anderen Gerät mit demselben Konto an. Öffne dort „Offene Tests“. Offline kannst du bereits heruntergeladene Entwürfe weiterführen; sichere den lokalen Stand, bevor du die App schließt.",
+      "Falls unterschiedliche Angaben gemeldet werden, öffne die lokalen Einträge und wähle je betroffenem Feld den Wert von „Dieses Gerät“ oder „Anderes Gerät“. Bestätige mit „Auswahl übernehmen“; gleiche Werte und unabhängige Ergänzungen brauchen keine Entscheidung.",
       "Ergänze bei Bedarf eine Notiz und wähle „Messung speichern“. Im Aquarium erscheint die Messung im Verlauf und im Logbuch."
     ],
     "extra": [
@@ -190,7 +191,7 @@
       },
       {
         "title": "Offline und gleichzeitige Bearbeitung",
-        "text": "Änderungen bleiben auch offline in der benutzergetrennten Warteschlange. Bei Verbindung, beim Zurückkehren in die App und während sichtbarer Nutzung regulär alle 30 Sekunden werden Geräte abgeglichen. Ändern zwei Geräte denselben Entwurf, zeigt der Bereich für offene Änderungen beide Stände. „Lokalen Stand behalten“ benötigt deine Bestätigung; „Verwerfen“ entfernt die lokale Änderung samt abhängigen Schritten. Es gibt keine stille Überschreibung. Nur lesende Aquariumfreigaben erhalten keine Entwürfe; Mitschreibende haben je Konto eigene Tests. Timer behalten ihre ursprüngliche Ablaufzeit und starten beim Gerätewechsel nicht neu. Mobile Hintergrundbenachrichtigungen hängen weiterhin vom Gerät ab."
+        "text": "Änderungen bleiben auch offline in der benutzergetrennten Warteschlange. Bei Verbindung, beim Zurückkehren in die App und während sichtbarer Nutzung regulär alle 30 Sekunden werden Geräte abgeglichen. Ergänzt ein Gerät pH und das andere Nitrat, werden beide Werte automatisch übernommen. Gleiche Zahlen gelten auch mit Dezimalkomma, Dezimalpunkt oder zusätzlichen Nachkommastellen als gleich. Der Ausgangsstand unterscheidet unveränderte Angaben von bewussten Korrekturen und dem Leeren eines Felds. Nur bei widersprüchlichen Angaben zeigt der Bereich für offene Änderungen eine Auswahl je betroffenem Feld: „Dieses Gerät“ oder „Anderes Gerät“. Triff jede Auswahl und wähle „Auswahl übernehmen“; die übrigen Ergänzungen bleiben dabei erhalten. Auch gleichzeitig geänderte Notizen, Messzeiten, Methoden und Timer werden vor stiller Überschreibung geschützt. Geschlossene oder ersetzte Testdurchläufe werden nicht automatisch wiederhergestellt. Nur lesende Freigaben erhalten keine Entwürfe; Mitschreibende haben je Konto eigene Tests. Timer behalten ihre ursprüngliche Ablaufzeit. Mobile Hintergrundbenachrichtigungen hängen vom Gerät ab."
       }
     ],
     "features": [
@@ -952,13 +953,14 @@
   {
     "id": "konflikte",
     "title": "Offene Änderungen und Konflikte verstehen",
-    "intro": "Wenn du ohne Verbindung arbeitest, wartet die Änderung auf diesem Gerät. Wurde derselbe Datensatz inzwischen anderswo geändert, braucht die App deine Entscheidung.",
-    "image": null,
-    "caption": null,
+    "intro": "Offline erfasste Änderungen warten auf diesem Gerät. Bei offenen Wassertests gleicht die App einzelne Angaben ab: Ergänzungen und gleiche Messwerte werden automatisch zusammengeführt. Widersprüchliche Änderungen benötigen deine Entscheidung.",
+    "image": "messung",
+    "caption": "Ein pH-Konflikt mit Auswahl pro Wert; unabhängige Messwerte bleiben im Test erhalten.",
     "steps": [
       "Öffne bei einem Synchronisationshinweis die Liste der lokal gespeicherten Einträge. Prüfe, welche Aktion noch aussteht.",
       "Stelle die Verbindung wieder her und lass die App geöffnet. Im Offline-Modus kannst du „Jetzt synchronisieren“ verwenden.",
       "Bei einem Konflikt lies den lokalen Stand und den Serverstand. Entscheide anhand der Daten, welche Fassung noch richtig ist.",
+      "Bei Wassertests wähle nur für die angezeigten unterschiedlichen Felder „Dieses Gerät“ oder „Anderes Gerät“ und klicke auf „Auswahl übernehmen“. Einseitige Ergänzungen und gleiche Zahlen benötigen keine Entscheidung.",
       "„Lokalen Stand übernehmen“ versucht deine Änderung auf der neuen Grundlage erneut. Wenn inzwischen wieder etwas geändert wurde, kann ein weiterer Konflikt erscheinen.",
       "„Verwerfen“ entfernt die lokale Aktion; abhängige Aktionen können mit entfallen. Unabhängige Einträge bleiben getrennt.",
       "Warte vor dem Gerätewechsel oder Löschen von Browserdaten, bis der Abgleich abgeschlossen ist. Bei einem Fehler prüfe auch die aktuelle Schreibberechtigung."
@@ -976,6 +978,10 @@
       {
         "title": "Verwerfen oder übernehmen",
         "text": "Du entscheidest über die noch offene lokale Aktion. Diese Entscheidung ersetzt keine Datensicherung."
+      },
+      {
+        "title": "Messwerte einzeln zusammenführen",
+        "text": "Der Abgleich vergleicht den Ausgangsstand, deine Eingabe und den aktuellen Stand des anderen Geräts. Du kannst je widersprüchlichem Feld entscheiden; andere Messwerte bleiben erhalten. Änderungen an verschiedenen Parametern und gleiche Zahlen lösen keine unnötige Rückfrage aus."
       }
     ]
   },
