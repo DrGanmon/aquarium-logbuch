@@ -164,7 +164,7 @@
     "title": "Wasserwerte messen und speichern",
     "intro": "Du kannst einzelne Werte oder eine ganze Messreihe erfassen. Leere Felder werden nicht als Messung gespeichert.",
     "image": "messung",
-    "caption": "Ein pH-Konflikt mit Auswahl pro Wert; unabhängige Messwerte bleiben im Test erhalten.",
+    "caption": "Demo: Messformular und aufgeklappte aktuelle Timer, gruppiert nach Becken.",
     "steps": [
       "Öffne dein Aquarium und wähle „Neue Messung“ oder „Jetzt messen“. Prüfe den Messzeitpunkt.",
       "Öffne „Wassertests anpassen“ und wähle die tatsächlich benutzten Tests. Du darfst Methoden verschiedener Hersteller kombinieren.",
@@ -201,7 +201,7 @@
       },
       {
         "title": "Timer starten",
-        "text": "Der Timer erinnert an die Reaktionszeit eines Tests. Er führt die Messung nicht aus und trägt keinen Messwert ein."
+        "text": "Der Timer erinnert an die Reaktionszeit eines Tests. Er führt die Messung nicht aus und trägt keinen Messwert ein. Der zusätzliche FAB „Aktuelle Timer“ erscheint nur, solange Timer laufen. Klappe ihn auf, um die verbleibenden Zeiten je Becken zu sehen; dort kannst du Timer beenden oder den jeweiligen Test öffnen. „Offene Tests“ und „Aktuelle Timer“ klappen sich gegenseitig zu."
       },
       {
         "title": "Wert und Zeitpunkt speichern",

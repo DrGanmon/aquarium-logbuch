@@ -164,7 +164,7 @@
     "title": "Measure and save water parameters",
     "intro": "You can record individual readings or a complete set. Empty fields are not saved as measurements.",
     "image": "messung",
-    "caption": "A pH conflict with an individual value choice; independent readings remain in the test.",
+    "caption": "Demo: Measurement form and expanded active timers grouped by tank.",
     "steps": [
       "Open your aquarium and choose “New measurement” or “Measure now”. Check the measurement time.",
       "Open “Customize water tests” and select the tests you actually use. You can combine methods from different manufacturers.",
@@ -201,7 +201,7 @@
       },
       {
         "title": "Start a timer",
-        "text": "A timer reminds you of a test’s reaction time. It does not perform the test or enter its result."
+        "text": "A timer reminds you of a test’s reaction time. It does not perform the test or enter its result. The additional Active timers FAB appears only while timers are running. Expand it to see remaining times grouped by tank, stop a timer or open its test. Open tests and Active timers collapse each other."
       },
       {
         "title": "Save readings and time",

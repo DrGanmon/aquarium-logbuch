@@ -412,7 +412,9 @@
     "hint": "Hinweis",
     "saveSuccess": "Messung erfolgreich gespeichert!",
     "saveBtn": "Messung speichern",
-    "discardBtn": "Zurücksetzen"
+    "discardBtn": "Zurücksetzen",
+    "activeTimers": "Aktuelle Timer",
+    "timerRemaining": "Verbleibende Zeit"
   },
   "timeline": {
     "title": "Aquarium-Logbuch & Aktivitäten",

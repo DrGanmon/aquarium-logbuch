@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Erfolgreichen Abschluss von Einrichtung und Kalibrierung mit Konfettiregen und „Du hast es geschafft!“ feiern; pausierte Tests nach kurzer Erfolgsanzeige automatisch fortsetzen. Reduzierte Bewegung respektieren und englische Texte, Handbuch sowie Abschlussprüfung ergänzen.
+- Aufklappbaren FAB „Aktuelle Timer“ ausschließlich bei laufenden Timern anzeigen. Verbleibende Zeiten nach Aquarium gruppieren, früheste Ablaufzeit zuerst zeigen und Timer-Beenden sowie Öffnen des zugehörigen Tests anbieten. Bestehende Offline-Entwürfe und Geräteabgleich nutzen; abgelaufene Timer weiterhin gesondert melden. Zweisprachiges Handbuch, Demo-Screenshot und Regressionstests ergänzen.
+
+## 0.3.12-ALPHA
+
+- Erfolgreichen Abschluss von Einrichtung und Kalibrierung mit Konfettiregen und „Du hast es geschafft!“ feiern; pausierte Tests nach kurzer Erfolgsanzeige automatisch fortsetzen. Reduzierte Bewegung respektieren und englische Texte, Handbuch sowie Abschlussprüfung ergänzen. (`6a409ef2b9b3627d54ddfd8b2337790d93020d50`, 2026-10-18).
 
 ## 0.3.11-ALPHA
 
