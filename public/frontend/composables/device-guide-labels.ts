@@ -3,6 +3,9 @@ import { language } from '../state';
 // Loaded with test selection, outside the initial application dependency graph.
 const labels = {
   "de": {
+    "calibrate": "Messgerät kalibrieren",
+    "testPaused": "Dein Test ist pausiert und lokal gesichert. Werte und Timer bleiben erhalten. Nach Abschluss oder Abbrechen kehrst du zum Test zurück.",
+    "finishAndResume": "Abschließen und Test fortsetzen",
     "title": "Einrichtung und Kalibrierung",
     "scope": "Dieser Assistent begleitet dein konkretes Messgerät. Jeder bestätigte Schritt beschreibt deine eigene Durchführung; die App prüft oder kalibriert keine Hardware und überträgt keinen Kalibrierstatus auf andere Geräte.",
     "mode": "Ablauf",
@@ -25,6 +28,9 @@ const labels = {
     "open": "{name}: Einrichtung / Kalibrierung"
   },
   "en": {
+    "calibrate": "Calibrate meter",
+    "testPaused": "Your test is paused and saved locally. Readings and timers are preserved. Completing or cancelling returns you to the test.",
+    "finishAndResume": "Finish and resume test",
     "title": "Setup and calibration",
     "scope": "This wizard guides you through your specific meter. Confirmations describe your own actions; the app cannot verify or calibrate hardware and does not transfer calibration status to other devices.",
     "mode": "Procedure",

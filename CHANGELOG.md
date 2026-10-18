@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Sieben aquariengeeignete YINMIK-Messgeräte recherchieren und als kombinierbare Tests anbieten. Modellbezogenen, zweisprachigen Einrichtungs-, Kalibrierungs- und Vorbereitungsschrittassistenten mit Herstellerquellen, manuellen Bestätigungen und Offline-Verfügbarkeit ergänzen. Leitfähigkeit, TDS, Salzgehalt, Redoxpotential und relative Dichte mit eindeutigen Einheiten und gerätebezogenen Eingabegrenzen unterstützen; Handbuch, API-Dokumentation, Demo-Screenshot und Regressionstests pflegen.
+- Kalibrierung direkt aus den Messkarten und der Testauswahl eines laufenden Tests starten. Entwurf vorab lokal sichern, Messformular während des Assistenten pausieren und nach Abschluss oder Abbrechen mit unveränderten Werten, Notiz und weiterlaufenden Timern wieder öffnen. Kontowechsel und Speicherfehler berücksichtigen; zweisprachige Anleitung, Demo-Screenshot und Regressionstests aktualisieren.
+
+## 0.3.10-ALPHA
+
+- Sieben aquariengeeignete YINMIK-Messgeräte recherchieren und als kombinierbare Tests anbieten. Modellbezogenen, zweisprachigen Einrichtungs-, Kalibrierungs- und Vorbereitungsschrittassistenten mit Herstellerquellen, manuellen Bestätigungen und Offline-Verfügbarkeit ergänzen. Leitfähigkeit, TDS, Salzgehalt, Redoxpotential und relative Dichte mit eindeutigen Einheiten und gerätebezogenen Eingabegrenzen unterstützen; Handbuch, API-Dokumentation, Demo-Screenshot und Regressionstests pflegen. (`b156e4fef0c3da705b37aa0d4d8721c97889833b`, 2026-10-18).
 
 ## 0.3.9-ALPHA
 

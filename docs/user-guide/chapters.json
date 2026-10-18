@@ -218,7 +218,7 @@
     "title": "YINMIK-Messgerät einrichten und kalibrieren",
     "intro": "Elektronische Messgeräte brauchen die passende Vorbereitung. Der Assistent begleitet dich am ausgewählten Modell; du führst alle Schritte am echten Gerät selbst aus.",
     "image": "messgeraet-kalibrieren",
-    "caption": "Demo: Modellbezogener Assistent mit Bestätigung jedes Schrittes. Die tatsächliche Kalibrierung erfolgt am Messgerät.",
+    "caption": "Demo: Kalibrierung aus einem pausierten Test. Nach dem letzten bestätigten Schritt wird der Test automatisch fortgesetzt.",
     "features": [
       {
         "title": "Modellbezogene Schritte",
@@ -226,7 +226,7 @@
       },
       {
         "title": "Vor jeder Benutzung",
-        "text": "Der kurze Ablauf erinnert an Probe, stabile Anzeige, Einheiten und Reinigung. Eine durchgegangene Checkliste ist kein Kalibrierzertifikat."
+        "text": "Der kurze Ablauf erinnert an Probe, stabile Anzeige, Einheiten und Reinigung. Eine durchgegangene Checkliste ist kein Kalibrierzertifikat. Im laufenden Test pausiert „Messgerät kalibrieren“ das Formular nach lokaler Sicherung und öffnet es danach wieder."
       },
       {
         "title": "Auch offline lesen",
@@ -238,7 +238,7 @@
       "Der Assistent öffnet sich. Vergleiche Modell, Tasten und Sonde mit deiner mitgelieferten Anleitung; bei Abweichungen abbrechen. Stelle die dort vorgesehenen Standards und sauberen Gefäße bereit.",
       "Führe jeden angezeigten Schritt am Gerät durch. Bestätige ihn erst nach erfolgreicher Prüfung; bei fehlenden Tastenschritten gilt das passende Modellhandbuch. „Zurück“ lässt dich Schritte erneut prüfen.",
       "Prüfe nach dem Abgleich eine frische Portion des Standards. Warte beim Messen auf eine stabile Anzeige und beachte die Eingabeeinheiten; beispielsweise sind 3,5 % Salzgehalt gleich 35 ppt.",
-      "Schließe den Assistenten und trage die Werte ein. Über die Schaltfläche des ausgewählten Geräts kannst du ihn erneut öffnen oder „Vor jeder Benutzung“ wählen. Schließen beendet die Checkliste; Testwerte bleiben erhalten."
+      "Schließe den Assistenten und trage die Werte ein. Im laufenden Test kannst du direkt an einer Messkarte „Messgerät kalibrieren“ wählen. Der Test wird lokal gesichert und pausiert. Der letzte bestätigte Schritt öffnet ihn automatisch wieder; auch Abbrechen kehrt ohne Verlust von Werten, Notiz oder laufenden Timern zurück. Über die Geräte-Schaltfläche in der Testauswahl ist der Assistent ebenfalls erreichbar."
     ],
     "extra": [
       {

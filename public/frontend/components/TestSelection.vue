@@ -6,13 +6,19 @@ import { lazyComponent } from "../composables/lazy-component";
 import type { Suite } from "../types";
 import { selectTest } from "../composables/test-selection";
 const DeviceSetupWizard = lazyComponent(() => import("./DeviceSetupWizard.vue"));
+const props = defineProps<{ externalCalibration?: boolean }>();
+const emit = defineEmits<{ calibrate: [suite: Suite] }>();
+function openWizard(suite: Suite) {
+  if (props.externalCalibration) emit("calibrate", suite);
+  else wizard.value = suite;
+}
 const wizard = ref<Suite | null>(null);
 const deviceSuites = computed(() => suites.value.filter(suite => suite.deviceGuide && model.value.some(reference => reference.startsWith(`${suite.id}:`))));
 watch(() => session.user?.id, () => { wizard.value = null; });
 function changeTest(reference: string, enabled: boolean) {
   const alreadySelected = model.value.includes(reference);
   model.value = selectTest(model.value, reference, enabled);
-  if (enabled && !alreadySelected && currentSuite.value?.deviceGuide) wizard.value = currentSuite.value;
+  if (enabled && !alreadySelected && currentSuite.value?.deviceGuide) openWizard(currentSuite.value);
 }
 const model = defineModel<string[]>({ required: true });
 const suites = computed(() => session.config?.suites || []);
@@ -22,7 +28,7 @@ function addSuite(replace: boolean) {
   let next = replace ? [] : [...model.value];
   for (const test of currentSuite.value?.tests || []) next = selectTest(next, `${browseSuite.value}:${test.key}`, true);
   model.value = next;
-  if (currentSuite.value?.deviceGuide) wizard.value = currentSuite.value;
+  if (currentSuite.value?.deviceGuide) openWizard(currentSuite.value);
 }
 </script>
 <template>
@@ -46,7 +52,7 @@ function addSuite(replace: boolean) {
       </label>
     </div>
     <div v-for="suite in deviceSuites" :key="suite.id" class="row">
-      <button type="button" class="btn small ghost" @click="wizard = suite">{{ dt("open", { name: suite.name }) }}</button>
+      <button type="button" class="btn small ghost" @click="openWizard(suite)">{{ dt("open", { name: suite.name }) }}</button>
     </div>
     <DeviceSetupWizard v-if="wizard" :key="wizard.id" :suite="wizard"
       :parameters="model.filter(reference => reference.startsWith(`${wizard!.id}:`)).map(reference => reference.split(':')[1]!)"

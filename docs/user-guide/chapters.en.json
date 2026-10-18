@@ -218,7 +218,7 @@
     "title": "Set up and calibrate a YINMIK meter",
     "intro": "Electronic meters need appropriate preparation. The wizard guides you through the selected model; you perform every action on the actual meter yourself.",
     "image": "messgeraet-kalibrieren",
-    "caption": "Demo: Model-specific wizard requiring confirmation for each step. Actual calibration takes place on the meter.",
+    "caption": "Demo: Calibration from a paused test. The test resumes automatically after the last confirmed step.",
     "features": [
       {
         "title": "Model-specific steps",
@@ -226,7 +226,7 @@
       },
       {
         "title": "Before each use",
-        "text": "The short procedure covers samples, stable readings, units and cleaning. A completed checklist is not a calibration certificate."
+        "text": "The short procedure covers samples, stable readings, units and cleaning. A completed checklist is not a calibration certificate. In an active test, Calibrate meter saves locally, pauses the form and reopens it afterwards."
       },
       {
         "title": "Read offline",
@@ -238,7 +238,7 @@
       "The wizard opens. Compare model, buttons and probe with the supplied manual; stop if they differ. Prepare the specified standards and clean containers.",
       "Perform each step on the meter. Confirm it only after a successful check; use the exact model manual for missing button instructions. Back lets you review previous steps.",
       "After calibration, check a fresh portion of the standard. Wait for stable sample readings and observe entry units; for example, 3.5% salinity equals 35 ppt.",
-      "Close the wizard and enter readings. Reopen it using the selected meter’s button or choose Before each use. Closing ends the checklist; test readings are preserved."
+      "Close the wizard and enter readings. In an active test, choose Calibrate meter directly on a measurement card. The test is saved locally and paused. The last confirmed step automatically reopens it; cancelling also returns without losing readings, notes or running timers. The meter button in test selection also opens the wizard."
     ],
     "extra": [
       {

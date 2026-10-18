@@ -5,7 +5,7 @@ import type { Suite } from '../types';
 import { language, session, t } from '../state';
 import { deviceGuideSteps } from '../../../src/shared/device-guide';
 import Modal from './Modal.vue';
-const props = defineProps<{ suite: Suite; parameters: string[] }>();
+const props = defineProps<{ suite: Suite; parameters: string[]; returnToTest?: boolean }>();
 const emit = defineEmits<{ close: [] }>();
 const mode = ref<'all' | 'beforeUse'>('all');
 const index = ref(0);
@@ -21,10 +21,15 @@ const units = computed(() => props.suite.tests?.filter(test => props.parameters.
 watch([index, mode], () => { confirmed.value = false; });
 watch(mode, () => { index.value = 0; });
 watch(() => session.user?.id, () => emit('close'));
-function next() { if (confirmed.value) index.value++; }
+function next() {
+  if (!confirmed.value) return;
+  index.value++;
+  if (done.value && props.returnToTest) emit("close");
+}
 </script>
 <template>
   <Modal :title="`${dt('title')} — ${suite.name}`" wide @close="emit('close')">
+    <p v-if="returnToTest" role="status">{{ dt("testPaused") }}</p>
     <p class="muted">{{ dt('scope') }}</p>
     <label>{{ dt('mode') }}
       <select v-model="mode">
@@ -45,7 +50,7 @@ function next() { if (confirmed.value) index.value++; }
       </section>
       <div class="row between">
         <button type="button" class="btn ghost" :disabled="index === 0" @click="index--">{{ dt('back') }}</button>
-        <button type="button" class="btn" :disabled="!confirmed" @click="next">{{ dt('next') }}</button>
+        <button type="button" class="btn" :disabled="!confirmed" @click="next">{{ dt(returnToTest && index === steps.length - 1 ? 'finishAndResume' : 'next') }}</button>
       </div>
     </template>
     <div v-else class="stack" role="status">

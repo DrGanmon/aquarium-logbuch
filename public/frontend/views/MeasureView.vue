@@ -8,6 +8,8 @@ import {
   watch,
   toRefs,
 } from "vue";
+import { lazyComponent } from "../composables/lazy-component";
+import { deviceText as dt } from "../composables/device-guide-labels";
 import Modal from "../components/Modal.vue";
 import { measurementDrafts, draftSyncState, ensureMeasurementDrafts, flushMeasurementDrafts, closeMeasurementDraft } from "../composables/measurement-drafts";
 import { route } from "../router";
@@ -15,9 +17,24 @@ import TestSelection from "../components/TestSelection.vue";
 import { initialTestSelection, resolveTests } from "../composables/test-selection";
 import { api } from "../api";
 import { session, t, errorMessage, localDateTime, toast } from "../state";
-import type { AquariumDetail } from "../types";
+import type { AquariumDetail, Suite } from "../types";
 import { evaluate, parseNumber, mmss } from "../composables/values";
 import { enableNotifications } from "../composables/media";
+const DeviceSetupWizard = lazyComponent(() => import("../components/DeviceSetupWizard.vue"));
+const calibrationSuite = ref<Suite | null>(null);
+const calibrationParameters = computed(() => tests.value.filter(test => test.suiteId === calibrationSuite.value?.id).map(test => test.key));
+function deviceSuite(id: string) { return session.config?.suites.find(suite => suite.id === id && suite.deviceGuide); }
+async function startCalibration(suite: Suite) {
+  if (busy.value || !suite.deviceGuide) return;
+  const owner = session.user?.id;
+  busy.value = true;
+  try {
+    await flushMeasurementDrafts();
+    if (!disposed && owner === session.user?.id && measurementDrafts[props.id]?.draftId === draft.draftId) calibrationSuite.value = suite;
+  } catch (e) { error.value = errorMessage(e); }
+  finally { busy.value = false; }
+}
+watch(() => session.user?.id, () => { calibrationSuite.value = null; });
 const props = defineProps<{ id: string }>();
 const detail = ref<AquariumDetail>();
 const error = ref("");
@@ -62,7 +79,7 @@ const activeTimers = computed(() =>
   })),
 );
 const running = computed(() =>
-  activeTimers.value.some((timer) => timer.remaining > 0),
+  !calibrationSuite.value && activeTimers.value.some((timer) => timer.remaining > 0),
 );
 watch(selected, (next, previous) => {
   if (draftSyncState.applying) return;
@@ -254,6 +271,7 @@ watch(() => measurementDrafts[props.id], current => {
 </script>
 <template>
   <div class="stack">
+    <DeviceSetupWizard v-if="calibrationSuite" :suite="calibrationSuite" :parameters="calibrationParameters" return-to-test @close="calibrationSuite = null" />
     <Modal v-if="resumePrompt" :title="t('measure.alreadyOpen')" @close="pause">
       <p>{{ t('measure.resumeQuestion', { name: draft.aquariumName }) }}</p>
       <div class="row">
@@ -270,7 +288,7 @@ watch(() => measurementDrafts[props.id], current => {
       <p v-if="draftReady" class="muted" role="status">{{ t(draftSyncState.saving ? "measure.draftSaving" : "measure.draftStored") }}</p>
     </div>
     <p v-if="error && (!detail || !draftReady)" class="error" role="alert">{{ error }}</p>
-    <template v-if="draftReady && detail && detail.role !== 'view' && !resumePrompt">
+    <template v-if="draftReady && detail && detail.role !== 'view' && !resumePrompt && !calibrationSuite">
       <div class="notification-banner info">
         <div>
           <strong>🔔 Timer-Benachrichtigungen</strong>
@@ -335,7 +353,7 @@ watch(() => measurementDrafts[props.id], current => {
             {{ t("testSelection.title") }}
           </summary>
           <div style="margin-top: 0.8rem">
-            <TestSelection v-model="selected" />
+            <TestSelection v-model="selected" external-calibration @calibrate="startCalibration" />
           </div>
         </details>
         <div class="tests">
@@ -422,6 +440,8 @@ watch(() => measurementDrafts[props.id], current => {
                 /><span class="muted"> {{ test.unit }}</span>
               </div>
             </div>
+            <button v-if="deviceSuite(test.suiteId)" type="button" class="btn small ghost" :disabled="busy"
+              @click="startCalibration(deviceSuite(test.suiteId)!)">{{ dt("calibrate") }}</button>
             <p v-if="test.hint" class="test-hint muted">{{ test.hint }}</p>
           </div>
         </div>

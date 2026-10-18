@@ -32,7 +32,7 @@ Find more views and step-by-step instructions in the [public user guide](https:/
 
 - **Resume tests across devices:** Pause one test per aquarium, keep drafts in account-specific IndexedDB and resume them through the expandable “Open tests” button. Changes sync when connected, survive reloading, and use the offline queue. New and equal readings merge automatically; only differing entries require an individual choice. Saving a measurement and closing its draft happen atomically.
 - **Manage aquariums:** Tank details, equipment, photos, galleries and named residents with portraits.
-- **Set up electronic meters:** Model-specific YINMIK setup, calibration and pre-use wizard with manufacturer sources and explicit units. Available offline after a complete sync; enter readings manually. [Research and limitations (German)](docs/de/yinmik-messgeraete.md).
+- **Set up electronic meters:** Model-specific YINMIK setup, calibration and pre-use wizard; launch directly from a running test, pause it after saving locally and resume it automatically afterwards with manufacturer sources and explicit units. Available offline after a complete sync; enter readings manually. [Research and limitations (German)](docs/de/yinmik-messgeraete.md).
 - **Record water parameters:** 23 parameters, freely combined tests from JBL, Amtra, sera and Tetra suites plus seven YINMIK meter families, live assessments and simultaneous reaction timers.
 - **Review history:** Charts with custom date ranges, warnings and alarms you can acknowledge.
 - **Document care:** Logbook for water changes, filter maintenance, plants, fertilization and other activities.
