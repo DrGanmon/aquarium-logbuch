@@ -214,6 +214,44 @@
     ]
   },
   {
+    "id": "messgeraete-kalibrieren",
+    "title": "Set up and calibrate a YINMIK meter",
+    "intro": "Electronic meters need appropriate preparation. The wizard guides you through the selected model; you perform every action on the actual meter yourself.",
+    "image": "messgeraet-kalibrieren",
+    "caption": "Demo: Model-specific wizard requiring confirmation for each step. Actual calibration takes place on the meter.",
+    "features": [
+      {
+        "title": "Model-specific steps",
+        "text": "Seven meter families are available as test suites. The wizard shows procedures for the selected parameters and identifies button sequences missing from public sources."
+      },
+      {
+        "title": "Before each use",
+        "text": "The short procedure covers samples, stable readings, units and cleaning. A completed checklist is not a calibration certificate."
+      },
+      {
+        "title": "Read offline",
+        "text": "After a complete online sync, guides and the wizard are available offline. Manufacturer links require internet. Readings are entered manually."
+      }
+    ],
+    "steps": [
+      "Open test selection in your profile or under New measurement. Choose the exact YINMIK model and add individual parameters or the entire suite.",
+      "The wizard opens. Compare model, buttons and probe with the supplied manual; stop if they differ. Prepare the specified standards and clean containers.",
+      "Perform each step on the meter. Confirm it only after a successful check; use the exact model manual for missing button instructions. Back lets you review previous steps.",
+      "After calibration, check a fresh portion of the standard. Wait for stable sample readings and observe entry units; for example, 3.5% salinity equals 35 ppt.",
+      "Close the wizard and enter readings. Reopen it using the selected meter’s button or choose Before each use. Closing ends the checklist; test readings are preserved."
+    ],
+    "extra": [
+      {
+        "title": "Matching standards and probe",
+        "text": "Do not interchange pH buffer families. S-200 uses 3.5% salinity standard, not EC standard. Do not enter oxygen saturation percentages as mg/l. Conditioning, assembly, electrolyte, polarization time and storage depend on your exact probe."
+      },
+      {
+        "title": "No remote device control",
+        "text": "The app does not connect through Bluetooth or verify hardware. Completing the wizard does not calibrate other meters. If readings are unstable or the check measurement fails, stop measuring and follow the device manual for troubleshooting."
+      }
+    ]
+  },
+  {
     "id": "verlauf",
     "title": "Understand charts, tables and warnings",
     "intro": "Current readings appear near the top of the aquarium. The history shows how your water changes over time.",

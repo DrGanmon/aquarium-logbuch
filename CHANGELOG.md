@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Gleichzeitige Änderungen offener Wassertests pro Feld anhand des lokalen Ausgangsstands abgleichen: einseitige Ergänzungen und Korrekturen zusammenführen, numerisch gleiche Werte einschließlich Dezimalkomma/-punkt unverändert lassen und nur widersprüchliche Angaben einzeln zur Auswahl anbieten. Unabhängige Messwerte bei Konfliktentscheidungen, nachfolgenden Offline-Schritten und dem atomaren Abschluss erhalten; geschlossene Testdurchläufe weiterhin schützen. Deutsche und englische Oberfläche, API-Dokumentation, Nutzerhandbuch, Demo-Screenshot sowie SQLite-/MongoDB- und Frontend-Regressionstests ergänzen.
+- Sieben aquariengeeignete YINMIK-Messgeräte recherchieren und als kombinierbare Tests anbieten. Modellbezogenen, zweisprachigen Einrichtungs-, Kalibrierungs- und Vorbereitungsschrittassistenten mit Herstellerquellen, manuellen Bestätigungen und Offline-Verfügbarkeit ergänzen. Leitfähigkeit, TDS, Salzgehalt, Redoxpotential und relative Dichte mit eindeutigen Einheiten und gerätebezogenen Eingabegrenzen unterstützen; Handbuch, API-Dokumentation, Demo-Screenshot und Regressionstests pflegen.
+
+## 0.3.9-ALPHA
+
+- Gleichzeitige Änderungen offener Wassertests pro Feld anhand des lokalen Ausgangsstands abgleichen: einseitige Ergänzungen und Korrekturen zusammenführen, numerisch gleiche Werte einschließlich Dezimalkomma/-punkt unverändert lassen und nur widersprüchliche Angaben einzeln zur Auswahl anbieten. Unabhängige Messwerte bei Konfliktentscheidungen, nachfolgenden Offline-Schritten und dem atomaren Abschluss erhalten; geschlossene Testdurchläufe weiterhin schützen. Deutsche und englische Oberfläche, API-Dokumentation, Nutzerhandbuch, Demo-Screenshot sowie SQLite-/MongoDB- und Frontend-Regressionstests ergänzen. (`edd8a03784e295a3dc3f80bf1289534677579411`, 2026-10-18).
 
 ## 0.3.8-ALPHA
 

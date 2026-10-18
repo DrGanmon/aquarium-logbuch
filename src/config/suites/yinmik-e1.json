@@ -1,0 +1,170 @@
+{
+  "id": "yinmik-e1",
+  "name": "YINMIK Digital TDS/EC (E-1)",
+  "name_en": "YINMIK Digital TDS/EC (E-1)",
+  "description": "Elektronisches Messgerät mit modellbezogenem Einrichtungs- und Kalibrierungsassistenten. Messwerte manuell ablesen.",
+  "description_en": "Electronic meter with model-specific setup and calibration wizard. Readings are entered manually.",
+  "isDefault": false,
+  "deviceGuide": {
+    "model": "Digital TDS/EC (E-1)",
+    "revision": "2026-10-18.1",
+    "sources": [
+      {
+        "title": "YINMIK Digital TDS/EC (E-1)",
+        "url": "https://www.yinmik.com/tds-ec-meter/3-in-1-tds-ec-meter/digital-tds-ec-meter.html"
+      }
+    ],
+    "steps": [
+      {
+        "id": "identify",
+        "phase": "setup",
+        "title": {
+          "de": "Gerät und Anleitung abgleichen",
+          "en": "Check device and manual"
+        },
+        "text": {
+          "de": "Vergleiche Modell, Tasten und Sonde mit dieser Anleitung und dem mitgelieferten Handbuch. OEM-Versionen können abweichen. Bei Abweichungen nicht mit dieser Tastensequenz fortfahren. Die App steuert das Gerät nicht; Messwerte werden manuell eingetragen.",
+          "en": "Compare model, buttons and probe with this guide and the supplied manual. OEM versions may differ. If they differ, do not continue with these button sequences. The app does not control the meter; readings are entered manually."
+        },
+        "parameters": []
+      },
+      {
+        "id": "prepare",
+        "phase": "setup",
+        "title": {
+          "de": "Arbeitsplatz und Sonde vorbereiten",
+          "en": "Prepare workspace and probe"
+        },
+        "text": {
+          "de": "Stelle saubere getrennte Gefäße, frische passende Standards und destilliertes Wasser zum Spülen bereit. Prüfe Stromversorgung und Sonde auf Schäden; Schutzkappe abnehmen. Nur bis zur Eintauchmarkierung eintauchen. Trocken gelagerte Elektroden vorab nach der mitgelieferten Anleitung konditionieren. Einweichdauer und Aufbewahrungslösung sind sondenabhängig.",
+          "en": "Prepare clean separate containers, fresh suitable standards and distilled rinse water. Check power and probe for damage; remove the protective cap. Respect the immersion mark. Condition dry-stored electrodes as instructed in the supplied manual. Soaking time and storage solution depend on the probe."
+        },
+        "parameters": []
+      },
+      {
+        "id": "model-note",
+        "phase": "setup",
+        "title": {
+          "de": "Modellbezeichnung prüfen",
+          "en": "Check model designation"
+        },
+        "text": {
+          "de": "Die Hersteller-Tabelle nennt E-1, der Seitentext zusätzlich F04. Dieser Ablauf gilt nur, wenn dein Handbuch den 1413-µS/cm-Abgleich mit CAL und Auf-/Ab-Tasten bestätigt.",
+          "en": "The manufacturer table says E-1 while the page text also mentions F04. Use this procedure only if your manual confirms 1413 µS/cm calibration with CAL and up/down buttons."
+        },
+        "parameters": []
+      },
+      {
+        "id": "ec-1413",
+        "phase": "calibration",
+        "title": {
+          "de": "EC mit 1413 µS/cm abgleichen",
+          "en": "Calibrate EC at 1413 µS/cm"
+        },
+        "text": {
+          "de": "Wähle EC und tauche die gespülte Sonde in frischen 1413-µS/cm-Standard. Starte CAL und stelle mit Auf/Ab 1413 µS/cm ein; bestätige und beende nach deinem Handbuch. Die Produktseite nennt keine Haltedauer.",
+          "en": "Select EC and immerse the rinsed probe in fresh 1413 µS/cm standard. Start CAL and adjust to 1413 µS/cm using up/down; confirm and finish according to your manual. The product page gives no hold duration."
+        },
+        "parameters": [
+          "ec",
+          "tds"
+        ]
+      },
+      {
+        "id": "verify",
+        "phase": "calibration",
+        "title": {
+          "de": "Ergebnis am Standard kontrollieren",
+          "en": "Check result against the standard"
+        },
+        "text": {
+          "de": "Spüle die Sonde zwischen Lösungen mit destilliertem Wasser und entferne Resttropfen vorsichtig, ohne die empfindliche Messfläche zu reiben. Kontrolliere nach der Kalibrierung erneut in einer frischen Portion des passenden Standards. Erst bei erfolgreicher Geräteanzeige und plausibler Kontrollmessung bestätigen. Bei Fehlern abbrechen und die Geräteanleitung zur Fehlersuche nutzen.",
+          "en": "Rinse with distilled water between solutions and gently remove droplets without rubbing the sensitive sensing surface. Recheck calibration using a fresh portion of the appropriate standard. Confirm only after the device indicates success and the check reading is plausible. If unsuccessful, stop and use the device manual for troubleshooting."
+        },
+        "parameters": [
+          "ec",
+          "tds"
+        ]
+      },
+      {
+        "id": "sample",
+        "phase": "beforeUse",
+        "title": {
+          "de": "Probe messen und Einheit prüfen",
+          "en": "Measure sample and check units"
+        },
+        "text": {
+          "de": "Spüle die Sonde, verwende eine frische Aquariumprobe und wähle den richtigen Messmodus. Luftblasen vorsichtig lösen; Temperaturausgleich und eine stabile Anzeige abwarten. Ein Timer allein bestätigt keine Messbereitschaft. Trage nur den stabilen Wert in der unten angegebenen App-Einheit ein.",
+          "en": "Rinse the probe, use a fresh aquarium sample and select the correct mode. Gently remove bubbles; allow temperature equilibration and wait for a stable display. A timer alone cannot establish readiness. Enter only the stable reading in the app units listed below."
+        },
+        "parameters": []
+      },
+      {
+        "id": "care",
+        "phase": "beforeUse",
+        "title": {
+          "de": "Reinigen und aufbewahren",
+          "en": "Clean and store"
+        },
+        "text": {
+          "de": "Nach Gebrauch Sonde spülen und nach der mitgelieferten, genau zu dieser Sonde passenden Anleitung lagern. Die öffentlichen YINMIK-Seiten geben bei pH-Sonden teils nur allgemeine Hinweise zur Rehydrierung; daraus lässt sich keine universelle Lagerungs- oder Einweichvorschrift ableiten. Kalibrierung bei instabiler Anzeige, langer Lagerung oder nach Sondenwechsel erneut prüfen.",
+          "en": "Rinse after use and follow the supplied storage instructions for this exact probe. Public YINMIK pages provide only general rehydration advice for some pH probes; this does not establish a universal storage or soaking procedure. Recheck calibration after unstable readings, prolonged storage or probe replacement."
+        },
+        "parameters": []
+      }
+    ]
+  },
+  "tests": [
+    {
+      "key": "ec",
+      "name": "Leitfähigkeit",
+      "name_en": "Conductivity",
+      "unit": "µS/cm",
+      "decimals": 0,
+      "step": 1,
+      "min": 0,
+      "max": 19990,
+      "wait": 0,
+      "verified": true,
+      "hint": "In µS/cm eintragen: mS/cm × 1000. Keine automatische Umrechnung.",
+      "hint_en": "Enter µS/cm: mS/cm × 1000. No automatic conversion.",
+      "consumable": null,
+      "fresh": {},
+      "salt": {}
+    },
+    {
+      "key": "tds",
+      "name": "TDS",
+      "name_en": "TDS",
+      "unit": "ppm",
+      "decimals": 0,
+      "step": 1,
+      "min": 0,
+      "max": 9990,
+      "wait": 0,
+      "verified": true,
+      "hint": "In ppm eintragen: ppt (g/L) × 1000. TDS ist eine geräteabhängige Ableitung aus EC, kein separater Nitrat- oder Härtewert.",
+      "hint_en": "Enter ppm: ppt (g/L) × 1000. TDS is a device-dependent estimate from EC, not a nitrate or hardness reading.",
+      "consumable": null,
+      "fresh": {},
+      "salt": {}
+    },
+    {
+      "key": "temp",
+      "name": "Temperatur",
+      "name_en": "Temperature",
+      "unit": "°C",
+      "decimals": 1,
+      "step": 0.1,
+      "min": 0,
+      "max": 80,
+      "wait": 0,
+      "verified": true,
+      "hint": "°C wählen; °F nicht unverändert übernehmen.",
+      "hint_en": "Select °C; do not enter °F unchanged.",
+      "consumable": null,
+      "fresh": {},
+      "salt": {}
+    }
+  ]
+}

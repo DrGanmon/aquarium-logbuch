@@ -1,3 +1,4 @@
+import type { DeviceGuide } from '../../src/shared/device-guide';
 import type { VariantEntry } from '../../src/shared/catalog-variants';
 export type Id = string | number;
 export type Language = "de" | "en";
@@ -103,6 +104,7 @@ export interface Species extends VariantEntry {
   diet?: string;
 }
 export interface Suite {
+  deviceGuide?: DeviceGuide;
   id: string;
   name: string;
   tests?: Parameter[];

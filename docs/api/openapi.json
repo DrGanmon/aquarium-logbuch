@@ -11926,7 +11926,7 @@
         ],
         "summary": "Kataloge, Parameter und persönliche Testkonfiguration abrufen",
         "operationId": "get_api_config",
-        "description": "Gültige Sitzung erforderlich. ",
+        "description": "Gültige Sitzung erforderlich.  Elektronische YINMIK-Suiten können deviceGuide mit modellbezogenen deutschen/englischen Schritten und Herstellerquellen enthalten. Auswahl und Messwerte bleiben manuell; kein Bluetooth-Import oder serverseitiger Kalibrierstatus. EC: µS/cm, TDS: ppm, Salzgehalt: ppt, ORP: mV, S.G.: dimensionslos. Neue Parameter werden in allParameters geführt; Messungen verwenden die Grenzen der ausgewählten Methode.",
         "security": [
           {
             "SessionCookie": []
@@ -11957,9 +11957,16 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "suites": {},
+                    "suites": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MeasurementTestSuite"
+                      }
+                    },
                     "defaultSuiteId": {},
-                    "currentSuite": {},
+                    "currentSuite": {
+                      "$ref": "#/components/schemas/MeasurementTestSuite"
+                    },
                     "parameters": {},
                     "allParameters": {},
                     "userPreferences": {},
@@ -12502,7 +12509,7 @@
         ],
         "summary": "Testsuiten abrufen",
         "operationId": "get_api_suites",
-        "description": "Gültige Sitzung erforderlich. ",
+        "description": "Gültige Sitzung erforderlich.  Elektronische YINMIK-Suiten können deviceGuide mit modellbezogenen deutschen/englischen Schritten und Herstellerquellen enthalten. Auswahl und Messwerte bleiben manuell; kein Bluetooth-Import oder serverseitiger Kalibrierstatus. EC: µS/cm, TDS: ppm, Salzgehalt: ppt, ORP: mV, S.G.: dimensionslos. Neue Parameter werden in allParameters geführt; Messungen verwenden die Grenzen der ausgewählten Methode.",
         "security": [
           {
             "SessionCookie": []
@@ -12533,7 +12540,12 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "suites": {},
+                    "suites": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MeasurementTestSuite"
+                      }
+                    },
                     "defaultSuite": {}
                   },
                   "additionalProperties": true
@@ -12557,7 +12569,7 @@
         ],
         "summary": "Testsuiten abrufen",
         "operationId": "get_api_suites_id",
-        "description": "Gültige Sitzung erforderlich. ",
+        "description": "Gültige Sitzung erforderlich.  Elektronische YINMIK-Suiten können deviceGuide mit modellbezogenen deutschen/englischen Schritten und Herstellerquellen enthalten. Auswahl und Messwerte bleiben manuell; kein Bluetooth-Import oder serverseitiger Kalibrierstatus. EC: µS/cm, TDS: ppm, Salzgehalt: ppt, ORP: mV, S.G.: dimensionslos. Neue Parameter werden in allParameters geführt; Messungen verwenden die Grenzen der ausgewählten Methode.",
         "security": [
           {
             "SessionCookie": []
@@ -12597,7 +12609,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "suite": {}
+                    "suite": {
+                      "$ref": "#/components/schemas/MeasurementTestSuite"
+                    }
                   },
                   "additionalProperties": true
                 }
@@ -17604,6 +17618,149 @@
             "description": "Konfliktfelder: values.<Parameter>, timers.<Parameter>, time (Messzeit und Zeitzone gemeinsam), note, suite oder selected. Nur diese Felder benötigen eine ausdrückliche Entscheidung."
           }
         }
+      },
+      "DeviceGuideText": {
+        "type": "object",
+        "required": [
+          "de",
+          "en"
+        ],
+        "properties": {
+          "de": {
+            "type": "string"
+          },
+          "en": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeviceGuide": {
+        "type": "object",
+        "description": "Öffentliche Modellanleitung, kein Hardware-Kalibrierstatus. Enthält beide Sprachen und ist Teil des Offline-Konfigurationsstands.",
+        "required": [
+          "model",
+          "revision",
+          "sources",
+          "steps"
+        ],
+        "properties": {
+          "model": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "title",
+                "url"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "pattern": "^https://"
+                }
+              }
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "phase",
+                "title",
+                "text",
+                "parameters"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "phase": {
+                  "type": "string",
+                  "enum": [
+                    "setup",
+                    "calibration",
+                    "beforeUse"
+                  ]
+                },
+                "title": {
+                  "$ref": "#/components/schemas/DeviceGuideText"
+                },
+                "text": {
+                  "$ref": "#/components/schemas/DeviceGuideText"
+                },
+                "parameters": {
+                  "type": "array",
+                  "description": "Leere Liste gilt immer; sonst passend zu mindestens einem ausgewählten Parameter.",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "MeasurementTestSuite": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "tests"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "deviceGuide": {
+            "$ref": "#/components/schemas/DeviceGuide"
+          },
+          "tests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string"
+                },
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                },
+                "wait": {
+                  "type": "number"
+                },
+                "hint": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
       }
     },
     "responses": {

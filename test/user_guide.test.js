@@ -118,7 +118,7 @@ test('Nutzerhandbuch: englische Kapitel vollständig übersetzt, unbekannte Spra
 test('Nutzerhandbuch: Themenbereiche decken alle Kapitel genau einmal in beiden Sprachen ab', () => {
   const groups = JSON.parse(fs.readFileSync('docs/user-guide/groups.json', 'utf8'));
   const chapters = JSON.parse(fs.readFileSync('docs/user-guide/chapters.json', 'utf8'));
-  assert.equal(groups.length, 9);assert.equal(chapters.length, 40);
+  assert.equal(groups.length, 9);assert.equal(chapters.length, 41);
   assert.deepEqual(groups.flatMap(group => group.chapters), chapters.map(chapter => chapter.id));
   assert.equal(new Set(groups.flatMap(group => group.chapters)).size, chapters.length);
   for (const language of ['de', 'en']) {

@@ -1,3 +1,4 @@
+import { parseDeviceGuide } from '../shared/device-guide';
 import { APP_ROOT } from '../utils/paths';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -55,6 +56,7 @@ class SuiteService {
           const suite: StoredTestSuite = {
             id: String(data.id).trim(), name: String(data.name || data.id).trim(), name_de: String(data.name_de || data.name || data.id).trim(), name_en: String(data.name_en || data.name || data.id).trim(),
             description: String(data.description || '').trim(), description_de: String(data.description_de || data.description || '').trim(), description_en: String(data.description_en || data.description || '').trim(),
+            deviceGuide: parseDeviceGuide(data.deviceGuide),
             isDefault: Boolean(data.isDefault || data.id === 'jbl-pro'), tests, testCount: tests.length, rawTests, file,
           };
           suites.set(suite.id, suite);
@@ -69,6 +71,7 @@ class SuiteService {
     const tests = suite.rawTests.map(raw => normalizeTest(raw, lang)).filter(test => test.key);
     return { id: suite.id, name: english ? suite.name_en : suite.name_de, name_de: suite.name_de, name_en: suite.name_en,
       description: english ? suite.description_en : suite.description_de, description_de: suite.description_de, description_en: suite.description_en,
+      ...(suite.deviceGuide ? { deviceGuide: suite.deviceGuide } : {}),
       isDefault: suite.isDefault, testCount: tests.length, tests };
   }
   getSuites(lang = 'de'): TestSuite[] { return [...this.loadSuites().values()].map(suite => this.localize(suite, lang)); }

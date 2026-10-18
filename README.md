@@ -31,10 +31,11 @@ Weitere Ansichten und Schrittfolgen findest du im [öffentlichen Nutzerhandbuch]
 ## Features für Benutzer
 
 - **Aquarien verwalten:** Stammdaten, Einrichtung, Fotos, Galerie und benannte Bewohner mit Porträts.
-- **Wasserwerte erfassen:** 18 Parameter, frei kombinierbare Tests aus den Suiten von JBL, Amtra, sera und Tetra, Live-Bewertung und mehrere Reaktionstimer. Timer-Hinweise mit „Timer beenden“ und „Test öffnen“; beim Testwechsel andere Entwürfe erhalten. Tests je Aquarium pausieren, dauerhaft lokal sichern und über den aufklappbaren „Offene Tests“-Button auch auf anderen Geräten fortsetzen. Geräteabgleich mit Offline-Warteschlange: ergänzte und gleiche Messwerte automatisch zusammenführen, nur widersprüchliche Angaben einzeln auswählen.
+- **Wasserwerte erfassen:** 23 Parameter, frei kombinierbare Tests aus den Suiten von JBL, Amtra, sera und Tetra sowie sieben YINMIK-Messgeräte, Live-Bewertung und mehrere Reaktionstimer. Timer-Hinweise mit „Timer beenden“ und „Test öffnen“; beim Testwechsel andere Entwürfe erhalten. Tests je Aquarium pausieren, dauerhaft lokal sichern und über den aufklappbaren „Offene Tests“-Button auch auf anderen Geräten fortsetzen. Geräteabgleich mit Offline-Warteschlange: ergänzte und gleiche Messwerte automatisch zusammenführen, nur widersprüchliche Angaben einzeln auswählen.
 - **Verlauf auswerten:** Diagramme mit freier Zeitraumauswahl, Warnungen und bestätigbare Alarme.
 - **Pflege dokumentieren:** Logbuch für Wasserwechsel, Filterpflege, Pflanzen, Düngung und weitere Aktivitäten.
 - **Pflege planen:** Messzyklen mit optionalen E-Mail-Erinnerungen; Düngerbereich mit individuellen Erinnerungen für manuelle Dünger und automatischer Protokollierung geplanter Pumpendosierungen.
+- **Messgeräte einrichten:** Modellbezogener YINMIK-Assistent für Einrichtung, Kalibrierung und Vorbereitung, mit Herstellerquellen und eindeutigen Einheiten. Nach vollständigem Abgleich auch offline verfügbar; Werte manuell eintragen. [Geräte und Recherchegrenzen](docs/de/yinmik-messgeraete.md).
 - **Wassertest-Verbrauch verfolgen:** Automatische Zählung, korrigierbare Füllmengen und Nachkauferinnerung ab 75 % Verbrauch.
 - **Besatz prüfen:** Artenkatalog mit Haltungsanforderungen, Bildern und Hinweisen zu Gruppen, Beckengröße und Verträglichkeit.
 - **Formen auswählen:** Zuchtformen, botanische Varietäten und Handelsnamen finden, ohne zusätzliche Kacheln; die konkrete Form erst beim Hinzufügen von Tieren oder Pflanzen auswählen.

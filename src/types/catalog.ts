@@ -1,3 +1,4 @@
+import type { DeviceGuide } from '../shared/device-guide';
 export interface Thresholds { okMin: number | null; okMax: number | null; critMin: number | null; critMax: number | null }
 export interface ConsumableVariant { id: string; name: string; name_en?: string; capacity: number | null; trackUsage?: boolean }
 export interface Consumable {
@@ -13,6 +14,7 @@ export interface WaterTest {
   fresh: Thresholds; salt: Thresholds; consumable: Consumable | null;
 }
 export interface TestSuite {
+  deviceGuide?: DeviceGuide;
   id: string; name: string; name_de: string; name_en: string;
   description: string; description_de: string; description_en: string;
   isDefault: boolean; testCount: number; tests: WaterTest[];

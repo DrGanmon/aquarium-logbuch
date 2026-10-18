@@ -1,0 +1,306 @@
+{
+  "id": "yinmik-c600",
+  "name": "YINMIK C-600",
+  "name_en": "YINMIK C-600",
+  "description": "Elektronisches Messgerät mit modellbezogenem Einrichtungs- und Kalibrierungsassistenten. Messwerte manuell ablesen.",
+  "description_en": "Electronic meter with model-specific setup and calibration wizard. Readings are entered manually.",
+  "isDefault": false,
+  "deviceGuide": {
+    "model": "C-600",
+    "revision": "2026-10-18.1",
+    "sources": [
+      {
+        "title": "YINMIK C-600",
+        "url": "https://www.yinmik.com/combined-ph/7-in-1-ph-meter/tds-ph-ec-salt-orp-s-g-temperature-meter.html"
+      }
+    ],
+    "steps": [
+      {
+        "id": "identify",
+        "phase": "setup",
+        "title": {
+          "de": "Gerät und Anleitung abgleichen",
+          "en": "Check device and manual"
+        },
+        "text": {
+          "de": "Vergleiche Modell, Tasten und Sonde mit dieser Anleitung und dem mitgelieferten Handbuch. OEM-Versionen können abweichen. Bei Abweichungen nicht mit dieser Tastensequenz fortfahren. Die App steuert das Gerät nicht; Messwerte werden manuell eingetragen.",
+          "en": "Compare model, buttons and probe with this guide and the supplied manual. OEM versions may differ. If they differ, do not continue with these button sequences. The app does not control the meter; readings are entered manually."
+        },
+        "parameters": []
+      },
+      {
+        "id": "prepare",
+        "phase": "setup",
+        "title": {
+          "de": "Arbeitsplatz und Sonde vorbereiten",
+          "en": "Prepare workspace and probe"
+        },
+        "text": {
+          "de": "Stelle saubere getrennte Gefäße, frische passende Standards und destilliertes Wasser zum Spülen bereit. Prüfe Stromversorgung und Sonde auf Schäden; Schutzkappe abnehmen. Nur bis zur Eintauchmarkierung eintauchen. Trocken gelagerte Elektroden vorab nach der mitgelieferten Anleitung konditionieren. Einweichdauer und Aufbewahrungslösung sind sondenabhängig.",
+          "en": "Prepare clean separate containers, fresh suitable standards and distilled rinse water. Check power and probe for damage; remove the protective cap. Respect the immersion mark. Condition dry-stored electrodes as instructed in the supplied manual. Soaking time and storage solution depend on the probe."
+        },
+        "parameters": []
+      },
+      {
+        "id": "ph-standards",
+        "phase": "calibration",
+        "title": {
+          "de": "pH-Puffer vorbereiten",
+          "en": "Prepare pH buffers"
+        },
+        "text": {
+          "de": "Benötigt werden pH 6,86, 9,18 und 4,00. Keine Pufferfamilie mit 7,00/10,01 einsetzen. Frische Portionen getrennt bereitstellen; Pulver mit genau der auf seinem Beutel angegebenen Wassermenge ansetzen. Nur der passende EZ-9908-Beutel wird laut Hersteller in 250 ml destilliertem Wasser gelöst. Temperaturangaben der Standards beachten; die EZ-9908-Anleitung beschreibt 25 °C. Gebrauchte Portionen nicht zurückfüllen.",
+          "en": "Use pH 6.86, 9.18 and 4.00 buffers, not the 7.00/10.01 family. Prepare separate fresh portions; dissolve powder using exactly the volume printed on its packet. Only the matching EZ-9908 packet is described by the manufacturer as requiring 250 ml distilled water. Observe the standards’ temperature information; the EZ-9908 procedure specifies 25 °C. Never return used portions to the bottle."
+        },
+        "parameters": [
+          "ph"
+        ]
+      },
+      {
+        "id": "ph-6-86",
+        "phase": "calibration",
+        "title": {
+          "de": "pH 6,86",
+          "en": "pH 6.86"
+        },
+        "text": {
+          "de": "Wähle pH, spüle die Sonde und tauche sie in pH 6,86. Starte den Abgleich genau nach dem mitgelieferten Modellhandbuch und warte auf die Erfolgsanzeige. Die öffentliche Produktseite nennt diese Pufferpunkte, aber keine vollständige Tastensequenz; die 5-Sekunden-Sequenz des EZ-9908 darf nicht übernommen werden.",
+          "en": "Select pH, rinse the probe and immerse it in pH 6.86. Start calibration exactly as specified in the supplied model manual and wait for its success indication. The public product page lists these buffers but not a complete button sequence; do not copy the EZ-9908 five-second procedure."
+        },
+        "parameters": [
+          "ph"
+        ]
+      },
+      {
+        "id": "ph-9-18",
+        "phase": "calibration",
+        "title": {
+          "de": "pH 9,18",
+          "en": "pH 9.18"
+        },
+        "text": {
+          "de": "Wähle pH, spüle die Sonde und tauche sie in pH 9,18. Starte den Abgleich genau nach dem mitgelieferten Modellhandbuch und warte auf die Erfolgsanzeige. Die öffentliche Produktseite nennt diese Pufferpunkte, aber keine vollständige Tastensequenz; die 5-Sekunden-Sequenz des EZ-9908 darf nicht übernommen werden.",
+          "en": "Select pH, rinse the probe and immerse it in pH 9.18. Start calibration exactly as specified in the supplied model manual and wait for its success indication. The public product page lists these buffers but not a complete button sequence; do not copy the EZ-9908 five-second procedure."
+        },
+        "parameters": [
+          "ph"
+        ]
+      },
+      {
+        "id": "ph-4-00",
+        "phase": "calibration",
+        "title": {
+          "de": "pH 4,00",
+          "en": "pH 4.00"
+        },
+        "text": {
+          "de": "Wähle pH, spüle die Sonde und tauche sie in pH 4,00. Starte den Abgleich genau nach dem mitgelieferten Modellhandbuch und warte auf die Erfolgsanzeige. Die öffentliche Produktseite nennt diese Pufferpunkte, aber keine vollständige Tastensequenz; die 5-Sekunden-Sequenz des EZ-9908 darf nicht übernommen werden.",
+          "en": "Select pH, rinse the probe and immerse it in pH 4.00. Start calibration exactly as specified in the supplied model manual and wait for its success indication. The public product page lists these buffers but not a complete button sequence; do not copy the EZ-9908 five-second procedure."
+        },
+        "parameters": [
+          "ph"
+        ]
+      },
+      {
+        "id": "ec-1413",
+        "phase": "calibration",
+        "title": {
+          "de": "EC mit 1413 µS/cm abgleichen",
+          "en": "Calibrate EC at 1413 µS/cm"
+        },
+        "text": {
+          "de": "Wähle EC und tauche die gespülte Sonde in frischen 1413-µS/cm-Standard. Halte CAL 6 Sekunden gedrückt. Stelle mit Auf/Ab 1413 ein, lasse die Taste los und warte, bis die Anzeige nach drei Blinksignalen stehen bleibt. Für hohe Leitfähigkeiten nennt der Hersteller zusätzlich 12,88 und 111,8 mS/cm. Prüfe im Modellhandbuch, welche weiteren Punkte für deinen Bereich erforderlich sind; der 1413-Abgleich allein belegt nicht die Genauigkeit im Meerwasserbereich.",
+          "en": "Select EC and immerse the rinsed probe in fresh 1413 µS/cm standard. Hold CAL for 6 seconds. Adjust to 1413 using up/down, release the button and wait until three flashes finish. For high conductivities, the manufacturer also lists 12.88 and 111.8 mS/cm. Check the model manual for additional points required for your range; calibration at 1413 alone does not verify saltwater-range accuracy."
+        },
+        "parameters": [
+          "ec",
+          "tds",
+          "salinity",
+          "sg"
+        ]
+      },
+      {
+        "id": "orp-256",
+        "phase": "calibration",
+        "title": {
+          "de": "ORP-Standard 256 mV",
+          "en": "ORP standard: 256 mV"
+        },
+        "text": {
+          "de": "Spüle die Sonde und verwende frischen 256-mV-ORP-Standard. Wähle ORP und führe den Abgleich nach dem mitgelieferten Modellhandbuch aus. Der Hersteller nennt 256 mV, veröffentlicht hier aber keine vollständige Tastensequenz. Warte auf den bestätigten Abschluss am Gerät.",
+          "en": "Rinse the probe and use fresh 256 mV ORP standard. Select ORP and calibrate as instructed in the supplied model manual. The manufacturer lists 256 mV but does not publish a complete button sequence here. Wait for confirmed completion on the device."
+        },
+        "parameters": [
+          "orp"
+        ]
+      },
+      {
+        "id": "verify",
+        "phase": "calibration",
+        "title": {
+          "de": "Ergebnis am Standard kontrollieren",
+          "en": "Check result against the standard"
+        },
+        "text": {
+          "de": "Spüle die Sonde zwischen Lösungen mit destilliertem Wasser und entferne Resttropfen vorsichtig, ohne die empfindliche Messfläche zu reiben. Kontrolliere nach der Kalibrierung erneut in einer frischen Portion des passenden Standards. Erst bei erfolgreicher Geräteanzeige und plausibler Kontrollmessung bestätigen. Bei Fehlern abbrechen und die Geräteanleitung zur Fehlersuche nutzen.",
+          "en": "Rinse with distilled water between solutions and gently remove droplets without rubbing the sensitive sensing surface. Recheck calibration using a fresh portion of the appropriate standard. Confirm only after the device indicates success and the check reading is plausible. If unsuccessful, stop and use the device manual for troubleshooting."
+        },
+        "parameters": [
+          "ph",
+          "ec",
+          "tds",
+          "salinity",
+          "orp",
+          "sg"
+        ]
+      },
+      {
+        "id": "sample",
+        "phase": "beforeUse",
+        "title": {
+          "de": "Probe messen und Einheit prüfen",
+          "en": "Measure sample and check units"
+        },
+        "text": {
+          "de": "Spüle die Sonde, verwende eine frische Aquariumprobe und wähle den richtigen Messmodus. Luftblasen vorsichtig lösen; Temperaturausgleich und eine stabile Anzeige abwarten. Ein Timer allein bestätigt keine Messbereitschaft. Trage nur den stabilen Wert in der unten angegebenen App-Einheit ein.",
+          "en": "Rinse the probe, use a fresh aquarium sample and select the correct mode. Gently remove bubbles; allow temperature equilibration and wait for a stable display. A timer alone cannot establish readiness. Enter only the stable reading in the app units listed below."
+        },
+        "parameters": []
+      },
+      {
+        "id": "care",
+        "phase": "beforeUse",
+        "title": {
+          "de": "Reinigen und aufbewahren",
+          "en": "Clean and store"
+        },
+        "text": {
+          "de": "Nach Gebrauch Sonde spülen und nach der mitgelieferten, genau zu dieser Sonde passenden Anleitung lagern. Die öffentlichen YINMIK-Seiten geben bei pH-Sonden teils nur allgemeine Hinweise zur Rehydrierung; daraus lässt sich keine universelle Lagerungs- oder Einweichvorschrift ableiten. Kalibrierung bei instabiler Anzeige, langer Lagerung oder nach Sondenwechsel erneut prüfen.",
+          "en": "Rinse after use and follow the supplied storage instructions for this exact probe. Public YINMIK pages provide only general rehydration advice for some pH probes; this does not establish a universal storage or soaking procedure. Recheck calibration after unstable readings, prolonged storage or probe replacement."
+        },
+        "parameters": []
+      }
+    ]
+  },
+  "tests": [
+    {
+      "key": "ph",
+      "name": "pH-Wert",
+      "name_en": "pH",
+      "unit": "",
+      "decimals": 2,
+      "step": 0.01,
+      "min": 0,
+      "max": 14,
+      "wait": 0,
+      "verified": true,
+      "hint": "pH-Modus; keine Einheit.",
+      "hint_en": "pH mode; no unit.",
+      "consumable": null,
+      "fresh": {},
+      "salt": {}
+    },
+    {
+      "key": "ec",
+      "name": "Leitfähigkeit",
+      "name_en": "Conductivity",
+      "unit": "µS/cm",
+      "decimals": 0,
+      "step": 1,
+      "min": 0,
+      "max": 400000,
+      "wait": 0,
+      "verified": true,
+      "hint": "In µS/cm eintragen: mS/cm × 1000. Keine automatische Umrechnung.",
+      "hint_en": "Enter µS/cm: mS/cm × 1000. No automatic conversion.",
+      "consumable": null,
+      "fresh": {},
+      "salt": {}
+    },
+    {
+      "key": "tds",
+      "name": "TDS",
+      "name_en": "TDS",
+      "unit": "ppm",
+      "decimals": 0,
+      "step": 1,
+      "min": 0,
+      "max": 200000,
+      "wait": 0,
+      "verified": true,
+      "hint": "In ppm eintragen: ppt (g/L) × 1000. TDS ist eine geräteabhängige Ableitung aus EC, kein separater Nitrat- oder Härtewert.",
+      "hint_en": "Enter ppm: ppt (g/L) × 1000. TDS is a device-dependent estimate from EC, not a nitrate or hardness reading.",
+      "consumable": null,
+      "fresh": {},
+      "salt": {}
+    },
+    {
+      "key": "salinity",
+      "name": "Salzgehalt",
+      "name_en": "Salinity",
+      "unit": "ppt",
+      "decimals": 1,
+      "step": 0.1,
+      "min": 0,
+      "max": 250,
+      "wait": 0,
+      "verified": true,
+      "hint": "In ppt eintragen: % × 10; ppm ÷ 1000. 3,5 % = 35 ppt. Nicht mit TDS verwechseln.",
+      "hint_en": "Enter ppt: % × 10; ppm ÷ 1000. 3.5% = 35 ppt. Do not confuse with TDS.",
+      "consumable": null,
+      "fresh": {},
+      "salt": {}
+    },
+    {
+      "key": "orp",
+      "name": "Redoxpotential",
+      "name_en": "ORP",
+      "unit": "mV",
+      "decimals": 0,
+      "step": 1,
+      "min": -999,
+      "max": 999,
+      "wait": 0,
+      "verified": true,
+      "hint": "ORP-Modus und Vorzeichen beachten. Keine direkte Aussage über einzelne Schadstoffe.",
+      "hint_en": "Select ORP mode and preserve the sign. This does not measure individual contaminants.",
+      "consumable": null,
+      "fresh": {},
+      "salt": {}
+    },
+    {
+      "key": "sg",
+      "name": "Relative Dichte (S.G.)",
+      "name_en": "Specific gravity (S.G.)",
+      "unit": "",
+      "decimals": 4,
+      "step": 0.0001,
+      "min": 1,
+      "max": 1.2222,
+      "wait": 0,
+      "verified": true,
+      "hint": "S.G.-Modus, dimensionslos; nicht ppt oder g/L eintragen.",
+      "hint_en": "Use S.G. mode, dimensionless; do not enter ppt or g/L.",
+      "consumable": null,
+      "fresh": {},
+      "salt": {}
+    },
+    {
+      "key": "temp",
+      "name": "Temperatur",
+      "name_en": "Temperature",
+      "unit": "°C",
+      "decimals": 1,
+      "step": 0.1,
+      "min": 0,
+      "max": 60,
+      "wait": 0,
+      "verified": true,
+      "hint": "°C wählen; °F nicht unverändert übernehmen.",
+      "hint_en": "Select °C; do not enter °F unchanged.",
+      "consumable": null,
+      "fresh": {},
+      "salt": {}
+    }
+  ]
+}

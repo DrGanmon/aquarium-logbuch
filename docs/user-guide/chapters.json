@@ -214,6 +214,44 @@
     ]
   },
   {
+    "id": "messgeraete-kalibrieren",
+    "title": "YINMIK-Messgerät einrichten und kalibrieren",
+    "intro": "Elektronische Messgeräte brauchen die passende Vorbereitung. Der Assistent begleitet dich am ausgewählten Modell; du führst alle Schritte am echten Gerät selbst aus.",
+    "image": "messgeraet-kalibrieren",
+    "caption": "Demo: Modellbezogener Assistent mit Bestätigung jedes Schrittes. Die tatsächliche Kalibrierung erfolgt am Messgerät.",
+    "features": [
+      {
+        "title": "Modellbezogene Schritte",
+        "text": "Sieben Gerätefamilien stehen als Testsuiten zur Auswahl. Der Assistent zeigt nur die Abläufe für die ausgewählten Messgrößen und kennzeichnet fehlende öffentliche Tastenschritte."
+      },
+      {
+        "title": "Vor jeder Benutzung",
+        "text": "Der kurze Ablauf erinnert an Probe, stabile Anzeige, Einheiten und Reinigung. Eine durchgegangene Checkliste ist kein Kalibrierzertifikat."
+      },
+      {
+        "title": "Auch offline lesen",
+        "text": "Nach dem vollständigen Online-Abgleich sind Anleitungen und Assistent offline verfügbar. Herstellerlinks benötigen Internet. Messwerte werden manuell erfasst."
+      }
+    ],
+    "steps": [
+      "Öffne im Profil oder unter „Neue Messung“ die Testauswahl. Wähle das genaue YINMIK-Modell und füge einzelne Messgrößen oder die gesamte Suite hinzu.",
+      "Der Assistent öffnet sich. Vergleiche Modell, Tasten und Sonde mit deiner mitgelieferten Anleitung; bei Abweichungen abbrechen. Stelle die dort vorgesehenen Standards und sauberen Gefäße bereit.",
+      "Führe jeden angezeigten Schritt am Gerät durch. Bestätige ihn erst nach erfolgreicher Prüfung; bei fehlenden Tastenschritten gilt das passende Modellhandbuch. „Zurück“ lässt dich Schritte erneut prüfen.",
+      "Prüfe nach dem Abgleich eine frische Portion des Standards. Warte beim Messen auf eine stabile Anzeige und beachte die Eingabeeinheiten; beispielsweise sind 3,5 % Salzgehalt gleich 35 ppt.",
+      "Schließe den Assistenten und trage die Werte ein. Über die Schaltfläche des ausgewählten Geräts kannst du ihn erneut öffnen oder „Vor jeder Benutzung“ wählen. Schließen beendet die Checkliste; Testwerte bleiben erhalten."
+    ],
+    "extra": [
+      {
+        "title": "Passende Standards und Sonde",
+        "text": "pH-Pufferfamilien nicht austauschen. S-200 verwendet 3,5-%-Salzstandard; das ist kein EC-Standard. Sauerstoffsättigung in % nicht als mg/l eingeben. Konditionierung, Montage, Elektrolyt, Polarisationszeit und Lagerung richten sich nach deiner konkreten Sonde."
+      },
+      {
+        "title": "Kein Fernzugriff aufs Gerät",
+        "text": "Die App verbindet sich nicht per Bluetooth und prüft keinen Hardwarezustand. Ein bestätigter Assistent kalibriert keine anderen Geräte. Bei instabiler Anzeige oder fehlgeschlagener Kontrollmessung nicht weiter messen, sondern die Geräteanleitung zur Fehlersuche nutzen."
+      }
+    ]
+  },
+  {
     "id": "verlauf",
     "title": "Diagramme, Tabelle und Warnungen verstehen",
     "intro": "Die aktuellen Werte stehen oben im Aquarium. Der Verlauf zeigt dir, wie sich das Wasser über die Zeit entwickelt.",
