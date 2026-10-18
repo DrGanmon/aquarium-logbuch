@@ -103,16 +103,21 @@ test('KI-Chat Service: System-Prompt Generierung mit Beckendaten, Besatz und 10 
 
   // Letzte 10 Messwerte
   assert.ok(prompt.includes('DIE LETZTEN 10 MESSUNGEN'));
-  assert.ok(prompt.includes('Messung #1'));
-  assert.ok(prompt.includes('Messung #10'));
-  assert.ok(!prompt.includes('Messung #11')); // Max 10 Messungen
-  assert.ok(prompt.includes('pH-Wert:'));
-  assert.ok(prompt.includes('Temperatur:'));
-  assert.ok(prompt.includes('Nitrit (NO2):'));
-
-  // Wartung
-  assert.ok(prompt.includes('Wasserwechsel'));
-  assert.ok(prompt.includes('30 %'));
+  const measurementSection = prompt.split('Parameter [Schlüssel,Name,Einheit]:\n')[1].split('=== 4.')[0].split('=== 5.')[0];
+  const rows = measurementSection.split('\n').filter(line => line.startsWith('[')).map(line => JSON.parse(line));
+  const readings = rows.filter(row => row.length === 3 && typeof row[1] === 'object');
+  assert.equal(readings.length, 10);
+  assert.ok(rows.some(row => row[1] === 'pH-Wert'));
+  assert.ok(rows.some(row => row[1] === 'Temperatur'));
+  assert.ok(readings.every(row => typeof row[1].ph[0] === 'number'));
+  assert.ok(readings.every(row => ['ok', 'warn', 'crit'].includes(row[1].ph[1])));
+  assert.ok(readings.every(row => row[2].startsWith('Messung Tag ')));
+  const logSection = prompt.split('Zeilen als JSON-Arrays: [Zeitpunkt,Typ,Prozent,Details,Notiz]; null=nicht angegeben.\n')[1];
+  const log = JSON.parse(logSection.split('\n')[0]);
+  assert.equal(log[1], 'water_change');
+  assert.equal(log[2], 30);
+  assert.equal(log[3], 'Wasserwechsel mit temperiertem Osmosewasser');
+  assert.equal(log[4], null);
 });
 
 test('OpenAI API-Key Profilverwaltung: Speichern, Maskieren, Testen und Löschen', async (t) => {

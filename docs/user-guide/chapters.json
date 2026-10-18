@@ -659,7 +659,7 @@
       },
       {
         "title": "Fragen im Aquarium",
-        "text": "Schnellfragen oder eigener Text starten eine Anfrage mit dem angebotenen Aquariumkontext. Das braucht Internet und kann beim Anbieter Kosten verursachen."
+        "text": "Schnellfragen oder eigener Text starten eine Anfrage mit dem angebotenen Aquariumkontext. Messwerte und Pflegeeinträge werden platzsparend als strukturierte Zeilen mit Zeitpunkten und Notizen übertragen; Parameternamen und Einheiten stehen in einer gemeinsamen Legende. Das braucht Internet und kann beim Anbieter Kosten verursachen."
       }
     ]
   },

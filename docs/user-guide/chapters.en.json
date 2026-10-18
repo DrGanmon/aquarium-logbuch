@@ -659,7 +659,7 @@
       },
       {
         "title": "Ask about a tank",
-        "text": "Quick questions or your own text start a request using the offered tank context. This needs internet and may incur provider charges."
+        "text": "Quick questions or your own text start a request using the offered tank context. Measurements and care entries are sent as compact structured rows with timestamps and notes; parameter names and units use a shared legend. This needs internet and may incur provider charges."
       }
     ]
   },

@@ -21,3 +21,5 @@ Sending a chat request transfers messages and tank context to the selected provi
 ## Chat after a diagnosis
 
 The optional chat following the diagnosis assistant also includes answers and suspected diagnoses. It neither loads nor saves aquarium chat history; messages are discarded when its dialog closes. External provider retention policies still apply. See the [health module](health.md) for details.
+
+Measurements are sent as compact JSON rows with a shared parameter and unit legend. Each row contains the timestamp, available readings with their ratings, and a note. Missing readings remain distinct from zero. Up to eight care entries from the last 60 days include timestamp, type, percentage, details and note in compact rows. Existing text length limits still apply.

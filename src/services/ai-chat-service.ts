@@ -184,26 +184,18 @@ async function buildAquariumSystemPrompt(aquariumId: number, customDb: typeof db
   if (measurements.length === 0) {
     contextText += `Noch keine Messungen im System protokolliert.\n`;
   } else {
-    measurements.forEach((m?: any, idx?: any) => {
-      const dt = new Date(m.measured_at).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' });
-      const valEntries = Object.entries(m.values || {});
-      const formattedVals = valEntries.map(([k, v]: any) => {
-        const p = paramMap.get(k) || { key: k, name: k, unit: '', decimals: 1 };
-        const range = thresholds ? thresholds[k] : null;
-        const status = cfg.evaluate(range, v);
-        const statusMark = status === 'crit' ? ' ❌ [KRITISCH]' : (status === 'warn' ? ' ⚠️ [AUFFÄLLIG]' : ' ✓ [OK]');
-        return `${p.name}: ${formatValue(p, v)} ${p.unit}${statusMark}`;
-      });
-
-      contextText += `\nMessung #${idx + 1} (${dt}):\n`;
-      if (formattedVals.length > 0) {
-        contextText += `  Werte: ${formattedVals.join(' | ')}\n`;
-      } else {
-        contextText += `  (Keine Parameter gemessen)\n`;
-      }
-      if (m.note) {
-        contextText += `  Notiz: ${String(m.note).slice(0, 500)}\n`;
-      }
+    const keys = [...new Set<string>(measurements.flatMap((m: any) => Object.keys(m.values || {})))];
+    contextText += 'Parameter [Schlüssel,Name,Einheit]:\n';
+    for (const key of keys) {
+      const p = paramMap.get(key);
+      contextText += JSON.stringify([key, p?.name || key, p?.unit || '']) + '\n';
+    }
+    contextText += 'Zeilen als JSON-Arrays: [Zeitpunkt,Werte,Notiz]. Werte je Schlüssel: [Messwert,Bewertung]; ok=OK, warn=auffällig, crit=kritisch. Fehlender Schlüssel=nicht gemessen, nicht Nullwert.\n';
+    measurements.forEach((m: any) => {
+      const values = Object.fromEntries(Object.entries((m.values || {}) as Record<string, number>).map(([key, value]) => [
+        key, [value, cfg.evaluate(thresholds ? thresholds[key] : null, value)],
+      ]));
+      contextText += JSON.stringify([m.measured_at, values, m.note ? String(m.note).slice(0, 500) : null]) + '\n';
     });
   }
 
@@ -245,13 +237,13 @@ async function buildAquariumSystemPrompt(aquariumId: number, customDb: typeof db
   // 5. Letzte Wartungsarbeiten
   if (maintenanceLogs.length > 0) {
     contextText += `\n=== 5. LETZTE WARTUNGSMASSNAHMEN (Letzte 60 Tage) ===\n`;
+    contextText += 'Zeilen als JSON-Arrays: [Zeitpunkt,Typ,Prozent,Details,Notiz]; null=nicht angegeben.\n';
     maintenanceLogs.slice(0, 8).forEach((ml: any) => {
-      const dt = new Date(ml.logged_at).toLocaleDateString('de-DE');
-      let line = `- ${dt}: ${ml.type}`;
-      if (ml.percentage) line += ` (${ml.percentage} %)`;
-      if (ml.details) line += ` - ${String(ml.details).slice(0, 500)}`;
-      if (ml.note) line += ` (Notiz: ${String(ml.note).slice(0, 500)})`;
-      contextText += `${line}\n`;
+      contextText += JSON.stringify([
+        ml.logged_at, ml.type, ml.percentage ?? null,
+        ml.details ? String(ml.details).slice(0, 500) : null,
+        ml.note ? String(ml.note).slice(0, 500) : null,
+      ]) + '\n';
     });
   }
 

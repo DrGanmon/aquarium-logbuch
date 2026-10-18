@@ -21,3 +21,5 @@ Eine aktive Chat-Anfrage übermittelt Nachrichten und Beckenkontext an den ausge
 ## Chat nach einer Diagnose
 
 Der optionale Chat nach dem Diagnose-Assistenten nutzt zusätzlich Antworten und Verdachtsdiagnosen. Er lädt und speichert keinen Aquarium-Chatverlauf; Nachrichten werden beim Schließen des Dialogs verworfen. Die Speicherregeln des externen Anbieters gelten weiterhin. Details stehen im [Gesundheitsmodul](health.md).
+
+Messwerte werden als kompakte JSON-Zeilen mit einmaliger Parameter- und Einheitenlegende übertragen. Jede Zeile enthält Zeitpunkt, vorhandene Werte mit Bewertung und Notiz. Fehlende Werte bleiben von Nullwerten unterscheidbar. Bis zu acht Pflegeeinträge der letzten 60 Tage enthalten Zeitpunkt, Typ, Prozentangabe, Details und Notiz in einem kompakten Zeilenformat. Bestehende Textlängenbegrenzungen gelten weiterhin.
