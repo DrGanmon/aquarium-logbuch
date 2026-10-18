@@ -332,6 +332,7 @@ class MongoAdapter {
       stock,
       aquarium_plants: await safeGetDocs('aquarium_plants'),
       measurements,
+      measurement_drafts: await safeGetDocs('measurement_drafts', { user_id: 1, aquarium_id: 1 }),
       measurement_operations: await safeGetDocs('measurement_operations', { operation_key: 1 }),
       alerts,
       maintenance_logs,
@@ -378,7 +379,7 @@ class MongoAdapter {
     await this.notifications.clear(session);
     await this.social.clear(session);
     // Collections leeren
-    for (const name of ['users', 'sessions', 'aquariums', 'aquarium_images', 'aquarium_shares', 'aquarium_plants', 'stock', 'measurements', 'measurement_operations', 'alerts', 'maintenance_logs', 'invitations', 'aquarium_chats', 'dosing_pumps', 'ai_usage_metrics', 'counters']) {
+    for (const name of ['users', 'sessions', 'aquariums', 'aquarium_images', 'aquarium_shares', 'aquarium_plants', 'stock', 'measurements', 'measurement_operations', 'measurement_drafts', 'alerts', 'maintenance_logs', 'invitations', 'aquarium_chats', 'dosing_pumps', 'ai_usage_metrics', 'counters']) {
       await db.collection(name).deleteMany({}, sessionOptions);
     }
 
@@ -390,6 +391,7 @@ class MongoAdapter {
     if (data.aquarium_plants?.length) await db.collection('aquarium_plants').insertMany(data.aquarium_plants, sessionOptions);
     if (stock.length > 0) await db.collection('stock').insertMany(stock, sessionOptions);
     if (measurements.length > 0) await db.collection('measurements').insertMany(measurements, sessionOptions);
+    if (data.measurement_drafts?.length) await db.collection('measurement_drafts').insertMany(data.measurement_drafts, sessionOptions);
     if (data.measurement_operations?.length) await db.collection('measurement_operations').insertMany(data.measurement_operations, sessionOptions);
     if (alerts.length > 0) await db.collection('alerts').insertMany(alerts, sessionOptions);
     if (maintenance.length > 0) await db.collection('maintenance_logs').insertMany(maintenance, sessionOptions);
@@ -611,6 +613,7 @@ class MongoAdapter {
           await self.aquariums.delete(aq.id, true);
         }
         await db.collection('aquarium_shares').deleteMany({ user_id: numId });
+        await db.collection('measurement_drafts').deleteMany({ user_id: numId });
         await db.collection('maintenance_logs').updateMany({ created_by: numId }, { $set: { created_by: null } });
         await db.collection('measurements').updateMany({ created_by: numId }, { $set: { created_by: null } });
         const res = await db.collection('users').deleteOne({ id: numId });
@@ -856,7 +859,7 @@ class MongoAdapter {
         for (const image of images) deleteImage(image.filename);
         for (const stock of stocks) deleteImage(stock.image_file);
         // Cascade cleanup: independent collections can be removed concurrently.
-        await Promise.all(['aquarium_images', 'aquarium_plants', 'stock', 'measurements', 'measurement_operations', 'alerts', 'aquarium_shares', 'maintenance_logs', 'aquarium_chats', 'dosing_pumps']
+        await Promise.all(['aquarium_images', 'aquarium_plants', 'stock', 'measurements', 'measurement_operations', 'measurement_drafts', 'alerts', 'aquarium_shares', 'maintenance_logs', 'aquarium_chats', 'dosing_pumps']
           .map(collection => db.collection(collection).deleteMany({ aquarium_id: numId })));
         return true;
       },

@@ -13,6 +13,7 @@ export interface WorkspaceSnapshot {
 export const workspaceKey = (owner: number, lang: string) => `workspace:1:${owner}:${lang}`;
 export function canonicalResource(path: string) {
   const clean = path.split('?')[0]!.replace(/^(\/aquariums\/-?\d+)\/image$/, '$1/images').replace(/\/dosing-pumps(?=\/|$)/g, '/fertilizers').replace(/\/(image|primary|dose)$/, '');
+  if (clean.endsWith('/measurement-draft/complete')) return clean.slice(0, -9);
   if (clean.startsWith('/me/test-inventory/')) return '/me/test-inventory';
   return clean.replace(/(\/images)\/-?\d+$/, '$1');
 }
@@ -23,6 +24,8 @@ export function workspaceWrite(path: string, method: string, body: Record<string
   if (/^\/me\/test-inventory\/[^/?]+$/.test(path)) return method === 'PUT';
   if (path === '/me/avatar') return method === 'POST' || method === 'DELETE';
   if (/^\/aquariums\/-?\d+\/measurements\/import-csv$/.test(path)) return method === 'POST';
+  if (/^\/aquariums\/-?\d+\/measurement-draft$/.test(path)) return method === 'PUT' || method === 'DELETE';
+  if (/^\/aquariums\/-?\d+\/measurement-draft\/complete$/.test(path)) return method === 'POST';
   if (path === '/aquariums') return method === 'POST';
   if (/^\/aquariums\/-?\d+$/.test(path)) return method === 'PUT' || method === 'DELETE';
   if (/^\/aquariums\/-?\d+\/stock\/catalog$/.test(path)) return method === 'POST';

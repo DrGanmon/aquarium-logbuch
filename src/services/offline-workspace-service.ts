@@ -9,6 +9,7 @@ import healthRoutes = require('../routes/health');
 import cfg = require('../config/app-config');
 import { offlineAtomic, offlineConnection } from '../db/offline-transaction';
 import { workspaceWrite, canonicalResource, type WorkspaceOperation, type WorkspaceSnapshot } from '../shared/offline-workspace';
+import { measurementDraftState } from './measurement-draft-service';
 import { AppError } from '../utils/app-error';
 
 function canonical(value: any): any {
@@ -58,9 +59,10 @@ async function targetState(path: string, method: string, owner: number) {
   if (!aq) return null;
   if (parts.length === 3) {
     if (method !== 'DELETE') return aq;
-    return [aq, await db.stock.listForAquarium(id), await db.plants.listForAquarium(id), await db.measurements.listForAquarium(id, { all: true }), await db.maintenance.listForAquarium(id), await db.dosingPumps.listForAquarium(id), await db.aquariumImages.listForAquarium(id)];
+    return [aq, await db.stock.listForAquarium(id), await db.plants.listForAquarium(id), await db.measurements.listForAquarium(id, { all: true }), await db.maintenance.listForAquarium(id), await db.dosingPumps.listForAquarium(id), await db.aquariumImages.listForAquarium(id), await measurementDraftState(owner, id)];
   }
   const sub = parts[3], item = parts[4];
+  if (sub === 'measurement-draft') return measurementDraftState(owner, id);
   if (sub === 'stock') { const row = await db.stock.findById(Number(item));return row?.aquarium_id === id ? row : null; }
   if (sub === 'plants') return (await db.plants.listForAquarium(id)).find(row => row.plant_id === decodeURIComponent(item)) || null;
   if (sub === 'maintenance') { const row = await db.maintenance.findById(Number(item));return row?.aquarium_id === id ? row : null; }
@@ -108,7 +110,7 @@ export async function applyWorkspaceOperation(original: Request, command: Worksp
     }
     await authorize(original, command.path, command.method);
     const target = canonicalResource(command.path);
-    const needsBase = (command.method !== 'POST' || /\/(image|avatar|dose)$/.test(command.path)) && !command.path.endsWith('/alerts/ack');
+    const needsBase = (command.method !== 'POST' || command.path.endsWith('/measurement-draft/complete') || /\/(image|avatar|dose)$/.test(command.path)) && !command.path.endsWith('/alerts/ack');
     if (needsBase) {
       let expected = command.base;
       if (expected?.startsWith('after:')) {
@@ -139,12 +141,16 @@ export async function applyWorkspaceOperation(original: Request, command: Worksp
     const result = await workspaceDispatch(original, command.path, command.method, body);
     if (csvAquarium && before) result.entries = (await db.measurements.listForAquarium(csvAquarium, { all: true })).filter(row => !before.has(row.id)).sort((a, b) => a.id - b.id).map(row => ({ id: row.id }));
     let updatedTarget = target;
-    if (command.method === 'POST' && result?.id && !/\/(image|avatar|dose)$/.test(command.path)) updatedTarget += '/' + result.id;
+    if (command.method === 'POST' && result?.id && !command.path.endsWith('/measurement-draft/complete') && !/\/(image|avatar|dose)$/.test(command.path)) updatedTarget += '/' + result.id;
     updatedTarget = canonicalResource(updatedTarget);
     const current = await targetState(updatedTarget, 'PUT', command.owner);
     const deleted = await targetState(updatedTarget, 'DELETE', command.owner);
     const response = { result, target: updatedTarget, version: current === null ? 'missing' : fingerprint(current), deleteVersion: deleted === null ? 'missing' : fingerprint(deleted) };
     const versions: Record<string, string> = {};
+    if (command.path.endsWith('/measurement-draft/complete') && result?.id) {
+      const path = `/aquariums/${command.path.split('/')[2]}/measurements/${result.id}`;
+      versions[path] = fingerprint(await targetState(path, 'PUT', command.owner));
+    }
     for (const entry of result?.entries || []) {
       const path = command.path.replace(/\/(catalog|import-csv)$/, '') + '/' + entry.id;
       versions[path] = fingerprint(await targetState(path, 'PUT', command.owner));
@@ -178,6 +184,12 @@ export async function workspaceSnapshot(original: Request): Promise<WorkspaceSna
     for (const aquarium of list) {
       const root = `/aquariums/${aquarium.id}`;
       await capture(root);
+      if (responses[root].role !== 'view') {
+        const path = root + '/measurement-draft';
+        await capture(path);
+        const state = await measurementDraftState(original.user.id, aquarium.id);
+        versions[path] = state === null ? 'missing' : fingerprint(state);
+      }
       for (const suffix of ['/stock', '/plants', '/maintenance', '/fertilizers', '/images', '/measurements?all=true']) {
         await capture(root + suffix);
       }

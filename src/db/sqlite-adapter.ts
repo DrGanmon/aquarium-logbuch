@@ -225,6 +225,7 @@ class SqliteAdapter {
       stock,
       aquarium_plants: safeGetAll('aquarium_plants', 'aquarium_id ASC, plant_id ASC'),
       measurements,
+      measurement_drafts: safeGetAll('measurement_drafts', 'user_id ASC, aquarium_id ASC'),
       measurement_operations: safeGetAll('measurement_operations', 'operation_key ASC'),
       alerts,
       maintenance_logs,
@@ -273,6 +274,7 @@ class SqliteAdapter {
       db.exec('DELETE FROM measurement_values');
       db.exec('DELETE FROM measurements');
       db.exec('DELETE FROM measurement_operations');
+      db.exec('DELETE FROM measurement_drafts');
       db.exec('DELETE FROM maintenance_logs');
       db.exec('DELETE FROM aquarium_plants');
       db.exec('DELETE FROM stock');
@@ -424,6 +426,7 @@ class SqliteAdapter {
         }
       }
 
+      for (const row of data.measurement_drafts || []) db.prepare('INSERT INTO measurement_drafts (user_id, aquarium_id, revision, payload) VALUES (?, ?, ?, ?)').run(row.user_id, row.aquarium_id, row.revision, row.payload);
       for (const operation of data.measurement_operations || []) {
         db.prepare('INSERT INTO measurement_operations (operation_key, request_hash, response) VALUES (?, ?, ?)')
           .run(operation.operation_key, operation.request_hash, operation.response);

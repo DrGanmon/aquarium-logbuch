@@ -164,7 +164,7 @@
     "title": "Measure and save water parameters",
     "intro": "You can record individual readings or a complete set. Empty fields are not saved as measurements.",
     "image": "messung",
-    "caption": "The measurement form with a reaction timer, pausable tests and the expanded list of open aquarium tests.",
+    "caption": "The measurement form with a locally saved test draft, timer actions and open aquarium tests synced across devices.",
     "steps": [
       "Open your aquarium and choose “New measurement” or “Measure now”. Check the measurement time.",
       "Open “Customize water tests” and select the tests you actually use. You can combine methods from different manufacturers.",
@@ -172,6 +172,7 @@
       "Follow the instructions supplied with your water test. Start the timer next to a parameter if needed. Several timers can run at the same time.",
       "Enter the result you read. A decimal comma is accepted. The color indicator helps you interpret the value.",
       "Choose “Pause test” to return to the overview and measure at the next aquarium. Expand “Open tests” at the bottom right and select an aquarium to resume. Starting another test for the same aquarium asks whether you want to return to its open test.",
+      "To switch devices, wait for pending changes to sync while connected and sign in with the same account on the other device. Open “Open tests” there. Offline you can continue previously downloaded drafts; let local saving finish before closing the app.",
       "Add a note if needed and choose “Save measurement”. The reading appears in the aquarium history and logbook."
     ],
     "extra": [
@@ -186,6 +187,10 @@
       {
         "title": "Parameter and unit",
         "text": "A parameter is a measured quantity, such as temperature or pH. Its unit appears beside the field, for example °C or mg/l. Use the unit and result of your actual test; different units are not interchangeable without conversion."
+      },
+      {
+        "title": "Offline and simultaneous editing",
+        "text": "Changes remain in the account-specific queue even offline. Devices sync on reconnect, when returning to the app and normally every 30 seconds while visible. If two devices edit the same draft, the pending changes area shows both versions. Keeping the local version requires your confirmation; discarding removes the local change and its dependent steps. No version is silently overwritten. Read-only aquarium shares do not expose drafts; users with write access each have their own tests. Timers keep their original deadlines and do not restart when switching devices. Mobile background notifications still depend on the device."
       }
     ],
     "features": [
@@ -203,7 +208,7 @@
       },
       {
         "title": "Pause tests for each aquarium",
-        "text": "Values, test selection, measurement time and notes remain available while switching aquariums in the open app. Reaction timers continue running. The expandable “Open tests” button lists aquariums with open tests and the number of completed values. Saving closes the test; “Discard test” removes it after confirmation. Reloading, closing the app, signing out or switching accounts discards drafts. Save important values first."
+        "text": "Values, test selection, measurement time with its original time zone, notes and timer deadlines are stored locally for each account and aquarium and synced with your other devices when connected. The expandable “Open tests” button lists these drafts. “Pause test” returns to the overview; reloading and closing preserve drafts already saved locally. Signing out hides them; signing in again with the same account restores them. “Save measurement” creates the measurement and closes its draft together; “Discard test” removes the draft after confirmation on all devices once synced."
       }
     ]
   },

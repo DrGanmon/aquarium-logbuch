@@ -164,7 +164,7 @@
     "title": "Wasserwerte messen und speichern",
     "intro": "Du kannst einzelne Werte oder eine ganze Messreihe erfassen. Leere Felder werden nicht als Messung gespeichert.",
     "image": "messung",
-    "caption": "Die Messmaske mit Reaktionstimer, pausierbaren Tests und aufgeklappter Liste offener Beckentests.",
+    "caption": "Die Messmaske mit lokal gesichertem Testentwurf, Timer-Aktionen und offenen, geräteübergreifend synchronisierten Beckentests.",
     "steps": [
       "Öffne dein Aquarium und wähle „Neue Messung“ oder „Jetzt messen“. Prüfe den Messzeitpunkt.",
       "Öffne „Wassertests anpassen“ und wähle die tatsächlich benutzten Tests. Du darfst Methoden verschiedener Hersteller kombinieren.",
@@ -172,6 +172,7 @@
       "Führe den Wassertest nach seiner Gebrauchsanweisung durch. Starte bei Bedarf den Timer neben dem jeweiligen Parameter. Mehrere Timer können parallel laufen.",
       "Trage den abgelesenen Wert ein. Ein Dezimalkomma ist erlaubt. Die Farbmarkierung hilft beim Einordnen.",
       "Wähle „Test pausieren“, um zur Übersicht zu wechseln und am nächsten Aquarium weiterzumessen. Öffne „Offene Tests“ unten rechts und wähle ein Becken zum Fortsetzen. Beim erneuten Start am selben Becken fragt die App, ob du zum offenen Test zurückkehren möchtest.",
+      "Für einen Gerätewechsel warte bei Verbindung auf den Abgleich offener Änderungen und melde dich auf dem anderen Gerät mit demselben Konto an. Öffne dort „Offene Tests“. Offline kannst du bereits heruntergeladene Entwürfe weiterführen; sichere den lokalen Stand, bevor du die App schließt.",
       "Ergänze bei Bedarf eine Notiz und wähle „Messung speichern“. Im Aquarium erscheint die Messung im Verlauf und im Logbuch."
     ],
     "extra": [
@@ -186,6 +187,10 @@
       {
         "title": "Parameter und Einheit",
         "text": "Ein Parameter ist eine Messgröße, zum Beispiel Temperatur oder pH-Wert. Die Einheit steht am Feld, zum Beispiel °C oder mg/l. Übernimm die Einheit und das Ergebnis deines tatsächlichen Tests; unterschiedliche Einheiten sind nicht ohne Umrechnung austauschbar."
+      },
+      {
+        "title": "Offline und gleichzeitige Bearbeitung",
+        "text": "Änderungen bleiben auch offline in der benutzergetrennten Warteschlange. Bei Verbindung, beim Zurückkehren in die App und während sichtbarer Nutzung regulär alle 30 Sekunden werden Geräte abgeglichen. Ändern zwei Geräte denselben Entwurf, zeigt der Bereich für offene Änderungen beide Stände. „Lokalen Stand behalten“ benötigt deine Bestätigung; „Verwerfen“ entfernt die lokale Änderung samt abhängigen Schritten. Es gibt keine stille Überschreibung. Nur lesende Aquariumfreigaben erhalten keine Entwürfe; Mitschreibende haben je Konto eigene Tests. Timer behalten ihre ursprüngliche Ablaufzeit und starten beim Gerätewechsel nicht neu. Mobile Hintergrundbenachrichtigungen hängen weiterhin vom Gerät ab."
       }
     ],
     "features": [
@@ -203,7 +208,7 @@
       },
       {
         "title": "Tests je Aquarium pausieren",
-        "text": "Werte, Testauswahl, Messzeit und Notiz bleiben beim Wechsel zwischen Aquarien in der geöffneten App erhalten. Reaktionstimer laufen weiter. Der aufklappbare Knopf „Offene Tests“ zeigt die Becken mit offenen Tests und die Anzahl ausgefüllter Werte. Speichern schließt den Test; „Test verwerfen“ entfernt ihn nach Bestätigung. Neuladen, Schließen der App, Abmelden und Kontowechsel verwerfen die Entwürfe. Speichere wichtige Werte vorher."
+        "text": "Werte, Testauswahl, Messzeit mit ursprünglicher Zeitzone, Notiz und Timer-Endzeiten werden je Konto und Aquarium dauerhaft lokal gesichert und bei Verbindung mit deinen anderen Geräten abgeglichen. Der aufklappbare Knopf „Offene Tests“ zeigt diese Entwürfe. „Test pausieren“ wechselt zur Übersicht; Neuladen und Schließen erhalten bereits lokal gesicherte Entwürfe. Abmelden blendet sie aus; sie werden beim erneuten Anmelden mit demselben Konto wieder geladen. „Messung speichern“ legt die Messung an und schließt den Test gemeinsam; „Test verwerfen“ entfernt den Entwurf nach Bestätigung auf allen Geräten nach dem Abgleich."
       }
     ]
   },

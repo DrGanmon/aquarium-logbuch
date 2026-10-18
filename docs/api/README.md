@@ -1,6 +1,6 @@
 # API / Swagger
 
-Die vollständige [OpenAPI-Spezifikation](openapi.json) beschreibt **133 Pfade mit 197 Operationen** des Repository-Standes vom 15.10.2026. Sie verwendet [OpenAPI 3.0.3](https://spec.openapis.org/oas/v3.0.3.html) und lässt sich in Swagger UI oder Swagger Editor importieren. Enthalten sind Ersteinrichtung, Konten, Kataloge, Aquarien, Bilder, Besatz, Messungen, Pflege, Dünger, Freigaben, Diagnose, KI-Chat, Social, Benachrichtigungen, Administration, Metriken und OIDC.
+Die vollständige [OpenAPI-Spezifikation](openapi.json) beschreibt **135 Pfade mit 198 Operationen** des Repository-Standes vom 18.10.2026 Sie verwendet [OpenAPI 3.0.3](https://spec.openapis.org/oas/v3.0.3.html) und lässt sich in Swagger UI oder Swagger Editor importieren. Enthalten sind Ersteinrichtung, Konten, Kataloge, Aquarien, Bilder, Besatz, Messungen, Pflege, Dünger, Freigaben, Diagnose, KI-Chat, Social, Benachrichtigungen, Administration, Metriken und OIDC.
 
 ## In Swagger ansehen
 
@@ -226,3 +226,35 @@ Bei aktiver Suche enthalten Stammkacheln zusätzlich `matchedVariants` mit den N
 Aquarium-Besatz und Pflanzenbestand enthalten `variantName`: den lokalisierten Namen der gespeicherten Unterform oder `null` für Stammarten und freie Einträge. Individuelle Tiernamen bleiben davon unabhängig. Der Offline-Arbeitsstand leitet dieselbe Anzeige aus den vorhandenen Katalogen ab.
 
 Ancistrus-L-Einträge verwenden `selectionOf`/`selectionKind` für eine gemeinsame Auswahl auf der Antennenwels-Kachel. `variants[].kind` kann dafür `species` oder `unclassified` lauten. Dies ist keine taxonomische Variantenbeziehung: Detaildaten, Wasserwerte, IDs und Health-Zuordnungen bleiben eigenständig. `variantName` im Bestand und `matchedVariants` bei der Suche nennen auch diese Auswahleinträge.
+
+## Offene und pausierte Wassertests
+
+Pro Konto und Aquarium wird ein Testentwurf synchronisiert, auch für Aquarien mit Schreibfreigabe. Er enthält Rohtexteingaben, Testmethoden, Messzeit, Notiz und absolute Timer-Endzeiten. Lesefreigaben erhalten keinen Zugriff; andere Benutzer sehen eigene Entwürfe. `GET /api/offline/state` enthält die Entwürfe unter `responses["/aquariums/<id>/measurement-draft"]` und ihre Versionsstände unter `versions`.
+
+Die App speichert Bearbeitungsschritte sofort in ihrer benutzergetrennten IndexedDB-Warteschlange. Der vorhandene Abgleich überträgt sie bei Verbindung und prüft die Sitzung erneut. Geräte erhalten den bestätigten Stand beim Öffnen, bei Rückkehr in die App und während sichtbarer Nutzung regulär alle 30 Sekunden. Der offene Bildschirm wird aktualisiert; bei konkurrierender Bearbeitung bleiben lokale Schritte zur ausdrücklichen Konfliktentscheidung erhalten. Reine Timer-Countdowns erzeugen keine Schreibaktionen. Nicht gespeicherte Eingaben aus älteren App-Versionen können nicht von anderen Geräten abgerufen werden.
+
+Schreibaktionen verwenden vorzugsweise `POST /api/offline/operations`. Beispiel: `owner` durch die eigene Benutzer-ID, Aquarium-ID und Suite-Referenzen durch vorhandene Werte ersetzen; `base` kommt aus dem vorher gelesenen Snapshot. `missing` gilt nur beim allerersten Entwurf; auch geschlossene Tests behalten eine Version. Eine Offline-Abfolge kann `after:<UUID>` als Abhängigkeit zur vorherigen eigenen Aktion verwenden.
+
+```json
+{
+  "id": "40d79f95-d77b-4ac0-81d9-545a7147b477",
+  "owner": 1,
+  "kind": "workspace",
+  "aquarium": "12",
+  "path": "/aquariums/12/measurement-draft",
+  "method": "PUT",
+  "base": "missing",
+  "body": {
+    "draftId": "7fd34a4f-8913-4c92-a733-10be33de233c",
+    "when": "2026-10-18T12:00",
+    "timeZoneOffset": -120,
+    "note": "Erste Probe",
+    "suite": "jbl-pro",
+    "selected": ["jbl-pro:ph"],
+    "values": { "ph": "7,2" },
+    "timers": {}
+  }
+}
+```
+
+`DELETE /aquariums/<id>/measurement-draft` verwirft den Entwurf; `POST /aquariums/<id>/measurement-draft/complete` legt mit `draftId`, `values`, `selectedTests`, `measured_at` und `note` die Messung an und schließt denselben Entwurf atomar. Hier ist trotz POST ein Ausgangsstand erforderlich. Ein anderer Abschluss mit veraltetem Stand liefert `409` statt einer zweiten Messung. Wiederholungen mit derselben UUID liefern den ursprünglichen Beleg. Die direkten `/api/aquariums/<id>/measurement-draft`-Schreibendpunkte akzeptieren alternativ `operation_id` und `base` zusätzlich zum Fachinhalt und liefern ebenfalls den Operationsbeleg. Auf `409` beide Stände anzeigen und eine Entscheidung abwarten; nicht automatisch erneut mit der neuen Version senden.

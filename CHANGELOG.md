@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Timer-Benachrichtigungen in der App und unterstützten Systembenachrichtigungen um „Timer beenden“ und „Test öffnen“ ergänzen. Zugehörigen Test im ursprünglichen Tab ohne Neuladen fortsetzen, andere Tests dabei pausiert erhalten und bei bereits geöffnetem Ziel nichts ändern. Timer ohne Verlust eingetragener Messwerte beenden; veraltete Benachrichtigungen und kontofremde Aktionen abfangen. README, zweisprachiges Handbuch und Regressionstests aktualisieren.
+- Offene und pausierte Wassertests je Konto und Aquarium dauerhaft in IndexedDB speichern und über Geräte hinweg mit der bestehenden Offline-Warteschlange synchronisieren. Rohwerte, Testauswahl, Notiz, ursprüngliche Messzeitzone und absolute Timer-Endzeiten erhalten; geöffnete Formulare aktualisieren und konkurrierende Änderungen zur ausdrücklichen Konfliktentscheidung anzeigen. Messung und Schließen des Entwurfs atomar deduplizieren; versionierte Löschmarkierungen verhindern die Rückkehr veralteter Tests. SQLite, MongoDB, Backups, Schreibfreigaben, Kontowechsel und temporäre Aquarium-IDs berücksichtigen. API-Dokumentation, zweisprachiges Nutzerhandbuch, Demo-Screenshot und Regressionstests ergänzen.
+
+## 0.3.7-ALPHA
+
+- Timer-Benachrichtigungen in der App und unterstützten Systembenachrichtigungen um „Timer beenden“ und „Test öffnen“ ergänzen. Zugehörigen Test im ursprünglichen Tab ohne Neuladen fortsetzen, andere Tests dabei pausiert erhalten und bei bereits geöffnetem Ziel nichts ändern. Timer ohne Verlust eingetragener Messwerte beenden; veraltete Benachrichtigungen und kontofremde Aktionen abfangen. README, zweisprachiges Handbuch und Regressionstests aktualisieren. (`ef87db9a09dec2db3a3228901ff6516b7b306aed`, 2026-10-18).
 
 ## 0.3.6-ALPHA
 

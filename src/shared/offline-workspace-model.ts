@@ -1,3 +1,4 @@
+import { validateMeasurementDraft } from './measurement-draft';
 import { prepareCsvMeasurements } from './measurement-csv';
 import type { WorkspaceOperation, WorkspaceSnapshot } from './offline-workspace';
 import { aquariumInput } from './aquarium-input';
@@ -70,6 +71,13 @@ export function applyLocalOperation(snapshot: WorkspaceSnapshot, command: Worksp
         r['/aquariums'] = list('/aquariums').filter(aquarium => aquarium.id !== id);
         for (const path of Object.keys(r)) if (path === root || path.startsWith(root + '/')) delete r[path];
       } else Object.assign(detail.aquarium, check(aquariumInput(body)));
+    } else if (type === 'measurement-draft') {
+      const path = root + '/measurement-draft';
+      if (item === 'complete') {
+        if (!r[path] || r[path].draftId !== body.draftId) throw new AppError('Dieser Test wurde bereits geschlossen.', 409);
+        result = applyLocalOperation(snapshot, { ...command, path: root + '/measurements' }, catalogs);
+        r[path] = null;
+      } else r[path] = command.method === 'DELETE' ? null : validateMeasurementDraft(body, config.suites);
     } else if (type === 'plants') {
       const plants = list(root + '/plants');
       if (command.method === 'DELETE') r[root + '/plants'] = plants.filter(plant => plant.plant_id !== decodeURIComponent(item));
@@ -277,6 +285,6 @@ export function queryWorkspace(snapshot: WorkspaceSnapshot, path: string): any {
     if (collection === 'logs') { const offset = Number(q.get('offset') || 0);rows = rows.slice(offset, all ? undefined : offset + Number(q.get('limit') || 25)); }
     return rows;
   }
-  if (pathname.startsWith('/aquariums/') && !r[pathname]) throw new AppError('Aquarium oder Eintrag ist nicht offline verfügbar.', 404);
+  if (pathname.startsWith('/aquariums/') && !Object.hasOwn(r, pathname)) throw new AppError('Aquarium oder Eintrag ist nicht offline verfügbar.', 404);
   return r[pathname];
 }

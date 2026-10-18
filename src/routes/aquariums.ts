@@ -36,6 +36,53 @@ const { buildAquariumSystemPrompt, chatWithAquarium } = ai_chat_serviceModule;
 
 const router = express.Router();
 
+const draftWrap = (handler: (req: Request, res: Response) => Promise<unknown>): express.RequestHandler => (req, res, next) => {
+  void handler(req, res).catch(error => {
+    if (error?.status) res.status(error.status).json({ error: error.message, conflict: error.conflict });
+    else next(error);
+  });
+};
+// Draft writes use the same atomic, version-checked command path online and offline.
+async function draftCommand(req: Request, res: Response, method: 'PUT' | 'DELETE' | 'POST') {
+  if ((req as any).offlineOperation) return false;
+  const { applyWorkspaceOperation } = await import('../services/offline-workspace-service');
+  const { operation_id, base, ...body } = req.body || {};
+  const result = await applyWorkspaceOperation(req, {
+    id: operation_id, owner: req.user.id, kind: 'workspace', aquarium: String(req.params.id),
+    path: `/aquariums/${req.params.id}/measurement-draft${method === 'POST' ? '/complete' : ''}`,
+    method, body, base, temporaryIds: [], createdAt: new Date().toISOString(),
+  });
+  res.json(result);return true;
+}
+router.get('/:id/measurement-draft', auth, writeAquarium, draftWrap(async (req: Request, res: Response) => {
+  const { measurementDraftState } = await import('../services/measurement-draft-service');
+  res.json((await measurementDraftState(req.user.id, Number(req.params.id)))?.data || null);
+}));
+router.put('/:id/measurement-draft', auth, writeAquarium, draftWrap(async (req: Request, res: Response) => {
+  if (await draftCommand(req, res, 'PUT')) return;
+  const { validateMeasurementDraft } = await import('../shared/measurement-draft');
+  const { writeMeasurementDraft } = await import('../services/measurement-draft-service');
+  const draft = validateMeasurementDraft(req.body, cfg.suiteService.getSuites('de'));
+  await writeMeasurementDraft(req.user.id, Number(req.params.id), draft);
+  res.json({ ok: true });
+}));
+router.delete('/:id/measurement-draft', auth, writeAquarium, draftWrap(async (req: Request, res: Response) => {
+  if (await draftCommand(req, res, 'DELETE')) return;
+  const { writeMeasurementDraft } = await import('../services/measurement-draft-service');
+  await writeMeasurementDraft(req.user.id, Number(req.params.id), null);
+  res.json({ ok: true });
+}));
+router.post('/:id/measurement-draft/complete', auth, writeAquarium, draftWrap(async (req: Request, res: Response) => {
+  if (await draftCommand(req, res, 'POST')) return;
+  const { measurementDraftState, writeMeasurementDraft } = await import('../services/measurement-draft-service');
+  const current = (await measurementDraftState(req.user.id, Number(req.params.id)))?.data;
+  if (!current || current.draftId !== req.body.draftId) return res.status(409).json({ error: 'Dieser Test wurde bereits geschlossen oder ersetzt.' });
+  const { workspaceDispatch } = await import('../services/offline-workspace-service');
+  const result = await workspaceDispatch(req, `/aquariums/${req.params.id}/measurements`, 'POST', req.body);
+  await writeMeasurementDraft(req.user.id, Number(req.params.id), null);
+  res.json(result);
+}));
+
 // Schutz gegen parallele Doppel-Submits (z. B. durch Doppelklicks oder Verbindungsverzögerungen)
 const recentAquariumCreates = new Map<string, { result: Promise<{ id: number }>; timestamp: number }>();
 

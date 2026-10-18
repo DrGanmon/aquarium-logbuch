@@ -375,6 +375,8 @@
     "removeShare": "Freigabe aufheben"
   },
   "measure": {
+    "draftSaving": "Testentwurf wird lokal gesichert …",
+    "draftStored": "Testentwurf lokal gesichert. Geräteabgleich erfolgt bei Verbindung.",
     "timerNotifications": "Timer-Benachrichtigungen",
     "stopTimer": "Timer beenden",
     "openTest": "Test öffnen",

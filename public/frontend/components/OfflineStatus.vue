@@ -16,7 +16,7 @@ async function rebase(item: WorkspaceOperation) {
 }
 function title(item: WorkspaceOperation) {
   const part = item.path.split('/')[3] || (item.path.startsWith('/me') ? 'profile' : 'aquarium');
-  const labels: Record<string, string> = { aquarium: 'offline.aquarium', stock: 'nav.species', plants: 'nav.plants', maintenance: 'timeline.newEntryBtn', measurements: 'measure.title', images: 'detail.galleryTitle', image: 'detail.galleryTitle', fertilizers: 'fertilizers.title', 'dosing-pumps': 'fertilizers.title', alerts: 'nav.notifications', profile: 'nav.profile' };
+  const labels: Record<string, string> = { 'measurement-draft': 'measure.openTests', aquarium: 'offline.aquarium', stock: 'nav.species', plants: 'nav.plants', maintenance: 'timeline.newEntryBtn', measurements: 'measure.title', images: 'detail.galleryTitle', image: 'detail.galleryTitle', fertilizers: 'fertilizers.title', 'dosing-pumps': 'fertilizers.title', alerts: 'nav.notifications', profile: 'nav.profile' };
   return t(item.method === 'DELETE' ? 'offline.deleting' : 'offline.changing') + ' · ' + t(labels[part] || 'offline.localChange');
 }
 function describe(body: Record<string, any>) {

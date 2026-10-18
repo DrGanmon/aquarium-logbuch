@@ -31,7 +31,7 @@ Weitere Ansichten und Schrittfolgen findest du im [öffentlichen Nutzerhandbuch]
 ## Features für Benutzer
 
 - **Aquarien verwalten:** Stammdaten, Einrichtung, Fotos, Galerie und benannte Bewohner mit Porträts.
-- **Wasserwerte erfassen:** 18 Parameter, frei kombinierbare Tests aus den Suiten von JBL, Amtra, sera und Tetra, Live-Bewertung und mehrere Reaktionstimer. Timer-Hinweise mit „Timer beenden“ und „Test öffnen“; beim Testwechsel andere Entwürfe erhalten. Tests je Aquarium in der geöffneten App pausieren und über den aufklappbaren „Offene Tests“-Button fortsetzen.
+- **Wasserwerte erfassen:** 18 Parameter, frei kombinierbare Tests aus den Suiten von JBL, Amtra, sera und Tetra, Live-Bewertung und mehrere Reaktionstimer. Timer-Hinweise mit „Timer beenden“ und „Test öffnen“; beim Testwechsel andere Entwürfe erhalten. Tests je Aquarium pausieren, dauerhaft lokal sichern und über den aufklappbaren „Offene Tests“-Button auch auf anderen Geräten fortsetzen. Geräteabgleich bei Verbindung mit Offline-Warteschlange und ausdrücklicher Entscheidung bei konkurrierenden Änderungen.
 - **Verlauf auswerten:** Diagramme mit freier Zeitraumauswahl, Warnungen und bestätigbare Alarme.
 - **Pflege dokumentieren:** Logbuch für Wasserwechsel, Filterpflege, Pflanzen, Düngung und weitere Aktivitäten.
 - **Pflege planen:** Messzyklen mit optionalen E-Mail-Erinnerungen; Düngerbereich mit individuellen Erinnerungen für manuelle Dünger und automatischer Protokollierung geplanter Pumpendosierungen.

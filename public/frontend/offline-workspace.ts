@@ -42,7 +42,7 @@ export async function readWorkspace(owner: number, language: string, path: strin
     catch (error) { if (navigator.onLine && error instanceof AppError && error.status === 404) return undefined;throw error; }
   }
 }
-export async function enqueueWorkspace(owner: number, language: string, path: string, method: string, input: any) {
+export async function enqueueWorkspace(owner: number, language: string, path: string, method: string, input: any, baseVersion?: string) {
   const body = cloneWorkspace(input || {});
   if (path === '/me' && body.email !== undefined) {
     const snapshot = await localWorkspace(owner, language);
@@ -63,8 +63,8 @@ export async function enqueueWorkspace(owner: number, language: string, path: st
     count = names.length + (Number(body.count) > names.length ? 1 : 0);
   }
   const temporaryIds = Array.from({ length: Math.max(1, count) }, () => -parseInt(crypto.randomUUID().replaceAll('-', '').slice(0, 12), 16));
-  const base = method === 'POST' && !/\/(image|avatar|dose)$/.test(path) ? null : previous ? 'after:' + previous.id
-    : snapshot.versions[(method === 'DELETE' ? 'DELETE ' : '') + resource] || snapshot.versions[resource] || 'missing';
+  const base = method === 'POST' && !path.endsWith('/measurement-draft/complete') && !/\/(image|avatar|dose)$/.test(path) ? null
+    : baseVersion ?? (previous ? 'after:' + previous.id : snapshot.versions[(method === 'DELETE' ? 'DELETE ' : '') + resource] || snapshot.versions[resource] || 'missing');
   if (path.endsWith('/dose') && !body.logged_at) body.logged_at = new Date().toISOString();
   const command: WorkspaceOperation = { id, kind: 'workspace', owner, aquarium: path.split('/')[2] || '', method: method as WorkspaceOperation['method'], path, body, base, temporaryIds, createdAt: new Date().toISOString() };
   if (path.endsWith('/alerts/ack')) {
@@ -88,7 +88,7 @@ export async function enqueueWorkspace(owner: number, language: string, path: st
   await storePending(command);
   offlineState.pending = await pendingFor(owner);
   window.dispatchEvent(new Event('aquarium-synchronized'));
-  return { result };
+  return { result, operationId: id };
 }
 export async function acknowledgeWorkspace(item: WorkspaceOperation, response: any, language: string) {
   const original = await workspaceFor(item.owner, language);

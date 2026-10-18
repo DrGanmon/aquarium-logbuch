@@ -14734,7 +14734,7 @@
         ],
         "summary": "Vollständigen persönlichen Offline-Stand abrufen",
         "operationId": "get_api_offline_state",
-        "description": "Gültige Sitzung. Konsistenter Snapshot aller aktuell lesbaren eigenen und geteilten Aquarien sowie eigener Einstellungen. Rollen bleiben enthalten; keine Sicherheits-/Social-/Admin-Daten. ETag berücksichtigt den Inhalt ohne Abrufzeitpunkt; exakt gleiches If-None-Match liefert 304. Bestehende Setup-/Wartungssperren gelten. Bilddateien separat authentifiziert abrufen.",
+        "description": "Gültige Sitzung. Konsistenter Snapshot aller aktuell lesbaren eigenen und geteilten Aquarien sowie eigener Einstellungen. Rollen bleiben enthalten; keine Sicherheits-/Social-/Admin-Daten. ETag berücksichtigt den Inhalt ohne Abrufzeitpunkt; exakt gleiches If-None-Match liefert 304. Bestehende Setup-/Wartungssperren gelten. Bilddateien separat authentifiziert abrufen. Offene/pausierte Testentwürfe unter /aquariums/{id}/measurement-draft sind benutzergetrennt enthalten (nur mit Schreibrecht); PUT/DELETE und POST auf /complete unterstützen denselben versionierten, atomar deduplizierten Abgleich einschließlich Löschmarkierungen.",
         "security": [
           {
             "SessionCookie": []
@@ -14822,7 +14822,7 @@
         ],
         "summary": "Offline-Aktion atomar und wiederholbar anwenden",
         "operationId": "post_api_offline_operations",
-        "description": "Gültige Sitzung und X-Requested-With. Aquarium benötigt write, Löschen eines Aquariums owner. Führt dieselben Validatoren wie die jeweiligen direkten Endpunkte aus. UUID, Änderung, Testverbrauch, Warnungen und Ergebnisbeleg werden in SQLite/MongoDB gemeinsam bestätigt. Ein verlorenes Ergebnis kann mit exakt derselben UUID/Nutzlast erneut abgerufen werden, auch nach späterer Löschung. Andere UUIDs unabhängiger Neuanlagen bleiben getrennte Einträge. Bearbeitungen vergleichen base gegen den aktuellen Stand, andernfalls 409 mit conflict. Eigene Folgeaktionen verwenden after:UUID. Geänderte Nutzlast unter bereits verwendeter UUID: 409 ohne conflict. Konto-/Passwort-/E-Mail-/KI-/Freigabe-/Social-/Admin-Aktionen sind ausgeschlossen. Bodies entsprechen dem jeweiligen Zielendpunkt; CSV-Ergebnisse enthalten zusätzlich entries mit erzeugten Messungs-IDs. Lokale Warnungen können über offline_alerts:[{operation:UUID,param:Parameter}] ihrer zuvor synchronisierten Messung zugeordnet werden. Auch beim Belegabruf werden für bestehende Aquarien die aktuellen Berechtigungen geprüft: auf Lesen reduzierte Freigabe 403, entzogene Freigabe 404. Bereits gelöschte Zielaquarien bleiben über den gespeicherten Beleg ohne Neuanlage quittierbar.",
+        "description": "Gültige Sitzung und X-Requested-With. Aquarium benötigt write, Löschen eines Aquariums owner. Führt dieselben Validatoren wie die jeweiligen direkten Endpunkte aus. UUID, Änderung, Testverbrauch, Warnungen und Ergebnisbeleg werden in SQLite/MongoDB gemeinsam bestätigt. Ein verlorenes Ergebnis kann mit exakt derselben UUID/Nutzlast erneut abgerufen werden, auch nach späterer Löschung. Andere UUIDs unabhängiger Neuanlagen bleiben getrennte Einträge. Bearbeitungen vergleichen base gegen den aktuellen Stand, andernfalls 409 mit conflict. Eigene Folgeaktionen verwenden after:UUID. Geänderte Nutzlast unter bereits verwendeter UUID: 409 ohne conflict. Konto-/Passwort-/E-Mail-/KI-/Freigabe-/Social-/Admin-Aktionen sind ausgeschlossen. Bodies entsprechen dem jeweiligen Zielendpunkt; CSV-Ergebnisse enthalten zusätzlich entries mit erzeugten Messungs-IDs. Lokale Warnungen können über offline_alerts:[{operation:UUID,param:Parameter}] ihrer zuvor synchronisierten Messung zugeordnet werden. Auch beim Belegabruf werden für bestehende Aquarien die aktuellen Berechtigungen geprüft: auf Lesen reduzierte Freigabe 403, entzogene Freigabe 404. Bereits gelöschte Zielaquarien bleiben über den gespeicherten Beleg ohne Neuanlage quittierbar. Offene/pausierte Testentwürfe unter /aquariums/{id}/measurement-draft sind benutzergetrennt enthalten (nur mit Schreibrecht); PUT/DELETE und POST auf /complete unterstützen denselben versionierten, atomar deduplizierten Abgleich einschließlich Löschmarkierungen.",
         "security": [
           {
             "SessionCookie": []
@@ -14942,6 +14942,489 @@
           },
           "503": {
             "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/aquariums/{id}/measurement-draft": {
+      "get": {
+        "tags": [
+          "Messungen"
+        ],
+        "summary": "Eigenen offenen Testentwurf abrufen",
+        "description": "Sitzung und mindestens Schreibrecht am Aquarium erforderlich. Der Testentwurf ist benutzergetrennt, auch bei gemeinsam genutzten Aquarien. Liefert den Entwurf oder null. Die zugehörige Version wird aus GET /api/offline/state unter versions[\"/aquariums/{id}/measurement-draft\"] gelesen. Nur lesende Freigaben erhalten keine Entwürfe.",
+        "operationId": "get_api_aquariums_id_measurement_draft",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-aquarium-role": "write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "Aquarium-ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entwurf (oder null).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "draftId",
+                    "when",
+                    "note",
+                    "values",
+                    "suite",
+                    "selected",
+                    "timers",
+                    "timeZoneOffset"
+                  ],
+                  "properties": {
+                    "draftId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "Stabile ID dieses Testdurchlaufs."
+                    },
+                    "when": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$",
+                      "description": "Lokaler Messzeitpunkt ohne Zeitzone."
+                    },
+                    "note": {
+                      "type": "string",
+                      "maxLength": 500
+                    },
+                    "values": {
+                      "type": "object",
+                      "maxProperties": 100,
+                      "additionalProperties": {
+                        "type": "string",
+                        "maxLength": 80
+                      },
+                      "description": "Unfertige Texteingaben, nur ausgewählte Parameter."
+                    },
+                    "suite": {
+                      "type": "string"
+                    },
+                    "selected": {
+                      "type": "array",
+                      "maxItems": 100,
+                      "uniqueItems": true,
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Gültige suiteId:testKey-Referenzen, höchstens eine Methode je Parameter."
+                    },
+                    "timers": {
+                      "type": "object",
+                      "maxProperties": 100,
+                      "additionalProperties": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 8640000000000000
+                      },
+                      "description": "Absolute Ablaufzeitpunkte als Unix-Millisekunden; nur ausgewählte Parameter."
+                    },
+                    "timeZoneOffset": {
+                      "type": "integer",
+                      "minimum": -840,
+                      "maximum": 840,
+                      "description": "Ursprünglicher Zeitzonenoffset des gewählten Messzeitpunkts in Minuten nach Date.getTimezoneOffset(); beim Gerätewechsel beibehalten."
+                    }
+                  },
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "409": {
+            "description": "Veralteter Ausgangsstand, geschlossener/ersetzter Test, fehlende Abhängigkeit oder anderweitig verwendete Operations-ID. Bei Versionskonflikt current und version zur ausdrücklichen Entscheidung anzeigen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "conflict": {
+                      "type": "object",
+                      "properties": {
+                        "current": {
+                          "type": "object",
+                          "nullable": true,
+                          "additionalProperties": true
+                        },
+                        "version": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Messungen"
+        ],
+        "summary": "Eigenen Testentwurf versionsgeprüft speichern",
+        "description": "Sitzung und mindestens Schreibrecht am Aquarium erforderlich. Der Testentwurf ist benutzergetrennt, auch bei gemeinsam genutzten Aquarien. Schreibzugriffe laufen auch online atomar über den Offline-Operationspfad: operation_id (UUID v4) und base sind erforderlich; alternativ dieselbe Aktion in /api/offline/operations übermitteln. Ausgangsstand und Berechtigungen werden vor jeder Aktion, auch vor Belegwiederholungen, geprüft. Entwurf, neue Version und Wiederholungsbeleg werden gemeinsam gespeichert. ",
+        "operationId": "put_api_aquariums_id_measurement_draft",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-aquarium-role": "write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "Aquarium-ID."
+          },
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Atomarer Operationsbeleg.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftOperationReceipt"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "409": {
+            "description": "Veralteter Ausgangsstand, geschlossener/ersetzter Test, fehlende Abhängigkeit oder anderweitig verwendete Operations-ID. Bei Versionskonflikt current und version zur ausdrücklichen Entscheidung anzeigen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "conflict": {
+                      "type": "object",
+                      "properties": {
+                        "current": {
+                          "type": "object",
+                          "nullable": true,
+                          "additionalProperties": true
+                        },
+                        "version": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/MeasurementDraft"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DraftWriteMetadata"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Messungen"
+        ],
+        "summary": "Eigenen Testentwurf versionsgeprüft verwerfen",
+        "description": "Sitzung und mindestens Schreibrecht am Aquarium erforderlich. Der Testentwurf ist benutzergetrennt, auch bei gemeinsam genutzten Aquarien. Schreibzugriffe laufen auch online atomar über den Offline-Operationspfad: operation_id (UUID v4) und base sind erforderlich; alternativ dieselbe Aktion in /api/offline/operations übermitteln. Ausgangsstand und Berechtigungen werden vor jeder Aktion, auch vor Belegwiederholungen, geprüft. Entwurf, neue Version und Wiederholungsbeleg werden gemeinsam gespeichert. Entfernt den Entwurf, ohne eine Messung zu erstellen. Eine versionierte Löschmarkierung verhindert das Wiederherstellen durch veraltete Offline-Geräte.",
+        "operationId": "delete_api_aquariums_id_measurement_draft",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-aquarium-role": "write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "Aquarium-ID."
+          },
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Atomarer Operationsbeleg.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftOperationReceipt"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "409": {
+            "description": "Veralteter Ausgangsstand, geschlossener/ersetzter Test, fehlende Abhängigkeit oder anderweitig verwendete Operations-ID. Bei Versionskonflikt current und version zur ausdrücklichen Entscheidung anzeigen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "conflict": {
+                      "type": "object",
+                      "properties": {
+                        "current": {
+                          "type": "object",
+                          "nullable": true,
+                          "additionalProperties": true
+                        },
+                        "version": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftWriteMetadata"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/aquariums/{id}/measurement-draft/complete": {
+      "post": {
+        "tags": [
+          "Messungen"
+        ],
+        "summary": "Testentwurf atomar als Messung abschließen",
+        "description": "Sitzung und mindestens Schreibrecht am Aquarium erforderlich. Der Testentwurf ist benutzergetrennt, auch bei gemeinsam genutzten Aquarien. Schreibzugriffe laufen auch online atomar über den Offline-Operationspfad: operation_id (UUID v4) und base sind erforderlich; alternativ dieselbe Aktion in /api/offline/operations übermitteln. Ausgangsstand und Berechtigungen werden vor jeder Aktion, auch vor Belegwiederholungen, geprüft. Entwurf, neue Version und Wiederholungsbeleg werden gemeinsam gespeichert. Messung, Alarme, Testverbrauch und Schließen des Entwurfs werden in derselben Transaktion ausgeführt. draftId muss zum offenen Test passen. Wiederholungen derselben Operations-ID liefern denselben Beleg; andere Geräte mit veraltetem Stand erhalten 409 statt einer doppelten Messung.",
+        "operationId": "post_api_aquariums_id_measurement_draft_complete",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-aquarium-role": "write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "Aquarium-ID."
+          },
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Atomarer Operationsbeleg.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftOperationReceipt"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "409": {
+            "description": "Veralteter Ausgangsstand, geschlossener/ersetzter Test, fehlende Abhängigkeit oder anderweitig verwendete Operations-ID. Bei Versionskonflikt current und version zur ausdrücklichen Entscheidung anzeigen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "conflict": {
+                      "type": "object",
+                      "properties": {
+                        "current": {
+                          "type": "object",
+                          "nullable": true,
+                          "additionalProperties": true
+                        },
+                        "version": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/MeasurementInput"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DraftWriteMetadata"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "draftId",
+                      "values",
+                      "measured_at"
+                    ],
+                    "properties": {
+                      "draftId": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
           }
         }
       }
@@ -16767,7 +17250,7 @@
           },
           "path": {
             "type": "string",
-            "description": "Relativer API-Pfad ohne /api. Ausschließlich explizit freigegebene Aquarium-/Bestands-/Pflanzen-/Messungs-/Pflege-/Dünger-/Bildaktionen, Warnungsquittierung sowie /me (sichere Profilfelder), /me/tests, /me/test-inventory/{key}, /me/avatar. Negative lokale IDs zuerst durch bestätigte Server-IDs ersetzen."
+            "description": "Relativer API-Pfad ohne /api. Ausschließlich explizit freigegebene Aquarium-/Bestands-/Pflanzen-/Messungs-/Testentwurfs-/Pflege-/Dünger-/Bildaktionen, Warnungsquittierung sowie /me (sichere Profilfelder), /me/tests, /me/test-inventory/{key}, /me/avatar. Negative lokale IDs zuerst durch bestätigte Server-IDs ersetzen."
           },
           "body": {
             "type": "object",
@@ -16776,7 +17259,7 @@
           "base": {
             "type": "string",
             "nullable": true,
-            "description": "Für Bearbeitung/Löschung und Bild-/Avatar-/Dosieränderungen: Fingerprint der Ressource, missing bei fehlender Ressource oder after:UUID einer eigenen bestätigten Vorgängeraktion. Für unabhängige Neuanlagen null."
+            "description": "Für Bearbeitung/Löschung und Bild-/Avatar-/Dosieränderungen: Fingerprint der Ressource, missing bei fehlender Ressource oder after:UUID einer eigenen bestätigten Vorgängeraktion. Für unabhängige Neuanlagen null. Auch POST /aquariums/{id}/measurement-draft/complete benötigt eine Version; geschlossene Entwürfe behalten eine versionierte Löschmarkierung statt missing."
           },
           "temporaryIds": {
             "type": "array",
@@ -16833,6 +17316,121 @@
         },
         "additionalProperties": false,
         "description": "Auswahl beim Hinzufügen: echte Form oder unabhängig gepflegter Art-/Referenzeintrag; kind unterscheidet die Bedeutung."
+      },
+      "MeasurementDraft": {
+        "type": "object",
+        "required": [
+          "draftId",
+          "when",
+          "note",
+          "values",
+          "suite",
+          "selected",
+          "timers",
+          "timeZoneOffset"
+        ],
+        "properties": {
+          "draftId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Stabile ID dieses Testdurchlaufs."
+          },
+          "when": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$",
+            "description": "Lokaler Messzeitpunkt ohne Zeitzone."
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "values": {
+            "type": "object",
+            "maxProperties": 100,
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 80
+            },
+            "description": "Unfertige Texteingaben, nur ausgewählte Parameter."
+          },
+          "suite": {
+            "type": "string"
+          },
+          "selected": {
+            "type": "array",
+            "maxItems": 100,
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            },
+            "description": "Gültige suiteId:testKey-Referenzen, höchstens eine Methode je Parameter."
+          },
+          "timers": {
+            "type": "object",
+            "maxProperties": 100,
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 8640000000000000
+            },
+            "description": "Absolute Ablaufzeitpunkte als Unix-Millisekunden; nur ausgewählte Parameter."
+          },
+          "timeZoneOffset": {
+            "type": "integer",
+            "minimum": -840,
+            "maximum": 840,
+            "description": "Ursprünglicher Zeitzonenoffset des gewählten Messzeitpunkts in Minuten nach Date.getTimezoneOffset(); beim Gerätewechsel beibehalten."
+          }
+        }
+      },
+      "DraftWriteMetadata": {
+        "type": "object",
+        "required": [
+          "operation_id",
+          "base"
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID v4 zur atomaren Deduplizierung."
+          },
+          "base": {
+            "type": "string",
+            "description": "Ressourcen-Version aus OfflineWorkspaceSnapshot.versions oder after:<Operations-UUID>; initial missing nur bei noch nie vorhandenem Entwurf."
+          }
+        }
+      },
+      "DraftOperationReceipt": {
+        "type": "object",
+        "required": [
+          "result",
+          "target",
+          "version",
+          "deleteVersion",
+          "versions"
+        ],
+        "properties": {
+          "result": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "target": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "deleteVersion": {
+            "type": "string"
+          },
+          "versions": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
       }
     },
     "responses": {

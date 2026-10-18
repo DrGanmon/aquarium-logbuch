@@ -9,11 +9,10 @@ import {
   toRefs,
 } from "vue";
 import Modal from "../components/Modal.vue";
-import { measurementDrafts } from "../composables/measurement-drafts";
+import { measurementDrafts, draftSyncState, ensureMeasurementDrafts, flushMeasurementDrafts, closeMeasurementDraft } from "../composables/measurement-drafts";
 import { route } from "../router";
 import TestSelection from "../components/TestSelection.vue";
 import { initialTestSelection, resolveTests } from "../composables/test-selection";
-import { enqueueMeasurement } from "../offline-sync";
 import { api } from "../api";
 import { session, t, errorMessage, localDateTime, toast } from "../state";
 import type { AquariumDetail } from "../types";
@@ -23,15 +22,18 @@ const props = defineProps<{ id: string }>();
 const detail = ref<AquariumDetail>();
 const error = ref("");
 const busy = ref(false);
+const draftReady = ref(false);
 const existing = measurementDrafts[props.id];
 const resumePrompt = ref(Boolean(existing) && route.value.query.get("resume") !== "1");
 watch(() => route.value.query.get("resume"), value => {
   if (value === "1") resumePrompt.value = false;
 });
 const draft = existing || reactive({
+  draftId: crypto.randomUUID(),
   aquariumId: props.id,
   aquariumName: "",
   when: localDateTime(),
+  timeZoneOffset: new Date().getTimezoneOffset(),
   note: "",
   values: {} as Record<string, string>,
   suite: session.config?.userPreferences.selectedSuite || session.config?.currentSuite.id || "",
@@ -40,6 +42,9 @@ const draft = existing || reactive({
   completed: {} as Record<string, number>,
 });
 const { when, note, values, suite, selected, timers } = toRefs(draft);
+watch(when, value => {
+  if (!draftSyncState.applying) draft.timeZoneOffset = new Date(value).getTimezoneOffset();
+}, { flush: "sync" });
 const tests = computed(() => resolveTests(session.config?.suites || [], selected.value));
 const visibleTests = tests;
 const now = ref(Date.now());
@@ -60,6 +65,7 @@ const running = computed(() =>
   activeTimers.value.some((timer) => timer.remaining > 0),
 );
 watch(selected, (next, previous) => {
+  if (draftSyncState.applying) return;
   for (const reference of previous) {
     if (next.includes(reference)) continue;
     const key = reference.slice(reference.indexOf(":") + 1);
@@ -71,6 +77,7 @@ let preferenceSave = Promise.resolve<unknown>(undefined);
 watch(
   [selected, suite],
   async () => {
+    if (draftSyncState.applying) return;
     localStorage.setItem(
       `tests:${session.user?.id}`,
       JSON.stringify(selected.value),
@@ -88,7 +95,7 @@ watch(
       error.value = errorMessage(e);
     }
   },
-  { deep: true },
+  { deep: true, flush: "sync" },
 );
 watch(running, updateWake);
 async function updateWake() {
@@ -115,6 +122,14 @@ function visibility() {
 }
 onMounted(async () => {
   try {
+    await ensureMeasurementDrafts();
+    if (disposed) return;
+    const saved = measurementDrafts[props.id];
+    if (saved) {
+      draftSyncState.applying = true;
+      try { Object.assign(draft, saved); } finally { draftSyncState.applying = false; }
+      resumePrompt.value = route.value.query.get("resume") !== "1";
+    }
     detail.value = await api(`/aquariums/${props.id}?summary=true`, { signal: lifecycle.signal });
     if (disposed) return;
     if (detail.value?.role === "view") {
@@ -123,6 +138,8 @@ onMounted(async () => {
     }
     draft.aquariumName = detail.value!.aquarium.name;
     measurementDrafts[props.id] = draft;
+    draftReady.value = true;
+    await flushMeasurementDrafts();
     await updateWake();
   } catch (e) {
     error.value = errorMessage(e);
@@ -201,14 +218,13 @@ async function save() {
     }
     if (!Object.keys(parsed).length)
       throw new Error("Bitte mindestens einen Messwert eingeben.");
-    await enqueueMeasurement(props.id, {
+    await closeMeasurementDraft(props.id, {
         values: parsed,
         selectedTests: [...selected.value],
-        measured_at: new Date(when.value).toISOString(),
+        measured_at: new Date(Date.parse(when.value + "Z") + draft.timeZoneOffset * 60000).toISOString(),
         note: note.value,
     });
-    Object.keys(timers.value).forEach(reset);
-    delete measurementDrafts[props.id];
+
     toast(t("offline.saved"));
     location.hash = `#/a/${props.id}`;
   } catch (e) {
@@ -218,15 +234,23 @@ async function save() {
   }
 }
 
-function pause() {
-  location.hash = "#/";
+async function pause() {
+  if (busy.value) return;
+  busy.value = true;
+  try { await flushMeasurementDrafts();location.hash = "#/"; }
+  catch (e) { error.value = errorMessage(e); }
+  finally { busy.value = false; }
 }
-function discard() {
-  if (!window.confirm(t("measure.discardConfirm"))) return;
-  Object.keys(timers.value).forEach(reset);
-  delete measurementDrafts[props.id];
-  location.hash = `#/a/${props.id}`;
+async function discard() {
+  if (busy.value || !window.confirm(t("measure.discardConfirm"))) return;
+  busy.value = true;
+  try { await closeMeasurementDraft(props.id);location.hash = `#/a/${props.id}`; }
+  catch (e) { error.value = errorMessage(e); }
+  finally { busy.value = false; }
 }
+watch(() => measurementDrafts[props.id], current => {
+  if (!current && draftReady.value && !busy.value) location.hash = `#/a/${props.id}`;
+});
 </script>
 <template>
   <div class="stack">
@@ -243,9 +267,10 @@ function discard() {
       >
       <h1>{{ t("measure.title") }}</h1>
       <p class="muted">{{ t("measure.subtitle") }}</p>
+      <p v-if="draftReady" class="muted" role="status">{{ t(draftSyncState.saving ? "measure.draftSaving" : "measure.draftStored") }}</p>
     </div>
-    <p v-if="error && !detail" class="error" role="alert">{{ error }}</p>
-    <template v-if="detail && detail.role !== 'view' && !resumePrompt">
+    <p v-if="error && (!detail || !draftReady)" class="error" role="alert">{{ error }}</p>
+    <template v-if="draftReady && detail && detail.role !== 'view' && !resumePrompt">
       <div class="notification-banner info">
         <div>
           <strong>🔔 Timer-Benachrichtigungen</strong>
@@ -300,7 +325,7 @@ function discard() {
           </button>
         </div>
       </div>
-      <form class="stack" @submit.prevent="save">
+      <form class="stack" :inert="busy" @submit.prevent="save">
         <div class="field">
           <label for="when">{{ t("measure.dateTimeLabel") }}</label
           ><input id="when" v-model="when" type="datetime-local" required />
