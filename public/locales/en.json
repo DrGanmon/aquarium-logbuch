@@ -922,7 +922,9 @@
     "context": "Preparing aquarium context …",
     "history": "Preparing chat history …",
     "generating": "Waiting for the AI response …",
-    "saving": "Saving the response …"
+    "saving": "Saving the response …",
+    "empty": "No messages yet. Ask a question about water parameters, stock, or maintenance, or choose a suggestion.",
+    "noReply": "The AI did not return a response. Please try again."
   },
   "terms": {
     "existingNotice": "Please accept the current terms to continue using the application. Your consent is saved for your account.",

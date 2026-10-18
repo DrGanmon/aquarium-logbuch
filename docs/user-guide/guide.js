@@ -218,13 +218,13 @@
       status.textContent = matched.length + ' ' + countSuffix;
       var html = '';
       for (var m = 0; m < matched.length; m++) {
-        var ch = matched[m].chapter;
-        var snippet = createSnippet(ch, tokens);
+        var matchChapter = matched[m].chapter;
+        var snippet = createSnippet(matchChapter, tokens);
         html += '<li class="search-result-item">' +
-          '<a href="#' + escapeHtml(ch.id) + '" class="search-result-link">' +
+          '<a href="#' + escapeHtml(matchChapter.id) + '" class="search-result-link">' +
           '<div class="search-result-header">' +
-          '<span class="search-result-eyebrow">' + escapeHtml(ch.groupTitle ? ch.groupTitle + ' · ' : '') + escapeHtml(ch.number) + '</span>' +
-          '<strong class="search-result-title">' + highlightText(ch.title, tokens) + '</strong>' +
+          '<span class="search-result-eyebrow">' + escapeHtml(matchChapter.groupTitle ? matchChapter.groupTitle + ' · ' : '') + escapeHtml(matchChapter.number) + '</span>' +
+          '<strong class="search-result-title">' + highlightText(matchChapter.title, tokens) + '</strong>' +
           '</div>' +
           '<p class="search-result-snippet">' + snippet + '</p>' +
           '</a>' +

@@ -331,7 +331,7 @@ test('Anthropic Claude Chat Service: Nachrichten-Normalisierung, System-Prompt u
     assert.strictEqual(interceptedRequest.options.headers['anthropic-version'], '2023-06-01');
     assert.strictEqual(interceptedRequest.body.model, 'claude-3-7-sonnet-20250219');
     assert.strictEqual(interceptedRequest.body.temperature, undefined, 'Claude Payload darf kein deprecated temperature enthalten');
-    assert.strictEqual(interceptedRequest.body.max_tokens, 1500);
+    assert.strictEqual(interceptedRequest.body.max_tokens, 4000);
     assert.ok(interceptedRequest.body.system.includes('Claude Testbecken'));
 
     // Anthropic-Validierung: Erste Nachricht muss Rolle 'user' sein
@@ -776,7 +776,7 @@ test('OpenAI Chat Service: Parameter-Kompatibilität mit max_completion_tokens u
 
     const req1 = interceptedOpenAi[interceptedOpenAi.length - 1];
     assert.strictEqual(req1.body.model, 'gpt-4o');
-    assert.strictEqual(req1.body.max_completion_tokens, 1500, 'Muss max_completion_tokens verwenden');
+    assert.strictEqual(req1.body.max_completion_tokens, 4000, 'Muss max_completion_tokens verwenden');
     assert.strictEqual(req1.body.max_tokens, undefined, 'Darf kein max_tokens enthalten');
     assert.strictEqual(req1.body.temperature, 0.7);
 
@@ -796,7 +796,7 @@ test('OpenAI Chat Service: Parameter-Kompatibilität mit max_completion_tokens u
 
     const req2 = interceptedOpenAi[interceptedOpenAi.length - 1];
     assert.strictEqual(req2.body.model, 'o3-mini');
-    assert.strictEqual(req2.body.max_completion_tokens, 1500, 'Reasoning-Modell nutzt max_completion_tokens');
+    assert.strictEqual(req2.body.max_completion_tokens, 4000, 'Reasoning-Modell nutzt max_completion_tokens');
     assert.strictEqual(req2.body.max_tokens, undefined, 'Reasoning-Modell darf kein max_tokens enthalten');
     assert.strictEqual(req2.body.temperature, undefined, 'Reasoning-Modell darf kein temperature enthalten');
 
@@ -983,4 +983,89 @@ test('KI-Chat: Fortschritt vor der Antwort, Speicherung und Fehler im Ereignisst
   assert.equal(errorEvents.at(-1).type, 'error');
   assert.match(errorEvents.at(-1).error, /Provider unavailable/);
   assert.equal(errorEvents.some(e => e.type === 'done'), false);
+});
+
+test('Google Gemini Chat Service: Multi-Turn-Normalisierung und maxOutputTokens', async (t) => {
+  const env = createTestEnvironment();
+  t.after(() => env.cleanup());
+  const user = await env.createUserAndLogin('gemini_tester');
+  const headers = { Cookie: user.cookie };
+  const aquarium = await env.request('/api/aquariums', { method: 'POST', headers, body: { name: 'Gemini-Becken', water_type: 'fresh', volume_l: 300 } });
+  const aqId = aquarium.data.id;
+
+  await env.request('/api/me/gemini', {
+    method: 'PUT',
+    headers,
+    body: { apiKey: 'AIzaSyTestKey12345', model: 'gemini-1.5-flash', setAsActive: true },
+  });
+
+  const interceptedGemini = [];
+  const originalFetch = global.fetch;
+  global.fetch = async (url, options) => {
+    const sUrl = String(url);
+    if (sUrl.includes('generativelanguage.googleapis.com')) {
+      const parsedBody = JSON.parse(options.body);
+      interceptedGemini.push({ url: sUrl, body: parsedBody });
+      return new Response(JSON.stringify({
+        candidates: [{
+          content: {
+            parts: [{ text: 'Gemini-Antwort für großes Becken.' }],
+            role: 'model',
+          },
+        }],
+      }), { headers: { 'Content-Type': 'application/json' } });
+    }
+    return originalFetch(url, options);
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = await env.request(`/api/aquariums/${aqId}/chat`, {
+    method: 'POST',
+    headers,
+    body: { message: 'Wie optimiere ich die Filterung?' },
+  });
+  assert.equal(res.status, 200);
+  assert.equal(res.data.reply, 'Gemini-Antwort für großes Becken.');
+
+  const req = interceptedGemini[interceptedGemini.length - 1];
+  assert.equal(req.body.generationConfig.maxOutputTokens, 4000);
+  assert.ok(req.body.contents.length >= 1);
+  assert.equal(req.body.contents[0].role, 'user');
+});
+
+test('KI-Chat: Leere KI-Antwort löst verständlichen Fehler aus', async (t) => {
+  const env = createTestEnvironment();
+  t.after(() => env.cleanup());
+  const user = await env.createUserAndLogin('empty_tester');
+  const headers = { Cookie: user.cookie };
+  const aquarium = await env.request('/api/aquariums', { method: 'POST', headers, body: { name: 'Empty-Test-Becken', water_type: 'fresh', volume_l: 100 } });
+  const aqId = aquarium.data.id;
+
+  await env.request('/api/me/openai', {
+    method: 'PUT',
+    headers,
+    body: { apiKey: 'sk-test-empty-key', model: 'gpt-4o-mini', setAsActive: true },
+  });
+
+  const originalFetch = global.fetch;
+  global.fetch = async (url, options) => {
+    if (String(url).startsWith('https://api.openai.com/')) {
+      return new Response(JSON.stringify({
+        choices: [{
+          message: { content: '' },
+          finish_reason: 'length',
+        }],
+      }), { headers: { 'Content-Type': 'application/json' } });
+    }
+    return originalFetch(url, options);
+  };
+  t.after(() => { global.fetch = originalFetch; });
+
+  const res = await env.request(`/api/aquariums/${aqId}/chat`, {
+    method: 'POST',
+    headers,
+    body: { message: 'Testfrage' },
+  });
+  assert.equal(res.status, 500);
+  assert.ok(res.data.error.includes('Token-Limit') || res.data.error.includes('leere Antwort'));
 });

@@ -922,7 +922,9 @@
     "context": "Beckenkontext wird vorbereitet …",
     "history": "Chatverlauf wird aufbereitet …",
     "generating": "Warte auf die Antwort der KI …",
-    "saving": "Antwort wird gespeichert …"
+    "saving": "Antwort wird gespeichert …",
+    "empty": "Noch keine Nachrichten. Stelle eine Frage zu Wasserwerten, Besatz oder Pflege oder wähle einen Vorschlag.",
+    "noReply": "Die KI hat keine Antwort zurückgegeben. Bitte versuche es erneut."
   },
   "terms": {
     "existingNotice": "Bitte stimme den aktuellen AGB zu, um die Anwendung weiter zu nutzen. Deine Zustimmung wird für dein Konto gespeichert.",

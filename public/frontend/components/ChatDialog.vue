@@ -92,9 +92,14 @@ async function send(prompt = input.value) {
       void scroll();
     });
     if (lifecycle.signal.aborted) return;
-    messages.value.push(
-      { role: "assistant", content: result.reply },
-    );
+    const replyText = typeof result?.reply === 'string' ? result.reply.trim() : '';
+    if (replyText) {
+      messages.value.push(
+        { role: "assistant", content: replyText },
+      );
+    } else {
+      throw new Error(t("chat.noReply"));
+    }
     if (props.diagnosis && messages.value.length > 100) messages.value = messages.value.slice(-100);
     await scroll();
   } catch (e) {
@@ -102,6 +107,7 @@ async function send(prompt = input.value) {
     messages.value.splice(pendingIndex, 1);
     error.value = errorMessage(e);
     input.value = prompt;
+    await scroll();
   } finally {
     answering.value = false;
     busy.value = false;
@@ -160,6 +166,9 @@ async function clear() {
         }}</pre>
       </details>
       <div ref="container" class="chat-messages-container stack">
+        <p v-if="messages.length === 0 && !answering && !historyLoading && !busy" class="muted chat-empty-hint">
+          {{ t("chat.empty") }}
+        </p>
         <div
           v-for="(message, index) in messages"
           :key="message.id || index"

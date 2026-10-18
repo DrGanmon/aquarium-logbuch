@@ -106,9 +106,9 @@ async function buildAquariumSystemPrompt(aquariumId: number, customDb: typeof db
   contextText += `- Name: ${aq.name}\n`;
   contextText += `- Beckentyp: ${aq.water_type === 'salt' ? 'Meerwasser' : 'Süßwasser'}\n`;
   contextText += `- Volumen: ${aq.volume_l ? `${aq.volume_l} Liter` : 'Nicht angegeben'}\n`;
-  if (aq.motto) contextText += `- Motto / Biotop-Stil: ${aq.motto}\n`;
-  if (aq.description) contextText += `- Beschreibung / Einrichtung: ${aq.description}\n`;
-  if (aq.notes) contextText += `- Notizen: ${aq.notes}\n`;
+  if (aq.motto) contextText += `- Motto / Biotop-Stil: ${String(aq.motto).slice(0, 500)}\n`;
+  if (aq.description) contextText += `- Beschreibung / Einrichtung: ${String(aq.description).slice(0, 4000)}\n`;
+  if (aq.notes) contextText += `- Notizen: ${String(aq.notes).slice(0, 4000)}\n`;
   if (aq.measure_cycle_interval) {
     contextText += `- Messintervall: Alle ${aq.measure_cycle_interval} ${aq.measure_cycle_unit === 'weeks' ? 'Wochen' : 'Tage'}\n`;
   }
@@ -138,20 +138,29 @@ async function buildAquariumSystemPrompt(aquariumId: number, customDb: typeof db
   if (compatibility) {
     if (compatibility.issues && compatibility.issues.length > 0) {
       contextText += `\n[Bekannte Besatzkonflikte / Unverträglichkeiten]:\n`;
-      for (const iss of compatibility.issues) {
+      for (const iss of compatibility.issues.slice(0, 30)) {
         contextText += `⚠️ [KRITISCH] ${iss.title}: ${iss.message}\n`;
+      }
+      if (compatibility.issues.length > 30) {
+        contextText += `(... und ${compatibility.issues.length - 30} weitere Konflikte)\n`;
       }
     }
     if (compatibility.warnings && compatibility.warnings.length > 0) {
       contextText += `\n[Besatz-Warnhinweise]:\n`;
-      for (const w of compatibility.warnings) {
+      for (const w of compatibility.warnings.slice(0, 30)) {
         contextText += `⚡ [WARNUNG] ${w.title}: ${w.message}\n`;
+      }
+      if (compatibility.warnings.length > 30) {
+        contextText += `(... und ${compatibility.warnings.length - 30} weitere Warnungen)\n`;
       }
     }
     if (compatibility.decorHints && compatibility.decorHints.length > 0) {
       contextText += `\n[Besondere Einrichtungsanforderungen der Bewohner]:\n`;
-      for (const d of compatibility.decorHints) {
+      for (const d of compatibility.decorHints.slice(0, 30)) {
         contextText += `💡 ${d}\n`;
+      }
+      if (compatibility.decorHints.length > 30) {
+        contextText += `(... und ${compatibility.decorHints.length - 30} weitere Einrichtungshinweise)\n`;
       }
     }
   }
@@ -179,7 +188,7 @@ async function buildAquariumSystemPrompt(aquariumId: number, customDb: typeof db
         contextText += `  (Keine Parameter gemessen)\n`;
       }
       if (m.note) {
-        contextText += `  Notiz: ${m.note}\n`;
+        contextText += `  Notiz: ${String(m.note).slice(0, 500)}\n`;
       }
     });
   }
@@ -191,8 +200,8 @@ async function buildAquariumSystemPrompt(aquariumId: number, customDb: typeof db
       const dt = new Date(ml.logged_at).toLocaleDateString('de-DE');
       let line = `- ${dt}: ${ml.type}`;
       if (ml.percentage) line += ` (${ml.percentage} %)`;
-      if (ml.details) line += ` - ${ml.details}`;
-      if (ml.note) line += ` (Notiz: ${ml.note})`;
+      if (ml.details) line += ` - ${String(ml.details).slice(0, 500)}`;
+      if (ml.note) line += ` (Notiz: ${String(ml.note).slice(0, 500)})`;
       contextText += `${line}\n`;
     });
   }
@@ -257,7 +266,7 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
     model: chosenModel,
     messages: chatMessages,
     stream: Boolean(stream),
-    max_completion_tokens: 1500,
+    max_completion_tokens: 4000,
   };
   if (stream) payload.stream_options = { include_usage: true };
 
@@ -300,7 +309,7 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
       (errMsg.includes('unsupported') || errMsg.includes('unknown') || errMsg.includes('extra fields') || errMsg.includes('parameter'))
     ) {
       delete retryPayload.max_completion_tokens;
-      retryPayload.max_tokens = 1500;
+      retryPayload.max_tokens = 4000;
       shouldRetry = true;
     }
     if (errMsg.includes('stream_options') && (errMsg.includes('unsupported') || errMsg.includes('unknown') || errMsg.includes('extra fields') || errMsg.includes('parameter') || errMsg.includes('invalid'))) {
@@ -342,7 +351,7 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
           (secondErrMsg.includes('unsupported') || secondErrMsg.includes('unknown') || secondErrMsg.includes('extra fields') || secondErrMsg.includes('parameter'))
         ) {
           delete retryPayload.max_completion_tokens;
-          retryPayload.max_tokens = 1500;
+          retryPayload.max_tokens = 4000;
           secondRetry = true;
         }
         if (secondErrMsg.includes('stream_options') && retryPayload.stream_options !== undefined && (secondErrMsg.includes('unsupported') || secondErrMsg.includes('unknown') || secondErrMsg.includes('extra fields') || secondErrMsg.includes('parameter') || secondErrMsg.includes('invalid'))) {
@@ -393,7 +402,15 @@ async function callOpenAi({ apiKey, model, systemPrompt, messages = [], message 
   }
 
   const data = await response.json();
-  const reply = data.choices?.[0]?.message?.content || '';
+  const choice = data.choices?.[0];
+  const reply = (choice?.message?.content || choice?.message?.refusal || '').trim();
+
+  if (!reply) {
+    if (choice?.finish_reason === 'length') {
+      throw new Error('Die Antwort konnte nicht vollständig generiert werden, da das Token-Limit für Denkprozesse oder Ausgabe erreicht wurde. Bitte versuche es erneut oder passe die Anfrage an.');
+    }
+    throw new Error('Die KI hat eine leere Antwort zurückgegeben. Bitte versuche es erneut.');
+  }
 
   return {
     reply,
@@ -447,25 +464,48 @@ function trackStreamUsage(stream: ReadableStream<Uint8Array<ArrayBufferLike>>, d
 async function callGemini({ apiKey, model, systemPrompt, messages = [], message = null, signal = undefined }: any) {
   const requestSignal = signal ? AbortSignal.any([signal, AbortSignal.timeout(60000)]) : AbortSignal.timeout(60000);
   const chosenModel = model || DEFAULT_GEMINI_MODEL;
-  const contents = [];
+  const rawChatMessages: { role: 'user' | 'model'; text: string }[] = [];
 
   if (Array.isArray(messages) && messages.length > 0) {
     for (const m of messages) {
-      if (m && typeof m.content === 'string') {
-        const role = m.role === 'assistant' ? 'model' : 'user';
-        contents.push({
-          role,
-          parts: [{ text: m.content.slice(0, 8000) }],
+      if (m && typeof m.content === 'string' && m.content.trim() && (m.role === 'user' || m.role === 'assistant')) {
+        rawChatMessages.push({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          text: m.content.trim().slice(0, 8000),
         });
       }
     }
   }
 
   if (message && typeof message === 'string' && message.trim()) {
-    contents.push({
+    rawChatMessages.push({
       role: 'user',
-      parts: [{ text: message.trim().slice(0, 8000) }],
+      text: message.trim().slice(0, 8000),
     });
+  }
+
+  const contents: { role: string; parts: { text: string }[] }[] = [];
+  for (const msg of rawChatMessages) {
+    if (!msg.text) continue;
+    if (contents.length === 0) {
+      if (msg.role === 'user') {
+        contents.push({ role: 'user', parts: [{ text: msg.text }] });
+      } else {
+        contents.push({ role: 'user', parts: [{ text: 'Hallo' }] });
+        contents.push({ role: 'model', parts: [{ text: msg.text }] });
+      }
+    } else {
+      const prev = contents[contents.length - 1];
+      if (prev.role === msg.role) {
+        prev.parts[0].text += '\n\n' + msg.text;
+      } else {
+        contents.push({ role: msg.role, parts: [{ text: msg.text }] });
+      }
+    }
+  }
+
+  if (contents.length === 0) {
+    contents.push({ role: 'user', parts: [{ text: 'Hallo' }] });
   }
 
   const payload: Record<string, any> = {
@@ -475,7 +515,7 @@ async function callGemini({ apiKey, model, systemPrompt, messages = [], message 
     contents,
     generationConfig: {
       temperature: 0.7,
-      maxOutputTokens: 1500,
+      maxOutputTokens: 4000,
     },
   };
 
@@ -516,7 +556,22 @@ async function callGemini({ apiKey, model, systemPrompt, messages = [], message 
 
   const data = await response.json();
   const candidate = data.candidates?.[0];
-  const reply = candidate?.content?.parts?.map((p: any) => p.text || '').join('') || '';
+  const reply = (candidate?.content?.parts?.map((p: any) => p.text || '').join('') || '').trim();
+
+  if (!reply) {
+    const blockReason = data.promptFeedback?.blockReason;
+    const finishReason = candidate?.finishReason;
+    if (blockReason) {
+      throw new Error(`Google Gemini hat die Anfrage blockiert (${blockReason}).`);
+    }
+    if (finishReason === 'MAX_TOKENS') {
+      throw new Error('Die Antwort konnte nicht vollständig generiert werden, da das Token-Limit erreicht wurde. Bitte versuche es erneut.');
+    }
+    if (finishReason === 'SAFETY') {
+      throw new Error('Google Gemini hat die Antwort aus Sicherheitsgründen gefiltert.');
+    }
+    throw new Error('Google Gemini hat eine leere Antwort zurückgegeben. Bitte versuche es erneut.');
+  }
 
   return {
     reply,
@@ -586,7 +641,7 @@ async function callClaude({ apiKey, model, systemPrompt, messages = [], message 
   const payload: Record<string, any> = {
     model: chosenModel,
     messages: chatMessages,
-    max_tokens: 1500,
+    max_tokens: 4000,
   };
 
   if (systemPrompt && typeof systemPrompt === 'string' && systemPrompt.trim()) {
@@ -637,12 +692,19 @@ async function callClaude({ apiKey, model, systemPrompt, messages = [], message 
   }
 
   const data = await response.json();
-  const reply = Array.isArray(data.content)
+  const reply = (Array.isArray(data.content)
     ? data.content.map((c: any) => (c.type === 'text' ? c.text : c.text || '')).join('')
-    : (data.text || '');
+    : (data.text || '')).trim();
+
+  if (!reply) {
+    if (data.stop_reason === 'max_tokens') {
+      throw new Error('Die Antwort konnte nicht vollständig generiert werden, da das Token-Limit erreicht wurde. Bitte versuche es erneut.');
+    }
+    throw new Error('Anthropic Claude hat eine leere Antwort zurückgegeben. Bitte versuche es erneut.');
+  }
 
   return {
-    reply: reply || '',
+    reply,
     model: data.model || chosenModel,
     provider: 'claude',
     usage: data.usage || null,
