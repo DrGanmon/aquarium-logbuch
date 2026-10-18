@@ -12,45 +12,108 @@ const props = defineProps<{
 }>();
 const key = ref("");
 const model = ref(props.model || "");
-const models = ref<{ id: string; name?: string }[]>([]);
+const models = ref<{ value: string; label: string }[]>([]);
 const error = ref("");
 const message = ref("");
 const busy = ref(false);
+const loadingModels = ref(false);
 const lifecycle = new AbortController();
 let modelRequest: AbortController | undefined;
 let debounce: ReturnType<typeof setTimeout>;
+
 watch(key, (value) => {
   modelRequest?.abort();
   clearTimeout(debounce);
-  if (value.length >= 8)
+  const trimmed = value.trim();
+  if (trimmed.length >= 8) {
     debounce = setTimeout(() => {
       void fetchModels();
     }, 600);
+  } else if (!trimmed && !props.masked && !props.keySet) {
+    models.value = [];
+    model.value = "";
+    error.value = "";
+  }
 });
-onBeforeUnmount(() => { clearTimeout(debounce); modelRequest?.abort(); lifecycle.abort(); });
+
+watch(
+  () => props.model,
+  (val) => {
+    if (val) model.value = val;
+  }
+);
+
+watch(
+  () => props.masked,
+  (val) => {
+    if (val && models.value.length === 0) {
+      void fetchModels();
+    }
+  }
+);
+
+onBeforeUnmount(() => {
+  clearTimeout(debounce);
+  modelRequest?.abort();
+  lifecycle.abort();
+});
+
 onMounted(() => {
-  if (props.masked) void fetchModels();
+  if (props.masked || props.keySet) {
+    void fetchModels();
+  }
 });
+
 async function fetchModels() {
+  const currentKey = key.value.trim();
+  if (!currentKey && !props.masked && !props.keySet) {
+    error.value = t("profile.enterKeyToFetchModels") || "Bitte gib zuerst einen API-Schlüssel ein.";
+    models.value = [];
+    return;
+  }
   modelRequest?.abort();
   const request = new AbortController();
   modelRequest = request;
+  loadingModels.value = true;
+  error.value = "";
   try {
     const result = await api<{
-      models: ({ id: string; name?: string } | string)[];
+      models: ({ value?: string; label?: string; id?: string; name?: string } | string)[];
     }>(`/me/${props.provider}/models`, {
       method: "POST",
-      body: { apiKey: key.value || undefined },
+      body: { apiKey: currentKey || undefined },
       signal: request.signal,
     });
     if (request.signal.aborted) return;
-    models.value = result.models.map((item) =>
-      typeof item === "string" ? { id: item } : item,
-    );
+    const parsedModels = (result.models || [])
+      .map((item) => {
+        if (typeof item === "string") return { value: item, label: item };
+        const val = item.value || item.id || "";
+        const lbl = item.label || item.name || val;
+        return { value: val, label: lbl };
+      })
+      .filter((m) => Boolean(m.value));
+
+    models.value = parsedModels;
+    if (parsedModels.length > 0) {
+      if (!model.value || !parsedModels.some((m) => m.value === model.value)) {
+        model.value = parsedModels[0].value;
+      }
+    } else {
+      model.value = "";
+    }
   } catch (e) {
-    if (!request.signal.aborted) error.value = errorMessage(e);
+    if (!request.signal.aborted) {
+      error.value = errorMessage(e);
+      models.value = [];
+    }
+  } finally {
+    if (!request.signal.aborted) {
+      loadingModels.value = false;
+    }
   }
 }
+
 async function action(type: "save" | "test" | "delete") {
   if (busy.value) return;
   if (type === "delete" && !confirm("API-Schlüssel entfernen?")) return;
@@ -66,12 +129,17 @@ async function action(type: "save" | "test" | "delete") {
         body:
           type === "delete"
             ? undefined
-            : { apiKey: key.value || undefined, model: model.value },
+            : { apiKey: key.value.trim() || undefined, model: model.value },
       },
     );
     if (result.user) session.user = result.user;
     message.value = result.message || t("common.saved");
-    if (type !== "test") {
+    if (type === "delete") {
+      key.value = "";
+      models.value = [];
+      model.value = "";
+      toast(message.value);
+    } else if (type === "save") {
       key.value = "";
       toast(message.value);
     }
@@ -99,36 +167,43 @@ async function action(type: "save" | "test" | "delete") {
       <span v-if="masked" class="chip ok">{{ masked }}</span>
     </div>
     <label
-      >API-Schlüssel<input
+      >{{ t("profile.apiKeyLabel") }}<input
         v-model="key"
         type="password"
         autocomplete="off"
-        placeholder="Neuen Schlüssel eingeben" /></label
+        :placeholder="t('profile.apiKeyPlaceholder')" /></label
     ><label
-      >Modell<input v-model="model" :list="`models-${provider}`" /><datalist
-        :id="`models-${provider}`"
+      >{{ t("profile.modelLabel") }}<select
+        v-model="model"
+        :disabled="busy || loadingModels || (models.length === 0 && !masked && !key.trim())"
       >
-        <option v-for="item in models" :key="item.id" :value="item.id">
-          {{ item.name }}
+        <option v-if="loadingModels" value="" disabled>
+          {{ t("profile.fetchingModels") }}
         </option>
-      </datalist></label
+        <option v-else-if="models.length === 0" value="" disabled>
+          {{ (masked || key.trim()) ? t("profile.noModelsFound") : t("profile.enterKeyToFetchModels") }}
+        </option>
+        <option v-for="item in models" :key="item.value" :value="item.value">
+          {{ item.label }}
+        </option>
+      </select></label
     >
     <div class="row">
       <button class="btn small" :disabled="busy">{{ t("common.save") }}</button
       ><button
         class="btn small ghost"
         type="button"
-        :disabled="busy"
+        :disabled="busy || loadingModels"
         @click="fetchModels"
       >
-        Modelle laden</button
+        {{ loadingModels ? t("profile.fetchingModels") : t("profile.fetchModels") }}</button
       ><button
         class="btn small ghost"
         type="button"
-        :disabled="busy"
+        :disabled="busy || (!masked && !key.trim())"
         @click="action('test')"
       >
-        🧪 Verbindung testen</button
+        {{ t("profile.testConnection") }}</button
       ><button
         v-if="keySet"
         class="btn small ghost danger"
@@ -136,7 +211,7 @@ async function action(type: "save" | "test" | "delete") {
         :disabled="busy"
         @click="action('delete')"
       >
-        Schlüssel entfernen
+        {{ t("profile.deleteKey") }}
       </button>
     </div>
     <p v-if="error" class="error" role="alert">{{ error }}</p>

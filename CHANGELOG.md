@@ -6,6 +6,7 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
+- KI-Modellauswahl in den Profileinstellungen korrigieren: Modellabruf nutzt die vom Backend bereitgestellten Modellobjekte (`value` und `label`), Freitexteingabe durch reines Dropdown-Auswahlmenü ersetzen, Lade- und Fehlerzustände absichern sowie automatisches Vorbelegen des ersten verfügbaren Modells einrichten.
 - KI-Chat bei großen Becken und umfangreichen Daten stabilisieren: Token-Limit für KI-Antworten und Denkprozesse auf 4000 Tokens anheben, Multi-Turn-Nachrichten für Google Gemini normalisieren, Textfelder und Besatzkonflikte im System-Prompt sinnvoll begrenzen sowie leere Antworten und Fehler im Chatfenster mit verständlichen Hinweisen behandeln.
 - CI-Fehler unter Node und Bun beheben: Migrations- und Social-Tests auf Schema-Version 12 einschließlich der Testentwürfe aktualisieren. Ausführliche deutsche und englische Rechtstexte mit der Rechtsansicht bedarfsgesteuert laden, damit auch Bun 1.4.3 die unveränderte 350-KB-Startbundle-Grenze einhält; öffentliche Links und Offline-Verfügbarkeit erhalten und Build-Prüfung ergänzen.
 
