@@ -375,6 +375,13 @@
     "removeShare": "Revoke share"
   },
   "measure": {
+    "pause": "Pause test",
+    "discard": "Discard test",
+    "discardConfirm": "Discard this open test, including all entered values and timers?",
+    "openTests": "Open tests",
+    "alreadyOpen": "Test already open",
+    "resumeQuestion": "There is already an open test for “{name}”. Would you like to return to it?",
+    "resume": "Resume test",
     "title": "Record Water Values",
     "subtitle": "Enter your measured water parameters. Color chips immediately indicate whether values are in optimal range.",
     "dateTimeLabel": "Measurement Time",

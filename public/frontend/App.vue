@@ -9,6 +9,7 @@ import SiteFooter from "./components/SiteFooter.vue";
 import { session, language, notification, t } from "./state";
 import { route, initialize, toggleLanguage, logout } from "./router";
 const AuthView = lazyComponent(() => import("./views/AuthView.vue"));
+const OpenTests = lazyComponent(() => import("./components/OpenTests.vue"));
 const OfflineStatus = lazyComponent(() => import("./components/OfflineStatus.vue"));
 const SetupView = lazyComponent(() => import("./views/SetupView.vue"));
 const AquariumList = lazyComponent(() => import("./views/AquariumList.vue"));
@@ -94,6 +95,7 @@ onMounted(initialize);
     />
     <AquariumList v-else />
   </main>
+  <OpenTests v-if="session.user" :key="session.user.id" />
   <SiteFooter :t="t" />
   <FrontendUpdate />
   <TermsConsent v-if="session.user?.termsRequired" :key="session.user.id" />

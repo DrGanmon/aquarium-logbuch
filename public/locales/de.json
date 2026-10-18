@@ -375,6 +375,13 @@
     "removeShare": "Freigabe aufheben"
   },
   "measure": {
+    "pause": "Test pausieren",
+    "discard": "Test verwerfen",
+    "discardConfirm": "Diesen offenen Test mit allen eingegebenen Werten und Timern verwerfen?",
+    "openTests": "Offene Tests",
+    "alreadyOpen": "Test bereits geöffnet",
+    "resumeQuestion": "Für „{name}“ ist bereits ein Test offen. Möchtest du zu diesem Test zurückkehren?",
+    "resume": "Test fortsetzen",
     "title": "Messwerte erfassen",
     "subtitle": "Trage deine gemessenen Wasserwerte ein. Farbmarkierungen zeigen sofort, ob alles im optimalen Bereich liegt.",
     "dateTimeLabel": "Messzeitpunkt",

@@ -164,13 +164,14 @@
     "title": "Measure and save water parameters",
     "intro": "You can record individual readings or a complete set. Empty fields are not saved as measurements.",
     "image": "messung",
-    "caption": "The measurement form with test selection, reaction timers and value fields.",
+    "caption": "The measurement form with a reaction timer, pausable tests and the expanded list of open aquarium tests.",
     "steps": [
       "Open your aquarium and choose “New measurement” or “Measure now”. Check the measurement time.",
       "Open “Customize water tests” and select the tests you actually use. You can combine methods from different manufacturers.",
       "“Apply suite” replaces your selection with that test suite. “Add suite” extends it; one method remains selected for each water parameter.",
       "Follow the instructions supplied with your water test. Start the timer next to a parameter if needed. Several timers can run at the same time.",
       "Enter the result you read. A decimal comma is accepted. The color indicator helps you interpret the value.",
+      "Choose “Pause test” to return to the overview and measure at the next aquarium. Expand “Open tests” at the bottom right and select an aquarium to resume. Starting another test for the same aquarium asks whether you want to return to its open test.",
       "Add a note if needed and choose “Save measurement”. The reading appears in the aquarium history and logbook."
     ],
     "extra": [
@@ -199,6 +200,10 @@
       {
         "title": "Save readings and time",
         "text": "Only completed values are saved. An earlier timestamp is useful when recording a test you performed before opening the app."
+      },
+      {
+        "title": "Pause tests for each aquarium",
+        "text": "Values, test selection, measurement time and notes remain available while switching aquariums in the open app. Reaction timers continue running. The expandable “Open tests” button lists aquariums with open tests and the number of completed values. Saving closes the test; “Discard test” removes it after confirmation. Reloading, closing the app, signing out or switching accounts discards drafts. Save important values first."
       }
     ]
   },

@@ -6,9 +6,13 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Öffentliches Nutzerhandbuch auf Deutsch und Englisch um eine clientseitige Suchfunktion erweitern: Kapitel, Funktionen, Schrittanleitungen und Hinweise direkt im Browser ohne App-Anfragen oder Tracking durchsuchen. Schnelle Treffervorschau mit Kontextausschnitten, Tastaturnavigation, dynamische Inhaltsverzeichnis-Hervorhebung und barrierefreie Statusmeldungen bereitstellen.
+- Wassertests je Aquarium in der geöffneten App pausieren und mit Werten, Testauswahl, Zeitpunkt, Notiz und weiterlaufenden Reaktionstimern fortsetzen. Aufklappbaren FAB mit offenen Beckentests und Rückfrage beim erneuten Start am selben Aquarium ergänzen; Entwürfe nach Speichern oder bestätigtem Verwerfen entfernen und bei Kontowechsel/Abmeldung löschen. Deutsche und englische Oberfläche, Nutzerhandbuch, README und Regressionstests ergänzen.
 
-- Ältere Offline-Kataloge nach einer geänderten Katalogleselogik einmalig vor Ablauf der Zwölf-Stunden-Frist bedingt neu prüfen, vorhandene Daten bei Fehlern erhalten und anschließend wieder regulär drosseln. Geöffnete Tier-/Pflanzen-Hinzufügen-Dialoge nach erfolgreichem Katalogabgleich aktualisieren, ohne Aquarium, Anzahl oder gewählte Form zurückzusetzen. Offline-Speicherung und deduplizierte Übertragung konkreter Formen mit SQLite und MongoDB absichern.
+## 0.3.5-ALPHA
+
+- Öffentliches Nutzerhandbuch auf Deutsch und Englisch um eine clientseitige Suchfunktion erweitern: Kapitel, Funktionen, Schrittanleitungen und Hinweise direkt im Browser ohne App-Anfragen oder Tracking durchsuchen. Schnelle Treffervorschau mit Kontextausschnitten, Tastaturnavigation, dynamische Inhaltsverzeichnis-Hervorhebung und barrierefreie Statusmeldungen bereitstellen. (`27c8c523a95d1032bcf397acaa71ffb64c95fc30`, 2026-10-16).
+
+- Ältere Offline-Kataloge nach einer geänderten Katalogleselogik einmalig vor Ablauf der Zwölf-Stunden-Frist bedingt neu prüfen, vorhandene Daten bei Fehlern erhalten und anschließend wieder regulär drosseln. Geöffnete Tier-/Pflanzen-Hinzufügen-Dialoge nach erfolgreichem Katalogabgleich aktualisieren, ohne Aquarium, Anzahl oder gewählte Form zurückzusetzen. Offline-Speicherung und deduplizierte Übertragung konkreter Formen mit SQLite und MongoDB absichern. (`fa767c9f19612d9462321b097c17bd343d229004`, 2026-10-16).
 
 ## 0.3.4-ALPHA
 

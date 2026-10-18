@@ -164,13 +164,14 @@
     "title": "Wasserwerte messen und speichern",
     "intro": "Du kannst einzelne Werte oder eine ganze Messreihe erfassen. Leere Felder werden nicht als Messung gespeichert.",
     "image": "messung",
-    "caption": "Die Messmaske mit Testauswahl, Reaktionstimern und Wertefeldern.",
+    "caption": "Die Messmaske mit Reaktionstimer, pausierbaren Tests und aufgeklappter Liste offener Beckentests.",
     "steps": [
       "Öffne dein Aquarium und wähle „Neue Messung“ oder „Jetzt messen“. Prüfe den Messzeitpunkt.",
       "Öffne „Wassertests anpassen“ und wähle die tatsächlich benutzten Tests. Du darfst Methoden verschiedener Hersteller kombinieren.",
       "„Suite übernehmen“ ersetzt die Auswahl durch diese Testsuite. „Suite ergänzen“ ergänzt sie; für denselben Wasserparameter bleibt eine Methode ausgewählt.",
       "Führe den Wassertest nach seiner Gebrauchsanweisung durch. Starte bei Bedarf den Timer neben dem jeweiligen Parameter. Mehrere Timer können parallel laufen.",
       "Trage den abgelesenen Wert ein. Ein Dezimalkomma ist erlaubt. Die Farbmarkierung hilft beim Einordnen.",
+      "Wähle „Test pausieren“, um zur Übersicht zu wechseln und am nächsten Aquarium weiterzumessen. Öffne „Offene Tests“ unten rechts und wähle ein Becken zum Fortsetzen. Beim erneuten Start am selben Becken fragt die App, ob du zum offenen Test zurückkehren möchtest.",
       "Ergänze bei Bedarf eine Notiz und wähle „Messung speichern“. Im Aquarium erscheint die Messung im Verlauf und im Logbuch."
     ],
     "extra": [
@@ -199,6 +200,10 @@
       {
         "title": "Wert und Zeitpunkt speichern",
         "text": "Die App speichert nur ausgefüllte Werte. Ein früherer Messzeitpunkt ist sinnvoll, wenn du eine bereits durchgeführte Messung nachträgst."
+      },
+      {
+        "title": "Tests je Aquarium pausieren",
+        "text": "Werte, Testauswahl, Messzeit und Notiz bleiben beim Wechsel zwischen Aquarien in der geöffneten App erhalten. Reaktionstimer laufen weiter. Der aufklappbare Knopf „Offene Tests“ zeigt die Becken mit offenen Tests und die Anzahl ausgefüllter Werte. Speichern schließt den Test; „Test verwerfen“ entfernt ihn nach Bestätigung. Neuladen, Schließen der App, Abmelden und Kontowechsel verwerfen die Entwürfe. Speichere wichtige Werte vorher."
       }
     ]
   },

@@ -6,7 +6,11 @@ import {
   reactive,
   ref,
   watch,
+  toRefs,
 } from "vue";
+import Modal from "../components/Modal.vue";
+import { measurementDrafts } from "../composables/measurement-drafts";
+import { route } from "../router";
 import TestSelection from "../components/TestSelection.vue";
 import { initialTestSelection, resolveTests } from "../composables/test-selection";
 import { enqueueMeasurement } from "../offline-sync";
@@ -19,40 +23,37 @@ const props = defineProps<{ id: string }>();
 const detail = ref<AquariumDetail>();
 const error = ref("");
 const busy = ref(false);
-const when = ref(localDateTime());
-const note = ref("");
-const values = reactive<Record<string, string>>({});
-const suite = ref(
-  session.config?.userPreferences.selectedSuite ||
-    session.config?.currentSuite.id ||
-    "",
-);
-const selected = ref<string[]>(initialTestSelection(session.config));
+const existing = measurementDrafts[props.id];
+const resumePrompt = ref(Boolean(existing) && route.value.query.get("resume") !== "1");
+watch(() => route.value.query.get("resume"), value => {
+  if (value === "1") resumePrompt.value = false;
+});
+const draft = existing || reactive({
+  aquariumId: props.id,
+  aquariumName: "",
+  when: localDateTime(),
+  note: "",
+  values: {} as Record<string, string>,
+  suite: session.config?.userPreferences.selectedSuite || session.config?.currentSuite.id || "",
+  selected: initialTestSelection(session.config),
+  timers: {} as Record<string, number>,
+  completed: {} as Record<string, number>,
+});
+const { when, note, values, suite, selected, timers } = toRefs(draft);
 const tests = computed(() => resolveTests(session.config?.suites || [], selected.value));
 const visibleTests = tests;
-const timerKey = `timers:${props.id}`;
-const timers = reactive<Record<string, number>>({});
-try {
-  Object.assign(timers, JSON.parse(sessionStorage.getItem(timerKey) || "{}"));
-} catch {
-  /* Start without saved timers when storage is invalid. */
-}
 const now = ref(Date.now());
-const completed = new Set(
-  Object.entries(timers)
-    .filter(([, end]) => end <= now.value)
-    .map(([key]) => key),
-);
+const completed = draft.completed;
 const lifecycle = new AbortController();
 let disposed = false;
 let wakePending = false;
 let interval: ReturnType<typeof setInterval> | undefined;
 let wake: WakeLockSentinel | null = null;
 const activeTimers = computed(() =>
-  Object.keys(timers).map((key) => ({
+  Object.keys(timers.value).map((key) => ({
     key,
     test: tests.value.find((p) => p.key === key),
-    remaining: Math.max(0, Math.ceil((timers[key]! - now.value) / 1000)),
+    remaining: Math.max(0, Math.ceil((timers.value[key]! - now.value) / 1000)),
   })),
 );
 const running = computed(() =>
@@ -63,7 +64,7 @@ watch(selected, (next, previous) => {
     if (next.includes(reference)) continue;
     const key = reference.slice(reference.indexOf(":") + 1);
     reset(key);
-    delete values[key];
+    delete values.value[key];
   }
 }, { flush: "sync" });
 let preferenceSave = Promise.resolve<unknown>(undefined);
@@ -120,6 +121,8 @@ onMounted(async () => {
       location.hash = `#/a/${props.id}`;
       return;
     }
+    draft.aquariumName = detail.value!.aquarium.name;
+    measurementDrafts[props.id] = draft;
     await updateWake();
   } catch (e) {
     error.value = errorMessage(e);
@@ -128,8 +131,8 @@ onMounted(async () => {
   interval = setInterval(() => {
     now.value = Date.now();
     for (const timer of activeTimers.value)
-      if (timer.remaining === 0 && !completed.has(timer.key)) {
-        completed.add(timer.key);
+      if (timer.remaining === 0 && completed[timer.key] !== timers.value[timer.key]) {
+        completed[timer.key] = timers.value[timer.key]!;
         try {
           beep();
         } catch {
@@ -149,9 +152,6 @@ onBeforeUnmount(() => {
 });
 function focusTest(key: string) {
   document.getElementById("in-" + key)?.focus();
-}
-function persist() {
-  sessionStorage.setItem(timerKey, JSON.stringify(timers));
 }
 async function timerMessage(type: string, key: string, end?: number) {
   const test = tests.value.find((p) => p.key === key);
@@ -173,15 +173,13 @@ async function timerMessage(type: string, key: string, end?: number) {
 }
 function start(key: string, wait: number) {
   const end = Date.now() + wait * 1000;
-  timers[key] = end;
-  completed.delete(key);
-  persist();
+  timers.value[key] = end;
+  delete completed[key];
   timerMessage("SCHEDULE_TIMER", key, end);
 }
 function reset(key: string) {
-  delete timers[key];
-  completed.delete(key);
-  persist();
+  delete timers.value[key];
+  delete completed[key];
   timerMessage("CANCEL_TIMER", key);
 }
 
@@ -199,7 +197,7 @@ async function save() {
   try {
     const parsed: Record<string, number> = {};
     for (const test of visibleTests.value) {
-      const input = values[test.key] || "";
+      const input = values.value[test.key] || "";
       if (!input.trim()) continue;
       const value = parseNumber(input);
       if (value === null || value < test.min || value > test.max)
@@ -216,8 +214,8 @@ async function save() {
         measured_at: new Date(when.value).toISOString(),
         note: note.value,
     });
-    Object.keys(timers).forEach(reset);
-    sessionStorage.removeItem(timerKey);
+    Object.keys(timers.value).forEach(reset);
+    delete measurementDrafts[props.id];
     toast(t("offline.saved"));
     location.hash = `#/a/${props.id}`;
   } catch (e) {
@@ -226,9 +224,26 @@ async function save() {
     busy.value = false;
   }
 }
+
+function pause() {
+  location.hash = "#/";
+}
+function discard() {
+  if (!window.confirm(t("measure.discardConfirm"))) return;
+  Object.keys(timers.value).forEach(reset);
+  delete measurementDrafts[props.id];
+  location.hash = `#/a/${props.id}`;
+}
 </script>
 <template>
   <div class="stack">
+    <Modal v-if="resumePrompt" :title="t('measure.alreadyOpen')" @close="pause">
+      <p>{{ t('measure.resumeQuestion', { name: draft.aquariumName }) }}</p>
+      <div class="row">
+        <button class="btn" @click="resumePrompt = false">{{ t('measure.resume') }}</button>
+        <button class="btn ghost" @click="pause">{{ t('common.cancel') }}</button>
+      </div>
+    </Modal>
     <div>
       <a class="muted" :href="`#/a/${id}`"
         >‹ {{ detail?.aquarium.name || t("common.back") }}</a
@@ -237,7 +252,7 @@ async function save() {
       <p class="muted">{{ t("measure.subtitle") }}</p>
     </div>
     <p v-if="error && !detail" class="error" role="alert">{{ error }}</p>
-    <template v-if="detail && detail.role !== 'view'">
+    <template v-if="detail && detail.role !== 'view' && !resumePrompt">
       <div class="notification-banner info">
         <div>
           <strong>🔔 Timer-Benachrichtigungen</strong>
@@ -406,9 +421,8 @@ async function save() {
           <div class="row">
             <button class="btn" :disabled="busy">
               {{ t("measure.saveBtn") }}</button
-            ><a class="btn ghost" :href="`#/a/${id}`">{{
-              t("common.cancel")
-            }}</a>
+            ><button class="btn ghost" type="button" :disabled="busy" @click="pause">{{ t('measure.pause') }}</button>
+            <button class="btn ghost" type="button" :disabled="busy" @click="discard">{{ t('measure.discard') }}</button>
           </div>
         </div>
       </form></template
