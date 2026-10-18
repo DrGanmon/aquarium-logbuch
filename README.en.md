@@ -10,6 +10,8 @@ Aquarium-Logbuch is a self-hosted web app for water parameters, residents and aq
 
 **Getting started?** Open the public **[User guide](https://aquarium-logbuch.de/handbuch/en/)** from the app footer or at `<app-address>/handbuch/en/`. It explains all areas with step-by-step instructions and demo screenshots, is available in English and German, requires no login and loads its images only when reading. [Maintenance and standalone hosting](docs/user-guide/README.md).
 
+**Mobile prototype:** An experimental Capacitor build for Android and iOS lives in this repository. Setup, commands and known limitations: [Capacitor prototype](docs/en/mobile.md).
+
 ## Transparency notice: AI-generated software
 
 **This app was written and is developed with the help of generative AI.** Its source code and documentation contain AI-generated content. This voluntary disclosure follows the transparency approach of [Article 50 of the EU AI Act (Regulation (EU) 2024/1689)](https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-50); it is not a declaration of full legal compliance. AI-assisted development alone does not create a blanket labeling obligation for all software.

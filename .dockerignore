@@ -4,6 +4,9 @@ data
 
 # Rebuild generated backend files inside the image
 dist/backend
+dist/mobile
+android
+ios
 
 # Generated bundles are rebuilt; keep the directory needed by Vite.
 public/dist/*

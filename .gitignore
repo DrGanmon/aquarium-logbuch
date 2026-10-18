@@ -28,3 +28,4 @@ public/dist/**
 
 # Compiled TypeScript backend
 dist/backend/
+dist/mobile/

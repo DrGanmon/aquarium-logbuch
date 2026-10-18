@@ -6,9 +6,12 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Messwerte und Pflegeeinträge im KI-Beckenkontext kompakt als JSON-Zeilen mit gemeinsamer Parameter-/Einheitenlegende übertragen; Zahlen, Bewertungen, Zeitpunkte und vorhandene Notizen innerhalb der bisherigen Grenzen erhalten. Zweisprachige Anleitungen und Regressionstests aktualisieren.
+- Minor-Version manuell auf `0.4.0-ALPHA` erhöhen; Revision und Patch zurücksetzen und Paketmetadaten sowie Git-Versionsbasis aktualisieren.
+- Experimentellen Capacitor-Unterbau für Android und iOS ergänzen: separates mobiles Build-Ziel, HTTPS-Serverauswahl, native HTTP-Anbindung und servergetrennte Offline-Datenbanken bereitstellen. Mobilen Chat ohne gepufferte Live-Statusmeldungen ausführen, Web-Updates erhalten und Grenzen, Build-Anleitung sowie Regressionstests dokumentieren.
 
 ## 0.3.14-ALPHA
+
+- Messwerte und Pflegeeinträge im KI-Beckenkontext kompakt als JSON-Zeilen mit gemeinsamer Parameter-/Einheitenlegende übertragen; Zahlen, Bewertungen, Zeitpunkte und vorhandene Notizen innerhalb der bisherigen Grenzen erhalten. Zweisprachige Anleitungen und Regressionstests aktualisieren. (`301ea291fae3d4bf8f72df692255bde6314b805d`, 2026-10-18).
 
 - Leitungswasser-Werte im Profil und KI-Chat bereitstellen: Neuen Reiter „Leitungswasser“ im Benutzerprofil einrichten, um Ausgangswasserwerte unter Berücksichtigung der ausgewählten Testsuite zu erfassen. Bedenkliche Parameter (z. B. Chlor, Kupfer, Nitrit, hohes Nitrat, Silikat oder unpassende Härte) direkt in der Oberfläche mit Warn- und Gefahrenhinweisen hervorheben, Werte über `/api/me/tap-water` persistieren und strukturiert samt Grenzwertbewertung und Handlungsempfehlungen an den KI-Assistenten übergeben. Schema-Migration 13, OpenAPI-Dokumentation sowie zweisprachige Lokalisierung und Tests ergänzen. (`66b75539761ab5b06f30d710632128bbb78997da`, 2026-10-18).
 

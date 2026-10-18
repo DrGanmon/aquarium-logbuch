@@ -78,7 +78,7 @@ export function useFrontendUpdate() {
     } catch { /* The regular frontend remains usable if offline installation fails. */ }
   }
   onMounted(() => {
-    if (import.meta.env.DEV) return;
+    if (import.meta.env.DEV || document.documentElement?.dataset.mobile === 'true') return;
     void register();void check();
     interval = setInterval(() => void check(), 5 * 60 * 1000);
     document.addEventListener("visibilitychange", check);window.addEventListener("online", check);

@@ -39,6 +39,7 @@ const fields = reactive({
 const error = ref(new URLSearchParams(location.search).get("auth_error") || "");
 const message = ref("");
 const busy = ref(false);
+const mobile = document.documentElement?.dataset.mobile === 'true';
 const title = computed(() =>
   t(
     (
@@ -306,7 +307,8 @@ async function resend() {
             📨 {{ t("auth.resendVerifyEmail") }}
           </button></template
         >
-        <button v-if="info.oidc" type="button" class="btn" :disabled="busy" @click="startOidc">{{
+        <p v-if="info.oidc && mobile" class="muted">OIDC steht im mobilen Prototyp noch nicht zur Verfügung. Bitte die Web-App oder eine lokale Anmeldung verwenden.</p>
+        <button v-if="info.oidc && !mobile" type="button" class="btn" :disabled="busy" @click="startOidc">{{
           t("auth.oidcButton", { provider: info.oidcName })
         }}</button
         ><a

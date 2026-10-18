@@ -59,6 +59,10 @@
       {
         "title": "Invitation or external sign-in",
         "text": "An invitation allows registration on restricted servers. Pocket ID is an alternative sign-in method configured by the operator."
+      },
+      {
+        "title": "Mobile Capacitor prototype",
+        "text": "The experimental Android/iOS app asks for your server’s HTTPS address at startup. Choose “Connect”. “Change server” in the footer returns to server selection; pending changes stay with the previous server. OIDC, image display, file export and native notifications are not yet fully implemented or verified on devices. The browser version remains available as usual."
       }
     ]
   },

@@ -17,13 +17,13 @@ test('Frontend-Inhaltshash: Reihenfolge bleibt neutral, geänderte Dateien und S
   assert.notEqual(frontendRevision(files, 'updated worker').version, original.version);
   assert.equal(frontendRevision({ ...files, 'dist/app.js': 'changed' }, 'worker').assets['dist/style.css'], original.assets['dist/style.css']);
 });
-function setup(fetch, serviceWorker = true) {
+function setup(fetch, serviceWorker = true, mobile = false) {
   let mount, unmount, tick, reloads = 0, updates = 0;
   const events = {}, messages = [];
   const registration = { waiting: null, installing: null, addEventListener(type, fn) { events[type] = fn; }, removeEventListener() {}, async update() { updates++; } };
   const navigator = { onLine: true };
   if (serviceWorker) navigator.serviceWorker = { controller: { postMessage: message => messages.push(message) }, register: async () => registration, addEventListener(type, fn) { events[type] = fn; }, removeEventListener() {} };
-  const document = { visibilityState: 'visible', baseURI: 'https://example.test/aquarium/', querySelector: selector => ({ content: selector.includes('frontend-version') ? CURRENT : '1.2.3-ALPHA' }), addEventListener() {}, removeEventListener() {} };
+  const document = { documentElement: { dataset: { mobile: String(mobile) } }, visibilityState: 'visible', baseURI: 'https://example.test/aquarium/', querySelector: selector => ({ content: selector.includes('frontend-version') ? CURRENT : '1.2.3-ALPHA' }), addEventListener() {}, removeEventListener() {} };
   const source = fs.readFileSync('public/frontend/composables/frontend-update.ts', 'utf8').replace('import.meta.env.DEV', 'false');
   const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const exports = {};
@@ -36,6 +36,14 @@ function setup(fetch, serviceWorker = true) {
   return { ...exports, state, document, navigator, mount, unmount, events, messages, registration, reloads: () => reloads, updates: () => updates, tick: async () => { tick();await flush(); }, flush };
 }
 const response = frontendVersion => ({ ok: true, json: async () => ({ version: '1.2.4-ALPHA', frontendVersion }) });
+test('Mobile: gepackte Oberfläche registriert keinen Service Worker und fragt keine Web-Updates ab', async () => {
+  const app = setup(() => assert.fail('Native apps must not poll web frontend versions'), true, true);
+  app.navigator.serviceWorker.register = () => assert.fail('Native apps must not install a service worker');
+  app.mount();await app.flush();
+  assert.equal(app.state.availableVersion.value, '');
+  assert.equal(app.appVersion.value, '1.2.3-ALPHA');
+  app.unmount();
+});
 test('Frontend: gleiche Inhalte lösen trotz neuer App-Version kein Update aus', async () => {
   const app = setup(async (url, options) => {
     assert.equal(url.href, 'https://example.test/aquarium/dist/version.json');assert.equal(options.cache, 'no-store');return response(CURRENT);

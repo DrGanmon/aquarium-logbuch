@@ -4,10 +4,15 @@ import { offlineState } from './offline-store';
 /** Read application progress separately from the final AI reply. */
 export async function chatRequest(path: string, body: unknown, signal: AbortSignal, onStatus: (stage: string) => void): Promise<{ reply: string }> {
   const owner = session.user?.id;
+  const mobile = document.documentElement?.dataset.mobile === 'true';
+  // Capacitor's native POST bridge buffers responses. Do not pretend that
+  // buffered status lines arrived live; use the existing JSON response instead.
+  const payload = mobile ? { ...(body as Record<string, unknown>), progress: false, stream: false } : body;
+  if (mobile) onStatus('generating');
   const request = () => fetch('api' + path, {
     method: 'POST', signal, credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch', 'X-Language': language.value },
-    body: JSON.stringify(body),
+    body: JSON.stringify(payload),
   });
   let response: Response;
   try { response = await request(); }
@@ -22,6 +27,7 @@ export async function chatRequest(path: string, body: unknown, signal: AbortSign
     const data = await response.json().catch(() => ({}));
     throw new Error(data.error || `HTTP ${response.status}`);
   }
+  if (mobile) return response.json();
   if (!response.body) throw new Error(tMissingResponse());
   const reader = response.body.getReader();
   const decoder = new TextDecoder();

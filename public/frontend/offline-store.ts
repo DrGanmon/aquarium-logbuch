@@ -26,7 +26,9 @@ export const offlineState = reactive({ offline: !navigator.onLine, pending: [] a
 let database: Promise<IDBDatabase> | undefined;
 function open() {
   return database ??= new Promise<IDBDatabase>((resolve, reject) => {
-    const request = indexedDB.open(`aquarium-offline:${new URL('.', document.baseURI).pathname}`, 1);
+    const server = document.documentElement?.dataset.mobileServer;
+    const scope = server ? `mobile:${encodeURIComponent(server)}` : new URL('.', document.baseURI).pathname;
+    const request = indexedDB.open(`aquarium-offline:${scope}`, 1);
     request.onupgradeneeded = () => {
       request.result.createObjectStore('records');
       request.result.createObjectStore('outbox', { keyPath: 'id' });

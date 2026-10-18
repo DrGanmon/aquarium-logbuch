@@ -2,6 +2,9 @@
 import type { Translate } from "../types";
 defineProps<{ t: Translate }>();
 import { appVersion as version } from "../composables/frontend-update";
+const mobileServer = document.documentElement?.dataset.mobileServer;
+const guideUrl = mobileServer ? new URL('handbuch/', mobileServer).href : 'handbuch/';
+function changeServer() { window.location.reload(); }
 </script>
 
 <template>
@@ -17,7 +20,8 @@ import { appVersion as version } from "../composables/frontend-update";
         class="footer-nav"
         aria-label="Rechtliche Hinweise und Informationen"
       >
-        <a class="footer-link" href="handbuch/" target="_blank" rel="noopener noreferrer">{{ t("footer.userGuide") }}</a>
+        <a class="footer-link" :href="guideUrl" target="_blank" rel="noopener noreferrer">{{ t("footer.userGuide") }}</a>
+        <button v-if="mobileServer" class="btn small ghost" type="button" @click="changeServer">Server wechseln / Change server</button>
         <a class="footer-link" :href="'#/social'"><span aria-hidden="true">👥 </span>{{ t("social.title") }}</a>
         <a class="footer-link" :href="'#/impressum'">{{ t("footer.imprint") }}</a>
         <a class="footer-link" :href="'#/agb'">{{ t("footer.terms") }}</a>

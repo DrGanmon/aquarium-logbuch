@@ -1,6 +1,6 @@
 {
   "name": "aquarium-logbuch",
-  "version": "0.3.0-ALPHA",
+  "version": "0.4.0-ALPHA",
   "description": "Mehrbenutzer-Webanwendung für Aquarien-Wasserwerte mit Graphen, Timern und Alarmen (SQLite)",
   "main": "server.js",
   "license": "CC-BY-NC-SA-4.0",
@@ -32,9 +32,16 @@
     "typecheck:backend": "node scripts/build-backend.js --check",
     "typecheck:backend:bun": "bun scripts/build-backend.js --check",
     "lint": "eslint . --max-warnings=0",
-    "lint:fix": "npm run lint -- --fix"
+    "lint:fix": "npm run lint -- --fix",
+    "build:mobile": "node scripts/typecheck.js public/tsconfig.json && node scripts/build-mobile.js",
+    "mobile:sync": "npm run build:mobile && cap sync",
+    "mobile:android": "cap open android",
+    "mobile:ios": "cap open ios"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3",
     "better-sqlite3": "^13.0.3",
     "chart.js": "^4.5.1",
     "express": "^5.3.0",
@@ -62,7 +69,8 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.2",
     "vite": "^8.3.4",
-    "vue-tsc": "^3.3.13"
+    "vue-tsc": "^3.3.13",
+    "@capacitor/cli": "^8.5.3"
   },
   "trustedDependencies": []
 }

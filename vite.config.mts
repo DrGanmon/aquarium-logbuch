@@ -24,7 +24,8 @@ function catalogDataBoundary(): Plugin {
 }
 export default defineConfig(({ mode }) => {
   const appVersion = versioning.resolveVersion();
-  const minify = mode === "production";
+  const mobile = mode === 'mobile';
+  const minify = mode === "production" || mobile;
   const suffix = minify ? ".min" : "";
   let building = false;
   return {
@@ -57,9 +58,12 @@ export default defineConfig(({ mode }) => {
         buildStart() {
           if (!building) return;
           // Remove the previous mode so Express cannot select a stale bundle.
-          for (const name of readdirSync(join(publicRoot, "dist"))) {
+          const output = mobile ? join(publicRoot, '../dist/mobile/dist') : join(publicRoot, 'dist');
+          let names: string[] = [];
+          try { names = readdirSync(output); } catch { /* First mobile build. */ }
+          for (const name of names) {
             if (name !== ".gitkeep")
-              rmSync(join(publicRoot, "dist", name), {
+              rmSync(join(output, name), {
                 recursive: true,
                 force: true,
               });
@@ -68,6 +72,7 @@ export default defineConfig(({ mode }) => {
         generateBundle: {
           order: "post",
           handler(_options, bundle) {
+            if (mobile) return;
             const workerSource = readFileSync(join(publicRoot, "frontend/service-worker.ts"), "utf8");
             const files: Record<string, string | Uint8Array> = {};
             for (const [name, item] of Object.entries(bundle)) {
@@ -124,7 +129,7 @@ export default defineConfig(({ mode }) => {
       rolldownOptions: { output: { entryFileNames: `worker${suffix}.js` } },
     },
     build: {
-      outDir: "dist",
+      outDir: mobile ? '../dist/mobile/dist' : "dist",
       emptyOutDir: false,
       target: "es2022",
       sourcemap: true,
@@ -133,7 +138,7 @@ export default defineConfig(({ mode }) => {
       rolldownOptions: { output: { chunkFileNames: "chunk-[name]-[hash].js" } },
       lib: {
         entry: fileURLToPath(
-          new URL("./public/frontend/main.ts", import.meta.url),
+          new URL(mobile ? './public/frontend/mobile-main.ts' : "./public/frontend/main.ts", import.meta.url),
         ),
         formats: ["es"],
         fileName: () => `app${suffix}.js`,

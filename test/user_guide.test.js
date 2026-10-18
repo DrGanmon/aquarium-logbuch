@@ -71,7 +71,8 @@ test('Nutzerhandbuch: lokale Suche, keine externen Ressourcen oder automatischen
     assert.match(image, /width="\d+"/);assert.match(image, /height="\d+"/);assert.match(image, /alt="[^"]+"/);
   }
   const footer = fs.readFileSync(path.resolve(__dirname, '../public/frontend/components/SiteFooter.vue'), 'utf8');
-  assert.match(footer, /href="handbuch\/" target="_blank" rel="noopener noreferrer"/);
+  assert.match(footer, /:href="guideUrl" target="_blank" rel="noopener noreferrer"/);
+  assert.match(footer, /new URL\('handbuch\/', mobileServer\).href : 'handbuch\/'/);
   assert.doesNotMatch(footer, /import\([^)]*handbuch|fetch\([^)]*handbuch|prefetch|preload/i);
   assert.doesNotMatch(fs.readFileSync(path.resolve(__dirname, '../public/frontend/service-worker.ts'), 'utf8'), /handbuch/);
 });

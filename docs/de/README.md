@@ -19,3 +19,5 @@ Dieses Handbuch beschreibt Bedienung, Modulabläufe, Konfiguration und Betrieb. 
 - [Rechtsseiten und Lizenzen](legal.md)
 - [Social: öffentlicher Feed, Likes und Kommentare](social.md)
 - [API: OpenAPI / Swagger und Aufrufbeispiele](../api/README.md)
+
+- [Mobiler Capacitor-Prototyp](mobile.md)
