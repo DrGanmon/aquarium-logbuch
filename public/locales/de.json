@@ -375,6 +375,9 @@
     "removeShare": "Freigabe aufheben"
   },
   "measure": {
+    "timerNotifications": "Timer-Benachrichtigungen",
+    "stopTimer": "Timer beenden",
+    "openTest": "Test öffnen",
     "pause": "Test pausieren",
     "discard": "Test verwerfen",
     "discardConfirm": "Diesen offenen Test mit allen eingegebenen Werten und Timern verwerfen?",

@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Wassertests je Aquarium in der geöffneten App pausieren und mit Werten, Testauswahl, Zeitpunkt, Notiz und weiterlaufenden Reaktionstimern fortsetzen. Aufklappbaren FAB mit offenen Beckentests und Rückfrage beim erneuten Start am selben Aquarium ergänzen; Entwürfe nach Speichern oder bestätigtem Verwerfen entfernen und bei Kontowechsel/Abmeldung löschen. Deutsche und englische Oberfläche, Nutzerhandbuch, README und Regressionstests ergänzen.
+- Timer-Benachrichtigungen in der App und unterstützten Systembenachrichtigungen um „Timer beenden“ und „Test öffnen“ ergänzen. Zugehörigen Test im ursprünglichen Tab ohne Neuladen fortsetzen, andere Tests dabei pausiert erhalten und bei bereits geöffnetem Ziel nichts ändern. Timer ohne Verlust eingetragener Messwerte beenden; veraltete Benachrichtigungen und kontofremde Aktionen abfangen. README, zweisprachiges Handbuch und Regressionstests aktualisieren.
+
+## 0.3.6-ALPHA
+
+- Wassertests je Aquarium in der geöffneten App pausieren und mit Werten, Testauswahl, Zeitpunkt, Notiz und weiterlaufenden Reaktionstimern fortsetzen. Aufklappbaren FAB mit offenen Beckentests und Rückfrage beim erneuten Start am selben Aquarium ergänzen; Entwürfe nach Speichern oder bestätigtem Verwerfen entfernen und bei Kontowechsel/Abmeldung löschen. Deutsche und englische Oberfläche, Nutzerhandbuch, README und Regressionstests ergänzen. (`5ba6aef7aff3a47a981d47329bfcc8f5888ab280`, 2026-10-18).
 
 ## 0.3.5-ALPHA
 

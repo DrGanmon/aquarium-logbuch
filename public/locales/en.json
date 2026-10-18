@@ -375,6 +375,9 @@
     "removeShare": "Revoke share"
   },
   "measure": {
+    "timerNotifications": "Timer notifications",
+    "stopTimer": "Stop timer",
+    "openTest": "Open test",
     "pause": "Pause test",
     "discard": "Discard test",
     "discardConfirm": "Discard this open test, including all entered values and timers?",

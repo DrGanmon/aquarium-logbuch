@@ -18,7 +18,7 @@ import { api } from "../api";
 import { session, t, errorMessage, localDateTime, toast } from "../state";
 import type { AquariumDetail } from "../types";
 import { evaluate, parseNumber, mmss } from "../composables/values";
-import { enableNotifications, beep } from "../composables/media";
+import { enableNotifications } from "../composables/media";
 const props = defineProps<{ id: string }>();
 const detail = ref<AquariumDetail>();
 const error = ref("");
@@ -130,16 +130,6 @@ onMounted(async () => {
   if (disposed) return;
   interval = setInterval(() => {
     now.value = Date.now();
-    for (const timer of activeTimers.value)
-      if (timer.remaining === 0 && completed[timer.key] !== timers.value[timer.key]) {
-        completed[timer.key] = timers.value[timer.key]!;
-        try {
-          beep();
-        } catch {
-          /* Audio may require user interaction. */
-        }
-        toast(`${timer.test?.name}: ${t("measure.timerDone")}`);
-      }
   }, 250);
   document.addEventListener("visibilitychange", visibility);
 });
@@ -165,10 +155,13 @@ async function timerMessage(type: string, key: string, end?: number) {
     testKey: key,
     testName: test?.name,
     aquariumId: props.id,
+    userId: session.user?.id,
+    stopLabel: t("measure.stopTimer"),
+    openLabel: t("measure.openTest"),
     aquariumName: detail.value?.aquarium.name,
     waitSec: test?.wait,
     endTime: end,
-    url: new URL(`#/a/${props.id}/messen`, document.baseURI).href,
+    url: new URL(`#/a/${props.id}/messen?resume=1`, document.baseURI).href,
   });
 }
 function start(key: string, wait: number) {

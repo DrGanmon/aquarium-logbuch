@@ -177,7 +177,7 @@
     "extra": [
       {
         "title": "Timer und Benachrichtigungen",
-        "text": "Über „Aktivieren“ kannst du Browser-Benachrichtigungen erlauben. Ton, Vibration und Wachhalten des Bildschirms hängen vom Gerät ab. Lass bei wichtigen Reaktionszeiten die App sichtbar; ein Handy kann Hintergrundprozesse anhalten."
+        "text": "Über „Aktivieren“ kannst du Browser-Benachrichtigungen erlauben. Ton, Vibration und Wachhalten des Bildschirms hängen vom Gerät ab. Lass bei wichtigen Reaktionszeiten die App sichtbar; ein Handy kann Hintergrundprozesse anhalten. Abgelaufene Timer zeigen „Timer beenden“ und „Test öffnen“. Beenden entfernt nur den Timer; eingetragene Werte bleiben erhalten. Öffnen setzt den passenden Test fort und pausiert einen anderen geöffneten Test automatisch. Ist der passende Test schon geöffnet, bleibt die Ansicht unverändert. Systembenachrichtigungen bieten diese Aktionen, soweit der Browser sie unterstützt; ein Klick auf die Benachrichtigung öffnet ebenfalls den Test im ursprünglichen Tab."
       },
       {
         "title": "Methodenwechsel während einer Messung",

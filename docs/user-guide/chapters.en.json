@@ -177,7 +177,7 @@
     "extra": [
       {
         "title": "Timers and notifications",
-        "text": "Choose “Enable” to allow browser notifications. Sound, vibration and keeping the screen awake depend on your device. Keep the app visible for important reaction times; phones may suspend background processes."
+        "text": "Choose “Enable” to allow browser notifications. Sound, vibration and keeping the screen awake depend on your device. Keep the app visible for important reaction times; phones may suspend background processes. Expired timers offer “Stop timer” and “Open test”. Stopping removes only the timer and preserves entered values. Opening resumes the corresponding test and automatically pauses another open test. If the matching test is already open, the view stays unchanged. System notifications offer these actions where supported by the browser; clicking the notification also opens the test in its original tab."
       },
       {
         "title": "Changing methods during a measurement",

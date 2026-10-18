@@ -5,10 +5,14 @@ interface Timer {
   type: string;
   timerId: string;
   testKey?: string;
+  aquariumId?: string;
+  stopLabel?: string;
+  openLabel?: string;
+  userId?: number;
+  endTime: number;
   testName?: string;
   aquariumName?: string;
   waitSec?: number;
-  endTime: number;
   url: string;
 }
 // Build-time values include all lazy chunks so previously unopened views work offline.
@@ -19,6 +23,7 @@ const shellPrefix = `aquarium-shell:${scope.registration.scope}:`;
 const shellCache = shellPrefix + offlineBuild;
 const shellUrls = new Set(offlineAssets.map(asset => new URL(asset, scope.registration.scope).href));
 const activeTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const timerEnds = new Map<string, number>();
 const revisionUrl = new URL('__frontend_revisions__', scope.registration.scope).href;
 const clientsUrl = new URL('__frontend_clients__', scope.registration.scope).href;
 let clientUpdates = Promise.resolve();
@@ -91,10 +96,14 @@ scope.addEventListener("message", (event: ExtendableMessageEvent) => {
     return;
   }
   if (data.type === "SCHEDULE_TIMER") {
+    timerEnds.set(data.timerId, data.endTime);
+    const clientId = event.source && "id" in event.source ? event.source.id : undefined;
+    event.waitUntil(closeTimerNotifications(data.timerId));
     clearTimeout(activeTimers.get(data.timerId));
     const timeout = setTimeout(
       () => {
         activeTimers.delete(data.timerId);
+        timerEnds.delete(data.timerId);
         const base = new URL("./", scope.location.href);
         void scope.registration
           .showNotification(
@@ -105,7 +114,11 @@ scope.addEventListener("message", (event: ExtendableMessageEvent) => {
               badge: new URL("favicon-32x32.png", base).href,
               tag: `aquarium-timer-${data.timerId}`,
               requireInteraction: true,
-              data: { url: data.url || base.href },
+              ...{ actions: data.aquariumId ? [
+                { action: "stop-timer", title: data.stopLabel || "Timer beenden" },
+                { action: "open-test", title: data.openLabel || "Test öffnen" },
+              ] : [] },
+              data: { url: data.url || base.href, clientId, aquariumId: data.aquariumId, userId: data.userId, timerId: data.timerId, testKey: data.testKey, endTime: data.endTime },
             },
           )
           .catch(() => {});
@@ -116,28 +129,50 @@ scope.addEventListener("message", (event: ExtendableMessageEvent) => {
   } else if (data.type === "CANCEL_TIMER") {
     clearTimeout(activeTimers.get(data.timerId));
     activeTimers.delete(data.timerId);
+    timerEnds.delete(data.timerId);
+    event.waitUntil(closeTimerNotifications(data.timerId));
   } else if (data.type === "CLEAR_ALL_TIMERS") {
     for (const timer of activeTimers.values()) clearTimeout(timer);
     activeTimers.clear();
+    timerEnds.clear();
+    event.waitUntil(closeTimerNotifications());
   }
 });
+async function closeTimerNotifications(timerId?: string) {
+  const notifications = await scope.registration.getNotifications();
+  for (const notification of notifications) {
+    if (timerId ? notification.tag === `aquarium-timer-${timerId}` : notification.tag.startsWith("aquarium-timer-")) notification.close();
+  }
+}
 scope.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = event.notification.data?.url as string | undefined;
-  event.waitUntil(
-    (async () => {
-      const clients = await scope.clients.matchAll({
-        type: "window",
-        includeUncontrolled: true,
-      });
-      const client = clients.find((client) => client.url === url);
-      if (client) {
-        await (client as WindowClient).focus();
-      } else if (url) {
-        await scope.clients.openWindow(url);
+  const data = event.notification.data as Partial<Timer> & { clientId?: string };
+  event.waitUntil((async () => {
+    const windows = (await scope.clients.matchAll({ type: "window", includeUncontrolled: true }))
+      .filter(client => client.url.startsWith(scope.registration.scope)) as WindowClient[];
+    // Drafts belong to the originating tab. Never reload it to change the hash.
+    const client = data.clientId ? windows.find(client => client.id === data.clientId) : windows.find(client => client.url === data.url);
+    if (event.action === "stop-timer") {
+      if (data.timerId) {
+        const currentEnd = timerEnds.get(data.timerId);
+        if (currentEnd !== undefined && currentEnd !== data.endTime) return;
+        timerEnds.delete(data.timerId);
+        clearTimeout(activeTimers.get(data.timerId));
+        activeTimers.delete(data.timerId);
       }
-    })(),
-  );
+      client?.postMessage({ ...data, type: "STOP_MEASUREMENT_TIMER" });
+      return;
+    }
+    if (client && data.aquariumId) {
+      client.postMessage({ ...data, type: "OPEN_MEASUREMENT_TIMER" });
+      await client.focus();
+    } else if (client) {
+      await client.focus();
+    } else if (data.url) {
+      const url = new URL(data.url, scope.registration.scope);
+      if (url.href.startsWith(scope.registration.scope)) await scope.clients.openWindow(url.href);
+    }
+  })());
 });
 
 // User data is stored separately in IndexedDB, never in the shared shell cache.
