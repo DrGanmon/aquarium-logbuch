@@ -777,7 +777,7 @@
       "For a one-time import, select “Download calendar … (.ics)” and open the file with your calendar app. It contains events until the end of next year.",
       "For automatic updates, add a CalDAV account on the device. On iPhone/iPad: Settings → Calendar → Accounts → Add Account → Other → CalDAV account. On Android, for example with DAVx⁵.",
       "Enter the server, username and the CalDAV password shown. Use “Copy” to transfer the values without typos.",
-      "If you suspect misuse, select “Generate new password”. The old password stops working immediately; enter the new one on your devices."
+      "If you suspect misuse, select “Generate new password”. The old password stops working immediately; enter the new one on your devices. After an administrator restores a backup, the app generates new calendar passwords; then enter the new password shown in your profile on your devices."
     ],
     "extra": [],
     "features": [
@@ -1371,21 +1371,29 @@
     "steps": [
       "Open “Backups” in the admin area. Create a manual backup and choose the available image and encryption options.",
       "Download important backups and store them separately from the app server. Back up the server’s shared app encryption key separately as well.",
-      "For automatic backups, set the interval, retention and available password and file options.",
+      "For automatic backups, set the interval, retention and available password and file options. If an automatic backup fails, the reason appears in the system logbook; the app retries after 5, 10, 20, 40 and then at most every 60 minutes.",
       "Before restoring, all users should synchronize pending offline actions. Also create a current backup of the existing server state.",
-      "Choose only a trusted backup and read the confirmation. Restoring replaces the server’s data; it does not simply append individual rows.",
-      "After restoring, check sign-in, aquariums and images. Missing or incorrect keys and passwords can make encrypted data unreadable."
+      "Choose only a trusted backup and read the confirmation. Restoring replaces the server’s data; it does not simply append individual rows. Meanwhile, users briefly see a database maintenance notice.",
+      "After restoring, check sign-in, aquariums and images. Accounts keep their admin role, language and default chart range. Calendar access (CalDAV) receives new passwords, and pending account deletion requests are not restored. Missing or incorrect keys and passwords can make encrypted data unreadable."
     ],
     "extra": [
       {
         "title": "Backups are confidential",
         "text": "Backups may contain account, aquarium and image data. Do not share them publicly. Local automatic backups alone do not protect against loss of the entire server."
+      },
+      {
+        "title": "Notice “The application is currently performing database maintenance”",
+        "text": "The notice only appears during a restore. If the server restarts in the middle of a restore, it may remain visible for up to 10 minutes and then disappears on its own. If it stays longer, check the system logbook."
       }
     ],
     "features": [
       {
         "title": "Create a backup",
         "text": "A backup contains the saved server state. Depending on the options, it includes images and encryption; pending device actions are absent until synchronized."
+      },
+      {
+        "title": "Backups during operation",
+        "text": "Backups read a consistent state of the database and run in the background. The app remains available to everyone. If an image is deleted meanwhile, the system logbook notes the missing file."
       },
       {
         "title": "Automatic backups and retention",

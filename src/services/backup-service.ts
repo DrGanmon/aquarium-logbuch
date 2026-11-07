@@ -694,14 +694,20 @@ class BackupService {
     }
 
     // Normalisierung: Benutzer (users)
+    // Admin roles live in the database since migration 010. Backups from before that carry no flag;
+    // they get the same fallback as the migration so a restore never leaves the instance without admins.
+    const hasAdminFlags = users.some((u: any) => u && typeof u === 'object' && Object.hasOwn(u, 'is_admin'));
+    const legacyAdmins = new Set((envModule.ADMIN_EMAILS as string[]).map(email => email.toLowerCase()));
     const normalizedUsers = users.map((u: any) => {
       if (!u || typeof u !== 'object') return null;
+      const email = u.email ? String(u.email).trim().toLowerCase() : null;
+      const emailVerified = u.email_verified !== undefined ? (u.email_verified ? 1 : 0) : 1;
       return {
         ...encryptPersonalAiFields(Number(u.id), Object.fromEntries(AI_PROVIDERS.flatMap(provider => [[`${provider}_api_key`, u[`${provider}_api_key`] ?? null], [`${provider}_model`, typeof u[`${provider}_model`] === 'string' ? u[`${provider}_model`] : null]]))),
         ai_provider: typeof u.ai_provider === 'string' ? u.ai_provider : null,
         id: Number(u.id),
         username: String(u.username || '').trim(),
-        email: u.email ? String(u.email).trim().toLowerCase() : null,
+        email,
         password_hash: String(u.password_hash || ''),
         oidc_sub: u.oidc_sub ? String(u.oidc_sub).trim() : null,
         first_name: u.first_name ? String(u.first_name).trim() : null,
@@ -714,7 +720,10 @@ class BackupService {
         selected_tests: u.selected_tests ? String(u.selected_tests) : null,
         tap_water: u.tap_water ? (typeof u.tap_water === 'string' ? u.tap_water : JSON.stringify(u.tap_water)) : null,
         test_inventory: require('./test-inventory-service').normalizeInventory(u.test_inventory),
-        email_verified: u.email_verified !== undefined ? (u.email_verified ? 1 : 0) : 1,
+        email_verified: emailVerified,
+        is_admin: hasAdminFlags ? (u.is_admin && u.is_admin !== '0' ? 1 : 0) : (email && emailVerified && legacyAdmins.has(email) ? 1 : 0),
+        language: u.language === 'en' ? 'en' : 'de',
+        default_graph_range: typeof u.default_graph_range === 'string' && u.default_graph_range.trim() ? u.default_graph_range.trim().slice(0, 10) : null,
         email_verify_token: u.email_verify_token ? String(u.email_verify_token) : null,
         email_verify_expires: u.email_verify_expires ? Number(u.email_verify_expires) : null,
         password_reset_token: u.password_reset_token ? String(u.password_reset_token) : null,

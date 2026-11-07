@@ -777,7 +777,7 @@
       "Für einen einmaligen Import wähle „Kalender … herunterladen (.ics)“ und öffne die Datei mit deiner Kalender-App. Sie enthält Termine bis Ende des nächsten Jahres.",
       "Für automatische Aktualisierungen lege auf dem Gerät ein CalDAV-Konto an. Auf iPhone/iPad: Einstellungen → Kalender → Accounts → Account hinzufügen → Andere → CalDAV-Account. Auf Android z. B. mit DAVx⁵.",
       "Trage Server, Benutzername und das angezeigte CalDAV-Passwort ein. Mit „Kopieren“ übernimmst du die Werte ohne Tippfehler.",
-      "Bei Verdacht auf Missbrauch wähle „Neues Passwort erzeugen“. Das alte Passwort gilt sofort nicht mehr; trage auf deinen Geräten das neue ein."
+      "Bei Verdacht auf Missbrauch wähle „Neues Passwort erzeugen“. Das alte Passwort gilt sofort nicht mehr; trage auf deinen Geräten das neue ein. Nach einer Wiederherstellung durch die Administration erzeugt die App neue Kalender-Passwörter; trage dann das im Profil angezeigte neue Passwort auf deinen Geräten ein."
     ],
     "extra": [],
     "features": [
@@ -1371,21 +1371,29 @@
     "steps": [
       "Öffne im Admin-Bereich „Backups“. Erstelle eine manuelle Sicherung und wähle die angebotenen Optionen für Bilder und Verschlüsselung.",
       "Lade wichtige Sicherungen herunter und bewahre sie getrennt vom App-Server auf. Sichere auch den gemeinsamen App-Verschlüsselungsschlüssel des Servers separat.",
-      "Für automatische Sicherungen stellst du Intervall, Aufbewahrung und die angebotenen Passwort- und Dateieinstellungen ein.",
+      "Für automatische Sicherungen stellst du Intervall, Aufbewahrung und die angebotenen Passwort- und Dateieinstellungen ein. Schlägt eine automatische Sicherung fehl, steht der Grund im System-Logbuch; die App versucht es nach 5, 10, 20, 40 und danach höchstens alle 60 Minuten erneut.",
       "Vor einer Wiederherstellung synchronisieren alle Benutzer ihre offenen Offline-Aktionen. Erstelle zusätzlich eine aktuelle Sicherung des jetzigen Serverstands.",
-      "Wähle nur eine vertrauenswürdige Sicherung und lies die Bestätigung. Eine Wiederherstellung ersetzt den Serverdatenbestand; sie fügt nicht einfach einzelne Zeilen hinzu.",
-      "Prüfe nach der Wiederherstellung Anmeldung, Aquarien und Bilder. Fehlende oder falsche Schlüssel und Passwörter können verschlüsselte Daten unlesbar machen."
+      "Wähle nur eine vertrauenswürdige Sicherung und lies die Bestätigung. Eine Wiederherstellung ersetzt den Serverdatenbestand; sie fügt nicht einfach einzelne Zeilen hinzu. Währenddessen sehen Benutzer kurz den Hinweis auf eine Datenbankwartung.",
+      "Prüfe nach der Wiederherstellung Anmeldung, Aquarien und Bilder. Konten behalten Adminrolle, Sprache und Standard-Diagrammzeitraum. Kalender-Zugänge (CalDAV) erhalten neue Passwörter, und offene Kontolöschanfragen werden nicht übernommen. Fehlende oder falsche Schlüssel und Passwörter können verschlüsselte Daten unlesbar machen."
     ],
     "extra": [
       {
         "title": "Sicherungen sind vertraulich",
         "text": "Backups können Konto-, Aquarium- und Bilddaten enthalten. Teile sie nicht öffentlich. Eine lokale automatische Sicherung allein schützt nicht vor Verlust des gesamten Servers."
+      },
+      {
+        "title": "Hinweis „Die Anwendung führt gerade eine Datenbankwartung aus“",
+        "text": "Die Meldung erscheint nur während einer Wiederherstellung. Wird der Server mitten in einer Wiederherstellung neu gestartet, kann sie noch bis zu 10 Minuten sichtbar bleiben und verschwindet danach von selbst. Bleibt sie länger, prüfe das System-Logbuch."
       }
     ],
     "features": [
       {
         "title": "Sicherung erstellen",
         "text": "Ein Backup enthält den gesicherten Serverstand. Je nach Auswahl kommen Bilder und Verschlüsselung hinzu; offene Geräteaktionen fehlen bis zum Abgleich."
+      },
+      {
+        "title": "Sicherung im laufenden Betrieb",
+        "text": "Backups lesen einen in sich stimmigen Stand der Datenbank und laufen im Hintergrund. Die App bleibt dabei für alle nutzbar. Wird währenddessen ein Bild gelöscht, vermerkt das System-Logbuch die fehlende Datei."
       },
       {
         "title": "Automatische Sicherung und Aufbewahrung",
