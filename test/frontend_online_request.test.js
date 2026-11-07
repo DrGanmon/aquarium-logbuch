@@ -61,7 +61,9 @@ function chatFixture(fetch, retry) {
   };
   const code = ts.transpileModule(fs.readFileSync('public/frontend/chat-request.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const exports = {};
-  new Function('require', 'exports', 'fetch', code)(name => imports[name], exports, fetch);
+  // The web client runs without the native marker; the mobile variant is covered in mobile.test.js.
+  const document = { documentElement: { dataset: {} } };
+  new Function('require', 'exports', 'fetch', 'document', code)(name => imports[name], exports, fetch, document);
   return { ...exports, state };
 }
 test('KI: Offline-Anfrage nutzt Jetzt prüfen; Status und Antwort werden danach weiter verarbeitet', async () => {

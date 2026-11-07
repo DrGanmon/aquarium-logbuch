@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Lichteinstellungen je Aquarium ergänzen: RGBW-Kanalwerte von 0 bis 100 %, Zeiten für Licht an und aus (auch über Mitternacht) sowie Dauer von Sonnenauf- und -untergang hinterlegen. Ungefähre Mischfarbe, Zeit voller Helligkeit, Beleuchtungsdauer und Helligkeitsverlauf über 24 Stunden anzeigen. Neue Endpunkte `/api/aquariums/{id}/lighting` mit Schema-Migration 16 für SQLite und MongoDB, Sicherung und Löschen mit dem Aquarium, Lesefreigaben und Offline-Abgleich mit Ausgangsstand. Texte der nachgeladenen Bereiche Beleuchtung, Aufgaben und Kalender in eigene Sprachdateien (`features.de.json`, `features.en.json`) auslagern, damit das minifizierte Startbundle die unveränderte 350-KB-Grenze einhält. OpenAPI-Dokumentation, zweisprachige Anleitungen, Handbuchkapitel mit Demo-Screenshot und Regressionstests ergänzen.
+- CI-Fehler unter Node und Bun beheben: Die KI-Chat-Tests in `test/frontend_online_request.test.js` stellen der Web-Variante von `chat-request.ts` ein `document` ohne Mobil-Kennung bereit, nachdem die Mobilerkennung `document.documentElement` voraussetzt. Produktivcode, Frontend-Hash und App-Version bleiben unverändert.
+
+## 0.4.4-ALPHA
+
+- Lichteinstellungen je Aquarium ergänzen: RGBW-Kanalwerte von 0 bis 100 %, Zeiten für Licht an und aus (auch über Mitternacht) sowie Dauer von Sonnenauf- und -untergang hinterlegen. Ungefähre Mischfarbe, Zeit voller Helligkeit, Beleuchtungsdauer und Helligkeitsverlauf über 24 Stunden anzeigen. Neue Endpunkte `/api/aquariums/{id}/lighting` mit Schema-Migration 16 für SQLite und MongoDB, Sicherung und Löschen mit dem Aquarium, Lesefreigaben und Offline-Abgleich mit Ausgangsstand. Texte der nachgeladenen Bereiche Beleuchtung, Aufgaben und Kalender in eigene Sprachdateien (`features.de.json`, `features.en.json`) auslagern, damit das minifizierte Startbundle die unveränderte 350-KB-Grenze einhält. OpenAPI-Dokumentation, zweisprachige Anleitungen, Handbuchkapitel mit Demo-Screenshot und Regressionstests ergänzen. (`0d4d0c827f848173b88b39fd77b93c53fe6445c8`, 2026-11-07).
 
 ## 0.4.3-ALPHA
 
