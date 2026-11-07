@@ -3,6 +3,7 @@ import { getPlantCatalog } from '../services/plant-service';
 import { chatProgress } from '../utils/chat-progress';
 import { asError } from '../utils/app-error';
 import { parseDecimal } from '../shared/input';
+import { MAX_PHOTOS_PER_PLANT, plantPhotoLimitMessage } from '../shared/plant-images';
 import type { Request, Response } from 'express';
 import express = require('express');
 import { Readable, pipeline } from 'node:stream';
@@ -18,7 +19,7 @@ const { aquariumInput } = aquarium_serviceModule;
 import alert_serviceModule = require('../services/alert-service');
 const { thresholdsOfAquarium, buildMessage } = alert_serviceModule;
 import image_serviceModule = require('../services/image-service');
-const { saveAquariumImage, saveStockImage, deleteImage, getImagePath, getMimeType } = image_serviceModule;
+const { saveAquariumImage, saveStockImage, savePlantImage, deleteImage, getImagePath, getMimeType } = image_serviceModule;
 import maintenance_serviceModule = require('../services/maintenance-service');
 const { validateMaintenanceInput, getAquariumTimeline } = maintenance_serviceModule;
 import dosing_serviceModule = require('../services/dosing-service');
@@ -544,7 +545,47 @@ router.put('/:id/plants/:plantId', auth, writeAquarium, wrap(async (req: Request
   res.json({ ok: true });
 }));
 router.delete('/:id/plants/:plantId', auth, writeAquarium, wrap(async (req: Request, res: Response) => {
-  await db.plants.delete(req.aq.id, String(req.params.plantId));
+  const plantId = String(req.params.plantId);
+  await db.plants.delete(req.aq.id, plantId);
+  for (const filename of await db.plantImages.deleteFor(req.aq.id, plantId)) deleteImage(filename);
+  res.json({ ok: true });
+}));
+
+// ---------- Pflanzenfotos (z. B. Pflanzposition im Becken) ----------
+router.get('/:id/plant-images', auth, ownAquarium, wrap(async (req: Request, res: Response) => {
+  const plantId = typeof req.query.plantId === 'string' ? req.query.plantId : undefined;
+  const rows = await db.plantImages.listForAquarium(req.aq.id);
+  res.json(rows.filter(row => plantId === undefined || row.plant_id === plantId).map(({ filename: _filename, ...row }) => row));
+}));
+router.get('/:id/plant-images/:imageId', auth, ownAquarium, wrap(async (req: Request, res: Response) => {
+  const photo = await db.plantImages.findById(Number(req.params.imageId));
+  if (!photo || photo.aquarium_id !== req.aq.id) return res.status(404).json({ error: 'Bild nicht gefunden.' });
+  const imgPath = getImagePath(photo.filename);
+  if (!imgPath) return res.status(404).json({ error: 'Bilddatei nicht gefunden.' });
+  res.setHeader('Content-Type', getMimeType(photo.filename));
+  res.setHeader('Cache-Control', 'private, max-age=86400');
+  res.sendFile(imgPath);
+}));
+router.post('/:id/plant-images', auth, writeAquarium, wrap(async (req: Request, res: Response) => {
+  const plantId = typeof req.body.plant_id === 'string' ? req.body.plant_id : '';
+  if (!(await db.plants.listForAquarium(req.aq.id)).some(row => row.plant_id === plantId)) return res.status(404).json({ error: 'Pflanze ist in diesem Aquarium nicht eingetragen.' });
+  if ((await db.plantImages.listForAquarium(req.aq.id)).filter(row => row.plant_id === plantId).length >= MAX_PHOTOS_PER_PLANT) {
+    return res.status(400).json({ error: plantPhotoLimitMessage() });
+  }
+  const { error, value } = await savePlantImage(req.aq.id, req.body.image);
+  if (error !== undefined) return res.status(400).json({ error });
+  const { filename: _filename, ...photo } = await db.plantImages.create({ aquarium_id: req.aq.id, plant_id: plantId, filename: value.filename, caption: str(req.body.caption, 200) || null });
+  res.json({ ok: true, ...photo });
+}));
+router.put('/:id/plant-images/:imageId', auth, writeAquarium, wrap(async (req: Request, res: Response) => {
+  const ok = await db.plantImages.updateCaption(Number(req.params.imageId), req.aq.id, str(req.body.caption, 200) || null);
+  if (!ok) return res.status(404).json({ error: 'Bild nicht gefunden.' });
+  res.json({ ok: true });
+}));
+router.delete('/:id/plant-images/:imageId', auth, writeAquarium, wrap(async (req: Request, res: Response) => {
+  const filename = await db.plantImages.delete(Number(req.params.imageId), req.aq.id);
+  if (!filename) return res.status(404).json({ error: 'Bild nicht gefunden.' });
+  deleteImage(filename);
   res.json({ ok: true });
 }));
 

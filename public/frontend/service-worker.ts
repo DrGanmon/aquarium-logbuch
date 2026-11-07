@@ -183,7 +183,7 @@ scope.addEventListener('fetch', (event) => {
   if (url.origin !== scope.location.origin) return;
   const privateBase = new URL('./', scope.registration.scope).pathname;
   const privatePath = url.pathname.startsWith(privateBase) ? url.pathname.slice(privateBase.length) : '';
-  if (/^api\/(?:me\/avatar|aquariums\/-?\d+\/(?:image|images\/-?\d+|stock\/-?\d+\/image))$/.test(privatePath)) {
+  if (/^api\/(?:me\/avatar|aquariums\/-?\d+\/(?:image|images\/-?\d+|plant-images\/-?\d+|stock\/-?\d+\/image))$/.test(privatePath)) {
     event.respondWith((async () => {
       let database: IDBDatabase | undefined;
       const open = () => new Promise<IDBDatabase>((resolve, reject) => {

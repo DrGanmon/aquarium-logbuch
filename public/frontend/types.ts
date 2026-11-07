@@ -305,3 +305,4 @@ export interface Field {
 }
 
 export interface AquariumPlant { variantName?: string | null; aquarium_id: number; plant_id: string; count: number; name: string; scientificName: string; category: string }
+export interface PlantPhoto { id: Id; aquarium_id: number; plant_id: string; caption?: string | null; created_at?: string; image_url?: string }

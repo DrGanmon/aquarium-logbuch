@@ -46,6 +46,21 @@ const DEFAULT_CONFIG: Record<string, any> = {
   lastBackupFile: null,
 };
 
+/** Plant photos survive a restore only together with their aquarium and plant entry. */
+function normalizePlantImages(rows: unknown, plants: unknown, aquariums: any[]) {
+  const aquariumIds = new Set(aquariums.map((aquarium: any) => aquarium.id));
+  const entries = new Set((Array.isArray(plants) ? plants : []).map((plant: any) => `${Number(plant?.aquarium_id)}:${plant?.plant_id}`));
+  const seen = new Set<number>();
+  return (Array.isArray(rows) ? rows : []).flatMap((photo: any) => {
+    const id = Number(photo?.id), aquariumId = Number(photo?.aquarium_id);
+    const filename = typeof photo?.filename === 'string' ? path.basename(photo.filename) : '';
+    if (!Number.isSafeInteger(id) || id < 1 || seen.has(id) || !aquariumIds.has(aquariumId) || typeof photo.plant_id !== 'string' || !entries.has(`${aquariumId}:${photo.plant_id}`) || !filename) return [];
+    seen.add(id);
+    return [{ id, aquarium_id: aquariumId, plant_id: photo.plant_id, filename, caption: typeof photo.caption === 'string' && photo.caption.trim() ? photo.caption.trim().slice(0, 200) : null,
+      created_at: typeof photo.created_at === 'string' ? photo.created_at : new Date().toISOString() }];
+  });
+}
+
 class BackupService {
   backupsDir: string;
   configFile: string;
@@ -81,6 +96,8 @@ class BackupService {
       for (const aquarium of aquariums) { remember(aquarium.image_file);aquarium.image_file = null; }
       for (const image of data.aquarium_images || []) if (aquariumIds.has(Number(image.aquarium_id))) remember(image.filename);
       data.aquarium_images = (data.aquarium_images || []).filter((entry: any) => !aquariumIds.has(Number(entry.aquarium_id)));
+      for (const photo of data.aquarium_plant_images || []) if (aquariumIds.has(Number(photo.aquarium_id))) remember(photo.filename);
+      data.aquarium_plant_images = (data.aquarium_plant_images || []).filter((entry: any) => !aquariumIds.has(Number(entry.aquarium_id)));
       for (const stock of data.stock || []) if (aquariumIds.has(Number(stock.aquarium_id))) { remember(stock.image_file);stock.image_file = null; }
       const postIds = new Set<number>();
       for (const post of data.social_posts || []) if (Number(post.user_id) === user.id) { remember(post.filename);postIds.add(Number(post.id)); }
@@ -790,6 +807,7 @@ class BackupService {
           typeof plant.plant_id === 'string' && plant.plant_id.length > 0 && plant.plant_id.length <= 200 &&
           Number.isInteger(plant.count) && plant.count >= 1 && plant.count <= 10000
         ).map((plant: any) => ({ aquarium_id: Number(plant.aquarium_id), plant_id: plant.plant_id, count: plant.count })),
+        aquarium_plant_images: normalizePlantImages(data.aquarium_plant_images, data.aquarium_plants, normalizedAquariums),
         measurements: normalizedMeasurements,
         alerts: normalizedAlerts,
         maintenance_logs: normalizedMaint,

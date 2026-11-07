@@ -56,11 +56,29 @@ curl -H 'Authorization: Bearer ein-langes-geheimes-scrape-passwort' \
   "$BASE_URL/metrics"
 ```
 
+## Pflanzenfotos
+
+Zu jeder im Aquarium eingetragenen Pflanze lassen sich bis zu 20 Fotos mit optionaler Beschreibung (höchstens 200 Zeichen) speichern, etwa um die Pflanzstelle festzuhalten. `GET /api/aquariums/{id}/plant-images` liefert alle Fotos des Beckens als Array von `{id, aquarium_id, plant_id, caption, created_at, image_url}`; `?plantId=` filtert auf eine Pflanze. Lesende Freigaben dürfen Fotos abrufen, Schreibrechte sind für Hochladen, Beschreiben und Löschen nötig. `POST` verlangt eine im Becken eingetragene Pflanze (sonst `404`); weitere Fotos über der Grenze liefern `400`. Mehrere Fotos werden nacheinander hochgeladen. Wird eine Pflanze mit `DELETE /api/aquariums/{id}/plants/{plantId}` entfernt oder das Aquarium gelöscht, werden ihre Fotos samt Dateien mitgelöscht. Fotos sind in Backups enthalten und werden offline wie Galeriebilder vorgemerkt und abgeglichen.
+
+```sh
+# Foto zu einer eingetragenen Pflanze hochladen (Bild als Data-URL).
+curl -b /tmp/aquarium-api-cookies.txt -X POST "$BASE_URL/api/aquariums/4/plant-images" \
+  -H 'Content-Type: application/json' \
+  -H 'X-Requested-With: XMLHttpRequest' \
+  --data '{"plant_id":"anubias-barteri-nana","image":"data:image/jpeg;base64,...","caption":"hinten links an der Wurzel"}'
+
+# Beschreibung ändern und Foto löschen.
+curl -b /tmp/aquarium-api-cookies.txt -X PUT "$BASE_URL/api/aquariums/4/plant-images/12" \
+  -H 'Content-Type: application/json' -H 'X-Requested-With: XMLHttpRequest' --data '{"caption":"vorne rechts"}'
+curl -b /tmp/aquarium-api-cookies.txt -X DELETE "$BASE_URL/api/aquariums/4/plant-images/12" \
+  -H 'X-Requested-With: XMLHttpRequest'
+```
+
 ## AGB und Social-Bilder
 
 `GET /api/terms?language=de` liefert `{version, terms}`. Registrierung und `POST /api/me/terms` verlangen `{acceptTerms:true, termsVersion:"VERSION_AUS_GET_TERMS"}`. Für den OIDC-Einstieg mit Zustimmung gibt es `POST /api/oidc/login`; dessen Antwort enthält die Weiterleitungs-URL. Social-Beiträge, Likes und neue Kommentare verlangen aktuelle Zustimmung, sonst `428`.
 
-Social-Bilder werden in `image` als `data:image/jpeg;base64,...` bzw. PNG, WebP oder GIF übertragen. Erlaubt sind **10 MiB dekodierte Bilddaten**, höchstens 40 Megapixel und maximal 14 MiB für den Data-URL-String. Der Server speichert ein WebP mit höchstens 1600 Pixeln Kantenlänge, korrigierter Orientierung und ohne Vergrößerung. Andere Bild-Uploads (Profil, Aquarium, Bewohner) erlauben 5 MiB. Ungültige oder zu große Bilder liefern `400`; `413` betrifft das HTTP-Body-Limit oder den vorgeschalteten Proxy.
+Social-Bilder werden in `image` als `data:image/jpeg;base64,...` bzw. PNG, WebP oder GIF übertragen. Erlaubt sind **10 MiB dekodierte Bilddaten**, höchstens 40 Megapixel und maximal 14 MiB für den Data-URL-String. Der Server speichert ein WebP mit höchstens 1600 Pixeln Kantenlänge, korrigierter Orientierung und ohne Vergrößerung. Andere Bild-Uploads (Profil, Aquarium, Bewohner, Pflanzenfotos) erlauben 5 MiB. Ungültige oder zu große Bilder liefern `400`; `413` betrifft das HTTP-Body-Limit oder den vorgeschalteten Proxy.
 
 Ein neuer Beitrag verwendet `{image, text, isPublic}`. `text` darf bis 2200 Zeichen enthalten; `isPublic` ist standardmäßig `false`. Interne Beiträge sind für angemeldete Mitglieder sichtbar. Die öffentliche Feed-Abfrage enthält ausschließlich öffentliche Beiträge.
 
@@ -181,13 +199,13 @@ HTTP 200 liefert `{schema:1,kind:"health",language:"de",version:"<SHA-256>",data
 
 Arten-/Pflanzensuche, Filter, Seiten und Details sowie Krankheits- und Medikamentenlisten/-details werden aus vorhandenen Snapshots lokal beantwortet, auch für zuvor nicht geöffnete Einträge und Suchanfragen. Aktualisierte Katalogstände erneuern offene Listen und Details. Artspezifische Symptome und Behandlungshinweise sowie Quellen und Bildnachweise bleiben enthalten. Die Daten sind gemeinsame, nur lesbare Referenzen; private Aquarien-/Benutzerdaten sind nicht enthalten. Diagnose-Regeln und Fragen stehen ebenfalls lokal zur Verfügung; der Assistent nutzt dieselbe Berechnung wie der Server und aktuelle lokale Messwerte/Bewohner. Bestandszuordnungen sind offline möglich. KI-Anfragen benötigen weiterhin Internet.
 
-Lokale Arten-/Pflanzenbilder werden erst beim Ansehen im Service Worker gespeichert, online erneut geladen und offline wiederverwendet. Der Cache enthält höchstens 200 Bilder und übernimmt nur erfolgreiche Bildantworten bis 2 MiB laut Content-Length. Dieser gemeinsame Cache lädt keine vollständigen Katalogbilder oder privaten Uploads herunter. Private Aquarium-/Bewohner-/Profilbilder liegen separat benutzergetrennt in IndexedDB; externe Bilder bleiben netzabhängig. Katalogtexte bleiben auch ohne gespeichertes Bild nutzbar. Browserspeicher ist begrenzt und kann gelöscht werden; fehlende Kataloge werden bei Verbindung erneut geladen. Docker Compose benötigt keinen zusätzlichen Dienst und keine weitere Datenbankmigration.
+Lokale Arten-/Pflanzenbilder werden erst beim Ansehen im Service Worker gespeichert, online erneut geladen und offline wiederverwendet. Der Cache enthält höchstens 200 Bilder und übernimmt nur erfolgreiche Bildantworten bis 2 MiB laut Content-Length. Dieser gemeinsame Cache lädt keine vollständigen Katalogbilder oder privaten Uploads herunter. Private Aquarium-, Bewohner-, Pflanzen- und Profilbilder liegen separat benutzergetrennt in IndexedDB; externe Bilder bleiben netzabhängig. Katalogtexte bleiben auch ohne gespeichertes Bild nutzbar. Browserspeicher ist begrenzt und kann gelöscht werden; fehlende Kataloge werden bei Verbindung erneut geladen. Docker Compose benötigt keinen zusätzlichen Dienst und keine weitere Datenbankmigration.
 
 ## Vollständiger Offline-Arbeitsstand und Konflikte
 
 `GET /api/offline/state` liefert `{schema:1,version,owner,language,updatedAt,responses,versions,rules}`. `responses` enthält die vollständigen GET-Antworten pro relativem API-Pfad, `versions` die Fingerprints der Ressourcen. `If-None-Match` unterstützt das exakt zuvor erhaltene ETag für 304. Ein erfolgreicher Stand ersetzt den alten atomar; ausstehende lokale Aktionen werden darübergelegt. Bei geöffneter App wird nach dem Upload und regelmäßig alle 30 Sekunden aktualisiert. Vollständige Messhistorien können bei großen Datenbeständen entsprechend mehr Zeit und Browserspeicher benötigen.
 
-Offline verfügbar sind Aquarium-Anlage/Bearbeitung/Löschung, Besatz einschließlich Katalogzuordnung und Fotos, Pflanzenbestand, manuelle Pflegeeinträge, Messungen und Löschung, Düngerpläne und manuelle Dosierungsprotokolle, Galerie einschließlich Titelbild, Warnungsquittierung, sichere Profilfelder/Avatar, Testauswahl und Reagenzbestand sowie lokaler CSV-Import/-Export. Grafiken, Schwellenwerte, Verträglichkeit, Zyklen und Diagnose werden lokal berechnet. Automatische Dosierereignisse und E-Mail-Erinnerungen bleiben serverseitig; die App steuert keine physische Dosierpumpe. Anmeldung, Passwort/E-Mail/Kontosicherheit, KI-Aufrufe, Freigaben/Einladungen, Social und Administration benötigen weiterhin Internet.
+Offline verfügbar sind Aquarium-Anlage/Bearbeitung/Löschung, Besatz einschließlich Katalogzuordnung und Fotos, Pflanzenbestand einschließlich Pflanzenfotos, manuelle Pflegeeinträge, Messungen und Löschung, Düngerpläne und manuelle Dosierungsprotokolle, Galerie einschließlich Titelbild, Warnungsquittierung, sichere Profilfelder/Avatar, Testauswahl und Reagenzbestand sowie lokaler CSV-Import/-Export. Grafiken, Schwellenwerte, Verträglichkeit, Zyklen und Diagnose werden lokal berechnet. Automatische Dosierereignisse und E-Mail-Erinnerungen bleiben serverseitig; die App steuert keine physische Dosierpumpe. Anmeldung, Passwort/E-Mail/Kontosicherheit, KI-Aufrufe, Freigaben/Einladungen, Social und Administration benötigen weiterhin Internet.
 
 ```http
 POST /api/offline/operations

@@ -17,7 +17,7 @@ export function canonicalResource(path: string) {
   const clean = path.split('?')[0]!.replace(/^(\/aquariums\/-?\d+)\/image$/, '$1/images').replace(/\/dosing-pumps(?=\/|$)/g, '/fertilizers').replace(/\/(image|primary|dose)$/, '');
   if (clean.endsWith('/measurement-draft/complete')) return clean.slice(0, -9);
   if (clean.startsWith('/me/test-inventory/')) return '/me/test-inventory';
-  return clean.replace(/(\/images)\/-?\d+$/, '$1');
+  return clean.replace(/(\/(?:plant-)?images)\/-?\d+$/, '$1');
 }
 export function workspaceWrite(path: string, method: string, body: Record<string, any> = {}) {
   if (!['POST', 'PUT', 'DELETE'].includes(method)) return false;
@@ -31,8 +31,8 @@ export function workspaceWrite(path: string, method: string, body: Record<string
   if (path === '/aquariums') return method === 'POST';
   if (/^\/aquariums\/-?\d+$/.test(path)) return method === 'PUT' || method === 'DELETE';
   if (/^\/aquariums\/-?\d+\/stock\/catalog$/.test(path)) return method === 'POST';
-  if (/^\/aquariums\/-?\d+\/(stock|images|fertilizers|dosing-pumps|maintenance|measurements)$/.test(path)) return method === 'POST';
-  if (/^\/aquariums\/-?\d+\/(stock|images|fertilizers|dosing-pumps|maintenance|measurements)\/-?\d+$/.test(path)) return method === 'DELETE' || (method === 'PUT' && !path.includes('/measurements/'));
+  if (/^\/aquariums\/-?\d+\/(stock|images|plant-images|fertilizers|dosing-pumps|maintenance|measurements)$/.test(path)) return method === 'POST';
+  if (/^\/aquariums\/-?\d+\/(stock|images|plant-images|fertilizers|dosing-pumps|maintenance|measurements)\/-?\d+$/.test(path)) return method === 'DELETE' || (method === 'PUT' && !path.includes('/measurements/'));
   if (/^\/aquariums\/-?\d+\/plants\/[^/?]+$/.test(path)) return method === 'PUT' || method === 'DELETE';
   if (/^\/aquariums\/-?\d+\/images\/-?\d+\/primary$/.test(path)) return method === 'PUT';
   if (/^\/aquariums\/-?\d+\/(stock\/-?\d+\/image|image)$/.test(path)) return method === 'POST' || method === 'DELETE';

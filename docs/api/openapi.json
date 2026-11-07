@@ -3612,7 +3612,7 @@
         ],
         "summary": "Pflanzen löschen",
         "operationId": "delete_api_aquariums_id_plants_plantId",
-        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher. ",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher. Entfernt auch alle Fotos dieser Pflanze im Aquarium.",
         "security": [
           {
             "SessionCookie": []
@@ -15630,6 +15630,419 @@
           }
         }
       }
+    },
+    "/api/aquariums/{id}/plant-images": {
+      "get": {
+        "tags": [
+          "Besatz"
+        ],
+        "summary": "Pflanzenfotos abrufen",
+        "operationId": "get_api_aquariums_id_plant_images",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: view oder höher. Liefert alle Fotos der Pflanzen im Aquarium, sortiert nach Pflanze und Anlagezeit; optional auf eine Pflanze gefiltert.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "plantId",
+            "in": "query",
+            "required": false,
+            "description": "Nur Fotos dieser Pflanzen-Katalog-ID liefern.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlantImage"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "x-aquarium-role": "view"
+      },
+      "post": {
+        "tags": [
+          "Besatz"
+        ],
+        "summary": "Pflanzenfoto hochladen",
+        "operationId": "post_api_aquariums_id_plant_images",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher. Bild als Base64-Data-URL, maximal 5 MiB dekodierte Bilddaten. Die Pflanze muss im Aquarium eingetragen sein (sonst 404); je Pflanze sind höchstens 20 Fotos möglich (sonst 400). Mehrere Fotos werden nacheinander hochgeladen. Auch als Offline-Aktion über `/api/offline/operations` möglich.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PlantImage"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "ok": {
+                          "type": "boolean",
+                          "enum": [
+                            true
+                          ]
+                        }
+                      },
+                      "required": [
+                        "ok"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "x-aquarium-role": "write",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plant_id": {
+                    "type": "string"
+                  },
+                  "image": {
+                    "$ref": "#/components/schemas/ImageInput"
+                  },
+                  "caption": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "plant_id",
+                  "image"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/aquariums/{id}/plant-images/{imageId}": {
+      "get": {
+        "tags": [
+          "Besatz"
+        ],
+        "summary": "Pflanzenfoto abrufen",
+        "operationId": "get_api_aquariums_id_plant_images_imageId",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: view oder höher. Liefert die Bilddatei; 404, wenn das Foto nicht zum Aquarium gehört.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bilddatei.",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "x-aquarium-role": "view"
+      },
+      "put": {
+        "tags": [
+          "Besatz"
+        ],
+        "summary": "Beschreibung eines Pflanzenfotos ändern",
+        "operationId": "put_api_aquariums_id_plant_images_imageId",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher. Eine leere Beschreibung entfernt sie.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "x-aquarium-role": "write",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "caption": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                },
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Besatz"
+        ],
+        "summary": "Pflanzenfoto löschen",
+        "operationId": "delete_api_aquariums_id_plant_images_imageId",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher. Entfernt Eintrag und Bilddatei.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "x-aquarium-role": "write"
+      }
     }
   },
   "components": {
@@ -17943,6 +18356,45 @@
           }
         },
         "additionalProperties": true
+      },
+      "PlantImage": {
+        "type": "object",
+        "description": "Foto einer im Aquarium eingetragenen Pflanze, etwa zur Pflanzposition. Der Dateiname bleibt intern.",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "aquarium_id": {
+            "type": "integer"
+          },
+          "plant_id": {
+            "type": "string",
+            "description": "Katalog-ID der Pflanze im Aquarium."
+          },
+          "caption": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "image_url": {
+            "type": "string",
+            "example": "api/aquariums/4/plant-images/12"
+          }
+        },
+        "required": [
+          "id",
+          "aquarium_id",
+          "plant_id",
+          "caption",
+          "created_at",
+          "image_url"
+        ]
       }
     },
     "responses": {

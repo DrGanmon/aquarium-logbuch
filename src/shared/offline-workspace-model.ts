@@ -2,7 +2,8 @@ import { validateMeasurementDraft, mergeMeasurementDraft, setDraftField, draftFi
 import { prepareCsvMeasurements } from './measurement-csv';
 import type { WorkspaceOperation, WorkspaceSnapshot } from './offline-workspace';
 import { aquariumInput } from './aquarium-input';
-import { parseDecimal } from './input';
+import { parseDecimal, str } from './input';
+import { MAX_PHOTOS_PER_PLANT, plantPhotoLimitMessage } from './plant-images';
 import { validateMaintenanceInput } from './maintenance';
 import { validateDosingPumpInput, manualDosingStatus, nextAutomaticDosingAt } from './dosing';
 import { calculateCycleStatus } from './cycles';
@@ -60,7 +61,7 @@ export function applyLocalOperation(snapshot: WorkspaceSnapshot, command: Worksp
     const aquarium = { ...check(aquariumInput(body)), id: temporary, user_id: command.owner, created_at: now, role: 'owner', alerts: [], has_image: false };
     list('/aquariums').push(aquarium);
     r[`/aquariums/${temporary}`] = { aquarium, role: 'owner', profiles: [], thresholds: {}, conflicts: [], stockCompatibility: {}, alerts: [], latest: {}, stock: [], dosing_pumps: [] };
-    for (const collection of ['stock', 'plants', 'maintenance', 'fertilizers', 'images', 'measurements?all=true']) r[`/aquariums/${temporary}/${collection}`] = [];
+    for (const collection of ['stock', 'plants', 'plant-images', 'maintenance', 'fertilizers', 'images', 'measurements?all=true']) r[`/aquariums/${temporary}/${collection}`] = [];
     result = { id: temporary };
   } else {
     const detail = r[root];
@@ -90,7 +91,10 @@ export function applyLocalOperation(snapshot: WorkspaceSnapshot, command: Worksp
       }
     } else if (type === 'plants') {
       const plants = list(root + '/plants');
-      if (command.method === 'DELETE') r[root + '/plants'] = plants.filter(plant => plant.plant_id !== decodeURIComponent(item));
+      if (command.method === 'DELETE') {
+        r[root + '/plants'] = plants.filter(plant => plant.plant_id !== decodeURIComponent(item));
+        r[root + '/plant-images'] = list(root + '/plant-images').filter(photo => photo.plant_id !== decodeURIComponent(item));
+      }
       else {
         const plant = catalogs.plants?.data.plants.find(entry => entry.id === decodeURIComponent(item));
         if (!plant || plant.waterType !== detail.aquarium.water_type) throw new AppError('Pflanze oder Wasserart passt nicht.', 400);
@@ -195,6 +199,22 @@ export function applyLocalOperation(snapshot: WorkspaceSnapshot, command: Worksp
         rows.push(entry);result = entry;
       } else if (parts[5] === 'primary') for (const row of rows) row.is_primary = row.id === Number(item) ? 1 : 0;
       else { const row = rows.find(entry => entry.id === Number(item));if (!row) throw new AppError('Bild nicht gefunden.', 404);row.caption = body.caption || null; }
+    } else if (type === 'plant-images') {
+      const rows = list(root + '/plant-images');
+      if (command.method === 'DELETE') {
+        if (!rows.some(row => row.id === Number(item))) throw new AppError('Bild nicht gefunden.', 404);
+        r[root + '/plant-images'] = rows.filter(row => row.id !== Number(item));
+      } else if (command.method === 'POST') {
+        const plantId = typeof body.plant_id === 'string' ? body.plant_id : '';
+        if (!list(root + '/plants').some(plant => plant.plant_id === plantId)) throw new AppError('Pflanze ist in diesem Aquarium nicht eingetragen.', 404);
+        if (rows.filter(row => row.plant_id === plantId).length >= MAX_PHOTOS_PER_PLANT) throw new AppError(plantPhotoLimitMessage(), 400);
+        const entry = { id: temporary, aquarium_id: id, plant_id: plantId, caption: str(body.caption, 200) || null, created_at: now, image_url: `api/aquariums/${id}/plant-images/${temporary}` };
+        rows.push(entry);result = { ok: true, ...entry };
+      } else {
+        const row = rows.find(entry => entry.id === Number(item));
+        if (!row) throw new AppError('Bild nicht gefunden.', 404);
+        row.caption = str(body.caption, 200) || null;
+      }
     } else if (type === 'image') {
       if (command.method === 'DELETE') { detail.aquarium.image_file = null;r[root + '/images'] = []; }
       else { for (const photo of list(root + '/images')) photo.is_primary = 0;list(root + '/images').push({ id: temporary, aquarium_id: id, caption: body.caption || null, filename: 'offline-' + command.id, is_primary: 1, created_at: now }); }

@@ -83,7 +83,7 @@ export async function enqueueWorkspace(owner: number, language: string, path: st
     try { decoded = atob(match ? match[2] : encoded); } catch { throw new AppError('Ungültige Bilddaten.', 400); }
     if (decoded.length > 5 * 1024 * 1024) throw new AppError('Das Bild darf höchstens 5 MiB groß sein.', 400);
     const blob = new Blob([Uint8Array.from(decoded, character => character.charCodeAt(0))], { type: match?.[1] || 'image/jpeg' });
-    const photoPath = path === '/me/avatar' ? 'me/avatar' : path.endsWith('/images') ? path.slice(1) + '/' + temporaryIds[0] : path.endsWith('/stock') ? path.slice(1) + '/' + temporaryIds[0] + '/image' : /\/stock\/-?\d+$/.test(path) ? path.slice(1) + '/image' : path.slice(1);
+    const photoPath = path === '/me/avatar' ? 'me/avatar' : /\/(?:plant-)?images$/.test(path) ? path.slice(1) + '/' + temporaryIds[0] : path.endsWith('/stock') ? path.slice(1) + '/' + temporaryIds[0] + '/image' : /\/stock\/-?\d+$/.test(path) ? path.slice(1) + '/image' : path.slice(1);
     await writeLocal(imageKey(owner, photoPath), blob);
     await writeLocal(imageKey(owner, photoPath) + ':pending', command.id);
   }
@@ -134,6 +134,7 @@ export async function synchronizeWorkspace(owner: number, language: string) {
       const root = `aquariums/${aquarium.id}`;
       if (aquarium.has_image) photos.push({ path: root + '/image', version: String(aquarium.image_file || aquarium.image_url) });
       for (const image of snapshot.responses['/' + root + '/images'] || []) photos.push({ path: root + '/images/' + image.id, version: image.filename });
+      for (const photo of snapshot.responses['/' + root + '/plant-images'] || []) photos.push({ path: root + '/plant-images/' + photo.id, version: String(photo.id) });
       for (const stock of snapshot.responses['/' + root + '/stock'] || []) if (stock.image_file) photos.push({ path: root + '/stock/' + stock.id + '/image', version: stock.image_file });
     }
     if (snapshot.responses['/me'].hasAvatar) photos.push({ path: 'me/avatar', version: snapshot.versions['/me/avatar'] });

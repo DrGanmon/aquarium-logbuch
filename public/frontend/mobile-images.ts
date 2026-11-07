@@ -3,7 +3,7 @@ import { session } from './state';
 import { activeOwner, readLocal, pendingFor, writeCatalogImage } from './offline-store';
 import { serverRequestUrl } from './mobile-runtime';
 
-const privateImage = /^api\/(?:me\/avatar|aquariums\/-?\d+\/(?:image|images\/-?\d+|stock\/-?\d+\/image))$/;
+const privateImage = /^api\/(?:me\/avatar|aquariums\/-?\d+\/(?:image|images\/-?\d+|plant-images\/-?\d+|stock\/-?\d+\/image))$/;
 const catalogImage = /^(species-images|plants-images)\/[^/]+\.(webp|png|jpe?g|avif)$/i;
 const socialImage = /^api\/social\/(?:posts\/\d+\/image|authors\/\d+\/avatar)$/;
 

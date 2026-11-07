@@ -134,6 +134,10 @@ function saveStockImage(stockId?: number, base64Data?: unknown, oldFilename?: un
   return storeImage('stock', stockId, base64Data, oldFilename);
 }
 
+function savePlantImage(aquariumId?: number, base64Data?: unknown) {
+  return storeImage('plant', aquariumId, base64Data);
+}
+
 function saveAquariumImage(aquariumId?: number, base64Data?: unknown) {
   return storeImage('aq', aquariumId, base64Data);
 }
@@ -144,6 +148,7 @@ export = {
   saveImage,
   saveAquariumImage,
   saveStockImage,
+  savePlantImage,
   saveAvatar,
   deleteImage,
   getImagePath,

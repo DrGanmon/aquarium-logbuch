@@ -3,6 +3,7 @@ import { replayMeasurement, replayOperation } from './measurement-operation';
 import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-crypto';
 import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
 import { PlantRepository } from './plant-repository';
+import { PlantImageRepository } from './plant-image-repository';
 import { SocialRepository } from "./social-repository";
 import { NotificationRepository } from "./notification-repository";
 import { buildAdminMetrics, normalizeAiUsage } from './admin-metrics';
@@ -40,6 +41,7 @@ class SqliteAdapter {
   aquariumImages!: ReturnType<SqliteAdapter['build_aquariumImages']>;
   shares!: ReturnType<SqliteAdapter['build_shares']>;
   plants!: PlantRepository;
+  plantImages!: PlantImageRepository;
   stock!: RepositoryContract<ReturnType<SqliteAdapter['build_stock']>, StockRepository>;
   measurements!: RepositoryContract<ReturnType<SqliteAdapter['build_measurements']>, MeasurementQueries>;
   alerts!: ReturnType<SqliteAdapter['build_alerts']>;
@@ -159,6 +161,7 @@ class SqliteAdapter {
 
     this.stock = this.build_stock();
     this.plants = new PlantRepository(this.type, this.connection());
+    this.plantImages = new PlantImageRepository(this.type, this.connection());
 
     this.measurements = this.build_measurements();
 
@@ -224,6 +227,7 @@ class SqliteAdapter {
       aquarium_shares,
       stock,
       aquarium_plants: safeGetAll('aquarium_plants', 'aquarium_id ASC, plant_id ASC'),
+      aquarium_plant_images: safeGetAll('aquarium_plant_images', 'id ASC'),
       measurements,
       measurement_drafts: safeGetAll('measurement_drafts', 'user_id ASC, aquarium_id ASC'),
       measurement_operations: safeGetAll('measurement_operations', 'operation_key ASC'),
@@ -276,6 +280,7 @@ class SqliteAdapter {
       db.exec('DELETE FROM measurement_operations');
       db.exec('DELETE FROM measurement_drafts');
       db.exec('DELETE FROM maintenance_logs');
+      db.exec('DELETE FROM aquarium_plant_images');
       db.exec('DELETE FROM aquarium_plants');
       db.exec('DELETE FROM stock');
       db.exec('DELETE FROM aquarium_images');
@@ -534,6 +539,9 @@ class SqliteAdapter {
 
       for (const plant of data.aquarium_plants || []) {
         db.prepare('INSERT INTO aquarium_plants (aquarium_id, plant_id, count) VALUES (?, ?, ?)').run(plant.aquarium_id, plant.plant_id, plant.count);
+      }
+      for (const photo of data.aquarium_plant_images || []) {
+        db.prepare('INSERT INTO aquarium_plant_images (id, aquarium_id, plant_id, filename, caption, created_at) VALUES (?, ?, ?, ?, ?, ?)').run(photo.id, photo.aquarium_id, photo.plant_id, photo.filename, photo.caption ?? null, photo.created_at || new Date().toISOString());
       }
       this.social.importSqliteData(data);
       this.notifications.importData(socialNotifications);
@@ -924,16 +932,19 @@ class SqliteAdapter {
         const aq = db.prepare<Aquarium>('SELECT image_file FROM aquariums WHERE id = ?').get(numId);
         const images = db.prepare<AquariumImage>('SELECT filename FROM aquarium_images WHERE aquarium_id = ?').all(numId);
         const stocks = db.prepare<StockRecord>('SELECT image_file FROM stock WHERE aquarium_id = ?').all(numId);
+        const plantPhotos = db.prepare<{ filename: string }>('SELECT filename FROM aquarium_plant_images WHERE aquarium_id = ?').all(numId);
         if (strictImages) {
           deleteImage(aq?.image_file, true);
           for (const image of images) deleteImage(image.filename, true);
           for (const stock of stocks) deleteImage(stock.image_file, true);
+          for (const photo of plantPhotos) deleteImage(photo.filename, true);
         }
         const res = db.prepare('DELETE FROM aquariums WHERE id = ?').run(numId);
         if (!res.changes) return false;
         deleteImage(aq?.image_file);
         for (const img of images) deleteImage(img.filename);
         for (const stock of stocks) deleteImage(stock.image_file);
+        for (const photo of plantPhotos) deleteImage(photo.filename);
         return true;
       },
       async countForUser(userId?: any) {

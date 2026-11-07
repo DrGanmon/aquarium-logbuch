@@ -42,7 +42,7 @@ Find more views and step-by-step instructions in the [public user guide](https:/
 - **Track test usage:** Automatic counting, adjustable refill capacities and refill reminders at 75% usage.
 - **Check stocking:** Species catalog with care requirements, images and guidance on groups, tank size and compatibility.
 - **Choose forms:** Find cultivars, botanical varieties and trade names without extra cards; select the specific form when adding animals or plants.
-- **Manage plants:** Bilingual plant catalog with care requirements and images, plus per-aquarium plant stock with quantities.
+- **Manage plants:** Bilingual plant catalog with care requirements and images, plus per-aquarium plant stock with quantities; your own photos per plant record where it was planted in the tank.
 - **Assess health:** Disease catalog, diagnosis assistant and medications/supplies with references, legal status and cautions.
 - **Use AI assistance:** Optional aquarium chat with OpenAI, Google Gemini or Anthropic Claude and encrypted personal API keys.
 - **Transfer and share data:** CSV import with column mapping, Excel-compatible CSV export and tank sharing with read or write access.

@@ -514,12 +514,13 @@
     "title": "Find plants and add them to a tank",
     "intro": "The plant catalog helps you find suitable plants and record the stock in your aquarium.",
     "image": "pflanzen",
-    "caption": "Plants in the aquarium: selected forms such as Pangolino are explicitly identified.",
+    "caption": "Plants in the aquarium: selected forms such as Pangolino are explicitly identified; your own photos show the planting spot.",
     "steps": [
       "Open “Plants” in the header. Filter by water type or category, or search for a species or cultivar name. Forms appear under a shared parent card; “Matching forms” lists the forms found by your search.",
       "Open a plant and read its placement, lighting, growth and care guidance.",
       "Choose “Add to aquarium”, select a suitable aquarium and, if offered, the specific form in “Form / subspecies”. Enter the quantity and save. The selected form keeps its own stock entry. In the aquarium, “Form / subspecies” also identifies the selected form, including offline.",
       "In the aquarium’s plant section, you can change quantities or remove plants.",
+      "On a plant, select “📷 Photos” and then “Add photos”. Choose one or more images and optionally describe the spot, for example “back left behind the root”. Tap a photo to enlarge it; use “Edit description” and “Delete” to manage individual photos.",
       "To record trimming or planting in your history, add a separate logbook entry for that work."
     ],
     "extra": [],
@@ -535,6 +536,10 @@
       {
         "title": "Change total quantity",
         "text": "The quantity is the total stock of that plant in the tank. Changing three to five means five in total, not eight."
+      },
+      {
+        "title": "Remember the planting spot",
+        "text": "Your own photos show where a plant sits in the tank. Each plant can have up to 20 photos; they are removed together with the plant and remain visible offline."
       }
     ]
   },
