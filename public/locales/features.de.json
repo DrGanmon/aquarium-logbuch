@@ -45,7 +45,7 @@
   },
   "calendar": {
     "title": "Kalender",
-    "help": "Messzyklen, manuelle Dünger und wiederkehrende Aufgaben deiner Aquarien (eigene und mit Schreibfreigabe) als Kalendertermine.",
+    "help": "Messzyklen, manuelle Dünger und wiederkehrende Aufgaben der ausgewählten Aquarien (eigene und mit Schreibfreigabe) als Kalendertermine.",
     "downloadTitle": "iCal-Datei herunterladen",
     "downloadHelp": "Einmaliger Export aller Termine bis Ende {to}. Spätere Änderungen erscheinen nur nach erneutem Import – für automatische Aktualisierung CalDAV nutzen.",
     "download": "Kalender {from}–{to} herunterladen (.ics)",
@@ -68,7 +68,16 @@
     "regenerateConfirm": "Neues CalDAV-Passwort erzeugen? Bereits eingerichtete Geräte müssen danach mit dem neuen Passwort angemeldet werden.",
     "regenerated": "Neues CalDAV-Passwort erzeugt.",
     "offline": "Kalender-Zugang und Download benötigen eine Internetverbindung.",
-    "loginRequired": "Bitte erneut anmelden."
+    "loginRequired": "Bitte erneut anmelden.",
+    "aquariumsTitle": "Aquarien im Kalender",
+    "aquariumsHelp": "Wähle, welche Aquarien im Download und im CalDAV-Kalender erscheinen. Neue Aquarien sind automatisch dabei; die Auswahl wird sofort gespeichert.",
+    "aquariumsCount": "{included} von {total} ausgewählt",
+    "aquariumsEmpty": "Keine eigenen Aquarien oder Aquarien mit Schreibfreigabe vorhanden.",
+    "sharedBy": "geteilt von {owner}",
+    "selectAll": "Alle auswählen",
+    "selectNone": "Keine auswählen",
+    "selectionSaved": "Kalenderauswahl gespeichert.",
+    "noneSelected": "Kein Aquarium ausgewählt – Download und CalDAV-Kalender bleiben leer."
   },
   "lighting": {
     "title": "Beleuchtung",

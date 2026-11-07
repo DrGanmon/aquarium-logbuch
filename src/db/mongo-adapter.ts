@@ -602,6 +602,7 @@ class MongoAdapter {
           'selected_tests',
           'default_graph_range',
           'tap_water',
+          'calendar_excluded_aquariums',
           'email_verified',
           'email_verify_token',
           'email_verify_expires',

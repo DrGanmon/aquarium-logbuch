@@ -16391,7 +16391,7 @@
         ],
         "summary": "Pflegekalender als iCal herunterladen",
         "operationId": "get_api_me_calendar_ics",
-        "description": "Gültige Sitzung erforderlich. Enthält Messzyklen, aktive manuelle Dünger und aktive Pflegeaufgaben aller eigenen Aquarien und Aquarien mit Schreibfreigabe. Jeder Termin beginnt bei der nächsten Fälligkeit (Überfälliges heute) und wiederholt sich per RRULE bis zum 31. Dezember des Folgejahres. Ohne Uhrzeit ganztägig, sonst als lokale (schwebende) Zeit mit 30 Minuten Dauer. Antwort als Datei-Download.",
+        "description": "Gültige Sitzung erforderlich. Enthält Messzyklen, aktive manuelle Dünger und aktive Pflegeaufgaben aller eigenen Aquarien und Aquarien mit Schreibfreigabe, die in `/api/me/calendar/aquariums` ausgewählt sind. Jeder Termin beginnt bei der nächsten Fälligkeit (Überfälliges heute) und wiederholt sich per RRULE bis zum 31. Dezember des Folgejahres. Ohne Uhrzeit ganztägig, sonst als lokale (schwebende) Zeit mit 30 Minuten Dauer. Antwort als Datei-Download.",
         "security": [
           {
             "SessionCookie": []
@@ -16761,6 +16761,110 @@
           },
           "404": {
             "$ref": "#/components/responses/Error404"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
+    },
+    "/api/me/calendar/aquariums": {
+      "get": {
+        "tags": [
+          "Kalender"
+        ],
+        "summary": "Aquarien des Kalenders abrufen",
+        "operationId": "get_api_me_calendar_aquariums",
+        "description": "Gültige Sitzung erforderlich; nur online. Listet alle eigenen Aquarien und Aquarien mit Schreibfreigabe mit ihrem Auswahlstatus. Neue Aquarien sind automatisch ausgewählt. Antwort mit `Cache-Control: no-store`.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CalendarAquarium"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Kalender"
+        ],
+        "summary": "Aquarien des Kalenders auswählen",
+        "operationId": "put_api_me_calendar_aquariums",
+        "description": "Gültige Sitzung erforderlich; nur online. Speichert, welche Aquarien im iCal-Download (`/api/me/calendar.ics`) und im CalDAV-Kalender fehlen. IDs nicht auswählbarer Aquarien werden ignoriert; höchstens 500 IDs.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "excludedAquariumIds"
+                ],
+                "properties": {
+                  "excludedAquariumIds": {
+                    "type": "array",
+                    "maxItems": 500,
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CalendarAquarium"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
           },
           "500": {
             "$ref": "#/components/responses/Error500"
@@ -19360,6 +19464,40 @@
             }
           }
         ]
+      },
+      "CalendarAquarium": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "role",
+          "owner",
+          "included"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "write"
+            ]
+          },
+          "owner": {
+            "type": "string",
+            "nullable": true,
+            "description": "Besitzer bei Aquarien mit Schreibfreigabe, sonst null."
+          },
+          "included": {
+            "type": "boolean",
+            "description": "Erscheint im iCal-Download und im CalDAV-Kalender."
+          }
+        }
       }
     },
     "responses": {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { api } from "../api";
 import { registerMessages, t, errorMessage, toast } from "../state";
 import featuresDe from "../../locales/features.de.json";
@@ -19,7 +19,30 @@ async function load(regenerate = false) {
   } catch (caught) { error.value = navigator.onLine ? errorMessage(caught) : t("calendar.offline"); }
   finally { busy.value = false; }
 }
-onMounted(() => void load());
+/** Aquariums for the calendar; the selection applies to the iCal download and the CalDAV calendar. */
+interface CalendarAquarium { id: number; name: string; role: "owner" | "write"; owner: string | null; included: boolean }
+const aquariums = ref<CalendarAquarium[]>(), selecting = ref(false);
+const includedCount = computed(() => aquariums.value?.filter(aquarium => aquarium.included).length || 0);
+async function loadSelection() {
+  try { aquariums.value = await api<CalendarAquarium[]>("/me/calendar/aquariums", { networkOnly: true }); }
+  catch (caught) { error.value = navigator.onLine ? errorMessage(caught) : t("calendar.offline"); }
+}
+async function saveSelection(included: (aquarium: CalendarAquarium) => boolean) {
+  if (!aquariums.value || selecting.value) return;
+  const previous = aquariums.value;
+  aquariums.value = previous.map(aquarium => ({ ...aquarium, included: included(aquarium) }));
+  selecting.value = true;error.value = "";
+  try {
+    aquariums.value = await api<CalendarAquarium[]>("/me/calendar/aquariums", { method: "PUT", networkOnly: true,
+      body: { excludedAquariumIds: aquariums.value.filter(aquarium => !aquarium.included).map(aquarium => aquarium.id) } });
+    toast(t("calendar.selectionSaved"));
+  } catch (caught) {
+    aquariums.value = previous;
+    error.value = navigator.onLine ? errorMessage(caught) : t("calendar.offline");
+  } finally { selecting.value = false; }
+}
+const toggle = (target: CalendarAquarium, checked: boolean) => saveSelection(aquarium => aquarium.id === target.id ? checked : aquarium.included);
+onMounted(() => { void load();void loadSelection(); });
 async function copy(value: string) {
   try { await navigator.clipboard.writeText(value);toast(t("calendar.copied")); }
   catch { error.value = t("calendar.copyFailed"); }
@@ -43,6 +66,29 @@ async function download() {
   <section class="card stack" data-calendar-settings>
     <h2 style="margin:0">📅 {{ t("calendar.title") }}</h2>
     <p class="muted" style="margin:0">{{ t("calendar.help") }}</p>
+    <div class="stack" data-calendar-aquariums>
+      <div class="row between">
+        <h3 style="margin:0">{{ t("calendar.aquariumsTitle") }}</h3>
+        <span v-if="aquariums?.length" class="muted">{{ t("calendar.aquariumsCount", { included: includedCount, total: aquariums.length }) }}</span>
+      </div>
+      <p class="muted" style="margin:0">{{ t("calendar.aquariumsHelp") }}</p>
+      <p v-if="!aquariums" class="muted">{{ t("common.loading") }}</p>
+      <p v-else-if="!aquariums.length" class="muted">{{ t("calendar.aquariumsEmpty") }}</p>
+      <ul v-else class="calendar-aquariums">
+        <li v-for="aquarium in aquariums" :key="aquarium.id">
+          <label class="row">
+            <input type="checkbox" :checked="aquarium.included" :disabled="selecting" @change="toggle(aquarium, ($event.target as HTMLInputElement).checked)" />
+            <span>{{ aquarium.name }}</span>
+            <small v-if="aquarium.owner" class="muted">{{ t("calendar.sharedBy", { owner: aquarium.owner }) }}</small>
+          </label>
+        </li>
+      </ul>
+      <div v-if="aquariums && aquariums.length > 1" class="row">
+        <button type="button" class="btn small ghost" :disabled="selecting || includedCount === aquariums.length" @click="saveSelection(() => true)">{{ t("calendar.selectAll") }}</button>
+        <button type="button" class="btn small ghost" :disabled="selecting || includedCount === 0" @click="saveSelection(() => false)">{{ t("calendar.selectNone") }}</button>
+      </div>
+      <p v-if="aquariums?.length && !includedCount" class="muted">{{ t("calendar.noneSelected") }}</p>
+    </div>
     <div class="stack">
       <h3 style="margin:0">{{ t("calendar.downloadTitle") }}</h3>
       <p class="muted" style="margin:0">{{ t("calendar.downloadHelp", { from: year, to: year + 1 }) }}</p>
@@ -83,5 +129,7 @@ async function download() {
 .caldav-access dd { margin: 0; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; min-width: 0; }
 .caldav-access code { overflow-wrap: anywhere; padding: .2rem .4rem; border-radius: 6px; background: var(--paper); border: 1px solid var(--line); }
 .caldav-steps { margin: 0; padding-left: 1.2rem; }
+.calendar-aquariums { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; }
+.calendar-aquariums label { gap: .5rem; align-items: center; flex-wrap: wrap; }
 @media (max-width: 560px) { .caldav-access { grid-template-columns: 1fr; } }
 </style>

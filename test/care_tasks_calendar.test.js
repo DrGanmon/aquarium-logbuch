@@ -269,3 +269,52 @@ test('Aufgaben & Intervalle: Messzyklus und manuelle Dünger erscheinen automati
   assert.match(section, /#\/a\/\$\{id\}\/messen/);
   assert.match(read('public/frontend/views/AquariumView.vue'), /@activate="tasksResource\.load\(\); pumpsResource\.load\(\)"/);
 });
+
+for (const backend of ['sqlite', 'mongodb']) test(`Kalender: Aquarien für iCal und CalDAV an- und abwählen (${backend})`, { timeout: 120000 }, async t => {
+  const env = backend === 'mongodb' ? await createMongoTestEnvironment() : createTestEnvironment();
+  t.after(() => env.cleanup());
+  const owner = await env.createUserAndLogin('auswahl_owner', 'password123', 'admin@example.com');
+  const other = await env.createUserAndLogin('auswahl_other', 'password123', 'other@example.com');
+  const headers = { Cookie: owner.cookie }, otherHeaders = { Cookie: other.cookie };
+  const ownerId = (await env.request('/api/me', { headers })).data.id;
+  const makeAquarium = async (name, cookieHeaders = headers) => (await env.request('/api/aquariums', { method: 'POST', headers: cookieHeaders, body: { name, volume_l: 60 } })).data.id;
+  const first = await makeAquarium('Wohnzimmer'), second = await makeAquarium('Büro');
+  for (const id of [first, second]) assert.equal((await env.request(`/api/aquariums/${id}/tasks`, { method: 'POST', headers, body: { type: 'water_change', interval: 1, unit: 'weeks', start_date: shift(1) } })).status, 200);
+  const foreign = await makeAquarium('Fremdes Becken', otherHeaders);
+  const viewOnly = await makeAquarium('Nur lesen', otherHeaders);
+  assert.equal((await env.request(`/api/aquariums/${viewOnly}/shares`, { method: 'POST', headers: otherHeaders, body: { usernameOrEmail: 'auswahl_owner', role: 'view' } })).status, 200);
+  assert.equal((await env.request('/api/shares/accept', { method: 'POST', headers, body: { aquarium_id: viewOnly } })).status, 200);
+
+  const initial = await env.request('/api/me/calendar/aquariums', { headers });
+  assert.equal(initial.status, 200);
+  assert.deepEqual(initial.data.map(aquarium => [aquarium.name, aquarium.included]).sort(), [['Büro', true], ['Wohnzimmer', true]], 'Lesefreigaben stehen nicht zur Auswahl');
+  assert.equal((await env.request('/api/me/calendar/aquariums')).status, 401);
+  for (const body of [{}, { excludedAquariumIds: 'x' }, { excludedAquariumIds: [0] }, { excludedAquariumIds: [1.5] }]) {
+    assert.equal((await env.request('/api/me/calendar/aquariums', { method: 'PUT', headers, body })).status, 400, JSON.stringify(body));
+  }
+  const saved = await env.request('/api/me/calendar/aquariums', { method: 'PUT', headers, body: { excludedAquariumIds: [second, foreign, second] } });
+  assert.equal(saved.status, 200, saved.text);
+  assert.deepEqual(saved.data.filter(aquarium => !aquarium.included).map(aquarium => aquarium.id), [second]);
+
+  const ics = (await env.request('/api/me/calendar.ics', { headers })).text.replace(/\r\n /g, '');
+  assert.match(ics, /SUMMARY:💧 Wasserwechsel – Wohnzimmer/);
+  assert.doesNotMatch(ics, /Büro/, 'Abgewählte Aquarien fehlen im Download');
+  const access = (await env.request('/api/me/caldav', { headers })).data;
+  const listing = await env.request(`/caldav/${ownerId}/pflege/`, { method: 'PROPFIND', headers: { ...basic('auswahl_owner', access.password), Depth: '1' }, body: propfind });
+  const objects = [...listing.text.matchAll(/pflege\/([^<]+)\.ics<\/D:href>/g)].map(match => match[1]);
+  assert.ok(objects.includes(`measure-${first}`) && !objects.includes(`measure-${second}`), objects.join(','));
+  assert.equal(objects.filter(name => name.startsWith('task-')).length, 1, 'CalDAV zeigt nur ausgewählte Aquarien');
+
+  const third = await makeAquarium('Neu');
+  assert.equal((await env.request('/api/me/calendar/aquariums', { headers })).data.find(aquarium => aquarium.id === third).included, true, 'Neue Aquarien sind automatisch ausgewählt');
+
+  assert.equal((await env.request('/api/admin/backups/config', { method: 'PUT', headers, body: { password: 'backup-test-password' } })).status, 200);
+  const backup = await env.request('/api/admin/backups/create', { method: 'POST', headers });
+  assert.equal((await env.request('/api/me/calendar/aquariums', { method: 'PUT', headers, body: { excludedAquariumIds: [] } })).status, 200);
+  assert.equal((await env.request(`/api/admin/backups/${encodeURIComponent(backup.data.filename)}/restore`, { method: 'POST', headers })).status, 200);
+  assert.deepEqual((await env.request('/api/me/calendar/aquariums', { headers })).data.filter(aquarium => !aquarium.included).map(aquarium => aquarium.id), [second], 'Auswahl bleibt nach einer Wiederherstellung erhalten');
+
+  const settings = fs.readFileSync(path.join(__dirname, '..', 'public/frontend/components/CalendarSettings.vue'), 'utf8');
+  assert.match(settings, /\/me\/calendar\/aquariums/);
+  assert.match(settings, /type="checkbox"/);
+});

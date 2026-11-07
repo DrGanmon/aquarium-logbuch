@@ -771,9 +771,10 @@
     "title": "Aufgaben im Kalender auf Handy und Computer",
     "intro": "Übernimm Messzyklen, Dünger und Aufgaben in deinen Kalender – einmalig als iCal-Datei oder automatisch per CalDAV.",
     "image": "kalender",
-    "caption": "Profilreiter „Kalender“ mit iCal-Download und CalDAV-Zugangsdaten eines Demokontos.",
+    "caption": "Profilreiter „Kalender“ mit Aquarienauswahl, iCal-Download und CalDAV-Zugangsdaten eines Demokontos.",
     "steps": [
       "Öffne „Profil“ und den Reiter „Kalender“.",
+      "Unter „Aquarien im Kalender“ setzt oder entfernst du das Häkchen bei jedem Becken. Die Auswahl gilt für Download und CalDAV und wird sofort gespeichert; neue Aquarien sind automatisch ausgewählt.",
       "Für einen einmaligen Import wähle „Kalender … herunterladen (.ics)“ und öffne die Datei mit deiner Kalender-App. Sie enthält Termine bis Ende des nächsten Jahres.",
       "Für automatische Aktualisierungen lege auf dem Gerät ein CalDAV-Konto an. Auf iPhone/iPad: Einstellungen → Kalender → Accounts → Account hinzufügen → Andere → CalDAV-Account. Auf Android z. B. mit DAVx⁵.",
       "Trage Server, Benutzername und das angezeigte CalDAV-Passwort ein. Mit „Kopieren“ übernimmst du die Werte ohne Tippfehler.",
@@ -791,7 +792,7 @@
       },
       {
         "title": "Welche Termine",
-        "text": "Der Kalender enthält Termine eigener Aquarien und von Aquarien mit Schreibfreigabe. Überfällige Aufgaben erscheinen am heutigen Tag."
+        "text": "Du wählst selbst, welche eigenen Aquarien und Aquarien mit Schreibfreigabe im Kalender erscheinen. Überfällige Aufgaben erscheinen am heutigen Tag."
       }
     ]
   },

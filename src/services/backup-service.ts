@@ -9,6 +9,7 @@ import { Worker } from 'node:worker_threads';
 import type { BackupSnapshotSource, BackupWorkerJob, BackupWorkerResult } from '../types/backup';
 import { validateCareTaskInput } from '../shared/care-tasks';
 import { validateLightingInput } from '../shared/lighting';
+import { parseCalendarSelection, serializeCalendarSelection } from './calendar-selection';
 import { MAINTENANCE_TYPES } from '../shared/maintenance';
 import path = require('path');
 import fs = require('fs');
@@ -719,6 +720,7 @@ class BackupService {
         selected_suite: u.selected_suite ? String(u.selected_suite) : null,
         selected_tests: u.selected_tests ? String(u.selected_tests) : null,
         tap_water: u.tap_water ? (typeof u.tap_water === 'string' ? u.tap_water : JSON.stringify(u.tap_water)) : null,
+        calendar_excluded_aquariums: serializeCalendarSelection(parseCalendarSelection(u.calendar_excluded_aquariums)),
         test_inventory: require('./test-inventory-service').normalizeInventory(u.test_inventory),
         email_verified: emailVerified,
         is_admin: hasAdminFlags ? (u.is_admin && u.is_admin !== '0' ? 1 : 0) : (email && emailVerified && legacyAdmins.has(email) ? 1 : 0),

@@ -45,7 +45,7 @@
   },
   "calendar": {
     "title": "Calendar",
-    "help": "Measuring cycles, manual fertilizers and recurring tasks of your aquariums (own and shared with write access) as calendar events.",
+    "help": "Measuring cycles, manual fertilizers and recurring tasks of the selected aquariums (own and shared with write access) as calendar events.",
     "downloadTitle": "Download iCal file",
     "downloadHelp": "One-time export of all events until the end of {to}. Later changes only appear after importing again – use CalDAV for automatic updates.",
     "download": "Download calendar {from}–{to} (.ics)",
@@ -68,7 +68,16 @@
     "regenerateConfirm": "Generate a new CalDAV password? Devices that are already set up must sign in with the new password afterwards.",
     "regenerated": "New CalDAV password generated.",
     "offline": "Calendar access and download require an internet connection.",
-    "loginRequired": "Please sign in again."
+    "loginRequired": "Please sign in again.",
+    "aquariumsTitle": "Aquariums in the calendar",
+    "aquariumsHelp": "Choose which aquariums appear in the download and the CalDAV calendar. New aquariums are included automatically; the selection is saved immediately.",
+    "aquariumsCount": "{included} of {total} selected",
+    "aquariumsEmpty": "No own aquariums or aquariums shared with write access.",
+    "sharedBy": "shared by {owner}",
+    "selectAll": "Select all",
+    "selectNone": "Select none",
+    "selectionSaved": "Calendar selection saved.",
+    "noneSelected": "No aquarium selected – the download and CalDAV calendar stay empty."
   },
   "lighting": {
     "title": "Lighting",

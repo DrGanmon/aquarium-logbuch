@@ -3,7 +3,9 @@ import type { Request, Response, NextFunction } from 'express';
 import envModule = require('../config/env');
 import authModule = require('../middleware/auth');
 import { calDavPassword } from '../services/caldav-service';
-import { buildUserCalendar, calendarIcs } from '../services/calendar-service';
+import { buildUserCalendar, calendarIcs, calendarAquariumSelection } from '../services/calendar-service';
+import { MAX_CALENDAR_EXCLUSIONS, serializeCalendarSelection } from '../services/calendar-selection';
+import db = require('../db');
 
 const { auth } = authModule;
 const { APP_URL, APP_PATH } = envModule;
@@ -23,6 +25,22 @@ router.get('/me/caldav', auth, wrap(async (req, res) => {
 router.post('/me/caldav/password', auth, wrap(async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   res.json(connection(req, await calDavPassword(req.user.id, true)));
+}));
+// Which aquariums appear in the iCal export and the CalDAV calendar; new aquariums are included by default.
+router.get('/me/calendar/aquariums', auth, wrap(async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.json(await calendarAquariumSelection(req.user.id));
+}));
+router.put('/me/calendar/aquariums', auth, wrap(async (req, res) => {
+  const input = req.body?.excludedAquariumIds;
+  if (!Array.isArray(input) || input.length > MAX_CALENDAR_EXCLUSIONS || input.some(id => !Number.isSafeInteger(id) || id < 1)) {
+    return res.status(400).json({ error: 'excludedAquariumIds muss eine Liste von Aquarium-IDs sein.' });
+  }
+  const eligible = new Set((await calendarAquariumSelection(req.user.id)).map(aquarium => aquarium.id));
+  const excluded = [...new Set(input as number[])].filter(id => eligible.has(id)).sort((a, b) => a - b);
+  await db.users.update(req.user.id, { calendar_excluded_aquariums: serializeCalendarSelection(excluded) });
+  res.setHeader('Cache-Control', 'no-store');
+  res.json(await calendarAquariumSelection(req.user.id));
 }));
 router.get('/me/calendar.ics', auth, wrap(async (req, res) => {
   const language = req.user.language === 'en' ? 'en' : 'de';

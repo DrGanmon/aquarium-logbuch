@@ -5,6 +5,7 @@ import { MAINTENANCE_TYPES } from '../shared/maintenance';
 import { careTaskStatus, lastMaintenanceByType, localDate, addInterval, type CareTaskUnit } from '../shared/care-tasks';
 import { manualDosingStatus } from '../shared/dosing';
 import type { DosingPump } from '../types/domain';
+import { parseCalendarSelection } from './calendar-selection';
 
 const { APP_URL } = envModule;
 
@@ -29,9 +30,24 @@ const stampOf = (value: unknown) => {
   return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 };
 
+/** Aquariums that can appear in the user's calendar (own and shared with write access). */
+async function calendarEligibleAquariums(userId: number): Promise<any[]> {
+  return (await db.aquariums.listForUser(userId)).filter((aquarium: any) => aquarium.role === 'owner' || aquarium.role === 'write');
+}
+async function excludedAquariums(userId: number): Promise<Set<number>> {
+  return new Set(parseCalendarSelection((await db.users.findById(userId))?.calendar_excluded_aquariums));
+}
+
+/** Calendar selection for the profile: every eligible aquarium with its inclusion state. */
+export async function calendarAquariumSelection(userId: number) {
+  const excluded = await excludedAquariums(userId);
+  return (await calendarEligibleAquariums(userId)).map((aquarium: any) => ({ id: Number(aquarium.id), name: String(aquarium.name || ''), role: aquarium.role as 'owner' | 'write',
+    owner: aquarium.role === 'owner' ? null : aquarium.owner_username || null, included: !excluded.has(Number(aquarium.id)) }));
+}
+
 /**
  * Builds the read-only care calendar of a user: measuring cycles, manual fertilizers and recurring
- * care tasks of all own aquariums and aquariums shared with write access. Entries start at the next
+ * care tasks of all own aquariums and aquariums shared with write access, except those the user deselected. Entries start at the next
  * due date (overdue entries today) and recur until the end of the following year.
  */
 export async function buildUserCalendar(userId: number, language = 'de', now = new Date()): Promise<UserCalendar> {
@@ -39,7 +55,8 @@ export async function buildUserCalendar(userId: number, language = 'de', now = n
   const today = localDate(now);
   const until = `${now.getFullYear() + 1}-12-31`;
   const entries: CalendarEntry[] = [];
-  const aquariums = (await db.aquariums.listForUser(userId)).filter((aquarium: any) => aquarium.role === 'owner' || aquarium.role === 'write');
+  const excluded = await excludedAquariums(userId);
+  const aquariums = (await calendarEligibleAquariums(userId)).filter((aquarium: any) => !excluded.has(Number(aquarium.id)));
   const link = (id: number) => APP_URL ? `${APP_URL}/#/a/${id}` : undefined;
   const push = (entry: Omit<CalendarEntry, 'start'> & { start: string | null }) => {
     if (!entry.start) return;

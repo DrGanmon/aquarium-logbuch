@@ -771,9 +771,10 @@
     "title": "Tasks in your phone or computer calendar",
     "intro": "Bring measuring cycles, fertilizers and tasks into your calendar – once as an iCal file or automatically via CalDAV.",
     "image": "kalender",
-    "caption": "Profile tab “Calendar” with iCal download and CalDAV credentials of a demo account.",
+    "caption": "Profile tab “Calendar” with aquarium selection, iCal download and CalDAV credentials of a demo account.",
     "steps": [
       "Open “Profile” and the “Calendar” tab.",
+      "Under “Aquariums in the calendar”, tick or untick each tank. The selection applies to the download and CalDAV and is saved immediately; new aquariums are selected automatically.",
       "For a one-time import, select “Download calendar … (.ics)” and open the file with your calendar app. It contains events until the end of next year.",
       "For automatic updates, add a CalDAV account on the device. On iPhone/iPad: Settings → Calendar → Accounts → Add Account → Other → CalDAV account. On Android, for example with DAVx⁵.",
       "Enter the server, username and the CalDAV password shown. Use “Copy” to transfer the values without typos.",
@@ -791,7 +792,7 @@
       },
       {
         "title": "Which events",
-        "text": "The calendar contains events of your own aquariums and aquariums shared with write access. Overdue tasks appear on today's date."
+        "text": "You choose which of your own aquariums and aquariums shared with write access appear in the calendar. Overdue tasks appear on today's date."
       }
     ]
   },
