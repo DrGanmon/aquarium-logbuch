@@ -6,6 +6,7 @@ import { PlantRepository } from './plant-repository';
 import { PlantImageRepository } from './plant-image-repository';
 import { CareTaskRepository } from './care-task-repository';
 import { CalDavRepository } from './caldav-repository';
+import { LightingRepository } from './lighting-repository';
 import { SocialRepository } from "./social-repository";
 import { NotificationRepository } from "./notification-repository";
 import { buildAdminMetrics, normalizeAiUsage } from './admin-metrics';
@@ -46,6 +47,7 @@ class SqliteAdapter {
   plantImages!: PlantImageRepository;
   careTasks!: CareTaskRepository;
   caldav!: CalDavRepository;
+  lighting!: LightingRepository;
   stock!: RepositoryContract<ReturnType<SqliteAdapter['build_stock']>, StockRepository>;
   measurements!: RepositoryContract<ReturnType<SqliteAdapter['build_measurements']>, MeasurementQueries>;
   alerts!: ReturnType<SqliteAdapter['build_alerts']>;
@@ -168,6 +170,7 @@ class SqliteAdapter {
     this.plantImages = new PlantImageRepository(this.type, this.connection());
     this.careTasks = new CareTaskRepository(this.type, this.connection());
     this.caldav = new CalDavRepository(this.type, this.connection());
+    this.lighting = new LightingRepository(this.type, this.connection());
 
     this.measurements = this.build_measurements();
 
@@ -235,6 +238,7 @@ class SqliteAdapter {
       aquarium_plants: safeGetAll('aquarium_plants', 'aquarium_id ASC, plant_id ASC'),
       aquarium_plant_images: safeGetAll('aquarium_plant_images', 'id ASC'),
       care_tasks: safeGetAll('care_tasks', 'id ASC'),
+      aquarium_lighting: safeGetAll('aquarium_lighting', 'aquarium_id ASC'),
       measurements,
       measurement_drafts: safeGetAll('measurement_drafts', 'user_id ASC, aquarium_id ASC'),
       measurement_operations: safeGetAll('measurement_operations', 'operation_key ASC'),
@@ -289,6 +293,7 @@ class SqliteAdapter {
       db.exec('DELETE FROM maintenance_logs');
       db.exec('DELETE FROM aquarium_plant_images');
       db.exec('DELETE FROM care_tasks');
+      db.exec('DELETE FROM aquarium_lighting');
       db.exec('DELETE FROM caldav_credentials');
       db.exec('DELETE FROM aquarium_plants');
       db.exec('DELETE FROM stock');
@@ -548,6 +553,10 @@ class SqliteAdapter {
 
       for (const plant of data.aquarium_plants || []) {
         db.prepare('INSERT INTO aquarium_plants (aquarium_id, plant_id, count) VALUES (?, ?, ?)').run(plant.aquarium_id, plant.plant_id, plant.count);
+      }
+      for (const light of data.aquarium_lighting || []) {
+        db.prepare('INSERT INTO aquarium_lighting (aquarium_id, red, green, blue, white, start_time, end_time, sunrise_minutes, sunset_minutes, note, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+          .run(light.aquarium_id, light.red, light.green, light.blue, light.white, light.start_time, light.end_time, light.sunrise_minutes, light.sunset_minutes, light.note ?? null, light.updated_at || new Date().toISOString());
       }
       for (const task of data.care_tasks || []) {
         db.prepare('INSERT INTO care_tasks (id, aquarium_id, type, title, note, interval, unit, start_date, time_of_day, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')

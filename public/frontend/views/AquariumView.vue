@@ -13,6 +13,7 @@ import type {
   Stock,
   Pump,
   CareTask,
+  Lighting,
 } from "../types";
 import Modal from "../components/Modal.vue";
 import LazySection from "../components/LazySection.vue";
@@ -26,6 +27,7 @@ const PlantSection = lazyComponent(() => import("../components/PlantSection.vue"
 const StockSection = lazyComponent(() => import("../components/StockSection.vue"));
 const FertilizerSection = lazyComponent(() => import("../components/FertilizerSection.vue"));
 const CareTaskSection = lazyComponent(() => import("../components/CareTaskSection.vue"));
+const LightingSection = lazyComponent(() => import("../components/LightingSection.vue"));
 const CsvDialog = lazyComponent(() => import("../components/CsvDialog.vue"));
 const ChatDialog = lazyComponent(() => import("../components/ChatDialog.vue"));
 const SharingDialog = lazyComponent(() => import("../components/SharingDialog.vue"));
@@ -85,6 +87,7 @@ const plantsResource = useLazyResource<AquariumPlant[]>([], signal => api(`/aqua
 const residents = useLazyResource<Stock[]>([], (signal) => api(`/aquariums/${props.id}/stock`, { signal }));
 const pumpsResource = useLazyResource<Pump[]>([], (signal) => api(`/aquariums/${props.id}/fertilizers`, { signal }));
 const tasksResource = useLazyResource<CareTask[]>([], (signal) => api(`/aquariums/${props.id}/tasks`, { signal }));
+const lightingResource = useLazyResource<Lighting | null>(null, (signal) => api(`/aquariums/${props.id}/lighting`, { signal }));
 let paginationController: AbortController | undefined;
 const timeline = useLazyResource<LogEntry[]>([], async (signal) => {
   paginationController?.abort();
@@ -100,7 +103,7 @@ const stock = residents.data;
 const pumps = pumpsResource.data;
 const logs = timeline.data;
 const logBusy = computed(() => timeline.loading.value || moreLoading.value);
-const resources = [gallery, history, residents, plantsResource, pumpsResource, tasksResource, timeline];
+const resources = [gallery, history, residents, plantsResource, lightingResource, pumpsResource, tasksResource, timeline];
 let detailController: AbortController | undefined;
 onBeforeUnmount(() => { detailController?.abort(); paginationController?.abort(); });
 onMounted(() => {
@@ -582,6 +585,9 @@ async function leave() {
       </LazySection>
       <LazySection data-lazy="plants" :label="t('nav.plants')" :loaded="plantsResource.loaded.value" :loading="plantsResource.loading.value" :error="plantsResource.error.value" @activate="plantsResource.load()">
         <PlantSection :id="id" :plants="plantsResource.data.value" :readonly="readonly" @changed="plantsResource.load(true)" />
+      </LazySection>
+      <LazySection data-lazy="lightingResource" :label="t('lighting.title')" :loaded="lightingResource.loaded.value" :loading="lightingResource.loading.value" :error="lightingResource.error.value" @activate="lightingResource.load()">
+        <LightingSection :id="id" :lighting="lightingResource.data.value" :readonly="readonly" @changed="lightingResource.load(true)" />
       </LazySection>
       <LazySection data-lazy="pumpsResource" :label="t('detail.pumpsTitle')" :loaded="pumpsResource.loaded.value" :loading="pumpsResource.loading.value" :error="pumpsResource.error.value" @activate="pumpsResource.load()">
         <FertilizerSection

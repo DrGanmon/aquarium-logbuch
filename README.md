@@ -37,6 +37,7 @@ Weitere Ansichten und Schrittfolgen findest du im [öffentlichen Nutzerhandbuch]
 - **Verlauf auswerten:** Diagramme mit freier Zeitraumauswahl, Warnungen und bestätigbare Alarme.
 - **Pflege dokumentieren:** Logbuch für Wasserwechsel, Filterpflege, Pflanzen, Düngung und weitere Aktivitäten.
 - **Pflege planen:** Messzyklen mit optionalen E-Mail-Erinnerungen; Düngerbereich mit individuellen Erinnerungen für manuelle Dünger und automatischer Protokollierung geplanter Pumpendosierungen; wiederkehrende Aufgaben wie Wasserwechsel, Filterpflege oder Pflanzenschnitt in Tagen, Wochen oder Monaten.
+- **Beleuchtung festhalten:** RGBW-Kanalwerte (0–100 %), Lichtzeiten sowie Sonnenauf- und -untergang je Aquarium mit Mischfarbe und Helligkeitsverlauf dokumentieren.
 - **Kalender nutzen:** Pflegetermine als iCal-Datei für das aktuelle und nächste Jahr herunterladen oder per schreibgeschütztem CalDAV mit eigenem, automatisch erzeugtem Passwort auf Handy und Computer synchronisieren.
 - **Messgeräte einrichten:** Modellbezogener YINMIK-Assistent für Einrichtung, Kalibrierung und Vorbereitung; direkt aus einem laufenden Test starten, diesen lokal gesichert pausieren und anschließend automatisch fortsetzen, mit Herstellerquellen und eindeutigen Einheiten. Nach vollständigem Abgleich auch offline verfügbar; Werte manuell eintragen. [Geräte und Recherchegrenzen](docs/de/yinmik-messgeraete.md).
 - **Wassertest-Verbrauch verfolgen:** Automatische Zählung, korrigierbare Füllmengen und Nachkauferinnerung ab 75 % Verbrauch.

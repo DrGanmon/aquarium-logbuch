@@ -14,6 +14,10 @@ Measurements and fertilization have independent intervals in days or weeks, opti
 
 Record water changes, filter cleaning and media changes, pruning, new plants, glass and substrate cleaning, fertilizer doses and special feeding. The timeline combines care activities with measurements and supports category filters. Additional entries load in batches of 25.
 
+## Lighting
+
+The **Lighting** section of an aquarium stores the channel levels of an RGBW light (red, green, blue, white, each 0–100 %, 0 = channel off), the light-on and light-off times and the sunrise and sunset durations in minutes. It shows an approximate mixed colour, the full-brightness window, the total photoperiod and the brightness curve over 24 hours; a light day across midnight is possible. The setting documents the light but does not control it. It is included in backups, visible to read-only shares and editable offline.
+
 ## Recurring tasks and calendar
 
 **Tasks & intervals** schedules water changes, filter changes and cleaning, pruning, care & cleaning, special feeding and other work every few days, weeks or months (at most 50 tasks per aquarium). Fertilizing stays in the fertilizer section and water tests in the measuring cycle. The first due date is freely selectable; afterwards the interval counts from the latest logbook entry of the same care type. “Done” creates that entry; a manually added logbook entry has the same effect. Monthly intervals keep the day of month where possible (31 January → 28/29 February). Tasks work offline like fertilizers: changes are queued with an operation ID and shown as a conflict if the base state differs.

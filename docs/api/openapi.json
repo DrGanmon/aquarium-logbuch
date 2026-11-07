@@ -16591,6 +16591,182 @@
           }
         }
       }
+    },
+    "/api/aquariums/{id}/lighting": {
+      "get": {
+        "tags": [
+          "Aquarien"
+        ],
+        "summary": "Lichteinstellung abrufen",
+        "operationId": "get_api_aquariums_id_lighting",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: view oder höher. Liefert die RGBW-Kanalwerte, Lichtzeiten, Sonnenauf-/-untergang und berechnete Zeiten voller Helligkeit oder `null`, solange nichts hinterlegt ist. Offline aus dem lokalen Arbeitsstand verfügbar.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-aquarium-role": "view",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Lighting"
+                    }
+                  ],
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Aquarien"
+        ],
+        "summary": "Lichteinstellung speichern",
+        "operationId": "put_api_aquariums_id_lighting",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher. Legt die Lichteinstellung an oder ersetzt sie vollständig. Auch als Offline-Aktion über `/api/offline/operations` mit Ausgangsstand möglich; abweichende Stände liefern 409.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-aquarium-role": "write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LightingInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lighting"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Aquarien"
+        ],
+        "summary": "Lichteinstellung löschen",
+        "operationId": "delete_api_aquariums_id_lighting",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher. Entfernt die Lichteinstellung; ohne vorhandene Einstellung ebenfalls erfolgreich.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-aquarium-role": "write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -19081,6 +19257,108 @@
           "serverUrl",
           "calendarUrl",
           "wellKnownUrl"
+        ]
+      },
+      "LightingInput": {
+        "type": "object",
+        "required": [
+          "red",
+          "green",
+          "blue",
+          "white",
+          "start_time",
+          "end_time"
+        ],
+        "properties": {
+          "red": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Rot-Kanal in Prozent (0 = aus); Dezimalkomma oder -punkt, eine Nachkommastelle."
+          },
+          "green": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Grün-Kanal in Prozent (0 = aus); Dezimalkomma oder -punkt, eine Nachkommastelle."
+          },
+          "blue": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Blau-Kanal in Prozent (0 = aus); Dezimalkomma oder -punkt, eine Nachkommastelle."
+          },
+          "white": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Weiß-Kanal in Prozent (0 = aus); Dezimalkomma oder -punkt, eine Nachkommastelle."
+          },
+          "start_time": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+            "description": "Licht an (HH:MM)."
+          },
+          "end_time": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+            "description": "Licht aus (HH:MM); früher als die Startzeit bedeutet über Mitternacht."
+          },
+          "sunrise_minutes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 240,
+            "default": 0,
+            "description": "Dauer des Hochdimmens ab Startzeit."
+          },
+          "sunset_minutes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 240,
+            "default": 0,
+            "description": "Dauer des Herunterdimmens bis zur Endzeit."
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500,
+            "nullable": true
+          }
+        },
+        "additionalProperties": true,
+        "description": "Mindestens ein Kanal muss über 0 % liegen; Start- und Endzeit dürfen nicht gleich sein, und Sonnenauf- plus -untergang dürfen die Beleuchtungsdauer nicht überschreiten."
+      },
+      "Lighting": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LightingInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "aquarium_id": {
+                "type": "integer"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "photoperiod_minutes": {
+                "type": "integer",
+                "description": "Gesamte Beleuchtungsdauer."
+              },
+              "full_from": {
+                "type": "string",
+                "description": "Beginn voller Helligkeit (HH:MM)."
+              },
+              "full_until": {
+                "type": "string",
+                "description": "Ende voller Helligkeit (HH:MM)."
+              },
+              "full_minutes": {
+                "type": "integer"
+              }
+            }
+          }
         ]
       }
     },

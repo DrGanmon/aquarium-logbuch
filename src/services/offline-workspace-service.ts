@@ -61,7 +61,7 @@ async function targetState(path: string, method: string, owner: number) {
   if (!aq) return null;
   if (parts.length === 3) {
     if (method !== 'DELETE') return aq;
-    return [aq, await db.stock.listForAquarium(id), await db.plants.listForAquarium(id), await db.measurements.listForAquarium(id, { all: true }), await db.maintenance.listForAquarium(id), await db.dosingPumps.listForAquarium(id), await db.aquariumImages.listForAquarium(id), await db.plantImages.listForAquarium(id), await db.careTasks.listForAquarium(id), await measurementDraftState(owner, id)];
+    return [aq, await db.stock.listForAquarium(id), await db.plants.listForAquarium(id), await db.measurements.listForAquarium(id, { all: true }), await db.maintenance.listForAquarium(id), await db.dosingPumps.listForAquarium(id), await db.aquariumImages.listForAquarium(id), await db.plantImages.listForAquarium(id), await db.careTasks.listForAquarium(id), await db.lighting.find(id), await measurementDraftState(owner, id)];
   }
   const sub = parts[3], item = parts[4];
   if (sub === 'measurement-draft') return measurementDraftState(owner, id);
@@ -69,6 +69,7 @@ async function targetState(path: string, method: string, owner: number) {
   if (sub === 'plants') return (await db.plants.listForAquarium(id)).find(row => row.plant_id === decodeURIComponent(item)) || null;
   if (sub === 'maintenance') { const row = await db.maintenance.findById(Number(item));return row?.aquarium_id === id ? row : null; }
   if (sub === 'measurements') { const row = await db.measurements.findById(Number(item));return row?.aquarium_id === id ? row : null; }
+  if (sub === 'lighting') return await db.lighting.find(id);
   if (sub === 'tasks') { const row = await db.careTasks.findById(Number(item));return row?.aquarium_id === id ? row : null; }
   if (sub === 'fertilizers') { const row = await db.dosingPumps.findById(Number(item));return row?.aquarium_id === id ? row : null; }
   if (sub === 'images') return await db.aquariumImages.listForAquarium(id);
@@ -240,12 +241,14 @@ export async function workspaceSnapshot(original: Request): Promise<WorkspaceSna
         const state = await measurementDraftState(original.user.id, aquarium.id);
         versions[path] = state === null ? 'missing' : fingerprint(state);
       }
-      for (const suffix of ['/stock', '/plants', '/plant-images', '/tasks', '/maintenance', '/fertilizers', '/images', '/measurements?all=true']) {
+      for (const suffix of ['/stock', '/plants', '/plant-images', '/tasks', '/lighting', '/maintenance', '/fertilizers', '/images', '/measurements?all=true']) {
         await capture(root + suffix);
       }
       await capture(`/health/aquariums/${aquarium.id}/residents`);
       versions[root + '/images'] = fingerprint(await db.aquariumImages.listForAquarium(aquarium.id));
       versions[root + '/plant-images'] = fingerprint(await db.plantImages.listForAquarium(aquarium.id));
+      const lighting = await db.lighting.find(aquarium.id);
+      versions[root + '/lighting'] = lighting === null ? 'missing' : fingerprint(lighting);
       versions[root] = fingerprint(await targetState(root, 'PUT', original.user.id));
       versions['DELETE ' + root] = fingerprint(await targetState(root, 'DELETE', original.user.id));
       for (const [collection, key] of [['stock', 'id'], ['plants', 'plant_id'], ['maintenance', 'id'], ['fertilizers', 'id'], ['images', 'id'], ['plant-images', 'id'], ['tasks', 'id'], ['measurements', 'id']]) {

@@ -6,6 +6,7 @@ import { parseDecimal, str } from './input';
 import { MAX_PHOTOS_PER_PLANT, plantPhotoLimitMessage } from './plant-images';
 import { validateMaintenanceInput, MAINTENANCE_TYPES } from './maintenance';
 import { validateCareTaskInput, careTaskStatus, lastMaintenanceByType, MAX_CARE_TASKS_PER_AQUARIUM } from './care-tasks';
+import { validateLightingInput, lightingSummary } from './lighting';
 import { validateDosingPumpInput, manualDosingStatus, nextAutomaticDosingAt } from './dosing';
 import { calculateCycleStatus } from './cycles';
 import { calculateThresholds } from './thresholds';
@@ -63,6 +64,7 @@ export function applyLocalOperation(snapshot: WorkspaceSnapshot, command: Worksp
     list('/aquariums').push(aquarium);
     r[`/aquariums/${temporary}`] = { aquarium, role: 'owner', profiles: [], thresholds: {}, conflicts: [], stockCompatibility: {}, alerts: [], latest: {}, stock: [], dosing_pumps: [] };
     for (const collection of ['stock', 'plants', 'plant-images', 'tasks', 'maintenance', 'fertilizers', 'images', 'measurements?all=true']) r[`/aquariums/${temporary}/${collection}`] = [];
+    r[`/aquariums/${temporary}/lighting`] = null;
     result = { id: temporary };
   } else {
     const detail = r[root];
@@ -200,6 +202,13 @@ export function applyLocalOperation(snapshot: WorkspaceSnapshot, command: Worksp
         rows.push(entry);result = entry;
       } else if (parts[5] === 'primary') for (const row of rows) row.is_primary = row.id === Number(item) ? 1 : 0;
       else { const row = rows.find(entry => entry.id === Number(item));if (!row) throw new AppError('Bild nicht gefunden.', 404);row.caption = body.caption || null; }
+    } else if (type === 'lighting') {
+      if (command.method === 'DELETE') r[root + '/lighting'] = null;
+      else {
+        const value = check(validateLightingInput(body));
+        r[root + '/lighting'] = { aquarium_id: id, ...value, updated_at: now, ...lightingSummary(value) };
+        result = r[root + '/lighting'];
+      }
     } else if (type === 'tasks') {
       const rows = list(root + '/tasks');
       if (command.method === 'DELETE') {

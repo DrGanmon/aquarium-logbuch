@@ -56,6 +56,16 @@ curl -H 'Authorization: Bearer ein-langes-geheimes-scrape-passwort' \
   "$BASE_URL/metrics"
 ```
 
+## Beleuchtung
+
+`GET /api/aquariums/{id}/lighting` liefert die Lichteinstellung eines Aquariums oder `null`. `PUT` speichert sie vollständig: Kanalwerte `red`, `green`, `blue`, `white` von 0 bis 100 % (mindestens ein Kanal über 0), `start_time` und `end_time` als `HH:MM` (eine Endzeit vor der Startzeit läuft über Mitternacht), `sunrise_minutes` und `sunset_minutes` als Dimmdauer von 0 bis 240 Minuten sowie optional `note`. Die Antwort enthält zusätzlich `photoperiod_minutes`, `full_from`, `full_until` und `full_minutes`. `DELETE` entfernt die Einstellung. Lesen ist mit Lesefreigabe möglich, Ändern erfordert Schreibrechte; Änderungen werden offline mit Ausgangsstand vorgemerkt.
+
+```sh
+curl -b /tmp/aquarium-api-cookies.txt -X PUT "$BASE_URL/api/aquariums/4/lighting" \
+  -H 'Content-Type: application/json' -H 'X-Requested-With: XMLHttpRequest' \
+  --data '{"red":30,"green":40,"blue":55,"white":80,"start_time":"10:00","end_time":"20:30","sunrise_minutes":45,"sunset_minutes":30}'
+```
+
 ## Kalender und CalDAV
 
 Wiederkehrende Pflegeaufgaben liegen unter `GET/POST /api/aquariums/{id}/tasks` und `PUT/DELETE /api/aquariums/{id}/tasks/{taskId}` (Felder `type`, `title`, `note`, `interval`, `unit` = `days|weeks|months`, `start_date`, `time_of_day`, `is_active`). Antworten enthalten zusätzlich `last_done_at`, `next_due_date`, `is_due`, `is_overdue` und `days_remaining`. Erledigt wird eine Aufgabe über einen Logbucheintrag derselben Pflegeart (`POST /api/aquariums/{id}/maintenance`). `fertilize` und `dosing_pump` sind keine Aufgabenarten; dafür gibt es Düngerpläne bzw. den Messzyklus.
@@ -228,7 +238,7 @@ Lokale Arten-/Pflanzenbilder werden erst beim Ansehen im Service Worker gespeich
 
 `GET /api/offline/state` liefert `{schema:1,version,owner,language,updatedAt,responses,versions,rules}`. `responses` enthält die vollständigen GET-Antworten pro relativem API-Pfad, `versions` die Fingerprints der Ressourcen. `If-None-Match` unterstützt das exakt zuvor erhaltene ETag für 304. Ein erfolgreicher Stand ersetzt den alten atomar; ausstehende lokale Aktionen werden darübergelegt. Bei geöffneter App wird nach dem Upload und regelmäßig alle 30 Sekunden aktualisiert. Vollständige Messhistorien können bei großen Datenbeständen entsprechend mehr Zeit und Browserspeicher benötigen.
 
-Offline verfügbar sind Aquarium-Anlage/Bearbeitung/Löschung, Besatz einschließlich Katalogzuordnung und Fotos, Pflanzenbestand einschließlich Pflanzenfotos, wiederkehrende Pflegeaufgaben, manuelle Pflegeeinträge, Messungen und Löschung, Düngerpläne und manuelle Dosierungsprotokolle, Galerie einschließlich Titelbild, Warnungsquittierung, sichere Profilfelder/Avatar, Testauswahl und Reagenzbestand sowie lokaler CSV-Import/-Export. Grafiken, Schwellenwerte, Verträglichkeit, Zyklen und Diagnose werden lokal berechnet. Automatische Dosierereignisse und E-Mail-Erinnerungen bleiben serverseitig; die App steuert keine physische Dosierpumpe. Anmeldung, Passwort/E-Mail/Kontosicherheit, KI-Aufrufe, Freigaben/Einladungen, Kalender-Zugang und -Download, Social und Administration benötigen weiterhin Internet.
+Offline verfügbar sind Aquarium-Anlage/Bearbeitung/Löschung, Besatz einschließlich Katalogzuordnung und Fotos, Pflanzenbestand einschließlich Pflanzenfotos, Lichteinstellung, wiederkehrende Pflegeaufgaben, manuelle Pflegeeinträge, Messungen und Löschung, Düngerpläne und manuelle Dosierungsprotokolle, Galerie einschließlich Titelbild, Warnungsquittierung, sichere Profilfelder/Avatar, Testauswahl und Reagenzbestand sowie lokaler CSV-Import/-Export. Grafiken, Schwellenwerte, Verträglichkeit, Zyklen und Diagnose werden lokal berechnet. Automatische Dosierereignisse und E-Mail-Erinnerungen bleiben serverseitig; die App steuert keine physische Dosierpumpe. Anmeldung, Passwort/E-Mail/Kontosicherheit, KI-Aufrufe, Freigaben/Einladungen, Kalender-Zugang und -Download, Social und Administration benötigen weiterhin Internet.
 
 ```http
 POST /api/offline/operations

@@ -232,7 +232,7 @@ for (const backend of ['sqlite', 'mongodb']) test(`Pflegeaufgaben offline: Opera
 
 test('Pflegeaufgaben und Kalender: Oberfläche, Sprachen und Online-Grenzen', () => {
   const read = file => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
-  const de = JSON.parse(read('public/locales/de.json')), en = JSON.parse(read('public/locales/en.json'));
+  const de = { ...JSON.parse(read('public/locales/de.json')), ...JSON.parse(read('public/locales/features.de.json')) }, en = { ...JSON.parse(read('public/locales/en.json')), ...JSON.parse(read('public/locales/features.en.json')) };
   for (const section of ['careTasks', 'calendar']) assert.deepEqual(Object.keys(en[section]).sort(), Object.keys(de[section]).sort(), section);
   assert.equal(de.profile.tabs.calendar, 'Kalender');
   const settings = read('public/frontend/components/CalendarSettings.vue');

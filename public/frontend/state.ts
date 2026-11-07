@@ -1,4 +1,4 @@
-import { reactive, ref, computed, watch } from "vue";
+import { reactive, ref, computed, watch, shallowReactive } from "vue";
 import type { AppConfig, User, Theme, Language } from "./types";
 import de from "../locales/de.json";
 import en from "../locales/en.json";
@@ -46,9 +46,18 @@ function lookup(dict: unknown, key: string): unknown {
       dict,
     );
 }
+type Messages = Record<string, unknown>;
+/** Texts of lazily loaded areas stay out of the startup bundle and register when their chunk loads. */
+const lazyMessages = shallowReactive<{ de: Messages; en: Messages }>({ de: {}, en: {} });
+export function registerMessages(messages: { de: Messages; en: Messages }) {
+  lazyMessages.de = { ...lazyMessages.de, ...messages.de };
+  lazyMessages.en = { ...lazyMessages.en, ...messages.en };
+}
 export function t(key: string, params: Record<string, unknown> = {}): string {
+  const english = language.value === "en";
   const value =
-    lookup(language.value === "en" ? en : de, key) ?? lookup(de, key) ?? key;
+    lookup(english ? en : de, key) ?? lookup(english ? lazyMessages.en : lazyMessages.de, key) ??
+    lookup(de, key) ?? lookup(lazyMessages.de, key) ?? key;
   return String(value).replace(/\{\{?(\w+)\}?\}/g, (match, name: string) =>
     params[name] === undefined ? match : String(params[name]),
   );

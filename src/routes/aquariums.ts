@@ -5,6 +5,7 @@ import { asError } from '../utils/app-error';
 import { parseDecimal } from '../shared/input';
 import { MAX_PHOTOS_PER_PLANT, plantPhotoLimitMessage } from '../shared/plant-images';
 import { validateCareTaskInput, careTaskStatus, lastMaintenanceByType, MAX_CARE_TASKS_PER_AQUARIUM } from '../shared/care-tasks';
+import { validateLightingInput, lightingSummary } from '../shared/lighting';
 import type { Request, Response } from 'express';
 import express = require('express');
 import { Readable, pipeline } from 'node:stream';
@@ -1069,6 +1070,21 @@ router.delete(
     res.json({ ok: true });
   })
 );
+
+// ---------- Beleuchtung (RGBW, Lichtdauer, Sonnenauf- und -untergang) ----------
+const withSummary = <T extends Parameters<typeof lightingSummary>[0]>(lighting: T | null) => lighting ? { ...lighting, ...lightingSummary(lighting) } : null;
+router.get('/:id/lighting', auth, ownAquarium, wrap(async (req: Request, res: Response) => {
+  res.json(withSummary(await db.lighting.find(req.aq.id)));
+}));
+router.put('/:id/lighting', auth, writeAquarium, wrap(async (req: Request, res: Response) => {
+  const { error, value } = validateLightingInput(req.body);
+  if (error !== undefined) return res.status(400).json({ error });
+  res.json(withSummary(await db.lighting.set(req.aq.id, value)));
+}));
+router.delete('/:id/lighting', auth, writeAquarium, wrap(async (req: Request, res: Response) => {
+  await db.lighting.delete(req.aq.id);
+  res.json({ ok: true });
+}));
 
 // ---------- Wiederkehrende Pflegeaufgaben ----------
 async function tasksWithStatus(aquariumId: number) {

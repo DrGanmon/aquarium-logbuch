@@ -383,6 +383,35 @@
     ]
   },
   {
+    "id": "beleuchtung",
+    "title": "Record lighting with RGBW levels and light times",
+    "intro": "Note how your light is set: channel levels, light times and sunrise and sunset.",
+    "image": "beleuchtung",
+    "caption": "Lighting section with mixed colour, channel levels, light times and brightness curve.",
+    "steps": [
+      "Scroll to “Lighting” in the aquarium and select “+ Lighting settings” or “Edit”.",
+      "Set red, green, blue and white with the sliders or as a number between 0 and 100 %. 0 means the channel is off.",
+      "Enter when the light switches on and off. If the light day ends after midnight, simply enter the earlier time as the end.",
+      "Set how many minutes sunrise and sunset take. The preview immediately shows the curve and the full-brightness window.",
+      "Save the settings. Edit or delete them again when you change the light."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Mixed colour and curve",
+        "text": "The round preview roughly shows how the channels combine. The curve shows the brightness over the whole day including dimming."
+      },
+      {
+        "title": "Documentation only",
+        "text": "The app remembers your light's settings but does not control it. Apply changes on the light or its app yourself."
+      },
+      {
+        "title": "Shared and offline",
+        "text": "Read-only shares can see the lighting, write shares can change it. Changes made without a connection synchronize later."
+      }
+    ]
+  },
+  {
     "id": "fotos",
     "title": "Photos and gallery",
     "intro": "Gallery photos belong to your aquarium. They are not automatically published in the public Social feed.",

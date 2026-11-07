@@ -6,6 +6,7 @@ import { PlantRepository } from './plant-repository';
 import { PlantImageRepository } from './plant-image-repository';
 import { CareTaskRepository } from './care-task-repository';
 import { CalDavRepository } from './caldav-repository';
+import { LightingRepository } from './lighting-repository';
 import { SocialRepository } from "./social-repository";
 import { NotificationRepository } from "./notification-repository";
 import { buildAdminMetrics, normalizeAiUsage } from './admin-metrics';
@@ -51,6 +52,7 @@ class MongoAdapter {
   plantImages!: PlantImageRepository;
   careTasks!: CareTaskRepository;
   caldav!: CalDavRepository;
+  lighting!: LightingRepository;
   stock!: RepositoryContract<ReturnType<MongoAdapter['build_stock']>, StockRepository>;
   measurements!: RepositoryContract<ReturnType<MongoAdapter['build_measurements']>, MeasurementQueries>;
   alerts!: ReturnType<MongoAdapter['build_alerts']>;
@@ -277,6 +279,7 @@ class MongoAdapter {
     this.plantImages = new PlantImageRepository(this.type, this.connection(), name => this.getNextSequence(name));
     this.careTasks = new CareTaskRepository(this.type, this.connection(), name => this.getNextSequence(name));
     this.caldav = new CalDavRepository(this.type, this.connection());
+    this.lighting = new LightingRepository(this.type, this.connection());
 
     this.measurements = this.build_measurements();
 
@@ -342,6 +345,7 @@ class MongoAdapter {
       aquarium_plants: await safeGetDocs('aquarium_plants'),
       aquarium_plant_images: await safeGetDocs('aquarium_plant_images'),
       care_tasks: await safeGetDocs('care_tasks'),
+      aquarium_lighting: await safeGetDocs('aquarium_lighting', { aquarium_id: 1 }),
       measurements,
       measurement_drafts: await safeGetDocs('measurement_drafts', { user_id: 1, aquarium_id: 1 }),
       measurement_operations: await safeGetDocs('measurement_operations', { operation_key: 1 }),
@@ -390,7 +394,7 @@ class MongoAdapter {
     await this.notifications.clear(session);
     await this.social.clear(session);
     // Collections leeren
-    for (const name of ['users', 'sessions', 'aquariums', 'aquarium_images', 'aquarium_shares', 'aquarium_plants', 'aquarium_plant_images', 'care_tasks', 'caldav_credentials', 'stock', 'measurements', 'measurement_operations', 'measurement_drafts', 'alerts', 'maintenance_logs', 'invitations', 'aquarium_chats', 'dosing_pumps', 'ai_usage_metrics', 'counters']) {
+    for (const name of ['users', 'sessions', 'aquariums', 'aquarium_images', 'aquarium_shares', 'aquarium_plants', 'aquarium_plant_images', 'care_tasks', 'caldav_credentials', 'aquarium_lighting', 'stock', 'measurements', 'measurement_operations', 'measurement_drafts', 'alerts', 'maintenance_logs', 'invitations', 'aquarium_chats', 'dosing_pumps', 'ai_usage_metrics', 'counters']) {
       await db.collection(name).deleteMany({}, sessionOptions);
     }
 
@@ -403,6 +407,7 @@ class MongoAdapter {
     const plantImages = Array.isArray(data.aquarium_plant_images) ? data.aquarium_plant_images : [];
     if (plantImages.length) await db.collection('aquarium_plant_images').insertMany(plantImages.map((photo: any) => ({ ...photo })), sessionOptions);
     const careTasks = Array.isArray(data.care_tasks) ? data.care_tasks : [];
+    if (Array.isArray(data.aquarium_lighting) && data.aquarium_lighting.length) await db.collection('aquarium_lighting').insertMany(data.aquarium_lighting.map((light: any) => ({ ...light })), sessionOptions);
     if (careTasks.length) await db.collection('care_tasks').insertMany(careTasks.map((task: any) => ({ ...task, is_active: Boolean(task.is_active) })), sessionOptions);
     if (stock.length > 0) await db.collection('stock').insertMany(stock, sessionOptions);
     if (measurements.length > 0) await db.collection('measurements').insertMany(measurements, sessionOptions);
@@ -884,7 +889,7 @@ class MongoAdapter {
         for (const stock of stocks) deleteImage(stock.image_file);
         for (const photo of plantPhotos) deleteImage(photo.filename);
         // Cascade cleanup: independent collections can be removed concurrently.
-        await Promise.all(['aquarium_images', 'aquarium_plants', 'aquarium_plant_images', 'care_tasks', 'stock', 'measurements', 'measurement_operations', 'measurement_drafts', 'alerts', 'aquarium_shares', 'maintenance_logs', 'aquarium_chats', 'dosing_pumps']
+        await Promise.all(['aquarium_images', 'aquarium_plants', 'aquarium_plant_images', 'care_tasks', 'aquarium_lighting', 'stock', 'measurements', 'measurement_operations', 'measurement_drafts', 'alerts', 'aquarium_shares', 'maintenance_logs', 'aquarium_chats', 'dosing_pumps']
           .map(collection => db.collection(collection).deleteMany({ aquarium_id: numId })));
         return true;
       },

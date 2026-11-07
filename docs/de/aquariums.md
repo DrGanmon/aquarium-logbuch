@@ -14,6 +14,10 @@ Messung und Düngung haben getrennte Intervalle in Tagen oder Wochen, optional m
 
 Wasserwechsel, Filterreinigung, Filtermedienwechsel, Pflanzenschnitt, neue Pflanzen, Scheiben- und Bodengrundpflege, Düngung und Spezialfütterung werden im Logbuch erfasst. Die Timeline verbindet Aktivitäten mit Messungen und lässt sich nach Kategorie filtern. Weitere Einträge werden in Gruppen von 25 geladen.
 
+## Beleuchtung
+
+Im Bereich **Beleuchtung** eines Aquariums lassen sich die Kanalwerte einer RGBW-Leuchte (Rot, Grün, Blau, Weiß jeweils 0–100 %, 0 = Kanal aus), die Zeiten für Licht an und aus sowie die Dauer von Sonnenauf- und -untergang in Minuten hinterlegen. Die Ansicht zeigt eine ungefähre Mischfarbe, die Zeit voller Helligkeit, die gesamte Beleuchtungsdauer und den Helligkeitsverlauf über 24 Stunden; ein Lichttag über Mitternacht ist möglich. Die Einstellung dokumentiert die Leuchte, steuert sie aber nicht. Sie ist in Backups enthalten, für Lesefreigaben sichtbar und offline änderbar.
+
 ## Wiederkehrende Aufgaben und Kalender
 
 Unter **Aufgaben & Intervalle** lassen sich Wasserwechsel, Filterwechsel und -reinigung, Pflanzenschnitt, Pflege & Reinigung, Spezialfütterung und sonstige Arbeiten in Intervallen von Tagen, Wochen oder Monaten planen (höchstens 50 Aufgaben je Aquarium). Düngungen bleiben im Düngerbereich, Messungen im Messzyklus. Die erste Fälligkeit ist frei wählbar; danach zählt das Intervall ab dem letzten Logbucheintrag derselben Pflegeart. „Erledigt“ legt diesen Eintrag an; ein manuell eingetragener Logbucheintrag wirkt genauso. Monatsintervalle behalten den Tag im Monat, soweit vorhanden (31. Januar → 28./29. Februar). Aufgaben funktionieren offline wie Dünger: Änderungen werden mit Operations-ID vorgemerkt und bei abweichendem Ausgangsstand als Konflikt angezeigt.

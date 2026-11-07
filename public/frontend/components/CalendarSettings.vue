@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { api } from "../api";
-import { t, errorMessage, toast } from "../state";
+import { registerMessages, t, errorMessage, toast } from "../state";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
+registerMessages({ de: featuresDe, en: featuresEn });
 interface CalDavAccess { username: string; password: string; created_at: string; serverUrl: string; calendarUrl: string; wellKnownUrl: string }
 const access = ref<CalDavAccess>(), error = ref(""), busy = ref(false), showPassword = ref(false), downloading = ref(false);
 const year = new Date().getFullYear();

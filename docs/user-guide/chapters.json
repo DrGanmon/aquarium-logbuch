@@ -383,6 +383,35 @@
     ]
   },
   {
+    "id": "beleuchtung",
+    "title": "Beleuchtung mit RGBW-Werten und Lichtzeiten festhalten",
+    "intro": "Hinterlege, wie deine Leuchte eingestellt ist: Kanalwerte, Lichtzeiten sowie Sonnenauf- und -untergang.",
+    "image": "beleuchtung",
+    "caption": "Beleuchtungsbereich mit Mischfarbe, Kanalwerten, Lichtzeiten und Helligkeitsverlauf.",
+    "steps": [
+      "Scrolle im Aquarium zu „Beleuchtung“ und wähle „+ Lichteinstellung“ bzw. „Bearbeiten“.",
+      "Stelle Rot, Grün, Blau und Weiß mit den Schiebereglern oder als Zahl zwischen 0 und 100 % ein. 0 bedeutet, dass der Kanal aus ist.",
+      "Trage ein, wann das Licht an- und ausgeht. Endet der Lichttag nach Mitternacht, gib einfach die frühere Uhrzeit als Ende an.",
+      "Lege fest, wie viele Minuten Sonnenaufgang und Sonnenuntergang dauern. Die Vorschau zeigt sofort den Verlauf und die Zeit voller Helligkeit.",
+      "Speichere die Einstellung. Bei einem Leuchtenwechsel bearbeitest oder löschst du sie wieder."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Mischfarbe und Verlauf",
+        "text": "Die runde Vorschau zeigt ungefähr, wie die Kanäle zusammen wirken. Die Kurve zeigt die Helligkeit über den ganzen Tag mit Auf- und Abdimmen."
+      },
+      {
+        "title": "Nur Dokumentation",
+        "text": "Die App merkt sich die Einstellung deiner Leuchte, steuert sie aber nicht. Übertrage Änderungen selbst an der Leuchte oder ihrer App."
+      },
+      {
+        "title": "Geteilt und offline",
+        "text": "Lesefreigaben sehen die Beleuchtung, Schreibfreigaben können sie ändern. Änderungen ohne Verbindung werden später abgeglichen."
+      }
+    ]
+  },
+  {
     "id": "fotos",
     "title": "Fotos und Galerie",
     "intro": "Galeriefotos gehören zunächst zu deinem Aquarium. Sie werden nicht automatisch im öffentlichen Social-Feed veröffentlicht.",
