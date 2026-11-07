@@ -3,8 +3,8 @@
     "title": "🗓️ Tasks & intervals",
     "add": "+ Task",
     "edit": "Edit task",
-    "help": "Schedule recurring work such as water changes, filter care or pruning. The next due date follows the latest matching logbook entry.",
-    "empty": "No recurring tasks yet.",
+    "help": "All recurring work at a glance: your own tasks such as water changes or filter care plus, added automatically, the measuring cycle and manual fertilizers. The next due date follows the latest matching entry.",
+    "empty": "No recurring work yet. Add a task, a measuring cycle in the aquarium settings or a manual fertilizer.",
     "type": "Care type",
     "typeHelp": "Plan fertilizing in the fertilizer section and water tests with the aquarium's measuring cycle.",
     "customTitle": "Custom title (optional)",
@@ -35,7 +35,13 @@
       "weeks": "Every {count} week(s)",
       "months": "Every {count} month(s)"
     },
-    "never": "Not done yet"
+    "never": "Not done yet",
+    "measureTitle": "Test water",
+    "measureNow": "Test now",
+    "editCycle": "Change measuring cycle",
+    "editFertilizer": "Edit in fertilizer section",
+    "fromCycle": "Measuring cycle",
+    "fromFertilizer": "Fertilizer"
   },
   "calendar": {
     "title": "Calendar",

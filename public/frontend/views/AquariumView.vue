@@ -103,6 +103,10 @@ const stock = residents.data;
 const pumps = pumpsResource.data;
 const logs = timeline.data;
 const logBusy = computed(() => timeline.loading.value || moreLoading.value);
+// The care overview also lists the measuring cycle and manual fertilizers of this aquarium.
+const measureCycle = computed(() => aquarium.value?.measure_cycle_interval ? { interval: aquarium.value.measure_cycle_interval, cycle_label: aquarium.value.measure_cycle_status?.cycle_label,
+  next_due_at: aquarium.value.measure_cycle_status?.next_due_at, last_action_at: aquarium.value.measure_cycle_status?.last_action_at } : null);
+function showFertilizers() { document.querySelector('[data-lazy="pumpsResource"]')?.scrollIntoView({ behavior: "smooth", block: "start" }); }
 const resources = [gallery, history, residents, plantsResource, lightingResource, pumpsResource, tasksResource, timeline];
 let detailController: AbortController | undefined;
 onBeforeUnmount(() => { detailController?.abort(); paginationController?.abort(); });
@@ -597,8 +601,9 @@ async function leave() {
           @changed="load"
         />
       </LazySection>
-      <LazySection data-lazy="tasksResource" :label="t('careTasks.title')" :loaded="tasksResource.loaded.value" :loading="tasksResource.loading.value" :error="tasksResource.error.value" @activate="tasksResource.load()">
-        <CareTaskSection :id="id" :tasks="tasksResource.data.value" :readonly="readonly" @changed="load" />
+      <LazySection data-lazy="tasksResource" :label="t('careTasks.title')" :loaded="tasksResource.loaded.value" :loading="tasksResource.loading.value" :error="tasksResource.error.value" @activate="tasksResource.load(); pumpsResource.load()">
+        <CareTaskSection :id="id" :tasks="tasksResource.data.value" :fertilizers="pumpsResource.data.value" :measure="measureCycle" :readonly="readonly"
+          @changed="load" @edit-cycle="modal = 'edit'" @edit-fertilizers="showFertilizers" />
       </LazySection>
       <LazySection data-lazy="timeline" :label="t('timeline.title')" :loaded="timeline.loaded.value" :loading="timeline.loading.value" :error="timeline.error.value" @activate="timeline.load()">
         <section class="card stack">

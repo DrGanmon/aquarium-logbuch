@@ -241,3 +241,31 @@ test('Pflegeaufgaben und Kalender: Oberfläche, Sprachen und Online-Grenzen', ()
   assert.match(read('public/frontend/views/ProfileView.vue'), /CalendarSettings = lazyComponent/);
   assert.doesNotMatch(read('public/frontend/service-worker.ts'), /caldav/i, 'Der Service Worker speichert keine Kalenderdaten');
 });
+
+test('Aufgaben & Intervalle: Messzyklus und manuelle Dünger erscheinen automatisch', () => {
+  const { careOverview } = require('../dist/backend/src/shared/care-tasks');
+  const now = new Date(2026, 10, 7, 12);
+  const at = (day, hour = 9) => new Date(2026, 10, day, hour).toISOString();
+  const items = careOverview({
+    tasks: [{ id: 1, is_active: true, time_of_day: null, next_due_date: '2026-11-10', days_remaining: 3, last_done_at: null },
+      { id: 2, is_active: false, time_of_day: null, next_due_date: null, days_remaining: null, last_done_at: null }],
+    fertilizers: [{ id: 5, mode: 'manual', is_active: 1, next_due_at: at(6, 8), last_dosed_at: at(3), time_of_day: '08:00:00' },
+      { id: 6, mode: 'automatic', is_active: 1, next_due_at: at(8) },
+      { id: 7, mode: 'manual', is_active: 0, next_due_at: at(9) }],
+    measure: { interval: 7, next_due_at: at(7, 0), last_action_at: at(0 + 1) },
+  }, now);
+  assert.deepEqual(items.map(item => [item.key, item.next_due_date, item.days_remaining]), [
+    ['fertilizer-5', '2026-11-06', -1], ['measure', '2026-11-07', 0], ['task-1', '2026-11-10', 3], ['fertilizer-7', null, null], ['task-2', null, null],
+  ]);
+  assert.ok(!items.some(item => item.key === 'fertilizer-6'), 'Automatische Pumpen protokollieren sich selbst');
+  assert.equal(items[0].time, '08:00');
+  assert.equal(items.find(item => item.key === 'fertilizer-7').is_active, false);
+  assert.equal(careOverview({ tasks: [], fertilizers: [], measure: { interval: null } }, now).length, 0, 'Ohne Messzyklus kein Eintrag');
+
+  const read = file => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
+  const section = read('public/frontend/components/CareTaskSection.vue');
+  assert.match(section, /careOverview\(/);
+  assert.match(section, /fertilizers\/\$\{dosing\.value!\.id\}\/dose/, 'Dosierung wird über den bestehenden Düngerablauf eingetragen');
+  assert.match(section, /#\/a\/\$\{id\}\/messen/);
+  assert.match(read('public/frontend/views/AquariumView.vue'), /@activate="tasksResource\.load\(\); pumpsResource\.load\(\)"/);
+});

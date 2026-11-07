@@ -7,22 +7,37 @@ import { registerMessages, session, t, errorMessage, toast, language } from "../
 import featuresDe from "../../locales/features.de.json";
 import featuresEn from "../../locales/features.en.json";
 registerMessages({ de: featuresDe, en: featuresEn });
-import { CARE_TASK_EXCLUDED_TYPES, localDate } from "../../../src/shared/care-tasks";
-import type { CareTask } from "../types";
-const props = defineProps<{ id: string; tasks: CareTask[]; readonly: boolean }>();
-const emit = defineEmits<{ changed: [] }>();
+import { CARE_TASK_EXCLUDED_TYPES, localDate, careOverview, type CareOverviewItem } from "../../../src/shared/care-tasks";
+import type { CareTask, Pump } from "../types";
+/** Measuring cycle of the aquarium as shown in the combined overview. */
+interface MeasureCycle { interval?: number | null; cycle_label?: string; next_due_at?: string | null; last_action_at?: string | null }
+const props = defineProps<{ id: string; tasks: CareTask[]; fertilizers: Pump[]; measure: MeasureCycle | null; readonly: boolean }>();
+const emit = defineEmits<{ changed: []; editCycle: []; editFertilizers: [] }>();
 const editing = ref<CareTask | null>();
 const completing = ref<CareTask>();
 const removing = ref<CareTask>();
+const dosing = ref<Pump>();
 const error = ref(""), busy = ref(false);
 const model = reactive({ type: "water_change", title: "", interval: 1, unit: "weeks" as CareTask["unit"], start_date: localDate(new Date()), time_of_day: "", note: "", is_active: true });
 const types = computed(() => Object.entries(session.config?.maintenanceTypes || {}).filter(([key]) => !CARE_TASK_EXCLUDED_TYPES.includes(key)));
 const label = (task: CareTask) => task.title || session.config?.maintenanceTypes?.[task.type]?.label || task.type;
 const icon = (task: CareTask) => session.config?.maintenanceTypes?.[task.type]?.icon || "📝";
-const sorted = computed(() => [...props.tasks].sort((a, b) => Number(b.is_active) - Number(a.is_active) || String(a.next_due_date || "9").localeCompare(String(b.next_due_date || "9"))));
+// Own tasks, manual fertilizers and the measuring cycle appear together, sorted by due date.
+const rows = computed(() => careOverview({ tasks: props.tasks, fertilizers: props.fertilizers, measure: props.measure }).map(item => {
+  if (item.kind === "task") {
+    const task = props.tasks.find(entry => entry.id === item.id)!;
+    return { item, task, icon: icon(task), title: label(task), every: every(task), detail: task.note || "" };
+  }
+  if (item.kind === "fertilizer") {
+    const pump = props.fertilizers.find(entry => entry.id === item.id)!;
+    return { item, pump, icon: "🌿", title: pump.name, every: Number(pump.interval_days) === 1 ? t("pumps.daily") : t("pumps.everyDays", { days: pump.interval_days }),
+      detail: `${Number(pump.amount_ml).toLocaleString(language.value === "en" ? "en-GB" : "de-DE")} ml ${pump.fertilizer_name}` };
+  }
+  return { item, icon: "🧪", title: t("careTasks.measureTitle"), every: props.measure?.cycle_label || "", detail: "" };
+}));
 const fmtDay = (value: string) => new Date(`${value}T12:00:00`).toLocaleDateString(language.value === "en" ? "en-GB" : "de-DE", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" });
 const every = (task: Pick<CareTask, "interval" | "unit">) => t(`careTasks.every.${task.unit}`, { count: task.interval });
-function status(task: CareTask) {
+function status(task: Pick<CareOverviewItem, "is_active" | "days_remaining">) {
   if (!task.is_active) return { cls: "none", text: t("careTasks.paused") };
   if (task.days_remaining == null) return { cls: "none", text: "" };
   if (task.days_remaining < 0) return { cls: "crit", text: t("careTasks.overdue", { days: -task.days_remaining }) };
@@ -38,7 +53,7 @@ function edit(task: CareTask | null) {
 }
 function close() {
   if (busy.value) return;
-  editing.value = undefined;completing.value = undefined;removing.value = undefined;error.value = "";
+  editing.value = undefined;completing.value = undefined;removing.value = undefined;dosing.value = undefined;error.value = "";
 }
 async function run(work: () => Promise<unknown>, message: string) {
   if (busy.value || props.readonly) return;
@@ -46,7 +61,7 @@ async function run(work: () => Promise<unknown>, message: string) {
   try {
     await work();
     toast(t(message));
-    editing.value = undefined;completing.value = undefined;removing.value = undefined;
+    editing.value = undefined;completing.value = undefined;removing.value = undefined;dosing.value = undefined;
     emit("changed");
   } catch (caught) { error.value = errorMessage(caught); }
   finally { busy.value = false; }
@@ -54,6 +69,8 @@ async function run(work: () => Promise<unknown>, message: string) {
 const save = () => run(() => api(`/aquariums/${props.id}/tasks${editing.value ? "/" + editing.value.id : ""}`, { method: editing.value ? "PUT" : "POST", body: { ...model, title: model.title.trim(), time_of_day: model.time_of_day || null } }), "careTasks.saved");
 const remove = () => run(() => api(`/aquariums/${props.id}/tasks/${removing.value!.id}`, { method: "DELETE" }), "careTasks.deleted");
 // Completing a task records the matching logbook entry; the next due date follows from it.
+// Fertilizers keep their own dosing log; the next due date follows from it.
+const recordDose = () => run(() => api(`/aquariums/${props.id}/fertilizers/${dosing.value!.id}/dose`, { method: "POST", body: {} }), "pumps.recorded");
 const complete = () => run(() => enqueueMaintenance(props.id, { type: completing.value!.type, logged_at: new Date().toISOString(), percentage: null, details: completing.value!.title || "", note: "" }), "careTasks.completed");
 </script>
 <template>
@@ -63,17 +80,27 @@ const complete = () => run(() => enqueueMaintenance(props.id, { type: completing
       <button v-if="!readonly" type="button" class="btn small" @click="edit(null)">{{ t("careTasks.add") }}</button>
     </div>
     <p class="muted" style="margin:0">{{ t("careTasks.help") }}</p>
-    <p v-if="!tasks.length" class="muted">{{ t("careTasks.empty") }}</p>
-    <article v-for="task in sorted" :key="task.id" class="cycle-card stack care-task">
-      <div class="row between"><strong>{{ icon(task) }} {{ label(task) }}</strong><span v-if="status(task).text" class="chip" :class="status(task).cls">{{ status(task).text }}</span></div>
-      <div class="muted">{{ every(task) }}{{ task.time_of_day ? ` · ${task.time_of_day}` : "" }}</div>
-      <div v-if="task.next_due_date">{{ t("careTasks.next") }}: {{ fmtDay(task.next_due_date) }}</div>
-      <div class="muted">{{ t("careTasks.last") }}: {{ task.last_done_at ? new Date(task.last_done_at).toLocaleDateString() : t("careTasks.never") }}</div>
-      <p v-if="task.note" style="margin:0;white-space:pre-wrap">{{ task.note }}</p>
+    <p v-if="!rows.length" class="muted">{{ t("careTasks.empty") }}</p>
+    <article v-for="row in rows" :key="row.item.key" class="cycle-card stack care-task" :data-care-kind="row.item.kind">
+      <div class="row between"><strong>{{ row.icon }} {{ row.title }}</strong><span v-if="status(row.item).text" class="chip" :class="status(row.item).cls">{{ status(row.item).text }}</span></div>
+      <div class="row care-meta"><span class="muted">{{ row.every }}{{ row.item.time ? ` · ${row.item.time}` : "" }}</span><span v-if="row.item.kind !== 'task'" class="chip info">{{ t(row.item.kind === "fertilizer" ? "careTasks.fromFertilizer" : "careTasks.fromCycle") }}</span></div>
+      <div v-if="row.item.next_due_date">{{ t("careTasks.next") }}: {{ fmtDay(row.item.next_due_date) }}</div>
+      <div class="muted">{{ t("careTasks.last") }}: {{ row.item.last_done_at ? new Date(row.item.last_done_at).toLocaleDateString() : t("careTasks.never") }}</div>
+      <p v-if="row.detail" style="margin:0;white-space:pre-wrap">{{ row.detail }}</p>
       <div v-if="!readonly" class="row">
-        <button v-if="task.is_active" type="button" class="btn small" :disabled="busy" @click="error = ''; completing = task">{{ t("careTasks.complete") }}</button>
-        <button type="button" class="btn small ghost" :disabled="busy" @click="edit(task)">{{ t("common.edit") }}</button>
-        <button type="button" class="btn small ghost danger" :disabled="busy" @click="error = ''; removing = task">{{ t("common.delete") }}</button>
+        <template v-if="row.task">
+          <button v-if="row.task.is_active" type="button" class="btn small" :disabled="busy" @click="error = ''; completing = row.task">{{ t("careTasks.complete") }}</button>
+          <button type="button" class="btn small ghost" :disabled="busy" @click="edit(row.task)">{{ t("common.edit") }}</button>
+          <button type="button" class="btn small ghost danger" :disabled="busy" @click="error = ''; removing = row.task">{{ t("common.delete") }}</button>
+        </template>
+        <template v-else-if="row.pump">
+          <button v-if="row.item.is_active" type="button" class="btn small" :disabled="busy" @click="error = ''; dosing = row.pump">{{ t("fertilizers.record") }}</button>
+          <button type="button" class="btn small ghost" @click="emit('editFertilizers')">{{ t("careTasks.editFertilizer") }}</button>
+        </template>
+        <template v-else>
+          <a class="btn small" :href="`#/a/${id}/messen`">{{ t("careTasks.measureNow") }}</a>
+          <button type="button" class="btn small ghost" @click="emit('editCycle')">{{ t("careTasks.editCycle") }}</button>
+        </template>
       </div>
     </article>
     <Modal v-if="editing !== undefined" :title="t(editing ? 'careTasks.edit' : 'careTasks.add')" @close="close">
@@ -95,6 +122,14 @@ const complete = () => run(() => enqueueMaintenance(props.id, { type: completing
         <div class="row"><button class="btn" :disabled="busy">{{ t(busy ? "common.loading" : "common.save") }}</button><button class="btn ghost" type="button" :disabled="busy" @click="close">{{ t("common.cancel") }}</button></div>
       </form>
     </Modal>
+    <Modal v-if="dosing" :title="t('fertilizers.record')" @close="close">
+      <form class="stack" @submit.prevent="recordDose">
+        <p>{{ t("fertilizers.recordConfirm", { amount: dosing.amount_ml, liquid: dosing.fertilizer_name, name: dosing.name }) }}</p>
+        <p class="muted">{{ t("fertilizers.recordHelp") }}</p>
+        <p v-if="error" class="error" role="alert">{{ error }}</p>
+        <div class="row"><button class="btn" :disabled="busy">{{ t(busy ? "common.loading" : "fertilizers.record") }}</button><button type="button" class="btn ghost" :disabled="busy" @click="close">{{ t("common.cancel") }}</button></div>
+      </form>
+    </Modal>
     <Modal v-if="completing || removing" :title="t(removing ? 'careTasks.deleteTitle' : 'careTasks.complete')" @close="close">
       <form class="stack" @submit.prevent="removing ? remove() : complete()">
         <p v-if="removing">{{ t("careTasks.deleteConfirm", { name: label(removing) }) }}</p>
@@ -108,4 +143,5 @@ const complete = () => run(() => enqueueMaintenance(props.id, { type: completing
 <style scoped>
 .task-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
 .task-interval > label { flex: 1 1 8rem; }
+.care-meta { gap: .5rem; align-items: center; }
 </style>

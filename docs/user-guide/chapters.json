@@ -358,12 +358,13 @@
     "title": "Wiederkehrende Aufgaben in Intervallen planen",
     "intro": "Plane Wasserwechsel, Filterpflege, Pflanzenschnitt und andere Arbeiten in festen Abständen. Die App zeigt, was als Nächstes fällig ist.",
     "image": "aufgaben",
-    "caption": "Aufgabenbereich mit überfälligem Wasserwechsel und geplantem Pflanzenschnitt.",
+    "caption": "Aufgabenbereich mit eigenen Aufgaben sowie automatisch übernommenem Dünger und Messzyklus, nach Fälligkeit sortiert.",
     "steps": [
       "Scrolle im Aquarium zu „Aufgaben & Intervalle“ und wähle „+ Aufgabe“.",
       "Wähle die Pflegeart, etwa Wasserwechsel oder Filter reinigen. Ein eigener Titel wie „30 % Wasserwechsel“ ist optional.",
       "Lege das Intervall in Tagen, Wochen oder Monaten und die erste Fälligkeit fest. Mit einer Uhrzeit erscheint die Aufgabe im Kalender als Termin, sonst ganztägig.",
       "Wenn du die Arbeit erledigt hast, wähle „Erledigt“. Die App trägt sie ins Logbuch ein und berechnet die nächste Fälligkeit.",
+      "Manuelle Dünger und der Messzyklus des Aquariums erscheinen automatisch in derselben Liste. Über „Düngung bestätigen“ bzw. „Jetzt messen“ erledigst du sie direkt; geändert werden sie weiterhin im Düngerbereich bzw. in den Aquarium-Einstellungen.",
       "Über „Bearbeiten“ änderst oder pausierst du eine Aufgabe. Beim Löschen bleiben vorhandene Logbucheinträge erhalten."
     ],
     "extra": [],
@@ -373,8 +374,8 @@
         "text": "Die nächste Fälligkeit zählt ab dem letzten Logbucheintrag derselben Pflegeart. Auch ein manuell eingetragener Wasserwechsel setzt die Aufgabe zurück."
       },
       {
-        "title": "Dünger und Messungen",
-        "text": "Düngungen planst du im Düngerbereich, Wasserwerte über den Messzyklus des Aquariums. Beide erscheinen zusammen mit den Aufgaben im Kalender."
+        "title": "Alles an einem Ort",
+        "text": "Neben eigenen Aufgaben zeigt die Liste automatisch den Messzyklus und alle manuellen Dünger mit ihrer Fälligkeit. Automatische Dosierpumpen protokollieren sich selbst und erscheinen deshalb nicht. Alles zusammen steht auch im Kalender."
       },
       {
         "title": "Auch offline",

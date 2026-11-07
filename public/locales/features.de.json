@@ -3,8 +3,8 @@
     "title": "🗓️ Aufgaben & Intervalle",
     "add": "+ Aufgabe",
     "edit": "Aufgabe bearbeiten",
-    "help": "Plane wiederkehrende Arbeiten wie Wasserwechsel, Filterpflege oder Pflanzenschnitt. Die nächste Fälligkeit richtet sich nach dem letzten passenden Logbucheintrag.",
-    "empty": "Noch keine wiederkehrenden Aufgaben angelegt.",
+    "help": "Alle wiederkehrenden Arbeiten auf einen Blick: eigene Aufgaben wie Wasserwechsel oder Filterpflege sowie automatisch übernommen der Messzyklus und manuelle Dünger. Die nächste Fälligkeit richtet sich nach dem letzten passenden Eintrag.",
+    "empty": "Noch keine wiederkehrenden Arbeiten. Lege eine Aufgabe an, einen Messzyklus in den Aquarium-Einstellungen oder einen manuellen Dünger.",
     "type": "Pflegeart",
     "typeHelp": "Düngungen planst du im Düngerbereich, Wasserwerte über den Messzyklus des Aquariums.",
     "customTitle": "Eigener Titel (optional)",
@@ -35,7 +35,13 @@
       "weeks": "Alle {count} Woche(n)",
       "months": "Alle {count} Monat(e)"
     },
-    "never": "Noch nicht erledigt"
+    "never": "Noch nicht erledigt",
+    "measureTitle": "Wasserwerte messen",
+    "measureNow": "Jetzt messen",
+    "editCycle": "Messzyklus ändern",
+    "editFertilizer": "Im Düngerbereich bearbeiten",
+    "fromCycle": "Messzyklus",
+    "fromFertilizer": "Dünger"
   },
   "calendar": {
     "title": "Kalender",

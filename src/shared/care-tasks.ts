@@ -82,3 +82,38 @@ export function lastMaintenanceByType(logs: { type?: string; logged_at?: string 
   for (const log of logs) if (log.type && log.logged_at && (!result[log.type] || log.logged_at > result[log.type]!)) result[log.type] = log.logged_at;
   return result;
 }
+
+/** One entry of the combined care overview: own tasks, manual fertilizers and the measuring cycle. */
+export interface CareOverviewItem {
+  key: string; kind: 'task' | 'fertilizer' | 'measure'; id: number | string; is_active: boolean;
+  next_due_date: string | null; days_remaining: number | null; last_done_at: string | null; time: string | null;
+}
+interface OverviewInput {
+  tasks: ({ id: number | string; is_active: boolean | number; time_of_day?: string | null } & Partial<CareTaskStatus>)[];
+  fertilizers: { id: number | string; mode: string; is_active: number | boolean; next_due_at?: string | null; last_dosed_at?: string | null; time_of_day?: string | null }[];
+  measure?: { interval?: number | null; next_due_at?: string | null; last_action_at?: string | null } | null;
+}
+/**
+ * Combines recurring work from all sources into one list sorted by due date. Manual fertilizers and the
+ * measuring cycle keep their own schedule and storage; automatic dosing pumps log themselves and are
+ * therefore not listed as work to do.
+ */
+export function careOverview(input: OverviewInput, now = new Date()): CareOverviewItem[] {
+  const today = localDate(now);
+  const dueIn = (iso?: string | null) => {
+    if (!iso || !Number.isFinite(Date.parse(iso))) return { next_due_date: null, days_remaining: null };
+    const date = localDate(new Date(iso));
+    return { next_due_date: date, days_remaining: daysBetween(today, date) };
+  };
+  const items: CareOverviewItem[] = input.tasks.map(task => ({ key: `task-${task.id}`, kind: 'task', id: task.id, is_active: Boolean(task.is_active),
+    next_due_date: task.next_due_date ?? null, days_remaining: task.days_remaining ?? null, last_done_at: task.last_done_at ?? null, time: task.time_of_day ?? null }));
+  for (const plan of input.fertilizers) {
+    if (plan.mode !== 'manual') continue;
+    const active = Boolean(Number(plan.is_active));
+    items.push({ key: `fertilizer-${plan.id}`, kind: 'fertilizer', id: plan.id, is_active: active, ...(active ? dueIn(plan.next_due_at) : { next_due_date: null, days_remaining: null }),
+      last_done_at: plan.last_dosed_at ?? null, time: plan.time_of_day ? plan.time_of_day.slice(0, 5) : null });
+  }
+  if (input.measure?.interval) items.push({ key: 'measure', kind: 'measure', id: 'measure', is_active: true, ...dueIn(input.measure.next_due_at),
+    last_done_at: input.measure.last_action_at ?? null, time: null });
+  return items.sort((a, b) => Number(b.is_active) - Number(a.is_active) || (a.next_due_date || '9999').localeCompare(b.next_due_date || '9999') || a.key.localeCompare(b.key));
+}

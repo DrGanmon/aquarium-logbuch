@@ -358,12 +358,13 @@
     "title": "Schedule recurring tasks",
     "intro": "Plan water changes, filter care, pruning and other work at fixed intervals. The app shows what is due next.",
     "image": "aufgaben",
-    "caption": "Task section with an overdue water change and planned pruning.",
+    "caption": "Task section with own tasks plus the fertilizer and measuring cycle added automatically, sorted by due date.",
     "steps": [
       "Scroll to “Tasks & intervals” in the aquarium and select “+ Task”.",
       "Choose the care type, such as water change or clean filter. A custom title like “30 % water change” is optional.",
       "Set the interval in days, weeks or months and the first due date. With a time the task appears as a timed calendar event, otherwise as all-day.",
       "After doing the work, select “Done”. The app records it in the logbook and calculates the next due date.",
+      "Manual fertilizers and the aquarium's measuring cycle appear automatically in the same list. Use “Confirm dose” or “Test now” to complete them directly; change them in the fertilizer section or the aquarium settings as before.",
       "Use “Edit” to change or pause a task. Deleting a task keeps existing logbook entries."
     ],
     "extra": [],
@@ -373,8 +374,8 @@
         "text": "The next due date counts from the latest logbook entry of the same care type. A water change entered manually also resets the task."
       },
       {
-        "title": "Fertilizers and readings",
-        "text": "Plan fertilizing in the fertilizer section and water tests with the aquarium's measuring cycle. Both appear in the calendar together with the tasks."
+        "title": "Everything in one place",
+        "text": "Besides your own tasks the list automatically shows the measuring cycle and all manual fertilizers with their due dates. Automatic dosing pumps log themselves and are therefore not listed. Everything also appears in the calendar."
       },
       {
         "title": "Offline too",
