@@ -142,5 +142,13 @@
   "messgeraet-kalibrieren": {
     "width": 1440,
     "height": 1000
+  },
+  "aufgaben": {
+    "width": 1440,
+    "height": 1000
+  },
+  "kalender": {
+    "width": 1440,
+    "height": 1000
   }
 }

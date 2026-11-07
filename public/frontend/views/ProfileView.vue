@@ -12,6 +12,7 @@ const ProviderSettings = lazyComponent(() => import("../components/ProviderSetti
 const Invitations = lazyComponent(() => import("../components/Invitations.vue"));
 const TestInventory = lazyComponent(() => import("../components/TestInventory.vue"));
 const TapWaterSettings = lazyComponent(() => import("../components/TapWaterSettings.vue"));
+const CalendarSettings = lazyComponent(() => import("../components/CalendarSettings.vue"));
 const activeTab = ref("profile");
 const visitedTabs = ref(new Set([activeTab.value]));
 watch(activeTab, value => { visitedTabs.value.add(value); });
@@ -21,6 +22,7 @@ const canShowInvites = computed(() =>
 const tabs = computed(() => [
   { id: "profile", label: "profile.tabs.profile" },
   { id: "tapWater", label: "profile.tabs.tapWater" },
+  { id: "calendar", label: "profile.tabs.calendar" },
   { id: "ui", label: "profile.tabs.ui" },
   { id: "ai", label: "profile.tabs.ai" },
   { id: "tests", label: "profile.tabs.tests" },
@@ -368,6 +370,17 @@ async function saveRange() {
       tabindex="0"
     >
       <TapWaterSettings @switch-tab="activeTab = $event" />
+    </div>
+    <div
+      v-if="visitedTabs.has('calendar')"
+      v-show="activeTab === 'calendar'"
+      id="profile-panel-calendar"
+      class="stack"
+      role="tabpanel"
+      aria-labelledby="profile-tab-calendar"
+      tabindex="0"
+    >
+      <CalendarSettings />
     </div>
     <div
 

@@ -354,6 +354,35 @@
     ]
   },
   {
+    "id": "aufgaben",
+    "title": "Schedule recurring tasks",
+    "intro": "Plan water changes, filter care, pruning and other work at fixed intervals. The app shows what is due next.",
+    "image": "aufgaben",
+    "caption": "Task section with an overdue water change and planned pruning.",
+    "steps": [
+      "Scroll to “Tasks & intervals” in the aquarium and select “+ Task”.",
+      "Choose the care type, such as water change or clean filter. A custom title like “30 % water change” is optional.",
+      "Set the interval in days, weeks or months and the first due date. With a time the task appears as a timed calendar event, otherwise as all-day.",
+      "After doing the work, select “Done”. The app records it in the logbook and calculates the next due date.",
+      "Use “Edit” to change or pause a task. Deleting a task keeps existing logbook entries."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Due date from the logbook",
+        "text": "The next due date counts from the latest logbook entry of the same care type. A water change entered manually also resets the task."
+      },
+      {
+        "title": "Fertilizers and readings",
+        "text": "Plan fertilizing in the fertilizer section and water tests with the aquarium's measuring cycle. Both appear in the calendar together with the tasks."
+      },
+      {
+        "title": "Offline too",
+        "text": "Tasks can be created, changed and completed without a connection. Changes synchronize later; conflicts between devices are shown for a decision."
+      }
+    ]
+  },
+  {
     "id": "fotos",
     "title": "Photos and gallery",
     "intro": "Gallery photos belong to your aquarium. They are not automatically published in the public Social feed.",
@@ -704,6 +733,35 @@
       {
         "title": "Timer notifications",
         "text": "Browser permission allows supported timer notifications. Sound settings, background rules and power saving can affect delivery."
+      }
+    ]
+  },
+  {
+    "id": "kalender",
+    "title": "Tasks in your phone or computer calendar",
+    "intro": "Bring measuring cycles, fertilizers and tasks into your calendar – once as an iCal file or automatically via CalDAV.",
+    "image": "kalender",
+    "caption": "Profile tab “Calendar” with iCal download and CalDAV credentials of a demo account.",
+    "steps": [
+      "Open “Profile” and the “Calendar” tab.",
+      "For a one-time import, select “Download calendar … (.ics)” and open the file with your calendar app. It contains events until the end of next year.",
+      "For automatic updates, add a CalDAV account on the device. On iPhone/iPad: Settings → Calendar → Accounts → Add Account → Other → CalDAV account. On Android, for example with DAVx⁵.",
+      "Enter the server, username and the CalDAV password shown. Use “Copy” to transfer the values without typos.",
+      "If you suspect misuse, select “Generate new password”. The old password stops working immediately; enter the new one on your devices."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Separate calendar password",
+        "text": "The CalDAV password is generated automatically and only works for the calendar. These credentials only open your own calendar; you never share your sign-in password."
+      },
+      {
+        "title": "Read-only and up to date",
+        "text": "Changes to tasks, measuring cycle or fertilizers appear automatically at the next sync. Edit events in the app, not in the calendar app."
+      },
+      {
+        "title": "Which events",
+        "text": "The calendar contains events of your own aquariums and aquariums shared with write access. Overdue tasks appear on today's date."
       }
     ]
   },

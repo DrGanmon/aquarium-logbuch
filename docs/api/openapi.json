@@ -53,6 +53,10 @@
     },
     {
       "name": "OIDC"
+    },
+    {
+      "name": "Kalender",
+      "description": "Wiederkehrende Pflegeaufgaben als iCal-Datei und schreibgeschützter CalDAV-Kalender."
     }
   ],
   "security": [
@@ -16043,6 +16047,550 @@
         },
         "x-aquarium-role": "write"
       }
+    },
+    "/api/aquariums/{id}/tasks": {
+      "get": {
+        "tags": [
+          "Pflege"
+        ],
+        "summary": "Wiederkehrende Pflegeaufgaben abrufen",
+        "operationId": "get_api_aquariums_id_tasks",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: view oder höher. Liefert Aufgaben mit aus dem Logbuch berechneter nächster Fälligkeit. Offline aus dem lokalen Arbeitsstand verfügbar.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-aquarium-role": "view",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CareTask"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Pflege"
+        ],
+        "summary": "Wiederkehrende Pflegeaufgabe anlegen",
+        "operationId": "post_api_aquariums_id_tasks",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher. Höchstens 50 Aufgaben je Aquarium. Auch als Offline-Aktion über `/api/offline/operations` möglich. Erledigt wird eine Aufgabe über einen Logbucheintrag derselben Pflegeart (POST /api/aquariums/{id}/maintenance).",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-aquarium-role": "write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CareTaskInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CareTask"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
+    },
+    "/api/aquariums/{id}/tasks/{taskId}": {
+      "put": {
+        "tags": [
+          "Pflege"
+        ],
+        "summary": "Pflegeaufgabe ändern",
+        "operationId": "put_api_aquariums_id_tasks_taskId",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher. Ersetzt alle Felder der Aufgabe.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-aquarium-role": "write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Aufgaben-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CareTaskInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CareTask"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Pflege"
+        ],
+        "summary": "Pflegeaufgabe löschen",
+        "operationId": "delete_api_aquariums_id_tasks_taskId",
+        "description": "Gültige Sitzung erforderlich. Erforderliche Aquarium-Rolle: write oder höher. Bestehende Logbucheinträge bleiben erhalten.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-aquarium-role": "write",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Ressourcen-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "description": "Numerische Aufgaben-ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
+    },
+    "/api/me/caldav": {
+      "get": {
+        "tags": [
+          "Kalender"
+        ],
+        "summary": "CalDAV-Zugangsdaten abrufen",
+        "operationId": "get_api_me_caldav",
+        "description": "Gültige Sitzung erforderlich; nur online. Erzeugt beim ersten Abruf automatisch ein zufälliges CalDAV-Passwort und liefert anschließend dasselbe Passwort. Gespeichert werden ein Hash zur Prüfung und eine mit dem Serverschlüssel verschlüsselte Kopie. Antwort mit `Cache-Control: no-store`.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalDavAccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
+    },
+    "/api/me/caldav/password": {
+      "post": {
+        "tags": [
+          "Kalender"
+        ],
+        "summary": "Neues CalDAV-Passwort erzeugen",
+        "operationId": "post_api_me_caldav_password",
+        "description": "Gültige Sitzung erforderlich; nur online. Ersetzt das bisherige CalDAV-Passwort sofort; eingerichtete Geräte müssen sich neu anmelden.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalDavAccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
+    },
+    "/api/me/calendar.ics": {
+      "get": {
+        "tags": [
+          "Kalender"
+        ],
+        "summary": "Pflegekalender als iCal herunterladen",
+        "operationId": "get_api_me_calendar_ics",
+        "description": "Gültige Sitzung erforderlich. Enthält Messzyklen, aktive manuelle Dünger und aktive Pflegeaufgaben aller eigenen Aquarien und Aquarien mit Schreibfreigabe. Jeder Termin beginnt bei der nächsten Fälligkeit (Überfälliges heute) und wiederholt sich per RRULE bis zum 31. Dezember des Folgejahres. Ohne Uhrzeit ganztägig, sonst als lokale (schwebende) Zeit mit 30 Minuten Dauer. Antwort als Datei-Download.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "iCalendar-Daten (RFC 5545).",
+            "content": {
+              "text/calendar": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
+    },
+    "/caldav": {
+      "get": {
+        "tags": [
+          "Kalender"
+        ],
+        "summary": "CalDAV-Einstieg",
+        "operationId": "get_caldav",
+        "description": "CalDAV-Basis-URL für Kalender-Apps (Basic-Anmeldung mit CalDAV-Passwort). GET leitet zum eigenen Kalender weiter; PROPFIND liefert `current-user-principal`. `/.well-known/caldav` leitet hierher weiter (RFC 6764). Außerdem: OPTIONS ohne Anmeldung (`DAV: 1, 3, calendar-access`); PROPFIND (Depth 0/1) und – nur am Kalender – REPORT `calendar-multiget` und `calendar-query` liefern `207 Multi-Status` als XML. Schreibende WebDAV-Methoden (PUT, DELETE, PROPPATCH, MKCALENDAR …) liefern 403, weil der Kalender aus den App-Daten erzeugt wird. Fehlgeschlagene Anmeldungen werden je Client und Login begrenzt (429). OpenAPI kann WebDAV-Methoden nicht abbilden; Details stehen in docs/api/README.md.",
+        "security": [
+          {
+            "CalDavBasic": []
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Weiterleitung zum Kalender des angemeldeten Kontos."
+          },
+          "401": {
+            "description": "CalDAV-Anmeldung fehlt oder ist falsch; mit `WWW-Authenticate: Basic`."
+          },
+          "404": {
+            "description": "Nicht gefunden oder fremdes Konto."
+          },
+          "429": {
+            "description": "Zu viele Anfragen oder Fehlanmeldungen."
+          }
+        }
+      }
+    },
+    "/caldav/{userId}/": {
+      "get": {
+        "tags": [
+          "Kalender"
+        ],
+        "summary": "CalDAV-Principal und Kalender-Home",
+        "operationId": "get_caldav_userId",
+        "description": "Principal und `calendar-home-set` des angemeldeten Kontos. GET leitet zum Kalender weiter; PROPFIND mit Depth 1 listet den Kalender `pflege`. Außerdem: OPTIONS ohne Anmeldung (`DAV: 1, 3, calendar-access`); PROPFIND (Depth 0/1) und – nur am Kalender – REPORT `calendar-multiget` und `calendar-query` liefern `207 Multi-Status` als XML. Schreibende WebDAV-Methoden (PUT, DELETE, PROPPATCH, MKCALENDAR …) liefern 403, weil der Kalender aus den App-Daten erzeugt wird. Fehlgeschlagene Anmeldungen werden je Client und Login begrenzt (429). OpenAPI kann WebDAV-Methoden nicht abbilden; Details stehen in docs/api/README.md.",
+        "security": [
+          {
+            "CalDavBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "Numerische ID des angemeldeten Kontos; fremde IDs liefern 404.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Weiterleitung zum Kalender des angemeldeten Kontos."
+          },
+          "401": {
+            "description": "CalDAV-Anmeldung fehlt oder ist falsch; mit `WWW-Authenticate: Basic`."
+          },
+          "404": {
+            "description": "Nicht gefunden oder fremdes Konto."
+          },
+          "429": {
+            "description": "Zu viele Anfragen oder Fehlanmeldungen."
+          }
+        }
+      }
+    },
+    "/caldav/{userId}/pflege/": {
+      "get": {
+        "tags": [
+          "Kalender"
+        ],
+        "summary": "Schreibgeschützten Pflegekalender abrufen",
+        "operationId": "get_caldav_userId_pflege",
+        "description": "Liefert denselben Kalender wie /api/me/calendar.ics mit ETag; nutzbar auch als Kalenderabo mit Basic-Anmeldung. PROPFIND liefert `getctag`, Objektliste und Rechte (nur Lesen). Außerdem: OPTIONS ohne Anmeldung (`DAV: 1, 3, calendar-access`); PROPFIND (Depth 0/1) und – nur am Kalender – REPORT `calendar-multiget` und `calendar-query` liefern `207 Multi-Status` als XML. Schreibende WebDAV-Methoden (PUT, DELETE, PROPPATCH, MKCALENDAR …) liefern 403, weil der Kalender aus den App-Daten erzeugt wird. Fehlgeschlagene Anmeldungen werden je Client und Login begrenzt (429). OpenAPI kann WebDAV-Methoden nicht abbilden; Details stehen in docs/api/README.md.",
+        "security": [
+          {
+            "CalDavBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "Numerische ID des angemeldeten Kontos; fremde IDs liefern 404.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "iCalendar-Daten (RFC 5545).",
+            "content": {
+              "text/calendar": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "CalDAV-Anmeldung fehlt oder ist falsch; mit `WWW-Authenticate: Basic`."
+          },
+          "404": {
+            "description": "Nicht gefunden oder fremdes Konto."
+          },
+          "429": {
+            "description": "Zu viele Anfragen oder Fehlanmeldungen."
+          }
+        }
+      }
+    },
+    "/caldav/{userId}/pflege/{object}": {
+      "get": {
+        "tags": [
+          "Kalender"
+        ],
+        "summary": "Einzelnen Kalendertermin abrufen",
+        "operationId": "get_caldav_userId_pflege_object",
+        "description": "Ein VCALENDAR mit genau einem wiederkehrenden VEVENT samt ETag. Außerdem: OPTIONS ohne Anmeldung (`DAV: 1, 3, calendar-access`); PROPFIND (Depth 0/1) und – nur am Kalender – REPORT `calendar-multiget` und `calendar-query` liefern `207 Multi-Status` als XML. Schreibende WebDAV-Methoden (PUT, DELETE, PROPPATCH, MKCALENDAR …) liefern 403, weil der Kalender aus den App-Daten erzeugt wird. Fehlgeschlagene Anmeldungen werden je Client und Login begrenzt (429). OpenAPI kann WebDAV-Methoden nicht abbilden; Details stehen in docs/api/README.md.",
+        "security": [
+          {
+            "CalDavBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "Numerische ID des angemeldeten Kontos; fremde IDs liefern 404.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "object",
+            "in": "path",
+            "required": true,
+            "description": "Kalenderobjekt, z. B. `task-12.ics`, `fertilizer-3.ics` oder `measure-4.ics`.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "iCalendar-Daten (RFC 5545).",
+            "content": {
+              "text/calendar": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "CalDAV-Anmeldung fehlt oder ist falsch; mit `WWW-Authenticate: Basic`."
+          },
+          "404": {
+            "description": "Nicht gefunden oder fremdes Konto."
+          },
+          "429": {
+            "description": "Zu viele Anfragen oder Fehlanmeldungen."
+          }
+        }
+      }
     }
   },
   "components": {
@@ -16058,6 +16606,11 @@
         "scheme": "bearer",
         "bearerFormat": "Password",
         "description": "Das im Adminbereich festgelegte Scrape-Passwort als Bearer-Token."
+      },
+      "CalDavBasic": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "Benutzername oder E-Mail-Adresse plus das automatisch erzeugte CalDAV-Passwort aus GET /api/me/caldav. Das Kontopasswort und Sitzungscookies werden nicht akzeptiert."
       }
     },
     "parameters": {
@@ -18394,6 +18947,140 @@
           "caption",
           "created_at",
           "image_url"
+        ]
+      },
+      "CareTaskInput": {
+        "type": "object",
+        "required": [
+          "type",
+          "interval",
+          "unit",
+          "start_date"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Pflegeart aus /api/config `maintenanceTypes` außer `fertilize` und `dosing_pump`."
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 80,
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500,
+            "nullable": true
+          },
+          "interval": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365,
+            "description": "Bei `months` höchstens 24."
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "days",
+              "weeks",
+              "months"
+            ]
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Erste Fälligkeit; gilt bis zur ersten Erledigung oder solange sie später als das Intervall ab dem letzten Logbucheintrag liegt."
+          },
+          "time_of_day": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+            "nullable": true,
+            "description": "Ohne Uhrzeit ganztägiger Kalendertermin."
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": true
+      },
+      "CareTask": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CareTaskInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "aquarium_id": {
+                "type": "integer"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "last_done_at": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true,
+                "description": "Letzter Logbucheintrag derselben Pflegeart."
+              },
+              "next_due_date": {
+                "type": "string",
+                "format": "date",
+                "nullable": true
+              },
+              "is_due": {
+                "type": "boolean"
+              },
+              "is_overdue": {
+                "type": "boolean"
+              },
+              "days_remaining": {
+                "type": "integer",
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "CalDavAccess": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "description": "Zufälliges CalDAV-Passwort (nur für den Kalender)."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "serverUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "calendarUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "wellKnownUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "username",
+          "password",
+          "created_at",
+          "serverUrl",
+          "calendarUrl",
+          "wellKnownUrl"
         ]
       }
     },

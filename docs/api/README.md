@@ -56,6 +56,29 @@ curl -H 'Authorization: Bearer ein-langes-geheimes-scrape-passwort' \
   "$BASE_URL/metrics"
 ```
 
+## Kalender und CalDAV
+
+Wiederkehrende Pflegeaufgaben liegen unter `GET/POST /api/aquariums/{id}/tasks` und `PUT/DELETE /api/aquariums/{id}/tasks/{taskId}` (Felder `type`, `title`, `note`, `interval`, `unit` = `days|weeks|months`, `start_date`, `time_of_day`, `is_active`). Antworten enthalten zusätzlich `last_done_at`, `next_due_date`, `is_due`, `is_overdue` und `days_remaining`. Erledigt wird eine Aufgabe über einen Logbucheintrag derselben Pflegeart (`POST /api/aquariums/{id}/maintenance`). `fertilize` und `dosing_pump` sind keine Aufgabenarten; dafür gibt es Düngerpläne bzw. den Messzyklus.
+
+`GET /api/me/calendar.ics` liefert den Pflegekalender des angemeldeten Kontos als iCalendar-Download (RFC 5545) bis zum 31. Dezember des Folgejahres: Messzyklen, aktive manuelle Dünger und aktive Aufgaben eigener Aquarien und von Aquarien mit Schreibfreigabe, jeweils als wiederkehrendes `VEVENT` mit `RRULE`. `GET /api/me/caldav` liefert `{username, password, serverUrl, calendarUrl, wellKnownUrl, created_at}` und erzeugt beim ersten Abruf automatisch ein zufälliges CalDAV-Passwort; `POST /api/me/caldav/password` ersetzt es sofort. Beide Endpunkte sind nur online verfügbar und antworten mit `Cache-Control: no-store`.
+
+Der CalDAV-Server unter `/caldav/` ist schreibgeschützt und verwendet ausschließlich HTTP Basic mit Benutzername oder E-Mail und dem CalDAV-Passwort. Sitzungscookies und das Kontopasswort werden abgelehnt (`401` mit `WWW-Authenticate: Basic`); fremde Konto-IDs im Pfad liefern `404`. Unterstützt werden `OPTIONS` (ohne Anmeldung, `DAV: 1, 3, calendar-access`), `GET`/`HEAD`, `PROPFIND` mit `Depth: 0|1` sowie am Kalender `REPORT` mit `calendar-multiget` und `calendar-query`. Schreibende Methoden wie `PUT`, `DELETE`, `PROPPATCH` oder `MKCALENDAR` liefern `403`. Struktur: `/caldav/` (verweist auf `current-user-principal`), `/caldav/{userId}/` (Principal und `calendar-home-set`), `/caldav/{userId}/pflege/` (Kalender mit `getctag`) und `/caldav/{userId}/pflege/{uid}.ics` (ein Termin mit `ETag`). `/.well-known/caldav` leitet mit `301` auf `/caldav/` weiter. Zu viele Anfragen oder Fehlanmeldungen je Client bzw. Login liefern `429` mit `Retry-After`.
+
+Einrichtung: Auf iPhone/iPad unter Einstellungen → Kalender → Accounts → Account hinzufügen → Andere → CalDAV-Account den Server (Host der App-Adresse), Benutzername und CalDAV-Passwort eintragen. Unter Android z. B. in DAVx⁵ „Mit URL und Benutzername anmelden“ mit der Server-Adresse wählen. Thunderbird und andere Programme nutzen direkt die Kalender-Adresse. HTTPS ist für CalDAV-Clients praktisch erforderlich.
+
+```sh
+# Zugangsdaten im eingeloggten Zustand abrufen.
+curl -b /tmp/aquarium-api-cookies.txt "$BASE_URL/api/me/caldav"
+
+# Kalender wie ein CalDAV-Client auflisten (Benutzername und CalDAV-Passwort, nicht das Kontopasswort).
+curl -u 'beispiel:CALDAV-PASSWORT' -X PROPFIND -H 'Depth: 1' \
+  --data '<d:propfind xmlns:d="DAV:"><d:prop><d:getetag/></d:prop></d:propfind>' \
+  "$BASE_URL/caldav/1/pflege/"
+
+# iCal-Datei herunterladen.
+curl -b /tmp/aquarium-api-cookies.txt -OJ "$BASE_URL/api/me/calendar.ics"
+```
+
 ## Pflanzenfotos
 
 Zu jeder im Aquarium eingetragenen Pflanze lassen sich bis zu 20 Fotos mit optionaler Beschreibung (höchstens 200 Zeichen) speichern, etwa um die Pflanzstelle festzuhalten. `GET /api/aquariums/{id}/plant-images` liefert alle Fotos des Beckens als Array von `{id, aquarium_id, plant_id, caption, created_at, image_url}`; `?plantId=` filtert auf eine Pflanze. Lesende Freigaben dürfen Fotos abrufen, Schreibrechte sind für Hochladen, Beschreiben und Löschen nötig. `POST` verlangt eine im Becken eingetragene Pflanze (sonst `404`); weitere Fotos über der Grenze liefern `400`. Mehrere Fotos werden nacheinander hochgeladen. Wird eine Pflanze mit `DELETE /api/aquariums/{id}/plants/{plantId}` entfernt oder das Aquarium gelöscht, werden ihre Fotos samt Dateien mitgelöscht. Fotos sind in Backups enthalten und werden offline wie Galeriebilder vorgemerkt und abgeglichen.
@@ -205,7 +228,7 @@ Lokale Arten-/Pflanzenbilder werden erst beim Ansehen im Service Worker gespeich
 
 `GET /api/offline/state` liefert `{schema:1,version,owner,language,updatedAt,responses,versions,rules}`. `responses` enthält die vollständigen GET-Antworten pro relativem API-Pfad, `versions` die Fingerprints der Ressourcen. `If-None-Match` unterstützt das exakt zuvor erhaltene ETag für 304. Ein erfolgreicher Stand ersetzt den alten atomar; ausstehende lokale Aktionen werden darübergelegt. Bei geöffneter App wird nach dem Upload und regelmäßig alle 30 Sekunden aktualisiert. Vollständige Messhistorien können bei großen Datenbeständen entsprechend mehr Zeit und Browserspeicher benötigen.
 
-Offline verfügbar sind Aquarium-Anlage/Bearbeitung/Löschung, Besatz einschließlich Katalogzuordnung und Fotos, Pflanzenbestand einschließlich Pflanzenfotos, manuelle Pflegeeinträge, Messungen und Löschung, Düngerpläne und manuelle Dosierungsprotokolle, Galerie einschließlich Titelbild, Warnungsquittierung, sichere Profilfelder/Avatar, Testauswahl und Reagenzbestand sowie lokaler CSV-Import/-Export. Grafiken, Schwellenwerte, Verträglichkeit, Zyklen und Diagnose werden lokal berechnet. Automatische Dosierereignisse und E-Mail-Erinnerungen bleiben serverseitig; die App steuert keine physische Dosierpumpe. Anmeldung, Passwort/E-Mail/Kontosicherheit, KI-Aufrufe, Freigaben/Einladungen, Social und Administration benötigen weiterhin Internet.
+Offline verfügbar sind Aquarium-Anlage/Bearbeitung/Löschung, Besatz einschließlich Katalogzuordnung und Fotos, Pflanzenbestand einschließlich Pflanzenfotos, wiederkehrende Pflegeaufgaben, manuelle Pflegeeinträge, Messungen und Löschung, Düngerpläne und manuelle Dosierungsprotokolle, Galerie einschließlich Titelbild, Warnungsquittierung, sichere Profilfelder/Avatar, Testauswahl und Reagenzbestand sowie lokaler CSV-Import/-Export. Grafiken, Schwellenwerte, Verträglichkeit, Zyklen und Diagnose werden lokal berechnet. Automatische Dosierereignisse und E-Mail-Erinnerungen bleiben serverseitig; die App steuert keine physische Dosierpumpe. Anmeldung, Passwort/E-Mail/Kontosicherheit, KI-Aufrufe, Freigaben/Einladungen, Kalender-Zugang und -Download, Social und Administration benötigen weiterhin Internet.
 
 ```http
 POST /api/offline/operations

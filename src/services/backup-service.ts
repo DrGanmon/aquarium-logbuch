@@ -5,6 +5,8 @@ import { AI_PROVIDERS, encryptPersonalAiFields } from './ai-token-crypto';
 import { writeJsonFile } from './json-config-store';
 import { asError } from '../utils/app-error';
 import { acquireMaintenanceLease } from './maintenance-coordinator';
+import { validateCareTaskInput } from '../shared/care-tasks';
+import { MAINTENANCE_TYPES } from '../shared/maintenance';
 import path = require('path');
 import fs = require('fs');
 import zlib = require('zlib');
@@ -58,6 +60,20 @@ function normalizePlantImages(rows: unknown, plants: unknown, aquariums: any[]) 
     seen.add(id);
     return [{ id, aquarium_id: aquariumId, plant_id: photo.plant_id, filename, caption: typeof photo.caption === 'string' && photo.caption.trim() ? photo.caption.trim().slice(0, 200) : null,
       created_at: typeof photo.created_at === 'string' ? photo.created_at : new Date().toISOString() }];
+  });
+}
+
+/** Recurring care tasks are restored only with valid schedules and an existing aquarium. */
+function normalizeCareTasks(rows: unknown, aquariums: any[]) {
+  const aquariumIds = new Set(aquariums.map((aquarium: any) => aquarium.id));
+  const seen = new Set<number>();
+  return (Array.isArray(rows) ? rows : []).flatMap((task: any) => {
+    const id = Number(task?.id), aquariumId = Number(task?.aquarium_id);
+    if (!Number.isSafeInteger(id) || id < 1 || seen.has(id) || !aquariumIds.has(aquariumId)) return [];
+    const checked = validateCareTaskInput(task, MAINTENANCE_TYPES);
+    if (checked.error !== undefined) return [];
+    seen.add(id);
+    return [{ id, aquarium_id: aquariumId, ...checked.value, created_at: typeof task.created_at === 'string' ? task.created_at : new Date().toISOString() }];
   });
 }
 
@@ -808,6 +824,7 @@ class BackupService {
           Number.isInteger(plant.count) && plant.count >= 1 && plant.count <= 10000
         ).map((plant: any) => ({ aquarium_id: Number(plant.aquarium_id), plant_id: plant.plant_id, count: plant.count })),
         aquarium_plant_images: normalizePlantImages(data.aquarium_plant_images, data.aquarium_plants, normalizedAquariums),
+        care_tasks: normalizeCareTasks(data.care_tasks, normalizedAquariums),
         measurements: normalizedMeasurements,
         alerts: normalizedAlerts,
         maintenance_logs: normalizedMaint,

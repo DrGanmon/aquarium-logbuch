@@ -38,7 +38,8 @@ Find more views and step-by-step instructions in the [public user guide](https:/
 - **Record water parameters:** 23 parameters, freely combined tests from JBL, Amtra, sera and Tetra suites plus seven YINMIK meter families, live assessments and simultaneous reaction timers. An expandable Active timers FAB shows remaining times grouped by tank and appears only while timers are running.
 - **Review history:** Charts with custom date ranges, warnings and alarms you can acknowledge.
 - **Document care:** Logbook for water changes, filter maintenance, plants, fertilization and other activities.
-- **Plan maintenance:** Measurement cycles with optional email reminders; a fertilizer area with individual reminders for manual fertilizers and scheduled automatic logbook entries for dosing pumps.
+- **Plan maintenance:** Measurement cycles with optional email reminders; a fertilizer area with individual reminders for manual fertilizers and scheduled automatic logbook entries for dosing pumps; recurring tasks such as water changes, filter care or pruning every few days, weeks or months.
+- **Use your calendar:** Download care events as an iCal file for the current and next year or sync them to phone and computer via read-only CalDAV with a separate, automatically generated password.
 - **Track test usage:** Automatic counting, adjustable refill capacities and refill reminders at 75% usage.
 - **Check stocking:** Species catalog with care requirements, images and guidance on groups, tank size and compatibility.
 - **Choose forms:** Find cultivars, botanical varieties and trade names without extra cards; select the specific form when adding animals or plants.

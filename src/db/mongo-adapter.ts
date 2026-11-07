@@ -4,6 +4,8 @@ import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-cryp
 import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
 import { PlantRepository } from './plant-repository';
 import { PlantImageRepository } from './plant-image-repository';
+import { CareTaskRepository } from './care-task-repository';
+import { CalDavRepository } from './caldav-repository';
 import { SocialRepository } from "./social-repository";
 import { NotificationRepository } from "./notification-repository";
 import { buildAdminMetrics, normalizeAiUsage } from './admin-metrics';
@@ -47,6 +49,8 @@ class MongoAdapter {
   shares!: ReturnType<MongoAdapter['build_shares']>;
   plants!: PlantRepository;
   plantImages!: PlantImageRepository;
+  careTasks!: CareTaskRepository;
+  caldav!: CalDavRepository;
   stock!: RepositoryContract<ReturnType<MongoAdapter['build_stock']>, StockRepository>;
   measurements!: RepositoryContract<ReturnType<MongoAdapter['build_measurements']>, MeasurementQueries>;
   alerts!: ReturnType<MongoAdapter['build_alerts']>;
@@ -271,6 +275,8 @@ class MongoAdapter {
     this.stock = this.build_stock();
     this.plants = new PlantRepository(this.type, this.connection());
     this.plantImages = new PlantImageRepository(this.type, this.connection(), name => this.getNextSequence(name));
+    this.careTasks = new CareTaskRepository(this.type, this.connection(), name => this.getNextSequence(name));
+    this.caldav = new CalDavRepository(this.type, this.connection());
 
     this.measurements = this.build_measurements();
 
@@ -335,6 +341,7 @@ class MongoAdapter {
       stock,
       aquarium_plants: await safeGetDocs('aquarium_plants'),
       aquarium_plant_images: await safeGetDocs('aquarium_plant_images'),
+      care_tasks: await safeGetDocs('care_tasks'),
       measurements,
       measurement_drafts: await safeGetDocs('measurement_drafts', { user_id: 1, aquarium_id: 1 }),
       measurement_operations: await safeGetDocs('measurement_operations', { operation_key: 1 }),
@@ -383,7 +390,7 @@ class MongoAdapter {
     await this.notifications.clear(session);
     await this.social.clear(session);
     // Collections leeren
-    for (const name of ['users', 'sessions', 'aquariums', 'aquarium_images', 'aquarium_shares', 'aquarium_plants', 'aquarium_plant_images', 'stock', 'measurements', 'measurement_operations', 'measurement_drafts', 'alerts', 'maintenance_logs', 'invitations', 'aquarium_chats', 'dosing_pumps', 'ai_usage_metrics', 'counters']) {
+    for (const name of ['users', 'sessions', 'aquariums', 'aquarium_images', 'aquarium_shares', 'aquarium_plants', 'aquarium_plant_images', 'care_tasks', 'caldav_credentials', 'stock', 'measurements', 'measurement_operations', 'measurement_drafts', 'alerts', 'maintenance_logs', 'invitations', 'aquarium_chats', 'dosing_pumps', 'ai_usage_metrics', 'counters']) {
       await db.collection(name).deleteMany({}, sessionOptions);
     }
 
@@ -395,6 +402,8 @@ class MongoAdapter {
     if (data.aquarium_plants?.length) await db.collection('aquarium_plants').insertMany(data.aquarium_plants, sessionOptions);
     const plantImages = Array.isArray(data.aquarium_plant_images) ? data.aquarium_plant_images : [];
     if (plantImages.length) await db.collection('aquarium_plant_images').insertMany(plantImages.map((photo: any) => ({ ...photo })), sessionOptions);
+    const careTasks = Array.isArray(data.care_tasks) ? data.care_tasks : [];
+    if (careTasks.length) await db.collection('care_tasks').insertMany(careTasks.map((task: any) => ({ ...task, is_active: Boolean(task.is_active) })), sessionOptions);
     if (stock.length > 0) await db.collection('stock').insertMany(stock, sessionOptions);
     if (measurements.length > 0) await db.collection('measurements').insertMany(measurements, sessionOptions);
     if (data.measurement_drafts?.length) await db.collection('measurement_drafts').insertMany(data.measurement_drafts, sessionOptions);
@@ -430,6 +439,7 @@ class MongoAdapter {
     const maxChatId = chats.reduce((m?: any, c?: any) => Math.max(m, c.id || 0), 0);
     const maxDosingPumpId = dosing_pumps.reduce((m?: any, dp?: any) => Math.max(m, dp.id || 0), 0);
     const maxPlantImageId = plantImages.reduce((m: number, photo: any) => Math.max(m, Number(photo.id) || 0), 0);
+    const maxCareTaskId = careTasks.reduce((m: number, task: any) => Math.max(m, Number(task.id) || 0), 0);
 
     const counterOps = [
       { _id: 'users', seq: maxUserId },
@@ -443,6 +453,7 @@ class MongoAdapter {
       { _id: 'aquarium_chats', seq: maxChatId },
       { _id: 'dosing_pumps', seq: maxDosingPumpId },
       { _id: 'aquarium_plant_images', seq: maxPlantImageId },
+      { _id: 'care_tasks', seq: maxCareTaskId },
     ];
 
     for (const c of counterOps) {
@@ -624,6 +635,7 @@ class MongoAdapter {
         }
         await db.collection('aquarium_shares').deleteMany({ user_id: numId });
         await db.collection('measurement_drafts').deleteMany({ user_id: numId });
+        await db.collection('caldav_credentials').deleteMany({ user_id: numId });
         await db.collection('maintenance_logs').updateMany({ created_by: numId }, { $set: { created_by: null } });
         await db.collection('measurements').updateMany({ created_by: numId }, { $set: { created_by: null } });
         const res = await db.collection('users').deleteOne({ id: numId });
@@ -872,7 +884,7 @@ class MongoAdapter {
         for (const stock of stocks) deleteImage(stock.image_file);
         for (const photo of plantPhotos) deleteImage(photo.filename);
         // Cascade cleanup: independent collections can be removed concurrently.
-        await Promise.all(['aquarium_images', 'aquarium_plants', 'aquarium_plant_images', 'stock', 'measurements', 'measurement_operations', 'measurement_drafts', 'alerts', 'aquarium_shares', 'maintenance_logs', 'aquarium_chats', 'dosing_pumps']
+        await Promise.all(['aquarium_images', 'aquarium_plants', 'aquarium_plant_images', 'care_tasks', 'stock', 'measurements', 'measurement_operations', 'measurement_drafts', 'alerts', 'aquarium_shares', 'maintenance_logs', 'aquarium_chats', 'dosing_pumps']
           .map(collection => db.collection(collection).deleteMany({ aquarium_id: numId })));
         return true;
       },

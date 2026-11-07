@@ -4,7 +4,8 @@ import type { WorkspaceOperation, WorkspaceSnapshot } from './offline-workspace'
 import { aquariumInput } from './aquarium-input';
 import { parseDecimal, str } from './input';
 import { MAX_PHOTOS_PER_PLANT, plantPhotoLimitMessage } from './plant-images';
-import { validateMaintenanceInput } from './maintenance';
+import { validateMaintenanceInput, MAINTENANCE_TYPES } from './maintenance';
+import { validateCareTaskInput, careTaskStatus, lastMaintenanceByType, MAX_CARE_TASKS_PER_AQUARIUM } from './care-tasks';
 import { validateDosingPumpInput, manualDosingStatus, nextAutomaticDosingAt } from './dosing';
 import { calculateCycleStatus } from './cycles';
 import { calculateThresholds } from './thresholds';
@@ -61,7 +62,7 @@ export function applyLocalOperation(snapshot: WorkspaceSnapshot, command: Worksp
     const aquarium = { ...check(aquariumInput(body)), id: temporary, user_id: command.owner, created_at: now, role: 'owner', alerts: [], has_image: false };
     list('/aquariums').push(aquarium);
     r[`/aquariums/${temporary}`] = { aquarium, role: 'owner', profiles: [], thresholds: {}, conflicts: [], stockCompatibility: {}, alerts: [], latest: {}, stock: [], dosing_pumps: [] };
-    for (const collection of ['stock', 'plants', 'plant-images', 'maintenance', 'fertilizers', 'images', 'measurements?all=true']) r[`/aquariums/${temporary}/${collection}`] = [];
+    for (const collection of ['stock', 'plants', 'plant-images', 'tasks', 'maintenance', 'fertilizers', 'images', 'measurements?all=true']) r[`/aquariums/${temporary}/${collection}`] = [];
     result = { id: temporary };
   } else {
     const detail = r[root];
@@ -199,6 +200,23 @@ export function applyLocalOperation(snapshot: WorkspaceSnapshot, command: Worksp
         rows.push(entry);result = entry;
       } else if (parts[5] === 'primary') for (const row of rows) row.is_primary = row.id === Number(item) ? 1 : 0;
       else { const row = rows.find(entry => entry.id === Number(item));if (!row) throw new AppError('Bild nicht gefunden.', 404);row.caption = body.caption || null; }
+    } else if (type === 'tasks') {
+      const rows = list(root + '/tasks');
+      if (command.method === 'DELETE') {
+        if (!rows.some(row => row.id === Number(item))) throw new AppError('Aufgabe nicht gefunden.', 404);
+        r[root + '/tasks'] = rows.filter(row => row.id !== Number(item));
+      } else {
+        const value = check(validateCareTaskInput(body, config?.maintenanceTypes || MAINTENANCE_TYPES));
+        if (item) {
+          const existing = rows.find(row => row.id === Number(item));
+          if (!existing) throw new AppError('Aufgabe nicht gefunden.', 404);
+          Object.assign(existing, value);result = existing;
+        } else {
+          if (rows.length >= MAX_CARE_TASKS_PER_AQUARIUM) throw new AppError(`Je Aquarium sind höchstens ${MAX_CARE_TASKS_PER_AQUARIUM} Aufgaben möglich.`, 400);
+          const entry = { ...value, id: temporary, aquarium_id: id, created_at: now };
+          rows.push(entry);result = entry;
+        }
+      }
     } else if (type === 'plant-images') {
       const rows = list(root + '/plant-images');
       if (command.method === 'DELETE') {
@@ -270,6 +288,8 @@ export function deriveWorkspace(snapshot: WorkspaceSnapshot, catalogs: { species
       detail.aquarium[`${prefix}_cycle_status`] = calculateCycleStatus({ interval: detail.aquarium[`${prefix}_cycle_interval`], unit: detail.aquarium[`${prefix}_cycle_unit`], day_of_week: detail.aquarium[`${prefix}_cycle_day_of_week`], reminder_mail: detail.aquarium[`${prefix}_reminder_mail`] }, last, detail.aquarium.created_at, new Date(), snapshot.language);
     }
     detail.aquarium.overdue = detail.aquarium.measure_cycle_status.is_due;
+    const lastDone = lastMaintenanceByType(logs);
+    for (const task of r[root + '/tasks'] || []) Object.assign(task, careTaskStatus(task, lastDone[task.type] || null));
     const plans = r[root + '/fertilizers'] || [];
     for (const plan of plans) plan.next_due_at = !plan.is_active ? null : plan.mode === 'manual' ? manualDosingStatus(plan).next_due_at : nextAutomaticDosingAt(plan).toISOString();
     detail.dosing_pumps = plans;

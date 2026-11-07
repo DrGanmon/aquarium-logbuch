@@ -31,8 +31,8 @@ export function workspaceWrite(path: string, method: string, body: Record<string
   if (path === '/aquariums') return method === 'POST';
   if (/^\/aquariums\/-?\d+$/.test(path)) return method === 'PUT' || method === 'DELETE';
   if (/^\/aquariums\/-?\d+\/stock\/catalog$/.test(path)) return method === 'POST';
-  if (/^\/aquariums\/-?\d+\/(stock|images|plant-images|fertilizers|dosing-pumps|maintenance|measurements)$/.test(path)) return method === 'POST';
-  if (/^\/aquariums\/-?\d+\/(stock|images|plant-images|fertilizers|dosing-pumps|maintenance|measurements)\/-?\d+$/.test(path)) return method === 'DELETE' || (method === 'PUT' && !path.includes('/measurements/'));
+  if (/^\/aquariums\/-?\d+\/(stock|images|plant-images|tasks|fertilizers|dosing-pumps|maintenance|measurements)$/.test(path)) return method === 'POST';
+  if (/^\/aquariums\/-?\d+\/(stock|images|plant-images|tasks|fertilizers|dosing-pumps|maintenance|measurements)\/-?\d+$/.test(path)) return method === 'DELETE' || (method === 'PUT' && !path.includes('/measurements/'));
   if (/^\/aquariums\/-?\d+\/plants\/[^/?]+$/.test(path)) return method === 'PUT' || method === 'DELETE';
   if (/^\/aquariums\/-?\d+\/images\/-?\d+\/primary$/.test(path)) return method === 'PUT';
   if (/^\/aquariums\/-?\d+\/(stock\/-?\d+\/image|image)$/.test(path)) return method === 'POST' || method === 'DELETE';

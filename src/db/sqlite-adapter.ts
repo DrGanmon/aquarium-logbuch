@@ -4,6 +4,8 @@ import { AI_PROVIDERS, encryptPersonalAiFields } from '../services/ai-token-cryp
 import encryptedAiTokensMigration = require('./migrations/007_encrypted_ai_tokens');
 import { PlantRepository } from './plant-repository';
 import { PlantImageRepository } from './plant-image-repository';
+import { CareTaskRepository } from './care-task-repository';
+import { CalDavRepository } from './caldav-repository';
 import { SocialRepository } from "./social-repository";
 import { NotificationRepository } from "./notification-repository";
 import { buildAdminMetrics, normalizeAiUsage } from './admin-metrics';
@@ -42,6 +44,8 @@ class SqliteAdapter {
   shares!: ReturnType<SqliteAdapter['build_shares']>;
   plants!: PlantRepository;
   plantImages!: PlantImageRepository;
+  careTasks!: CareTaskRepository;
+  caldav!: CalDavRepository;
   stock!: RepositoryContract<ReturnType<SqliteAdapter['build_stock']>, StockRepository>;
   measurements!: RepositoryContract<ReturnType<SqliteAdapter['build_measurements']>, MeasurementQueries>;
   alerts!: ReturnType<SqliteAdapter['build_alerts']>;
@@ -162,6 +166,8 @@ class SqliteAdapter {
     this.stock = this.build_stock();
     this.plants = new PlantRepository(this.type, this.connection());
     this.plantImages = new PlantImageRepository(this.type, this.connection());
+    this.careTasks = new CareTaskRepository(this.type, this.connection());
+    this.caldav = new CalDavRepository(this.type, this.connection());
 
     this.measurements = this.build_measurements();
 
@@ -228,6 +234,7 @@ class SqliteAdapter {
       stock,
       aquarium_plants: safeGetAll('aquarium_plants', 'aquarium_id ASC, plant_id ASC'),
       aquarium_plant_images: safeGetAll('aquarium_plant_images', 'id ASC'),
+      care_tasks: safeGetAll('care_tasks', 'id ASC'),
       measurements,
       measurement_drafts: safeGetAll('measurement_drafts', 'user_id ASC, aquarium_id ASC'),
       measurement_operations: safeGetAll('measurement_operations', 'operation_key ASC'),
@@ -281,6 +288,8 @@ class SqliteAdapter {
       db.exec('DELETE FROM measurement_drafts');
       db.exec('DELETE FROM maintenance_logs');
       db.exec('DELETE FROM aquarium_plant_images');
+      db.exec('DELETE FROM care_tasks');
+      db.exec('DELETE FROM caldav_credentials');
       db.exec('DELETE FROM aquarium_plants');
       db.exec('DELETE FROM stock');
       db.exec('DELETE FROM aquarium_images');
@@ -539,6 +548,10 @@ class SqliteAdapter {
 
       for (const plant of data.aquarium_plants || []) {
         db.prepare('INSERT INTO aquarium_plants (aquarium_id, plant_id, count) VALUES (?, ?, ?)').run(plant.aquarium_id, plant.plant_id, plant.count);
+      }
+      for (const task of data.care_tasks || []) {
+        db.prepare('INSERT INTO care_tasks (id, aquarium_id, type, title, note, interval, unit, start_date, time_of_day, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+          .run(task.id, task.aquarium_id, task.type, task.title ?? null, task.note ?? null, task.interval, task.unit, task.start_date, task.time_of_day ?? null, task.is_active ? 1 : 0, task.created_at || new Date().toISOString());
       }
       for (const photo of data.aquarium_plant_images || []) {
         db.prepare('INSERT INTO aquarium_plant_images (id, aquarium_id, plant_id, filename, caption, created_at) VALUES (?, ?, ?, ?, ?, ?)').run(photo.id, photo.aquarium_id, photo.plant_id, photo.filename, photo.caption ?? null, photo.created_at || new Date().toISOString());

@@ -26,6 +26,8 @@ import notificationRoutes = require('./routes/notifications');
 import healthRoutes = require('./routes/health');
 import metricsRoutes = require('./routes/metrics');
 import setupRoutes = require('./routes/setup');
+import calendarRoutes = require('./routes/calendar');
+import caldavRoutes = require('./routes/caldav');
 
 const app = express();
 app.disable('x-powered-by');
@@ -60,6 +62,7 @@ const maintenanceGate = async (req: Request, res: Response, next: NextFunction) 
 app.use('/api', maintenanceGate);
 app.use('/auth', maintenanceGate);
 app.use('/metrics', maintenanceGate);
+app.use('/caldav', maintenanceGate);
 app.use(express.json({ limit: '50mb' }));
 app.use('/api', csrfProtection);
 app.use('/api', (req, res, next) => {
@@ -95,6 +98,7 @@ const setupGate = async (req: Request, res: Response, next: NextFunction) => {
 };
 app.use('/api', setupGate);
 app.use('/auth', setupGate);
+app.use('/caldav', setupGate);
 
 // API Routen
 app.use('/api/offline', offlineRoutes);
@@ -107,6 +111,11 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api', calendarRoutes);
+// Read-only CalDAV calendar with separate Basic-auth credentials (no session cookies, no CSRF surface).
+app.use('/caldav', caldavRoutes);
+// RFC 6764 discovery; behind a sub path the proxy must forward this root URL to the app.
+app.all('/.well-known/caldav', (_req: Request, res: Response) => res.redirect(301, `${APP_PATH}/caldav/`));
 app.use('/auth', oidcRoutes);
 app.use('/metrics', metricsRoutes);
 

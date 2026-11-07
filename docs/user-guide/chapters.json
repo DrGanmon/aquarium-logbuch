@@ -354,6 +354,35 @@
     ]
   },
   {
+    "id": "aufgaben",
+    "title": "Wiederkehrende Aufgaben in Intervallen planen",
+    "intro": "Plane Wasserwechsel, Filterpflege, Pflanzenschnitt und andere Arbeiten in festen Abständen. Die App zeigt, was als Nächstes fällig ist.",
+    "image": "aufgaben",
+    "caption": "Aufgabenbereich mit überfälligem Wasserwechsel und geplantem Pflanzenschnitt.",
+    "steps": [
+      "Scrolle im Aquarium zu „Aufgaben & Intervalle“ und wähle „+ Aufgabe“.",
+      "Wähle die Pflegeart, etwa Wasserwechsel oder Filter reinigen. Ein eigener Titel wie „30 % Wasserwechsel“ ist optional.",
+      "Lege das Intervall in Tagen, Wochen oder Monaten und die erste Fälligkeit fest. Mit einer Uhrzeit erscheint die Aufgabe im Kalender als Termin, sonst ganztägig.",
+      "Wenn du die Arbeit erledigt hast, wähle „Erledigt“. Die App trägt sie ins Logbuch ein und berechnet die nächste Fälligkeit.",
+      "Über „Bearbeiten“ änderst oder pausierst du eine Aufgabe. Beim Löschen bleiben vorhandene Logbucheinträge erhalten."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Fälligkeit nach dem Logbuch",
+        "text": "Die nächste Fälligkeit zählt ab dem letzten Logbucheintrag derselben Pflegeart. Auch ein manuell eingetragener Wasserwechsel setzt die Aufgabe zurück."
+      },
+      {
+        "title": "Dünger und Messungen",
+        "text": "Düngungen planst du im Düngerbereich, Wasserwerte über den Messzyklus des Aquariums. Beide erscheinen zusammen mit den Aufgaben im Kalender."
+      },
+      {
+        "title": "Auch offline",
+        "text": "Aufgaben lassen sich ohne Verbindung anlegen, ändern und erledigen. Die Änderungen werden später abgeglichen; Konflikte zwischen Geräten werden zur Entscheidung angezeigt."
+      }
+    ]
+  },
+  {
     "id": "fotos",
     "title": "Fotos und Galerie",
     "intro": "Galeriefotos gehören zunächst zu deinem Aquarium. Sie werden nicht automatisch im öffentlichen Social-Feed veröffentlicht.",
@@ -704,6 +733,35 @@
       {
         "title": "Timer-Benachrichtigungen",
         "text": "Eine Browserfreigabe erlaubt unterstützte Timer-Hinweise. Lautstärke, Hintergrundregeln und Energiesparen des Geräts können die Meldung beeinflussen."
+      }
+    ]
+  },
+  {
+    "id": "kalender",
+    "title": "Aufgaben im Kalender auf Handy und Computer",
+    "intro": "Übernimm Messzyklen, Dünger und Aufgaben in deinen Kalender – einmalig als iCal-Datei oder automatisch per CalDAV.",
+    "image": "kalender",
+    "caption": "Profilreiter „Kalender“ mit iCal-Download und CalDAV-Zugangsdaten eines Demokontos.",
+    "steps": [
+      "Öffne „Profil“ und den Reiter „Kalender“.",
+      "Für einen einmaligen Import wähle „Kalender … herunterladen (.ics)“ und öffne die Datei mit deiner Kalender-App. Sie enthält Termine bis Ende des nächsten Jahres.",
+      "Für automatische Aktualisierungen lege auf dem Gerät ein CalDAV-Konto an. Auf iPhone/iPad: Einstellungen → Kalender → Accounts → Account hinzufügen → Andere → CalDAV-Account. Auf Android z. B. mit DAVx⁵.",
+      "Trage Server, Benutzername und das angezeigte CalDAV-Passwort ein. Mit „Kopieren“ übernimmst du die Werte ohne Tippfehler.",
+      "Bei Verdacht auf Missbrauch wähle „Neues Passwort erzeugen“. Das alte Passwort gilt sofort nicht mehr; trage auf deinen Geräten das neue ein."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Eigenes Kalender-Passwort",
+        "text": "Das CalDAV-Passwort wird automatisch erzeugt und gilt nur für den Kalender. Mit diesen Zugangsdaten ist ausschließlich dein eigener Kalender lesbar; dein Anmeldepasswort gibst du nicht weiter."
+      },
+      {
+        "title": "Schreibgeschützt und aktuell",
+        "text": "Änderungen an Aufgaben, Messzyklus oder Düngern erscheinen beim nächsten Abgleich automatisch. Termine bearbeitest du in der App, nicht in der Kalender-App."
+      },
+      {
+        "title": "Welche Termine",
+        "text": "Der Kalender enthält Termine eigener Aquarien und von Aquarien mit Schreibfreigabe. Überfällige Aufgaben erscheinen am heutigen Tag."
       }
     ]
   },

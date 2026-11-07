@@ -306,3 +306,4 @@ export interface Field {
 
 export interface AquariumPlant { variantName?: string | null; aquarium_id: number; plant_id: string; count: number; name: string; scientificName: string; category: string }
 export interface PlantPhoto { id: Id; aquarium_id: number; plant_id: string; caption?: string | null; created_at?: string; image_url?: string }
+export interface CareTask { id: Id; aquarium_id: number; type: string; title: string | null; note: string | null; interval: number; unit: "days" | "weeks" | "months"; start_date: string; time_of_day: string | null; is_active: boolean; last_done_at: string | null; next_due_date: string | null; is_due: boolean; is_overdue: boolean; days_remaining: number | null }

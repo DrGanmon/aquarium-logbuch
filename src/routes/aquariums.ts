@@ -4,6 +4,7 @@ import { chatProgress } from '../utils/chat-progress';
 import { asError } from '../utils/app-error';
 import { parseDecimal } from '../shared/input';
 import { MAX_PHOTOS_PER_PLANT, plantPhotoLimitMessage } from '../shared/plant-images';
+import { validateCareTaskInput, careTaskStatus, lastMaintenanceByType, MAX_CARE_TASKS_PER_AQUARIUM } from '../shared/care-tasks';
 import type { Request, Response } from 'express';
 import express = require('express');
 import { Readable, pipeline } from 'node:stream';
@@ -1068,6 +1069,34 @@ router.delete(
     res.json({ ok: true });
   })
 );
+
+// ---------- Wiederkehrende Pflegeaufgaben ----------
+async function tasksWithStatus(aquariumId: number) {
+  const tasks = await db.careTasks.listForAquarium(aquariumId);
+  const last = tasks.length ? lastMaintenanceByType(await db.maintenance.listForAquarium(aquariumId)) : {};
+  return tasks.map(task => ({ ...task, ...careTaskStatus(task, last[task.type] || null) }));
+}
+router.get('/:id/tasks', auth, ownAquarium, wrap(async (req: Request, res: Response) => {
+  res.json(await tasksWithStatus(req.aq.id));
+}));
+router.post('/:id/tasks', auth, writeAquarium, wrap(async (req: Request, res: Response) => {
+  const { error, value } = validateCareTaskInput(req.body, cfg.MAINTENANCE_TYPES);
+  if (error !== undefined) return res.status(400).json({ error });
+  if (await db.careTasks.count(req.aq.id) >= MAX_CARE_TASKS_PER_AQUARIUM) return res.status(400).json({ error: `Je Aquarium sind höchstens ${MAX_CARE_TASKS_PER_AQUARIUM} Aufgaben möglich.` });
+  const task = await db.careTasks.create(req.aq.id, value);
+  res.json((await tasksWithStatus(req.aq.id)).find(entry => entry.id === task.id));
+}));
+router.put('/:id/tasks/:taskId', auth, writeAquarium, wrap(async (req: Request, res: Response) => {
+  const { error, value } = validateCareTaskInput(req.body, cfg.MAINTENANCE_TYPES);
+  if (error !== undefined) return res.status(400).json({ error });
+  const task = await db.careTasks.update(Number(req.params.taskId), req.aq.id, value);
+  if (!task) return res.status(404).json({ error: 'Aufgabe nicht gefunden.' });
+  res.json((await tasksWithStatus(req.aq.id)).find(entry => entry.id === task.id));
+}));
+router.delete('/:id/tasks/:taskId', auth, writeAquarium, wrap(async (req: Request, res: Response) => {
+  if (!await db.careTasks.delete(Number(req.params.taskId), req.aq.id)) return res.status(404).json({ error: 'Aufgabe nicht gefunden.' });
+  res.json({ ok: true });
+}));
 
 // ---------- Dosierpumpen & Düngung ----------
 router.get(
