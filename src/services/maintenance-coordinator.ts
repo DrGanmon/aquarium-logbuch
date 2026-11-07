@@ -1,7 +1,10 @@
 import { randomUUID } from 'node:crypto';
+import type { Request, Response, NextFunction } from 'express';
 
 const STATE_ID = 'backup-restore';
 const REQUEST_LEASE_TTL_MS = 2 * 60 * 1000;
+/** No request may hold off backups indefinitely; hung handlers stop renewing and expire. */
+export const MAX_REQUEST_LEASE_MS = 15 * 60 * 1000;
 const MAINTENANCE_LEASE_TTL_MS = 10 * 60 * 1000;
 const RENEW_INTERVAL_MS = 30 * 1000;
 const WAIT_TIMEOUT_MS = 2 * 60 * 1000;
@@ -104,9 +107,18 @@ async function pruneExpiredRequestLeases(raw: any, now: number): Promise<void> {
   lastLeasePrune = now;
 }
 
+/** Request leases renew only within their maximum lifetime. */
+export function shouldRenewRequestLease(startedAt: number, now = Date.now()): boolean {
+  return now - startedAt < MAX_REQUEST_LEASE_MS;
+}
+
 function requestLeaseHandle(raw: any, id: string): Lease {
   let released = false;
-  const timer = setInterval(() => { void renewRequestLease(raw, id).catch(() => {}); }, RENEW_INTERVAL_MS);
+  const startedAt = Date.now();
+  const timer = setInterval(() => {
+    if (!shouldRenewRequestLease(startedAt)) { clearInterval(timer);return; }
+    void renewRequestLease(raw, id).catch(() => {});
+  }, RENEW_INTERVAL_MS);
   timer.unref?.();
   return {
     async release() {
@@ -194,7 +206,10 @@ export async function acquireMaintenanceLease(operation: 'backup' | 'restore'): 
   try {
     while (await activeRequestCount(raw, Date.now())) {
       if (lost) throw new Error('Die gemeinsame Wartungssperre ging verloren.');
-      if (Date.now() >= deadline) throw new Error('Laufende Anfragen konnten vor der Wartung nicht beendet werden.');
+      if (Date.now() >= deadline) {
+        const active = await activeRequestCount(raw, Date.now());
+        throw new Error(`Laufende Anfragen konnten vor der Wartung nicht beendet werden (${active} aktiv).`);
+      }
       await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS));
     }
     return {
@@ -208,6 +223,56 @@ export async function acquireMaintenanceLease(operation: 'backup' | 'restore'): 
     await releaseMaintenanceState(raw, owner);
     throw error;
   }
+}
+
+/** Number of request leases that currently block maintenance (diagnostics and tests). */
+export async function activeRequestLeases(): Promise<number> {
+  const raw = getRawDb();
+  await initialize(raw);
+  return activeRequestCount(raw, Date.now());
+}
+
+/**
+ * Holds a request lease for the lifetime of each HTTP request. The end of the response is observed
+ * from the start, so a client that disconnects while the lease is being acquired cannot leave a
+ * lease behind that keeps renewing forever and blocks every backup.
+ */
+export function requestLeaseGate(onReleaseError: (error: unknown) => void = () => {}) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    if (isBackupMaintenanceRequest(req.method, (req.originalUrl || req.url).split('?')[0])) return next();
+    let ended = false;
+    const markEnded = () => { ended = true; };
+    res.once('finish', markEnded);
+    res.once('close', markEnded);
+    let lease: Lease | null;
+    try {
+      lease = await acquireRequestLease();
+    } catch {
+      res.off('finish', markEnded);res.off('close', markEnded);
+      if (!res.headersSent && !res.destroyed) res.status(503).json({ error: 'Die gemeinsame Wartungssperre ist derzeit nicht verfügbar.' });
+      return;
+    }
+    res.off('finish', markEnded);res.off('close', markEnded);
+    if (!lease) {
+      if (!res.headersSent && !res.destroyed) res.status(503).json({ error: 'Die Anwendung führt gerade eine Datenbankwartung aus.' });
+      return;
+    }
+    const current = lease;
+    let released = false;
+    const release = () => {
+      if (released) return;
+      released = true;
+      void current.release().catch(onReleaseError);
+    };
+    // The client already left: nothing will run for it, so the lease must not outlive this call.
+    if (ended || res.destroyed || req.socket?.destroyed) { release();return; }
+    res.once('finish', release);
+    res.once('close', () => {
+      if (res.writableFinished) release();
+      else current.abandon?.();
+    });
+    next();
+  };
 }
 
 export function isBackupMaintenanceRequest(method: string, pathname: string): boolean {

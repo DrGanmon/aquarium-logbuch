@@ -6,6 +6,7 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
+- Automatische Backups wieder zuverlässig ausführen: Bricht ein Client eine Anfrage ab, während deren Wartungssperre angefordert wird, bleibt keine endlos erneuerte Sperre mehr zurück, die jedes Backup mit „Laufende Anfragen konnten vor der Wartung nicht beendet werden“ scheitern ließ. Request-Sperren höchstens 15 Minuten erneuern, damit auch hängende Anfragen Backups nicht dauerhaft blockieren. Fehlgeschlagene automatische Backups mit wachsendem Abstand (5 bis höchstens 60 Minuten) wiederholen, statt die App im Minutentakt für zwei Minuten mit HTTP 503 zu sperren; die Fehlermeldung nennt die Zahl aktiver Anfragen. Regressionstests und Administrationsdokumentation ergänzen.
 - CI-Fehler unter Node und Bun beheben: Die KI-Chat-Tests in `test/frontend_online_request.test.js` stellen der Web-Variante von `chat-request.ts` ein `document` ohne Mobil-Kennung bereit, nachdem die Mobilerkennung `document.documentElement` voraussetzt. Produktivcode, Frontend-Hash und App-Version bleiben unverändert.
 
 ## 0.4.4-ALPHA

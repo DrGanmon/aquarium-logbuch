@@ -22,7 +22,7 @@ On an empty installation, the initial setup wizard creates the first administrat
   - **Manual Backups:** Complete backup of database and all uploaded photos as a compressed archive (`.json.gz`).
   - **Restore:** Upload backup files via Web UI or restore from existing server archives.
   - **Backward Compatibility:** Older backups are automatically migrated and normalized to current database schemas.
-  - **Automated Local Backups:** Configurable automated backups (enable/disable, intervals e.g. 6h/12h/24h, retention count, and automatic pruning of old archives).
+  - **Automated Local Backups:** Configurable automated backups (enable/disable, intervals e.g. 6h/12h/24h, retention count, and automatic pruning of old archives). For the snapshot the app briefly pauses new requests (HTTP 503) and waits at most two minutes for running ones. If an automatic backup fails, the next attempt follows after 5, 10, 20, 40 and then at most every 60 minutes; the log message reports the number of requests still active. A single request delays backups for at most 15 minutes; requests aborted by the client release their lock immediately.
   - **Access Security:** Backup and restore features are strictly restricted to administrators.
 - **System Logbook:** Initially shows the newest 200 lines at the bottom. Each page contains between 10 and 1000 configurable lines. Older entries load when scrolling up or using the button, preserving the reading position. Level and search filters apply on the server across the full history. Automatic refresh runs only at the bottom. Clearing server logs (`../../data/aquarium.log`).
 

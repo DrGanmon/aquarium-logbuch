@@ -98,6 +98,9 @@ class BackupService {
   schedulerTimer: ReturnType<typeof setInterval> | null;
   isBackingUp: boolean;
   isRestoring: boolean;
+  /** Consecutive failed automatic backups and the earliest next attempt (backoff). */
+  autoFailures = 0;
+  nextAutoAttemptAt = 0;
 
   constructor() {
     this.backupsDir = BACKUPS_DIR;
@@ -934,29 +937,39 @@ class BackupService {
     if (this.schedulerTimer) return;
 
     const checkIntervalMs = 60 * 1000; // Prüfe jede Minute
-    this.schedulerTimer = setInterval(async () => {
-      try {
-        const cfg = this.getConfig();
-        if (!cfg.enabled) return;
-
-        const intervalMs = cfg.intervalHours * 3600 * 1000;
-        const lastTime = cfg.lastBackupAt ? new Date(cfg.lastBackupAt).getTime() : 0;
-        const now = Date.now();
-
-        if (now - lastTime >= intervalMs && !this.isBackingUp && !this.isRestoring) {
-          logger.info(`Automatisches Backup fällig (Intervall: ${cfg.intervalHours}h). Starte Backup...`, 'backup');
-          await this.createBackup({ isAuto: true });
-        }
-      } catch (caught: unknown) {
-        const err = asError(caught);
-        logger.error(`Fehler im automatischen Backup-Scheduler: ${err.message}`, 'backup');
-      }
-    }, checkIntervalMs);
+    this.schedulerTimer = setInterval(() => { void this.runScheduledBackup(); }, checkIntervalMs);
 
     if (this.schedulerTimer.unref) {
       this.schedulerTimer.unref();
     }
     logger.info('Automatischer Backup-Scheduler gestartet.', 'backup');
+  }
+
+  /**
+   * Prüft einmal, ob ein automatisches Backup fällig ist. Fehlgeschlagene Versuche werden mit
+   * wachsendem Abstand (5, 10, 20, 40, höchstens 60 Minuten) wiederholt, damit die Wartungssperre
+   * die App nicht im Minutentakt für alle Nutzer blockiert.
+   */
+  async runScheduledBackup(now = Date.now()) {
+    try {
+      const cfg = this.getConfig();
+      if (!cfg.enabled) return false;
+      const intervalMs = cfg.intervalHours * 3600 * 1000;
+      const lastTime = cfg.lastBackupAt ? new Date(cfg.lastBackupAt).getTime() : 0;
+      if (now - lastTime < intervalMs || now < this.nextAutoAttemptAt || this.isBackingUp || this.isRestoring) return false;
+      logger.info(`Automatisches Backup fällig (Intervall: ${cfg.intervalHours}h). Starte Backup...`, 'backup');
+      await this.createBackup({ isAuto: true });
+      this.autoFailures = 0;
+      this.nextAutoAttemptAt = 0;
+      return true;
+    } catch (caught: unknown) {
+      const err = asError(caught);
+      this.autoFailures += 1;
+      const delayMinutes = Math.min(60, 5 * 2 ** (this.autoFailures - 1));
+      this.nextAutoAttemptAt = now + delayMinutes * 60 * 1000;
+      logger.error(`Fehler im automatischen Backup-Scheduler: ${err.message} Nächster Versuch in ${delayMinutes} Minuten.`, 'backup');
+      return false;
+    }
   }
 
   /**
