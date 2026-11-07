@@ -82,18 +82,7 @@ class MongoAdapter {
         this.client = new MongoClient(this.uri);
         await this.client.connect();
 
-        // Ermittle den Datenbanknamen aus der URI oder den Optionen
-        if (this.dbName) {
-          this.db = this.client.db(this.dbName);
-        } else {
-          try {
-            const parsed = new URL(this.uri);
-            const pathName = parsed.pathname.replace(/^\/+/, '');
-            this.db = this.client.db(pathName || 'aquarium');
-          } catch {
-            this.db = this.client.db('aquarium');
-          }
-        }
+        this.db = this.selectDatabase(this.client);
 
         await this._createIndexes();
         const migRes = await runMigrationsMongo(this.db, { adapter: this });
@@ -115,6 +104,28 @@ class MongoAdapter {
     })();
 
     return this._initPromise;
+  }
+
+  /** Database name from the options or the connection URI. */
+  private selectDatabase(client: MongoClient) {
+    if (this.dbName) return client.db(this.dbName);
+    try {
+      return client.db(new URL(this.uri).pathname.replace(/^\/+/, '') || 'aquarium');
+    } catch {
+      return client.db('aquarium');
+    }
+  }
+
+  /**
+   * Opens a separate client for backups without index creation, migrations or services. The export
+   * itself runs in a snapshot transaction and therefore needs no application-wide lock.
+   */
+  static async openSnapshotReader(options: DatabaseOptions = {}): Promise<MongoAdapter> {
+    const adapter = new MongoAdapter(options);
+    adapter.client = new MongoClient(adapter.uri);
+    await adapter.client.connect();
+    adapter.db = adapter.selectDatabase(adapter.client);
+    return adapter;
   }
 
   async close() {

@@ -187,8 +187,24 @@ class SqliteAdapter {
     this.notifications = new NotificationRepository(this.type, this.connection());
   }
 
+  /**
+   * Opens a read-only connection for backups. It neither runs migrations nor starts any service and
+   * reads all tables inside one transaction, so writes of other connections stay invisible.
+   */
+  static openSnapshotReader(options: DatabaseOptions = {}): SqliteAdapter {
+    const adapter = new SqliteAdapter(options);
+    adapter.db = new Database(adapter.dbPath, { readonly: true, fileMustExist: true });
+    adapter.db.pragma('busy_timeout = 5000');
+    return adapter;
+  }
+
   async exportAllData() {
     if (!this._initialized && !this.db) await this.init();
+    // One read transaction yields a consistent snapshot without blocking concurrent writers (WAL).
+    return this.db!.transaction(() => this.exportSnapshotRows())();
+  }
+
+  private exportSnapshotRows() {
     const db = this.connection();
 
     const safeGetAll = (table?: any, order: any = 'id ASC') => {

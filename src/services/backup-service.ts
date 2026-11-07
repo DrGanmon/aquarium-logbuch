@@ -5,6 +5,8 @@ import { AI_PROVIDERS, encryptPersonalAiFields } from './ai-token-crypto';
 import { writeJsonFile } from './json-config-store';
 import { asError } from '../utils/app-error';
 import { acquireMaintenanceLease } from './maintenance-coordinator';
+import { Worker } from 'node:worker_threads';
+import type { BackupSnapshotSource, BackupWorkerJob, BackupWorkerResult } from '../types/backup';
 import { validateCareTaskInput } from '../shared/care-tasks';
 import { validateLightingInput } from '../shared/lighting';
 import { MAINTENANCE_TYPES } from '../shared/maintenance';
@@ -25,13 +27,46 @@ function getDb() {
 const gzipAsync = promisify(zlib.gzip);
 const gunzipAsync = promisify(zlib.gunzip);
 
+const PARTIAL_SUFFIX = '.partial';
+/** Writes an archive atomically: an interrupted backup never leaves a truncated file under its final name. */
 function writePrivateArchive(filename: string, contents: Buffer) {
-  const fd = fs.openSync(filename, 'w', 0o600);
+  const temporary = `${filename}.${process.pid}.${randomBytes(4).toString('hex')}${PARTIAL_SUFFIX}`;
+  const fd = fs.openSync(temporary, 'wx', 0o600);
   try {
-    // Set permissions before writing secrets, including when replacing an older archive.
+    // Set permissions before writing secrets.
     fs.fchmodSync(fd, 0o600);
     fs.writeFileSync(fd, contents);
-  } finally { fs.closeSync(fd); }
+    fs.fsyncSync(fd);
+  } catch (error) {
+    fs.closeSync(fd);
+    try { fs.unlinkSync(temporary); } catch { /* already gone */ }
+    throw error;
+  }
+  fs.closeSync(fd);
+  try { fs.renameSync(temporary, filename); }
+  catch (error) { try { fs.unlinkSync(temporary); } catch { /* already gone */ }throw error; }
+}
+/** Removes leftovers of archives whose writer was terminated. */
+function removePartialArchives(filename: string) {
+  const directory = path.dirname(filename), prefix = path.basename(filename) + '.';
+  try {
+    for (const name of fs.readdirSync(directory)) if (name.startsWith(prefix) && name.endsWith(PARTIAL_SUFFIX)) fs.rmSync(path.join(directory, name), { force: true });
+  } catch { /* directory missing */ }
+}
+
+const BACKUP_WORKER_TIMEOUT_MS = 30 * 60 * 1000;
+
+/** Upload files the snapshot refers to; used to report files removed while the backup ran. */
+function referencedUploads(data: Record<string, any>): Set<string> {
+  const names = new Set<string>();
+  const add = (value: unknown) => { if (typeof value === 'string' && value && !value.startsWith('http')) names.add(path.basename(value)); };
+  for (const user of data.users || []) add(user.avatar_file);
+  for (const aquarium of data.aquariums || []) add(aquarium.image_file);
+  for (const image of data.aquarium_images || []) add(image.filename);
+  for (const stock of data.stock || []) add(stock.image_file);
+  for (const photo of data.aquarium_plant_images || []) add(photo.filename);
+  for (const post of data.social_posts || []) add(post.filename);
+  return names;
 }
 
 const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
@@ -101,6 +136,11 @@ class BackupService {
   /** Consecutive failed automatic backups and the earliest next attempt (backoff). */
   autoFailures = 0;
   nextAutoAttemptAt = 0;
+  /** Backups run in a supervised worker thread; tests may point to another script or shorten the limit. */
+  workerPath = path.join(__dirname, 'backup-worker.js');
+  workerTimeoutMs = BACKUP_WORKER_TIMEOUT_MS;
+  /** How the most recent regular backup ran ('worker' or 'in-process' fallback). */
+  lastBackupMode: 'worker' | 'in-process' | null = null;
 
   constructor() {
     this.backupsDir = BACKUPS_DIR;
@@ -358,9 +398,7 @@ class BackupService {
     }
     if (this.isRestoring) throw new Error('Während einer Wiederherstellung kann kein Backup erstellt werden.');
     this.isBackingUp = true;
-    let maintenanceLease: Awaited<ReturnType<typeof acquireMaintenanceLease>> | null = null;
     try {
-      if (!preMigration) maintenanceLease = await acquireMaintenanceLease('backup');
       this._ensureDirs();
       const targetBackupsDir = backupsDir || this.backupsDir;
       fs.mkdirSync(targetBackupsDir, { recursive: true });
@@ -370,12 +408,6 @@ class BackupService {
       const cfg = this.getConfig();
       const shouldIncludeFiles = includeFiles !== null ? Boolean(includeFiles) : cfg.includeFiles;
 
-      const backupData = await this.generateBackupData({ includeFiles: shouldIncludeFiles, dbAdapter, db: rawDb });
-      await maintenanceLease?.release();
-      maintenanceLease = null;
-      const jsonStr = JSON.stringify(backupData);
-      const gzipped = await encryptBackup(await gzipAsync(Buffer.from(jsonStr, 'utf8')), password);
-
       const now = new Date();
       const pad = (n: any) => String(n).padStart(2, '0');
       const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
@@ -384,7 +416,18 @@ class BackupService {
       const filename = baseFilename.endsWith('.enc') ? baseFilename : `${baseFilename}.enc`;
       const fullPath = path.join(targetBackupsDir, filename);
 
-      writePrivateArchive(fullPath, gzipped);
+      // Regular backups read a database snapshot and therefore never pause the application.
+      // Migration backups run on the connection that is being migrated, before any request is served.
+      let gzipped: Buffer;
+      if (preMigration || dbAdapter || rawDb) {
+        const backupData = await this.generateBackupData({ includeFiles: shouldIncludeFiles, dbAdapter, db: rawDb });
+        gzipped = await encryptBackup(await gzipAsync(Buffer.from(JSON.stringify(backupData), 'utf8')), password);
+        writePrivateArchive(fullPath, gzipped);
+      } else {
+        const result = await this.runBackupWorker({ source: this.snapshotSource(), includeFiles: shouldIncludeFiles, fullPath, password: password as string, returnArchive: true });
+        gzipped = Buffer.from(result.archive!);
+        if (result.missingFiles) logger.warn(`${result.missingFiles} während des Backups entfernte Upload-Datei(en) fehlen im Archiv.`, 'backup');
+      }
 
       const stat = fs.statSync(fullPath);
       logger.info(
@@ -411,13 +454,81 @@ class BackupService {
         size: stat.size,
         createdAt: now.toISOString(),
         isAuto,
-        backupData,
         gzippedBuffer: gzipped,
       };
     } finally {
-      try { await maintenanceLease?.release(); }
-      catch (caught: unknown) { logger.warn(`Gemeinsame Backup-Sperre konnte nicht freigegeben werden: ${asError(caught).message}`, 'backup'); }
       this.isBackingUp = false;
+    }
+  }
+
+  /** Connection details of the active database for a separate snapshot reader. */
+  snapshotSource(): BackupSnapshotSource {
+    const active = getDb();
+    if (active.type === 'mongodb') return { type: 'mongodb', uri: active.uri, dbName: active.getRawDb()?.databaseName };
+    return { type: 'sqlite', dbPath: active.dbPath };
+  }
+
+  /**
+   * Builds and writes one archive from a read-only snapshot. Runs inside the backup worker and, if
+   * worker threads are unavailable, in the current process.
+   */
+  async writeSnapshotArchive(job: BackupWorkerJob): Promise<BackupWorkerResult> {
+    const adapter = job.source.type === 'mongodb'
+      ? await require('../db/mongo-adapter').openSnapshotReader({ uri: job.source.uri, dbName: job.source.dbName })
+      : require('../db/sqlite-adapter').openSnapshotReader({ dbPath: job.source.dbPath });
+    try {
+      const backupData = await this.generateBackupData({ includeFiles: job.includeFiles, dbAdapter: adapter });
+      const files = backupData.files || {};
+      const missingFiles = job.includeFiles ? [...referencedUploads(backupData.data || {})].filter(name => !Object.hasOwn(files, name) && !fs.existsSync(path.join(UPLOADS_DIR, name))).length : 0;
+      const archive = await encryptBackup(await gzipAsync(Buffer.from(JSON.stringify(backupData), 'utf8')), job.password);
+      writePrivateArchive(job.fullPath, archive);
+      return { size: archive.length, archive: job.returnArchive ? archive : undefined, missingFiles };
+    } finally { await adapter.close(); }
+  }
+
+  /**
+   * Runs a backup in a dedicated worker thread and watches it: errors, crashes and exceeding the time
+   * limit are logged, the worker is terminated and partial files are removed immediately.
+   */
+  async runBackupWorker(job: BackupWorkerJob): Promise<BackupWorkerResult> {
+    let worker: Worker;
+    try {
+      worker = new Worker(this.workerPath, { workerData: job });
+    } catch (caught: unknown) {
+      logger.warn(`Backup-Worker nicht verfügbar (${asError(caught).message}); Backup läuft im Anwendungsprozess.`, 'backup');
+      this.lastBackupMode = 'in-process';
+      return this.writeSnapshotArchive(job);
+    }
+    this.lastBackupMode = 'worker';
+    const started = Date.now();
+    logger.info(`Backup-Worker gestartet (Thread ${worker.threadId}).`, 'backup');
+    try {
+      return await new Promise<BackupWorkerResult>((resolve, reject) => {
+        let settled = false;
+        const finish = (error: Error | null, result?: BackupWorkerResult) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          if (error) reject(error);else resolve(result!);
+        };
+        const timer = setTimeout(() => {
+          finish(new Error(`Backup-Worker hat das Zeitlimit von ${Math.round(this.workerTimeoutMs / 60000) || 1} Minute(n) überschritten und wurde beendet.`));
+          void worker.terminate().catch(() => {});
+        }, this.workerTimeoutMs);
+        timer.unref?.();
+        worker.once('message', (message: { ok: boolean; error?: string } & Partial<BackupWorkerResult>) => {
+          if (message?.ok) finish(null, { size: Number(message.size), archive: message.archive, missingFiles: Number(message.missingFiles) || 0 });
+          else finish(new Error(message?.error || 'Backup-Worker meldete einen unbekannten Fehler.'));
+        });
+        worker.once('error', (error: Error) => finish(new Error(`Backup-Worker abgestürzt: ${error.message}`)));
+        worker.once('exit', (code: number) => finish(new Error(`Backup-Worker wurde unerwartet beendet (Code ${code}).`)));
+      });
+    } catch (caught: unknown) {
+      removePartialArchives(job.fullPath);
+      logger.error(`Backup-Worker fehlgeschlagen nach ${Math.round((Date.now() - started) / 1000)} s: ${asError(caught).message}`, 'backup');
+      throw caught;
+    } finally {
+      void worker.terminate().catch(() => {});
     }
   }
 
