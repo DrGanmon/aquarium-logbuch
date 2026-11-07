@@ -3,6 +3,7 @@ import { catalogSnapshot } from '../services/offline-catalog-service';
 import { CATALOG_NAMES, type CatalogName } from '../shared/offline-catalog';
 import { getPlantCatalog, searchPlants } from '../services/plant-service';
 import { searchSpecies } from '../shared/species-search';
+import { parseDecimal } from '../shared/input';
 import { asError } from '../utils/app-error';
 import type { Request, Response } from 'express';
 import express = require('express');
@@ -327,8 +328,8 @@ router.put(
         if (key === 'note' || key === 'measuredAt' || key === 'measured_at') continue;
         if (typeof key !== 'string' || key.length > 50) continue;
         if (val === null || val === undefined || val === '') continue;
-        const num = typeof val === 'number' ? val : Number(String(val).replace(',', '.'));
-        if (Number.isFinite(num)) {
+        const num = parseDecimal(val);
+        if (num !== null) {
           values[key] = num;
         }
       }

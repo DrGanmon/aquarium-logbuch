@@ -1,5 +1,5 @@
 import type { DosingPump, DosingPumpInput, ValidationResult } from '../types/domain';
-import { str } from './input';
+import { parseDecimal, str } from './input';
 import { calculateCycleStatus } from './cycles';
 export function validateDosingPumpInput(body: Record<string, unknown>): ValidationResult<DosingPumpInput> {
   const mode = body.mode === undefined ? 'automatic' : body.mode;
@@ -16,8 +16,8 @@ export function validateDosingPumpInput(body: Record<string, unknown>): Validati
     return { error: 'Bitte den Namen des Düngers oder der dosierten Flüssigkeit angeben.' };
   }
 
-  let amountMl = Number(typeof body.amount_ml === 'string' ? body.amount_ml.replace(',', '.') : body.amount_ml);
-  if (!Number.isFinite(amountMl) || amountMl <= 0 || amountMl > 1000) {
+  let amountMl = parseDecimal(body.amount_ml);
+  if (amountMl === null || amountMl <= 0 || amountMl > 1000) {
     return { error: 'Bitte eine gültige Dosiermenge in Millilitern angeben (z. B. 2.5 ml).' };
   }
   amountMl = Math.round(amountMl * 100) / 100;

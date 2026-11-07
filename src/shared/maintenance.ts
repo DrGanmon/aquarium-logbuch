@@ -1,4 +1,4 @@
-import { str } from './input';
+import { parseDecimal, str } from './input';
 export const MAINTENANCE_TYPES: Record<string, any> = {
   water_change: { key: 'water_change', label: 'Wasserwechsel', icon: '💧', hasPercentage: true },
   filter_change: { key: 'filter_change', label: 'Filter wechseln', icon: '🔄', hasPercentage: false },
@@ -30,8 +30,8 @@ export function validateMaintenanceInput(body?: any) {
 
   let percentage = null;
   if (body.percentage !== '' && body.percentage != null) {
-    percentage = Number(typeof body.percentage === 'string' ? body.percentage.replace(',', '.') : body.percentage);
-    if (!Number.isFinite(percentage) || percentage < 1 || percentage > 100) {
+    percentage = parseDecimal(body.percentage);
+    if (percentage === null || percentage < 1 || percentage > 100) {
       return { error: 'Wasserwechsel-Anteil: bitte einen Prozentwert zwischen 1 und 100 eingeben.' };
     }
     percentage = Math.round(percentage * 10) / 10;

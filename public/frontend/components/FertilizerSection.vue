@@ -9,7 +9,7 @@ const emit = defineEmits<{ changed: [] }>();
 const editing = ref<Pump | null>();
 const dosing = ref<Pump>();
 const removing = ref<Pump>();
-const model = reactive({ name: "", fertilizer_name: "", amount_ml: 2.5, interval_days: 1, time_of_day: "08:00", mode: "manual" as "manual" | "automatic", reminder_mail: false, is_active: true, note: "" });
+const model = reactive({ name: "", fertilizer_name: "", amount_ml: "2.5" as string | number, interval_days: 1, time_of_day: "08:00", mode: "manual" as "manual" | "automatic", reminder_mail: false, is_active: true, note: "" });
 const error = ref("");
 const busy = ref(false);
 function edit(pump: Pump | null, mode: "manual" | "automatic" = "manual") {
@@ -81,7 +81,7 @@ async function action() {
           <p v-if="model.mode === 'automatic'" class="muted">{{ t('fertilizers.pumpHelp') }}</p>
           <label>{{ t('fertilizers.name') }}<input v-model="model.name" required maxlength="100" :placeholder="t('fertilizers.nameExample')" /></label>
           <label>{{ t('pumps.liquid') }}<input v-model="model.fertilizer_name" required maxlength="100" /></label>
-          <label>{{ t('pumps.amount') }}<input v-model.number="model.amount_ml" type="number" min="0.01" max="1000" step="0.01" required /></label>
+          <label>{{ t('pumps.amount') }}<input v-model="model.amount_ml" type="text" inputmode="decimal" autocomplete="off" required /></label>
           <label>{{ t('pumps.interval') }}<input v-model.number="model.interval_days" type="number" min="1" max="365" step="1" required /><small class="muted">{{ t('pumps.intervalHelp') }}</small></label>
           <label>{{ t(model.mode === 'manual' ? 'fertilizers.reminderTime' : 'pumps.time') }}<input v-model="model.time_of_day" type="time" /></label>
           <label v-if="model.mode === 'manual'" class="row"><input v-model="model.reminder_mail" type="checkbox" />{{ t('fertilizers.mail') }}</label>

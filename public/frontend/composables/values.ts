@@ -1,4 +1,5 @@
 import type { Range } from "../types";
+import { parseDecimal } from "../../../src/shared/input";
 export function evaluate(
   range: Range | undefined,
   value: number | null,
@@ -23,9 +24,7 @@ export function evaluate(
   return "ok";
 }
 export function parseNumber(value: string): number | null {
-  if (!value.trim()) return null;
-  const parsed = Number(value.replace(",", "."));
-  return Number.isFinite(parsed) ? parsed : null;
+  return parseDecimal(value);
 }
 export function mmss(seconds: number) {
   return `${Math.floor(Math.max(0, seconds) / 60)}:${String(Math.ceil(Math.max(0, seconds) % 60)).padStart(2, "0")}`;

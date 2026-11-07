@@ -1,6 +1,6 @@
 import type { AquariumInput, CycleUnit, ValidationResult } from '../types/domain';
 import { asRecord } from '../utils/validation';
-import { str } from './input';
+import { parseDecimal, str } from './input';
 interface CycleSettings { interval: number | null; unit: CycleUnit; day_of_week: number | null; reminder_mail: 0 | 1 }
 function parseCycleParams(body: Record<string, unknown>, prefix: 'measure' | 'fertilize'): ValidationResult<CycleSettings> {
   const rawInterval = body[`${prefix}_cycle_interval`];
@@ -45,8 +45,9 @@ export function aquariumInput(input: unknown): ValidationResult<AquariumInput> {
   const name = str(body.name, 80);
   if (!name) return { error: 'Bitte einen Namen eingeben.' };
   const water_type = body.water_type === 'salt' ? 'salt' : 'fresh';
-  const volume_l = body.volume_l === '' || body.volume_l == null ? null : Math.round(Number(body.volume_l));
-  if (volume_l != null && (!Number.isFinite(volume_l) || volume_l < 1 || volume_l > 100000)) {
+  const volumeInput = body.volume_l === '' || body.volume_l == null ? null : parseDecimal(body.volume_l);
+  const volume_l = volumeInput == null ? volumeInput : Math.round(volumeInput);
+  if (body.volume_l !== '' && body.volume_l != null && (volume_l == null || volume_l < 1 || volume_l > 100000)) {
     return { error: 'Volumen: bitte eine Zahl zwischen 1 und 100000 Litern angeben.' };
   }
 

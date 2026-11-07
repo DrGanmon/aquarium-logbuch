@@ -1,4 +1,5 @@
 import { AppError } from '../utils/app-error';
+import { parseDecimal } from './input';
 export interface MeasurementDraftData {
   draftId: string;
   when: string;
@@ -50,8 +51,8 @@ const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
 function comparableValue(value: string | undefined) {
   const text = (value || '').trim();
   if (!text) return '';
-  const number = Number(text.replace(',', '.'));
-  if (Number.isFinite(number)) return number;
+  const number = parseDecimal(text);
+  if (number !== null) return number;
   return text;
 }
 export function draftField(draft: MeasurementDraftData, field: string): unknown {

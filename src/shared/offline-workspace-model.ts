@@ -2,6 +2,7 @@ import { validateMeasurementDraft, mergeMeasurementDraft, setDraftField, draftFi
 import { prepareCsvMeasurements } from './measurement-csv';
 import type { WorkspaceOperation, WorkspaceSnapshot } from './offline-workspace';
 import { aquariumInput } from './aquarium-input';
+import { parseDecimal } from './input';
 import { validateMaintenanceInput } from './maintenance';
 import { validateDosingPumpInput, manualDosingStatus, nextAutomaticDosingAt } from './dosing';
 import { calculateCycleStatus } from './cycles';
@@ -154,8 +155,8 @@ export function applyLocalOperation(snapshot: WorkspaceSnapshot, command: Worksp
         const values: Record<string, number> = {};
         for (const [key, raw] of Object.entries(body.values || {})) {
           if (raw === '' || raw == null) continue;
-          const parameter = definitions.find((test: any) => test.key === key), value = Number(String(raw).replace(',', '.'));
-          if (!parameter || !Number.isFinite(value) || value < parameter.min || value > parameter.max) throw new AppError('Ungültiger Messwert: ' + key, 400);
+          const parameter = definitions.find((test: any) => test.key === key), value = parseDecimal(raw);
+          if (!parameter || value === null || value < parameter.min || value > parameter.max) throw new AppError('Ungültiger Messwert: ' + key, 400);
           values[key] = value;
         }
         const time = new Date(body.measured_at || now);

@@ -27,6 +27,14 @@ defineProps<{ fields: Field[]; model: FormData }>();
       v-model="model[field.key]"
       type="checkbox"
     /><input
+      v-else-if="field.type === 'decimal'"
+      :id="`field-${field.key}`"
+      v-model="model[field.key]"
+      type="text"
+      inputmode="decimal"
+      autocomplete="off"
+      :required="field.required"
+    /><input
       v-else
       :id="`field-${field.key}`"
       v-model="model[field.key]"

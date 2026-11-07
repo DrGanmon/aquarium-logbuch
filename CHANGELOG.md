@@ -6,8 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Zweiten Capacitor-Schritt für Anmeldung, API, Bilder und Chat abschließen: Aquarium-, Bewohner-, Profil-, Social- und Katalogbilder über den ausgewählten Server laden; synchronisierte private Bilder kontogetrennt und öffentliche Katalogbilder begrenzt offline anzeigen. Lokale Bildänderungen bevorzugen, verspätete Antworten nach Kontowechsel verwerfen und Objekt-URLs freigeben. Abgelaufene Sitzungen bei `/me` vollständig aus der Oberfläche entfernen; Integrationstests mit echtem Backend und simuliertem nativen Cookie-Transport sowie zweisprachige Anleitungen ergänzen. Generierte native Browserpakete von Quellcode-Lintprüfungen ausnehmen.
-- Versionsbasis des Minor-Wechsels am tatsächlichen Versionscommit ausrichten, damit zuvor committete Features nicht erneut in der neuen Minor-Version zählen.
+- Dezimalwerte einheitlich mit deutschem Komma (`7,2`) oder englischem Punkt (`7.2`) annehmen: gemeinsamen Parser `parseDecimal` für Messwerte, Testentwürfe, Leitungswasser, Wasserwechsel-Anteil, Beckenvolumen und Dosiermenge in Frontend, Offline-Arbeitsbereich und Server verwenden. Mehrdeutige Angaben wie Tausendertrennzeichen, Exponenten oder Hexadezimalwerte ablehnen, statt sie falsch zu übernehmen. Wasserwechsel-Anteil, Beckenvolumen und Dosiermenge als Textfelder mit Dezimaltastatur anbieten, damit Browser beide Schreibweisen unabhängig von der Spracheinstellung zulassen. Zweisprachige Anleitungen und Regressionstests ergänzen.
+
+## 0.4.1-ALPHA
+
+- Zweiten Capacitor-Schritt für Anmeldung, API, Bilder und Chat abschließen: Aquarium-, Bewohner-, Profil-, Social- und Katalogbilder über den ausgewählten Server laden; synchronisierte private Bilder kontogetrennt und öffentliche Katalogbilder begrenzt offline anzeigen. Lokale Bildänderungen bevorzugen, verspätete Antworten nach Kontowechsel verwerfen und Objekt-URLs freigeben. Abgelaufene Sitzungen bei `/me` vollständig aus der Oberfläche entfernen; Integrationstests mit echtem Backend und simuliertem nativen Cookie-Transport sowie zweisprachige Anleitungen ergänzen. Generierte native Browserpakete von Quellcode-Lintprüfungen ausnehmen. Versionsbasis des Minor-Wechsels am tatsächlichen Versionscommit ausrichten, damit zuvor committete Features nicht erneut in der neuen Minor-Version zählen. (`3d8db5db49957bb6b5e80a6818114ddd768023e5`, 2026-10-19).
 
 ## 0.4.0-ALPHA
 

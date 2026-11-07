@@ -5,6 +5,7 @@ import Fields from "./Fields.vue";
 import { enqueueMaintenance } from "../offline-sync";
 import { api } from "../api";
 import { session, t, localDateTime, errorMessage, toast } from "../state";
+import { parseNumber } from "../composables/values";
 import type { Field, FormData, LogEntry } from "../types";
 const props = defineProps<{
   id: string;
@@ -42,7 +43,7 @@ const fields = computed<Field[]>(() => [
         {
           key: "percentage",
           label: "Wasserwechsel (%)",
-          type: "number",
+          type: "decimal",
           min: 1,
           max: 100,
         },
@@ -55,10 +56,14 @@ async function save() {
   if (busy.value) return;
   busy.value = true;
   try {
+    const percentageInput = String(model.percentage ?? "").trim();
+    const percentage = percentageInput ? parseNumber(percentageInput) : null;
+    if (percentageInput && percentage === null)
+      throw new Error("Wasserwechsel-Anteil: bitte einen Prozentwert zwischen 1 und 100 eingeben.");
     const body = {
       type: String(model.type),
       logged_at: new Date(String(model.logged_at)).toISOString(),
-      percentage: model.percentage ? Number(String(model.percentage).replace(',', '.')) : null,
+      percentage,
       details: String(model.details || ''),
       note: String(model.note || ''),
     };

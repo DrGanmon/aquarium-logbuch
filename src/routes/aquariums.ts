@@ -2,6 +2,7 @@ import { offlineTransactionActive } from '../db/offline-transaction';
 import { getPlantCatalog } from '../services/plant-service';
 import { chatProgress } from '../utils/chat-progress';
 import { asError } from '../utils/app-error';
+import { parseDecimal } from '../shared/input';
 import type { Request, Response } from 'express';
 import express = require('express');
 import { Readable, pipeline } from 'node:stream';
@@ -745,8 +746,8 @@ router.post(
       if (raw === '' || raw == null) continue;
       const p = params.get(key);
       if (!p) return res.status(400).json({ error: `Unbekannter Parameter: ${key}` });
-      const v = Number(typeof raw === 'string' ? raw.replace(',', '.') : raw);
-      if (!Number.isFinite(v) || v < p.min || v > p.max) {
+      const v = parseDecimal(raw);
+      if (v === null || v < p.min || v > p.max) {
         return res.status(400).json({ error: `${p.name}: Bitte einen Wert zwischen ${p.min} und ${p.max} eingeben.` });
       }
       cleanValues[p.key] = v;

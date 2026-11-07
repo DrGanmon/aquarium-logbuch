@@ -51,7 +51,7 @@ const fields = computed<Field[]>(() => [
   {
     key: "volume_l",
     label: t("aquariums.volumeLabel"),
-    type: "number",
+    type: "decimal",
     min: 1,
     max: 100000,
   },

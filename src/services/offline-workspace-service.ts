@@ -12,6 +12,7 @@ import { offlineAtomic, offlineConnection } from '../db/offline-transaction';
 import { workspaceWrite, canonicalResource, type WorkspaceOperation, type WorkspaceSnapshot } from '../shared/offline-workspace';
 import { measurementDraftState } from './measurement-draft-service';
 import { AppError } from '../utils/app-error';
+import { parseDecimal } from '../shared/input';
 
 function canonical(value: any): any {
   if (Array.isArray(value)) return value.map(canonical);
@@ -166,8 +167,8 @@ export async function applyWorkspaceOperation(original: Request, command: Worksp
         const parameters = cfg.suiteService.resolveSelection(draft.selected);
         for (const [key, raw] of Object.entries(rawValues)) {
           const parameter = parameters.find(parameter => parameter.key === key);
-          const value = Number(typeof raw === 'string' ? raw.replace(',', '.') : raw);
-          if (!parameter || !Number.isFinite(value) || value < parameter.min || value > parameter.max) throw new AppError('Bitte gültige Messwerte eingeben.', 400);
+          const value = parseDecimal(raw);
+          if (!parameter || value === null || value < parameter.min || value > parameter.max) throw new AppError('Bitte gültige Messwerte eingeben.', 400);
           values[key] = value;
         }
         if (priorDraftResponse?.result?.merged) {
@@ -176,8 +177,8 @@ export async function applyWorkspaceOperation(original: Request, command: Worksp
         }
         for (const [key, text] of Object.entries(draft.values)) {
           if (!text.trim()) continue;
-          const value = Number(text.trim().replace(',', '.'));
-          if (!Number.isFinite(value)) throw new AppError('Ein übernommener Messwert ist noch nicht vollständig. Bitte den Test prüfen.', 400);
+          const value = parseDecimal(text);
+          if (value === null) throw new AppError('Ein übernommener Messwert ist noch nicht vollständig. Bitte den Test prüfen.', 400);
           if (values[key] !== undefined && values[key] !== value) throw Object.assign(new AppError('Ein Messwert wurde vor dem Abschluss geändert. Bitte den Test prüfen.', 409), { conflict: { current: state, version: fingerprint(state) } });
           values[key] = value;
         }

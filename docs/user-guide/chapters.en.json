@@ -174,7 +174,7 @@
       "Open “Customize water tests” and select the tests you actually use. You can combine methods from different manufacturers.",
       "“Apply suite” replaces your selection with that test suite. “Add suite” extends it; one method remains selected for each water parameter.",
       "Follow the instructions supplied with your water test. Start the timer next to a parameter if needed. Several timers can run at the same time.",
-      "Enter the result you read. A decimal comma is accepted. The color indicator helps you interpret the value.",
+      "Enter the result you read. Enter decimals with either a comma or a point, for example 7.2 or 7,2. The color indicator helps you interpret the value.",
       "Choose “Pause test” to return to the overview and measure at the next aquarium. Expand “Open tests” at the bottom right and select an aquarium to resume. Starting another test for the same aquarium asks whether you want to return to its open test.",
       "To switch devices, wait for pending changes to sync while connected and sign in with the same account on the other device. Open “Open tests” there. Offline you can continue previously downloaded drafts; let local saving finish before closing the app.",
       "If differing entries are reported, expand the local changes and choose “This device” or “Other device” for each affected field. Select “Apply selected values”; equal values and independent additions need no decision.",

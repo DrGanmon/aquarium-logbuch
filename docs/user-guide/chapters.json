@@ -174,7 +174,7 @@
       "Öffne „Wassertests anpassen“ und wähle die tatsächlich benutzten Tests. Du darfst Methoden verschiedener Hersteller kombinieren.",
       "„Suite übernehmen“ ersetzt die Auswahl durch diese Testsuite. „Suite ergänzen“ ergänzt sie; für denselben Wasserparameter bleibt eine Methode ausgewählt.",
       "Führe den Wassertest nach seiner Gebrauchsanweisung durch. Starte bei Bedarf den Timer neben dem jeweiligen Parameter. Mehrere Timer können parallel laufen.",
-      "Trage den abgelesenen Wert ein. Ein Dezimalkomma ist erlaubt. Die Farbmarkierung hilft beim Einordnen.",
+      "Trage den abgelesenen Wert ein. Dezimalstellen kannst du mit Komma oder Punkt eingeben, zum Beispiel 7,2 oder 7.2. Die Farbmarkierung hilft beim Einordnen.",
       "Wähle „Test pausieren“, um zur Übersicht zu wechseln und am nächsten Aquarium weiterzumessen. Öffne „Offene Tests“ unten rechts und wähle ein Becken zum Fortsetzen. Beim erneuten Start am selben Becken fragt die App, ob du zum offenen Test zurückkehren möchtest.",
       "Für einen Gerätewechsel warte bei Verbindung auf den Abgleich offener Änderungen und melde dich auf dem anderen Gerät mit demselben Konto an. Öffne dort „Offene Tests“. Offline kannst du bereits heruntergeladene Entwürfe weiterführen; sichere den lokalen Stand, bevor du die App schließt.",
       "Falls unterschiedliche Angaben gemeldet werden, öffne die lokalen Einträge und wähle je betroffenem Feld den Wert von „Dieses Gerät“ oder „Anderes Gerät“. Bestätige mit „Auswahl übernehmen“; gleiche Werte und unabhängige Ergänzungen brauchen keine Entscheidung.",
