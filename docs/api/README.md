@@ -117,6 +117,8 @@ Ein neuer Beitrag verwendet `{image, text, isPublic}`. `text` darf bis 2200 Zeic
 
 `GET /api/social/posts/{id}` liefert Gästen bei einem internen Beitrag `403` mit `code:"MEMBERS_ONLY"`, ohne Beitragsdaten. Direkte Bild- und Kommentaraufrufe liefern weiterhin `404`. Das Frontend nutzt den Fehlercode für den Mitgliederhinweis am Teilen-Link.
 
+Social-Profile sind freiwillig: `PUT /api/social/profile` mit `{"enabled": true}` aktiviert das eigene Profil (aktuelle AGB erforderlich), `GET /api/social/profile` liefert die Einstellung. `GET /api/social/profiles/{username}` ist ohne Anmeldung abrufbar und liefert `{profile, posts, next}`; die Beitragsliste folgt der Sichtbarkeit jedes Beitrags (Gäste: nur öffentliche, angemeldete Mitglieder: öffentliche und interne). Deaktivierte und unbekannte Profile liefern 404. Autoren in Feed und Kommentaren enthalten `profileUrl`, sobald ihr Profil aktiviert ist.
+
 `GET /api/notifications` bündelt für angemeldete Nutzer Reaktionen auf eigene Social-Beiträge mit offenen Wasserwertwarnungen aus allen zugänglichen Aquarien. Likes und Kommentare des Beitragsautors selbst erzeugen keine Benachrichtigung. `POST /api/notifications/read` markiert einzelne Social-Benachrichtigungen über `{ids:[...]}` oder ohne `ids` alle als gelesen. Wasserwertwarnungen werden weiterhin über `/api/aquariums/{id}/alerts/ack` quittiert.
 
 ## Listen, Datensätze und Spezialformate

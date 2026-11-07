@@ -16,6 +16,12 @@ Angemeldete Nutzer können Bilder hochladen, Beiträge liken und Kommentare bis 
 
 „Teilen“ verwendet den Teilen-Dialog des Geräts, kopiert alternativ den Beitragslink oder zeigt ihn zum manuellen Kopieren an. Für serverinterne Beiträge ist auch bei direkten Bild-, Kommentar- und Teilen-Links eine Anmeldung erforderlich.
 
+## Social-Profil
+
+Im Benutzerprofil lässt sich im Reiter **Social** ein Social-Profil aktivieren; standardmäßig ist es aus. Ein aktiviertes Profil ist öffentlich unter `#/social/u/<benutzername>` erreichbar und zeigt vorerst Profilbild, Benutzername, die Anzahl sichtbarer Beiträge und die Beiträge als Kachelraster. Welche Beiträge erscheinen, bestimmt allein die Sichtbarkeit jedes Beitrags: Gäste sehen nur öffentliche Beiträge, angemeldete Mitglieder zusätzlich interne – genau wie im Feed. Im Feed und in Kommentaren führt der Benutzername zum Profil, sobald es aktiviert ist. Das Profilbild ist mit einem aktivierten Profil ebenfalls öffentlich abrufbar. Deaktivierte und unbekannte Profile liefern gleichermaßen „nicht gefunden“; der Besitzer sieht sein deaktiviertes Profil als Vorschau. Die Einstellung ist nur online änderbar, setzt die aktuellen AGB voraus, wird mit dem Konto gesichert und bei der Kontolöschung entfernt.
+
+Profile liegen in einer eigenen Tabelle bzw. Collection `social_profiles` (Schema-Migration 18). Die API liefert das Profil als eigenes Objekt neben der Beitragsliste, sodass weitere Angaben wie eine Kurzbeschreibung später ergänzt werden können, ohne bestehende Felder oder Aufrufer zu ändern.
+
 ## Bilder
 
 JPG, PNG, WebP und GIF bis 10 MB werden akzeptiert. Der Server prüft und dekodiert die Bilddaten, begrenzt die Eingabe auf 40 Megapixel und skaliert proportional auf maximal 1600 × 1600 Pixel ohne Vergrößern oder Beschneiden. Die längste Seite bleibt also höchstens 1600 Pixel groß. Bilder werden als WebP mit Qualität 82 gespeichert; Metadaten werden nicht übernommen und GIFs als Standbild verarbeitet. Die Verarbeitung verwendet [sharp](https://sharp.pixelplumbing.com/api-resize/).

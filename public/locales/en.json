@@ -54,7 +54,7 @@
     "membersOnlyText": "This post is only visible to signed-in members of this server. Sign in or register an account to view the image.",
     "uploadTooLarge": "The image exceeds the server upload limit. Reload the page and select the image again. If the error persists, the reverse proxy upload limit must be increased.",
     "privacyTitle": "Social area and image rights",
-    "privacyText": "For Social posts, the operator processes images, text, user IDs, usernames, current avatars and timestamps, as well as comments and account-linked likes. The like count is displayed; there is no public list of users who liked a post. New posts are accessible only to signed-in users of this server by default. Explicitly choosing the public feed also allows visitors to see the post and comments. Comments inherit the post’s visibility. Direct image and share links do not change this setting. Previously published posts remain public. Hosting providers may process this data for technical operation. Third parties may copy or redistribute public content.",
+    "privacyText": "For Social posts, the operator processes images, text, user IDs, usernames, current avatars and timestamps, as well as comments and account-linked likes. The like count is displayed; there is no public list of users who liked a post. New posts are accessible only to signed-in users of this server by default. Explicitly choosing the public feed also allows visitors to see the post and comments. Comments inherit the post’s visibility. Direct image and share links do not change this setting. Previously published posts remain public. Hosting providers may process this data for technical operation. Third parties may copy or redistribute public content. A social profile is voluntary and disabled by default. When enabled, the profile page with username, profile picture and number of visible posts is publicly reachable. It only lists posts the respective viewer may see anyway: people who are not signed in only see public posts, signed-in users also internal ones. Disabling removes the profile page immediately; the posts themselves remain until they are deleted.",
     "imageLicense": "Server-side resizing and compression of social photos.",
     "title": "Social",
     "community": "Aquarium community",
@@ -99,7 +99,9 @@
     "privacyBasisTitle": "Purposes, legal bases and acceptance of terms",
     "privacyBasis": "Storage, image processing and delivery according to the chosen visibility, together with likes and comments, provide the requested Social features under Article 6(1)(b) GDPR. The accepted terms version and timestamp are stored for contract performance. Any further retention necessary to establish, exercise or defend legal claims relies on Article 6(1)(f) GDPR and the legitimate interest in demonstrating acceptance. The content licence is limited to app operation and does not permit additional advertising, image sales or AI training. Acceptance of the terms is not blanket data protection consent.",
     "privacyRetentionTitle": "Retention, deletion and backups",
-    "privacyRetention": "Active posts, comments and likes are retained until the content or account is deleted. Deleting a post removes its image, comments and likes from the active system. Regular local backups may retain individually deleted posts until rotation; automatic backups rotate according to the count configured by the operator, while manual backups are managed by the operator. Account deletion removes all associated active images and also removes associated images, Social posts, comments and likes from managed local JSON backups. Other account data in those backups remains until the backup is removed under the operator’s deletion policy. The operator must separately clean downloaded and externally stored backups. The app cannot delete copies already made by third parties. Use the contact details below to exercise access, rectification, erasure and other data protection rights."
+    "privacyRetention": "Active posts, comments and likes are retained until the content or account is deleted. Deleting a post removes its image, comments and likes from the active system. Regular local backups may retain individually deleted posts until rotation; automatic backups rotate according to the count configured by the operator, while manual backups are managed by the operator. Account deletion removes all associated active images and also removes associated images, Social posts, comments and likes from managed local JSON backups. Other account data in those backups remains until the backup is removed under the operator’s deletion policy. The operator must separately clean downloaded and externally stored backups. The app cannot delete copies already made by third parties. Use the contact details below to exercise access, rectification, erasure and other data protection rights.",
+    "viewProfile": "View profile of {username}",
+    "myProfile": "My profile"
   },
   "healthMedications": {
     "title": "Medications & supplies",
@@ -587,7 +589,8 @@
       "ai": "AI",
       "tests": "Water tests",
       "invites": "Invites",
-      "calendar": "Calendar"
+      "calendar": "Calendar",
+      "social": "Social"
     },
     "tapWater": {
       "title": "Tap Water Parameters",

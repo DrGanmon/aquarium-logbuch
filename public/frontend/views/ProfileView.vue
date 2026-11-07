@@ -13,6 +13,7 @@ const Invitations = lazyComponent(() => import("../components/Invitations.vue"))
 const TestInventory = lazyComponent(() => import("../components/TestInventory.vue"));
 const TapWaterSettings = lazyComponent(() => import("../components/TapWaterSettings.vue"));
 const CalendarSettings = lazyComponent(() => import("../components/CalendarSettings.vue"));
+const SocialProfileSettings = lazyComponent(() => import("../components/SocialProfileSettings.vue"));
 const activeTab = ref("profile");
 const visitedTabs = ref(new Set([activeTab.value]));
 watch(activeTab, value => { visitedTabs.value.add(value); });
@@ -23,6 +24,7 @@ const tabs = computed(() => [
   { id: "profile", label: "profile.tabs.profile" },
   { id: "tapWater", label: "profile.tabs.tapWater" },
   { id: "calendar", label: "profile.tabs.calendar" },
+  { id: "social", label: "profile.tabs.social" },
   { id: "ui", label: "profile.tabs.ui" },
   { id: "ai", label: "profile.tabs.ai" },
   { id: "tests", label: "profile.tabs.tests" },
@@ -381,6 +383,17 @@ async function saveRange() {
       tabindex="0"
     >
       <CalendarSettings />
+    </div>
+    <div
+      v-if="visitedTabs.has('social')"
+      v-show="activeTab === 'social'"
+      id="profile-panel-social"
+      class="stack"
+      role="tabpanel"
+      aria-labelledby="profile-tab-social"
+      tabindex="0"
+    >
+      <SocialProfileSettings />
     </div>
     <div
 

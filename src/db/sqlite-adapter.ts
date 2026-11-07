@@ -266,6 +266,7 @@ class SqliteAdapter {
       social_posts: safeGetAll('social_posts'),
       social_comments: safeGetAll('social_comments'),
       social_likes: safeGetAll('social_likes', 'post_id ASC, user_id ASC'),
+      social_profiles: safeGetAll('social_profiles', 'user_id ASC'),
       social_notifications: safeGetAll('social_notifications', 'id ASC'),
       ai_usage_metrics: safeGetAll('ai_usage_metrics', 'provider ASC'),
     };

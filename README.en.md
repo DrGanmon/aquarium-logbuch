@@ -53,7 +53,7 @@ Find more views and step-by-step instructions in the [public user guide](https:/
 - **Work offline:** Use previously synchronized aquariums, measurements, care logs, stock, plants and images locally; retain pending changes and synchronize when connected. Conflicts between devices are presented for review.
 - **Use catalogs offline:** Search downloaded species, plant and health catalogs and view their details. Diagnostic calculations, compatibility checks and CSV processing run locally; AI chat still requires a connection.
 - **Stay up to date:** Updates are offered only when frontend content changes; activation and reload require confirmation. Backend-only or catalog-data-only changes do not trigger frontend update prompts.
-- **Social community:** Photo feed with public or server-only visibility, captions, avatars, likes, comments and share links; uploads are resized server-side to 1600 pixels. [Details](docs/en/social.md).
+- **Social community:** Photo feed with public or server-only visibility, captions, avatars, likes, comments, share links and an optional social profile listing all visible posts; uploads are resized server-side to 1600 pixels. [Details](docs/en/social.md).
 - **Centralize notifications:** A central area with a counter for likes and comments on your posts and open water-parameter warnings from all accessible aquariums.
 
 ## Technical features

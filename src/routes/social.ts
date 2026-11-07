@@ -16,7 +16,7 @@ const { checkAndNoteAttempt } = source4;
 import { saveSocialImage } from '../services/social-image-service';
 import source5 = require('../services/image-service');
 const { deleteImage, getImagePath, getMimeType } = source5;
-import type { SocialPost, SocialAuthor } from '../types/social';
+import type { SocialPost, SocialAuthor, SocialProfile, SocialProfileView } from '../types/social';
 const { auth } = authModule;
 const router = express.Router();
 const id = (input: unknown) => {
@@ -44,13 +44,23 @@ const limit = (kind: string, maximum: number) => async (req: Request, res: Respo
   next();
 };
 async function postOrFail(postId: number, req: Request) { const post = await db.social.post(postId);if (!post || (!post.is_public && !req.user)) throw new AppError('Beitrag nicht gefunden.', 404);return post; }
-async function author(userId: number): Promise<SocialAuthor> {
+/**
+ * An enabled profile is public; owners may also preview their disabled profile. Which posts appear is
+ * decided per post: guests only see public posts, signed-in members public and internal posts.
+ */
+function profileVisible(profile: SocialProfile | null, req: Request, userId: number) {
+  return Boolean(req.user && req.user.id === userId) || Boolean(profile?.enabled);
+}
+const profileUrl = (username: string) => `#/social/u/${encodeURIComponent(username)}`;
+async function author(userId: number, req: Request): Promise<SocialAuthor> {
   const user = await db.users.findById(userId);
-  return { id: userId, username: user?.username || 'Gelöschter Nutzer', avatarUrl: user?.avatar_file ? `api/social/authors/${userId}/avatar` : null };
+  const profile = user ? await db.social.profile(userId) : null;
+  return { id: userId, username: user?.username || 'Gelöschter Nutzer', avatarUrl: user?.avatar_file ? `api/social/authors/${userId}/avatar` : null,
+    profileUrl: user && profile?.enabled && profileVisible(profile, req, userId) ? profileUrl(user.username) : null };
 }
 async function postView(post: SocialPost, req: Request) {
   return { id: post.id, text: post.text, width: post.width, height: post.height, is_public: Boolean(post.is_public), created_at: post.created_at,
-    author: await author(post.user_id), imageUrl: `api/social/posts/${post.id}/image`,
+    author: await author(post.user_id, req), imageUrl: `api/social/posts/${post.id}/image`,
     ...await db.social.counts(post.id, req.user?.id), canDelete: Boolean(req.user && (req.user.id === post.user_id || req.user.isAdmin)) };
 }
 router.get('/posts', viewer, wrap(async (req: Request, res: Response) => {
@@ -71,10 +81,28 @@ router.get('/posts/:id/image', viewer, wrap(async (req: Request, res: Response) 
 }));
 router.get('/authors/:id/avatar', viewer, wrap(async (req: Request, res: Response) => {
   const userId = id(req.params.id);
-  if (!await db.social.hasActivity(userId, Boolean(req.user))) throw new AppError('Profilbild nicht öffentlich verfügbar.', 404);
+  if (!await db.social.hasActivity(userId, Boolean(req.user)) && !profileVisible(await db.social.profile(userId), req, userId)) throw new AppError('Profilbild nicht öffentlich verfügbar.', 404);
   const user = await db.users.findById(userId), image = getImagePath(user?.avatar_file);
   if (!image) throw new AppError('Profilbild nicht gefunden.', 404);
   res.type(getMimeType(user?.avatar_file)).setHeader('Cache-Control', 'no-store').sendFile(image);
+}));
+// ---------- Social profiles (opt-in, extensible) ----------
+async function profileView(userId: number, username: string, avatarFile: string | null, profile: SocialProfile | null, req: Request): Promise<SocialProfileView> {
+  return { username, avatarUrl: avatarFile ? `api/social/authors/${userId}/avatar` : null, enabled: Boolean(profile?.enabled),
+    isOwner: Boolean(req.user && req.user.id === userId), postCount: await db.social.countPostsByUser(userId, Boolean(req.user)) };
+}
+router.get('/profiles/:username', viewer, wrap(async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const username = String(req.params.username || '');
+  const user = username.length <= 40 ? await db.users.findByUsername(username) : null;
+  const profile = user ? await db.social.profile(Number(user.id)) : null;
+  const isOwner = Boolean(user && req.user && req.user.id === Number(user.id));
+  // Disabled or unknown profiles are indistinguishable for others.
+  if (!user || (!profile?.enabled && !isOwner)) throw new AppError('Profil nicht gefunden.', 404);
+  // Guests get public posts only; signed-in members also internal posts – exactly like the feed.
+  const posts = await db.social.postsByUser(Number(user.id), before(req), 21, Boolean(req.user)), visible = posts.slice(0, 20);
+  res.json({ profile: await profileView(Number(user.id), String(user.username), user.avatar_file || null, profile, req),
+    posts: await Promise.all(visible.map(post => postView(post, req))), next: posts.length > 20 ? visible.at(-1)!.id : null });
 }));
 const requireTerms: RequestHandler = async (req, res, next) => {
   try {
@@ -85,6 +113,16 @@ const requireTerms: RequestHandler = async (req, res, next) => {
     next();
   } catch (error) { next(error); }
 };
+router.get('/profile', auth, wrap(async (req: Request, res: Response) => {
+  const profile = await db.social.profile(req.user.id);
+  res.setHeader('Cache-Control', 'no-store').json({ enabled: Boolean(profile?.enabled), username: req.user.username, profileUrl: profileUrl(req.user.username) });
+}));
+// Enabling a profile publishes content and therefore needs the current terms like posting.
+router.put('/profile', auth, requireTerms, limit('profile', 30), wrap(async (req: Request, res: Response) => {
+  if (typeof req.body.enabled !== 'boolean') throw new AppError('Ungültige Profileinstellung.', 400);
+  const profile = await db.social.setProfile(req.user.id, { enabled: req.body.enabled });
+  res.json({ enabled: profile.enabled, username: req.user.username, profileUrl: profileUrl(req.user.username) });
+}));
 router.post('/posts', auth, requireTerms, limit('post', 20), wrap(async (req: Request, res: Response) => {
   const caption = text(req.body.text, 2200);
   if (req.body.isPublic !== undefined && typeof req.body.isPublic !== 'boolean') throw new AppError('Ungültige Sichtbarkeit.', 400);
@@ -115,7 +153,7 @@ router.get('/posts/:id/comments', viewer, wrap(async (req: Request, res: Respons
   const postId = id(req.params.id);await postOrFail(postId, req);
   const comments = await db.social.comments(postId, before(req), 21), visible = comments.slice(0, 20);
   res.setHeader('Cache-Control', 'no-store').json({ comments: await Promise.all(visible.reverse().map(async comment => ({
-    id: comment.id, post_id: comment.post_id, text: comment.text, created_at: comment.created_at, author: await author(comment.user_id),
+    id: comment.id, post_id: comment.post_id, text: comment.text, created_at: comment.created_at, author: await author(comment.user_id, req),
     canDelete: Boolean(req.user && (req.user.id === comment.user_id || req.user.isAdmin)),
   }))), next: comments.length > 20 ? comments[19].id : null });
 }));
@@ -125,7 +163,7 @@ router.post('/posts/:id/comments', auth, requireTerms, limit('comment', 60), wra
   if (!await db.social.post(postId)) { await db.social.deleteComment(commentId);throw new AppError('Beitrag nicht gefunden.', 404); }
   const comment = await db.social.comment(commentId);
   await db.notifications.create({ user_id: post.user_id, actor_id: req.user.id, post_id: postId, comment_id: commentId, type: 'comment' });
-  res.status(201).json({ comment: { id: commentId, post_id: postId, text: comment!.text, created_at: comment!.created_at, author: await author(req.user.id), canDelete: true } });
+  res.status(201).json({ comment: { id: commentId, post_id: postId, text: comment!.text, created_at: comment!.created_at, author: await author(req.user.id, req), canDelete: true } });
 }));
 router.delete('/comments/:id', auth, wrap(async (req: Request, res: Response) => {
   const comment = await db.social.comment(id(req.params.id));if (!comment) throw new AppError('Kommentar nicht gefunden.', 404);

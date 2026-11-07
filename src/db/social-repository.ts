@@ -1,5 +1,5 @@
 import type { SqliteConnection, MongoConnection } from '../types/database-driver';
-import type { SocialPost, SocialComment, SocialLike } from '../types/social';
+import type { SocialPost, SocialComment, SocialLike, SocialProfile } from '../types/social';
 import type { ClientSession } from 'mongodb';
 import source0 = require('../services/image-service');
 const { deleteImage } = source0;
@@ -66,6 +66,36 @@ export class SocialRepository {
     if (this.type === 'sqlite') { this.sql.prepare('DELETE FROM social_comments WHERE id = ?').run(id);return; }
     await Promise.all([this.mongo.collection('social_comments').deleteOne({ id }), this.mongo.collection('social_notifications').deleteMany({ comment_id: id })]);
   }
+  async profile(userId: number): Promise<SocialProfile | null> {
+    const row = this.type === 'sqlite' ? this.sql.prepare<SocialProfile>('SELECT * FROM social_profiles WHERE user_id = ?').get(userId)
+      : await this.mongo.collection<SocialProfile>('social_profiles').findOne({ user_id: userId }, { projection: { _id: 0 } });
+    return row ? { user_id: row.user_id, enabled: Boolean(row.enabled), created_at: row.created_at, updated_at: row.updated_at } : null;
+  }
+  async setProfile(userId: number, input: { enabled: boolean }): Promise<SocialProfile> {
+    const now = new Date().toISOString();
+    if (this.type === 'sqlite') {
+      this.sql.prepare(`INSERT INTO social_profiles (user_id, enabled, created_at, updated_at) VALUES (?, ?, ?, ?)
+        ON CONFLICT(user_id) DO UPDATE SET enabled = excluded.enabled, updated_at = excluded.updated_at`).run(userId, input.enabled ? 1 : 0, now, now);
+    } else {
+      const collection = this.mongo.collection('social_profiles');
+      const update = { $set: { enabled: input.enabled, updated_at: now }, $setOnInsert: { created_at: now } };
+      try { await collection.updateOne({ user_id: userId }, update, { upsert: true }); }
+      catch (error) {
+        if (!(error && typeof error === 'object' && 'code' in error && error.code === 11000)) throw error;
+        await collection.updateOne({ user_id: userId }, update);
+      }
+    }
+    return (await this.profile(userId))!;
+  }
+  /** Posts of one author for the profile page, newest first. */
+  async postsByUser(userId: number, before: number, limit: number, includeInternal = false): Promise<SocialPost[]> {
+    if (this.type === 'sqlite') return this.sql.prepare<SocialPost>('SELECT * FROM social_posts WHERE user_id = ? AND id < ? AND (is_public = 1 OR ? = 1) ORDER BY id DESC LIMIT ?').all(userId, before, includeInternal ? 1 : 0, limit);
+    return this.mongo.collection<SocialPost>('social_posts').find({ user_id: userId, id: { $lt: before }, ...(includeInternal ? {} : { is_public: true }) }).sort({ id: -1 }).limit(limit).toArray();
+  }
+  async countPostsByUser(userId: number, includeInternal = false): Promise<number> {
+    if (this.type === 'sqlite') return Number(this.sql.prepare<{ n: number }>('SELECT COUNT(*) AS n FROM social_posts WHERE user_id = ? AND (is_public = 1 OR ? = 1)').get(userId, includeInternal ? 1 : 0)?.n || 0);
+    return this.mongo.collection('social_posts').countDocuments({ user_id: userId, ...(includeInternal ? {} : { is_public: true }) });
+  }
   async hasActivity(userId: number, includeInternal = false): Promise<boolean> {
     if (this.type === 'sqlite') return Boolean(this.sql.prepare(`SELECT 1 FROM social_posts p WHERE p.user_id = ? AND (p.is_public = 1 OR ? = 1)
       UNION ALL SELECT 1 FROM social_comments c JOIN social_posts p ON p.id = c.post_id WHERE c.user_id = ? AND (p.is_public = 1 OR ? = 1) LIMIT 1`).get(userId, includeInternal ? 1 : 0, userId, includeInternal ? 1 : 0));
@@ -83,7 +113,9 @@ export class SocialRepository {
     if (this.type === 'sqlite') {
       this.sql.prepare('DELETE FROM social_comments WHERE user_id = ?').run(userId);
       this.sql.prepare('DELETE FROM social_likes WHERE user_id = ?').run(userId);
+      this.sql.prepare('DELETE FROM social_profiles WHERE user_id = ?').run(userId);
     } else {
+      await this.mongo.collection('social_profiles').deleteMany({ user_id: userId });
       await this.mongo.collection('social_comments').deleteMany({ user_id: userId });
       await this.mongo.collection('social_likes').deleteMany({ user_id: userId });
       await this.mongo.collection('social_notifications').deleteMany({ $or: [{ user_id: userId }, { actor_id: userId }] });
@@ -98,27 +130,30 @@ export class SocialRepository {
     const clean = <T extends { _id?: unknown }>(rows: T[]) => rows.map(({ _id, ...row }) => row);
     return { social_posts: clean(await this.mongo.collection<SocialPost>('social_posts').find({}, { session }).toArray()),
       social_comments: clean(await this.mongo.collection<SocialComment>('social_comments').find({}, { session }).toArray()),
-      social_likes: clean(await this.mongo.collection<SocialLike>('social_likes').find({}, { session }).toArray()) };
+      social_likes: clean(await this.mongo.collection<SocialLike>('social_likes').find({}, { session }).toArray()),
+      social_profiles: clean(await this.mongo.collection<SocialProfile>('social_profiles').find({}, { session }).toArray()) };
   }
-  clearSqlite() { this.sql.exec('DELETE FROM social_comments; DELETE FROM social_likes; DELETE FROM social_posts;'); }
+  clearSqlite() { this.sql.exec('DELETE FROM social_profiles; DELETE FROM social_comments; DELETE FROM social_likes; DELETE FROM social_posts;'); }
   async clear(session?: ClientSession) {
     if (this.type === 'sqlite') { this.clearSqlite();return; }
-    for (const name of ['social_posts', 'social_comments', 'social_likes']) await this.mongo.collection(name).deleteMany({}, { session });
+    for (const name of ['social_posts', 'social_comments', 'social_likes', 'social_profiles']) await this.mongo.collection(name).deleteMany({}, { session });
   }
-  importSqliteData(data: { social_posts?: SocialPost[]; social_comments?: SocialComment[]; social_likes?: SocialLike[] }) {
-    const posts = data.social_posts || [], comments = data.social_comments || [], likes = data.social_likes || [];
+  importSqliteData(data: { social_posts?: SocialPost[]; social_comments?: SocialComment[]; social_likes?: SocialLike[]; social_profiles?: SocialProfile[] }) {
+    const posts = data.social_posts || [], comments = data.social_comments || [], likes = data.social_likes || [], profiles = data.social_profiles || [];
     this.sql.transaction(() => {
         for (const p of posts) this.sql.prepare('INSERT INTO social_posts (id,user_id,filename,width,height,text,created_at,is_public) VALUES (?,?,?,?,?,?,?,?)').run(p.id,p.user_id,p.filename,p.width,p.height,p.text,p.created_at,p.is_public ? 1 : 0);
         for (const c of comments) this.sql.prepare('INSERT INTO social_comments (id,post_id,user_id,text,created_at) VALUES (?,?,?,?,?)').run(c.id,c.post_id,c.user_id,c.text,c.created_at);
         for (const l of likes) this.sql.prepare('INSERT INTO social_likes (post_id,user_id) VALUES (?,?)').run(l.post_id,l.user_id);
+        for (const p of profiles) this.sql.prepare('INSERT INTO social_profiles (user_id,enabled,created_at,updated_at) VALUES (?,?,?,?)').run(p.user_id,p.enabled ? 1 : 0,p.created_at,p.updated_at);
       })();
   }
-  async importData(data: { social_posts?: SocialPost[]; social_comments?: SocialComment[]; social_likes?: SocialLike[] }, session?: ClientSession) {
-    const posts = data.social_posts || [], comments = data.social_comments || [], likes = data.social_likes || [];
+  async importData(data: { social_posts?: SocialPost[]; social_comments?: SocialComment[]; social_likes?: SocialLike[]; social_profiles?: SocialProfile[] }, session?: ClientSession) {
+    const posts = data.social_posts || [], comments = data.social_comments || [], likes = data.social_likes || [], profiles = data.social_profiles || [];
     if (this.type === 'sqlite') { this.importSqliteData(data);return; }
     if (posts.length) await this.mongo.collection<SocialPost>('social_posts').insertMany(posts, { session });
     if (comments.length) await this.mongo.collection<SocialComment>('social_comments').insertMany(comments, { session });
     if (likes.length) await this.mongo.collection<SocialLike>('social_likes').insertMany(likes, { session });
+    if (profiles.length) await this.mongo.collection('social_profiles').insertMany(profiles.map(profile => ({ ...profile, enabled: Boolean(profile.enabled) })), { session });
     for (const [name, rows] of [['social_posts', posts], ['social_comments', comments]] as const) {
       await this.mongo.collection<{ _id: string; seq: number }>('counters').updateOne({ _id: name }, { $set: { seq: rows.reduce((max, row) => Math.max(max, row.id), 0) } }, { upsert: true, session });
     }

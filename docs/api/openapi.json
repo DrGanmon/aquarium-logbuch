@@ -14565,7 +14565,7 @@
         ],
         "summary": "GET /api/social/authors/{id}/avatar",
         "operationId": "get_api_social_authors_id_avatar",
-        "description": "Ohne Sitzung sind nur öffentliche Beiträge bzw. dazugehörige Daten sichtbar. ",
+        "description": "Ohne Sitzung sind nur öffentliche Beiträge bzw. dazugehörige Daten sichtbar. Auch verfügbar, wenn der Nutzer ein Social-Profil aktiviert hat.",
         "security": [
           {},
           {
@@ -16871,6 +16871,178 @@
           }
         }
       }
+    },
+    "/api/social/profiles/{username}": {
+      "get": {
+        "tags": [
+          "Social"
+        ],
+        "summary": "Social-Profil abrufen",
+        "operationId": "get_api_social_profiles_username",
+        "description": "Ohne Anmeldung möglich. Aktivierte Profile sind öffentlich; ihre Beitragsliste richtet sich nach der Sichtbarkeit jedes Beitrags: Gäste erhalten nur öffentliche Beiträge, angemeldete Mitglieder öffentliche und interne. Deaktivierte und unbekannte Profile liefern gleichermaßen 404; der Besitzer erhält eine Vorschau mit `enabled: false`. Seitenweise mit `before` (Beitrags-ID), 20 Beiträge pro Seite.",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "description": "Benutzername (URL-kodiert).",
+            "schema": {
+              "type": "string",
+              "maxLength": 40
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "description": "Nur Beiträge mit kleinerer ID.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "profile",
+                    "posts",
+                    "next"
+                  ],
+                  "properties": {
+                    "profile": {
+                      "$ref": "#/components/schemas/SocialProfile"
+                    },
+                    "posts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SocialPost"
+                      }
+                    },
+                    "next": {
+                      "type": "integer",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
+    },
+    "/api/social/profile": {
+      "get": {
+        "tags": [
+          "Social"
+        ],
+        "summary": "Eigene Social-Profil-Einstellung abrufen",
+        "operationId": "get_api_social_profile",
+        "description": "Gültige Sitzung erforderlich; nur online. Profile sind standardmäßig deaktiviert.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocialProfileSettings"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Social"
+        ],
+        "summary": "Social-Profil aktivieren oder deaktivieren",
+        "operationId": "put_api_social_profile",
+        "description": "Gültige Sitzung und Zustimmung zu den aktuellen AGB erforderlich (sonst 428); nur online. Ein aktiviertes Profil ist öffentlich; die Deaktivierung entfernt die Profilseite sofort, Beiträge bleiben erhalten.",
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/RequestedWith"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "enabled"
+                ],
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Erfolgreich.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocialProfileSettings"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "Aktuelle AGB müssen zuerst bestätigt werden."
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -17813,12 +17985,18 @@
           "avatarUrl": {
             "type": "string",
             "nullable": true
+          },
+          "profileUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "App-Link zum Social-Profil (`#/social/u/<benutzername>`), wenn der Autor ein Profil aktiviert hat; sonst null."
           }
         },
         "required": [
           "id",
           "username",
-          "avatarUrl"
+          "avatarUrl",
+          "profileUrl"
         ],
         "additionalProperties": true
       },
@@ -19496,6 +19674,57 @@
           "included": {
             "type": "boolean",
             "description": "Erscheint im iCal-Download und im CalDAV-Kalender."
+          }
+        }
+      },
+      "SocialProfile": {
+        "type": "object",
+        "description": "Öffentliche Profildaten. Weitere Profilfelder werden künftig ergänzt, ohne bestehende zu ändern.",
+        "required": [
+          "username",
+          "avatarUrl",
+          "enabled",
+          "isOwner",
+          "postCount"
+        ],
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "false nur in der Vorschau des Besitzers."
+          },
+          "isOwner": {
+            "type": "boolean"
+          },
+          "postCount": {
+            "type": "integer",
+            "description": "Anzahl der für den Betrachter sichtbaren Beiträge."
+          }
+        },
+        "additionalProperties": true
+      },
+      "SocialProfileSettings": {
+        "type": "object",
+        "required": [
+          "enabled",
+          "username",
+          "profileUrl"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "username": {
+            "type": "string"
+          },
+          "profileUrl": {
+            "type": "string"
           }
         }
       }

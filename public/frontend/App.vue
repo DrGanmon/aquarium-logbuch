@@ -19,6 +19,7 @@ const ProfileView = lazyComponent(() => import("./views/ProfileView.vue"));
 const PlantsView = lazyComponent(() => import("./views/PlantsView.vue"));
 const SpeciesView = lazyComponent(() => import("./views/SpeciesView.vue"));
 const SocialView = lazyComponent(() => import("./views/SocialView.vue"));
+const SocialProfileView = lazyComponent(() => import("./views/SocialProfileView.vue"));
 const NotificationsView = lazyComponent(() => import("./views/NotificationsView.vue"));
 const HealthView = lazyComponent(() => import("./views/HealthView.vue"));
 const AdminView = lazyComponent(() => import("./views/AdminView.vue"));
@@ -69,6 +70,7 @@ onMounted(initialize);
       v-else-if="route.path === '/share/invite'"
       :token="route.query.get('token') || ''"
     />
+    <SocialProfileView v-else-if="route.path.startsWith('/social/u/')" :key="route.path" />
     <SocialView v-else-if="route.path === '/social' || route.path.startsWith('/social/')" />
     <AuthView
       v-else-if="!session.user || publicAuth"

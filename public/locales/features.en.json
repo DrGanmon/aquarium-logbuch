@@ -108,5 +108,25 @@
     "deleted": "Lighting settings removed.",
     "deleteTitle": "Delete lighting settings",
     "deleteConfirm": "Delete the lighting settings of this aquarium?"
+  },
+  "socialProfile": {
+    "settingsTitle": "Social profile",
+    "settingsHelp": "With a social profile, others can click your username in the Social area and see your profile picture, username and shared posts. More profile details will follow later.",
+    "enable": "Enable social profile",
+    "publicNotice": "Your profile with profile picture and username is public and reachable without signing in. Which posts appear depends on their own visibility: guests only see your public posts, signed-in members of this server also your internal ones.",
+    "disabledNotice": "Your profile is disabled. Your posts stay visible in the feed, but your username does not lead to a profile page.",
+    "enabledSaved": "Social profile saved.",
+    "disabledSaved": "Social profile disabled.",
+    "view": "View profile",
+    "preview": "View preview",
+    "openSettings": "Open profile settings",
+    "previewDisabled": "Preview: your social profile is disabled and only visible to you.",
+    "offline": "Social profiles require an internet connection.",
+    "posts": "posts",
+    "postsTitle": "Posts",
+    "noPosts": "No visible posts yet.",
+    "guestNote": "You only see public posts. Sign in to see internal posts as well.",
+    "notFoundTitle": "Profile not found",
+    "notFoundText": "This profile does not exist or is not enabled."
   }
 }

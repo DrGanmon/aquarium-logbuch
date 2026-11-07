@@ -52,7 +52,7 @@ Weitere Ansichten und Schrittfolgen findest du im [öffentlichen Nutzerhandbuch]
 - **Offline arbeiten:** Bereits synchronisierte Aquarien, Messwerte, Pflegeprotokolle, Besatz, Pflanzen und Bilder lokal nutzen; Änderungen dauerhaft vormerken und bei Verbindung synchronisieren. Konflikte zwischen Geräten werden zur Entscheidung angezeigt.
 - **Kataloge offline nutzen:** Heruntergeladene Arten-, Pflanzen- und Gesundheitskataloge durchsuchen und Details anzeigen. Diagnoseberechnung, Verträglichkeitsprüfung und CSV-Verarbeitung laufen lokal; der KI-Chat benötigt weiterhin eine Verbindung.
 - **Aktuell bleiben:** Update-Angebot nur bei geänderten Frontend-Inhalten; Aktivierung und Neuladen nach Bestätigung. Reine Backend- oder Katalogdatenänderungen lösen keinen Frontend-Update-Hinweis aus.
-- **Social-Community:** Bilderfeed mit wählbarer öffentlicher oder serverinterner Sichtbarkeit, Texten, Profilbildern, Likes, Kommentaren und Teilen-Links; Uploads werden serverseitig auf 1600 Pixel begrenzt. [Details](docs/de/social.md).
+- **Social-Community:** Bilderfeed mit wählbarer öffentlicher oder serverinterner Sichtbarkeit, Texten, Profilbildern, Likes, Kommentaren, Teilen-Links und freiwilligem Social-Profil mit allen sichtbaren Beiträgen; Uploads werden serverseitig auf 1600 Pixel begrenzt. [Details](docs/de/social.md).
 - **Benachrichtigungen bündeln:** Zentraler Bereich mit Zähler für Likes und Kommentare zu eigenen Beiträgen sowie offene Wasserwertwarnungen aus allen zugänglichen Aquarien.
 
 ## Technische Features

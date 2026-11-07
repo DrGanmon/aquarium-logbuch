@@ -58,7 +58,7 @@ async function publish() {
 </script>
 <template>
   <div class="social-layout">
-    <header class="social-intro"><div><p class="social-eyebrow">{{ t('social.community') }}</p><h1>{{ t('social.title') }}</h1><p class="muted">{{ t('social.intro') }}</p></div><button v-if="session.user" type="button" class="btn" @click="composer = !composer">＋ {{ t('social.newPost') }}</button><a v-else class="btn" href="#/">{{ t('auth.loginBtn') }}</a></header>
+    <header class="social-intro"><div><p class="social-eyebrow">{{ t('social.community') }}</p><h1>{{ t('social.title') }}</h1><p class="muted">{{ t('social.intro') }}</p></div><div v-if="session.user" class="row"><a class="btn ghost" :href="`#/social/u/${encodeURIComponent(session.user.username)}`">{{ t('social.myProfile') }}</a><button type="button" class="btn" @click="composer = !composer">＋ {{ t('social.newPost') }}</button></div><a v-else class="btn" href="#/">{{ t('auth.loginBtn') }}</a></header>
     <p v-if="!session.user && !membersOnly" class="social-public-note">{{ t('social.publicRead') }}</p>
     <a v-if="postId" href="#/social" class="btn small ghost social-back">← {{ t('social.backToFeed') }}</a>
     <section v-if="membersOnly && !session.user && !loading" class="card stack social-empty" aria-labelledby="members-only-title">

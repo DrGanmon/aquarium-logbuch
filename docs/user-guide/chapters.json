@@ -987,6 +987,35 @@
     ]
   },
   {
+    "id": "social-profil",
+    "title": "Social-Profil aktivieren und ansehen",
+    "intro": "Mit einem Social-Profil können andere auf deinen Benutzernamen klicken und sehen dein Profilbild, deinen Benutzernamen und deine geteilten Beiträge.",
+    "image": "social-profil",
+    "caption": "Social-Profil eines Demokontos aus Sicht eines angemeldeten Mitglieds mit öffentlichen und internen Beiträgen.",
+    "steps": [
+      "Öffne „Profil“ und den Reiter „Social“. Setze das Häkchen bei „Social-Profil aktivieren“ und speichere.",
+      "Mit „Vorschau ansehen“ bzw. „Profil ansehen“ prüfst du, wie dein Profil aussieht. Ein deaktiviertes Profil siehst nur du.",
+      "Im Social-Bereich führt ein Klick auf einen Benutzernamen zum Profil, sofern dieses aktiviert ist. Über „Mein Profil“ erreichst du dein eigenes.",
+      "Auf der Profilseite öffnet ein Klick auf eine Kachel den Beitrag mit Likes und Kommentaren.",
+      "Um dein Profil zu verbergen, entferne das Häkchen wieder und speichere. Deine Beiträge bleiben im Feed erhalten."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Öffentliches Profil",
+        "text": "Ein aktiviertes Profil ist für alle erreichbar, auch ohne Anmeldung. Es zeigt vorerst Profilbild, Benutzername und deine Beiträge; weitere Angaben folgen später."
+      },
+      {
+        "title": "Beiträge nach ihrer Sichtbarkeit",
+        "text": "Wer nicht angemeldet ist, sieht auf deinem Profil nur deine öffentlichen Beiträge. Angemeldete Mitglieder dieses Servers sehen zusätzlich deine internen Beiträge – wie im Feed."
+      },
+      {
+        "title": "Freiwillig und jederzeit abschaltbar",
+        "text": "Das Profil ist standardmäßig aus. Abschalten entfernt die Profilseite sofort; dein Benutzername ist dann nicht mehr verlinkt."
+      }
+    ]
+  },
+  {
     "id": "hinweise",
     "title": "Benachrichtigungen an einem Ort",
     "intro": "Unter „Hinweise“ findest du Reaktionen auf deine Beiträge und Wasserwertwarnungen aus deinen zugänglichen Aquarien.",

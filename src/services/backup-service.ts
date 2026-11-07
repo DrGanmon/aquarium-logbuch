@@ -178,6 +178,7 @@ class BackupService {
       for (const post of data.social_posts || []) if (Number(post.user_id) === user.id) { remember(post.filename);postIds.add(Number(post.id)); }
       data.social_posts = (data.social_posts || []).filter((entry: any) => !postIds.has(Number(entry.id)));
       for (const collection of ['social_comments', 'social_likes']) data[collection] = (data[collection] || []).filter((entry: any) => !postIds.has(Number(entry.post_id)) && Number(entry.user_id) !== user.id);
+      data.social_profiles = (data.social_profiles || []).filter((entry: any) => Number(entry.user_id) !== user.id);
       for (const filename of filenames) if (payload.files) delete payload.files[filename];
       const temporary = `${archivePath}.privacy-tmp`;
       try { writePrivateArchive(temporary, rewriteLocalBackup(original, zlib.gzipSync(Buffer.from(JSON.stringify(payload)))));fs.renameSync(temporary, archivePath); }
@@ -973,6 +974,10 @@ class BackupService {
         social_posts: socialPosts,
         social_comments: socialComments,
         social_likes: socialLikes,
+        social_profiles: (Array.isArray(data.social_profiles) ? data.social_profiles : []).filter((profile: any) => profile && validUserIds.has(Number(profile.user_id)))
+          .map((profile: any) => ({ user_id: Number(profile.user_id), enabled: Boolean(profile.enabled) && profile.enabled !== '0',
+            created_at: typeof profile.created_at === 'string' ? profile.created_at : new Date().toISOString(), updated_at: typeof profile.updated_at === 'string' ? profile.updated_at : new Date().toISOString() }))
+          .filter((profile: any, index: number, all: any[]) => all.findIndex(other => other.user_id === profile.user_id) === index),
       },
       files: cleanFiles,
     };

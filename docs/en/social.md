@@ -16,6 +16,12 @@ Signed-in users can upload photos, like posts and write comments of up to 1000 c
 
 Share uses the device's native sharing dialog, falls back to copying the post link or displays it for manual copying. Server-only posts require sign-in even through direct image, comment and share links.
 
+## Social profile
+
+The **Social** tab of the user profile enables a social profile; it is off by default. An enabled profile is public at `#/social/u/<username>` and currently shows the profile picture, username, number of visible posts and the posts as a tile grid. Which posts appear depends only on each post's visibility: guests only see public posts, signed-in members also internal ones – exactly as in the feed. In the feed and in comments the username links to the profile once it is enabled. With an enabled profile the profile picture is publicly available as well. Disabled and unknown profiles both return “not found”; owners see their disabled profile as a preview. The setting can only be changed online, requires the current terms, is included in backups and removed on account deletion.
+
+Profiles live in a separate table or collection `social_profiles` (schema migration 18). The API returns the profile as its own object next to the post list, so further details such as a short bio can be added later without changing existing fields or callers.
+
 ## Photos
 
 JPG, PNG, WebP and GIF uploads up to 10 MB are supported. The server validates and decodes images, limits input to 40 megapixels and resizes proportionally to fit within 1600 × 1600 pixels without enlarging or cropping. The longest edge therefore remains at most 1600 pixels. Images are stored as WebP at quality 82, without original metadata; GIFs become still images. Processing uses [sharp](https://sharp.pixelplumbing.com/api-resize/).

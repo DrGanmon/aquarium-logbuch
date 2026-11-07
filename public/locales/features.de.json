@@ -108,5 +108,25 @@
     "deleted": "Lichteinstellung entfernt.",
     "deleteTitle": "Lichteinstellung löschen",
     "deleteConfirm": "Lichteinstellung dieses Aquariums löschen?"
+  },
+  "socialProfile": {
+    "settingsTitle": "Social-Profil",
+    "settingsHelp": "Mit einem Social-Profil können andere im Social-Bereich auf deinen Benutzernamen klicken und sehen dein Profilbild, deinen Benutzernamen und deine geteilten Beiträge. Weitere Profilangaben folgen später.",
+    "enable": "Social-Profil aktivieren",
+    "publicNotice": "Dein Profil mit Profilbild und Benutzername ist öffentlich, auch ohne Anmeldung erreichbar. Welche Beiträge darauf erscheinen, richtet sich nach ihrer eigenen Sichtbarkeit: Gäste sehen nur deine öffentlichen Beiträge, angemeldete Mitglieder dieses Servers zusätzlich deine internen.",
+    "disabledNotice": "Dein Profil ist deaktiviert. Deine Beiträge bleiben im Feed sichtbar, aber dein Benutzername führt zu keiner Profilseite.",
+    "enabledSaved": "Social-Profil gespeichert.",
+    "disabledSaved": "Social-Profil deaktiviert.",
+    "view": "Profil ansehen",
+    "preview": "Vorschau ansehen",
+    "openSettings": "Profileinstellungen öffnen",
+    "previewDisabled": "Vorschau: Dein Social-Profil ist deaktiviert und nur für dich sichtbar.",
+    "offline": "Social-Profile benötigen eine Internetverbindung.",
+    "posts": "Beiträge",
+    "postsTitle": "Beiträge",
+    "noPosts": "Noch keine sichtbaren Beiträge.",
+    "guestNote": "Du siehst nur öffentliche Beiträge. Melde dich an, um auch interne Beiträge zu sehen.",
+    "notFoundTitle": "Profil nicht gefunden",
+    "notFoundText": "Dieses Profil gibt es nicht oder es ist nicht aktiviert."
   }
 }

@@ -987,6 +987,35 @@
     ]
   },
   {
+    "id": "social-profil",
+    "title": "Enable and view a social profile",
+    "intro": "With a social profile, others can click your username and see your profile picture, username and shared posts.",
+    "image": "social-profil",
+    "caption": "Social profile of a demo account as seen by a signed-in member, with public and internal posts.",
+    "steps": [
+      "Open “Profile” and the “Social” tab. Tick “Enable social profile” and save.",
+      "Use “View preview” or “View profile” to check how your profile looks. Only you can see a disabled profile.",
+      "In the Social area, clicking a username opens the profile if it is enabled. “My profile” takes you to your own.",
+      "On the profile page, clicking a tile opens the post with likes and comments.",
+      "To hide your profile, untick the option again and save. Your posts remain in the feed."
+    ],
+    "extra": [],
+    "features": [
+      {
+        "title": "Public profile",
+        "text": "An enabled profile is reachable by everyone, even without signing in. For now it shows your profile picture, username and posts; more details will follow later."
+      },
+      {
+        "title": "Posts by their visibility",
+        "text": "People who are not signed in only see your public posts on your profile. Signed-in members of this server also see your internal posts – just like in the feed."
+      },
+      {
+        "title": "Optional and switchable",
+        "text": "The profile is off by default. Turning it off removes the profile page immediately; your username is then no longer linked."
+      }
+    ]
+  },
+  {
     "id": "hinweise",
     "title": "Notifications in one place",
     "intro": "“Notifications” collects reactions to your posts and water-parameter warnings from aquariums you can access.",
