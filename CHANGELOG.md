@@ -6,11 +6,12 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Katalogsuche folgt Adressänderungen: Wird ein Arten- oder Pflanzenkatalog per Link oder Zurück-Navigation mit anderem Suchbegriff bzw. Filter geöffnet, ohne dass sich der Katalogpfad ändert, übernehmen Suchfeld und Filter jetzt die neue Adresse. Regressionstest ergänzen.
-- Nutzerhandbuch an die überarbeitete Oberfläche anpassen: 26 weitere Demo-Screenshots neu aufnehmen (Aquarium anlegen, Messzyklus, CSV-Import, Arten- und Formauswahl, Pflanzenfotos, Gesundheit, Diagnose, Medikamente, Profilreiter, Kalender, Wassertests, Verbrauch, Freigaben, Social, Social-Profil, Hinweise, Administration mit Metriken, Registrierung, Mail, Backups und Logs sowie die mobilen Offline-Ansichten mit Tab-Leiste und „Nicht synchronisiert“). Schrittfolgen und Bildunterschriften zu „Mehr“-Menü, Aquarium-Tabs und umbenannten Profilreitern zweisprachig aktualisieren.
+- Minor-Version manuell auf `0.5.0-ALPHA` erhöhen; Revision und Patch zurücksetzen und Paketmetadaten sowie Git-Versionsbasis aktualisieren.
 
 ## 0.4.8-ALPHA
 
+- Katalogsuche folgt Adressänderungen: Wird ein Arten- oder Pflanzenkatalog per Link oder Zurück-Navigation mit anderem Suchbegriff bzw. Filter geöffnet, ohne dass sich der Katalogpfad ändert, übernehmen Suchfeld und Filter jetzt die neue Adresse. Regressionstest ergänzen. (`ee8a8383d12d7fe711154630b1cd146e88abe5dc`, 2026-11-08).
+- Nutzerhandbuch an die überarbeitete Oberfläche anpassen: 26 weitere Demo-Screenshots neu aufnehmen (Aquarium anlegen, Messzyklus, CSV-Import, Arten- und Formauswahl, Pflanzenfotos, Gesundheit, Diagnose, Medikamente, Profilreiter, Kalender, Wassertests, Verbrauch, Freigaben, Social, Social-Profil, Hinweise, Administration mit Metriken, Registrierung, Mail, Backups und Logs sowie die mobilen Offline-Ansichten mit Tab-Leiste und „Nicht synchronisiert“). Schrittfolgen und Bildunterschriften zu „Mehr“-Menü, Aquarium-Tabs und umbenannten Profilreitern zweisprachig aktualisieren. (`ee8a8383d12d7fe711154630b1cd146e88abe5dc`, 2026-11-08).
 - Bedienbarkeit nach gängigen Usability-Richtlinien (Nielsen-Heuristiken, WCAG 2.2) überarbeiten:
   - Auf dem Handy ersetzt eine feste Tab-Leiste unten mit „Aquarien“, „Artenkatalog“, „Pflanzen“, „Hinweise“ und „Mehr“ die mehrzeilige Kopfzeile; „Mehr“ enthält Gesundheit, Social, Profil, Nutzerhandbuch, Sprache, Design und Abmelden. Die Navigation angemeldeter Nutzer wird nachgeladen, damit das Startbundle unter 350 KB bleibt. Link „Zum Inhalt springen“ ergänzen; feste Leisten verdecken keinen Fokus.
   - Die Aquarium-Detailseite in die Tabs Übersicht, Werte, Besatz & Pflanzen, Technik, Aufgaben, Logbuch und Galerie gliedern (Tastatursteuerung, aktiver Tab in der Adresse `?tab=`). Die Übersicht beginnt mit letzter Messung, offenen Warnungen und nächster Messung. Seltener benötigte Aktionen (Bearbeiten, Teilen, CSV, Freigabe verlassen) liegen unter „Mehr“.
