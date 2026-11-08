@@ -180,6 +180,30 @@ for (const backend of ['sqlite', 'mongodb']) test(`Pflegeaufgaben, iCal und CalD
   assert.equal((await env.request('/api/me/calendar.ics', { headers })).text.includes('BEGIN:VEVENT'), false, 'Gelöschte Aquarien verschwinden aus dem Kalender');
 });
 
+test('Kalender: überfällige Serien behalten ihren Wochentag', { timeout: 60000 }, async t => {
+  const env = createTestEnvironment();
+  t.after(() => env.cleanup());
+  const user = await env.createUserAndLogin('kalender_rhythmus'), headers = { Cookie: user.cookie };
+  // Wöchentlich am Wochentag von gestern, letzte Messung vor acht Tagen: fällig war gestern, heute ist überfällig.
+  const yesterday = new Date();yesterday.setDate(yesterday.getDate() - 1);
+  const isoDay = yesterday.getDay() || 7, byDay = ['', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'][isoDay];
+  const created = await env.request('/api/aquariums', { method: 'POST', headers, body: { name: 'Rhythmus', volume_l: 60, measure_cycle_interval: 1, measure_cycle_unit: 'weeks', measure_cycle_day_of_week: isoDay } });
+  assert.equal(created.status, 200, created.text);
+  const measuredAt = new Date();measuredAt.setDate(measuredAt.getDate() - 8);measuredAt.setHours(12, 0, 0, 0);
+  const measured = await env.request(`/api/aquariums/${created.data.id}/measurements`, { method: 'POST', headers, body: { values: { ph: 7 }, measured_at: measuredAt.toISOString() } });
+  assert.equal(measured.status, 200, measured.text);
+  const ics = (await env.request('/api/me/calendar.ics', { headers })).text.replace(/\r\n /g, '');
+  const events = ics.split('BEGIN:VEVENT').slice(1);
+  const series = events.find(event => event.includes(`UID:measure-${created.data.id}@`));
+  const overdue = events.find(event => event.includes(`UID:measure-${created.data.id}-overdue@`));
+  assert.ok(series && overdue, ics);
+  assert.match(series, new RegExp(`DTSTART;VALUE=DATE:${shift(6).replace(/-/g, '')}\\r\\n`), 'Die Serie läuft am nächsten regulären Termin weiter statt heute');
+  assert.match(series, new RegExp(`RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=${byDay};`));
+  assert.match(overdue, new RegExp(`DTSTART;VALUE=DATE:${shift(0).replace(/-/g, '')}\\r\\n`), 'Überfälliges erscheint einmalig heute');
+  assert.match(overdue, /SUMMARY:Überfällig: /);
+  assert.doesNotMatch(overdue, /RRULE:/);
+});
+
 test('CalDAV: wiederholte Fehlanmeldungen werden begrenzt', { timeout: 60000 }, async t => {
   const env = createTestEnvironment();
   t.after(() => env.cleanup());

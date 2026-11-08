@@ -16391,7 +16391,7 @@
         ],
         "summary": "Pflegekalender als iCal herunterladen",
         "operationId": "get_api_me_calendar_ics",
-        "description": "Gültige Sitzung erforderlich. Enthält Messzyklen, aktive manuelle Dünger und aktive Pflegeaufgaben aller eigenen Aquarien und Aquarien mit Schreibfreigabe, die in `/api/me/calendar/aquariums` ausgewählt sind. Jeder Termin beginnt bei der nächsten Fälligkeit (Überfälliges heute) und wiederholt sich per RRULE bis zum 31. Dezember des Folgejahres. Ohne Uhrzeit ganztägig, sonst als lokale (schwebende) Zeit mit 30 Minuten Dauer. Antwort als Datei-Download.",
+        "description": "Gültige Sitzung erforderlich. Enthält Messzyklen, aktive manuelle Dünger und aktive Pflegeaufgaben aller eigenen Aquarien und Aquarien mit Schreibfreigabe, die in `/api/me/calendar/aquariums` ausgewählt sind. Jeder Termin beginnt bei der nächsten Fälligkeit und wiederholt sich per RRULE bis zum 31. Dezember des Folgejahres; Überfälliges läuft im bisherigen Rhythmus weiter und erscheint zusätzlich als einmaliger ganztägiger Termin „Überfällig: …“ am heutigen Tag (UID-Suffix `-overdue`). Ohne Uhrzeit ganztägig, sonst als lokale (schwebende) Zeit mit 30 Minuten Dauer. Antwort als Datei-Download.",
         "security": [
           {
             "SessionCookie": []

@@ -9,10 +9,10 @@ import { parseCalendarSelection } from './calendar-selection';
 
 const { APP_URL } = envModule;
 
-/** One recurring calendar entry; every entry becomes its own CalDAV resource. */
+/** One calendar entry (recurring, or a single overdue reminder without frequency); every entry becomes its own CalDAV resource. */
 export interface CalendarEntry {
   uid: string; summary: string; description: string; start: string; time: string | null;
-  frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY'; interval: number; byDay?: string; stamp: string; url?: string;
+  frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | null; interval: number; byDay?: string; stamp: string; url?: string;
 }
 export interface UserCalendar { name: string; entries: CalendarEntry[]; until: string; version: string }
 
@@ -22,7 +22,9 @@ const MAINTENANCE_EN: Record<string, string> = {
 };
 const WEEKDAYS = ['', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
 
-const frequencyOf = (unit: CareTaskUnit | string): CalendarEntry['frequency'] => unit === 'months' ? 'MONTHLY' : unit === 'weeks' ? 'WEEKLY' : 'DAILY';
+type Frequency = NonNullable<CalendarEntry['frequency']>;
+const frequencyOf = (unit: CareTaskUnit | string): Frequency => unit === 'months' ? 'MONTHLY' : unit === 'weeks' ? 'WEEKLY' : 'DAILY';
+const unitOf = (frequency: Frequency): CareTaskUnit => frequency === 'MONTHLY' ? 'months' : frequency === 'WEEKLY' ? 'weeks' : 'days';
 const stampOf = (value: unknown) => {
   // SQLite stores "YYYY-MM-DD HH:MM:SS" in UTC without a zone designator.
   const text = typeof value === 'string' && /^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$/.test(value) ? value.replace(' ', 'T') + 'Z' : value;
@@ -48,7 +50,7 @@ export async function calendarAquariumSelection(userId: number) {
 /**
  * Builds the read-only care calendar of a user: measuring cycles, manual fertilizers and recurring
  * care tasks of all own aquariums and aquariums shared with write access, except those the user deselected. Entries start at the next
- * due date (overdue entries today) and recur until the end of the following year.
+ * due date and recur in their own rhythm until the end of the following year; an overdue item additionally appears once today.
  */
 export async function buildUserCalendar(userId: number, language = 'de', now = new Date()): Promise<UserCalendar> {
   const en = language === 'en';
@@ -58,11 +60,16 @@ export async function buildUserCalendar(userId: number, language = 'de', now = n
   const excluded = await excludedAquariums(userId);
   const aquariums = (await calendarEligibleAquariums(userId)).filter((aquarium: any) => !excluded.has(Number(aquarium.id)));
   const link = (id: number) => APP_URL ? `${APP_URL}/#/a/${id}` : undefined;
-  const push = (entry: Omit<CalendarEntry, 'start'> & { start: string | null }) => {
+  const push = (entry: Omit<CalendarEntry, 'start' | 'frequency'> & { start: string | null; frequency: Frequency }) => {
     if (!entry.start) return;
     let start = entry.start;
-    // Overdue items move to today; recurring dates continue from there.
-    if (start < today) start = today;
+    // Overdue items keep their rhythm (e.g. Saturdays): the series continues with the next regular date, and a
+    // single reminder marks the overdue item today. Moving the series start to today would shift every later date.
+    if (start < today) {
+      const step = Math.max(1, Math.trunc(entry.interval) || 1);
+      while (start < today) start = addInterval(start, step, unitOf(entry.frequency));
+      entries.push({ ...entry, uid: `${entry.uid}-overdue`, summary: `${en ? 'Overdue' : 'Überfällig'}: ${entry.summary}`, start: today, time: null, frequency: null, byDay: undefined });
+    }
     if (start <= until) entries.push({ ...entry, start });
   };
   for (const aquarium of aquariums as any[]) {
@@ -121,9 +128,11 @@ function eventLines(entry: CalendarEntry, until: string): string[] {
   if (entry.time) {
     lines.push(`DTSTART:${compact(entry.start)}T${entry.time.replace(':', '')}00`, 'DURATION:PT30M');
   } else lines.push(`DTSTART;VALUE=DATE:${compact(entry.start)}`, `DTEND;VALUE=DATE:${compact(addInterval(entry.start, 1, 'days'))}`, 'TRANSP:TRANSPARENT');
-  const rule = [`FREQ=${entry.frequency}`, `INTERVAL=${entry.interval}`, ...(entry.byDay ? [`BYDAY=${entry.byDay}`] : []),
-    `UNTIL=${compact(until)}${entry.time ? 'T235959' : ''}`];
-  lines.push(`RRULE:${rule.join(';')}`);
+  if (entry.frequency) {
+    const rule = [`FREQ=${entry.frequency}`, `INTERVAL=${entry.interval}`, ...(entry.byDay ? [`BYDAY=${entry.byDay}`] : []),
+      `UNTIL=${compact(until)}${entry.time ? 'T235959' : ''}`];
+    lines.push(`RRULE:${rule.join(';')}`);
+  }
   if (entry.description) lines.push(`DESCRIPTION:${escape(entry.description)}`);
   if (entry.url) lines.push(`URL:${entry.url}`);
   lines.push('END:VEVENT');

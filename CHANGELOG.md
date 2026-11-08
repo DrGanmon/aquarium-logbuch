@@ -6,7 +6,11 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Untere Tab-Leiste auf dem Handy erneut umstellen: „Profil“, „Aquarien“, „Gesundheit“, „Social“ und „Mehr“. Der Artenkatalog wandert zusammen mit Pflanzen und Hinweisen unter „Mehr“; die nicht mehr benötigte Kurzbeschriftung „Arten“ entfällt. Handbuch zweisprachig und Regressionstest anpassen.
+- Kalender/CalDAV: Überfällige Messzyklen, Dünger und Pflegeaufgaben verschieben ihre Serie nicht mehr auf den heutigen Tag. Bisher begann die Wiederholung bei Überfälligkeit „heute“, sodass z. B. eine samstags fällige, am Sonntag noch offene Messung dauerhaft sonntags im Kalender stand. Die Serie läuft jetzt im eigenen Rhythmus mit dem nächsten regulären Termin weiter; Überfälliges erscheint zusätzlich einmalig als „Überfällig: …“ am heutigen Tag. Handbuch, API-Dokumentation und Regressionstest anpassen.
+
+## 0.5.3-ALPHA
+
+- Untere Tab-Leiste auf dem Handy erneut umstellen: „Profil“, „Aquarien“, „Gesundheit“, „Social“ und „Mehr“. Der Artenkatalog wandert zusammen mit Pflanzen und Hinweisen unter „Mehr“; die nicht mehr benötigte Kurzbeschriftung „Arten“ entfällt. Handbuch zweisprachig und Regressionstest anpassen. (`2b82f89915b7b3cdc07af1c7542326155ca7eaad`, 2026-11-08).
 
 ## 0.5.2-ALPHA
 
