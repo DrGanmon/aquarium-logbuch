@@ -115,7 +115,7 @@
       "Choose “+ New aquarium” in the overview. Enter a name that helps you recognize the tank.",
       "Choose freshwater or saltwater and enter its volume in liters. Add a motto, description and notes if needed.",
       "Check the details and save the aquarium. It will appear in your overview.",
-      "To make changes, open the aquarium and choose “Edit”. You can also adjust care cycles using “Configure cycles” in the tank view.",
+      "To change it, open the aquarium and choose “Edit” under “More”. You can also adjust care cycles in the “Overview” tab via “Set up cycles”.",
       "Only delete an aquarium when you no longer need its data. Read the confirmation and export or back up important data first."
     ],
     "extra": [
@@ -144,9 +144,9 @@
     "title": "Remember the next water test",
     "intro": "The measurement cycle shows when you plan to check the water again. It does not take readings automatically.",
     "image": "messzyklus",
-    "caption": "The measurement cycle shows its status and next due date in the tank.",
+    "caption": "The measurement cycle shows its status and next due date in the aquarium’s “Overview” tab.",
     "steps": [
-      "Open the tank and choose “Configure cycles” beside the measurement cycle.",
+      "Open your aquarium and choose “Set up cycles” at “Measurement cycle” in the “Overview” tab.",
       "Choose an interval in days or weeks. Select a weekday where offered. An interval of zero disables the cycle.",
       "Enable an email reminder if needed, then save. This requires a verified address and working email delivery.",
       "Read the next due date on the cycle card. “Measure now” opens the usual measurement form.",
@@ -453,8 +453,8 @@
     "image": "csv-import",
     "caption": "CSV import with a preview and column mapping.",
     "steps": [
-      "Choose “CSV export” in the aquarium to download measurements. The semicolon option works well with Excel; it creates a CSV file, not an XLSX file.",
-      "Choose “CSV import” to bring in existing measurements. Upload a file or use the provided text field.",
+      "In the aquarium, open “More” and choose “CSV export” to download measurement data. The semicolon variant suits Excel; the result is a CSV file, not an XLSX file.",
+      "Choose “CSV import” under “More” if you want to import existing readings. Upload a file or use the text field provided.",
       "Check the delimiter and whether the first row contains column headers.",
       "Map each required column to a field such as date, time, pH or note. Ignore columns you do not need.",
       "Review the preview before starting the import. Read any notices about invalid or skipped rows.",
@@ -578,7 +578,7 @@
     "title": "Find plants and add them to a tank",
     "intro": "The plant catalog helps you find suitable plants and record the stock in your aquarium.",
     "image": "pflanzen",
-    "caption": "Plants in the aquarium: selected forms such as Pangolino are explicitly identified; your own photos show the planting spot.",
+    "caption": "Plants in the “Livestock & plants” tab: selected forms such as Pangolino are shown explicitly; your own photos show where they are planted.",
     "steps": [
       "Open “Plants” in the header or, on a phone, in the bottom bar. Filter by water type or category, or search for a species or cultivar name. Forms appear under a shared parent card; “Matching forms” lists the forms found by your search. Search and filters stay in the address, also when you go back.",
       "Open a plant and read its placement, lighting, growth and care guidance.",
@@ -708,7 +708,7 @@
     "image": "ki-einstellungen",
     "caption": "AI settings in the profile. No real access keys are shown.",
     "steps": [
-      "Open your profile using your username and select the AI tab.",
+      "Open your profile via your user name (on a phone via “More” → “Profile”) and select the “AI assistant” tab.",
       "Choose an available provider, such as OpenAI, Google Gemini or Anthropic Claude. Enter your personal API key if the operator does not provide suitable access.",
       "Choose an available model and save the settings. Use the connection test to check the setup.",
       "In an aquarium, open the AI button once usable access is configured. Write a question or choose a quick question.",
@@ -929,7 +929,7 @@
     "image": "freigaben",
     "caption": "An existing write-access share for the fictional leo_demo account.",
     "steps": [
-      "Open an aquarium you own and choose “Share aquarium”. Search for the other account’s username or email address.",
+      "Open your own aquarium and choose “Share aquarium” under “More”. Search for the other account’s user name or email address.",
       "Choose “Read” if the person should only view the tank. “Write” also lets them maintain supported data.",
       "The invited person accepts the invitation. They can then find the tank under “Shared with me”.",
       "You can review existing shares, change roles or revoke access. Only the owner manages shares.",
@@ -1082,7 +1082,7 @@
     "title": "Work on your phone and without a connection",
     "intro": "First open the app online and wait for automatic synchronization of your aquarium data to finish.",
     "image": "offline",
-    "caption": "Mobile view without a connection and with a demo measurement waiting to upload.",
+    "caption": "Mobile view without a connection: a demo measurement saved offline is marked “Not synchronised” in the logbook.",
     "steps": [
       "Use your app’s HTTPS address on your phone. An HTTP address on your home network is not sufficient for offline features.",
       "You can add the app to your home screen through the browser menu. Menu names differ between iPhone and Android.",

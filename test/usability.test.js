@@ -170,6 +170,7 @@ test('Touch-Ziele, Messformular und Kataloge', () => {
   const search = read('public/frontend/composables/catalog-search.ts');
   assert.match(search, /initial\.get\("q"\)/);
   assert.match(search, /window\.history\.replaceState/, 'Suche und Filter bleiben in der Adresse');
+  assert.match(search, /watch\(\(\) => route\.value\.query\.toString\(\)/, 'Neue Adresse mit anderer Suche aktualisiert die Felder');
   assert.match(read('public/frontend/views/HealthView.vue'), /route\.value\.query\.get\('q'\)/);
   for (const view of ['PlantsView', 'SpeciesView']) assert.match(read(`public/frontend/views/${view}.vue`), /<h2 class="species-card-title">/);
 });

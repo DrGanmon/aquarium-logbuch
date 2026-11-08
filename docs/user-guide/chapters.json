@@ -115,7 +115,7 @@
       "Wähle in der Übersicht „+ Neues Aquarium“. Trage einen Namen ein, an dem du das Becken wiedererkennst.",
       "Wähle Süßwasser oder Meerwasser und gib das Volumen in Litern ein. Ergänze bei Bedarf Motto, Beschreibung und Notizen.",
       "Prüfe die Angaben und speichere das Aquarium. Es erscheint anschließend in deiner Übersicht.",
-      "Zum Ändern öffnest du das Aquarium und wählst „Bearbeiten“. Pflegezyklen kannst du auch im Becken über „Zyklen einstellen“ anpassen.",
+      "Zum Ändern öffnest du das Aquarium und wählst unter „Mehr“ den Punkt „Bearbeiten“. Pflegezyklen kannst du auch im Tab „Übersicht“ über „Zyklen einstellen“ anpassen.",
       "Ein Aquarium löschen solltest du nur, wenn du seine Daten nicht mehr brauchst. Beachte die Bestätigung und exportiere oder sichere wichtige Daten vorher."
     ],
     "extra": [
@@ -144,9 +144,9 @@
     "title": "An die nächste Messung erinnert werden",
     "intro": "Der Messzyklus zeigt, wann du das Wasser wieder prüfen möchtest. Er führt keine automatische Messung aus.",
     "image": "messzyklus",
-    "caption": "Der Messzyklus zeigt Status und nächsten Termin im Aquarium.",
+    "caption": "Der Messzyklus zeigt Status und nächsten Termin im Tab „Übersicht“ des Aquariums.",
     "steps": [
-      "Öffne dein Aquarium und wähle bei „Messzyklus“ die Schaltfläche „Zyklen einstellen“.",
+      "Öffne dein Aquarium und wähle im Tab „Übersicht“ bei „Messzyklus“ die Schaltfläche „Zyklen einstellen“.",
       "Wähle einen Abstand in Tagen oder Wochen. Wenn angeboten, kannst du einen Wochentag festlegen. Mit einem Intervall von null ist der Zyklus deaktiviert.",
       "Aktiviere bei Bedarf die Erinnerungs-E-Mail und speichere. Dafür sind eine bestätigte E-Mail-Adresse und eingerichteter Mailversand nötig.",
       "Lies die nächste Fälligkeit auf der Zykluskarte ab. „Jetzt messen“ öffnet die normale Messung.",
@@ -453,8 +453,8 @@
     "image": "csv-import",
     "caption": "CSV-Import mit Vorschau und Spaltenzuordnung.",
     "steps": [
-      "Wähle im Aquarium „CSV-Export“, um Messdaten herunterzuladen. Für Excel eignet sich die angebotene Variante mit Semikolon; es entsteht eine CSV-Datei, keine XLSX-Datei.",
-      "Wähle „CSV-Import“, wenn du vorhandene Messwerte übernehmen möchtest. Lade eine Datei oder nutze das angebotene Texteingabefeld.",
+      "Öffne im Aquarium „Mehr“ und wähle „CSV-Export“, um Messdaten herunterzuladen. Für Excel eignet sich die angebotene Variante mit Semikolon; es entsteht eine CSV-Datei, keine XLSX-Datei.",
+      "Wähle unter „Mehr“ den Punkt „CSV-Import“, wenn du vorhandene Messwerte übernehmen möchtest. Lade eine Datei oder nutze das angebotene Texteingabefeld.",
       "Prüfe das Trennzeichen und ob die erste Zeile Überschriften enthält.",
       "Ordne jede benötigte Spalte einem Feld zu, zum Beispiel Datum, Uhrzeit, pH-Wert oder Notiz. Nicht benötigte Spalten kannst du ignorieren.",
       "Kontrolliere die Vorschau und starte erst dann den Import. Beachte Hinweise zu ungültigen oder übersprungenen Zeilen.",
@@ -578,7 +578,7 @@
     "title": "Pflanzen suchen und zum Becken hinzufügen",
     "intro": "Der Pflanzenkatalog hilft dir, passende Pflanzen zu finden und den Bestand im Aquarium festzuhalten.",
     "image": "pflanzen",
-    "caption": "Pflanzenbestand im Aquarium: Gewählte Formen wie Pangolino werden ausdrücklich angezeigt; eigene Fotos zeigen die Pflanzstelle.",
+    "caption": "Pflanzenbestand im Tab „Besatz & Pflanzen“: Gewählte Formen wie Pangolino werden ausdrücklich angezeigt; eigene Fotos zeigen die Pflanzstelle.",
     "steps": [
       "Öffne „Pflanzen“ in der Kopfzeile oder auf dem Handy in der unteren Leiste. Filtere nach Wasserart und Kategorie oder suche nach Art- bzw. Sortennamen. Formen erscheinen unter einer gemeinsamen Stammkachel; „Gefundene Unterformen“ zeigt passende Formen zur Suche an. Suche und Filter bleiben in der Adresse erhalten, auch wenn du zurückgehst.",
       "Öffne eine Pflanze und lies die Hinweise zu Platzierung, Licht, Wachstum und Pflege.",
@@ -708,7 +708,7 @@
     "image": "ki-einstellungen",
     "caption": "KI-Einstellungen im Profil. Der Screenshot enthält keine echten Zugangsschlüssel.",
     "steps": [
-      "Öffne über deinen Benutzernamen das Profil und wähle den KI-Reiter.",
+      "Öffne über deinen Benutzernamen (auf dem Handy über „Mehr“ → „Profil“) das Profil und wähle den Reiter „KI-Assistent“.",
       "Wähle den angebotenen Anbieter, zum Beispiel OpenAI, Google Gemini oder Anthropic Claude. Hinterlege deinen persönlichen API-Schlüssel, wenn dein Betreiber keinen passenden Zugang bereitstellt.",
       "Wähle ein verfügbares Modell und speichere die Angaben. Nutze den Verbindungstest, um die Einrichtung zu prüfen.",
       "Im Aquarium öffnest du die KI-Schaltfläche, wenn ein nutzbarer Zugang eingerichtet ist. Schreibe eine Frage oder verwende eine Schnellfrage.",
@@ -866,7 +866,7 @@
     "image": "testverbrauch",
     "caption": "Testauswahl und Verbrauch im Profil.",
     "steps": [
-      "Öffne im Profil den Reiter für Wassertests. Stelle deine verwendeten Methoden zusammen und speichere sie.",
+      "Öffne im Profil den Reiter „Wassertests“. Stelle deine verwendeten Methoden zusammen und speichere sie.",
       "Im Verbrauchsbereich wählst du die passende Testsuite und gegebenenfalls die Variante oder Nachfüllgröße eines Tests.",
       "Trage einmalig ein, wie viel du von deiner aktuellen Flasche bereits verbraucht hast. Die bisherige Messhistorie wird nicht nachträglich vollständig gezählt.",
       "Neue gespeicherte Werte erhöhen den zugehörigen Verbrauch. Leere Werte zählen nicht. Das Löschen einer Messung macht verbrauchtes Reagens nicht wieder verfügbar.",
@@ -929,7 +929,7 @@
     "image": "freigaben",
     "caption": "Eine bestehende Schreibfreigabe für das erfundene Konto leo_demo.",
     "steps": [
-      "Öffne dein eigenes Aquarium und wähle „Aquarium teilen“. Suche nach Benutzername oder E-Mail-Adresse des anderen Kontos.",
+      "Öffne dein eigenes Aquarium und wähle unter „Mehr“ den Punkt „Aquarium teilen“. Suche nach Benutzername oder E-Mail-Adresse des anderen Kontos.",
       "Wähle „Lesen“, wenn die Person nur schauen soll. Mit „Schreiben“ kann sie zusätzlich unterstützte Daten pflegen.",
       "Die eingeladene Person nimmt die Einladung an. Danach findet sie das Becken unter „Mit mir geteilt“.",
       "Du kannst bestehende Freigaben prüfen, die Rolle ändern oder den Zugriff entziehen. Nur der Eigentümer verwaltet die Freigaben.",
@@ -1082,7 +1082,7 @@
     "title": "Auf dem Handy und ohne Verbindung arbeiten",
     "intro": "Öffne die App zuerst online und warte, bis der automatische Abgleich deiner Aquariendaten abgeschlossen ist.",
     "image": "offline",
-    "caption": "Mobile Ansicht ohne Verbindung mit einer noch nicht übertragenen Demo-Messung.",
+    "caption": "Mobile Ansicht ohne Verbindung: Eine offline gespeicherte Demo-Messung ist im Logbuch mit „Nicht synchronisiert“ markiert.",
     "steps": [
       "Nutze auf dem Handy die HTTPS-Adresse deiner App. Eine HTTP-Adresse im Heimnetz reicht für die Offline-Funktionen nicht aus.",
       "Du kannst die App über das Browsermenü zum Startbildschirm hinzufügen. Auf iPhone und Android unterscheiden sich die Namen der Menüpunkte.",

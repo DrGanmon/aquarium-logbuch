@@ -30,6 +30,12 @@ export function useCatalogSearch<T>(collection: "species" | "plants") {
   let resetting = false, disposed = false;
 
   watch(language, () => { category.value = "all"; });
+  // Links or back navigation to the same catalog with a different query update the search fields.
+  watch(() => route.value.query.toString(), () => {
+    if (route.value.path !== `/${collection}`) return;
+    const query = route.value.query;
+    search.value = query.get("q") || "";water.value = query.get("water") || "all";category.value = query.get("category") || "all";
+  });
   watch([search, water, category], () => {
     if (route.value.path !== `/${collection}`) return;
     const query = new URLSearchParams(location.hash.split("?")[1] || "");
