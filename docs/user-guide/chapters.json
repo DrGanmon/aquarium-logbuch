@@ -75,7 +75,7 @@
     "steps": [
       "„Eigene Aquarien“ zeigt Becken, die dir gehören. „Mit mir geteilt“ enthält angenommene Freigaben anderer Benutzer.",
       "Öffne ein Aquarium über seine Karte. Oben findest du „Neue Messung“, „Neuer Logbuch-Eintrag“ und den Diagnose-Assistenten; unter „Mehr“ liegen Bearbeiten, Teilen und der CSV-Import bzw. -Export. Die Tabs „Übersicht“, „Werte“, „Besatz & Pflanzen“, „Technik“, „Aufgaben“, „Logbuch“ und „Galerie“ gliedern das Becken. Der gewählte Tab bleibt in der Adresse erhalten. Auf schmalen Bildschirmen lässt sich die Tab-Leiste seitlich wischen; ein ausgeblendeter Rand und die Pfeile zeigen an, dass weitere Tabs folgen.",
-      "Am Computer erreichst du Arten, Pflanzen, Gesundheit, Social, Hinweise und dein Profil über die Kopfzeile. Auf dem Handy liegt unten eine feste Leiste mit „Aquarien“, „Artenkatalog“, „Pflanzen“, „Hinweise“ und „Mehr“. Unter „Mehr“ findest du Gesundheit, Social, Profil, Nutzerhandbuch, Sprache, Design und Abmelden.",
+      "Am Computer erreichst du Arten, Pflanzen, Gesundheit, Social, Hinweise und dein Profil über die Kopfzeile. Auf dem Handy liegt unten eine feste Leiste mit „Profil“, „Social“, „Gesundheit“, „Arten“ und „Mehr“; sie hält Abstand zu abgerundeten Displayecken und zur Gestenleiste. Unter „Mehr“ findest du Aquarien, Pflanzen, Hinweise, Nutzerhandbuch, Sprache, Design und Abmelden; ungelesene Hinweise werden an „Mehr“ gezählt. Zur Aquarienübersicht kommst du auch über das Logo oben links.",
       "Wechsle mit der Sprachschaltfläche zwischen Deutsch und Englisch. Über die Design-Schaltfläche wählst du ein helles, dunkles oder systemabhängiges Design; die Schaltfläche nennt die aktuelle Wahl.",
       "Online gleicht die App Daten automatisch mit dem Server ab. Nur im Offline-Modus erscheinen der lokale Datenstand und „Jetzt synchronisieren“. Sobald der Server wieder erreichbar ist, werden diese Elemente ausgeblendet. Offene Änderungen oder Fehler bleiben zur Prüfung sichtbar.",
       "Neue Konten sehen über den Aquarien die Karte „Erste Schritte“. Sie hakt Aquarium anlegen, erste Wasserwerte, Messzyklus und erste Pflege automatisch ab, führt mit „Jetzt erledigen“ direkt zum passenden Bereich und lässt sich mit „Ausblenden“ schließen."
@@ -488,7 +488,7 @@
     "image": "arten",
     "caption": "Suche nach L144: Die Stammkachel nennt die gefundene Unterform.",
     "steps": [
-      "Öffne „Artenkatalog“ in der Kopfzeile oder auf dem Handy in der unteren Leiste.",
+      "Öffne „Artenkatalog“ in der Kopfzeile oder auf dem Handy „Arten“ in der unteren Leiste.",
       "Schränke die Liste über Wasserart und Kategorie ein oder suche nach Art, Zuchtform oder Handelsname. Passende Formen führen zu einer gemeinsamen Stammkachel. Der Hinweis „Gefundene Unterformen“ nennt die passenden Formen direkt auf der Kachel.",
       "Öffne einen Treffer. Lies Wasseransprüche, Gruppenhinweise, Mindestvolumen, Haltung und Bildnachweise.",
       "Füge eine passende Art bei Bedarf aus ihren Details zu einem Aquarium hinzu oder öffne den zugeordneten Gesundheitsbereich."
@@ -580,7 +580,7 @@
     "image": "pflanzen",
     "caption": "Pflanzenbestand im Tab „Besatz & Pflanzen“: Gewählte Formen wie Pangolino werden ausdrücklich angezeigt; eigene Fotos zeigen die Pflanzstelle.",
     "steps": [
-      "Öffne „Pflanzen“ in der Kopfzeile oder auf dem Handy in der unteren Leiste. Filtere nach Wasserart und Kategorie oder suche nach Art- bzw. Sortennamen. Formen erscheinen unter einer gemeinsamen Stammkachel; „Gefundene Unterformen“ zeigt passende Formen zur Suche an. Suche und Filter bleiben in der Adresse erhalten, auch wenn du zurückgehst.",
+      "Öffne „Pflanzen“ in der Kopfzeile oder auf dem Handy über „Mehr“. Filtere nach Wasserart und Kategorie oder suche nach Art- bzw. Sortennamen. Formen erscheinen unter einer gemeinsamen Stammkachel; „Gefundene Unterformen“ zeigt passende Formen zur Suche an. Suche und Filter bleiben in der Adresse erhalten, auch wenn du zurückgehst.",
       "Öffne eine Pflanze und lies die Hinweise zu Platzierung, Licht, Wachstum und Pflege.",
       "Wähle „Zum Aquarium hinzufügen“, ein passendes Aquarium und gegebenenfalls die konkrete Form im Feld „Form / Unterart“. Gib die Stückzahl an und speichere. Die ausgewählte Form bleibt im Bestand getrennt erkennbar. Im Aquarium steht die gewählte Form zusätzlich unter „Form / Unterart“, auch offline.",
       "Im Pflanzenbereich des Aquariums kannst du Mengen ändern oder Pflanzen entfernen.",
@@ -708,7 +708,7 @@
     "image": "ki-einstellungen",
     "caption": "KI-Einstellungen im Profil. Der Screenshot enthält keine echten Zugangsschlüssel.",
     "steps": [
-      "Öffne über deinen Benutzernamen (auf dem Handy über „Mehr“ → „Profil“) das Profil und wähle den Reiter „KI-Assistent“.",
+      "Öffne über deinen Benutzernamen (auf dem Handy über „Profil“ in der unteren Leiste) das Profil und wähle den Reiter „KI-Assistent“.",
       "Wähle den angebotenen Anbieter, zum Beispiel OpenAI, Google Gemini oder Anthropic Claude. Hinterlege deinen persönlichen API-Schlüssel, wenn dein Betreiber keinen passenden Zugang bereitstellt.",
       "Wähle ein verfügbares Modell und speichere die Angaben. Nutze den Verbindungstest, um die Einrichtung zu prüfen.",
       "Im Aquarium öffnest du die KI-Schaltfläche, wenn ein nutzbarer Zugang eingerichtet ist. Schreibe eine Frage oder verwende eine Schnellfrage.",
@@ -739,7 +739,7 @@
   {
     "id": "profil",
     "title": "Profil, Darstellung und Kontosicherheit",
-    "intro": "Klicke auf deinen Benutzernamen in der Kopfzeile, auf dem Handy auf „Mehr“ und dann „Profil“. Die Reiter trennen persönliche Angaben, Darstellung, KI-Assistent, Tests und gegebenenfalls Einladungen.",
+    "intro": "Klicke auf deinen Benutzernamen in der Kopfzeile, auf dem Handy auf „Profil“ in der unteren Leiste. Die Reiter trennen persönliche Angaben, Darstellung, KI-Assistent, Tests und gegebenenfalls Einladungen.",
     "image": "profil",
     "caption": "Das Profil des erfundenen Demo-Kontos.",
     "steps": [
@@ -1027,7 +1027,7 @@
     "image": "hinweise",
     "caption": "Der zentrale Hinweisbereich. Ein leerer Bereich bedeutet, dass aktuell keine Hinweise offen sind.",
     "steps": [
-      "Öffne „Hinweise“ in der Kopfzeile oder auf dem Handy in der unteren Leiste.",
+      "Öffne „Hinweise“ in der Kopfzeile oder auf dem Handy über „Mehr“.",
       "Öffne den zugehörigen Beitrag oder das Aquarium, um den Anlass zu prüfen.",
       "Social-Hinweise kannst du als gelesen markieren. Wasserwertwarnungen kannst du bei ausreichender Berechtigung bestätigen.",
       "Das Bestätigen dokumentiert die Kenntnisnahme. Es ändert den Messwert nicht und behebt keine Ursache im Becken."

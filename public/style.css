@@ -171,7 +171,9 @@ a { color: var(--ink); }
 
 .topbar {
   display: flex; justify-content: space-between; align-items: center; gap: .75rem; flex-wrap: wrap;
-  background: var(--topbar-bg); color: var(--topbar-text); padding: .6rem 1rem;
+  background: var(--topbar-bg); color: var(--topbar-text);
+  /* viewport-fit=cover: Kerbe, Statusleiste und abgerundete Ecken über die Safe-Area-Abstände freihalten. */
+  padding: max(.6rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) .6rem max(1rem, env(safe-area-inset-left));
   border-bottom: 1px solid var(--line);
 }
 .brand { color: var(--topbar-text); text-decoration: none; font-weight: 650; font-size: 1.1rem; display: inline-flex; align-items: center; gap: .5rem; }
@@ -180,7 +182,7 @@ a { color: var(--ink); }
 .topbar .btn.ghost { color: var(--topbar-text); border-color: rgba(255, 255, 255, 0.35); }
 .topbar .btn.ghost:hover { background: var(--topbar-btn-hover); }
 
-main { max-width: 960px; margin: 0 auto; padding: 1rem; width: 100%; flex: 1 0 auto; }
+main { max-width: 960px; margin: 0 auto; padding: 1rem max(1rem, env(safe-area-inset-right)) 1rem max(1rem, env(safe-area-inset-left)); width: 100%; flex: 1 0 auto; }
 .stack > * + * { margin-top: 1rem; }
 .row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
 .row.between { justify-content: space-between; }
@@ -1614,13 +1616,14 @@ dialog.aquarium-chat-modal {
 .bottom-nav { display: none; }
 /* Feste Tab-Leiste unten auf Smartphones: Hauptziele mit dem Daumen erreichbar, Rest unter „Mehr“. */
 @media (max-width: 720px) {
-  body:has(.bottom-nav) { --bottom-nav-h: calc(60px + env(safe-area-inset-bottom)); }
+  body:has(.bottom-nav) { --bottom-nav-h: calc(60px + max(.5rem, env(safe-area-inset-bottom))); }
   .topbar.has-bottom-nav .topbar-right { display: none; }
-  .topbar.has-bottom-nav { position: sticky; top: 0; z-index: 30; padding-block: .45rem; }
+  .topbar.has-bottom-nav { position: sticky; top: 0; z-index: 30; padding-top: max(.45rem, env(safe-area-inset-top)); padding-bottom: .45rem; }
   .bottom-nav {
     display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
     background: var(--paper); border-top: 1px solid var(--line); box-shadow: 0 -2px 10px rgba(0, 0, 0, .12);
-    padding-bottom: env(safe-area-inset-bottom);
+    /* Abgerundete Displayecken und Gestenleiste: Beschriftungen nie bis an den Rand ziehen. */
+    padding: 0 max(1rem, env(safe-area-inset-right)) max(.5rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
   }
   .bottom-nav > a, .bottom-nav > button {
     position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .15rem; min-height: 60px; min-width: 0;
@@ -1630,7 +1633,10 @@ dialog.aquarium-chat-modal {
   .bottom-nav > a[aria-current="page"], .bottom-nav > button.active, .bottom-nav > button[aria-expanded="true"] { color: var(--water-text); }
   .bottom-nav > a[aria-current="page"]::before, .bottom-nav > button.active::before { content: ""; position: absolute; top: 0; left: 25%; right: 25%; height: 3px; border-radius: 0 0 3px 3px; background: var(--water-text); }
   .bottom-nav .notification-count { position: absolute; top: .3rem; left: calc(50% + .35rem); margin: 0; }
-  .bottom-nav-more { position: absolute; right: .5rem; bottom: calc(100% + .5rem); width: min(20rem, calc(100vw - 1rem)); display: grid; gap: .1rem; padding: .4rem; max-height: 70dvh; overflow-y: auto; box-shadow: 0 8px 30px rgba(0, 0, 0, .25); }
+  .bottom-nav-more .notification-count { position: static; margin-left: auto; }
+  .bottom-nav > a .avatar-small { width: 24px; height: 24px; }
+  .bottom-nav-more > a[aria-current="page"] { color: var(--water-text); font-weight: 600; }
+  .bottom-nav-more { position: absolute; right: max(.5rem, env(safe-area-inset-right)); bottom: calc(100% + .5rem); width: min(20rem, calc(100vw - 1rem)); display: grid; gap: .1rem; padding: .4rem; max-height: 70dvh; overflow-y: auto; box-shadow: 0 8px 30px rgba(0, 0, 0, .25); }
   .bottom-nav-more > a, .bottom-nav-more > button { display: flex; align-items: center; gap: .7rem; min-height: 48px; padding: .4rem .75rem; border-radius: 8px; border: 0; background: none; font: inherit; color: var(--ink); text-decoration: none; text-align: left; cursor: pointer; }
   .bottom-nav-more > a:hover, .bottom-nav-more > button:hover { background: var(--btn-ghost-hover); }
   .site-footer { padding-bottom: calc(1rem + var(--bottom-nav-h)) !important; }

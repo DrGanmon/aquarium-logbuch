@@ -235,7 +235,9 @@
     "mainNav": "Main navigation",
     "social": "Social",
     "notifications": "Alerts",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "profileShort": "Profile",
+    "speciesShort": "Species"
   },
   "footer": {
     "userGuide": "User guide",

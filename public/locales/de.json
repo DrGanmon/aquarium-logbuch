@@ -235,7 +235,9 @@
     "mainNav": "Hauptnavigation",
     "social": "Social",
     "notifications": "Hinweise",
-    "skipToContent": "Zum Inhalt springen"
+    "skipToContent": "Zum Inhalt springen",
+    "profileShort": "Profil",
+    "speciesShort": "Arten"
   },
   "footer": {
     "userGuide": "Nutzerhandbuch",

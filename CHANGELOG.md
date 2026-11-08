@@ -6,10 +6,12 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Aquarium-Tabs lassen sich mit dem Finger nicht mehr vertikal verschieben: Die seitlich scrollbare Tab-Leiste setzte durch `overflow-x: auto` implizit auch eine vertikale Scrollbarkeit, weil die Markierung des aktiven Tabs per negativem Rand unten herausragte. Vertikales Scrollen der Leiste unterbinden, die Grundlinie als inneren Schatten zeichnen und Regressionstest ergänzen.
+- Untere Tab-Leiste auf dem Handy neu ordnen: „Profil“, „Social“, „Gesundheit“, „Arten“ und „Mehr“. Aquarien, Pflanzen und Hinweise liegen jetzt unter „Mehr“; ungelesene Hinweise werden am Menü „Mehr“ gezählt, und das Logo führt weiterhin zur Aquarienübersicht. Kurze Beschriftungen „Profil“/„Arten“ ergänzen.
+- Abgerundete Displayecken, Kerben und Gestenleisten berücksichtigen: `viewport-fit=cover` setzen und Kopfzeile, Inhalt, untere Leiste und „Mehr“-Menü über `env(safe-area-inset-*)` mit Mindestabständen einrücken, damit die Beschriftungen am Rand lesbar bleiben. Handbuch zweisprachig anpassen und Regressionstests ergänzen.
 
 ## 0.5.1-ALPHA
 
+- Aquarium-Tabs lassen sich mit dem Finger nicht mehr vertikal verschieben: Die seitlich scrollbare Tab-Leiste setzte durch `overflow-x: auto` implizit auch eine vertikale Scrollbarkeit, weil die Markierung des aktiven Tabs per negativem Rand unten herausragte. Vertikales Scrollen der Leiste unterbinden, die Grundlinie als inneren Schatten zeichnen und Regressionstest ergänzen. (`f32014c4816ac3d160325f9e2fb930e56fc060b0`, 2026-11-08).
 - Seitlich scrollbare Aquarium-Tabs kenntlich machen: Geht die Tab-Leiste auf schmalen Bildschirmen links oder rechts weiter, wird der Rand ausgeblendet und eine Pfeilschaltfläche blättert weiter. Der gewählte Tab wird auch beim Öffnen per Adresse automatisch ins Bild gerollt. Handbuch und Regressionstest ergänzen. (`3faf4959ab76a8a9046f27624cc4362c0e558f6d`, 2026-11-08).
 
 ## 0.5.0-ALPHA

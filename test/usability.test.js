@@ -36,13 +36,17 @@ test('Navigation: Tab-Leiste unten mit Hauptzielen, Anmelde-Navigation wird nach
   const bottom = nav.slice(nav.indexOf('class="bottom-nav"'));
   const primary = bottom.slice(0, bottom.indexOf('id="bottom-nav-more"'));
   assert.equal((primary.match(/<a href=/g) || []).length + (primary.match(/<button /g) || []).length, 5, 'Fünf Hauptziele inklusive „Mehr“');
-  for (const target of ['#/', '#/species', '#/plants', '#/notifications']) assert.ok(primary.includes(`href="${target}"`), target);
+  assert.deepEqual([...primary.matchAll(/<a href="([^"]+)"/g)].map(match => match[1]), ['#/profile', '#/social', '#/health', '#/species'], 'Reihenfolge: Profil, Social, Gesundheit, Arten, Mehr');
   assert.match(bottom, /aria-expanded="moreOpen"/);
-  for (const target of ['#/health', '#/social', '#/profile', '#/admin']) assert.ok(bottom.includes(`href="${target}"`), `${target} im Menü „Mehr“`);
+  const more = bottom.slice(bottom.indexOf('id="bottom-nav-more"'));
+  for (const target of ['#/', '#/plants', '#/notifications', '#/admin']) assert.ok(more.includes(`href="${target}"`), `${target} im Menü „Mehr“`);
+  assert.match(primary, /<button ref="moreButton"[^]*class="notification-count"/, 'Ungelesene Hinweise am Menü „Mehr“');
   assert.match(nav, /key === "Escape"/, 'Menü lässt sich mit Escape schließen');
   const css = read('public/style.css');
   assert.match(css, /@media \(max-width: 720px\)[\s\S]*\.bottom-nav \{[\s\S]*position: fixed/);
   assert.match(css, /scroll-padding-bottom: calc\(1rem \+ var\(--bottom-nav-h\)\)/, 'Fokus wird nicht von der Leiste verdeckt');
+  assert.match(read('public/index.html'), /viewport-fit=cover/, 'Safe-Area-Abstände sind verfügbar');
+  assert.match(css, /\.bottom-nav \{[^}]*padding: 0 max\(1rem, env\(safe-area-inset-right\)\) max\(\.5rem, env\(safe-area-inset-bottom\)\) max\(1rem, env\(safe-area-inset-left\)\)/, 'Beschriftungen halten Abstand zu abgerundeten Displayecken');
 });
 
 test('Aquarium-Detail: Abschnitte als Tabs mit Adresse und Tastatursteuerung', () => {

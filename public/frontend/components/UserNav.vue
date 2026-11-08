@@ -33,14 +33,15 @@ async function refreshNotifications() {
     unread.value = result.unreadSocial + result.openWater;
   } catch { /* Den letzten bekannten Zähler bei vorübergehenden Fehlern erhalten. */ }
 }
-// Primary destinations of the bottom tab bar on small screens; everything else lives in "More".
+// Primary destinations of the bottom tab bar on small screens (profile, social, health, species); everything else lives in "More".
+const currentPath = computed(() => route.value.path);
 const section = computed(() => {
-  const path = route.value.path;
+  const path = currentPath.value;
+  if (path === "/profile") return "profile";
+  if (path.startsWith("/social")) return "social";
+  if (path.startsWith("/health")) return "health";
   if (path.startsWith("/species")) return "species";
-  if (path.startsWith("/plants")) return "plants";
-  if (path.startsWith("/notifications")) return "notifications";
-  if (path.startsWith("/health") || path.startsWith("/social") || path === "/profile" || path === "/admin") return "more";
-  return "aquariums";
+  return "more";
 });
 const moreOpen = ref(false);
 const moreButton = ref<HTMLButtonElement>();
@@ -77,7 +78,7 @@ onBeforeUnmount(() => {
 
 <template>
       <a class="btn small ghost" id="btn-species" href="#/species" :aria-current="section === 'species' ? 'page' : undefined"><Icon name="fish" :size="18" />{{ t("nav.species") }}</a>
-      <a class="btn small ghost" href="#/plants" :aria-current="section === 'plants' ? 'page' : undefined"><Icon name="leaf" :size="18" />{{ t("nav.plants") }}</a>
+      <a class="btn small ghost" href="#/plants" :aria-current="currentPath.startsWith('/plants') ? 'page' : undefined"><Icon name="leaf" :size="18" />{{ t("nav.plants") }}</a>
       <a class="btn small ghost" href="#/health"><Icon name="health" :size="18" />{{ t("nav.health") }}</a>
       <a class="btn small ghost" href="#/social"><Icon name="users" :size="18" />{{ t("social.title") }}</a>
       <a class="btn small ghost" href="#/notifications" :aria-label="t('notifications.title')"><Icon name="bell" :size="18" />{{ t("notifications.shortTitle") }}<span v-if="unread" class="notification-count">{{ unread > 99 ? "99+" : unread }}</span></a>
@@ -114,15 +115,15 @@ onBeforeUnmount(() => {
         <Icon name="logout" :size="18" />{{ t("nav.logout") }}
       </button>
   <Teleport to="body"><nav class="bottom-nav" :aria-label="t('nav.mainNav')" data-bottom-nav>
-    <a href="#/" :aria-current="section === 'aquariums' ? 'page' : undefined"><Icon name="home" /><span>{{ t("nav.aquariums") }}</span></a>
-    <a href="#/species" :aria-current="section === 'species' ? 'page' : undefined"><Icon name="fish" /><span>{{ t("nav.species") }}</span></a>
-    <a href="#/plants" :aria-current="section === 'plants' ? 'page' : undefined"><Icon name="leaf" /><span>{{ t("nav.plants") }}</span></a>
-    <a href="#/notifications" :aria-current="section === 'notifications' ? 'page' : undefined"><Icon name="bell" /><span>{{ t("nav.notifications") }}</span><span v-if="unread" class="notification-count">{{ unread > 99 ? "99+" : unread }}</span></a>
-    <button ref="moreButton" type="button" :aria-expanded="moreOpen" aria-controls="bottom-nav-more" :class="{ active: section === 'more' }" @click="moreOpen = !moreOpen"><Icon name="more" /><span>{{ t("nav.more") }}</span></button>
+    <a href="#/profile" :aria-current="section === 'profile' ? 'page' : undefined" :title="displayName"><img v-if="avatar" v-server-image class="avatar-small" :src="avatar" alt="" /><Icon v-else name="user" /><span>{{ t("nav.profileShort") }}</span></a>
+    <a href="#/social" :aria-current="section === 'social' ? 'page' : undefined"><Icon name="users" /><span>{{ t("social.title") }}</span></a>
+    <a href="#/health" :aria-current="section === 'health' ? 'page' : undefined"><Icon name="health" /><span>{{ t("nav.health") }}</span></a>
+    <a href="#/species" :aria-current="section === 'species' ? 'page' : undefined"><Icon name="fish" /><span>{{ t("nav.speciesShort") }}</span></a>
+    <button ref="moreButton" type="button" :aria-expanded="moreOpen" aria-controls="bottom-nav-more" :class="{ active: section === 'more' }" @click="moreOpen = !moreOpen"><Icon name="more" /><span>{{ t("nav.more") }}</span><span v-if="unread" class="notification-count" aria-hidden="true">{{ unread > 99 ? "99+" : unread }}</span></button>
     <div v-show="moreOpen" id="bottom-nav-more" ref="morePanel" class="bottom-nav-more card">
-      <a href="#/health"><Icon name="health" />{{ t("nav.health") }}</a>
-      <a href="#/social"><Icon name="users" />{{ t("social.title") }}</a>
-      <a href="#/profile"><img v-if="avatar" v-server-image class="avatar-small" :src="avatar" alt="" /><Icon v-else name="user" />{{ t("nav.profile") }} · {{ displayName }}</a>
+      <a href="#/" :aria-current="currentPath === '/' || currentPath.startsWith('/a/') ? 'page' : undefined"><Icon name="home" />{{ t("nav.aquariums") }}</a>
+      <a href="#/plants" :aria-current="currentPath.startsWith('/plants') ? 'page' : undefined"><Icon name="leaf" />{{ t("nav.plants") }}</a>
+      <a href="#/notifications" :aria-current="currentPath.startsWith('/notifications') ? 'page' : undefined"><Icon name="bell" />{{ t("nav.notifications") }}<span v-if="unread" class="notification-count">{{ unread > 99 ? "99+" : unread }}</span></a>
       <a v-if="user.isAdmin" href="#/admin"><Icon name="admin" />{{ t("nav.admin") }}</a>
       <a :href="guideUrl" target="_blank" rel="noopener noreferrer"><Icon name="book" />{{ t("footer.userGuide") }}</a>
       <button type="button" @click="run('language')"><Icon name="globe" />{{ t("nav.langToggle") }}</button>
