@@ -18,6 +18,7 @@ function moduleFor(file, request = async () => {}) {
     if (name === './catalog-revision') return { useCatalogRevision: () => revision };
     if (name === '../api') return { api: request };
     if (name === '../state') return { language, errorMessage: e => e.message };
+    if (name === '../router') return { route: vue.ref({ path: '/test', query: new URLSearchParams() }) };
     throw new Error(name);
   }, exports, {}, fn => { const id = ++timerId;timers.set(id, fn);return id; }, id => timers.delete(id));
   const scope = vue.effectScope();

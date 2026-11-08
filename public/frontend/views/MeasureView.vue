@@ -16,10 +16,14 @@ import { route } from "../router";
 import TestSelection from "../components/TestSelection.vue";
 import { initialTestSelection, resolveTests } from "../composables/test-selection";
 import { api } from "../api";
-import { session, t, errorMessage, localDateTime, toast } from "../state";
+import { registerMessages, session, t, errorMessage, localDateTime, toast, fmtNum } from "../state";
+import { askConfirm } from "../dialog";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import type { AquariumDetail, Suite } from "../types";
 import { evaluate, parseNumber, mmss } from "../composables/values";
 import { enableNotifications } from "../composables/media";
+registerMessages({ de: featuresDe, en: featuresEn });
 const DeviceSetupWizard = lazyComponent(() => import("../components/DeviceSetupWizard.vue"));
 const calibrationSuite = ref<Suite | null>(null);
 const calibrationParameters = computed(() => tests.value.filter(test => test.suiteId === calibrationSuite.value?.id).map(test => test.key));
@@ -64,6 +68,26 @@ watch(when, value => {
 }, { flush: "sync" });
 const tests = computed(() => resolveTests(session.config?.suites || [], selected.value));
 const visibleTests = tests;
+// Group the selected tests by test kit so long forms get headings and a clear order.
+const testGroups = computed(() => {
+  const groups: { id: string; name: string; tests: typeof visibleTests.value }[] = [];
+  for (const test of visibleTests.value) {
+    let group = groups.find((item) => item.id === test.suiteId);
+    if (!group) groups.push(group = { id: test.suiteId, name: session.config?.suites.find((suite) => suite.id === test.suiteId)?.name || test.suiteId, tests: [] });
+    group.tests.push(test);
+  }
+  return groups;
+});
+function targetText(key: string, decimals?: number) {
+  const range = detail.value?.thresholds[key];
+  if (!range) return "";
+  const min = range.okMin, max = range.okMax;
+  if (min != null && max != null) return t("measureForm.target", { range: `${fmtNum(min, decimals)} – ${fmtNum(max, decimals)}` });
+  if (min != null) return t("measureForm.target", { range: t("measureForm.targetMin", { value: fmtNum(min, decimals) }) });
+  if (max != null) return t("measureForm.target", { range: t("measureForm.targetMax", { value: fmtNum(max, decimals) }) });
+  return "";
+}
+function statusOf(key: string) { return evaluate(detail.value?.thresholds[key], parseNumber(values.value[key] || "")); }
 const now = ref(Date.now());
 const completed = draft.completed;
 const lifecycle = new AbortController();
@@ -259,7 +283,7 @@ async function pause() {
   finally { busy.value = false; }
 }
 async function discard() {
-  if (busy.value || !window.confirm(t("measure.discardConfirm"))) return;
+  if (busy.value || !await askConfirm({ title: t("confirmTexts.discardMeasureTitle"), message: t("measure.discardConfirm"), confirmLabel: t("confirmTexts.discard") })) return;
   busy.value = true;
   try { await closeMeasurementDraft(props.id);location.hash = `#/a/${props.id}`; }
   catch (e) { error.value = errorMessage(e); }
@@ -280,7 +304,7 @@ watch(() => measurementDrafts[props.id], current => {
       </div>
     </Modal>
     <div>
-      <a class="muted" :href="`#/a/${id}`"
+      <a class="back-link" :href="`#/a/${id}`"
         >‹ {{ detail?.aquarium.name || t("common.back") }}</a
       >
       <h1>{{ t("measure.title") }}</h1>
@@ -291,12 +315,12 @@ watch(() => measurementDrafts[props.id], current => {
     <template v-if="draftReady && detail && detail.role !== 'view' && !resumePrompt && !calibrationSuite">
       <div class="notification-banner info">
         <div>
-          <strong>🔔 Timer-Benachrichtigungen</strong>
+          <strong>{{ t("measureForm.notifyTitle") }}</strong>
           <div class="muted">
-            Benachrichtigungen bei Ablauf der Reaktionszeit
+            {{ t("measureForm.notifyText") }}
           </div>
         </div>
-        <button class="btn small ghost" @click="notify">Aktivieren</button>
+        <button class="btn small ghost" @click="notify">{{ t("measureForm.notifyEnable") }}</button>
       </div>
       <div
         v-if="activeTimers.length"
@@ -356,9 +380,11 @@ watch(() => measurementDrafts[props.id], current => {
             <TestSelection v-model="selected" external-calibration @calibrate="startCalibration" />
           </div>
         </details>
+        <template v-for="group in testGroups" :key="group.id">
+        <h2 class="test-group-title">{{ group.name }}</h2>
         <div class="tests">
           <div
-            v-for="test in visibleTests"
+            v-for="test in group.tests"
             :key="test.key"
             class="test"
             :class="{ done: timers[test.key] && timers[test.key]! <= now }"
@@ -428,7 +454,7 @@ watch(() => measurementDrafts[props.id], current => {
                     : mmss(test.wait)
                 }}</span>
               </div>
-              <span v-else class="muted">Kein Warten nötig</span>
+              <span v-else class="muted">{{ t("measureForm.noWait") }}</span>
               <div>
                 <input
                   :id="`in-${test.key}`"
@@ -437,7 +463,12 @@ watch(() => measurementDrafts[props.id], current => {
                   inputmode="decimal"
                   autocomplete="off"
                   :aria-label="test.name"
+                  :aria-describedby="targetText(test.key, test.decimals) ? `range-${test.key}` : undefined"
+                  :aria-invalid="['warn', 'crit'].includes(statusOf(test.key)) || undefined"
                 /><span class="muted"> {{ test.unit }}</span>
+                <p v-if="targetText(test.key, test.decimals)" :id="`range-${test.key}`" class="test-range muted">
+                  {{ targetText(test.key, test.decimals) }} {{ test.unit }}<template v-if="values[test.key] && statusOf(test.key) === 'warn'"> · <strong class="chip warn">{{ t("measureForm.outOfRange") }}</strong></template><template v-if="values[test.key] && statusOf(test.key) === 'crit'"> · <strong class="chip crit">{{ t("measureForm.critical") }}</strong></template>
+                </p>
               </div>
             </div>
             <button v-if="deviceSuite(test.suiteId)" type="button" class="btn small ghost" :disabled="busy"
@@ -445,13 +476,14 @@ watch(() => measurementDrafts[props.id], current => {
             <p v-if="test.hint" class="test-hint muted">{{ test.hint }}</p>
           </div>
         </div>
+        </template>
         <div class="field">
           <label for="measure-note">{{ t("common.notesOptional") }}</label
           ><input
             id="measure-note"
             v-model="note"
             maxlength="500"
-            placeholder="z. B. nach Wasserwechsel"
+            :placeholder="t('measureForm.notePlaceholder')"
           />
         </div>
         <div class="sticky-save">

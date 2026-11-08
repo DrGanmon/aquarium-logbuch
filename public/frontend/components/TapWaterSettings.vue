@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { api } from "../api";
-import { session, t, errorMessage, toast, language } from "../state";
+import { registerMessages, session, t, errorMessage, toast, language } from "../state";
+import { askConfirm } from "../dialog";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import { resolveTests } from "../composables/test-selection";
 import { parseNumber } from "../composables/values";
 import {
@@ -11,6 +14,7 @@ import {
   type TapWaterData,
 } from "../../../src/shared/tap-water";
 import type { Parameter } from "../types";
+registerMessages({ de: featuresDe, en: featuresEn });
 
 const emit = defineEmits<{
   (e: "switch-tab", tabId: string): void;
@@ -176,7 +180,7 @@ async function save() {
 
 async function clearValues() {
   if (busy.value) return;
-  if (!confirm(t("profile.tapWater.clearConfirm"))) return;
+  if (!await askConfirm({ title: t("confirmTexts.clearTitle"), message: t("profile.tapWater.clearConfirm"), confirmLabel: t("confirmTexts.remove") })) return;
   busy.value = true;
   error.value = "";
   try {

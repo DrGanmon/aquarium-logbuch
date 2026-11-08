@@ -4,8 +4,12 @@ import Modal from "./Modal.vue";
 import Fields from "./Fields.vue";
 import { api } from "../api";
 import { readImage } from "../composables/media";
-import { session, t, errorMessage, toast } from "../state";
+import { registerMessages, session, t, errorMessage, toast } from "../state";
+import { askConfirm } from "../dialog";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import type { Aquarium, Field, FormData, Id } from "../types";
+registerMessages({ de: featuresDe, en: featuresEn });
 const props = defineProps<{ aquarium?: Aquarium }>();
 const emit = defineEmits<{ close: []; saved: [id: Id] }>();
 const model = reactive<FormData>({
@@ -111,7 +115,7 @@ async function save() {
 async function remove() {
   if (
     !props.aquarium ||
-    !confirm(t("aquariums.deleteConfirm", { name: props.aquarium.name }))
+    !await askConfirm({ title: t("confirmTexts.deleteAquariumTitle"), message: t("aquariums.deleteConfirm", { name: props.aquarium.name }), confirmLabel: t("confirmTexts.delete") })
   )
     return;
   try {
@@ -139,7 +143,7 @@ async function remove() {
             type="file"
             accept="image/png,image/jpeg,image/webp,image/gif"
             @change="fileChanged" /></label
-        ><img v-if="image" :src="image" class="img-preview" alt="Vorschau" />
+        ><img v-if="image" :src="image" class="img-preview" :alt="t('aquariumForm.preview')" />
       </div>
       <fieldset v-for="cycle in cycles" :key="cycle" class="stack">
         <legend>
@@ -151,7 +155,7 @@ async function remove() {
             type="number"
             min="0"
             max="365"
-            aria-label="Intervall"
+            :aria-label="t('aquariumForm.interval')"
           /><select v-model="model[`${cycle}_cycle_unit`]">
             <option value="days">{{ t("common.days") }}</option>
             <option value="weeks">{{ t("common.weeks") }}</option></select
@@ -168,7 +172,7 @@ async function remove() {
         </div>
         <label class="row"
           ><input v-model="model[`${cycle}_reminder_mail`]" type="checkbox" />📧
-          Erinnerungs-E-Mail</label
+          {{ t("aquariumForm.reminderMail") }}</label
         >
       </fieldset>
       <p v-if="error" class="error" role="alert">{{ error }}</p>

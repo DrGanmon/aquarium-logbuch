@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import { api } from "../api";
-import { session, t, errorMessage } from "../state";
+import { registerMessages, session, t, errorMessage } from "../state";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import { readImage } from "../composables/media";
 import type { Stock } from "../types";
+registerMessages({ de: featuresDe, en: featuresEn });
 const props = defineProps<{ id: string; stock?: Stock }>();
 const emit = defineEmits<{ saved: [] }>();
 const model = reactive({
@@ -62,17 +65,17 @@ async function save() {
 </script>
 <template>
   <form class="stack" @submit.prevent="save">
-    <h3 v-if="!stock" style="margin: 0">Neuen Bewohner hinzufügen</h3>
+    <h3 v-if="!stock" style="margin: 0">{{ t("stockForm.newTitle") }}</h3>
     <div class="grid2">
       <div class="field">
-        <label :for="`species-input-${stock?.id || 'new'}`">Art / Spezies</label
+        <label :for="`species-input-${stock?.id || 'new'}`">{{ t("stockForm.species") }}</label
         ><input
           :id="`species-input-${stock?.id || 'new'}`"
           v-model="model.species"
           list="species-list"
           required
           maxlength="80"
-          placeholder="z. B. Siamesischer Kampffisch, Neonsalmler..."
+          :placeholder="t('stockForm.speciesPlaceholder')"
           @input="speciesChanged"
         /><datalist id="species-list">
           <option
@@ -84,19 +87,19 @@ async function save() {
       </div>
       <div class="field">
         <label
-          >Individueller Name / Bezeichnung (optional)<input
+          >{{ t("stockForm.name") }}<input
             v-model="model.name"
             maxlength="80"
-            placeholder="z. B. Bubbles, Nemo, Rambo, Gruppe 1..."
+            :placeholder="t('stockForm.namePlaceholder')"
         /></label>
       </div>
     </div>
     <div v-if="selectedSpecies" class="species-preview">
       <strong>{{ selectedSpecies.name }}</strong>
       <div class="muted">
-        {{ selectedSpecies.scientificName }} · ab
-        {{ selectedSpecies.minVolumeL }} L ·
-        {{ selectedSpecies.minGroupCount }} Tiere
+        {{ selectedSpecies.scientificName }} ·
+        {{ t("stockForm.minVolume", { volume: selectedSpecies.minVolumeL }) }} ·
+        {{ t("stockForm.animals", { count: selectedSpecies.minGroupCount }) }}
       </div>
       <p>{{ selectedSpecies.behaviorNotes }}</p>
       <a class="btn small ghost" :href="`#/species/${selectedSpecies.id}`">{{
@@ -117,7 +120,7 @@ async function save() {
       </div>
       <div class="field">
         <label
-          >Ansprüche an das Wasser<select v-model="model.profile">
+          >{{ t("stockForm.waterProfile") }}<select v-model="model.profile">
             <option
               v-for="(label, key) in session.config?.profiles"
               :key="key"
@@ -131,7 +134,7 @@ async function save() {
     </div>
     <div class="field">
       <label
-        >Foto des Bewohners (optional, PNG, JPG, WebP, GIF bis 5 MB)<input
+        >{{ t("stockForm.photo") }}<input
           type="file"
           accept="image/png,image/jpeg,image/webp,image/gif"
           @change="fileChanged" /></label
@@ -139,7 +142,7 @@ async function save() {
         v-if="model.image"
         class="img-preview"
         :src="model.image"
-        alt="Vorschau"
+        :alt="t('stockForm.preview')"
         style="max-height: 120px; object-fit: cover"
       /><button
         v-if="model.image"
@@ -147,17 +150,16 @@ async function save() {
         type="button"
         @click="model.image = ''"
       >
-        Foto entfernen
+        {{ t("stockForm.removePhoto") }}
       </button>
     </div>
     <label v-if="stock?.has_image || stock?.image_file" class="row"
-      ><input v-model="model.remove_image" type="checkbox" />Foto
-      entfernen</label
+      ><input v-model="model.remove_image" type="checkbox" />{{ t("stockForm.removePhoto") }}</label
     >
     <p v-if="error" class="error" role="alert">{{ error }}</p>
     <div>
       <button class="btn" :disabled="busy">
-        {{ stock ? t("common.save") : "Besatz hinzufügen" }}
+        {{ stock ? t("common.save") : t("stockForm.add") }}
       </button>
     </div>
   </form>

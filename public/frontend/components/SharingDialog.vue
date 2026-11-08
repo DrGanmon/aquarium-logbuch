@@ -2,8 +2,12 @@
 import { onMounted, ref } from "vue";
 import Modal from "./Modal.vue";
 import { api } from "../api";
-import { t, errorMessage, toast } from "../state";
+import { registerMessages, t, errorMessage, toast } from "../state";
+import { askConfirm } from "../dialog";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import type { Share } from "../types";
+registerMessages({ de: featuresDe, en: featuresEn });
 const props = defineProps<{ id: string }>();
 const emit = defineEmits<{ close: [] }>();
 const shares = ref<Share[]>([]);
@@ -39,7 +43,7 @@ async function send() {
   }
 }
 async function action(share: Share, resend = false) {
-  if (!resend && !confirm(t("detail.removeShare") + "?")) return;
+  if (!resend && !await askConfirm({ title: t("confirmTexts.removeShareTitle"), message: t("confirmTexts.removeShareText"), confirmLabel: t("detail.removeShare") })) return;
   try {
     await api(
       `/aquariums/${props.id}/shares/${share.user_id}${resend ? "/resend" : ""}`,
@@ -73,7 +77,7 @@ async function updateRole(share: Share, event: Event) {
         <table>
           <thead>
             <tr>
-              <th>Benutzer</th>
+              <th>{{ t("sharingDialog.user") }}</th>
               <th>{{ t("detail.shareRole") }}</th>
               <th>{{ t("common.status") }}</th>
               <th>{{ t("common.actions") }}</th>
@@ -85,11 +89,11 @@ async function updateRole(share: Share, event: Event) {
               <td>
                 <select
                   :value="share.role"
-                  aria-label="Berechtigung ändern"
+                  :aria-label="t('sharingDialog.changeRole')"
                   @change="updateRole(share, $event)"
                 >
-                  <option value="view">Lesen</option>
-                  <option value="write">Schreiben</option>
+                  <option value="view">{{ t("sharingDialog.roleView") }}</option>
+                  <option value="write">{{ t("sharingDialog.roleWrite") }}</option>
                 </select>
               </td>
               <td>{{ share.status }}</td>
@@ -99,7 +103,7 @@ async function updateRole(share: Share, event: Event) {
                   class="btn small ghost"
                   @click="action(share, true)"
                 >
-                  Erneut senden</button
+                  {{ t("sharingDialog.resend") }}</button
                 ><button class="btn small ghost danger" @click="action(share)">
                   {{ t("detail.removeShare") }}
                 </button>

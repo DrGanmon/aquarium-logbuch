@@ -3,9 +3,13 @@ import { onMounted, onBeforeUnmount, ref, nextTick } from "vue";
 import Modal from "./Modal.vue";
 import MarkdownText from "./MarkdownText.vue";
 import { api, chatRequest } from "../api";
-import { t, errorMessage, session } from "../state";
+import { registerMessages, t, errorMessage, session } from "../state";
+import { askConfirm } from "../dialog";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import type { AnswerInput } from '../health-types';
 import type { ChatMessage } from "../types";
+registerMessages({ de: featuresDe, en: featuresEn });
 const props = defineProps<{
   id: string; name: string; readonly: boolean;
   diagnosis?: { stockId: number; answers: AnswerInput[]; provider: string; model: string; context: string };
@@ -126,7 +130,7 @@ async function loadContext() {
   }
 }
 async function clear() {
-  if (props.diagnosis || busy.value || historyLoading.value || !confirm("Chat-Verlauf löschen?")) return;
+  if (props.diagnosis || busy.value || historyLoading.value || !await askConfirm({ title: t("confirmTexts.chatClearTitle"), message: t("confirmTexts.chatClearText"), confirmLabel: t("confirmTexts.delete") })) return;
   busy.value = true;
   try {
     await api(`/aquariums/${props.id}/chat/history`, { method: "DELETE", signal: lifecycle.signal });
@@ -137,7 +141,7 @@ async function clear() {
 }
 </script>
 <template>
-  <Modal :title="diagnosis ? `${t('health.aiChat')} · ${name}` : `🤖 Aquarium-Assistent · ${name}`" wide dialog-class="aquarium-chat-modal" :dialog-style="viewportStyle" @close="emit('close')"
+  <Modal :title="diagnosis ? `${t('health.aiChat')} · ${name}` : `🤖 ${t('chatDialog.assistant')} · ${name}`" wide dialog-class="aquarium-chat-modal" :dialog-style="viewportStyle" @close="emit('close')"
     ><div class="stack chat-dialog">
       <div class="row between chat-toolbar">
         <span v-if="diagnosis" class="muted">{{ diagnosis.provider }} · {{ diagnosis.model }}</span>
@@ -160,7 +164,7 @@ async function clear() {
         class="chat-context-details"
         @toggle="toggleContext"
       >
-        <summary>{{ diagnosis ? t("health.chatContext") : "Beckenkontext" }}</summary>
+        <summary>{{ diagnosis ? t("health.chatContext") : t("chatDialog.context") }}</summary>
         <pre class="chat-context-body" style="white-space: pre-wrap">{{
           context
         }}</pre>
@@ -191,7 +195,7 @@ async function clear() {
           <div class="chat-bubble-content">
             <div class="chat-bubble-header">
               <span class="chat-author">{{
-                message.role === "user" ? "Du" : "Aquarium-Assistent"
+                message.role === "user" ? t("chatDialog.you") : t("chatDialog.assistant")
               }}</span>
             </div>
             <MarkdownText
@@ -220,9 +224,9 @@ async function clear() {
       <div class="chat-quick-prompts">
         <button
           v-for="prompt in diagnosis ? [t('health.chatPrompt')] : [
-            'Bewerte meine Wasserwerte',
-            'Passen neue Fische dazu?',
-            'Tipps gegen Algen',
+            t('chatDialog.promptWater'),
+            t('chatDialog.promptStock'),
+            t('chatDialog.promptAlgae'),
           ]"
           :key="prompt"
           class="btn small ghost chat-prompt-chip"
@@ -236,15 +240,14 @@ async function clear() {
         <textarea
           v-model="input"
           rows="2"
-          :aria-label="diagnosis ? t('health.chatMessage') : 'Nachricht'"
+          :aria-label="diagnosis ? t('health.chatMessage') : t('chatDialog.message')"
           required
           @keydown.enter.exact.prevent="send()"
-        /><button class="btn" :disabled="busy || historyLoading">{{ diagnosis ? t("health.chatSend") : "Senden" }}</button>
+        /><button class="btn" :disabled="busy || historyLoading">{{ diagnosis ? t("health.chatSend") : t("aiChat.send") }}</button>
       </form>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
       <p class="muted chat-disclaimer" style="font-size: 0.8rem">
-        KI-Antworten können Fehler enthalten. Beim Senden werden Beckendaten an
-        den ausgewählten Anbieter übermittelt.
+        {{ t("chatDialog.disclaimer") }}
       </p>
     </div></Modal
   >

@@ -1,22 +1,26 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { api } from "../api";
-import { session, t, errorMessage } from "../state";
+import { registerMessages, session, t, errorMessage } from "../state";
+import { askConfirm } from "../dialog";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import type { Share } from "../types";
+registerMessages({ de: featuresDe, en: featuresEn });
 const props = defineProps<{ token: string }>();
 const info = ref<Share>();
 const error = ref("");
 const busy = ref(false);
 onMounted(async () => {
   try {
-    if (!props.token) throw new Error("Ungültiger Link.");
+    if (!props.token) throw new Error(t("shareView.invalidLink"));
     info.value = await api(`/shares/invite/${encodeURIComponent(props.token)}`);
   } catch (e) {
     error.value = errorMessage(e);
   }
 });
 async function action(accept: boolean) {
-  if (!accept && !confirm(t("aquariums.declineInvite") + "?")) return;
+  if (!accept && !await askConfirm({ title: t("confirmTexts.declineInviteTitle"), message: t("confirmTexts.declineInviteText"), confirmLabel: t("confirmTexts.decline") })) return;
   busy.value = true;
   try {
     const result = await api<{ aquarium_id: string }>(
@@ -40,12 +44,12 @@ async function action(accept: boolean) {
           alt="Logo"
           style="width: 64px; height: 64px; border-radius: 14px"
         />
-        <h1>🐠 Aquarium-Freigabe</h1>
+        <h1>🐠 {{ t("shareView.title") }}</h1>
       </div>
       <p v-if="error" class="error" role="alert">{{ error }}</p>
       <template v-if="info"
         ><p class="muted">
-          {{ info.owner_username }} hat ein Aquarium mit dir geteilt
+          {{ t("shareView.sharedBy", { owner: info.owner_username }) }}
         </p>
         <div class="compat-box info stack">
           <strong>{{ info.aquarium_name }}</strong
@@ -61,7 +65,7 @@ async function action(accept: boolean) {
           </button>
         </div>
         <template v-else
-          ><p>Bitte melde dich an, um die Freigabe anzunehmen.</p>
+          ><p>{{ t("shareView.loginHint") }}</p>
           <a class="btn" href="#/">{{ t("auth.loginBtn") }}</a
           ><a class="btn ghost" href="#/register">{{
             t("auth.registerBtn")

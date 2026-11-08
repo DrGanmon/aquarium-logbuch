@@ -12,8 +12,12 @@ import Fields from "./Fields.vue";
 import Modal from "./Modal.vue";
 import Invitations from "./Invitations.vue";
 import { api } from "../api";
-import { session, t, errorMessage, toast, fmtDate } from "../state";
+import { registerMessages, session, t, errorMessage, toast, fmtDate } from "../state";
+import { askConfirm } from "../dialog";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import type { User, Field, FormData, Id } from "../types";
+registerMessages({ de: featuresDe, en: featuresEn });
 interface AdminUser extends User {
   emailVerified: boolean;
   oidcSub?: string | null;
@@ -113,13 +117,14 @@ const formatMetric = (value: number) => new Intl.NumberFormat().format(value);
 const formatAverage = (value: number) => new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(value);
 let interval: ReturnType<typeof setInterval> | undefined;
 const tabs = [
-  ["users", "👥 Benutzer"],
-  ["registration", "✉️ Registrierung & Einladungen"],
-  ["mail", "📧 E-Mail"],
-  ["backups", "💾 Backups"],
-  ["logs", "📋 System-Logbuch"],
-  ["legal-config", "⚖️ Rechtliches"],
+  ["users", "👥", "adminPanel.tabs.users"],
+  ["registration", "✉️", "adminPanel.tabs.registration"],
+  ["mail", "📧", "adminPanel.tabs.mail"],
+  ["backups", "💾", "adminPanel.tabs.backups"],
+  ["logs", "📋", "adminPanel.tabs.logs"],
+  ["legal-config", "⚖️", "adminPanel.tabs.legal"],
 ];
+const currentTab = computed(() => tabs.find(([key]) => key === tab.value));
 const shownUsers = computed(() =>
   users.value.filter((user) =>
     `${user.username} ${user.email || ""}`
@@ -132,33 +137,33 @@ const userFields = computed<Field[]>(() => [
   { key: "email", label: t("auth.email"), type: "email" },
   { key: "password", label: t("auth.password"), type: "password" },
   { key: "oidcSub", label: "OIDC Sub" },
-  { key: "emailVerified", label: "E-Mail bestätigt", type: "checkbox" },
-  { key: "isAdmin", label: "Administrator", type: "checkbox" },
+  { key: "emailVerified", label: t("adminPanel.emailVerified"), type: "checkbox" },
+  { key: "isAdmin", label: t("admin.adminBadge"), type: "checkbox" },
 ]);
 const fields = computed<Field[]>(() =>
   tab.value === "mail"
     ? [
-        { key: "enabled", label: "SMTP aktiv", type: "checkbox" },
+        { key: "enabled", label: t("adminPanel.smtpEnabled"), type: "checkbox" },
         { key: "host", label: "SMTP Host" },
         { key: "port", label: "Port", type: "number" },
         { key: "secure", label: "SSL / TLS", type: "checkbox" },
-        { key: "requireTls", label: "STARTTLS erzwingen", type: "checkbox" },
-        { key: "ignoreTls", label: "STARTTLS deaktivieren", type: "checkbox" },
+        { key: "requireTls", label: t("adminPanel.requireTls"), type: "checkbox" },
+        { key: "ignoreTls", label: t("adminPanel.ignoreTls"), type: "checkbox" },
         {
           key: "rejectUnauthorized",
-          label: "Zertifikat prüfen",
+          label: t("adminPanel.rejectUnauthorized"),
           type: "checkbox",
         },
-        { key: "user", label: "Benutzer" },
+        { key: "user", label: t("adminPanel.user") },
         {
           key: "pass",
-          label: "Passwort (leer = unverändert)",
+          label: t("adminPanel.smtpPassword"),
           type: "password",
         },
-        { key: "from", label: "Absender" },
+        { key: "from", label: t("adminPanel.sender") },
         {
           key: "rateLimitMs",
-          label: "Verzögerung (ms)",
+          label: t("adminPanel.rateLimit"),
           type: "number",
           min: 100,
           max: 60000,
@@ -166,25 +171,25 @@ const fields = computed<Field[]>(() =>
       ]
     : tab.value === "backups"
       ? [
-          { key: "enabled", label: "Automatische Backups", type: "checkbox" },
-          { key: "password", label: "Backup-Passwort (mind. 12 Zeichen; leer = unverändert)", type: "password" },
+          { key: "enabled", label: t("adminPanel.autoBackups"), type: "checkbox" },
+          { key: "password", label: t("adminPanel.backupPassword"), type: "password" },
           {
             key: "intervalHours",
-            label: "Intervall (Stunden)",
+            label: t("adminPanel.intervalHours"),
             type: "number",
             min: 1,
             max: 720,
           },
           {
             key: "retentionCount",
-            label: "Anzahl aufbewahrter Backups",
+            label: t("adminPanel.retentionCount"),
             type: "number",
             min: 1,
             max: 100,
           },
           {
             key: "includeFiles",
-            label: "Bilder einschließen",
+            label: t("adminPanel.includeFiles"),
             type: "checkbox",
           },
         ]
@@ -192,32 +197,32 @@ const fields = computed<Field[]>(() =>
         ? [
             {
               key: "mode",
-              label: "Registrierungsmodus",
+              label: t("admin.regModeTitle"),
               options: {
-                open: "🟢 Offen",
-                invite_admin: "🔒 Einladung (Admin)",
-                invite_open: "👥 Einladung (Offen)",
-                closed: "⛔ Geschlossen",
+                open: `🟢 ${t("adminPanel.modeOpen")}`,
+                invite_admin: `🔒 ${t("adminPanel.modeInviteAdmin")}`,
+                invite_open: `👥 ${t("adminPanel.modeInviteOpen")}`,
+                closed: `⛔ ${t("adminPanel.modeClosed")}`,
               },
             },
             {
               key: "userCodeMaxDays",
-              label: "Gültigkeit Benutzercodes (Tage)",
+              label: t("adminPanel.userCodeMaxDays"),
               type: "number",
               min: 1,
               max: 365,
             },
             {
               key: "mailInviteMaxDays",
-              label: "Gültigkeit E-Mail-Einladungen (Tage)",
+              label: t("adminPanel.mailInviteMaxDays"),
               type: "number",
               min: 1,
               max: 14,
             },
           ]
         : [
-            { key: "contactEmail", label: "Kontakt-E-Mail", type: "email" },
-            { key: "imprintEmail", label: "Impressums-E-Mail", type: "email" },
+            { key: "contactEmail", label: t("adminPanel.contactEmail"), type: "email" },
+            { key: "imprintEmail", label: t("adminPanel.imprintEmail"), type: "email" },
           ],
 );
 onMounted(load);
@@ -326,17 +331,15 @@ async function saveUser() {
   }
 }
 async function removeUser(id: Id) {
-  if (!confirm("Benutzer und alle zugehörigen Daten löschen?")) return;
+  if (!await askConfirm({ title: t("confirmTexts.deleteUserTitle"), message: t("confirmTexts.deleteUserText"), confirmLabel: t("confirmTexts.delete") })) return;
   await action(`/admin/users/${id}`, "DELETE");
   await load();
 }
 async function backupAction(backup: Backup, restore = false) {
   if (
-    !confirm(
-      restore
-        ? "Backup wiederherstellen? Vorhandene Daten werden ersetzt."
-        : "Backup löschen?",
-    )
+    !await askConfirm(restore
+      ? { title: t("confirmTexts.restoreTitle"), message: t("confirmTexts.restoreText"), confirmLabel: t("confirmTexts.restore") }
+      : { title: t("confirmTexts.deleteBackupTitle"), message: t("confirmTexts.deleteBackupText"), confirmLabel: t("confirmTexts.delete") })
   )
     return;
   const result = await action(
@@ -350,7 +353,7 @@ async function uploadBackup(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0];
   if (
     !file ||
-    !confirm("Backup wiederherstellen? Vorhandene Daten werden ersetzt.")
+    !await askConfirm({ title: t("confirmTexts.restoreTitle"), message: t("confirmTexts.restoreText"), confirmLabel: t("confirmTexts.restore") })
   )
     return;
   const base64 = await new Promise<string>((resolve, reject) => {
@@ -366,7 +369,7 @@ async function uploadBackup(event: Event) {
   if (result) { restorePassword.value = ""; await load(); }
 }
 async function clearLogs() {
-  if (!confirm("System-Logbuch löschen?")) return;
+  if (!await askConfirm({ title: t("confirmTexts.clearLogsTitle"), message: t("confirmTexts.clearLogsText"), confirmLabel: t("confirmTexts.delete") })) return;
   await action("/admin/logs", "DELETE");
   await load();
 }
@@ -378,23 +381,23 @@ async function createBackup() {
   <div class="stack">
     <p v-if="error" class="error" role="alert">{{ error }}</p>
     <section v-if="tab === 'users'" class="card stack">
-      <h2>Registrierte Benutzer ({{ users.length }})</h2>
+      <h2>{{ t("adminPanel.registeredUsers", { count: users.length }) }}</h2>
       <div class="row between">
         <input
           v-model="search"
           :placeholder="t('common.search')"
           :aria-label="t('common.search')"
-        /><button class="btn" @click="editUser(null)">+ Benutzer</button>
+        /><button class="btn" @click="editUser(null)">+ {{ t("adminPanel.user") }}</button>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Benutzer</th>
-              <th>E-Mail</th>
-              <th>Status</th>
-              <th>Aquarien</th>
-              <th>Erstellt</th>
+              <th>{{ t("adminPanel.user") }}</th>
+              <th>{{ t("adminPanel.email") }}</th>
+              <th>{{ t("common.status") }}</th>
+              <th>{{ t("admin.colAquariums") }}</th>
+              <th>{{ t("adminPanel.created") }}</th>
               <th>{{ t("common.actions") }}</th>
             </tr>
           </thead>
@@ -406,8 +409,8 @@ async function createBackup() {
               </td>
               <td>{{ user.email }}</td>
               <td>
-                {{ user.emailVerified ? "✓ bestätigt" : "unbestätigt" }} ·
-                {{ user.hasPassword ? "Passwort" : "" }}
+                {{ user.emailVerified ? `✓ ${t("adminPanel.verified")}` : t("adminPanel.unverified") }} ·
+                {{ user.hasPassword ? t("auth.password") : "" }}
                 {{ user.oidcSub ? "OIDC" : "" }}
               </td>
               <td>{{ user.aquariumCount }}</td>
@@ -431,34 +434,33 @@ async function createBackup() {
       </div>
     </section>
     <section v-else-if="tab === 'logs'" class="card stack">
-      <h2>System-Logbuch & Fehlerprotokoll</h2>
+      <h2>{{ t("adminPanel.logsTitle") }}</h2>
       <div class="row">
         <select v-model="logLevel">
-          <option value="all">Alle Level</option>
+          <option value="all">{{ t("adminPanel.allLevels") }}</option>
           <option
             v-for="level in ['INFO', 'WARN', 'ERROR', 'DEBUG']"
             :key="level"
           >
             {{ level }}
           </option></select
-        ><input v-model="logSearch" placeholder="Logs durchsuchen" /><input
+        ><input v-model="logSearch" :placeholder="t('adminPanel.searchLogs')" /><input
           v-model.number="logLines"
           type="number"
           min="10"
           max="1000"
-          aria-label="Zeilen pro Ladeabschnitt"
-        /><button class="btn small ghost" @click="load">Aktualisieren</button
+          :aria-label="t('adminPanel.linesPerPage')"
+        /><button class="btn small ghost" @click="load">{{ t("adminPanel.refresh") }}</button
         ><button class="btn small ghost danger" @click="clearLogs">
           {{ t("common.delete") }}</button
         ><label class="row"
-          ><input v-model="autoRefresh" type="checkbox" />Automatisch
-          aktualisieren</label
+          ><input v-model="autoRefresh" type="checkbox" />{{ t("adminPanel.autoRefresh") }}</label
         >
       </div>
       <div class="row">
-        <span class="muted">{{ rawLogs.length }} Einträge geladen · Neueste unten</span>
+        <span class="muted">{{ t("adminPanel.logsLoaded", { count: rawLogs.length }) }}</span>
         <button v-if="logNext !== null" type="button" class="btn small ghost" :disabled="logsLoading || olderLogsLoading" @click="loadOlderLogs">
-          {{ olderLogsLoading ? 'Ältere Einträge werden geladen …' : 'Ältere Einträge laden' }}
+          {{ olderLogsLoading ? t('adminPanel.loadingOlder') : t('adminPanel.loadOlder') }}
         </button>
         <span v-if="logsLoading" class="muted" role="status">{{ t('common.loading') }}</span>
       </div>
@@ -466,7 +468,7 @@ async function createBackup() {
         ref="logViewer"
         class="log-viewer-box"
         tabindex="0"
-        aria-label="Serverlogs, neueste Einträge unten"
+        :aria-label="t('adminPanel.logViewerLabel')"
         @scroll="onLogScroll"
         style="
           max-height: 320px;
@@ -531,7 +533,7 @@ async function createBackup() {
       </section>
     <template v-else
       ><form class="card stack" @submit.prevent="saveConfig">
-        <h2>{{ tabs.find(([key]) => key === tab)?.[1] }}</h2>
+        <h2>{{ currentTab ? `${currentTab[1]} ${t(currentTab[2] || "")}` : "" }}</h2>
         <Fields :fields="fields" :model="config" /><button
           class="btn"
           :disabled="busy"
@@ -541,7 +543,7 @@ async function createBackup() {
       </form>
       <Invitations v-if="tab === 'registration'" admin />
       <section v-if="tab === 'mail'" class="card stack">
-        <h2>Test-E-Mail & Warteschlange</h2>
+        <h2>{{ t("adminPanel.testMailTitle") }}</h2>
         <form
           class="row"
           @submit.prevent="
@@ -555,8 +557,8 @@ async function createBackup() {
             v-model="testEmail"
             type="email"
             required
-            aria-label="Empfänger"
-          /><button class="btn" :disabled="busy">Test-E-Mail senden</button>
+            :aria-label="t('adminPanel.recipient')"
+          /><button class="btn" :disabled="busy">{{ t("admin.sendTestMail") }}</button>
         </form>
         <dl>
           <template v-for="(value, key) in queue" :key="key"
@@ -566,19 +568,19 @@ async function createBackup() {
         </dl>
       </section>
       <section v-if="tab === 'backups'" class="card stack">
-        <p>{{ config.passwordConfigured ? 'Backup-Passwort ist hinterlegt. Neue Backups werden verschlüsselt.' : 'Bitte zuerst ein Backup-Passwort festlegen und speichern.' }}</p>
-        <p class="muted">Ein neues Passwort gilt für neue Backups. Für ältere Downloads das damalige Passwort aufbewahren. Auf diesem Server ist die Wiederherstellung auch über den App-Schlüssel möglich.</p>
-        <label>Passwort für die Wiederherstellung (optional auf diesem Server)
+        <p>{{ config.passwordConfigured ? t('adminPanel.backupPasswordSet') : t('adminPanel.backupPasswordMissing') }}</p>
+        <p class="muted">{{ t("adminPanel.backupPasswordNote") }}</p>
+        <label>{{ t("adminPanel.restorePassword") }}
           <input v-model="restorePassword" type="password" autocomplete="off" />
         </label>
         <div class="row between">
-          <h2>Gespeicherte Backups</h2>
+          <h2>{{ t("adminPanel.storedBackups") }}</h2>
           <button class="btn" :disabled="busy || !config.passwordConfigured" @click="createBackup">
-            💾 Backup erstellen
+            💾 {{ t("adminPanel.createBackup") }}
           </button>
         </div>
         <label
-          >Backup aus Datei wiederherstellen<input
+          >{{ t("adminPanel.restoreFromFile") }}<input
             type="file"
             accept=".json,.gz,.gzip,.enc"
             @change="uploadBackup"
@@ -587,8 +589,8 @@ async function createBackup() {
           <table>
             <thead>
               <tr>
-                <th>Datei</th>
-                <th>Größe</th>
+                <th>{{ t("adminPanel.file") }}</th>
+                <th>{{ t("adminPanel.size") }}</th>
                 <th>{{ t("common.date") }}</th>
                 <th>{{ t("common.actions") }}</th>
               </tr>
@@ -604,13 +606,13 @@ async function createBackup() {
                       class="btn small ghost"
                       :href="`api/admin/backups/${encodeURIComponent(backup.filename)}/download`"
                       download
-                      >Herunterladen</a
+                      >{{ t("adminPanel.download") }}</a
                     ><button
                       class="btn small ghost"
                       :disabled="busy"
                       @click="backupAction(backup, true)"
                     >
-                      Wiederherstellen</button
+                      {{ t("adminPanel.restore") }}</button
                     ><button
                       class="btn small ghost danger"
                       :disabled="busy"
@@ -628,7 +630,7 @@ async function createBackup() {
     >
     <Modal
       v-if="editing !== undefined"
-      title="Benutzer verwalten"
+      :title="t('adminPanel.manageUser')"
       @close="editing = undefined"
       ><form class="stack" @submit.prevent="saveUser">
         <Fields :fields="userFields" :model="userModel" />

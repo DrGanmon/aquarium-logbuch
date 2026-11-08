@@ -3,7 +3,7 @@ import { computed, reactive, ref } from "vue";
 import Modal from "./Modal.vue";
 import { api } from "../api";
 import { enqueueMaintenance } from "../offline-sync";
-import { registerMessages, session, t, errorMessage, toast, language } from "../state";
+import { registerMessages, session, t, errorMessage, toast, language, fmtDay as formatDay, fmtRelative } from "../state";
 import featuresDe from "../../locales/features.de.json";
 import featuresEn from "../../locales/features.en.json";
 registerMessages({ de: featuresDe, en: featuresEn });
@@ -35,7 +35,7 @@ const rows = computed(() => careOverview({ tasks: props.tasks, fertilizers: prop
   }
   return { item, icon: "🧪", title: t("careTasks.measureTitle"), every: props.measure?.cycle_label || "", detail: "" };
 }));
-const fmtDay = (value: string) => new Date(`${value}T12:00:00`).toLocaleDateString(language.value === "en" ? "en-GB" : "de-DE", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" });
+const fmtDay = (value: string) => formatDay(value, true);
 const every = (task: Pick<CareTask, "interval" | "unit">) => t(`careTasks.every.${task.unit}`, { count: task.interval });
 function status(task: Pick<CareOverviewItem, "is_active" | "days_remaining">) {
   if (!task.is_active) return { cls: "none", text: t("careTasks.paused") };
@@ -84,8 +84,8 @@ const complete = () => run(() => enqueueMaintenance(props.id, { type: completing
     <article v-for="row in rows" :key="row.item.key" class="cycle-card stack care-task" :data-care-kind="row.item.kind">
       <div class="row between"><strong>{{ row.icon }} {{ row.title }}</strong><span v-if="status(row.item).text" class="chip" :class="status(row.item).cls">{{ status(row.item).text }}</span></div>
       <div class="row care-meta"><span class="muted">{{ row.every }}{{ row.item.time ? ` · ${row.item.time}` : "" }}</span><span v-if="row.item.kind !== 'task'" class="chip info">{{ t(row.item.kind === "fertilizer" ? "careTasks.fromFertilizer" : "careTasks.fromCycle") }}</span></div>
-      <div v-if="row.item.next_due_date">{{ t("careTasks.next") }}: {{ fmtDay(row.item.next_due_date) }}</div>
-      <div class="muted">{{ t("careTasks.last") }}: {{ row.item.last_done_at ? new Date(row.item.last_done_at).toLocaleDateString() : t("careTasks.never") }}</div>
+      <div v-if="row.item.next_due_date">{{ t("careTasks.next") }}: <span :title="fmtDay(row.item.next_due_date)">{{ fmtRelative(row.item.next_due_date) }}</span></div>
+      <div class="muted">{{ t("careTasks.last") }}: {{ row.item.last_done_at ? formatDay(row.item.last_done_at) : t("careTasks.never") }}</div>
       <p v-if="row.detail" style="margin:0;white-space:pre-wrap">{{ row.detail }}</p>
       <div v-if="!readonly" class="row">
         <template v-if="row.task">

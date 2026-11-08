@@ -74,15 +74,16 @@
     "caption": "The overview with a fictional example aquarium.",
     "steps": [
       "“My aquariums” shows tanks you own. “Shared with me” contains aquariums whose sharing invitations you have accepted.",
-      "Open an aquarium by selecting its card. You will find current readings, warnings, care cycles and the other sections there.",
-      "The header links to species, plants, health, Social, notifications and your profile.",
-      "Use the language button to switch between German and English. The theme button selects a light, dark or system theme.",
-      "When online, the app synchronizes data with the server automatically. The local data timestamp and “Synchronize now” appear only offline. They disappear when the server is reachable again. Pending changes and errors remain visible for review."
+      "Open an aquarium by selecting its card. At the top you will find “New measurement”, “New log entry” and the diagnosis assistant; “More” contains editing, sharing and CSV import and export. The tabs “Overview”, “Values”, “Livestock & plants”, “Equipment”, “Tasks”, “Logbook” and “Gallery” structure the tank. The selected tab is kept in the address.",
+      "On a computer, the header links to species, plants, health, Social, notifications and your profile. On a phone, a fixed bar at the bottom offers “Aquariums”, “Species catalog”, “Plants”, “Notifications” and “More”. “More” contains health, Social, profile, user guide, language, appearance and sign-out.",
+      "Use the language button to switch between German and English. The appearance button selects a light, dark or system theme and shows the current choice.",
+      "When online, the app synchronizes data with the server automatically. The local data timestamp and “Synchronize now” appear only offline. They disappear when the server is reachable again. Pending changes and errors remain visible for review.",
+      "New accounts see the “Getting started” card above the aquariums. It ticks off creating an aquarium, the first water values, a measuring cycle and the first care entry automatically, leads to the right place with “Do it now” and can be closed with “Hide”."
     ],
     "extra": [
       {
-        "title": "Why do some sections appear only when scrolling?",
-        "text": "Charts, residents, plants and the logbook load progressively. Scroll to the section you need. If loading fails, you can retry that section."
+        "title": "Why do some sections appear after a short moment?",
+        "text": "Charts, livestock, plants, equipment and the logbook load only when you open their tab. If loading fails, you can reload the affected section."
       }
     ],
     "features": [
@@ -96,7 +97,11 @@
       },
       {
         "title": "Language and appearance",
-        "text": "The header lets you switch between German and English and between light, dark and system appearance."
+        "text": "The header – on a phone the “More” menu – lets you switch between German and English and between light, dark and system appearance."
+      },
+      {
+        "title": "Delete and undo",
+        "text": "Deleted photos, residents and plants disappear immediately. The notice at the bottom lets you undo the deletion for a few seconds. Final steps such as deleting an aquarium or leaving a share still open a dialog that names the consequences."
       }
     ]
   },
@@ -174,7 +179,7 @@
       "Open “Customize water tests” and select the tests you actually use. You can combine methods from different manufacturers.",
       "“Apply suite” replaces your selection with that test suite. “Add suite” extends it; one method remains selected for each water parameter.",
       "Follow the instructions supplied with your water test. Start the timer next to a parameter if needed. Several timers can run at the same time.",
-      "Enter the result you read. Enter decimals with either a comma or a point, for example 7.2 or 7,2. The color indicator helps you interpret the value.",
+      "Enter the reading. Tests are grouped by test suite, and each field shows its target range. You can enter decimals with a comma or a point, for example 7,2 or 7.2. If a value is outside the target range or critical, the app shows this right at the field.",
       "Choose “Pause test” to return to the overview and measure at the next aquarium. Expand “Open tests” at the bottom right and select an aquarium to resume. Starting another test for the same aquarium asks whether you want to return to its open test.",
       "To switch devices, wait for pending changes to sync while connected and sign in with the same account on the other device. Open “Open tests” there. Offline you can continue previously downloaded drafts; let local saving finish before closing the app.",
       "If differing entries are reported, expand the local changes and choose “This device” or “Other device” for each affected field. Select “Apply selected values”; equal values and independent additions need no decision.",
@@ -262,7 +267,7 @@
     "image": "verlauf",
     "caption": "Measurement history with a date-range selector and an example chart.",
     "steps": [
-      "Scroll to “History” in the aquarium. Choose a range such as seven days, three months, one year or all time.",
+      "Open the “Values” tab of the aquarium. Choose, for example, seven days, three months, one year or the whole period.",
       "For your own date range, choose “Custom” and set the start and end dates.",
       "Compare the curve with the target range and marked critical limits. A single reading does not explain what caused a deviation.",
       "The measurement table lists dates, values and notes. More rows load when needed.",
@@ -278,7 +283,7 @@
     "features": [
       {
         "title": "Latest readings",
-        "text": "The tank shows the latest available reading for each parameter. Check its date: an old reading may not describe today’s conditions."
+        "text": "The tank shows the latest available reading for each parameter. Check its date: an old reading may not describe today’s conditions. You find them in the “Overview” tab together with the last measurement, open warnings and the next planned measurement."
       },
       {
         "title": "Charts and target ranges",
@@ -300,7 +305,7 @@
       "Choose “New logbook entry” in the aquarium. Set the time and type of work.",
       "For water changes, enter the percentage of water replaced. Describe other work in the appropriate fields.",
       "You can document water changes, filter maintenance, plant trimming, new plants, cleaning, fertilization, feeding and other activities.",
-      "Save the entry. In “Aquarium logbook & activities”, filter by activity type or load older entries.",
+      "Save the entry. In the “Logbook” tab you can filter by activity type and load older entries.",
       "You can edit or delete care entries in your own aquariums or tanks shared with the appropriate permission."
     ],
     "extra": [
@@ -331,7 +336,7 @@
     "image": "duenger",
     "caption": "The fertilizer section with an example manual fertilizer.",
     "steps": [
-      "Scroll to “Fertilizers” in the aquarium. Choose “+ Manual fertilizer” or “+ Dosing pump”.",
+      "Open the “Equipment” tab of the aquarium and go to “Fertilizers”. Choose “+ Manual fertilizer” or “+ Dosing pump”.",
       "Enter a clear name, the fertilizer, the amount in milliliters and the interval. Fill in the available time and reminder options.",
       "For a manual fertilizer, confirm a dose you have actually administered using the provided button. This creates a logbook entry.",
       "For automatic pump schedules, the app records due doses according to the plan. Check your physical pump independently.",
@@ -360,7 +365,7 @@
     "image": "aufgaben",
     "caption": "Task section with own tasks plus the fertilizer and measuring cycle added automatically, sorted by due date.",
     "steps": [
-      "Scroll to “Tasks & intervals” in the aquarium and select “+ Task”.",
+      "Open the “Tasks” tab of the aquarium and choose “+ Task”.",
       "Choose the care type, such as water change or clean filter. A custom title like “30 % water change” is optional.",
       "Set the interval in days, weeks or months and the first due date. With a time the task appears as a timed calendar event, otherwise as all-day.",
       "After doing the work, select “Done”. The app records it in the logbook and calculates the next due date.",
@@ -390,7 +395,7 @@
     "image": "beleuchtung",
     "caption": "Lighting section with mixed colour, channel levels, light times and brightness curve.",
     "steps": [
-      "Scroll to “Lighting” in the aquarium and select “+ Lighting settings” or “Edit”.",
+      "Open the “Equipment” tab of the aquarium and choose “+ Lighting setting” or “Edit” under “Lighting”.",
       "Set red, green, blue and white with the sliders or as a number between 0 and 100 %. 0 means the channel is off.",
       "Enter when the light switches on and off. If the light day ends after midnight, simply enter the earlier time as the end.",
       "Set how many minutes sunrise and sunset take. The preview immediately shows the curve and the full-brightness window.",
@@ -419,10 +424,10 @@
     "image": "galerie",
     "caption": "The demo aquarium gallery with an explicitly artificial example illustration.",
     "steps": [
-      "Choose “+ Upload photo” in the aquarium. PNG, JPG, WebP and GIF are supported up to the displayed five-megabyte limit.",
+      "Open the “Gallery” tab of the aquarium and choose “+ Upload photo”. PNG, JPG, WebP or GIF up to the displayed limit of five megabytes are allowed.",
       "Choose your own image and add a caption. You can set it as the aquarium’s cover photo.",
       "Open a gallery image to view it at full size. You can change captions and the cover photo later.",
-      "With sufficient permission, you can delete images you no longer need.",
+      "With sufficient permission you can delete photos you no longer need. The photo disappears immediately; “Undo” in the notice at the bottom brings it back for a few seconds.",
       "Upload a resident portrait in the residents section. Change your own avatar in your profile."
     ],
     "extra": [],
@@ -483,7 +488,7 @@
     "image": "arten",
     "caption": "Searching for L144: the parent card names the matching form.",
     "steps": [
-      "Open “Species catalog” in the header.",
+      "Open “Species catalog” in the header or, on a phone, in the bottom bar.",
       "Filter by water type and category, or search for a species, cultivar or trade name. Matching forms lead to one shared parent card. “Matching forms” lists their names directly on the card.",
       "Open a result. Read its water requirements, group guidance, minimum tank volume, care information and image credits.",
       "If appropriate, add the species to an aquarium from its details or open the linked health information."
@@ -513,15 +518,15 @@
     "steps": [
       "Open “Species catalog” and search for the species. Check its water type, tank volume and group requirements.",
       "Choose “Add to aquarium” from the parent entry. Select a documented form or variety in “Form / subspecies”, or leave it unspecified. Then enter the quantity; individual animals can have names. The Ancistrus card also offers documented L-numbers. “Separate species” and “Undescribed / unidentified species” are not subspecies; check their own parameters in the selection hint.",
-      "In the aquarium, you can also add custom residents, change quantities and names, or upload a portrait. “Form / subspecies” identifies the selected form, including individually named animals and offline.",
+      "In the “Livestock & plants” tab of the aquarium you can also add free-text residents, change count and names and upload a portrait. For saved forms, “Form / subspecies” shows the selected form, also for named animals and offline.",
       "For known species, “Species details” opens their information again. You can also start the diagnosis assistant from a resident.",
       "Read compatibility guidance on group size, tank size, behavior and requirements. Custom entries without a catalog match have less automatic information.",
-      "Remove animals that are no longer in the tank so assessments and thresholds reflect the current stock."
+      "Remove animals that are no longer in the tank so that evaluations and limits match the current livestock. An entry removed by mistake can be restored for a few seconds with “Undo”."
     ],
     "extra": [
       {
         "title": "Browse the species catalog",
-        "text": "Filter by water type and category or search by name. Viewing an image does not share your aquarium. Sources and image credits are listed in the species details."
+        "text": "Filter by water type and category or search by name. Viewing an image does not share your aquarium. Sources and image credits are listed in the species details. Search term and filters are part of the address and are kept when you go back or share the link."
       }
     ],
     "features": [
@@ -575,7 +580,7 @@
     "image": "pflanzen",
     "caption": "Plants in the aquarium: selected forms such as Pangolino are explicitly identified; your own photos show the planting spot.",
     "steps": [
-      "Open “Plants” in the header. Filter by water type or category, or search for a species or cultivar name. Forms appear under a shared parent card; “Matching forms” lists the forms found by your search.",
+      "Open “Plants” in the header or, on a phone, in the bottom bar. Filter by water type or category, or search for a species or cultivar name. Forms appear under a shared parent card; “Matching forms” lists the forms found by your search. Search and filters stay in the address, also when you go back.",
       "Open a plant and read its placement, lighting, growth and care guidance.",
       "Choose “Add to aquarium”, select a suitable aquarium and, if offered, the specific form in “Form / subspecies”. Enter the quantity and save. The selected form keeps its own stock entry. In the aquarium, “Form / subspecies” also identifies the selected form, including offline.",
       "In the aquarium’s plant section, you can change quantities or remove plants.",
@@ -734,7 +739,7 @@
   {
     "id": "profil",
     "title": "Profile, appearance and account security",
-    "intro": "Click your username in the header. Tabs separate personal details, appearance, AI, tests and invitations where available.",
+    "intro": "Select your user name in the header or, on a phone, “More” and then “Profile”. The tabs separate personal details, appearance, AI assistant, tests and, if available, invitations.",
     "image": "profil",
     "caption": "The fictional demo account’s profile.",
     "steps": [
@@ -743,7 +748,7 @@
       "With a local account, you can change your password. Changing your email address may require confirmation again.",
       "If your operator has configured OpenID Connect, use the relevant section to link or unlink that sign-in method.",
       "If user invitations are enabled, create codes or email invitations and view their status in the invitations tab.",
-      "Use “Sign out” in the header when finished, especially on shared devices."
+      "To sign out, use “Sign out” in the header or, on a phone, under “More”, especially on shared devices."
     ],
     "extra": [
       {
@@ -1022,7 +1027,7 @@
     "image": "hinweise",
     "caption": "The central notifications area. An empty section means no notifications are currently pending.",
     "steps": [
-      "Open the notifications button in the header.",
+      "Open “Notifications” in the header or, on a phone, in the bottom bar.",
       "Open the associated post or aquarium to review what happened.",
       "Mark Social notifications as read. With sufficient permission, you can acknowledge water-parameter warnings.",
       "Acknowledging records that you have seen the warning. It does not change the reading or fix the cause in your tank."
@@ -1134,7 +1139,7 @@
     "features": [
       {
         "title": "Pending",
-        "text": "The change is saved locally but has not been confirmed by the server."
+        "text": "The change is saved locally but has not been confirmed by the server. Affected entries are marked “Not synchronised” in the aquarium."
       },
       {
         "title": "Conflict",

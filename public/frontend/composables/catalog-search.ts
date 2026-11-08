@@ -2,6 +2,7 @@ import { useCatalogRevision } from './catalog-revision';
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import { api } from "../api";
 import { errorMessage, language } from "../state";
+import { route } from "../router";
 
 interface CatalogPage<T> {
   species?: T[];
@@ -15,7 +16,10 @@ interface CatalogPage<T> {
 export function useCatalogSearch<T>(collection: "species" | "plants") {
   const revision = useCatalogRevision(collection);
   const shown = shallowRef<T[]>([]), total = ref(0), next = ref<number | null>(null);
-  const search = ref(""), water = ref("all"), category = ref("all"), categories = shallowRef<string[]>([]);
+  // Search term and filters live in the address (#/plants?q=…&water=…&category=…), so back navigation and shared links keep them.
+  const initial = route.value.query;
+  const search = ref(initial.get("q") || ""), water = ref(initial.get("water") || "all"), category = ref(initial.get("category") || "all");
+  const categories = shallowRef<string[]>([]);
   const pageError = ref(""), loading = ref(true), sentinel = ref<HTMLElement>();
   const criteria = computed(() => JSON.stringify([search.value.trim(), water.value, category.value, language.value, revision.value]));
   const pages = new Map<string, CatalogPage<T>>();
@@ -26,6 +30,14 @@ export function useCatalogSearch<T>(collection: "species" | "plants") {
   let resetting = false, disposed = false;
 
   watch(language, () => { category.value = "all"; });
+  watch([search, water, category], () => {
+    if (route.value.path !== `/${collection}`) return;
+    const query = new URLSearchParams(location.hash.split("?")[1] || "");
+    const set = (key: string, value: string, empty: string) => { if (value && value !== empty) query.set(key, value); else query.delete(key); };
+    set("q", search.value.trim(), "");set("water", water.value, "all");set("category", category.value, "all");
+    const suffix = query.toString();
+    window.history.replaceState(window.history.state, "", `#/${collection}${suffix ? `?${suffix}` : ""}`);
+  });
   watch(criteria, (key, previous) => {
     clearTimeout(timer);request?.abort();resetting = true;next.value = null;
     loading.value = true;pageError.value = "";

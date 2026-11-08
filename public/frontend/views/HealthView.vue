@@ -14,9 +14,18 @@ const DiseaseDetail = lazyComponent(() => import("../components/DiseaseDetail.vu
 const DiagnosisWizard = lazyComponent(() => import("../components/DiagnosisWizard.vue"));
 
 const tab = ref(route.value.query.get('wizard') === '1' ? 'wizard' : 'catalog');
-const water = ref('all');
+const water = ref(route.value.query.get('water') || 'all');
 const species = ref(route.value.query.get('speciesId') || '');
-const search = ref('');
+const search = ref(route.value.query.get('q') || '');
+// Keep catalog filters in the address so they survive back navigation.
+watch([water, species, search], () => {
+  if (route.value.path !== '/health') return;
+  const query = new URLSearchParams(location.hash.split('?')[1] || '');
+  const set = (key: string, value: string, empty: string) => { if (value && value !== empty) query.set(key, value); else query.delete(key); };
+  set('water', water.value, 'all');set('speciesId', species.value, '');set('q', search.value.trim(), '');
+  const suffix = query.toString();
+  window.history.replaceState(window.history.state, '', `#/health${suffix ? `?${suffix}` : ''}`);
+});
 const catalog = shallowRef<HealthCatalog>();
 const error = ref('');
 const loading = ref(false);

@@ -57,7 +57,7 @@ function loadRouteDetail() {
         @click="open(item)"
         @keydown.enter.self="open(item)"
       >
-        <h3>{{ item.name }}</h3>
+        <h2 class="species-card-title">{{ item.name }}</h2>
         <div class="muted" style="font-style: italic">
           {{ item.scientificName }}
         </div>

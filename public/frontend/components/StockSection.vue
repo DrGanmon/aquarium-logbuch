@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { ref, onBeforeUnmount, watch, nextTick } from "vue";
+import { computed, ref, onBeforeUnmount, watch, nextTick } from "vue";
 import Modal from "./Modal.vue";
 import StockForm from "./StockForm.vue";
 import SpeciesDetail from "./SpeciesDetail.vue";
 import { api } from "../api";
-import { session, t, errorMessage, language } from "../state";
+import { session, t, errorMessage, language, registerMessages, undoable } from "../state";
+import { isUnsynced } from "../composables/sync-status";
+import SyncBadge from "./SyncBadge.vue";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
+registerMessages({ de: featuresDe, en: featuresEn });
 import type { Stock, Species } from "../types";
 const props = defineProps<{ id: string; stock: Stock[]; readonly: boolean }>();
 const emit = defineEmits<{ changed: []; image: [url: string] }>();
+// Deleted residents disappear at once and can be restored from the toast for a few seconds.
+const hidden = ref(new Set<Stock["id"]>());
+const visibleStock = computed(() => props.stock.filter((item) => !hidden.value.has(item.id)));
 const editing = ref<Stock>();
 const error = ref("");
 const selectedSpecies = ref<Species>();
@@ -43,32 +51,28 @@ async function showSpecies(stock: Stock, event: Event) {
     if (speciesRequest === request) speciesBusy.value = undefined;
   }
 }
-async function remove(stock: Stock) {
-  if (!confirm(t("common.delete") + "?")) return;
-  try {
-    await api(`/aquariums/${props.id}/stock/${stock.id}`, { method: "DELETE" });
-    emit("changed");
-  } catch (e) {
-    error.value = errorMessage(e);
-  }
+function remove(stock: Stock) {
+  const toggle = (hide: boolean) => { const next = new Set(hidden.value);if (hide) next.add(stock.id);else next.delete(stock.id);hidden.value = next; };
+  undoable(t("aquariumView.stockDeleted", { name: stock.name || stock.variantName || stock.species }), {
+    hide: () => toggle(true),
+    restore: () => toggle(false),
+    commit: async () => {
+      await api(`/aquariums/${props.id}/stock/${stock.id}`, { method: "DELETE" });
+      emit("changed");
+    },
+  });
 }
 </script>
 <template>
   <section class="card stack">
     <div class="row between">
-      <h2 style="margin: 0">Besatz & Tierwohl</h2>
-      <a class="btn small ghost" href="#/species">📖 {{ t("nav.species") }}</a>
+      <h2 style="margin: 0">{{ t("detail.residentsTitle") }}</h2>
+      <a class="btn small ghost" href="#/species">{{ t("nav.species") }}</a>
     </div>
-    <p class="muted">
-      Die Fisch- und Wirbellosenarten bestimmen die optimalen Grenzwerte und
-      werden auf Verträglichkeit, Gruppengröße sowie Territorialverhalten
-      geprüft.
-    </p>
-    <p v-if="!stock.length">
-      Noch kein Besatz eingetragen. Es gelten die allgemeinen Grenzwerte.
-    </p>
-    <div v-if="stock.length" class="stock-list">
-      <div v-for="item in stock" :key="item.id" class="stock-item">
+    <p class="muted">{{ t("stockSection.intro") }}</p>
+    <p v-if="!visibleStock.length">{{ t("stockSection.empty") }}</p>
+    <div v-if="visibleStock.length" class="stock-list">
+      <div v-for="item in visibleStock" :key="item.id" class="stock-item">
         <div class="stock-item-main">
           <img v-server-image
             v-if="item.has_image || item.image_file"
@@ -83,7 +87,7 @@ async function remove(stock: Stock) {
             <strong class="stock-name-title"
               >{{ item.name || item.variantName || item.species }}
               <span class="tag">{{ item.count }} ×</span></strong
-            >
+            > <SyncBadge :show="isUnsynced(item.id, `/aquariums/${id}/stock/${item.id}`)" />
             <div v-if="item.variantName" class="stock-species-sub"><strong>{{ t("variants.selected") }}</strong> {{ item.variantName }}</div>
             <div class="stock-species-sub">
               {{ item.species }} · {{ session.config?.profiles[item.profile] }}
@@ -91,7 +95,7 @@ async function remove(stock: Stock) {
           </div>
         </div>
         <div class="row">
-          <a class="btn small ghost" :href="`#/health?wizard=1&aquariumId=${encodeURIComponent(id)}&stockId=${encodeURIComponent(String(item.id))}`">🩺 {{ t("health.wizard") }}</a>
+          <a class="btn small ghost" :href="`#/health?wizard=1&aquariumId=${encodeURIComponent(id)}&stockId=${encodeURIComponent(String(item.id))}`">{{ t("health.wizard") }}</a>
           <button v-if="item.speciesId" class="btn small ghost" :disabled="speciesBusy === item.speciesId" @click="showSpecies(item, $event)">{{ speciesBusy === item.speciesId ? t('common.loading') : t('detail.residentDetails') }}</button>
           <span v-if="!item.speciesId" class="muted">{{ t('detail.noSpeciesDetails') }}</span>
           <template v-if="!readonly">
@@ -108,7 +112,7 @@ async function remove(stock: Stock) {
     <p v-if="error" class="error">{{ error }}</p>
     <StockForm v-if="!readonly" :id="id" @saved="emit('changed')" /><Modal
       v-if="editing"
-      title="Bewohner bearbeiten"
+:title="t('stockSection.editTitle')"
       @close="editing = undefined"
       ><StockForm
         :id="id"

@@ -2,7 +2,7 @@
 import { onMounted, onBeforeUnmount, ref, watch } from "vue";
 import { Chart, LineController, LineElement, PointElement, LinearScale, Tooltip, type Plugin } from "chart.js";
 import type { Parameter, Measurement, Range } from "../types";
-import { dark, fmtDate, fmtNum } from "../state";
+import { dark, fmtDate, fmtDay, fmtNum } from "../state";
 import { evaluate } from "../composables/values";
 Chart.register(LineController, LineElement, PointElement, LinearScale, Tooltip);
 const root = ref<HTMLElement>();
@@ -116,7 +116,7 @@ function render() {
           max: xMax,
           ticks: {
             color: text,
-            callback: (value) => new Date(Number(value)).toLocaleDateString(),
+            callback: (value) => fmtDay(Number(value)),
           },
           grid: { color: dark.value ? "#334155" : "#e2e8f0" },
         },

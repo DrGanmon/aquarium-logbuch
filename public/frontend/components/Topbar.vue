@@ -1,49 +1,23 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { themeIcon, toggleTheme } from "../state";
-import { api } from "../api";
+import { computed, defineAsyncComponent } from "vue";
+import { theme, toggleTheme } from "../state";
 import type { User, Translate } from "../types";
+// Links, notification badge and the mobile tab bar of signed-in users load on demand.
+const UserNav = defineAsyncComponent(() => import("./UserNav.vue"));
 const props = defineProps<{
   user: User | null;
   publicView?: boolean;
   language: string;
   t: Translate;
 }>();
-defineEmits<{ language: []; logout: [] }>();
-const displayName = computed(() =>
-  props.user
-    ? [props.user.firstName, props.user.lastName].filter(Boolean).join(" ") ||
-      props.user.username
-    : "",
-);
-const avatar = computed(() =>
-  props.user?.hasAvatar ? `api/me/avatar?t=${Date.now()}` : undefined,
-);
-const unread = ref(0);
-let notificationTimer: ReturnType<typeof setInterval> | undefined;
-async function refreshNotifications() {
-  if (!props.user) { unread.value = 0; return; }
-  try {
-    const result = await api<{ unreadSocial: number; openWater: number }>("/notifications?limit=1");
-    unread.value = result.unreadSocial + result.openWater;
-  } catch { /* Den letzten bekannten Zähler bei vorübergehenden Fehlern erhalten. */ }
-}
-watch(() => props.user?.id, refreshNotifications);
-onMounted(() => {
-  void refreshNotifications();
-  notificationTimer = setInterval(refreshNotifications, 60000);
-  window.addEventListener("focus", refreshNotifications);
-  window.addEventListener("notifications-updated", refreshNotifications);
-});
-onBeforeUnmount(() => {
-  if (notificationTimer) clearInterval(notificationTimer);
-  window.removeEventListener("focus", refreshNotifications);
-  window.removeEventListener("notifications-updated", refreshNotifications);
-});
+const emit = defineEmits<{ language: []; logout: [] }>();
+const themeLabel = computed(() => props.t(({ system: "common.themeSystem", dark: "common.themeDark", light: "common.themeLight" } as const)[theme.value]));
+function focusMain() { const main = document.getElementById("app");main?.focus();main?.scrollIntoView(); }
 </script>
 
 <template>
-  <header class="topbar" id="topbar" :hidden="!user && !publicView">
+  <a class="skip-link" href="#app" @click.prevent="focusMain">{{ t("nav.skipToContent") }}</a>
+  <header class="topbar" id="topbar" :class="{ 'has-bottom-nav': user }" :hidden="!user && !publicView">
     <a class="brand" href="#/">
       <img
         src="favicon-32x32.png"
@@ -54,38 +28,12 @@ onBeforeUnmount(() => {
       />
       <span id="topbar-brand-name">{{ t("common.appName") }}</span>
     </a>
-    <div class="topbar-right">
-      <a class="btn small ghost" v-if="user" id="btn-species" href="#/species"><span aria-hidden="true">🐠 </span>{{
-        t("nav.species")
-      }}</a>
-      <a class="btn small ghost" v-if="user" href="#/plants">🌿 {{ t("nav.plants") }}</a>
-      <a class="btn small ghost" v-if="user" href="#/health">🩺 {{ t("nav.health") }}</a>
-      <a class="btn small ghost" href="#/social"><span aria-hidden="true">👥 </span>{{ t("social.title") }}</a>
-      <a class="btn small ghost" v-if="user" href="#/notifications" :aria-label="t('notifications.title')">🔔 {{ t("notifications.shortTitle") }}<span v-if="unread" class="notification-count">{{ unread > 99 ? "99+" : unread }}</span></a>
-      <a v-if="!user" class="btn small ghost" href="#/">{{ t("auth.loginBtn") }}</a>
-      <a
-        v-if="user"
-        class="btn small ghost topbar-user"
-        id="btn-profile"
-        href="#/profile"
-        :title="t('nav.profile')"
-      >
-        <img v-server-image
-          id="topbar-avatar"
-          class="avatar-small"
-          :src="avatar"
-          :style="{ display: avatar ? 'inline-block' : 'none' }"
-          alt="Avatar"
-        />
-        <span id="whoami">{{ displayName }}</span>
-      </a>
-      <a
-        class="btn small ghost"
-        id="btn-admin"
-        href="#/admin"
-        :hidden="!user?.isAdmin"
-        ><span aria-hidden="true">⚙️ </span>{{ t("nav.admin") }}</a
-      >
+    <nav class="topbar-right" :aria-label="t('nav.mainNav')">
+      <template v-if="!user">
+        <a class="btn small ghost" href="#/social">{{ t("social.title") }}</a>
+        <a class="btn small ghost" href="#/">{{ t("auth.loginBtn") }}</a>
+      </template>
+      <UserNav v-if="user" :user="user" :language="language" :t="t" @language="emit('language')" @logout="emit('logout')" />
       <button
         class="btn small ghost"
         id="btn-lang-topbar"
@@ -94,9 +42,8 @@ onBeforeUnmount(() => {
         :aria-label="t('nav.langToggle')"
         @click="$emit('language')"
       >
-        <span id="topbar-lang-text">{{
-          language === "de" ? "🌐 DE" : "🌐 EN"
-        }}</span>
+        <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3.2 3.5 3.2 14.5 0 18M12 3c-3.2 3.5-3.2 14.5 0 18" /></svg>
+        <span id="topbar-lang-text">{{ language === "de" ? "DE" : "EN" }}</span>
       </button>
       <button
         class="btn small ghost"
@@ -104,23 +51,15 @@ onBeforeUnmount(() => {
         type="button"
         @click="toggleTheme"
         :title="t('nav.themeToggle')"
-        :aria-label="t('nav.themeToggle')"
+        :aria-label="`${t('nav.themeToggle')}: ${themeLabel}`"
       >
-        <span id="topbar-theme-icon">{{ themeIcon }}</span>
+        <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 3v18M12 7h4.5M12 11h6.5M12 15h5.5" /></svg>
+        <span id="topbar-theme-icon" class="topbar-theme-label">{{ themeLabel }}</span>
       </button>
-      <button
-        class="btn small ghost"
-        v-if="user"
-        id="btn-logout"
-        type="button"
-        @click="$emit('logout')"
-      >
-        {{ t("nav.logout") }}
-      </button>
-    </div>
+    </nav>
   </header>
 </template>
 
 <style scoped>
-.notification-count { min-width: 1.25rem; margin-left: .3rem; padding: .05rem .35rem; border-radius: 1rem; background: var(--danger); color: white; font-weight: 700; text-align: center; }
+.topbar-right .btn { gap: .35rem; }
 </style>

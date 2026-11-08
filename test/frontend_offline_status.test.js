@@ -19,7 +19,10 @@ function fixture() {
     '../offline-store': { offlineState: state },
     '../offline-catalogs': { synchronizeCatalogs() {} },
     '../offline-workspace': { discardWorkspace() {}, rebaseWorkspace() {}, resolveDraftWorkspace() {} },
-    '../state': { t: key => key, language: vue.ref('de'), session: { user: { id: 7 } } },
+    '../state': { t: key => key, language: vue.ref('de'), session: { user: { id: 7 } }, registerMessages() {}, fmtDate: value => String(value) },
+    '../dialog': { askConfirm: async () => true },
+    '../../locales/features.de.json': {},
+    '../../locales/features.en.json': {},
     '../offline-sync': { refreshPending() {}, synchronize() {} },
   };
   new Function('require', 'exports', code)(name => { assert.ok(imports[name], name);return imports[name]; }, exports);

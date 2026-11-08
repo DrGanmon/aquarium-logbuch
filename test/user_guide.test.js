@@ -72,7 +72,7 @@ test('Nutzerhandbuch: lokale Suche, keine externen Ressourcen oder automatischen
   }
   const footer = fs.readFileSync(path.resolve(__dirname, '../public/frontend/components/SiteFooter.vue'), 'utf8');
   assert.match(footer, /:href="guideUrl" target="_blank" rel="noopener noreferrer"/);
-  assert.match(footer, /new URL\('handbuch\/', mobileServer\).href : 'handbuch\/'/);
+  assert.match(footer, /const path = language\.value === 'en' \? 'handbuch\/en\/' : 'handbuch\/';return mobileServer \? new URL\(path, mobileServer\)\.href : path;/, 'Footer verlinkt das Handbuch in der Oberflächensprache');
   assert.doesNotMatch(footer, /import\([^)]*handbuch|fetch\([^)]*handbuch|prefetch|preload/i);
   assert.doesNotMatch(fs.readFileSync(path.resolve(__dirname, '../public/frontend/service-worker.ts'), 'utf8'), /handbuch/);
 });

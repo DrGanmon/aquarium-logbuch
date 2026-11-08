@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { api } from "../api";
-import { session, t, errorMessage, toast } from "../state";
+import { registerMessages, session, t, errorMessage, toast } from "../state";
+import { askConfirm } from "../dialog";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import type { User } from "../types";
+registerMessages({ de: featuresDe, en: featuresEn });
 const props = defineProps<{
   provider: string;
   title: string;
@@ -116,7 +120,7 @@ async function fetchModels() {
 
 async function action(type: "save" | "test" | "delete") {
   if (busy.value) return;
-  if (type === "delete" && !confirm("API-Schlüssel entfernen?")) return;
+  if (type === "delete" && !await askConfirm({ title: t("confirmTexts.removeKeyTitle"), message: t("confirmTexts.removeKeyText"), confirmLabel: t("confirmTexts.remove") })) return;
   busy.value = true;
   error.value = "";
   message.value = "";

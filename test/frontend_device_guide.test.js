@@ -56,7 +56,7 @@ test('Kalibrierung aus Messkarte: erst lokal sichern, dann pausieren; Daten und 
     if (id.endsWith('measurement-drafts')) return { measurementDrafts: { 1: draft }, draftSyncState: {},
       flushMeasurementDrafts: async () => { await pending;if (fail) throw new Error('Speicher voll'); } };
     if (id.endsWith('test-selection')) return { resolveTests: () => [{ key: 'ph', suiteId: suite.id }] };
-    if (id.endsWith('state')) return { session, localDateTime: () => '', errorMessage: e => e.message };
+    if (id.endsWith('state')) return { session, localDateTime: () => '', errorMessage: e => e.message, registerMessages: () => {}, t: key => key, fmtNum: String };
     if (id.endsWith('router')) return { route: vue.ref({ query: new URLSearchParams('resume=1') }) };
     if (id.endsWith('lazy-component')) return { lazyComponent: () => ({}) };
     return {};

@@ -4,9 +4,13 @@ import { draftField, type MeasurementDraftData } from '../../../src/shared/measu
 import { offlineState } from '../offline-store';
 import { synchronizeCatalogs } from '../offline-catalogs';
 import { discardWorkspace, rebaseWorkspace, resolveDraftWorkspace } from '../offline-workspace';
-import { language, t, session, errorMessage } from '../state';
+import { registerMessages, language, t, session, errorMessage, fmtDate } from '../state';
+import { askConfirm } from "../dialog";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import { refreshPending, synchronize } from '../offline-sync';
 import type { WorkspaceOperation } from '../../../src/shared/offline-workspace';
+registerMessages({ de: featuresDe, en: featuresEn });
 const draftChoices = reactive<Record<string, Record<string, 'local' | 'server'>>>({});
 function choices(item: WorkspaceOperation) {
   const key = `${item.id}:${item.conflict?.version}`;
@@ -21,7 +25,7 @@ function fieldTitle(field: string) {
 function fieldValue(draft: MeasurementDraftData, field: string) {
   const value = draftField(draft, field);
   if (value == null || value === '') return t('measure.emptyDraftValue');
-  if (field.startsWith('timers.')) return new Date(Number(value)).toLocaleString();
+  if (field.startsWith('timers.')) return fmtDate(Number(value));
   if (field === 'time') return `${draft.when.replace('T', ' ')} (UTC${draft.timeZoneOffset <= 0 ? '+' : '-'}${Math.abs(draft.timeZoneOffset / 60)})`;
   if (field === 'selected') return draft.selected.map(reference => {
     const [suite, key] = reference.split(':');
@@ -36,11 +40,11 @@ async function resolveDraft(item: WorkspaceOperation) {
 }
 async function retryCatalogs() { if (session.user) await synchronizeCatalogs(Number(session.user.id), language.value, true); }
 async function discard(item: typeof offlineState.pending[number]) {
-  if (!confirm(t('offline.discardConfirm'))) return;
+  if (!await askConfirm({ title: t('confirmTexts.offlineDiscardTitle'), message: t('offline.discardConfirm'), confirmLabel: t('confirmTexts.discard') })) return;
   await discardWorkspace(item);await refreshPending();
 }
 async function rebase(item: WorkspaceOperation) {
-  if (!confirm(t('offline.rebaseConfirm'))) return;
+  if (!await askConfirm({ title: t('confirmTexts.offlineRebaseTitle'), message: t('offline.rebaseConfirm'), confirmLabel: t('confirmTexts.apply'), danger: false })) return;
   await rebaseWorkspace(item);await synchronize();
 }
 function title(item: WorkspaceOperation) {
@@ -55,7 +59,7 @@ function describe(body: Record<string, any>) {
 <template>
   <aside v-if="offlineState.offline || offlineState.pending.length || offlineState.workspaceError || offlineState.catalogError || offlineState.error" class="card stack" aria-live="polite">
     <template v-if="offlineState.offline">
-      <p v-if="offlineState.workspaceUpdatedAt">{{ t('offline.workspaceReady') }} {{ new Date(offlineState.workspaceUpdatedAt).toLocaleString() }}</p>
+      <p v-if="offlineState.workspaceUpdatedAt">{{ t('offline.workspaceReady') }} {{ fmtDate(offlineState.workspaceUpdatedAt) }}</p>
       <p v-else>{{ t('offline.workspacePreparing') }}</p>
     </template>
     <p v-if="offlineState.photoProgress">{{ t('offline.photos') }} {{ offlineState.photoProgress }}</p>
@@ -67,7 +71,7 @@ function describe(body: Record<string, any>) {
       <summary>{{ t('offline.entries') }} ({{ offlineState.pending.length }})</summary>
       <div v-for="item in offlineState.pending" :key="item.id" class="stack">
         <template v-if="item.kind === 'workspace'">
-          <p>{{ title(item) }} · {{ new Date(item.createdAt).toLocaleString() }}</p>
+          <p>{{ title(item) }} · {{ fmtDate(item.createdAt) }}</p>
           <details><summary>{{ t('offline.localChange') }}</summary><pre>{{ describe(item.body) }}</pre></details>
           <details v-if="item.conflict"><summary>{{ t('offline.serverChange') }}</summary><pre>{{ JSON.stringify(item.conflict.current, null, 2) }}</pre></details>
           <div v-if="item.conflict?.draftMerge" class="stack draft-merge">
@@ -82,7 +86,7 @@ function describe(body: Record<string, any>) {
           <button v-if="item.conflict && !item.conflict.draftMerge" class="btn" type="button" :disabled="offlineState.syncing" @click="rebase(item)">{{ t('offline.keepLocal') }}</button>
         </template>
         <template v-else>
-          <p>{{ t('offline.aquarium') }} {{ item.aquarium }} · {{ new Date(item.kind === 'maintenance' ? item.body.logged_at : item.body.measured_at).toLocaleString() }}</p>
+          <p>{{ t('offline.aquarium') }} {{ item.aquarium }} · {{ fmtDate(item.kind === 'maintenance' ? item.body.logged_at : item.body.measured_at) }}</p>
           <p v-if="item.kind === 'maintenance'">{{ session.config?.maintenanceTypes[item.body.type]?.label || item.body.type }}<span v-if="item.body.percentage != null"> · {{ item.body.percentage }} %</span> · {{ item.body.details }} · {{ item.body.note }}</p>
           <p v-else>{{ Object.entries(item.body.values).map(([key, value]) => `${key}: ${value}`).join(', ') }} · {{ item.body.note }}</p>
         </template>

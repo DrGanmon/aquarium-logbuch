@@ -6,7 +6,8 @@ import FrontendUpdate from "./components/FrontendUpdate.vue";
 import TermsConsent from "./components/TermsConsent.vue";
 import Topbar from "./components/Topbar.vue";
 import SiteFooter from "./components/SiteFooter.vue";
-import { session, language, notification, t } from "./state";
+import { session, language, notification, notificationAction, t } from "./state";
+import { confirmRequest } from "./dialog";
 import { route, initialize, toggleLanguage, logout } from "./router";
 const AuthView = lazyComponent(() => import("./views/AuthView.vue"));
 const OpenTests = lazyComponent(() => import("./components/OpenTests.vue"));
@@ -25,6 +26,7 @@ const HealthView = lazyComponent(() => import("./views/HealthView.vue"));
 const AdminView = lazyComponent(() => import("./views/AdminView.vue"));
 const LegalView = lazyComponent(() => import("./views/LegalView.vue"));
 const ShareView = lazyComponent(() => import("./views/ShareView.vue"));
+const ConfirmHost = lazyComponent(() => import("./components/ConfirmHost.vue"));
 const legalPage = computed(
   () =>
     (
@@ -101,13 +103,14 @@ onMounted(initialize);
   <SiteFooter :t="t" />
   <FrontendUpdate />
   <TermsConsent v-if="session.user?.termsRequired" :key="session.user.id" />
+  <ConfirmHost v-if="confirmRequest" />
   <div
     id="toast"
     role="status"
     aria-live="polite"
     :class="{ show: notification || (session.user && (offlineState.syncing || offlineState.workspaceSyncing || offlineState.catalogSyncing)) }"
   >
-    <div v-if="notification">{{ notification }}</div>
+    <div v-if="notification" class="toast-row"><span>{{ notification }}</span><button v-if="notificationAction" type="button" class="toast-action" @click="notificationAction.run()">{{ notificationAction.label }}</button></div>
     <div v-if="session.user && (offlineState.syncing || offlineState.workspaceSyncing || offlineState.catalogSyncing)" class="sync-toast">
       <span class="sync-toast-spinner" aria-hidden="true">↻</span>
       <span>{{ t(offlineState.catalogSyncing && !offlineState.syncing && !offlineState.workspaceSyncing ? "offline.catalogSyncing" : "offline.syncing") }}</span>

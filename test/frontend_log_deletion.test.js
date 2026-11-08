@@ -19,7 +19,8 @@ function setup(request) {
       if (options?.method === 'DELETE') return request(path, options);
       return { aquarium: { id: 7 }, role: 'owner' };
     } };
-    if (name === '../state') return { session: {}, language: vue.ref('de'), errorMessage: error => error.message };
+    if (name === '../state') return { session: {}, language: vue.ref('de'), errorMessage: error => error.message, registerMessages: () => {}, t: key => key, undoable: () => {} };
+    if (name === '../router') return { route: vue.ref({ path: '/a/7', query: new URLSearchParams() }) };
     if (name.endsWith('lazy-component')) return { lazyComponent: () => ({}) };
     if (name.endsWith('lazy-resource')) return { useLazyResource: initial => ({ data: vue.shallowRef(initial), active: vue.ref(false), load: async () => {} }) };
     if (name.endsWith('progressive-list')) return { useProgressiveList: value => ({ visible: value }) };

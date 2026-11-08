@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { api } from '../api';
-import { session, t, fmtDate, errorMessage, toast } from '../state';
+import { registerMessages, session, t, fmtDate, errorMessage, toast } from '../state';
+import { askConfirm } from "../dialog";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import type { SocialPostView, SocialCommentView } from '../../../src/types/social';
 import Modal from './Modal.vue';
+registerMessages({ de: featuresDe, en: featuresEn });
 const props = defineProps<{ post: SocialPostView }>();
 const emit = defineEmits<{ deleted: [id: number] }>();
 const post = ref({ ...props.post });
@@ -41,14 +45,14 @@ async function comment() {
   finally { commentsBusy.value = false; }
 }
 async function removeComment(item: SocialCommentView) {
-  if (commentsBusy.value || !confirm(t('social.deleteCommentConfirm'))) return;
+  if (commentsBusy.value || !await askConfirm({ title: t('confirmTexts.deleteCommentTitle'), message: t('social.deleteCommentConfirm'), confirmLabel: t('confirmTexts.delete') })) return;
   commentsBusy.value = true;error.value = '';
   try { await api(`/social/comments/${item.id}`, { method: 'DELETE' });comments.value = comments.value.filter(comment => comment.id !== item.id);post.value.commentCount--; }
   catch (caught) { error.value = errorMessage(caught); }
   finally { commentsBusy.value = false; }
 }
 async function remove() {
-  if (busy.value || !confirm(t('social.deletePostConfirm'))) return;
+  if (busy.value || !await askConfirm({ title: t('confirmTexts.deletePostTitle'), message: t('social.deletePostConfirm'), confirmLabel: t('confirmTexts.delete') })) return;
   busy.value = true;error.value = '';
   try { await api(`/social/posts/${post.value.id}`, { method: 'DELETE' });emit('deleted', post.value.id); }
   catch (caught) { error.value = errorMessage(caught); }

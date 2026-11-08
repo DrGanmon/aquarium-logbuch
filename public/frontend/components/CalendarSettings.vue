@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { api } from "../api";
 import { registerMessages, t, errorMessage, toast } from "../state";
+import { askConfirm } from "../dialog";
 import featuresDe from "../../locales/features.de.json";
 import featuresEn from "../../locales/features.en.json";
 registerMessages({ de: featuresDe, en: featuresEn });
@@ -11,7 +12,7 @@ const year = new Date().getFullYear();
 // Account credentials are only available online.
 async function load(regenerate = false) {
   if (busy.value) return;
-  if (regenerate && !confirm(t("calendar.regenerateConfirm"))) return;
+  if (regenerate && !await askConfirm({ title: t("confirmTexts.regenerateTitle"), message: t("calendar.regenerateConfirm"), confirmLabel: t("confirmTexts.regenerate") })) return;
   busy.value = true;error.value = "";
   try {
     access.value = await api<CalDavAccess>(regenerate ? "/me/caldav/password" : "/me/caldav", { method: regenerate ? "POST" : "GET", networkOnly: true });

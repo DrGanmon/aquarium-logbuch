@@ -4,7 +4,10 @@ import { runWorkerTask } from "../worker-client";
 import { generateCsv } from "../../../src/shared/measurement-csv";
 import Modal from "./Modal.vue";
 import { api } from "../api";
-import { session, t, errorMessage } from "../state";
+import { registerMessages, session, t, errorMessage } from "../state";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
+registerMessages({ de: featuresDe, en: featuresEn });
 const props = defineProps<{ id: string; mode: "import" | "export" }>();
 const emit = defineEmits<{ close: []; saved: [] }>();
 interface Header {
@@ -27,10 +30,10 @@ const error = ref("");
 const busy = ref(false);
 const message = ref("");
 const options = computed(() => ({
-  "": "Ignorieren",
-  date: "Datum",
-  time: "Uhrzeit",
-  measured_at: "Datum & Uhrzeit",
+  "": t("csvDialog.ignore"),
+  date: t("common.date"),
+  time: t("common.time"),
+  measured_at: t("common.datetime"),
   note: t("common.notes"),
   ...Object.fromEntries(
     (session.config?.allParameters || []).map((p) => [p.key, p.name]),
@@ -87,7 +90,7 @@ async function submit() {
         hasHeader: hasHeader.value,
       },
     });
-    message.value = `${result.imported} importiert · ${result.skipped || 0} übersprungen`;
+    message.value = t("csvDialog.importResult", { imported: result.imported, skipped: result.skipped || 0 });
     error.value = (result.errors || []).join("\n");
     emit("saved");
   } catch (e) {
@@ -112,18 +115,18 @@ async function downloadCsv() {
 </script>
 <template>
   <Modal
-    :title="mode === 'import' ? '📥 CSV-Import' : '📤 CSV-Export'"
+    :title="mode === 'import' ? `📥 ${t('csvDialog.titleImport')}` : `📤 ${t('csvDialog.titleExport')}`"
     wide
     @close="emit('close')"
     ><div class="stack">
       <div class="row">
         <label
-          >Trennzeichen
+          >{{ t("exportImport.delimiterLabel") }}
           <select
             v-model="delimiter"
             @change="mode === 'import' && csvText && parse()"
           >
-            <option value="">Automatisch</option>
+            <option value="">{{ t("csvDialog.automatic") }}</option>
             <option value=";">Excel (;)</option>
             <option value=",">CSV (,)</option>
             <option value="&#9;">Tab</option>
@@ -132,10 +135,10 @@ async function downloadCsv() {
       </div>
       <template v-if="mode === 'export'"
         ><div class="grid2">
-          <label>Von<input v-model="from" type="date" /></label
-          ><label>Bis<input v-model="to" type="date" /></label>
+          <label>{{ t("csvDialog.from") }}<input v-model="from" type="date" /></label
+          ><label>{{ t("csvDialog.to") }}<input v-model="to" type="date" /></label>
         </div>
-        <button type="button" class="btn" :disabled="busy" @click="downloadCsv">📤 Herunterladen</button></template
+        <button type="button" class="btn" :disabled="busy" @click="downloadCsv">📤 {{ t("csvDialog.download") }}</button></template
       ><template v-else
         ><div
           class="csv-drop-zone stack"
@@ -148,9 +151,9 @@ async function downloadCsv() {
           @dragleave="dragging = false"
           @drop.prevent="drop"
         >
-          <strong>📄 CSV-Datei hierher ziehen oder klicken</strong
+          <strong>📄 {{ t("csvDialog.dropTitle") }}</strong
           ><span class="muted" style="font-size: 0.85rem"
-            >CSV mit Semikolon, Komma oder Tab als Trennzeichen</span
+            >{{ t("csvDialog.dropHint") }}</span
           >
         </div>
         <input
@@ -160,17 +163,16 @@ async function downloadCsv() {
           style="display: none"
           @change="fileChanged"
         /><label class="row"
-          ><input v-model="hasHeader" type="checkbox" />Erste Zeile enthält
-          Spaltenüberschriften</label
+          ><input v-model="hasHeader" type="checkbox" />{{ t("csvDialog.hasHeader") }}</label
         >
         <div v-if="parsed" class="table-wrap">
-          <p>{{ parsed.totalDataRows }} Zeilen</p>
+          <p>{{ t("csvDialog.rows", { count: parsed.totalDataRows }) }}</p>
           <table class="csv-mapping-table">
             <thead>
               <tr>
-                <th>Spalte</th>
-                <th>Beispiel</th>
-                <th>Zuordnung</th>
+                <th>{{ t("csvDialog.column") }}</th>
+                <th>{{ t("csvDialog.sample") }}</th>
+                <th>{{ t("csvDialog.mapping") }}</th>
               </tr>
             </thead>
             <tbody>
@@ -198,7 +200,7 @@ async function downloadCsv() {
           :disabled="busy || !!message"
           @click="submit"
         >
-          📥 Importieren
+          📥 {{ t("csvDialog.import") }}
         </button></template
       >
       <p v-if="error" class="error" role="alert">{{ error }}</p>

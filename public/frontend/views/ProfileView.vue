@@ -5,9 +5,12 @@ import Fields from "../components/Fields.vue";
 import TestSelection from "../components/TestSelection.vue";
 import { initialTestSelection, resolveTests } from "../composables/test-selection";
 import { api, refreshSession } from "../api";
-import { session, t, errorMessage, toast, theme, language } from "../state";
+import { registerMessages, session, t, errorMessage, toast, theme, language } from "../state";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import { readImage, enableNotifications } from "../composables/media";
 import type { Field, FormData, User } from "../types";
+registerMessages({ de: featuresDe, en: featuresEn });
 const ProviderSettings = lazyComponent(() => import("../components/ProviderSettings.vue"));
 const Invitations = lazyComponent(() => import("../components/Invitations.vue"));
 const TestInventory = lazyComponent(() => import("../components/TestInventory.vue"));
@@ -25,10 +28,10 @@ const tabs = computed(() => [
   { id: "tapWater", label: "profile.tabs.tapWater" },
   { id: "calendar", label: "profile.tabs.calendar" },
   { id: "social", label: "profile.tabs.social" },
-  { id: "ui", label: "profile.tabs.ui" },
-  { id: "ai", label: "profile.tabs.ai" },
+  { id: "ui", label: "profileView.tabs.ui" },
+  { id: "ai", label: "profileView.tabs.ai" },
   { id: "tests", label: "profile.tabs.tests" },
-  ...(canShowInvites.value ? [{ id: "invites", label: "profile.tabs.invites" }] : []),
+  ...(canShowInvites.value ? [{ id: "invites", label: "profileView.tabs.invites" }] : []),
 ]);
 watch(canShowInvites, (visible) => {
   if (!visible && activeTab.value === "invites") activeTab.value = "profile";
@@ -139,7 +142,7 @@ async function removeAvatar() {
 }
 async function password() {
   if (next.value !== repeat.value) {
-    error.value = "Die Passwörter stimmen nicht überein.";
+    error.value = t("profileView.passwordMismatch");
     return;
   }
   const result = await action("/password", "POST", {
@@ -174,8 +177,8 @@ async function notify(test = false) {
           url: location.href,
         });
       else
-        new Notification("Aquarium-Logbuch", {
-          body: "Benachrichtigungen sind aktiviert.",
+        new Notification(t("common.appName"), {
+          body: t("profileView.notificationsEnabled"),
         });
     }
   } catch (e) {
@@ -202,7 +205,7 @@ async function saveRange() {
 <template>
   <div class="stack">
     <div>
-      <a class="muted" :href="'#/'">‹ Zurück zur Übersicht</a>
+      <a class="muted" :href="'#/'">‹ {{ t("profileView.backToOverview") }}</a>
       <h1 style="margin-top: 0.3rem">{{ t("nav.profile") }}</h1>
     </div>
     <p v-if="error" class="error" role="alert">{{ error }}</p>
@@ -232,7 +235,7 @@ async function saveRange() {
       tabindex="0"
     >
       <section class="card stack">
-        <h2>Profilbild</h2>
+        <h2>{{ t("profile.avatarTitle") }}</h2>
         <div class="profile-avatar-row">
           <img v-server-image
             v-if="session.user?.hasAvatar"
@@ -250,17 +253,17 @@ async function saveRange() {
           <div class="stack">
             <div class="row">
               <button class="btn small" @click="avatarInput?.click()">
-                Neues Bild hochladen</button
+                {{ t("profile.avatarUpload") }}</button
               ><button
                 v-if="session.user?.hasAvatar"
                 class="btn small ghost danger"
                 @click="removeAvatar"
               >
-                Bild entfernen
+                {{ t("profile.avatarDelete") }}
               </button>
             </div>
             <p class="muted" style="margin: 0">
-              Erlaubt sind JPG, PNG, WebP und GIF bis max. 5 MB.
+              {{ t("profileView.avatarHint") }}
             </p>
           </div>
           <input
@@ -273,7 +276,7 @@ async function saveRange() {
         </div>
       </section>
       <form class="card stack" @submit.prevent="save">
-        <h2>Persönliche Daten</h2>
+        <h2>{{ t("profileView.personalData") }}</h2>
         <Fields
           :fields="fields.filter((field) => field.key === 'username')"
           :model="model"
@@ -296,19 +299,19 @@ async function saveRange() {
           "
           :model="model"
         />
-        <div><button class="btn" :disabled="busy">Profil speichern</button></div>
+        <div><button class="btn" :disabled="busy">{{ t("profileView.saveProfile") }}</button></div>
       </form>
       <section class="card stack">
-        <h2>🔑 Passwort & Anmeldung</h2>
+        <h2>{{ t("profileView.passwordTitle") }}</h2>
         <form class="stack" @submit.prevent="password">
           <label v-if="session.user?.hasPassword"
-            >Aktuelles Passwort<input
+            >{{ t("profileView.currentPassword") }}<input
               v-model="current"
               type="password"
               autocomplete="current-password"
               required /></label
           ><label
-            >Neues Passwort<input
+            >{{ t("auth.newPassword") }}<input
               v-model="next"
               type="password"
               autocomplete="new-password"
@@ -322,14 +325,14 @@ async function saveRange() {
               autocomplete="new-password"
               minlength="8"
               required /></label
-          ><button class="btn" :disabled="busy">Passwort ändern</button>
+          ><button class="btn" :disabled="busy">{{ t("profileView.changePassword") }}</button>
         </form>
       </section>
       <section v-if="session.user?.oidcEnabled" class="card stack">
-        <h2>OIDC-Verknüpfung</h2>
+        <h2>{{ t("profileView.oidcTitle") }}</h2>
         <template v-if="session.user?.oidcEnabled"
           ><p>
-            OIDC: {{ session.user.hasOidc ? "Verknüpft" : "Nicht verknüpft" }} ·
+            OIDC: {{ session.user.hasOidc ? t("profileView.oidcLinked") : t("profileView.oidcNotLinked") }} ·
             {{ session.user.oidcProviderName }}
           </p>
           <button
@@ -337,27 +340,26 @@ async function saveRange() {
             class="btn ghost"
             @click="action('/me/unlink-oidc', 'POST')"
           >
-            Verknüpfung aufheben</button
+            {{ t("profileView.unlinkOidc") }}</button
           ><a v-else class="btn ghost" href="auth/link"
-            >OIDC verknüpfen</a
+            >{{ t("profileView.linkOidc") }}</a
           ></template
         >
       </section>
       <section class="card stack danger-zone">
-        <h2>🗑️ Konto löschen</h2>
+        <h2>{{ t("profileView.deleteAccountTitle") }}</h2>
         <p>{{ t("auth.deleteAccountConfirm") }}</p>
         <form class="stack" @submit.prevent="deleteRequest">
           <label v-if="session.user?.hasPassword"
-            >Passwort<input
+            >{{ t("auth.password") }}<input
               v-model="deletePassword"
               type="password"
               autocomplete="current-password"
               required /></label
           ><label class="row"
-            ><input v-model="deleteConfirm" type="checkbox" required />Ich möchte
-            mein Konto löschen.</label
+            ><input v-model="deleteConfirm" type="checkbox" required />{{ t("profileView.deleteConfirm") }}</label
           ><button class="btn danger" :disabled="busy || !deleteConfirm">
-            Bestätigungs-E-Mail anfordern
+            {{ t("profileView.requestDeleteMail") }}
           </button>
         </form>
       </section>
@@ -406,7 +408,7 @@ async function saveRange() {
       tabindex="0"
     >
       <section class="card stack">
-        <h2>🌐 Sprache / Language</h2>
+        <h2>{{ t("profileView.languageTitle") }}</h2>
         <div class="theme-options">
           <button
             v-for="option in [
@@ -438,7 +440,7 @@ async function saveRange() {
         </div>
       </section>
       <section class="card stack">
-        <h2>Erscheinungsbild / Farbschema</h2>
+        <h2>{{ t("profileView.themeTitle") }}</h2>
         <div class="theme-options">
           <button
             v-for="option in [
@@ -446,20 +448,19 @@ async function saveRange() {
                 key: 'system',
                 icon: '🌓',
                 title: t('common.themeSystem'),
-                description: 'Automatisch den Systemeinstellungen folgen.',
+                description: t('profileView.themeSystemDesc'),
               },
               {
                 key: 'light',
                 icon: '☀️',
-                title: 'Heller Modus',
-                description: 'Helles, klares Farbschema für den Tag.',
+                title: t('profileView.themeLight'),
+                description: t('profileView.themeLightDesc'),
               },
               {
                 key: 'dark',
                 icon: '🌙',
-                title: 'Dunkler Modus',
-                description:
-                  'Augenschonendes, kontrastreiches dunkles Farbschema.',
+                title: t('profileView.themeDark'),
+                description: t('profileView.themeDarkDesc'),
               },
             ] as const"
             :key="option.key"
@@ -477,15 +478,13 @@ async function saveRange() {
         </div>
       </section>
       <form class="card stack" @submit.prevent="saveRange">
-        <h2>Standard-Zeitraum für Graphen & Messverlauf</h2>
+        <h2>{{ t("profileView.rangeTitle") }}</h2>
         <p class="muted" style="margin: 0">
-          Lege fest, welcher Zeitraum beim Öffnen eines Aquariums standardmäßig in
-          den Verlaufsgraphen und Messwert-Tabellen angezeigt werden soll
-          (Standard: 3 Monate).
+          {{ t("profileView.rangeDesc") }}
         </p>
         <div class="field">
           <label
-            >Bevorzugter Standard-Zeitraum<select
+            >{{ t("profileView.rangeLabel") }}<select
               v-model="model.defaultGraphRange"
             >
               <option
@@ -500,16 +499,16 @@ async function saveRange() {
         </div>
         <div>
           <button class="btn" :disabled="busy">
-            Standard-Zeitraum speichern
+            {{ t("profileView.saveRange") }}
           </button>
         </div>
       </form>
       <section class="card stack">
-        <h2>🔔 Timer-Benachrichtigungen</h2>
+        <h2>{{ t("profileView.notificationsTitle") }}</h2>
         <div class="row">
-          <button class="btn ghost" @click="notify()">Aktivieren</button
+          <button class="btn ghost" @click="notify()">{{ t("profileView.enableNotifications") }}</button
           ><button class="btn ghost" @click="notify(true)">
-            3-Sekunden-Test
+            {{ t("profileView.testNotification") }}
           </button>
         </div>
       </section>
@@ -525,9 +524,9 @@ async function saveRange() {
       tabindex="0"
     >
       <section class="card stack">
-        <h2>🤖 KI-Assistent</h2>
+        <h2>{{ t("profileView.tabs.ai") }}</h2>
         <label
-          >Bevorzugter Anbieter<select
+          >{{ t("profile.aiProviderLabel") }}<select
             v-model="provider"
             @change="action('/me/ai', 'PUT', { provider })"
           >
@@ -567,7 +566,7 @@ async function saveRange() {
       tabindex="0"
     >
       <section class="card stack">
-        <h2>🧪 Wassertests</h2>
+        <h2>{{ t("profile.tabs.tests") }}</h2>
         <TestSelection v-model="tests" />
         <button class="btn" :disabled="busy" @click="saveTests">
           {{ t("common.save") }}

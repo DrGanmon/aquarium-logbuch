@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { api } from "../api";
-import { session, t, language, toast, errorMessage } from "../state";
+import { registerMessages, session, t, language, toast, errorMessage } from "../state";
+import { askConfirm } from "../dialog";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import type { TestInventoryItem } from "../types";
+registerMessages({ de: featuresDe, en: featuresEn });
 const props = defineProps<{ suiteId: string; selectedTests: string[] }>();
 const items = ref<TestInventoryItem[]>([]);
 const error = ref("");
@@ -35,7 +39,7 @@ function changeVariant(item: TestInventoryItem) {
 }
 async function save(item: TestInventoryItem, reset = false) {
   if (busy.value) return;
-  if (reset && !confirm(t("testInventory.resetConfirm", { name: item.name }))) return;
+  if (reset && !await askConfirm({ title: t("confirmTexts.resetTitle"), message: t("testInventory.resetConfirm", { name: item.name }), confirmLabel: t("confirmTexts.reset") })) return;
   busy.value = true;
   error.value = "";
   const current = generation;

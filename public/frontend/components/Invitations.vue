@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "vue";
 import { api } from "../api";
-import { t, errorMessage, fmtDate, toast } from "../state";
+import { registerMessages, t, errorMessage, fmtDate, toast } from "../state";
+import { askConfirm } from "../dialog";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import type { Id } from "../types";
+registerMessages({ de: featuresDe, en: featuresEn });
 interface Invitation {
   id: Id;
   code: string;
@@ -54,7 +58,7 @@ async function send() {
   }
 }
 async function remove(id: Id) {
-  if (!confirm("Einladung widerrufen?")) return;
+  if (!await askConfirm({ title: t("confirmTexts.revokeInviteTitle"), message: t("confirmTexts.revokeInviteText"), confirmLabel: t("confirmTexts.revoke") })) return;
   try {
     await api(`${endpoint}/${id}`, { method: "DELETE" });
     await load();
@@ -71,36 +75,36 @@ async function copy(inv: Invitation) {
     await navigator.clipboard.writeText(url);
     toast(t("common.copied"));
   } catch {
-    prompt("Einladungslink:", url);
+    prompt(t("invitations.linkPrompt"), url);
   }
 }
 </script>
 <template>
   <section class="card stack">
-    <h2>✉️ Einladungen</h2>
+    <h2>✉️ {{ t("invitations.title") }}</h2>
     <form class="stack" @submit.prevent="send">
       <div class="grid2">
         <label
-          >Typ<select v-model="model.type">
+          >{{ t("common.type") }}<select v-model="model.type">
             <option value="code">Code</option>
-            <option value="mail">E-Mail</option>
+            <option value="mail">{{ t("invitations.mailType") }}</option>
           </select></label
         ><label v-if="model.type === 'mail'"
           >{{ t("auth.email")
           }}<input v-model="model.email" type="email" required /></label
         ><label
-          >Gültigkeit (Tage)<input
+          >{{ t("invitations.validDays") }}<input
             v-model.number="model.days"
             type="number"
             min="1"
             required /></label
         ><label v-if="admin"
-          >Verwendungen<input
+          >{{ t("invitations.uses") }}<input
             v-model.number="model.maxUses"
             type="number"
             min="0" /></label
         ><label v-if="admin && model.type === 'code'"
-          >Eigener Code (optional)<input v-model="model.code" /></label
+          >{{ t("invitations.customCode") }}<input v-model="model.code" /></label
         ><label
           >{{ t("common.notes") }}<input v-model="model.note" maxlength="200"
         /></label>
@@ -108,8 +112,8 @@ async function copy(inv: Invitation) {
       <button class="btn" :disabled="busy">
         {{
           model.type === "mail"
-            ? "✉️ Einladungs-Mail senden"
-            : "➕ Code generieren"
+            ? `✉️ ${t("invitations.sendMail")}`
+            : `➕ ${t("invitations.generateCode")}`
         }}
       </button>
     </form>
@@ -119,9 +123,9 @@ async function copy(inv: Invitation) {
         <thead>
           <tr>
             <th>Code</th>
-            <th>Typ</th>
-            <th>Verwendungen</th>
-            <th>Gültig bis</th>
+            <th>{{ t("common.type") }}</th>
+            <th>{{ t("invitations.uses") }}</th>
+            <th>{{ t("invitations.validUntil") }}</th>
             <th>{{ t("common.status") }}</th>
             <th>{{ t("common.actions") }}</th>
           </tr>
@@ -139,7 +143,7 @@ async function copy(inv: Invitation) {
             <td>
               <div class="row">
                 <button class="btn small ghost" @click="copy(inv)">
-                  📋 Link kopieren</button
+                  📋 {{ t("invitations.copyLink") }}</button
                 ><button class="btn small ghost danger" @click="remove(inv.id)">
                   {{ t("common.delete") }}
                 </button>

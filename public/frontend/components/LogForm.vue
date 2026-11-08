@@ -4,9 +4,12 @@ import Modal from "./Modal.vue";
 import Fields from "./Fields.vue";
 import { enqueueMaintenance } from "../offline-sync";
 import { api } from "../api";
-import { session, t, localDateTime, errorMessage, toast } from "../state";
+import { registerMessages, session, t, localDateTime, errorMessage, toast } from "../state";
+import featuresDe from "../../locales/features.de.json";
+import featuresEn from "../../locales/features.en.json";
 import { parseNumber } from "../composables/values";
 import type { Field, FormData, LogEntry } from "../types";
+registerMessages({ de: featuresDe, en: featuresEn });
 const props = defineProps<{
   id: string;
   entry?: LogEntry;
@@ -42,7 +45,7 @@ const fields = computed<Field[]>(() => [
     ? [
         {
           key: "percentage",
-          label: "Wasserwechsel (%)",
+          label: t("logForm.waterChangePercent"),
           type: "decimal",
           min: 1,
           max: 100,
@@ -59,7 +62,7 @@ async function save() {
     const percentageInput = String(model.percentage ?? "").trim();
     const percentage = percentageInput ? parseNumber(percentageInput) : null;
     if (percentageInput && percentage === null)
-      throw new Error("Wasserwechsel-Anteil: bitte einen Prozentwert zwischen 1 und 100 eingeben.");
+      throw new Error(t("logForm.percentageError"));
     const body = {
       type: String(model.type),
       logged_at: new Date(String(model.logged_at)).toISOString(),
