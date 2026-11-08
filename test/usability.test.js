@@ -63,6 +63,9 @@ test('Aquarium-Detail: Abschnitte als Tabs mit Adresse und Tastatursteuerung', (
   assert.match(view, /class="aq-tabs-scroll right"/);
   assert.match(view, /scrollIntoView\(\{ block: "nearest", inline: "nearest"/, 'Aktiver Tab wird ins Bild gerollt');
   assert.match(read('public/style.css'), /\.aq-tabs-wrap\.more-right \.aq-tabs \{ -webkit-mask-image/);
+  const tabsRule = read('public/style.css').match(/^\.aq-tabs \{[^}]*\}/m)?.[0] || '';
+  assert.match(tabsRule, /overflow-y: hidden/, 'Tab-Leiste scrollt nicht vertikal');
+  assert.doesNotMatch(read('public/style.css'), /\.aq-tabs \[role="tab"\] \{[^}]*margin-bottom: -/, 'Tabs ragen nicht unten aus der Leiste heraus');
 });
 
 test('Bestätigungen: keine Browserdialoge mehr, Löschungen im Bestand rückgängig machbar', () => {

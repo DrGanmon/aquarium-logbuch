@@ -6,8 +6,15 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Minor-Version manuell auf `0.5.0-ALPHA` erhöhen; Revision und Patch zurücksetzen und Paketmetadaten sowie Git-Versionsbasis aktualisieren.
-- Seitlich scrollbare Aquarium-Tabs kenntlich machen: Geht die Tab-Leiste auf schmalen Bildschirmen links oder rechts weiter, wird der Rand ausgeblendet und eine Pfeilschaltfläche blättert weiter. Der gewählte Tab wird auch beim Öffnen per Adresse automatisch ins Bild gerollt. Handbuch und Regressionstest ergänzen.
+- Aquarium-Tabs lassen sich mit dem Finger nicht mehr vertikal verschieben: Die seitlich scrollbare Tab-Leiste setzte durch `overflow-x: auto` implizit auch eine vertikale Scrollbarkeit, weil die Markierung des aktiven Tabs per negativem Rand unten herausragte. Vertikales Scrollen der Leiste unterbinden, die Grundlinie als inneren Schatten zeichnen und Regressionstest ergänzen.
+
+## 0.5.1-ALPHA
+
+- Seitlich scrollbare Aquarium-Tabs kenntlich machen: Geht die Tab-Leiste auf schmalen Bildschirmen links oder rechts weiter, wird der Rand ausgeblendet und eine Pfeilschaltfläche blättert weiter. Der gewählte Tab wird auch beim Öffnen per Adresse automatisch ins Bild gerollt. Handbuch und Regressionstest ergänzen. (`3faf4959ab76a8a9046f27624cc4362c0e558f6d`, 2026-11-08).
+
+## 0.5.0-ALPHA
+
+- Minor-Version manuell auf `0.5.0-ALPHA` erhöhen; Revision und Patch zurücksetzen und Paketmetadaten sowie Git-Versionsbasis aktualisieren. (`3634026e11e0d095bc1503eea97c2b25329bb770`, 2026-11-08).
 
 ## 0.4.8-ALPHA
 
