@@ -7,6 +7,7 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 ## Unveröffentlicht
 
 - Minor-Version manuell auf `0.5.0-ALPHA` erhöhen; Revision und Patch zurücksetzen und Paketmetadaten sowie Git-Versionsbasis aktualisieren.
+- Seitlich scrollbare Aquarium-Tabs kenntlich machen: Geht die Tab-Leiste auf schmalen Bildschirmen links oder rechts weiter, wird der Rand ausgeblendet und eine Pfeilschaltfläche blättert weiter. Der gewählte Tab wird auch beim Öffnen per Adresse automatisch ins Bild gerollt. Handbuch und Regressionstest ergänzen.
 
 ## 0.4.8-ALPHA
 

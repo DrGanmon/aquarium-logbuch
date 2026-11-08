@@ -74,7 +74,7 @@
     "caption": "The overview with a fictional example aquarium.",
     "steps": [
       "“My aquariums” shows tanks you own. “Shared with me” contains aquariums whose sharing invitations you have accepted.",
-      "Open an aquarium by selecting its card. At the top you will find “New measurement”, “New log entry” and the diagnosis assistant; “More” contains editing, sharing and CSV import and export. The tabs “Overview”, “Values”, “Livestock & plants”, “Equipment”, “Tasks”, “Logbook” and “Gallery” structure the tank. The selected tab is kept in the address.",
+      "Open an aquarium by selecting its card. At the top you will find “New measurement”, “New log entry” and the diagnosis assistant; “More” contains editing, sharing and CSV import and export. The tabs “Overview”, “Values”, “Livestock & plants”, “Equipment”, “Tasks”, “Logbook” and “Gallery” structure the tank. The selected tab is kept in the address. On narrow screens you can swipe the tab bar sideways; a faded edge and the arrows show that more tabs follow.",
       "On a computer, the header links to species, plants, health, Social, notifications and your profile. On a phone, a fixed bar at the bottom offers “Aquariums”, “Species catalog”, “Plants”, “Notifications” and “More”. “More” contains health, Social, profile, user guide, language, appearance and sign-out.",
       "Use the language button to switch between German and English. The appearance button selects a light, dark or system theme and shows the current choice.",
       "When online, the app synchronizes data with the server automatically. The local data timestamp and “Synchronize now” appear only offline. They disappear when the server is reachable again. Pending changes and errors remain visible for review.",

@@ -59,6 +59,10 @@ test('Aquarium-Detail: Abschnitte als Tabs mit Adresse und Tastatursteuerung', (
   assert.match(view, /route\.value\.query\.get\("tab"\)/);
   for (const tab of ['values', 'stock', 'tech', 'tasks', 'log', 'gallery']) assert.ok(view.includes(`tab === '${tab}'`), `Tab ${tab} wird bedingt gerendert`);
   assert.match(view, /data-aquarium-summary/, 'Übersicht beginnt mit einer Zusammenfassung');
+  assert.match(view, /'more-right': tabOverflow\.right/, 'Seitlich weitergehende Tabs werden angezeigt');
+  assert.match(view, /class="aq-tabs-scroll right"/);
+  assert.match(view, /scrollIntoView\(\{ block: "nearest", inline: "nearest"/, 'Aktiver Tab wird ins Bild gerollt');
+  assert.match(read('public/style.css'), /\.aq-tabs-wrap\.more-right \.aq-tabs \{ -webkit-mask-image/);
 });
 
 test('Bestätigungen: keine Browserdialoge mehr, Löschungen im Bestand rückgängig machbar', () => {

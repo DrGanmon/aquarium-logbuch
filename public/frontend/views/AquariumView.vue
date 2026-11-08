@@ -60,8 +60,32 @@ function selectTab(next: Tab, focus = false) {
   if (next === "overview") query.delete("tab"); else query.set("tab", next);
   const suffix = query.toString();
   window.history.replaceState(window.history.state, "", `#/a/${encodeURIComponent(props.id)}${suffix ? `?${suffix}` : ""}`);
-  if (focus) requestAnimationFrame(() => document.getElementById(`aq-tab-${next}`)?.focus());
+  requestAnimationFrame(() => {
+    const button = document.getElementById(`aq-tab-${next}`);
+    button?.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+    if (focus) button?.focus();
+  });
 }
+// The tab row scrolls horizontally on small screens: fades and arrow buttons show that more tabs follow.
+const tabList = ref<HTMLElement>();
+const tabOverflow = ref({ left: false, right: false });
+function updateTabOverflow() {
+  const element = tabList.value;
+  if (!element) return;
+  tabOverflow.value = { left: element.scrollLeft > 2, right: element.scrollLeft + element.clientWidth < element.scrollWidth - 2 };
+}
+function scrollTabs(direction: number) {
+  tabList.value?.scrollBy({ left: direction * Math.max(120, tabList.value.clientWidth * 0.6), behavior: "smooth" });
+}
+let tabResize: ResizeObserver | undefined;
+watch(tabList, (element) => {
+  tabResize?.disconnect();
+  if (!element) return;
+  if (typeof ResizeObserver !== "undefined") { tabResize = new ResizeObserver(updateTabOverflow);tabResize.observe(element); }
+  document.getElementById(`aq-tab-${tab.value}`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  updateTabOverflow();
+}, { flush: "post" });
+onBeforeUnmount(() => tabResize?.disconnect());
 function tabKey(event: KeyboardEvent) {
   const index = TABS.findIndex((item) => item.id === tab.value);
   const target = event.key === "ArrowRight" ? (index + 1) % TABS.length : event.key === "ArrowLeft" ? (index - 1 + TABS.length) % TABS.length
@@ -356,7 +380,9 @@ async function leave() {
           </details>
         </div>
       </div>
-      <div class="aq-tabs" role="tablist" :aria-label="t('aquariumView.tabsLabel')" data-aquarium-tabs @keydown="tabKey">
+      <div class="aq-tabs-wrap" :class="{ 'more-left': tabOverflow.left, 'more-right': tabOverflow.right }">
+      <button v-show="tabOverflow.left" type="button" class="aq-tabs-scroll left" tabindex="-1" :aria-label="t('aquariumView.tabsScrollLeft')" @click="scrollTabs(-1)">‹</button>
+      <div ref="tabList" class="aq-tabs" role="tablist" :aria-label="t('aquariumView.tabsLabel')" data-aquarium-tabs @keydown="tabKey" @scroll.passive="updateTabOverflow">
         <button
           v-for="item in TABS"
           :id="`aq-tab-${item.id}`"
@@ -370,6 +396,8 @@ async function leave() {
         >
           <Icon :name="item.icon" :size="18" />{{ t(item.label) }}<span v-if="item.id === 'overview' && alertCount" class="aq-tab-count crit">{{ alertCount }}</span>
         </button>
+      </div>
+      <button v-show="tabOverflow.right" type="button" class="aq-tabs-scroll right" tabindex="-1" :aria-label="t('aquariumView.tabsScrollRight')" @click="scrollTabs(1)">›</button>
       </div>
       <div :id="`aq-panel-${tab}`" class="stack" role="tabpanel" :aria-labelledby="`aq-tab-${tab}`" tabindex="-1">
       <template v-if="tab === 'overview'">

@@ -185,7 +185,9 @@
     "unsynced": "Not synchronised",
     "unsyncedTitle": "This change is only stored on this device and will be transferred once a connection is available.",
     "deleteTitle": "Delete?",
-    "leaveTitle": "Discard changes?"
+    "leaveTitle": "Discard changes?",
+    "tabsScrollLeft": "Show previous sections",
+    "tabsScrollRight": "Show more sections"
   },
   "confirmTexts": {
     "declineInviteTitle": "Decline invitation?",

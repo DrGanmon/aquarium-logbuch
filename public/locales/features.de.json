@@ -185,7 +185,9 @@
     "unsynced": "Nicht synchronisiert",
     "unsyncedTitle": "Diese Änderung ist nur auf diesem Gerät gespeichert und wird übertragen, sobald eine Verbindung besteht.",
     "deleteTitle": "Löschen?",
-    "leaveTitle": "Änderungen verwerfen?"
+    "leaveTitle": "Änderungen verwerfen?",
+    "tabsScrollLeft": "Vorherige Bereiche anzeigen",
+    "tabsScrollRight": "Weitere Bereiche anzeigen"
   },
   "confirmTexts": {
     "declineInviteTitle": "Einladung ablehnen?",
