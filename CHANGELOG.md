@@ -6,8 +6,12 @@ Die bisherige Historie wurde aus den Commit-Beschreibungen übernommen; ältere 
 
 ## Unveröffentlicht
 
-- Untere Tab-Leiste auf dem Handy neu ordnen: „Profil“, „Social“, „Gesundheit“, „Arten“ und „Mehr“. Aquarien, Pflanzen und Hinweise liegen jetzt unter „Mehr“; ungelesene Hinweise werden am Menü „Mehr“ gezählt, und das Logo führt weiterhin zur Aquarienübersicht. Kurze Beschriftungen „Profil“/„Arten“ ergänzen.
-- Abgerundete Displayecken, Kerben und Gestenleisten berücksichtigen: `viewport-fit=cover` setzen und Kopfzeile, Inhalt, untere Leiste und „Mehr“-Menü über `env(safe-area-inset-*)` mit Mindestabständen einrücken, damit die Beschriftungen am Rand lesbar bleiben. Handbuch zweisprachig anpassen und Regressionstests ergänzen.
+- Untere Tab-Leiste auf dem Handy erneut umstellen: „Profil“, „Aquarien“, „Gesundheit“, „Social“ und „Mehr“. Der Artenkatalog wandert zusammen mit Pflanzen und Hinweisen unter „Mehr“; die nicht mehr benötigte Kurzbeschriftung „Arten“ entfällt. Handbuch zweisprachig und Regressionstest anpassen.
+
+## 0.5.2-ALPHA
+
+- Untere Tab-Leiste auf dem Handy neu ordnen: „Profil“, „Social“, „Gesundheit“, „Arten“ und „Mehr“. Aquarien, Pflanzen und Hinweise liegen jetzt unter „Mehr“; ungelesene Hinweise werden am Menü „Mehr“ gezählt, und das Logo führt weiterhin zur Aquarienübersicht. Kurze Beschriftungen „Profil“/„Arten“ ergänzen. (`a9eec12fffee7eb3be3faddcac29fe3253a3a689`, 2026-11-08).
+- Abgerundete Displayecken, Kerben und Gestenleisten berücksichtigen: `viewport-fit=cover` setzen und Kopfzeile, Inhalt, untere Leiste und „Mehr“-Menü über `env(safe-area-inset-*)` mit Mindestabständen einrücken, damit die Beschriftungen am Rand lesbar bleiben. Handbuch zweisprachig anpassen und Regressionstests ergänzen. (`a9eec12fffee7eb3be3faddcac29fe3253a3a689`, 2026-11-08).
 
 ## 0.5.1-ALPHA
 

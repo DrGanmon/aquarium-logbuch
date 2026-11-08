@@ -75,7 +75,7 @@
     "steps": [
       "„Eigene Aquarien“ zeigt Becken, die dir gehören. „Mit mir geteilt“ enthält angenommene Freigaben anderer Benutzer.",
       "Öffne ein Aquarium über seine Karte. Oben findest du „Neue Messung“, „Neuer Logbuch-Eintrag“ und den Diagnose-Assistenten; unter „Mehr“ liegen Bearbeiten, Teilen und der CSV-Import bzw. -Export. Die Tabs „Übersicht“, „Werte“, „Besatz & Pflanzen“, „Technik“, „Aufgaben“, „Logbuch“ und „Galerie“ gliedern das Becken. Der gewählte Tab bleibt in der Adresse erhalten. Auf schmalen Bildschirmen lässt sich die Tab-Leiste seitlich wischen; ein ausgeblendeter Rand und die Pfeile zeigen an, dass weitere Tabs folgen.",
-      "Am Computer erreichst du Arten, Pflanzen, Gesundheit, Social, Hinweise und dein Profil über die Kopfzeile. Auf dem Handy liegt unten eine feste Leiste mit „Profil“, „Social“, „Gesundheit“, „Arten“ und „Mehr“; sie hält Abstand zu abgerundeten Displayecken und zur Gestenleiste. Unter „Mehr“ findest du Aquarien, Pflanzen, Hinweise, Nutzerhandbuch, Sprache, Design und Abmelden; ungelesene Hinweise werden an „Mehr“ gezählt. Zur Aquarienübersicht kommst du auch über das Logo oben links.",
+      "Am Computer erreichst du Arten, Pflanzen, Gesundheit, Social, Hinweise und dein Profil über die Kopfzeile. Auf dem Handy liegt unten eine feste Leiste mit „Profil“, „Aquarien“, „Gesundheit“, „Social“ und „Mehr“; sie hält Abstand zu abgerundeten Displayecken und zur Gestenleiste. Unter „Mehr“ findest du Artenkatalog, Pflanzen, Hinweise, Nutzerhandbuch, Sprache, Design und Abmelden; ungelesene Hinweise werden an „Mehr“ gezählt.",
       "Wechsle mit der Sprachschaltfläche zwischen Deutsch und Englisch. Über die Design-Schaltfläche wählst du ein helles, dunkles oder systemabhängiges Design; die Schaltfläche nennt die aktuelle Wahl.",
       "Online gleicht die App Daten automatisch mit dem Server ab. Nur im Offline-Modus erscheinen der lokale Datenstand und „Jetzt synchronisieren“. Sobald der Server wieder erreichbar ist, werden diese Elemente ausgeblendet. Offene Änderungen oder Fehler bleiben zur Prüfung sichtbar.",
       "Neue Konten sehen über den Aquarien die Karte „Erste Schritte“. Sie hakt Aquarium anlegen, erste Wasserwerte, Messzyklus und erste Pflege automatisch ab, führt mit „Jetzt erledigen“ direkt zum passenden Bereich und lässt sich mit „Ausblenden“ schließen."
@@ -488,7 +488,7 @@
     "image": "arten",
     "caption": "Suche nach L144: Die Stammkachel nennt die gefundene Unterform.",
     "steps": [
-      "Öffne „Artenkatalog“ in der Kopfzeile oder auf dem Handy „Arten“ in der unteren Leiste.",
+      "Öffne „Artenkatalog“ in der Kopfzeile oder auf dem Handy über „Mehr“.",
       "Schränke die Liste über Wasserart und Kategorie ein oder suche nach Art, Zuchtform oder Handelsname. Passende Formen führen zu einer gemeinsamen Stammkachel. Der Hinweis „Gefundene Unterformen“ nennt die passenden Formen direkt auf der Kachel.",
       "Öffne einen Treffer. Lies Wasseransprüche, Gruppenhinweise, Mindestvolumen, Haltung und Bildnachweise.",
       "Füge eine passende Art bei Bedarf aus ihren Details zu einem Aquarium hinzu oder öffne den zugeordneten Gesundheitsbereich."

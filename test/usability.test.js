@@ -36,10 +36,10 @@ test('Navigation: Tab-Leiste unten mit Hauptzielen, Anmelde-Navigation wird nach
   const bottom = nav.slice(nav.indexOf('class="bottom-nav"'));
   const primary = bottom.slice(0, bottom.indexOf('id="bottom-nav-more"'));
   assert.equal((primary.match(/<a href=/g) || []).length + (primary.match(/<button /g) || []).length, 5, 'Fünf Hauptziele inklusive „Mehr“');
-  assert.deepEqual([...primary.matchAll(/<a href="([^"]+)"/g)].map(match => match[1]), ['#/profile', '#/social', '#/health', '#/species'], 'Reihenfolge: Profil, Social, Gesundheit, Arten, Mehr');
+  assert.deepEqual([...primary.matchAll(/<a href="([^"]+)"/g)].map(match => match[1]), ['#/profile', '#/', '#/health', '#/social'], 'Reihenfolge: Profil, Aquarien, Gesundheit, Social, Mehr');
   assert.match(bottom, /aria-expanded="moreOpen"/);
   const more = bottom.slice(bottom.indexOf('id="bottom-nav-more"'));
-  for (const target of ['#/', '#/plants', '#/notifications', '#/admin']) assert.ok(more.includes(`href="${target}"`), `${target} im Menü „Mehr“`);
+  for (const target of ['#/species', '#/plants', '#/notifications', '#/admin']) assert.ok(more.includes(`href="${target}"`), `${target} im Menü „Mehr“`);
   assert.match(primary, /<button ref="moreButton"[^]*class="notification-count"/, 'Ungelesene Hinweise am Menü „Mehr“');
   assert.match(nav, /key === "Escape"/, 'Menü lässt sich mit Escape schließen');
   const css = read('public/style.css');

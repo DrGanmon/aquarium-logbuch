@@ -33,15 +33,15 @@ async function refreshNotifications() {
     unread.value = result.unreadSocial + result.openWater;
   } catch { /* Den letzten bekannten Zähler bei vorübergehenden Fehlern erhalten. */ }
 }
-// Primary destinations of the bottom tab bar on small screens (profile, social, health, species); everything else lives in "More".
+// Primary destinations of the bottom tab bar on small screens (profile, aquariums, health, social); everything else lives in "More".
 const currentPath = computed(() => route.value.path);
 const section = computed(() => {
   const path = currentPath.value;
   if (path === "/profile") return "profile";
   if (path.startsWith("/social")) return "social";
   if (path.startsWith("/health")) return "health";
-  if (path.startsWith("/species")) return "species";
-  return "more";
+  if (["/species", "/plants", "/notifications", "/admin"].some(prefix => path.startsWith(prefix))) return "more";
+  return "aquariums";
 });
 const moreOpen = ref(false);
 const moreButton = ref<HTMLButtonElement>();
@@ -77,7 +77,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-      <a class="btn small ghost" id="btn-species" href="#/species" :aria-current="section === 'species' ? 'page' : undefined"><Icon name="fish" :size="18" />{{ t("nav.species") }}</a>
+      <a class="btn small ghost" id="btn-species" href="#/species" :aria-current="currentPath.startsWith('/species') ? 'page' : undefined"><Icon name="fish" :size="18" />{{ t("nav.species") }}</a>
       <a class="btn small ghost" href="#/plants" :aria-current="currentPath.startsWith('/plants') ? 'page' : undefined"><Icon name="leaf" :size="18" />{{ t("nav.plants") }}</a>
       <a class="btn small ghost" href="#/health"><Icon name="health" :size="18" />{{ t("nav.health") }}</a>
       <a class="btn small ghost" href="#/social"><Icon name="users" :size="18" />{{ t("social.title") }}</a>
@@ -116,12 +116,12 @@ onBeforeUnmount(() => {
       </button>
   <Teleport to="body"><nav class="bottom-nav" :aria-label="t('nav.mainNav')" data-bottom-nav>
     <a href="#/profile" :aria-current="section === 'profile' ? 'page' : undefined" :title="displayName"><img v-if="avatar" v-server-image class="avatar-small" :src="avatar" alt="" /><Icon v-else name="user" /><span>{{ t("nav.profileShort") }}</span></a>
-    <a href="#/social" :aria-current="section === 'social' ? 'page' : undefined"><Icon name="users" /><span>{{ t("social.title") }}</span></a>
+    <a href="#/" :aria-current="section === 'aquariums' ? 'page' : undefined"><Icon name="home" /><span>{{ t("nav.aquariums") }}</span></a>
     <a href="#/health" :aria-current="section === 'health' ? 'page' : undefined"><Icon name="health" /><span>{{ t("nav.health") }}</span></a>
-    <a href="#/species" :aria-current="section === 'species' ? 'page' : undefined"><Icon name="fish" /><span>{{ t("nav.speciesShort") }}</span></a>
+    <a href="#/social" :aria-current="section === 'social' ? 'page' : undefined"><Icon name="users" /><span>{{ t("social.title") }}</span></a>
     <button ref="moreButton" type="button" :aria-expanded="moreOpen" aria-controls="bottom-nav-more" :class="{ active: section === 'more' }" @click="moreOpen = !moreOpen"><Icon name="more" /><span>{{ t("nav.more") }}</span><span v-if="unread" class="notification-count" aria-hidden="true">{{ unread > 99 ? "99+" : unread }}</span></button>
     <div v-show="moreOpen" id="bottom-nav-more" ref="morePanel" class="bottom-nav-more card">
-      <a href="#/" :aria-current="currentPath === '/' || currentPath.startsWith('/a/') ? 'page' : undefined"><Icon name="home" />{{ t("nav.aquariums") }}</a>
+      <a href="#/species" :aria-current="currentPath.startsWith('/species') ? 'page' : undefined"><Icon name="fish" />{{ t("nav.species") }}</a>
       <a href="#/plants" :aria-current="currentPath.startsWith('/plants') ? 'page' : undefined"><Icon name="leaf" />{{ t("nav.plants") }}</a>
       <a href="#/notifications" :aria-current="currentPath.startsWith('/notifications') ? 'page' : undefined"><Icon name="bell" />{{ t("nav.notifications") }}<span v-if="unread" class="notification-count">{{ unread > 99 ? "99+" : unread }}</span></a>
       <a v-if="user.isAdmin" href="#/admin"><Icon name="admin" />{{ t("nav.admin") }}</a>
