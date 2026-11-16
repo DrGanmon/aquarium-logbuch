@@ -2,6 +2,7 @@ import { reactive, watch, nextTick } from "vue";
 import { session, language, errorMessage } from "../state";
 import { activeOwner, pendingFor } from "../offline-store";
 import { localWorkspace, workspaceFor, enqueueWorkspace, synchronizeWorkspace } from "../offline-workspace";
+import { parseDecimal } from "../../../src/shared/input";
 import type { MeasurementDraftData } from "../../../src/shared/measurement-draft";
 
 export interface MeasurementDraft extends MeasurementDraftData {
@@ -77,7 +78,13 @@ export async function loadMeasurementDrafts() {
       keep.add(id);
       const current = measurementDrafts[id];
       const completed = Object.fromEntries(Object.entries(current?.completed || {}).filter(([key, end]) => body.timers[key] === end));
-      const next = { ...body, aquariumId: id, aquariumName: aquarium.name, completed };
+      const values = { ...body.values };
+      // Keep unfinished input such as "7," while the stored draft holds the same number ("7").
+      for (const [key, text] of Object.entries(current?.values || {})) {
+        const stored = values[key], number = parseDecimal(text);
+        if (stored !== undefined && stored !== text && number !== null && number === parseDecimal(stored)) values[key] = text;
+      }
+      const next = { ...body, values, aquariumId: id, aquariumName: aquarium.name, completed };
       if (current) Object.assign(current, next);else measurementDrafts[id] = next;
     }
     for (const id of Object.keys(measurementDrafts)) if (!keep.has(id) && !dirty.has(id)) delete measurementDrafts[id];

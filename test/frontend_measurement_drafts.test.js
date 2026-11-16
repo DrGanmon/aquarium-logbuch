@@ -17,6 +17,7 @@ function setup() {
   }).outputText;
   scope.run(() => new Function('require', 'exports', 'window', 'Event', code)(id => {
     if (id === 'vue') return require(id);
+    if (id === '../../../src/shared/input') return require('../dist/backend/src/shared/input');
     if (id === '../state') return { session, language, errorMessage: error => error.message };
     if (id === '../offline-store') return { activeOwner: async () => owner, pendingFor: async () => [] };
     if (id === '../offline-workspace') return {
@@ -94,4 +95,21 @@ test('Schnelle Folgeeingaben behalten ihre Operationsabhängigkeit während ein 
   assert.equal(app.commands[0].draftBase, null);
   assert.equal(app.commands[1].draftBase.values.ph, '7,2');
   assert.equal(app.commands[1].body.values.ph, '6,5');
+});
+
+test('Unfertige Dezimaleingaben mit Komma oder Punkt bleiben beim Geräteabgleich erhalten', async t => {
+  const app = setup();t.after(() => app.scope.stop());
+  app.session.user = { id: 1 };await app.ready();
+  app.measurementDrafts[10] = draft(10);app.measurementDrafts[10].values.ph = '7';
+  await app.flushMeasurementDrafts();
+  for (const text of ['7,', '7.']) {
+    app.measurementDrafts[10].values.ph = text;
+    // The stored draft still holds the numerically equal "7", e.g. after a merge on the server.
+    app.snapshots[1].responses['/aquariums/10/measurement-draft'].values.ph = '7';
+    await app.events['aquarium-synchronized']();await new Promise(resolve => setTimeout(resolve, 0));
+    assert.equal(app.measurementDrafts[10].values.ph, text);
+  }
+  app.snapshots[1].responses['/aquariums/10/measurement-draft'].values.ph = '7,4';
+  await app.events['aquarium-synchronized']();await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(app.measurementDrafts[10].values.ph, '7,4', 'Different values from other devices are still applied');
 });
